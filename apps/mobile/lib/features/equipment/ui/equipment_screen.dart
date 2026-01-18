@@ -745,10 +745,34 @@ class _AddEquipmentSheetState extends ConsumerState<_AddEquipmentSheet> {
                   return;
                 }
 
-                // TODO: Call repository to create equipment
-                Navigator.pop(context);
-                ref.invalidate(equipmentListProvider);
-                ref.invalidate(equipmentStatsProvider);
+                // Call repository to create equipment
+                final controller = ref.read(equipmentControllerProvider.notifier);
+                final success = await controller.createEquipment(
+                  name: _nameController.text.trim(),
+                  type: _selectedType,
+                  serialNumber: _serialController.text.isNotEmpty
+                      ? _serialController.text.trim()
+                      : null,
+                );
+
+                if (context.mounted) {
+                  if (success) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('تم إضافة المعدة بنجاح'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('فشل في إضافة المعدة'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),

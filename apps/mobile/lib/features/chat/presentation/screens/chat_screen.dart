@@ -12,6 +12,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/theme.dart';
+import '../../data/models/message_model.dart';
 import '../providers/chat_provider.dart';
 import '../../widgets/message_bubble.dart';
 import '../../widgets/chat_input.dart';
@@ -294,6 +295,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     widget.conversationId,
                     isTyping: isTyping,
                   );
+            },
+            onFileSelected: (filePath, fileName, fileSize) {
+              ref.read(chatProvider.notifier).sendMessage(
+                    widget.conversationId,
+                    content: fileName,
+                    type: MessageType.file,
+                    attachmentUrl: filePath,
+                    metadata: {
+                      'fileName': fileName,
+                      'fileSize': fileSize,
+                      'filePath': filePath,
+                    },
+                  );
+
+              // Scroll to bottom
+              _scrollToBottom();
             },
           ),
         ],

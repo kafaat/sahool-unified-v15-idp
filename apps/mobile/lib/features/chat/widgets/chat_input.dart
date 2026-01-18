@@ -9,17 +9,23 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/config/theme.dart';
 
 class ChatInput extends StatefulWidget {
   final Function(String message) onSendMessage;
   final Function(bool isTyping) onTypingChanged;
+  final Function(String imagePath)? onImageCaptured;
+  final Function(String filePath, String fileName, int fileSize)? onFileSelected;
   final String? hint;
 
   const ChatInput({
     super.key,
     required this.onSendMessage,
     required this.onTypingChanged,
+    this.onImageCaptured,
+    this.onFileSelected,
     this.hint,
   });
 
@@ -30,8 +36,10 @@ class ChatInput extends StatefulWidget {
 class _ChatInputState extends State<ChatInput> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  final ImagePicker _imagePicker = ImagePicker();
   bool _isTyping = false;
   Timer? _typingTimer;
+  bool _isCapturingImage = false;
 
   @override
   void initState() {
@@ -87,6 +95,154 @@ class _ChatInputState extends State<ChatInput> {
     if (_isTyping) {
       _isTyping = false;
       widget.onTypingChanged(false);
+    }
+  }
+
+  /// Pick image from gallery
+  /// اختيار صورة من المعرض
+  Future<void> _pickImageFromGallery() async {
+    if (_isCapturingImage) return;
+
+    setState(() {
+      _isCapturingImage = true;
+    });
+
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+        maxWidth: 1920,
+        maxHeight: 1080,
+      );
+
+      if (image != null && mounted) {
+        widget.onImageCaptured?.call(image.path);
+      }
+    } catch (e) {
+      if (mounted) {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString().contains('photo_access_denied')
+                  ? 'يرجى السماح بالوصول إلى الصور من الإعدادات'
+                  : 'حدث خطأ أثناء اختيار الصورة',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCapturingImage = false;
+        });
+      }
+    }
+  }
+
+  /// Capture photo from camera
+  /// التقاط صورة من الكاميرا
+  Future<void> _captureFromCamera() async {
+    if (_isCapturingImage) return;
+
+    setState(() {
+      _isCapturingImage = true;
+    });
+
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 85,
+        maxWidth: 1920,
+        maxHeight: 1080,
+      );
+
+      if (image != null && mounted) {
+        widget.onImageCaptured?.call(image.path);
+      }
+    } catch (e) {
+      if (mounted) {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString().contains('camera_access_denied')
+                  ? 'يرجى السماح بالوصول إلى الكاميرا من الإعدادات'
+                  : 'حدث خطأ أثناء التقاط الصورة',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCapturingImage = false;
+        });
+      }
+    }
+  }
+
+  /// Maximum file size: 10 MB
+  /// الحد الأقصى لحجم الملف: 10 ميجابايت
+  static const int _maxFileSizeBytes = 10 * 1024 * 1024;
+
+  /// Pick file from device
+  /// اختيار ملف من الجهاز
+  Future<void> _pickFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv'],
+        withData: false,
+        withReadStream: false,
+      );
+
+      if (result != null && result.files.isNotEmpty && mounted) {
+        final file = result.files.first;
+        final filePath = file.path;
+        final fileName = file.name;
+        final fileSize = file.size;
+
+        // Validate file path
+        if (filePath == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('لا يمكن الوصول إلى الملف'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        // Check file size limit
+        if (fileSize > _maxFileSizeBytes) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('حجم الملف يتجاوز الحد الأقصى (10 ميجابايت)'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        // Call the callback with file details
+        widget.onFileSelected?.call(filePath, fileName, fileSize);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString().contains('permission')
+                  ? 'يرجى السماح بالوصول إلى الملفات من الإعدادات'
+                  : 'حدث خطأ أثناء اختيار الملف',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -246,7 +402,7 @@ class _ChatInputState extends State<ChatInput> {
                   color: Colors.blue,
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: Implement image picker
+                    _pickImageFromGallery();
                   },
                 ),
                 _buildAttachmentOption(
@@ -255,7 +411,7 @@ class _ChatInputState extends State<ChatInput> {
                   color: Colors.purple,
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: Implement camera
+                    _captureFromCamera();
                   },
                 ),
                 _buildAttachmentOption(
@@ -291,7 +447,7 @@ class _ChatInputState extends State<ChatInput> {
                   color: Colors.teal,
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: Implement file picker
+                    _pickFile();
                   },
                 ),
               ],

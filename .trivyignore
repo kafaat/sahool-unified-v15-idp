@@ -1,2 +1,8 @@
 # Exclude archived/legacy code from security scans
 archive/
+
+# Exclude Helm charts from filesystem scans
+# Helm charts have external dependencies that are fetched at deploy time
+# Trivy cannot render templates without these dependencies
+# Container images are scanned separately in the container-tests workflow
+helm/

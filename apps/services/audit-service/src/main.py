@@ -762,4 +762,7 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", 8114))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    # Use HOST env var for binding; defaults to 127.0.0.1 for local dev security
+    # In containers/k8s, set HOST=0.0.0.0 explicitly for external access
+    host = os.getenv("HOST", "127.0.0.1")
+    uvicorn.run(app, host=host, port=port)

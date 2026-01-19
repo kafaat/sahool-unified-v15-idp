@@ -463,14 +463,68 @@ export class AuditLogger {
   }
 
   /**
+   * Allowed base directory for fallback audit files
+   * This prevents path traversal attacks by ensuring all writes stay within this directory
+   */
+  private static readonly FALLBACK_BASE_DIR =
+    process.env.AUDIT_FALLBACK_DIR || "/var/log/sahool/audit";
+
+  /**
+   * Validate and sanitize fallback file path to prevent path traversal attacks
+   * @returns Sanitized absolute path or null if path is invalid
+   */
+  private sanitizeFallbackPath(configuredPath: string): string | null {
+    try {
+      // Resolve to absolute path
+      const resolvedPath = path.resolve(
+        AuditLogger.FALLBACK_BASE_DIR,
+        path.basename(configuredPath),
+      );
+
+      // Ensure the resolved path is within the allowed base directory
+      const normalizedBase = path.normalize(AuditLogger.FALLBACK_BASE_DIR);
+      const normalizedResolved = path.normalize(resolvedPath);
+
+      if (!normalizedResolved.startsWith(normalizedBase + path.sep)) {
+        this.logger.error(
+          `Path traversal attempt detected: ${configuredPath} resolved outside allowed directory`,
+        );
+        return null;
+      }
+
+      // Additional check: reject paths with directory traversal sequences
+      if (configuredPath.includes("..") || configuredPath.includes("\0")) {
+        this.logger.error(
+          `Invalid path detected (traversal or null byte): ${configuredPath}`,
+        );
+        return null;
+      }
+
+      return resolvedPath;
+    } catch (error) {
+      this.logger.error(
+        `Path sanitization failed: ${(error as Error).message}`,
+      );
+      return null;
+    }
+  }
+
+  /**
    * Write audit event to fallback file (append-only)
    */
   private async writeToFallbackFile(
     event: AuditEvent,
     error: Error,
   ): Promise<void> {
-    const fallbackPath = this.config.fallbackConfig?.fallbackFilePath;
-    if (!fallbackPath) return;
+    const configuredPath = this.config.fallbackConfig?.fallbackFilePath;
+    if (!configuredPath) return;
+
+    // Sanitize and validate the path to prevent path traversal
+    const fallbackPath = this.sanitizeFallbackPath(configuredPath);
+    if (!fallbackPath) {
+      this.logger.error("Fallback file path validation failed, skipping write");
+      return;
+    }
 
     try {
       const fallbackEntry = {

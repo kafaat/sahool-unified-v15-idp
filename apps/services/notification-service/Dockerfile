@@ -1,7 +1,7 @@
 # SAHOOL Notification Service v15.3
 # خدمة الإشعارات المخصصة
 
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="notification-service"

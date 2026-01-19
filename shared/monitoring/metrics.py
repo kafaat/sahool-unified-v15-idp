@@ -37,7 +37,7 @@ class MetricsRegistry:
         self._histograms: dict[str, dict] = {}
         self._start_time = time.time()
 
-    def counter(self, name: str, description: str, labels: dict | None = None) -> "Counter":
+    def counter(self, name: str, description: str, labels: dict | None = None) -> Counter:
         """Create or get a counter metric"""
         key = self._make_key(name, labels)
         if key not in self._counters:
@@ -49,7 +49,7 @@ class MetricsRegistry:
             }
         return Counter(self._counters[key])
 
-    def gauge(self, name: str, description: str, labels: dict | None = None) -> "Gauge":
+    def gauge(self, name: str, description: str, labels: dict | None = None) -> Gauge:
         """Create or get a gauge metric"""
         key = self._make_key(name, labels)
         if key not in self._gauges:
@@ -67,7 +67,7 @@ class MetricsRegistry:
         description: str,
         buckets: list[float] | None = None,
         labels: dict | None = None,
-    ) -> "Histogram":
+    ) -> Histogram:
         """Create or get a histogram metric"""
         key = self._make_key(name, labels)
         if key not in self._histograms:
@@ -241,7 +241,7 @@ def get_registry(service_name: str = "sahool") -> MetricsRegistry:
     return _registry
 
 
-def setup_metrics(app: "FastAPI", service_name: str = "sahool"):
+def setup_metrics(app: FastAPI, service_name: str = "sahool"):
     """Setup metrics endpoint and middleware for FastAPI app
 
     Note: Requires FastAPI to be installed. Will raise RuntimeError if not available.
@@ -276,7 +276,7 @@ def setup_metrics(app: "FastAPI", service_name: str = "sahool"):
     )
 
     @app.middleware("http")
-    async def metrics_middleware(request: "Request", call_next: Callable) -> "Response":
+    async def metrics_middleware(request: Request, call_next: Callable) -> Response:
         """Middleware to collect request metrics"""
         # Skip metrics endpoint
         if request.url.path == "/metrics":

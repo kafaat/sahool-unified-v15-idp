@@ -26,7 +26,7 @@ License: MIT
 import logging
 import time
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 from typing import Any
 
 import numpy as np

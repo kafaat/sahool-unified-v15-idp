@@ -5,7 +5,7 @@ SAHOOL Alert Service - Usage Examples
 هذا الملف يوضح كيفية استخدام repository layer
 """
 
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from uuid import uuid4
 
 from src import repository

@@ -353,7 +353,7 @@ def test_rate_limiting():
 
         # Test stats
         stats = get_service_call_stats("advisory-service", "notification-service")
-        print(f"✓ Service call stats retrieved")
+        print("✓ Service call stats retrieved")
         print(f"  Recent calls: {stats['recent_call_count']}")
         print(f"  Success rate: {stats['success_rate']:.0%}")
 

@@ -9,7 +9,7 @@ anomaly detection, and security monitoring.
 import json
 import logging
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from enum import Enum
 from typing import Any
 

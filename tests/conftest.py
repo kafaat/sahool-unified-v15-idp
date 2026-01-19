@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Generator
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from unittest.mock import MagicMock
 
 import pytest
@@ -116,8 +116,8 @@ def test_principal(test_user_id, test_tenant_id, test_roles, test_scopes) -> dic
         "tid": test_tenant_id,
         "roles": test_roles,
         "scopes": test_scopes,
-        "exp": datetime.now(UTC) + timedelta(hours=1),
-        "iat": datetime.now(UTC),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1),
+        "iat": datetime.now(timezone.utc),
     }
 
 
@@ -129,8 +129,8 @@ def admin_principal(test_user_id, test_tenant_id, admin_roles) -> dict:
         "tid": test_tenant_id,
         "roles": admin_roles,
         "scopes": [],
-        "exp": datetime.now(UTC) + timedelta(hours=1),
-        "iat": datetime.now(UTC),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1),
+        "iat": datetime.now(timezone.utc),
     }
 
 
@@ -177,7 +177,7 @@ def sample_operation_data(test_tenant_id) -> dict:
         "tenant_id": test_tenant_id,
         "field_id": "field-123",
         "operation_type": "irrigation",
-        "scheduled_date": datetime.now(UTC).isoformat(),
+        "scheduled_date": datetime.now(timezone.utc).isoformat(),
         "notes": "Scheduled irrigation",
     }
 

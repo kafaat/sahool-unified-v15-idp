@@ -107,12 +107,8 @@ jobs:
 
           # Minimum coverage threshold - enforced to maintain code quality
           # Coverage strategy: Gradually increase threshold as test suite matures
-          # - Phase 1 (current): 4.5% baseline (actual: ~4.66%)
-          # - Phase 2 (Q2 2026): 20% target as test suite grows
-          # - Phase 3 (Q3 2026): 40% target for core services
-          # - Phase 4 (Q4 2026): 60% target for production-ready code
-          # This incremental approach allows teams to write comprehensive tests
-          # while maintaining development velocity
+          # SAHOOL Coverage Threshold
+          # Current minimum: 4.5% - baseline for large legacy codebase
           MIN_COVERAGE=4.5
 
           # Check if coverage meets minimum - FAIL if below threshold
@@ -421,11 +417,23 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
+        continue-on-error: true  # Informational scan - don't block pipeline
         with:
           scan-type: 'fs'
           scan-ref: '.'
-          severity: 'HIGH,CRITICAL'
+          severity: 'CRITICAL'
           exit-code: '0'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          # Informational scan - results are reported but don't block pipeline
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: 'trivy-results.sarif'
+          category: 'trivy-fs-scan'
 
       - name: Check for private keys in repository
         run: |

@@ -6,7 +6,7 @@ JWT-based authentication for microservices communication
 import logging
 import uuid
 from collections import defaultdict
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from typing import Optional
 
 import jwt
@@ -185,7 +185,7 @@ class ServiceCallAuditLog:
         target_service: str,
         jti: str,
         success: bool,
-        error_message: Optional[str] = None,
+        error_message: str | None = None,
     ) -> None:
         """
         Log a service-to-service call.
@@ -722,7 +722,7 @@ def log_service_call(
     target_service: str,
     jti: str,
     success: bool,
-    error_message: Optional[str] = None,
+    error_message: str | None = None,
 ) -> None:
     """
     Log a service-to-service call for audit trail.

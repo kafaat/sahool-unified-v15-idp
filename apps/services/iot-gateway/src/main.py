@@ -9,7 +9,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 
 from fastapi import FastAPI, HTTPException, Query
 

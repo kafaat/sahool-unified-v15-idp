@@ -20,6 +20,9 @@ import {
  * Default alert rules for common security patterns
  */
 const DEFAULT_ALERT_RULES: AlertRule[] = [
+  // ═══════════════════════════════════════════════════════════════════════════
+  // AUTHENTICATION & ACCESS CONTROL RULES
+  // ═══════════════════════════════════════════════════════════════════════════
   {
     name: "multiple_failed_logins",
     description: "Multiple failed login attempts from same IP",
@@ -40,32 +43,6 @@ const DEFAULT_ALERT_RULES: AlertRule[] = [
     severity: AuditSeverity.CRITICAL,
   },
   {
-    name: "financial_transaction_failure",
-    description: "Financial transaction failed",
-    conditions: [
-      { field: "category", operator: "equals", value: AuditCategory.FINANCIAL },
-      { field: "success", operator: "equals", value: false },
-    ],
-    severity: AuditSeverity.ERROR,
-  },
-  {
-    name: "data_deletion",
-    description: "Data deletion event",
-    conditions: [
-      { field: "action", operator: "contains", value: "delete" },
-      { field: "category", operator: "equals", value: AuditCategory.DATA },
-    ],
-    severity: AuditSeverity.WARNING,
-  },
-  {
-    name: "critical_error",
-    description: "Critical severity event occurred",
-    conditions: [
-      { field: "severity", operator: "equals", value: AuditSeverity.CRITICAL },
-    ],
-    severity: AuditSeverity.CRITICAL,
-  },
-  {
     name: "unauthorized_access",
     description: "Unauthorized access attempt",
     conditions: [
@@ -75,11 +52,33 @@ const DEFAULT_ALERT_RULES: AlertRule[] = [
     severity: AuditSeverity.WARNING,
   },
   {
-    name: "security_config_change",
-    description: "Security configuration changed",
+    name: "concurrent_session_detected",
+    description: "Same user logged in from multiple IP addresses simultaneously",
     conditions: [
+      { field: "action", operator: "equals", value: "auth.concurrent_session" },
       { field: "category", operator: "equals", value: AuditCategory.SECURITY },
-      { field: "action", operator: "contains", value: "update" },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+  {
+    name: "session_hijack_attempt",
+    description: "Potential session hijacking attempt detected",
+    conditions: [
+      { field: "action", operator: "equals", value: "auth.session_hijack" },
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DATA SECURITY RULES
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    name: "data_deletion",
+    description: "Data deletion event",
+    conditions: [
+      { field: "action", operator: "contains", value: "delete" },
+      { field: "category", operator: "equals", value: AuditCategory.DATA },
     ],
     severity: AuditSeverity.WARNING,
   },
@@ -91,6 +90,189 @@ const DEFAULT_ALERT_RULES: AlertRule[] = [
       { field: "category", operator: "equals", value: AuditCategory.DATA },
     ],
     severity: AuditSeverity.INFO,
+  },
+  {
+    name: "sensitive_field_access",
+    description: "Access to sensitive data fields (PII, financial, medical)",
+    conditions: [
+      { field: "action", operator: "contains", value: "sensitive" },
+      { field: "category", operator: "equals", value: AuditCategory.DATA },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+  {
+    name: "database_schema_change",
+    description: "Database schema modification detected",
+    conditions: [
+      { field: "action", operator: "matches", value: "^db\\.(alter|drop|truncate)" },
+      { field: "category", operator: "equals", value: AuditCategory.DATA },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+  {
+    name: "bulk_record_modification",
+    description: "Bulk record modification (>100 records) detected",
+    conditions: [
+      { field: "action", operator: "contains", value: "bulk_update" },
+      { field: "category", operator: "equals", value: AuditCategory.DATA },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CONFIGURATION & SECURITY RULES
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    name: "security_config_change",
+    description: "Security configuration changed",
+    conditions: [
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+      { field: "action", operator: "contains", value: "update" },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+  {
+    name: "role_permission_change",
+    description: "User role or permission change without approval workflow",
+    conditions: [
+      { field: "action", operator: "matches", value: "^(role|permission)\\.(create|update|delete)" },
+      { field: "category", operator: "equals", value: AuditCategory.ADMIN },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+  {
+    name: "api_key_created",
+    description: "New API key created",
+    conditions: [
+      { field: "action", operator: "equals", value: "api_key.create" },
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+    ],
+    severity: AuditSeverity.INFO,
+  },
+  {
+    name: "api_key_expiration_warning",
+    description: "API key approaching expiration",
+    conditions: [
+      { field: "action", operator: "equals", value: "api_key.expiration_warning" },
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+  {
+    name: "encryption_key_rotation",
+    description: "Encryption key rotation event",
+    conditions: [
+      { field: "action", operator: "equals", value: "encryption.key_rotation" },
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+    ],
+    severity: AuditSeverity.INFO,
+  },
+  {
+    name: "encryption_key_rotation_overdue",
+    description: "Encryption key rotation is overdue",
+    conditions: [
+      { field: "action", operator: "equals", value: "encryption.rotation_overdue" },
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // FINANCIAL & COMPLIANCE RULES
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    name: "financial_transaction_failure",
+    description: "Financial transaction failed",
+    conditions: [
+      { field: "category", operator: "equals", value: AuditCategory.FINANCIAL },
+      { field: "success", operator: "equals", value: false },
+    ],
+    severity: AuditSeverity.ERROR,
+  },
+  {
+    name: "high_value_transaction",
+    description: "High-value financial transaction detected",
+    conditions: [
+      { field: "action", operator: "contains", value: "transaction.high_value" },
+      { field: "category", operator: "equals", value: AuditCategory.FINANCIAL },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+  {
+    name: "compliance_violation",
+    description: "Compliance policy violation detected",
+    conditions: [
+      { field: "action", operator: "contains", value: "compliance.violation" },
+      { field: "category", operator: "equals", value: AuditCategory.COMPLIANCE },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+  {
+    name: "data_retention_breach",
+    description: "Data retention policy breach detected",
+    conditions: [
+      { field: "action", operator: "equals", value: "compliance.retention_breach" },
+      { field: "category", operator: "equals", value: AuditCategory.COMPLIANCE },
+    ],
+    severity: AuditSeverity.ERROR,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SYSTEM & INFRASTRUCTURE RULES
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    name: "critical_error",
+    description: "Critical severity event occurred",
+    conditions: [
+      { field: "severity", operator: "equals", value: AuditSeverity.CRITICAL },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+  {
+    name: "backup_verification_failure",
+    description: "Backup verification failed",
+    conditions: [
+      { field: "action", operator: "equals", value: "backup.verification_failed" },
+      { field: "category", operator: "equals", value: AuditCategory.SYSTEM },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+  {
+    name: "backup_creation_failure",
+    description: "Backup creation failed",
+    conditions: [
+      { field: "action", operator: "equals", value: "backup.creation_failed" },
+      { field: "category", operator: "equals", value: AuditCategory.SYSTEM },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+  {
+    name: "audit_storage_failure",
+    description: "Audit log storage failure detected",
+    conditions: [
+      { field: "action", operator: "equals", value: "audit_storage_failure" },
+      { field: "category", operator: "equals", value: AuditCategory.SYSTEM },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+  {
+    name: "service_health_degraded",
+    description: "Service health degradation detected",
+    conditions: [
+      { field: "action", operator: "equals", value: "service.health_degraded" },
+      { field: "category", operator: "equals", value: AuditCategory.SYSTEM },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+  {
+    name: "rate_limit_exceeded",
+    description: "API rate limit exceeded",
+    conditions: [
+      { field: "action", operator: "equals", value: "api.rate_limit_exceeded" },
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+    ],
+    severity: AuditSeverity.WARNING,
+    batchSimilar: true,
   },
 ];
 

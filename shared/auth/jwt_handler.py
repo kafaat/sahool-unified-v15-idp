@@ -4,7 +4,7 @@ Token creation and verification using PyJWT
 """
 
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 
 import jwt
 from jwt import PyJWTError
@@ -194,6 +194,25 @@ def verify_token(token: str) -> TokenPayload:
         raise AuthException(AuthErrors.INVALID_AUDIENCE)
     except PyJWTError:
         raise AuthException(AuthErrors.INVALID_TOKEN)
+
+
+# Alias for backwards compatibility
+def decode_token(token: str) -> TokenPayload:
+    """
+    Decode and verify a JWT token.
+
+    This is an alias for verify_token() provided for backwards compatibility.
+
+    Args:
+        token: JWT token string
+
+    Returns:
+        TokenPayload object with decoded claims
+
+    Raises:
+        AuthException: If token is invalid, expired, or malformed
+    """
+    return verify_token(token)
 
 
 def _get_debug_decode_options() -> dict:

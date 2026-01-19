@@ -12,7 +12,7 @@ Usage:
 import argparse
 import io
 import sys
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
@@ -107,7 +107,7 @@ def run_audit(repo_root: Path, config: dict) -> dict:
 
     return {
         "project": config.get("project", {}),
-        "timestamp": datetime.now(datetime.UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "health_score": round(health_score, 1),
         "stats": stats,
         "findings": sorted(

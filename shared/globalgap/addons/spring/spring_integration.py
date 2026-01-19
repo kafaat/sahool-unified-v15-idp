@@ -253,7 +253,6 @@ class SpringIntegration:
             This is a placeholder. In production, this would make HTTP requests
             to the irrigation-smart service API.
         """
-        from datetime import timedelta
 
         # Generate realistic mock irrigation data for the specified period
         usage_records = self._generate_mock_usage_records(start_date, end_date)

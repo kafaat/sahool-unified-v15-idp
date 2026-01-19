@@ -6,7 +6,7 @@ Tests for Redis-based token revocation storage and verification
 import json
 import os
 import time
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest

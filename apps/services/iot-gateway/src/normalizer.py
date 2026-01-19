@@ -5,7 +5,7 @@ Converts various sensor payloads to standard format
 
 import json
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 
 
 @dataclass

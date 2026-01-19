@@ -118,7 +118,7 @@ class WeatherData(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True)
 
-    date: date = Field(..., description="التاريخ - Date")
+    observation_date: date = Field(..., alias="date", description="التاريخ - Date")
 
     # درجة الحرارة - Temperature (°C)
     temp_max: float = Field(..., ge=-10, le=60, description="أقصى درجة حرارة - Max temperature")

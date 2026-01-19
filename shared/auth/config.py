@@ -86,8 +86,8 @@ class JWTConfig:
             JWTConfigError: If any critical configuration is invalid
         """
         env = os.getenv("ENVIRONMENT", "development")
-        errors: List[str] = []
-        warnings: List[str] = []
+        errors: list[str] = []
+        warnings: list[str] = []
 
         # Validate JWT Secret
         if not cls.JWT_SECRET:
@@ -167,7 +167,7 @@ class JWTConfig:
         logger.info("JWT Configuration validation passed")
 
     @classmethod
-    def validate_with_report(cls) -> Dict[str, bool | List[str]]:
+    def validate_with_report(cls) -> dict[str, bool | list[str]]:
         """
         Validate JWT configuration and return detailed report.
 
@@ -179,8 +179,8 @@ class JWTConfig:
                 - 'summary': Summary of configuration
         """
         env = os.getenv("ENVIRONMENT", "development")
-        errors: List[str] = []
-        warnings: List[str] = []
+        errors: list[str] = []
+        warnings: list[str] = []
 
         # Validate JWT Secret
         if not cls.JWT_SECRET:

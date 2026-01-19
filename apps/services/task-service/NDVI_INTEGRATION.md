@@ -460,7 +460,13 @@ INFO - Notification sent for task task_a1b2c3d4 to user field_manager
    # For now, return mock suggestions based on common scenarios
    ```
 
-3. **Database Migration**: Move from in-memory storage to PostgreSQL (see main.py TODO at line 181)
+3. **Database Migration**: ~~Move from in-memory storage to PostgreSQL~~ **DONE**
+
+   The task-service now uses PostgreSQL via SQLAlchemy with the `TaskRepository` pattern:
+   - All endpoints migrated from in-memory `tasks_db` to `TaskRepository`
+   - Full audit trail with `TaskHistory` table
+   - Transaction handling with rollback support
+   - Multi-instance deployment ready
 
 4. **Advanced Analytics**: Integrate ML models for better task suggestions
 

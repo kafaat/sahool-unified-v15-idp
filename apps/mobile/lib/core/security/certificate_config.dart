@@ -312,12 +312,29 @@ class CertificateRotationHelper {
       }
 
       // Check for pins with placeholder values
+      // These are known placeholder SHA-256 hashes that MUST be replaced
+      const placeholderHashes = {
+        'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', // Empty string SHA-256
+        '2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae', // "foo" SHA-256
+        '3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d', // "bar" SHA-256
+        'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', // "abc" SHA-256
+        'fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9', // "baz" SHA-256
+        '6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090', // "test" SHA-256
+        '8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61', // Common test hash
+        '88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589', // "staging" placeholder
+        'cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50', // "backup" placeholder
+        '9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca7', // "websocket" placeholder
+        '785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09', // "ws-backup" placeholder
+      };
+
       for (final pin in domainPins) {
-        if (pin.value.contains('AAAA') ||
+        if (placeholderHashes.contains(pin.value) ||
+            pin.value.contains('AAAA') ||
             pin.value.contains('BBBB') ||
             pin.value.contains('REPLACE')) {
           issues.add(
-            'Domain $domain has placeholder certificate fingerprints - replace with actual values',
+            'CRITICAL: Domain $domain has placeholder certificate fingerprints - '
+            'replace with actual values before production deployment',
           );
           break;
         }

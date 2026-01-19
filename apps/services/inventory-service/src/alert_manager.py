@@ -6,7 +6,7 @@ Manages low stock alerts, expiring items, and reorder notifications
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import UTC, date, datetime, timedelta
+from datetime import timezone, date, datetime, timedelta, UTC
 from enum import Enum
 
 logger = logging.getLogger(__name__)

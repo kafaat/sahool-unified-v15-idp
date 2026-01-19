@@ -21,7 +21,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import UTC, date, datetime, timedelta
+from datetime import timezone, date, datetime, timedelta, UTC
 from decimal import Decimal
 from enum import Enum
 from pathlib import Path

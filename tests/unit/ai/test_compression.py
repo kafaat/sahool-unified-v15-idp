@@ -15,7 +15,7 @@ Updated: January 2025
 """
 
 import pytest
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 
 from shared.ai.context_engineering.compression import (
     ContextCompressor,

@@ -253,21 +253,23 @@ class SpringIntegration:
             This is a placeholder. In production, this would make HTTP requests
             to the irrigation-smart service API.
         """
-        # TODO: Implement actual API integration
-        # For now, return structure that would be expected from API
+
+        # Generate realistic mock irrigation data for the specified period
+        usage_records = self._generate_mock_usage_records(start_date, end_date)
+        sensor_readings = self._generate_mock_sensor_readings(start_date, end_date) if include_sensor_data else None
+        weather_data = self._generate_mock_weather_data(start_date, end_date)
+        irrigation_schedules = self._generate_mock_irrigation_schedules(start_date, end_date)
+        system_status = self._generate_mock_system_status()
 
         return {
             "farm_id": self.farm_id,
             "period_start": start_date.isoformat(),
             "period_end": end_date.isoformat(),
-            "usage_records": [],
-            "sensor_readings": [] if include_sensor_data else None,
-            "weather_data": {},
-            "irrigation_schedules": [],
-            "system_status": {
-                "active_zones": 0,
-                "maintenance_alerts": [],
-            },
+            "usage_records": usage_records,
+            "sensor_readings": sensor_readings,
+            "weather_data": weather_data,
+            "irrigation_schedules": irrigation_schedules,
+            "system_status": system_status,
         }
 
     def calculate_water_footprint(
@@ -330,6 +332,236 @@ class SpringIntegration:
             global_benchmark_m3_per_kg=benchmarks.get("global"),
             performance_vs_benchmark=performance,
         )
+
+    # ==================== Mock Data Generation Methods ====================
+
+    def _generate_mock_usage_records(self, start_date: date, end_date: date) -> list[dict[str, Any]]:
+        """Generate realistic mock water usage records for the period"""
+        from datetime import timedelta
+        import random
+
+        records = []
+        current_date = start_date
+        record_counter = 1
+
+        # Define farm irrigation patterns (realistic for Yemen agriculture)
+        water_sources = [
+            {"source_id": "WELL-001", "name": "North Field Well"},
+            {"source_id": "WELL-002", "name": "South Field Well"},
+            {"source_id": "CANAL-001", "name": "Main Canal"},
+        ]
+
+        fields = [
+            {"field_id": "FIELD-N1", "crop": "Tomatoes", "area": 2.5, "method": "DRIP"},
+            {"field_id": "FIELD-N2", "crop": "Cucumbers", "area": 1.8, "method": "DRIP"},
+            {"field_id": "FIELD-S1", "crop": "Wheat", "area": 5.0, "method": "SPRINKLER"},
+            {"field_id": "FIELD-S2", "crop": "Date Palm", "area": 3.5, "method": "SUBSURFACE"},
+        ]
+
+        while current_date <= end_date:
+            # Generate 2-3 irrigation events per day (realistic for Yemen)
+            num_events = random.randint(1, 3)
+
+            for _ in range(num_events):
+                source = random.choice(water_sources)
+                field = random.choice(fields)
+
+                # Realistic water volume based on field size and crop
+                if field["crop"] == "Date Palm":
+                    volume = random.uniform(80, 150)
+                    duration = random.uniform(3, 6)
+                elif field["crop"] in ["Tomatoes", "Cucumbers"]:
+                    volume = random.uniform(60, 120)
+                    duration = random.uniform(4, 8)
+                else:  # Wheat, others
+                    volume = random.uniform(100, 200)
+                    duration = random.uniform(5, 10)
+
+                usage_id = f"WU-{current_date.strftime('%Y%m%d')}-{record_counter:04d}"
+                flow_rate = volume / duration if duration > 0 else 0
+
+                records.append({
+                    "usage_id": usage_id,
+                    "source_id": source["source_id"],
+                    "source_name": source["name"],
+                    "field_id": field["field_id"],
+                    "crop_type": field["crop"],
+                    "measurement_date": current_date.isoformat(),
+                    "volume_cubic_meters": round(volume, 2),
+                    "crop_area_hectares": field["area"],
+                    "irrigation_method": field["method"],
+                    "duration_hours": round(duration, 2),
+                    "flow_rate_m3_per_hour": round(flow_rate, 2),
+                })
+                record_counter += 1
+
+            current_date += timedelta(days=1)
+
+        return records
+
+    def _generate_mock_sensor_readings(self, start_date: date, end_date: date) -> list[dict[str, Any]]:
+        """Generate realistic mock soil moisture sensor readings"""
+        from datetime import timedelta
+        import random
+
+        readings = []
+        current_date = start_date
+        sensor_counter = 1
+
+        # Define sensor locations (one per field)
+        sensors = [
+            {"sensor_id": "SM-001", "field_id": "FIELD-N1", "depth_cm": 20},
+            {"sensor_id": "SM-002", "field_id": "FIELD-N2", "depth_cm": 20},
+            {"sensor_id": "SM-003", "field_id": "FIELD-S1", "depth_cm": 30},
+            {"sensor_id": "SM-004", "field_id": "FIELD-S2", "depth_cm": 40},
+        ]
+
+        while current_date <= end_date:
+            # Generate 2 readings per day (morning and evening)
+            for hour in [6, 18]:
+                for sensor in sensors:
+                    # Realistic soil moisture values (30-70% is optimal, lower after irrigation)
+                    base_moisture = random.uniform(35, 65)
+                    soil_moisture = max(25, min(75, base_moisture))
+                    soil_temperature = random.uniform(18, 35)  # Yemen climate
+
+                    readings.append({
+                        "reading_id": f"SR-{current_date.strftime('%Y%m%d')}-{sensor['sensor_id']}-{hour:02d}",
+                        "sensor_id": sensor["sensor_id"],
+                        "field_id": sensor["field_id"],
+                        "measurement_date": current_date.isoformat(),
+                        "measurement_hour": hour,
+                        "soil_moisture_percent": round(soil_moisture, 1),
+                        "soil_temperature_celsius": round(soil_temperature, 1),
+                        "sensor_depth_cm": sensor["depth_cm"],
+                        "battery_level_percent": random.randint(70, 100),
+                        "signal_strength": random.choice(["STRONG", "GOOD", "FAIR"]),
+                    })
+
+            current_date += timedelta(days=1)
+
+        return readings
+
+    def _generate_mock_weather_data(self, start_date: date, end_date: date) -> dict[str, Any]:
+        """Generate realistic mock weather data for the period"""
+        from datetime import timedelta
+        import random
+
+        weather_records = []
+        current_date = start_date
+
+        while current_date <= end_date:
+            # Realistic Yemen weather patterns
+            min_temp = random.uniform(15, 25)  # Cooler at night
+            max_temp = random.uniform(28, 40)  # Hotter during day
+            rainfall = random.uniform(0, 5) if random.random() > 0.8 else 0  # 20% chance of rain
+            relative_humidity = random.uniform(30, 70)
+            wind_speed = random.uniform(5, 20)  # km/h
+
+            weather_records.append({
+                "date": current_date.isoformat(),
+                "min_temperature_celsius": round(min_temp, 1),
+                "max_temperature_celsius": round(max_temp, 1),
+                "avg_temperature_celsius": round((min_temp + max_temp) / 2, 1),
+                "rainfall_mm": round(rainfall, 1),
+                "relative_humidity_percent": round(relative_humidity, 1),
+                "wind_speed_kmh": round(wind_speed, 1),
+                "solar_radiation_mj_m2": round(random.uniform(15, 25), 2),
+                "evapotranspiration_mm": round(random.uniform(3, 8), 2),
+            })
+
+            current_date += timedelta(days=1)
+
+        return {
+            "weather_records": weather_records,
+            "aggregated_rainfall_mm": sum(r["rainfall_mm"] for r in weather_records),
+            "avg_temperature_celsius": round(
+                sum(r["avg_temperature_celsius"] for r in weather_records) / len(weather_records),
+                1
+            ) if weather_records else 0,
+        }
+
+    def _generate_mock_irrigation_schedules(self, start_date: date, end_date: date) -> list[dict[str, Any]]:
+        """Generate realistic mock irrigation schedules for planned events"""
+        from datetime import timedelta
+        import random
+
+        schedules = []
+        current_date = start_date
+        schedule_counter = 1
+
+        fields = [
+            {"field_id": "FIELD-N1", "crop": "Tomatoes", "area": 2.5},
+            {"field_id": "FIELD-N2", "crop": "Cucumbers", "area": 1.8},
+            {"field_id": "FIELD-S1", "crop": "Wheat", "area": 5.0},
+            {"field_id": "FIELD-S2", "crop": "Date Palm", "area": 3.5},
+        ]
+
+        while current_date <= end_date:
+            # Generate 2-3 scheduled events per day
+            num_schedules = random.randint(2, 4)
+
+            for _ in range(num_schedules):
+                field = random.choice(fields)
+                start_hour = random.choice([5, 6, 7, 18, 19, 20])  # Early morning or evening
+                duration = random.uniform(3, 8)
+
+                # Realistic planned volumes
+                if field["crop"] == "Date Palm":
+                    planned_volume = random.uniform(80, 150)
+                elif field["crop"] in ["Tomatoes", "Cucumbers"]:
+                    planned_volume = random.uniform(60, 120)
+                else:
+                    planned_volume = random.uniform(100, 200)
+
+                status = random.choice(["SCHEDULED", "IN_PROGRESS", "COMPLETED"])
+
+                schedules.append({
+                    "schedule_id": f"SCH-{current_date.strftime('%Y%m%d')}-{schedule_counter:04d}",
+                    "field_id": field["field_id"],
+                    "crop_type": field["crop"],
+                    "scheduled_date": current_date.isoformat(),
+                    "scheduled_start_hour": start_hour,
+                    "planned_duration_hours": round(duration, 1),
+                    "planned_volume_cubic_meters": round(planned_volume, 2),
+                    "status": status,
+                    "priority": random.choice(["LOW", "NORMAL", "HIGH"]),
+                    "scheduling_reason": random.choice(
+                        ["Soil moisture threshold", "Growth stage", "Weather forecast", "Manual request"]
+                    ),
+                })
+                schedule_counter += 1
+
+            current_date += timedelta(days=1)
+
+        return schedules
+
+    def _generate_mock_system_status(self) -> dict[str, Any]:
+        """Generate realistic mock irrigation system status"""
+        return {
+            "active_zones": 4,
+            "total_zones": 6,
+            "zones_operational": ["ZONE-A", "ZONE-B", "ZONE-C", "ZONE-D"],
+            "zones_offline": ["ZONE-E", "ZONE-F"],
+            "total_equipment": 12,
+            "equipment_operational": 11,
+            "equipment_needing_maintenance": 1,
+            "maintenance_alerts": [
+                {
+                    "alert_id": "MA-001",
+                    "equipment_id": "PUMP-002",
+                    "alert_type": "SCHEDULED_MAINTENANCE",
+                    "priority": "MEDIUM",
+                    "description": "Filter replacement due",
+                    "recommended_action": "Schedule filter replacement within 7 days",
+                    "last_maintenance": "2024-12-01",
+                    "next_scheduled": "2025-01-15",
+                }
+            ],
+            "last_system_check": datetime.utcnow().isoformat(),
+            "overall_system_health": "GOOD",
+            "system_uptime_percent": 98.5,
+        }
 
     def generate_usage_alerts(
         self,

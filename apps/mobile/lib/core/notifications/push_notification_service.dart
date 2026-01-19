@@ -437,6 +437,7 @@ final pushNotificationServiceProvider = Provider<PushNotificationService>((ref) 
 });
 
 /// Provider للإشعارات
-final notificationStreamProvider = StreamProvider<NotificationPayload>((ref) {
+/// Uses autoDispose to clean up subscription when no longer watched
+final notificationStreamProvider = StreamProvider.autoDispose<NotificationPayload>((ref) {
   return PushNotificationService.instance.onNotification;
 });

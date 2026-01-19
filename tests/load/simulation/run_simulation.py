@@ -29,7 +29,7 @@ import json
 import logging
 import os
 import sys
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 
 # Add scripts directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts"))
@@ -227,7 +227,7 @@ class SimulationRunner:
     def save_results(self):
         """Save combined results to JSON."""
         results = {
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "configuration": {
                 "gateway_url": self.gateway_url,
                 "duration": self.duration,

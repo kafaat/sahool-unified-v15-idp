@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session

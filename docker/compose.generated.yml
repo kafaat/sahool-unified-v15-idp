@@ -1391,6 +1391,45 @@ services:
     - sahool.category=core
     - traefik.enable=true
     - traefik.http.routers.alert-service.rule=PathPrefix(`/api/v1/alert/service`)
+  audit-service:
+    build:
+      context: ./apps/services/audit-service
+      dockerfile: Dockerfile
+    container_name: sahool-audit-service
+    ports:
+    - 8114:8114
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8114
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8114/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=audit-service
+    - sahool.port=8114
+    - sahool.category=core
+    - traefik.enable=true
+    - traefik.http.routers.audit-service.rule=PathPrefix(`/api/v1/audit/service`)
   agro-advisor:
     build:
       context: ./apps/services/agro-advisor

@@ -6,7 +6,7 @@ POST /api/v1/field-health - تحليل صحة الحقل الزراعي
 Field health analysis endpoint with AI-powered insights
 """
 
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 from typing import Any
 
 from fastapi import APIRouter, HTTPException

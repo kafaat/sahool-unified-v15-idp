@@ -7,7 +7,7 @@ Sprint 8: Time-series storage with temporal indexing
 
 from __future__ import annotations
 
-from datetime import UTC, date, datetime
+from datetime import timezone, date, datetime, UTC
 from uuid import UUID, uuid4
 
 from sqlalchemy import Date, DateTime, Float, Index, String, Text

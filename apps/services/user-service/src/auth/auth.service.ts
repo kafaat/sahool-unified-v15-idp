@@ -292,16 +292,21 @@ export class AuthService {
       audience: JWTConfig.AUDIENCE,
     });
 
-    // Store refresh token in database
+    // Store hashed refresh token in database (security: never store tokens in plaintext)
     const expiresAt = new Date(
       Date.now() + JWTConfig.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60 * 1000,
     );
+    const tokenHash = crypto
+      .createHash("sha256")
+      .update(refresh_token)
+      .digest("hex");
+
     await this.prisma.refreshToken.create({
       data: {
         userId: user.id,
         jti: refreshJti,
         family: tokenFamily,
-        token: refresh_token,
+        token: tokenHash, // Store hash, not plaintext
         expiresAt,
       },
     });
@@ -409,7 +414,7 @@ export class AuthService {
       });
 
       // Revoke each token in Redis
-      const revokePromises = familyTokens.map((token) =>
+      const revokePromises = familyTokens.map((token: { jti: string }) =>
         this.revocationStore.revokeToken(token.jti, {
           expiresIn: JWTConfig.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
           reason: "token_reuse_detected",
@@ -1065,7 +1070,9 @@ SAHOOL - National Agricultural Intelligence Platform
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = (await response.json().catch(() => ({}))) as {
+          message?: string;
+        };
         this.logger.error(`Failed to send OTP via notification service`, {
           identifier: this.sanitizeForLog(identifier),
           status: response.status,
@@ -1076,7 +1083,10 @@ SAHOOL - National Agricultural Intelligence Platform
         );
       }
 
-      const result = await response.json();
+      const result = (await response.json()) as {
+        message?: string;
+        expiresIn?: number;
+      };
 
       this.logger.log(`OTP sent successfully`, {
         identifier: this.sanitizeForLog(identifier),
@@ -1130,7 +1140,9 @@ SAHOOL - National Agricultural Intelligence Platform
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = (await response.json().catch(() => ({}))) as {
+          message?: string;
+        };
         this.logger.warn(`OTP verification failed`, {
           identifier: this.sanitizeForLog(identifier),
           status: response.status,
@@ -1140,7 +1152,10 @@ SAHOOL - National Agricultural Intelligence Platform
         );
       }
 
-      const result = await response.json();
+      const result = (await response.json()) as {
+        verified?: boolean;
+        message?: string;
+      };
 
       this.logger.log(`OTP verified successfully`, {
         identifier: this.sanitizeForLog(identifier),

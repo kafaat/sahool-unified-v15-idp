@@ -21,10 +21,16 @@ POSTGRES_USER="${POSTGRES_USER:-sahool}"
 POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}"
 WARN_THRESHOLD=80  # Warn at 80% pool utilization
 CRIT_THRESHOLD=95  # Critical at 95% pool utilization
+PSQL_TIMEOUT=10    # Timeout for psql commands in seconds
 
 # Output format
 VERBOSE=false
 JSON_OUTPUT=false
+
+# Health check status tracking
+CONNECTIVITY_CHECK=false
+POOLS_CHECK=false
+CONFIGURATION_CHECK=false
 
 # Parse arguments
 while [ $# -gt 0 ]; do
@@ -70,23 +76,41 @@ log() {
   fi
 }
 
-# Function to execute psql command
+# Function to check dependencies
+check_dependencies() {
+  if ! command -v psql > /dev/null 2>&1; then
+    if [ "$JSON_OUTPUT" = "true" ]; then
+      echo '{"status":"unhealthy","error":"psql command not found. Install postgresql-client.","checks":{"connectivity":false,"pools":false,"configuration":false}}'
+    else
+      printf "%b\n" "${RED}✗ Error: psql command not found${NC}"
+      printf "Please install postgresql-client package.\n"
+    fi
+    exit 1
+  fi
+  log "${GREEN}✓ Dependencies check passed${NC}"
+}
+
+# Function to execute psql command with timeout
 execute_query() {
   _query=$1
-  PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
-    -U "$POSTGRES_USER" -d pgbouncer -t -A -c "$_query" 2>/dev/null
+  PGPASSWORD="$POSTGRES_PASSWORD" timeout "$PSQL_TIMEOUT" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
+    -U "$POSTGRES_USER" -d pgbouncer -t -A -c "$_query" 2>/dev/null || return 1
 }
+
+# Check dependencies first
+check_dependencies
 
 # Check 1: Basic connectivity
 log "${YELLOW}Checking PgBouncer connectivity...${NC}"
 if ! execute_query "SELECT 1" > /dev/null; then
   if [ "$JSON_OUTPUT" = "true" ]; then
-    echo '{"status":"unhealthy","error":"Cannot connect to PgBouncer","checks":{"connectivity":false}}'
+    echo '{"status":"unhealthy","error":"Cannot connect to PgBouncer","checks":{"connectivity":false,"pools":false,"configuration":false}}'
   else
     printf "%b\n" "${RED}✗ Cannot connect to PgBouncer${NC}"
   fi
   exit 1
 fi
+CONNECTIVITY_CHECK=true
 log "${GREEN}✓ PgBouncer is reachable${NC}"
 
 # Check 2: Pool status
@@ -94,12 +118,13 @@ log "${YELLOW}Checking pool status...${NC}"
 POOL_DATA=$(execute_query "SHOW POOLS;" 2>/dev/null || echo "")
 if [ -z "$POOL_DATA" ]; then
   if [ "$JSON_OUTPUT" = "true" ]; then
-    echo '{"status":"unhealthy","error":"Cannot retrieve pool status","checks":{"connectivity":true,"pools":false}}'
+    echo '{"status":"unhealthy","error":"Cannot retrieve pool status","checks":{"connectivity":true,"pools":false,"configuration":false}}'
   else
     printf "%b\n" "${RED}✗ Cannot retrieve pool status${NC}"
   fi
   exit 1
 fi
+POOLS_CHECK=true
 log "${GREEN}✓ Pool status retrieved${NC}"
 
 # Parse pool data (database|user|cl_active|cl_waiting|sv_active|sv_idle|sv_used|sv_tested|sv_login|maxwait|pool_mode)
@@ -183,6 +208,7 @@ fi
 log "${YELLOW}Checking configuration...${NC}"
 CONFIG_DATA=$(execute_query "SHOW CONFIG;" 2>/dev/null || echo "")
 if [ -n "$CONFIG_DATA" ]; then
+  CONFIGURATION_CHECK=true
   log "${GREEN}✓ Configuration accessible${NC}"
 
   if [ "$VERBOSE" = "true" ]; then
@@ -195,7 +221,14 @@ if [ -n "$CONFIG_DATA" ]; then
     log "  default_pool_size: $DEFAULT_POOL"
     log "  pool_mode: $POOL_MODE"
   fi
+else
+  log "${YELLOW}⚠ Configuration check failed (non-critical)${NC}"
 fi
+
+# Convert boolean variables to JSON format
+_CONNECTIVITY="$([ "$CONNECTIVITY_CHECK" = "true" ] && echo "true" || echo "false")"
+_POOLS="$([ "$POOLS_CHECK" = "true" ] && echo "true" || echo "false")"
+_CONFIGURATION="$([ "$CONFIGURATION_CHECK" = "true" ] && echo "true" || echo "false")"
 
 # Output results
 if [ "$JSON_OUTPUT" = "true" ]; then
@@ -205,9 +238,9 @@ if [ "$JSON_OUTPUT" = "true" ]; then
   "exit_code": $EXIT_CODE,
   "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "checks": {
-    "connectivity": true,
-    "pools": true,
-    "configuration": true
+    "connectivity": $_CONNECTIVITY,
+    "pools": $_POOLS,
+    "configuration": $_CONFIGURATION
   },
   "metrics": {
     "client_active": $TOTAL_CL_ACTIVE,

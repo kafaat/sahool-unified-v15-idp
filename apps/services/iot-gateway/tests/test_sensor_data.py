@@ -4,7 +4,7 @@ Tests data normalization, format conversion, validation, and edge cases
 """
 
 import json
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 
 import pytest
 from apps.services.iot_gateway.src.normalizer import (
@@ -352,7 +352,7 @@ class TestTimestampHandling:
 
     def test_normalize_with_unix_timestamp(self):
         """Test normalization with Unix timestamp"""
-        unix_ts = 1672531200  # 2023-01-01 00:00:00 UTC
+        unix_ts = 1672531200  # 2023-01-01 00:00:00 timezone.utc
         payload = json.dumps(
             {
                 "device_id": "sensor_001",

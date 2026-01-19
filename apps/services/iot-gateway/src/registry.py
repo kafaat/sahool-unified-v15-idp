@@ -4,7 +4,7 @@ Lightweight device management and status tracking
 """
 
 from dataclasses import asdict, dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from enum import Enum
 
 

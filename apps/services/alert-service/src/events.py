@@ -8,7 +8,7 @@ import json
 import logging
 import os
 from collections.abc import Awaitable, Callable
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 from uuid import uuid4
 
 import nats

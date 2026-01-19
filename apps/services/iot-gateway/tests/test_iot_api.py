@@ -4,7 +4,7 @@ Tests all FastAPI endpoints including health checks, sensor readings, device man
 """
 
 import sys
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest

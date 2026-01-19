@@ -3,7 +3,7 @@ Comprehensive Device Management Tests
 Tests device registry, status tracking, lifecycle management
 """
 
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from time import sleep
 
 import pytest

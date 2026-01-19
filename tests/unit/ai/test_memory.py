@@ -17,7 +17,7 @@ Updated: January 2025
 """
 
 import pytest
-from datetime import datetime, UTC, timedelta
+from datetime import datetime, timezone, timedelta
 from time import sleep
 
 from shared.ai.context_engineering.memory import (
@@ -167,7 +167,7 @@ class TestMemoryEntry:
 
     def test_from_dict_conversion(self):
         """Should create entry from dictionary"""
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         entry_dict = {
             "id": "entry_123",
             "tenant_id": "tenant_001",
@@ -543,7 +543,7 @@ class TestFarmMemoryForget:
             memory_type=MemoryType.OBSERVATION,
         )
 
-        cutoff_time = datetime.now(UTC) + timedelta(hours=1)
+        cutoff_time = datetime.now(timezone.utc) + timedelta(hours=1)
 
         forgotten = memory.forget(tenant_id=test_tenant_id, before=cutoff_time)
 

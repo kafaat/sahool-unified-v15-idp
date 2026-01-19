@@ -72,6 +72,10 @@ model User {
   @@index([role])
   @@index([lastLoginAt], name: "idx_user_last_login")
   @@index([tenantId, status], name: "idx_user_tenant_status")
+  @@index([tenantId, email], name: "idx_user_tenant_email")
+  @@index([tenantId, role], name: "idx_user_tenant_role")
+  @@index([passwordResetToken], name: "idx_user_password_reset_token")
+  @@index([lockoutUntil], name: "idx_user_lockout_until")
   @@map("users")
 }
 
@@ -156,5 +160,7 @@ model RefreshToken {
   @@index([family])
   @@index([token])
   @@index([expiresAt])
+  @@index([userId, revoked, expiresAt], name: "idx_refresh_token_cleanup")
+  @@index([revoked, expiresAt], name: "idx_refresh_token_revoked_expiry")
   @@map("refresh_tokens")
 }

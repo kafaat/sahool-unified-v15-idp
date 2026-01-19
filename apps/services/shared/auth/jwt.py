@@ -6,7 +6,7 @@ JWT Token Management
 import logging
 import secrets
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from typing import Any
 
 import jwt

@@ -7,7 +7,7 @@ Data access layer for alerts and alert rules
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from uuid import UUID
 
 from sqlalchemy import func, or_, select

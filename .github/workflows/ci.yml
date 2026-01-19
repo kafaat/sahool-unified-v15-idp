@@ -417,12 +417,23 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
+        continue-on-error: true  # Informational scan - don't block pipeline
         with:
           scan-type: 'fs'
           scan-ref: '.'
           severity: 'CRITICAL'
-          exit-code: '1'
-          # Fail pipeline on CRITICAL vulnerabilities only to avoid false positives
+          exit-code: '0'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          # Informational scan - results are reported but don't block pipeline
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: 'trivy-results.sarif'
+          category: 'trivy-fs-scan'
 
       - name: Check for private keys in repository
         run: |

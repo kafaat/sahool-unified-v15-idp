@@ -9,7 +9,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import timezone, datetime
+from datetime import timezone, datetime, UTC
 from pathlib import Path as PathLib
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query
@@ -330,7 +330,7 @@ def health():
         "status": "healthy",
         "service": "alert-service",
         "version": "16.0.0",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "dependencies": {
             "nats": (
                 "connected" if getattr(app.state, "publisher", None) is not None else "disconnected"
@@ -351,7 +351,7 @@ def healthz():
         "version": "16.0.0",
         "nats_publisher": publisher_ok,
         "nats_subscriber": subscriber_ok,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 

@@ -12,7 +12,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 from pathlib import Path as PathLib
 from typing import Literal
 from uuid import UUID
@@ -257,7 +257,7 @@ def health():
         "status": "healthy",
         "service": "audit-service",
         "version": "16.0.0",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "dependencies": {
             "nats": "connected" if getattr(app.state, "nc", None) else "disconnected",
             "database": "available" if getattr(app.state, "db_available", False) else "unavailable",
@@ -272,7 +272,7 @@ def healthz():
         "status": "healthy",
         "service": "audit-service",
         "version": "16.0.0",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -554,11 +554,11 @@ async def get_compliance_report(
     security_events = [entry for entry in filtered if entry.get("category") == "security"]
 
     # Unique users
-    unique_users = len(set(entry.get("user_id") for entry in filtered if entry.get("user_id")))
+    unique_users = len({entry.get("user_id") for entry in filtered if entry.get("user_id")})
 
     return {
         "tenant_id": tenant_id,
-        "report_generated": datetime.now(timezone.utc).isoformat(),
+        "report_generated": datetime.now(UTC).isoformat(),
         "period": {
             "start": start_date.isoformat(),
             "end": end_date.isoformat(),
@@ -599,7 +599,7 @@ async def get_audit_stats(
 
     # Parse period
     days = int(period.replace("d", ""))
-    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    cutoff = (datetime.now(UTC) - timedelta(days=days)).isoformat()
 
     # Filter by period
     filtered = [entry for entry in logs if entry.get("created_at", "") >= cutoff]
@@ -620,7 +620,7 @@ async def get_audit_stats(
     failed_events = [entry for entry in filtered if not entry.get("success", True)]
 
     # Unique users
-    unique_users = len(set(entry.get("user_id") for entry in filtered if entry.get("user_id")))
+    unique_users = len({entry.get("user_id") for entry in filtered if entry.get("user_id")})
 
     # Chain coverage
     entries_with_hash = [entry for entry in filtered if entry.get("entry_hash")]
@@ -678,7 +678,7 @@ async def get_failed_logins(
     جلب محاولات تسجيل الدخول الفاشلة
     """
     logs = _get_logs_for_tenant(tenant_id)
-    cutoff = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+    cutoff = (datetime.now(UTC) - timedelta(hours=hours)).isoformat()
 
     filtered = [
         entry for entry in logs

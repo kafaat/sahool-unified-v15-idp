@@ -11,7 +11,7 @@ import asyncio
 import logging
 import os
 import random
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from typing import Any
 
 import httpx
@@ -92,7 +92,7 @@ class DemoDataGenerator:
             "pressure_hpa": round(random.uniform(1005, 1025), 1),
             "uv_index": round(random.uniform(5, 11), 1),
             "conditions": random.choice(["Clear", "Partly Cloudy", "Sunny", "Hazy"]),
-            "recorded_at": datetime.now(timezone.utc).isoformat(),
+            "recorded_at": datetime.now(UTC).isoformat(),
         }
 
     async def send_weather_data(self):
@@ -126,7 +126,7 @@ class DemoDataGenerator:
 
         readings = {
             "device_id": device_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "battery_level": round(random.uniform(20, 100), 1),
         }
 
@@ -190,7 +190,7 @@ class DemoDataGenerator:
 
         return {
             "field_id": field_id,
-            "capture_date": datetime.now(timezone.utc).date().isoformat(),
+            "capture_date": datetime.now(UTC).date().isoformat(),
             "satellite": random.choice(["Sentinel-2", "Landsat-8", "Planet"]),
             "cloud_coverage_percent": round(random.uniform(0, 30), 1),
             "ndvi_mean": ndvi_mean,
@@ -317,7 +317,7 @@ class DemoDataGenerator:
         ]
 
         task = random.choice(task_types)
-        scheduled_date = datetime.now(timezone.utc) + timedelta(days=random.randint(1, 7))
+        scheduled_date = datetime.now(UTC) + timedelta(days=random.randint(1, 7))
 
         return {
             "tenant_id": TENANT_ID,
@@ -360,7 +360,7 @@ class DemoDataGenerator:
         return {
             "field_id": random.choice(FIELD_IDS),
             "crop_type": random.choice(CROPS),
-            "planting_date": (datetime.now(timezone.utc) - timedelta(days=random.randint(30, 120)))
+            "planting_date": (datetime.now(UTC) - timedelta(days=random.randint(30, 120)))
             .date()
             .isoformat(),
             "area_hectares": round(random.uniform(5, 150), 2),

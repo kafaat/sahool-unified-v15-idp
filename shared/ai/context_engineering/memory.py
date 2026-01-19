@@ -23,7 +23,7 @@ import logging
 import time
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import timezone, datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -153,7 +153,7 @@ class MemoryEntry:
         Returns:
             MemoryEntry: إدخال الذاكرة الجديد - New memory entry
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return cls(
             id=str(uuid4()),
             tenant_id=tenant_id,
@@ -171,7 +171,7 @@ class MemoryEntry:
         """Check if entry has expired / التحقق من انتهاء الصلاحية"""
         if self.expires_at is None:
             return False
-        return datetime.now(timezone.utc) > self.expires_at
+        return datetime.now(UTC) > self.expires_at
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary / التحويل إلى قاموس"""
@@ -791,7 +791,7 @@ class FarmMemory:
         score += self._relevance_to_int(entry.relevance) * 0.25
 
         # Recency bonus (entries from last 24h get bonus)
-        hours_old = (datetime.now(timezone.utc) - entry.timestamp).total_seconds() / 3600
+        hours_old = (datetime.now(UTC) - entry.timestamp).total_seconds() / 3600
         recency_bonus = max(0, 1 - (hours_old / 24)) * 0.3
         score += recency_bonus
 

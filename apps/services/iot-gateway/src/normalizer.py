@@ -5,7 +5,7 @@ Converts various sensor payloads to standard format
 
 import json
 from dataclasses import asdict, dataclass
-from datetime import timezone, datetime
+from datetime import timezone, datetime, UTC
 
 
 @dataclass
@@ -194,11 +194,11 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
             timestamp = timestamp_raw
         elif isinstance(timestamp_raw, int | float):
             # Assume Unix timestamp
-            timestamp = datetime.fromtimestamp(timestamp_raw, tz=timezone.utc).isoformat()
+            timestamp = datetime.fromtimestamp(timestamp_raw, tz=UTC).isoformat()
         else:
-            timestamp = datetime.now(timezone.utc).isoformat()
+            timestamp = datetime.now(UTC).isoformat()
     else:
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
 
     # Extract optional metadata
     metadata = raw.get("metadata") or raw.get("meta") or {}

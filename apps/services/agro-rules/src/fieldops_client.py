@@ -6,7 +6,7 @@ MIGRATION NOTE: This service now calls field-management-service:3000 instead of 
 """
 
 import os
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 
 import httpx
 
@@ -72,7 +72,7 @@ class FieldOpsClient:
         """
         client = await self._get_client()
 
-        due_date = datetime.now(timezone.utc) + timedelta(hours=due_hours)
+        due_date = datetime.now(UTC) + timedelta(hours=due_hours)
 
         payload = {
             "tenant_id": tenant_id,

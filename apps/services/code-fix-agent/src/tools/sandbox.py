@@ -373,7 +373,7 @@ else:
                     process.communicate(),
                     timeout=self.config.timeout_seconds,
                 )
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 process.kill()
                 await process.wait()
                 return SandboxResult(
@@ -655,7 +655,7 @@ class SecureSandbox(CodeSandbox):
                     process.communicate(),
                     timeout=self.config.timeout_seconds + 5,  # Extra time for Docker
                 )
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 # Kill container
                 subprocess.run(["docker", "kill", str(process.pid)], capture_output=True)
                 return SandboxResult(

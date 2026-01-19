@@ -5,7 +5,7 @@ Event Publisher - SAHOOL NDVI Engine
 import json
 import os
 import uuid
-from datetime import timezone, datetime
+from datetime import timezone, datetime, UTC
 
 from nats.aio.client import Client as NATS
 
@@ -54,7 +54,7 @@ class EventEnvelope:
             aggregate_id=aggregate_id,
             tenant_id=tenant_id,
             correlation_id=correlation_id,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             payload=payload,
         )
 

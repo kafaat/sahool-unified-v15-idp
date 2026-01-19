@@ -7,7 +7,7 @@ Configuration for 2FA enforcement, grace periods, and security settings.
 
 import logging
 from dataclasses import dataclass
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from enum import Enum
 
 logger = logging.getLogger(__name__)
@@ -87,7 +87,7 @@ class TwoFAConfig:
             return False
 
         grace_period_end = user_created_at + timedelta(days=self.grace_period_days)
-        return datetime.now(timezone.utc) < grace_period_end
+        return datetime.now(UTC) < grace_period_end
 
 
 # Global configuration instance

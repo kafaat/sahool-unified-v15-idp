@@ -34,7 +34,7 @@ import json
 import logging
 import os
 import sys
-from datetime import timezone, datetime
+from datetime import datetime, UTC
 from typing import Any
 
 from opentelemetry import trace
@@ -112,7 +112,7 @@ class JSONFormatter(logging.Formatter):
         """
         # Base log structure
         log_data = {
-            "timestamp": datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(),
+            "timestamp": datetime.fromtimestamp(record.created, tz=UTC).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),

@@ -220,7 +220,7 @@ class DartAnalyzer(BaseAnalyzer):
                                 category=IssueCategory.SYNTAX,
                                 code="DS001",
                                 message=f"Mismatched bracket: expected '{brackets[open_bracket]}' but found '{char}'",
-                                message_ar=f"قوس غير متطابق",
+                                message_ar="قوس غير متطابق",
                             ))
 
         return issues
@@ -305,7 +305,7 @@ class DartAnalyzer(BaseAnalyzer):
                     category=IssueCategory.STYLE,
                     code="DS501",
                     message=f"Line too long ({len(line)} > {self.config.max_line_length})",
-                    message_ar=f"السطر طويل جداً",
+                    message_ar="السطر طويل جداً",
                 ))
 
         # Pattern-based style checks

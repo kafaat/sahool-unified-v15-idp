@@ -589,11 +589,7 @@ class ASTAnalyzer:
 
         # Collect definitions
         for node in ast.walk(self._tree):
-            if isinstance(node, ast.FunctionDef):
-                defined.add(node.name)
-                for arg in node.args.args:
-                    defined.add(arg.arg)
-            elif isinstance(node, ast.AsyncFunctionDef):
+            if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
                 defined.add(node.name)
                 for arg in node.args.args:
                     defined.add(arg.arg)

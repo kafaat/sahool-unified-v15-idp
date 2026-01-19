@@ -5,7 +5,7 @@ SAHOOL Field Service - Event Publishing
 
 import json
 import os
-from datetime import timezone, datetime
+from datetime import timezone, datetime, UTC
 from uuid import uuid4
 
 import nats
@@ -59,7 +59,7 @@ class FieldEventPublisher:
         return {
             "event_id": str(uuid4()),
             "event_type": event_type,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "source": "field-service",
             "version": "16.0.0",
             "tenant_id": tenant_id,

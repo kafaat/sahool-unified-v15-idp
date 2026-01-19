@@ -8,7 +8,7 @@ Provides data aggregation, statistics, and anomaly detection for sensor readings
 
 import statistics
 from collections import defaultdict
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 
 from .models.sensor_data import (
     AggregatedData,
@@ -533,7 +533,7 @@ class SensorAggregator:
             else:
                 end = datetime(start.year, start.month + 1, 1)
         else:
-            start = datetime.now(timezone.utc)
+            start = datetime.now(UTC)
             end = start
 
         return (start, end)
@@ -562,7 +562,7 @@ class SensorAggregator:
                 field_id="unknown",
                 sensor_type="unknown",
                 status=SensorStatus.OFFLINE,
-                timestamp=datetime.now(timezone.utc).isoformat(),
+                timestamp=datetime.now(UTC).isoformat(),
                 data_quality_score=0.0,
                 alerts=["لا توجد قراءات - No readings available"],
             )
@@ -618,7 +618,7 @@ class SensorAggregator:
             field_id=field_id,
             sensor_type=sensor_type,
             status=status,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             data_quality_score=round(quality_score, 2),
             uptime_percentage=round(uptime_percentage, 2),
             battery_level=battery_level,
@@ -710,7 +710,7 @@ class SensorAggregator:
             readings, key=lambda r: datetime.fromisoformat(r.timestamp), reverse=True
         )
         last_reading_time = datetime.fromisoformat(sorted_readings[0].timestamp)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # إذا كانت آخر قراءة أحدث من ساعة، نقاط كاملة
         # If last reading is within 1 hour, full points
@@ -841,7 +841,7 @@ def create_sample_readings(
     import random
 
     readings = []
-    start_time = datetime.now(timezone.utc) - timedelta(hours=24)
+    start_time = datetime.now(UTC) - timedelta(hours=24)
 
     for i in range(count):
         timestamp = start_time + timedelta(minutes=15 * i)

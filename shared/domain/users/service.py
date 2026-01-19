@@ -5,7 +5,7 @@ Business logic for user management
 
 from __future__ import annotations
 
-from datetime import timezone, datetime
+from datetime import datetime, UTC
 
 from kernel_domain.auth.passwords import hash_password, verify_password
 
@@ -74,8 +74,8 @@ class UserService:
         """Update user's last login timestamp"""
         user = self._users.get(user_id)
         if user:
-            user.last_login = datetime.now(timezone.utc)
-            user.updated_at = datetime.now(timezone.utc)
+            user.last_login = datetime.now(UTC)
+            user.updated_at = datetime.now(UTC)
         return user
 
     def update_user_roles(
@@ -87,7 +87,7 @@ class UserService:
         user = self._users.get(user_id)
         if user:
             user.roles = roles
-            user.updated_at = datetime.now(timezone.utc)
+            user.updated_at = datetime.now(UTC)
         return user
 
     def deactivate_user(self, user_id: str) -> User | None:
@@ -95,7 +95,7 @@ class UserService:
         user = self._users.get(user_id)
         if user:
             user.is_active = False
-            user.updated_at = datetime.now(timezone.utc)
+            user.updated_at = datetime.now(UTC)
         return user
 
     def list_tenant_users(
@@ -118,7 +118,7 @@ class UserService:
         user = self._users.get(user_id)
         if user:
             user.twofa_secret = secret
-            user.updated_at = datetime.now(timezone.utc)
+            user.updated_at = datetime.now(UTC)
         return user
 
     def enable_twofa(self, user_id: str, backup_codes: list[str]) -> User | None:
@@ -127,7 +127,7 @@ class UserService:
         if user:
             user.twofa_enabled = True
             user.twofa_backup_codes = backup_codes
-            user.updated_at = datetime.now(timezone.utc)
+            user.updated_at = datetime.now(UTC)
         return user
 
     def disable_twofa(self, user_id: str) -> User | None:
@@ -137,7 +137,7 @@ class UserService:
             user.twofa_enabled = False
             user.twofa_secret = None
             user.twofa_backup_codes = None
-            user.updated_at = datetime.now(timezone.utc)
+            user.updated_at = datetime.now(UTC)
         return user
 
     def update_backup_codes(self, user_id: str, backup_codes: list[str]) -> User | None:
@@ -145,7 +145,7 @@ class UserService:
         user = self._users.get(user_id)
         if user:
             user.twofa_backup_codes = backup_codes
-            user.updated_at = datetime.now(timezone.utc)
+            user.updated_at = datetime.now(UTC)
         return user
 
     def remove_backup_code(self, user_id: str, code_hash: str) -> User | None:
@@ -153,5 +153,5 @@ class UserService:
         user = self._users.get(user_id)
         if user and user.twofa_backup_codes:
             user.twofa_backup_codes = [c for c in user.twofa_backup_codes if c != code_hash]
-            user.updated_at = datetime.now(timezone.utc)
+            user.updated_at = datetime.now(UTC)
         return user

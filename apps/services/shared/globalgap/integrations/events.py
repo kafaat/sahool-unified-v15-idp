@@ -5,7 +5,7 @@ SAHOOL GlobalGAP Integration - NATS Events
 
 import json
 import os
-from datetime import timezone, datetime
+from datetime import timezone, datetime, UTC
 from uuid import uuid4
 
 import nats
@@ -73,7 +73,7 @@ class GlobalGAPEventPublisher:
         return {
             "event_id": str(uuid4()),
             "event_type": event_type,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "source": "globalgap-integration",
             "version": "1.0.0",
             "tenant_id": tenant_id,
@@ -111,7 +111,7 @@ class GlobalGAPEventPublisher:
                 "compliance_status": compliance_status,
                 "previous_status": previous_status,
                 "assessment_data": assessment_data or {},
-                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
             },
             correlation_id=correlation_id,
         )
@@ -196,7 +196,7 @@ class GlobalGAPEventPublisher:
                 "result": result,
                 "findings": findings,
                 "score": score,
-                "completed_at": datetime.now(timezone.utc).isoformat(),
+                "completed_at": datetime.now(UTC).isoformat(),
             },
             correlation_id=correlation_id,
         )
@@ -228,7 +228,7 @@ class GlobalGAPEventPublisher:
                 "control_point": control_point,
                 "severity": severity,
                 "description": description,
-                "detected_at": detected_at or datetime.now(timezone.utc).isoformat(),
+                "detected_at": detected_at or datetime.now(UTC).isoformat(),
             },
             correlation_id=correlation_id,
         )
@@ -255,7 +255,7 @@ class GlobalGAPEventPublisher:
                 "non_conformance_id": non_conformance_id,
                 "resolution_notes": resolution_notes,
                 "resolved_by": resolved_by,
-                "resolved_at": datetime.now(timezone.utc).isoformat(),
+                "resolved_at": datetime.now(UTC).isoformat(),
             },
             correlation_id=correlation_id,
         )
@@ -312,7 +312,7 @@ class GlobalGAPEventPublisher:
                 "certificate_id": certificate_id,
                 "certificate_type": certificate_type,
                 "new_expiry_date": new_expiry_date,
-                "renewed_at": datetime.now(timezone.utc).isoformat(),
+                "renewed_at": datetime.now(UTC).isoformat(),
             },
             correlation_id=correlation_id,
         )
@@ -352,7 +352,7 @@ class GlobalGAPEventPublisher:
                 "records_synced": records_synced,
                 "sync_status": sync_status,
                 "error_message": error_message,
-                "synced_at": datetime.now(timezone.utc).isoformat(),
+                "synced_at": datetime.now(UTC).isoformat(),
             },
             correlation_id=correlation_id,
         )

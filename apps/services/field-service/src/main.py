@@ -7,7 +7,7 @@ Port: 3000
 import os
 import sys
 from contextlib import asynccontextmanager, suppress
-from datetime import timezone, datetime
+from datetime import timezone, datetime, UTC
 from uuid import uuid4
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Response
@@ -172,7 +172,7 @@ def health():
         "status": "healthy",
         "service": "field-service",
         "version": "16.0.0",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "dependencies": {
             "nats": (
                 "connected"
@@ -193,7 +193,7 @@ def healthz():
         "service": "field-service",
         "version": "16.0.0",
         "nats_connected": nats_connected,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -216,7 +216,7 @@ async def create_field(field: FieldCreate, tenant_id: str = Depends(get_tenant_i
     if field.tenant_id != tenant_id:
         raise HTTPException(status_code=403, detail="Tenant ID mismatch")
     field_id = str(uuid4())
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     # التحقق من الحدود إذا وجدت
     if field.boundary:
@@ -363,7 +363,7 @@ async def update_field(field_id: str, update: FieldUpdate, tenant_id: str = Depe
                 field_data[key] = value
             updated_fields.append(key)
 
-    field_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    field_data["updated_at"] = datetime.now(UTC).isoformat()
     _fields[field_id] = field_data
 
     # نشر الحدث
@@ -438,7 +438,7 @@ async def update_boundary(field_id: str, update: BoundaryUpdate):
     if update.recalculate_area:
         field_data["area_hectares"] = round(new_area, 4)
 
-    field_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    field_data["updated_at"] = datetime.now(UTC).isoformat()
     _fields[field_id] = field_data
 
     # نشر الحدث
@@ -595,7 +595,7 @@ async def start_crop_season(field_id: str, season: CropSeasonCreate):
         raise HTTPException(status_code=400, detail="يوجد موسم نشط بالفعل. يجب إنهاءه أولاً")
 
     season_id = str(uuid4())
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     season_data = {
         "id": season_id,
@@ -682,7 +682,7 @@ async def close_crop_season(field_id: str, close_data: CropSeasonClose):
 
     # مسح المحصول الحالي
     _fields[field_id]["current_crop"] = None
-    _fields[field_id]["updated_at"] = datetime.now(timezone.utc).isoformat()
+    _fields[field_id]["updated_at"] = datetime.now(UTC).isoformat()
 
     # نشر الحدث
     if app.state.publisher:
@@ -715,7 +715,7 @@ async def create_zone(field_id: str, zone: ZoneCreate):
 
     zone_id = str(uuid4())
     zone_area = calculate_polygon_area(zone.boundary.coordinates)
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     zone_data = {
         "id": zone_id,

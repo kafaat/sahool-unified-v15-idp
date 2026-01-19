@@ -5,7 +5,7 @@ SAHOOL Alert Service - Usage Examples
 هذا الملف يوضح كيفية استخدام repository layer
 """
 
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from uuid import uuid4
 
 from src import repository
@@ -41,7 +41,7 @@ def example_create_alert():
             ],
             metadata={"wind_speed": 80, "precipitation": "heavy"},
             source_service="weather-service",
-            expires_at=datetime.now(timezone.utc) + timedelta(hours=24),
+            expires_at=datetime.now(UTC) + timedelta(hours=24),
         )
 
         created_alert = repository.create_alert(db, alert)

@@ -4,7 +4,7 @@ Lightweight device management and status tracking
 """
 
 from dataclasses import asdict, dataclass, field
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from enum import Enum
 
 
@@ -49,8 +49,8 @@ class Device:
     signal_strength: int | None = None  # RSSI in dBm
     location: dict | None = None  # {"lat": ..., "lng": ...}
     metadata: dict = field(default_factory=dict)
-    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    updated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
+    updated_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -61,7 +61,7 @@ class Device:
             return False
         try:
             last = datetime.fromisoformat(self.last_seen.replace("Z", "+00:00"))
-            threshold = datetime.now(timezone.utc) - timedelta(minutes=timeout_minutes)
+            threshold = datetime.now(UTC) - timedelta(minutes=timeout_minutes)
             return last > threshold
         except (ValueError, TypeError):
             return False
@@ -89,7 +89,7 @@ class DeviceRegistry:
         **kwargs,
     ) -> Device:
         """Register a new device or update existing"""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
 
         if device_id in self._devices:
             # Update existing
@@ -148,7 +148,7 @@ class DeviceRegistry:
         if not device:
             return None
 
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         device.last_seen = now
         device.updated_at = now
 

@@ -10,7 +10,7 @@ Links with fertilizer-advisor service to:
 
 import logging
 from dataclasses import asdict, dataclass
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from enum import Enum
 from typing import Any
 
@@ -180,7 +180,7 @@ class FertilizerIntegration:
                 "application_id": application_data.get("id"),
                 "field_id": field_id,
                 "farm_id": application_data.get("farm_id"),
-                "timestamp": application_data.get("timestamp", datetime.now(timezone.utc).isoformat()),
+                "timestamp": application_data.get("timestamp", datetime.now(UTC).isoformat()),
                 # Product details
                 "product": {
                     "name": application_data.get("product_name"),
@@ -316,13 +316,13 @@ class FertilizerIntegration:
                 compliance_status = "imbalanced"
 
             plan = NutrientManagementPlan(
-                plan_id=f"NMP_{field_id}_{datetime.now(timezone.utc).strftime('%Y%m%d')}",
+                plan_id=f"NMP_{field_id}_{datetime.now(UTC).strftime('%Y%m%d')}",
                 farm_id=farm_id,
                 field_id=field_id,
                 crop_type=crop_type,
-                season_id=f"season_{datetime.now(timezone.utc).year}",
-                created_date=datetime.now(timezone.utc),
-                valid_until=datetime.now(timezone.utc) + timedelta(days=365),
+                season_id=f"season_{datetime.now(UTC).year}",
+                created_date=datetime.now(UTC),
+                valid_until=datetime.now(UTC) + timedelta(days=365),
                 soil_test_results=soil_test,
                 target_yield_kg_per_ha=target_yield_kg_per_ha,
                 total_nitrogen_required_kg=nutrient_requirements["N"],

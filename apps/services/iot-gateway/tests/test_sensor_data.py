@@ -4,7 +4,7 @@ Tests data normalization, format conversion, validation, and edge cases
 """
 
 import json
-from datetime import timezone, datetime
+from datetime import timezone, datetime, UTC
 
 import pytest
 from apps.services.iot_gateway.src.normalizer import (
@@ -31,7 +31,7 @@ class TestNormalizedReading:
             sensor_type="soil_moisture",
             value=45.5,
             unit="%",
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
         )
 
         assert reading.device_id == "sensor_001"
@@ -48,7 +48,7 @@ class TestNormalizedReading:
             sensor_type="soil_moisture",
             value=45.5,
             unit="%",
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             metadata={"battery": 85, "rssi": -65},
         )
 
@@ -65,7 +65,7 @@ class TestNormalizedReading:
             sensor_type="soil_moisture",
             value=45.5,
             unit="%",
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
         )
 
         data = reading.to_dict()
@@ -335,7 +335,7 @@ class TestTimestampHandling:
 
     def test_normalize_with_iso_timestamp(self):
         """Test normalization with ISO timestamp"""
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
         payload = json.dumps(
             {
                 "device_id": "sensor_001",
@@ -384,12 +384,12 @@ class TestTimestampHandling:
         assert result.timestamp is not None
         # Should be recent (within 1 second)
         ts = datetime.fromisoformat(result.timestamp.replace("Z", "+00:00"))
-        diff = abs((datetime.now(timezone.utc) - ts).total_seconds())
+        diff = abs((datetime.now(UTC) - ts).total_seconds())
         assert diff < 2
 
     def test_normalize_with_alternative_timestamp_keys(self):
         """Test normalization with alternative timestamp key names"""
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
 
         # Test with 'ts' key
         payload1 = json.dumps(

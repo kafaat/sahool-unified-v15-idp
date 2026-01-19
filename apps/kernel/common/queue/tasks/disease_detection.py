@@ -12,7 +12,7 @@ License: MIT
 import io
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any
 
 import httpx
@@ -590,7 +590,7 @@ def handle_disease_detection(payload: dict[str, Any]) -> dict[str, Any]:
             )
 
             # Add image metadata to each detection
-            detection_timestamp = datetime.now(timezone.utc).isoformat()
+            detection_timestamp = datetime.now(UTC).isoformat()
             for detection in detections:
                 detection["image_url"] = image_url
                 detection["image_index"] = idx
@@ -618,9 +618,7 @@ def handle_disease_detection(payload: dict[str, Any]) -> dict[str, Any]:
         aggregated: dict[str, dict[str, Any]] = {}
         for detection in filtered_detections:
             disease_id = detection.get("disease_id", "unknown")
-            if disease_id not in aggregated:
-                aggregated[disease_id] = detection
-            elif detection.get("confidence", 0) > aggregated[disease_id].get("confidence", 0):
+            if disease_id not in aggregated or detection.get("confidence", 0) > aggregated[disease_id].get("confidence", 0):
                 aggregated[disease_id] = detection
 
         final_detections = list(aggregated.values())
@@ -678,7 +676,7 @@ def handle_disease_detection(payload: dict[str, Any]) -> dict[str, Any]:
         from datetime import timedelta
 
         inspection_days = {"critical": 1, "high": 3, "medium": 7, "low": 14, "none": 30}
-        next_inspection = datetime.now(timezone.utc) + timedelta(
+        next_inspection = datetime.now(UTC) + timedelta(
             days=inspection_days.get(risk_level, 14)
         )
 
@@ -703,7 +701,7 @@ def handle_disease_detection(payload: dict[str, Any]) -> dict[str, Any]:
             "severity_score": severity_score,
             "risk_level": risk_level,
             "next_inspection_date": next_inspection.isoformat(),
-            "analysis_timestamp": datetime.now(timezone.utc).isoformat(),
+            "analysis_timestamp": datetime.now(UTC).isoformat(),
         }
 
         logger.info(

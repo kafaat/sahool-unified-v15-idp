@@ -5,7 +5,7 @@ SQLAlchemy models for append-only audit logging with hash chain
 
 from __future__ import annotations
 
-from datetime import timezone, datetime
+from datetime import timezone, datetime, UTC
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, Index, Integer, String, Text
@@ -119,7 +119,7 @@ class AuditLog(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         comment="When the action occurred",
     )
 

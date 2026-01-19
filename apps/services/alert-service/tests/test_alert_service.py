@@ -4,7 +4,7 @@ Comprehensive unit tests for alert business logic
 Coverage: Repository operations, alert rules, statistics, event processing
 """
 
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
 
@@ -48,7 +48,7 @@ def mock_alert(mock_db_session):
         source_service="ndvi-engine",
         correlation_id=str(uuid4()),
     )
-    alert.created_at = datetime.now(timezone.utc)
+    alert.created_at = datetime.now(UTC)
     return alert
 
 
@@ -68,8 +68,8 @@ def mock_alert_rule(mock_db_session):
         alert_config={"type": "irrigation", "severity": "high", "title": "Low Moisture"},
         cooldown_hours=24,
     )
-    rule.created_at = datetime.now(timezone.utc)
-    rule.updated_at = datetime.now(timezone.utc)
+    rule.created_at = datetime.now(UTC)
+    rule.updated_at = datetime.now(UTC)
     return rule
 
 
@@ -195,8 +195,8 @@ class TestAlertRepository:
         mock_result.scalars = MagicMock(return_value=[mock_alert])
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
-        start_date = datetime.now(timezone.utc) - timedelta(days=7)
-        end_date = datetime.now(timezone.utc)
+        start_date = datetime.now(UTC) - timedelta(days=7)
+        end_date = datetime.now(UTC)
 
         alerts = get_alerts_by_tenant(
             mock_db_session,
@@ -433,7 +433,7 @@ class TestAlertRuleRepository:
         from src.repository import get_rules_ready_to_trigger
 
         # Rule triggered more than cooldown period ago
-        mock_alert_rule.last_triggered_at = datetime.now(timezone.utc) - timedelta(hours=25)
+        mock_alert_rule.last_triggered_at = datetime.now(UTC) - timedelta(hours=25)
         mock_alert_rule.cooldown_hours = 24
 
         mock_result = MagicMock()

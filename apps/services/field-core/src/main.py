@@ -7,7 +7,7 @@ Port: 8090
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import timezone, datetime
+from datetime import timezone, datetime, UTC
 
 from fastapi import FastAPI, HTTPException, Query
 from profitability_analyzer import (
@@ -101,7 +101,7 @@ def health():
         "status": "ok",
         "service": "field_core",
         "version": "15.3.3",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 

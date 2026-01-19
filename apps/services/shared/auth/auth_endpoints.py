@@ -14,7 +14,7 @@ Production Note: Replace InMemoryAuthStore with database-backed implementation.
 
 import logging
 import secrets
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
@@ -119,7 +119,7 @@ class InMemoryAuthStore:
             "is_active": True,
             "is_verified": True,
             "tenant_id": "tenant_001",
-            "created_at": datetime.now(timezone.utc),
+            "created_at": datetime.now(UTC),
         }
         logger.info("Test user created: test@sahool.app / TestPassword123!")
 
@@ -147,7 +147,7 @@ class InMemoryAuthStore:
             "is_active": True,
             "is_verified": False,  # Requires email verification
             "tenant_id": None,
-            "created_at": datetime.now(timezone.utc),
+            "created_at": datetime.now(UTC),
         }
         self._users[email.lower()] = user
         return user
@@ -169,7 +169,7 @@ class InMemoryAuthStore:
         token = generate_secure_token(32)
         self._reset_tokens[token] = {
             "email": email.lower(),
-            "expires_at": datetime.now(timezone.utc) + timedelta(minutes=15),
+            "expires_at": datetime.now(UTC) + timedelta(minutes=15),
             "used": False,
         }
         return token
@@ -181,7 +181,7 @@ class InMemoryAuthStore:
             return None
         if token_data["used"]:
             return None
-        if datetime.now(timezone.utc) > token_data["expires_at"]:
+        if datetime.now(UTC) > token_data["expires_at"]:
             return None
         return token_data["email"]
 
@@ -397,7 +397,7 @@ async def reset_password(
     email = store.validate_reset_token(data.token)
 
     if not email:
-        logger.warning(f"Invalid reset token attempted")
+        logger.warning("Invalid reset token attempted")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired reset token",

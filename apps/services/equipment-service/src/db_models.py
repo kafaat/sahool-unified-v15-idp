@@ -7,7 +7,7 @@ SQLAlchemy ORM models for equipment, maintenance, and alerts storage
 
 from __future__ import annotations
 
-from datetime import timezone, datetime
+from datetime import timezone, datetime, UTC
 from decimal import Decimal
 
 from sqlalchemy import Boolean, DateTime, Index, Integer, Numeric, String, Text
@@ -188,14 +188,14 @@ class Equipment(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         comment="When the equipment was registered",
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
         comment="When the equipment was last updated",
     )
 
@@ -383,7 +383,7 @@ class MaintenanceAlert(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         comment="When the alert was created",
     )
 

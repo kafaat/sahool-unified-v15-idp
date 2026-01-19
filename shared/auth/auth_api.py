@@ -9,7 +9,7 @@ FastAPI routes for authentication:
 """
 
 import logging
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, EmailStr, Field
@@ -128,7 +128,7 @@ def create_temp_token(user_id: str, email: str) -> str:
         "user_id": user_id,
         "email": email,
         "temp": True,
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=5),
+        "exp": datetime.now(UTC) + timedelta(minutes=5),
     }
     # Use a simple encoding for temp token (or use JWT)
     import base64
@@ -147,7 +147,7 @@ def verify_temp_token(temp_token: str) -> dict | None:
 
         # Check expiration
         exp_time = datetime.fromisoformat(payload["exp"].replace("Z", "+00:00"))
-        if datetime.now(timezone.utc) > exp_time:
+        if datetime.now(UTC) > exp_time:
             return None
 
         if not payload.get("temp"):

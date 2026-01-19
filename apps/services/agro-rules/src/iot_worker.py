@@ -6,7 +6,7 @@ Subscribes to sensor events and creates tasks
 import asyncio
 import json
 import os
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 
 import httpx
 from nats.aio.client import Client as NATS
@@ -169,7 +169,7 @@ class IoTRulesWorker:
                 "sensor_type": sensor_type,
                 "value": value,
                 "device_id": device_id,
-                "timestamp": datetime.now(timezone.utc),
+                "timestamp": datetime.now(UTC),
             }
         )
 
@@ -216,12 +216,12 @@ class IoTRulesWorker:
         # Check cooldown
         if task_key in self._recent_tasks:
             last_created = self._recent_tasks[task_key]
-            if datetime.now(timezone.utc) - last_created < timedelta(minutes=self._cooldown_minutes):
+            if datetime.now(UTC) - last_created < timedelta(minutes=self._cooldown_minutes):
                 print(f"⏳ Skipping task (cooldown): {recommendation.title_en}")
                 return
 
         # Calculate due date
-        due_date = datetime.now(timezone.utc) + timedelta(hours=recommendation.urgency_hours)
+        due_date = datetime.now(UTC) + timedelta(hours=recommendation.urgency_hours)
 
         # Add device info to metadata
         metadata = recommendation.metadata or {}
@@ -241,7 +241,7 @@ class IoTRulesWorker:
                 metadata=metadata,
             )
 
-            self._recent_tasks[task_key] = datetime.now(timezone.utc)
+            self._recent_tasks[task_key] = datetime.now(UTC)
             print(f"✅ Created task: {recommendation.title_en} (field: {field_id})")
 
         except Exception as e:

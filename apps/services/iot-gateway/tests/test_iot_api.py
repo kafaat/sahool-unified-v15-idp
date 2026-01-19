@@ -4,7 +4,7 @@ Tests all FastAPI endpoints including health checks, sensor readings, device man
 """
 
 import sys
-from datetime import timezone, datetime
+from datetime import timezone, datetime, UTC
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -117,7 +117,7 @@ class TestSensorEndpoints:
             "sensor_type": "soil_moisture",
             "value": 45.5,
             "unit": "%",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         response = test_client.post("/sensor/reading", json=payload)

@@ -395,10 +395,7 @@ class PythonAnalyzer(BaseAnalyzer):
             used_names = set()
 
             for node in ast.walk(tree):
-                if isinstance(node, ast.Import):
-                    for alias in node.names:
-                        imports.add((alias.asname or alias.name, node.lineno))
-                elif isinstance(node, ast.ImportFrom):
+                if isinstance(node, ast.Import) or isinstance(node, ast.ImportFrom):
                     for alias in node.names:
                         imports.add((alias.asname or alias.name, node.lineno))
                 elif isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):

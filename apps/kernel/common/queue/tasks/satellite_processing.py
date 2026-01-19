@@ -26,7 +26,7 @@ License: MIT
 import logging
 import time
 from dataclasses import dataclass
-from datetime import timezone, datetime
+from datetime import timezone, datetime, UTC
 from typing import Any
 
 import numpy as np
@@ -443,7 +443,7 @@ def save_processed_image(
     logger.info(f"Saving processed image in {output_format} format")
 
     # Generate output URL (simulated)
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
     output_url = f"s3://sahool-satellite/{field_id}/{timestamp}_processed.{output_format.lower()}"
 
     # In production, use rasterio to save GeoTIFF:

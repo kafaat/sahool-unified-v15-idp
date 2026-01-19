@@ -76,7 +76,6 @@ from .service_middleware import (
 )
 from .token_revocation import (
     RedisTokenRevocationStore,
-    get_revocation_store,
     is_token_revoked,
     revoke_all_user_tokens,
     revoke_token,

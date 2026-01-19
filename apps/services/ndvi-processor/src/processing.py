@@ -5,7 +5,7 @@ SAHOOL NDVI Processor - Processing Logic
 
 import os
 import random
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from uuid import uuid4
 
 from .models import (
@@ -39,11 +39,11 @@ def create_job(
 ) -> str:
     """إنشاء مهمة معالجة"""
     job_id = str(uuid4())
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     # تقدير وقت الإنجاز
     estimated_minutes = random.randint(2, 10)
-    estimated = (datetime.now(timezone.utc) + timedelta(minutes=estimated_minutes)).isoformat()
+    estimated = (datetime.now(UTC) + timedelta(minutes=estimated_minutes)).isoformat()
 
     job = {
         "job_id": job_id,
@@ -89,10 +89,10 @@ def update_job_status(
         job["progress_percent"] = progress
 
     if status == JobStatus.PROCESSING and not job["started_at"]:
-        job["started_at"] = datetime.now(timezone.utc).isoformat()
+        job["started_at"] = datetime.now(UTC).isoformat()
 
     if status in [JobStatus.COMPLETED, JobStatus.FAILED]:
-        job["completed_at"] = datetime.now(timezone.utc).isoformat()
+        job["completed_at"] = datetime.now(UTC).isoformat()
         job["progress_percent"] = 100 if status == JobStatus.COMPLETED else job["progress_percent"]
 
     if result:
@@ -115,7 +115,7 @@ def cancel_job(job_id: str) -> bool:
         return False
 
     job["status"] = JobStatus.CANCELLED.value
-    job["completed_at"] = datetime.now(timezone.utc).isoformat()
+    job["completed_at"] = datetime.now(UTC).isoformat()
     _jobs[job_id] = job
     return True
 
@@ -146,7 +146,7 @@ def process_ndvi_mock(
     """معالجة NDVI (محاكاة)"""
     options = options or {}
     result_id = str(uuid4())
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     # محاكاة قيم NDVI
     base_ndvi = random.uniform(0.4, 0.8)
@@ -503,7 +503,7 @@ def create_composite(
 ) -> dict:
     """إنشاء مركب شهري"""
     composite_id = str(uuid4())
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     # محاكاة الإحصائيات
     base_ndvi = random.uniform(0.5, 0.75)

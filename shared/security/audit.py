@@ -13,10 +13,8 @@ import hashlib
 import json
 import logging
 from dataclasses import dataclass
-from datetime import timezone, datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from enum import Enum
-from pathlib import Path
-from typing import Any
 from uuid import uuid4
 
 from .audit_models import AuditCategory, AuditLog, AuditSeverity
@@ -333,7 +331,7 @@ async def get_failed_logins(
     limit: int = 100,
 ) -> list[AuditLog]:
     """Get failed login attempts"""
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+    cutoff = datetime.now(UTC) - timedelta(hours=hours)
 
     return (
         await AuditLog.filter(
@@ -575,14 +573,14 @@ async def get_compliance_report(
     security_events = [e for e in entries if e.category == AuditCategory.SECURITY.value]
 
     # Unique users
-    unique_users = len(set(e.user_id for e in entries))
+    unique_users = len({e.user_id for e in entries})
 
     # Chain validation
     chain_validation = await validate_hash_chain(tenant_id, start_date, end_date)
 
     report = {
         "tenant_id": tenant_id,
-        "report_generated": datetime.now(timezone.utc).isoformat(),
+        "report_generated": datetime.now(UTC).isoformat(),
         "period": {
             "start": start_date.isoformat(),
             "end": end_date.isoformat(),

@@ -21,7 +21,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import timezone, date, datetime, timedelta
+from datetime import timezone, date, datetime, timedelta, UTC
 from decimal import Decimal
 from enum import Enum
 from pathlib import Path
@@ -374,7 +374,7 @@ class Plan(BaseModel):
     limits: dict[str, int]  # Feature limits
     is_active: bool = True
     trial_days: int = 14
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class TenantContact(BaseModel):
@@ -397,7 +397,7 @@ class Tenant(BaseModel):
     name_ar: str
     contact: TenantContact
     tax_id: str | None = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     is_active: bool = True
     metadata: dict[str, Any] = {}
 
@@ -427,8 +427,8 @@ class Subscription(BaseModel):
     stripe_subscription_id: str | None = None
 
     # Metadata
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class InvoiceLineItem(BaseModel):
@@ -475,7 +475,7 @@ class Invoice(BaseModel):
     notes_ar: str | None = None
 
     # Metadata
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     stripe_invoice_id: str | None = None
 
 
@@ -500,7 +500,7 @@ class Payment(BaseModel):
     receipt_url: str | None = None
 
     # Metadata
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class UsageRecord(BaseModel):
@@ -510,7 +510,7 @@ class UsageRecord(BaseModel):
     tenant_id: str
     metric: str
     quantity: int
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = {}
 
 
@@ -630,7 +630,7 @@ async def get_next_invoice_number() -> str:
     """
     from .database import get_db_context
 
-    year = datetime.now(timezone.utc).year
+    year = datetime.now(UTC).year
 
     try:
         async with get_db_context() as db:
@@ -649,7 +649,7 @@ async def get_next_invoice_number() -> str:
         logger.warning("Invoice sequence failed, using fallback", exc_info=True)
         import hashlib
         unique_suffix = hashlib.sha256(
-            f"{datetime.now(timezone.utc).isoformat()}-{uuid.uuid4()}".encode()
+            f"{datetime.now(UTC).isoformat()}-{uuid.uuid4()}".encode()
         ).hexdigest()[:8].upper()
         return f"SAH-{year}-{unique_suffix}"
 
@@ -1259,7 +1259,7 @@ def generate_invoice_number() -> str:
         DeprecationWarning,
         stacklevel=2
     )
-    year = datetime.now(timezone.utc).year
+    year = datetime.now(UTC).year
     # Use UUID-based suffix to prevent sequential number exposure
     unique_suffix = uuid.uuid4().hex[:8].upper()
     return f"SAH-{year}-{unique_suffix}"
@@ -1336,7 +1336,7 @@ async def check_usage_limit_db(db: AsyncSession, tenant_id: str, metric: str) ->
         return {"allowed": True, "limit": None, "used": 0, "remaining": "unlimited"}
 
     # Calculate current usage for the current month
-    current_month_start = datetime.now(timezone.utc).replace(
+    current_month_start = datetime.now(UTC).replace(
         day=1, hour=0, minute=0, second=0, microsecond=0
     )
     used = await repo.usage_records.get_metric_count(
@@ -2517,7 +2517,7 @@ async def tharwatt_webhook(
     # Update payment status
     if payload.status == "completed":
         payment.status = PaymentStatus.SUCCEEDED
-        payment.processed_at = datetime.now(timezone.utc)
+        payment.processed_at = datetime.now(UTC)
 
         # Update invoice
         invoice = INVOICES.get(payment.invoice_id)
@@ -2645,7 +2645,7 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
             payment = PAYMENTS.get(payment_id)
             if payment:
                 payment.status = PaymentStatus.SUCCEEDED
-                payment.processed_at = datetime.now(timezone.utc)
+                payment.processed_at = datetime.now(UTC)
                 payment.stripe_payment_id = data.get("id")
 
                 # Update invoice

@@ -10,7 +10,7 @@ Links with irrigation-smart service to:
 
 import logging
 from dataclasses import dataclass
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from enum import Enum
 from typing import Any
 
@@ -114,7 +114,7 @@ class IrrigationIntegration:
             spring_data = {
                 "field_id": field_id,
                 "irrigation_event_id": irrigation_data.get("id"),
-                "date": irrigation_data.get("timestamp", datetime.now(timezone.utc).isoformat()),
+                "date": irrigation_data.get("timestamp", datetime.now(UTC).isoformat()),
                 # Water quantity
                 "water_volume_m3": water_volume,
                 "irrigation_method": irrigation_method,
@@ -384,7 +384,7 @@ class IrrigationIntegration:
 
         try:
             expiry = datetime.fromisoformat(expiry_date.replace("Z", "+00:00"))
-            return expiry > datetime.now(timezone.utc)
+            return expiry > datetime.now(UTC)
         except (ValueError, AttributeError):
             return False
 
@@ -397,7 +397,7 @@ class IrrigationIntegration:
         try:
             last_test = datetime.fromisoformat(test_date.replace("Z", "+00:00"))
             # GlobalGAP requires annual testing
-            one_year_ago = datetime.now(timezone.utc) - timedelta(days=365)
+            one_year_ago = datetime.now(UTC) - timedelta(days=365)
             return last_test > one_year_ago
         except (ValueError, AttributeError):
             return False

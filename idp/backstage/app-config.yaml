@@ -36,4 +36,47 @@ kubernetes:
           url: ${K8S_CLUSTER_URL}
           authProvider: serviceAccount
           serviceAccountToken: ${K8S_SA_TOKEN}
-          skipTLSVerify: true
+          # SECURITY: Use proper TLS verification with CA certificate
+          # Set skipTLSVerify via environment variable, default to false for security
+          skipTLSVerify: ${K8S_SKIP_TLS_VERIFY:false}
+          # For production: provide CA certificate data or file path
+          caData: ${K8S_CA_DATA}
+          # Alternative: use caFile for file-based CA certificate
+          # caFile: /etc/backstage/certs/k8s-ca.crt
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Audit Configuration - تكوين التدقيق
+# ═══════════════════════════════════════════════════════════════════════════
+audit:
+  # Enable audit logging for all admin actions
+  enabled: true
+  # Retention period for audit logs (in days)
+  retentionDays: 90
+  # Alert channels for security events
+  alertChannels:
+    - type: webhook
+      url: ${AUDIT_WEBHOOK_URL}
+    - type: log
+      level: warn
+  # Categories to audit
+  categories:
+    - authentication
+    - authorization
+    - configuration
+    - catalog
+    - kubernetes
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Security Configuration - تكوين الأمان
+# ═══════════════════════════════════════════════════════════════════════════
+security:
+  # Session timeout in minutes
+  sessionTimeoutMinutes: 30
+  # Require MFA for admin actions (when supported)
+  mfaRequired: ${SECURITY_MFA_REQUIRED:false}
+  # Audit all admin actions
+  auditAdminActions: true
+  # Rate limiting for API requests
+  rateLimit:
+    enabled: true
+    maxRequestsPerMinute: 100

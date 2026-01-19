@@ -73,6 +73,15 @@ class AuditLog(Model):
     error_code = fields.CharField(max_length=64, null=True)
     error_message = fields.TextField(null=True)
 
+    # Hash Chain (for audit integrity verification)
+    prev_hash = fields.CharField(max_length=64, null=True, index=True)
+    entry_hash = fields.CharField(max_length=64, null=True, index=True)
+
+    # Metadata (for extensibility)
+    metadata = fields.JSONField(null=True)
+    source_system = fields.CharField(max_length=64, null=True)
+    user_role_snapshot = fields.CharField(max_length=128, null=True)  # User role at time of event
+
     # Timestamp
     created_at = fields.DatetimeField(auto_now_add=True, index=True)
 

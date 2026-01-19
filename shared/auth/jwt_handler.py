@@ -4,7 +4,7 @@ Token creation and verification using PyJWT
 """
 
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 
 import jwt
 from jwt import PyJWTError
@@ -46,7 +46,7 @@ def create_access_token(
         ...     permissions=["farm:read", "farm:write"]
         ... )
     """
-    now = datetime.now(UTC)
+    now = datetime.now(timezone.utc)
 
     if expires_delta:
         expire = now + expires_delta
@@ -96,7 +96,7 @@ def create_refresh_token(
     Example:
         >>> refresh_token = create_refresh_token(user_id="user123")
     """
-    now = datetime.now(UTC)
+    now = datetime.now(timezone.utc)
     expire = now + timedelta(days=config.REFRESH_TOKEN_EXPIRE_DAYS)
 
     # Generate unique token ID for revocation support
@@ -172,8 +172,8 @@ def verify_token(token: str) -> TokenPayload:
             raise AuthException(AuthErrors.INVALID_TOKEN)
 
         # Convert timestamps to datetime objects
-        exp = datetime.fromtimestamp(payload["exp"], tz=UTC)
-        iat = datetime.fromtimestamp(payload["iat"], tz=UTC)
+        exp = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+        iat = datetime.fromtimestamp(payload["iat"], tz=timezone.utc)
 
         return TokenPayload(
             user_id=user_id,

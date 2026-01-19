@@ -8,7 +8,7 @@ Sprint 8: Clean separation of DB access from business logic
 from __future__ import annotations
 
 from collections.abc import Sequence
-from datetime import UTC, date, datetime
+from datetime import timezone, date, datetime
 from uuid import UUID
 
 from sqlalchemy import func, select
@@ -305,6 +305,6 @@ def acknowledge_alert(
         return False
 
     alert.acknowledged = True
-    alert.acknowledged_at = datetime.now(UTC)
+    alert.acknowledged_at = datetime.now(timezone.utc)
     alert.acknowledged_by = user_id
     return True

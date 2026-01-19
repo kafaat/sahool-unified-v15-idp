@@ -5,7 +5,7 @@ Automatically creates FieldOps tasks from recommendations and plans
 
 import json
 import os
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 
 import httpx
 from nats.aio.client import Client as NATS
@@ -190,7 +190,7 @@ class TaskAutomationHook:
                     continue
 
                 # Calculate due date based on urgency
-                due_date = datetime.now(UTC) + timedelta(hours=urgency_hours)
+                due_date = datetime.now(timezone.utc) + timedelta(hours=urgency_hours)
 
                 # Adjust priority based on severity
                 priority = task_info["priority"]
@@ -236,7 +236,7 @@ class TaskAutomationHook:
             # Create task for each application
             for app in plan:
                 timing_days = app.get("timing_days", 0)
-                due_date = datetime.now(UTC) + timedelta(days=timing_days)
+                due_date = datetime.now(timezone.utc) + timedelta(days=timing_days)
 
                 product = app.get("product", "")
                 product_ar = app.get("product_ar", product)
@@ -285,7 +285,7 @@ class TaskAutomationHook:
             corrections = payload.get("corrections", [])
 
             # Create inspection task
-            due_date = datetime.now(UTC) + timedelta(hours=24 if severity == "high" else 48)
+            due_date = datetime.now(timezone.utc) + timedelta(hours=24 if severity == "high" else 48)
 
             await self.fieldops.create_task(
                 tenant_id=tenant_id,

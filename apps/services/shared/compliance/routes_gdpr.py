@@ -6,7 +6,7 @@ Data export and deletion endpoints for GDPR Article 15, 17, 20
 from __future__ import annotations
 
 import logging
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, BackgroundTasks, status
@@ -151,7 +151,7 @@ async def _process_data_export(
         export_data = {
             "export_id": str(request_id),
             "user_id": str(user_id),
-            "exported_at": datetime.now(UTC).isoformat(),
+            "exported_at": datetime.now(timezone.utc).isoformat(),
             "format": export_format,
             "data": {
                 "profile": {},  # Would fetch from user service
@@ -379,7 +379,7 @@ async def get_compliance_status() -> dict:
     """
     return {
         "status": "compliant",
-        "last_audit": datetime.now(UTC).isoformat(),
+        "last_audit": datetime.now(timezone.utc).isoformat(),
         "metrics": {
             "pending_exports": 0,
             "pending_deletions": 0,

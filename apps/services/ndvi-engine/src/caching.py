@@ -12,7 +12,7 @@ import json
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -29,11 +29,11 @@ class CacheEntry:
 
     @property
     def is_expired(self) -> bool:
-        return datetime.now(UTC) >= self.expires_at
+        return datetime.now(timezone.utc) >= self.expires_at
 
     @property
     def age_seconds(self) -> float:
-        return (datetime.now(UTC) - self.created_at).total_seconds()
+        return (datetime.now(timezone.utc) - self.created_at).total_seconds()
 
 
 class CacheBackend(ABC):
@@ -97,7 +97,7 @@ class InMemoryCache(CacheBackend):
         if len(self._store) >= self._max_entries:
             self._evict_lru()
 
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         self._store[key] = CacheEntry(
             value=value,
             created_at=now,
@@ -242,7 +242,7 @@ def calculate_ttl(
     Returns:
         TTL in seconds
     """
-    now = datetime.now(UTC)
+    now = datetime.now(timezone.utc)
     age_days = (now - obs_date).days
 
     if age_days > 30:

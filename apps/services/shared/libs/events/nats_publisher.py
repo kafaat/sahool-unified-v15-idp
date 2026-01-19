@@ -13,7 +13,7 @@ import asyncio
 import json
 import logging
 import os
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 from typing import Any
 from uuid import uuid4
 
@@ -56,7 +56,7 @@ class AnalysisEvent(BaseModel):
     event_id: str = Field(default_factory=lambda: str(uuid4()))
     event_type: str = Field(..., description="e.g., 'ndvi.computed', 'irrigation.recommended'")
     source_service: str = Field(..., description="e.g., 'satellite-service', 'irrigation-smart'")
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Target
     tenant_id: str | None = None

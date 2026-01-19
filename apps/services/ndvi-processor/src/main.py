@@ -7,7 +7,7 @@ Port: 8101
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Response
 
@@ -197,7 +197,7 @@ def health():
         "status": "healthy",
         "service": "ndvi-processor",
         "version": "16.0.0",
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "metrics": {"queue_size": active_jobs, "total_jobs": len(list_jobs())},
     }
 
@@ -211,7 +211,7 @@ def healthz():
         "service": "ndvi-processor",
         "version": "16.0.0",
         "queue_size": active_jobs,
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 

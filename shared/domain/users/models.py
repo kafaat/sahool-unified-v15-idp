@@ -6,7 +6,7 @@ Data models for user management
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 from uuid import uuid4
 
 
@@ -63,7 +63,7 @@ class User:
         password_hash: str | None = None,
     ) -> User:
         """Factory method to create a new user"""
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         return cls(
             id=str(uuid4()),
             tenant_id=tenant_id,

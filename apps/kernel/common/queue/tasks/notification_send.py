@@ -12,7 +12,7 @@ License: MIT
 import json
 import logging
 import os
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -150,7 +150,7 @@ def _send_push_notification(
             "priority": priority,
             "title_en": title,
             "body_en": body,
-            "sent_at": datetime.now(UTC).isoformat(),
+            "sent_at": datetime.now(timezone.utc).isoformat(),
         }
         if title_ar:
             data_payload["title_ar"] = title_ar
@@ -326,7 +326,7 @@ def _log_delivery_status(
         "channel": channel,
         "status": status,
         "user_id": user_id,
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
     if error_message:
@@ -520,7 +520,7 @@ def handle_notification_send(payload: dict[str, Any]) -> dict[str, Any]:
                 "notification_type": notification_type,
                 "priority": priority,
                 "channels_used": channels,
-                "sent_at": datetime.now(UTC).isoformat(),
+                "sent_at": datetime.now(timezone.utc).isoformat(),
                 "bilingual": bool(title_ar or message_ar),
             },
         }

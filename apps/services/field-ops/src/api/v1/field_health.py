@@ -6,7 +6,7 @@ POST /api/v1/field-health - تحليل صحة الحقل الزراعي
 Field health analysis endpoint with AI-powered insights
 """
 
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -566,7 +566,7 @@ async def analyze_field_health(request: FieldHealthRequest) -> FieldHealthRespon
             risk_factors=risk_factors,
             recommendations_ar=recommendations_ar,
             recommendations_en=recommendations_en,
-            analysis_timestamp=datetime.now(UTC).isoformat(),
+            analysis_timestamp=datetime.now(timezone.utc).isoformat(),
             metadata={
                 "ndvi_weight": 0.40,
                 "soil_moisture_weight": 0.25,

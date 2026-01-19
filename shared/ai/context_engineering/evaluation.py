@@ -24,7 +24,7 @@ import logging
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -243,7 +243,7 @@ class EvaluationResult:
             feedback=feedback,
             feedback_ar=feedback_ar,
             improvements=improvements,
-            evaluated_at=datetime.now(UTC),
+            evaluated_at=datetime.now(timezone.utc),
         )
 
     @staticmethod

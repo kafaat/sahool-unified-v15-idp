@@ -10,7 +10,7 @@ Links with crop-health-ai service to:
 
 import logging
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -166,7 +166,7 @@ class CropHealthIntegration:
                 "detection_id": detection_data.get("id"),
                 "field_id": field_id,
                 "farm_id": detection_data.get("farm_id"),
-                "timestamp": detection_data.get("detected_at", datetime.now(UTC).isoformat()),
+                "timestamp": detection_data.get("detected_at", datetime.now(timezone.utc).isoformat()),
                 # Threat identification
                 "threat": {
                     "type": threat_type.value,
@@ -475,7 +475,7 @@ class CropHealthIntegration:
 
     def _calculate_action_deadline(self, severity: SeverityLevel) -> str:
         """حساب الموعد النهائي للإجراء - Calculate action deadline"""
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
 
         deadline_map = {
             SeverityLevel.CRITICAL: timedelta(days=1),

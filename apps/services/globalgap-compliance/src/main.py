@@ -7,7 +7,7 @@ Port: 8120
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 from uuid import uuid4
 
 import structlog
@@ -196,7 +196,7 @@ def health():
         "status": "healthy",
         "service": settings.service_name,
         "version": settings.service_version,
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "dependencies": {
             "storage": "in_memory",  # Using in-memory storage
             "storage_records": storage_records,
@@ -215,7 +215,7 @@ def liveness():
     return {
         "status": "alive",
         "service": settings.service_name,
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 

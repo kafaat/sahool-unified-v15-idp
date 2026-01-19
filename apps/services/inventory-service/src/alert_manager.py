@@ -6,7 +6,7 @@ Manages low stock alerts, expiring items, and reorder notifications
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import UTC, date, datetime, timedelta
+from datetime import timezone, date, datetime, timedelta
 from enum import Enum
 
 logger = logging.getLogger(__name__)
@@ -66,7 +66,7 @@ class InventoryAlert:
     action_url: str | None = None
 
     # Timing
-    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     acknowledged_at: datetime | None = None
     acknowledged_by: str | None = None
     resolved_at: datetime | None = None
@@ -255,7 +255,7 @@ class AlertManager:
         - Expired: CRITICAL
         """
         alerts = []
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         today = now.date()
 
         for item_id, item in self.inventory_db.items():
@@ -523,7 +523,7 @@ class AlertManager:
         alert_type: AlertType | None = None,
     ) -> list[InventoryAlert]:
         """Get all active alerts"""
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         alerts = []
 
         for alert in self.alerts_db.values():
@@ -563,7 +563,7 @@ class AlertManager:
             return None
 
         alert.status = AlertStatus.ACKNOWLEDGED
-        alert.acknowledged_at = datetime.now(UTC)
+        alert.acknowledged_at = datetime.now(timezone.utc)
         alert.acknowledged_by = acknowledged_by
 
         logger.info(f"Alert {alert_id} acknowledged by {acknowledged_by}")
@@ -578,7 +578,7 @@ class AlertManager:
             return None
 
         alert.status = AlertStatus.RESOLVED
-        alert.resolved_at = datetime.now(UTC)
+        alert.resolved_at = datetime.now(timezone.utc)
         alert.resolved_by = resolved_by
         alert.resolution_notes = resolution_notes
 
@@ -592,7 +592,7 @@ class AlertManager:
             return None
 
         alert.status = AlertStatus.SNOOZED
-        alert.snooze_until = datetime.now(UTC) + timedelta(hours=snooze_hours)
+        alert.snooze_until = datetime.now(timezone.utc) + timedelta(hours=snooze_hours)
 
         logger.info(f"Alert {alert_id} snoozed for {snooze_hours} hours")
         return alert
@@ -649,7 +649,7 @@ class AlertManager:
                     "event_type": "inventory_alert",
                     "event_id": alert.id,
                     "source_service": "inventory-service",
-                    "timestamp": datetime.now(UTC).isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "alert": alert.to_dict(),
                     "recipients": ["farm_manager", "owner"],
                     "notification_priority": alert.priority.value,

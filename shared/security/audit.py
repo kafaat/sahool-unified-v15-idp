@@ -13,7 +13,7 @@ import hashlib
 import json
 import logging
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -333,7 +333,7 @@ async def get_failed_logins(
     limit: int = 100,
 ) -> list[AuditLog]:
     """Get failed login attempts"""
-    cutoff = datetime.now(UTC) - timedelta(hours=hours)
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
 
     return (
         await AuditLog.filter(
@@ -582,7 +582,7 @@ async def get_compliance_report(
 
     report = {
         "tenant_id": tenant_id,
-        "report_generated": datetime.now(UTC).isoformat(),
+        "report_generated": datetime.now(timezone.utc).isoformat(),
         "period": {
             "start": start_date.isoformat(),
             "end": end_date.isoformat(),

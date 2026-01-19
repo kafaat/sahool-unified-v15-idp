@@ -33,7 +33,7 @@ import contextlib
 import logging
 import os
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -185,7 +185,7 @@ class VaultClient:
 
             # Store token expiry
             ttl = response["auth"].get("lease_duration", 3600)
-            self._token_expiry = datetime.now(UTC) + timedelta(seconds=ttl)
+            self._token_expiry = datetime.now(timezone.utc) + timedelta(seconds=ttl)
 
             logger.info("Successfully authenticated with AppRole")
 
@@ -207,7 +207,7 @@ class VaultClient:
                         continue
 
                     # Check if renewal is needed
-                    time_until_expiry = (self._token_expiry - datetime.now(UTC)).total_seconds()
+                    time_until_expiry = (self._token_expiry - datetime.now(timezone.utc)).total_seconds()
 
                     if time_until_expiry < self.config.renewal_threshold_seconds:
                         await self._renew_token()
@@ -229,7 +229,7 @@ class VaultClient:
                 # Renew existing token
                 response = self._client.auth.token.renew_self()
                 ttl = response["auth"].get("lease_duration", 3600)
-                self._token_expiry = datetime.now(UTC) + timedelta(seconds=ttl)
+                self._token_expiry = datetime.now(timezone.utc) + timedelta(seconds=ttl)
 
             logger.info("Vault token renewed successfully")
 
@@ -273,7 +273,7 @@ class VaultClient:
             return None
 
         value, cached_at = self._cache[path]
-        age = (datetime.now(UTC) - cached_at).total_seconds()
+        age = (datetime.now(timezone.utc) - cached_at).total_seconds()
 
         if age > self.config.cache_ttl_seconds:
             del self._cache[path]
@@ -284,7 +284,7 @@ class VaultClient:
     def _set_cache(self, path: str, value: Any) -> None:
         """Store secret in cache"""
         if self.config.enable_cache:
-            self._cache[path] = (value, datetime.now(UTC))
+            self._cache[path] = (value, datetime.now(timezone.utc))
 
     async def get_secret(self, path: str, key: str | None = None) -> Any:
         """

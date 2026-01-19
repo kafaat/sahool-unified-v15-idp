@@ -5,7 +5,7 @@ Business logic for tenant management
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 
 from .models import Tenant, TenantPlan, TenantSettings, TenantStatus
 
@@ -47,7 +47,7 @@ class TenantService:
         tenant = self._tenants.get(tenant_id)
         if tenant:
             tenant.status = status
-            tenant.updated_at = datetime.now(UTC)
+            tenant.updated_at = datetime.now(timezone.utc)
         return tenant
 
     def update_tenant_plan(
@@ -61,7 +61,7 @@ class TenantService:
             tenant.plan = plan
             # Update settings based on plan
             tenant.settings = self._get_plan_settings(plan)
-            tenant.updated_at = datetime.now(UTC)
+            tenant.updated_at = datetime.now(timezone.utc)
         return tenant
 
     def _get_plan_settings(self, plan: TenantPlan) -> TenantSettings:

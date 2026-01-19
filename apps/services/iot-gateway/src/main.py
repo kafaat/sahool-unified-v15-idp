@@ -9,7 +9,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 
 from fastapi import FastAPI, HTTPException, Query
 
@@ -166,7 +166,7 @@ async def check_offline_devices():
                     device_id=device.device_id,
                     field_id=device.field_id,
                     status=DeviceStatus.OFFLINE.value,
-                    last_seen=device.last_seen or datetime.now(UTC).isoformat(),
+                    last_seen=device.last_seen or datetime.now(timezone.utc).isoformat(),
                 )
 
                 # Also publish alert
@@ -509,7 +509,7 @@ async def post_sensor_reading(req: SensorReadingRequest):
     # Validate device authorization and sensor reading
     validate_sensor_reading(req.device_id, req.tenant_id, req.field_id, req.sensor_type, req.value)
 
-    timestamp = req.timestamp or datetime.now(UTC).isoformat()
+    timestamp = req.timestamp or datetime.now(timezone.utc).isoformat()
 
     # Update device status
     registry.update_status(
@@ -614,7 +614,7 @@ async def post_batch_readings(req: BatchReadingRequest):
                 sensor_type=sensor_type,
                 value=float(value),
                 unit=unit,
-                timestamp=datetime.now(UTC).isoformat(),
+                timestamp=datetime.now(timezone.utc).isoformat(),
             )
             event_ids.append(event_id)
             validated_count += 1

@@ -6,7 +6,7 @@ Sensor Aggregator Usage Examples
 Demonstrates how to use the sensor data aggregation service
 """
 
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 
 from apps.services.iot_gateway.src.models.sensor_data import (
     SensorReading,
@@ -78,7 +78,7 @@ def example_outlier_detection():
             sensor_type="air_temperature",
             value=55.0,  # قيمة شاذة - outlier
             unit="°C",
-            timestamp=datetime.now(UTC).isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
     )
 
@@ -157,8 +157,8 @@ def example_field_aggregation():
 
     # تحديد الفترة الزمنية - Define time range
     time_range = (
-        datetime.now(UTC) - timedelta(hours=24),
-        datetime.now(UTC),
+        datetime.now(timezone.utc) - timedelta(hours=24),
+        datetime.now(timezone.utc),
     )
 
     # التجميع - Aggregate
@@ -297,7 +297,7 @@ def example_drift_detection():
     # إنشاء قراءات مع انحراف تدريجي
     # Create readings with gradual drift
     readings = []
-    start_time = datetime.now(UTC) - timedelta(hours=48)
+    start_time = datetime.now(timezone.utc) - timedelta(hours=48)
 
     print("\nإنشاء قراءات مع انحراف من 20°C إلى 30°C")
     print("Creating readings with drift from 20°C to 30°C")

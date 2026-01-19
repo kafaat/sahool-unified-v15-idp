@@ -6,7 +6,7 @@ JWT Token Management
 import logging
 import secrets
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from typing import Any
 
 import jwt
@@ -91,7 +91,7 @@ def create_access_token(
     if jti is None:
         jti = generate_jti()
 
-    now = datetime.now(UTC)
+    now = datetime.now(timezone.utc)
     expire = now + expires_delta
 
     payload = {
@@ -151,7 +151,7 @@ def create_refresh_token(
     if family_id is None:
         family_id = generate_jti()
 
-    now = datetime.now(UTC)
+    now = datetime.now(timezone.utc)
     expire = now + expires_delta
 
     payload = {
@@ -240,8 +240,8 @@ def decode_token(token: str, verify_audience: bool = True) -> TokenData:
             token_type=payload.get("type", "access"),
             jti=payload.get("jti"),
             family_id=payload.get("family_id"),
-            exp=datetime.fromtimestamp(payload.get("exp", 0), tz=UTC),
-            iat=datetime.fromtimestamp(payload.get("iat", 0), tz=UTC),
+            exp=datetime.fromtimestamp(payload.get("exp", 0), tz=timezone.utc),
+            iat=datetime.fromtimestamp(payload.get("iat", 0), tz=timezone.utc),
         )
 
     except ExpiredSignatureError:

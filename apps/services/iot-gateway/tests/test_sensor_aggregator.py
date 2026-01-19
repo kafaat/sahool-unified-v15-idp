@@ -4,7 +4,7 @@ Tests for Sensor Data Aggregator
 """
 
 import unittest
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 
 from apps.services.iot_gateway.src.models.sensor_data import (
     SensorReading,
@@ -63,7 +63,7 @@ class TestSensorAggregator(unittest.TestCase):
             sensor_type=self.sensor_type,
             value=100.0,  # قيمة شاذة واضحة
             unit="°C",
-            timestamp=datetime.now(UTC).isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
         readings.append(outlier)
 
@@ -85,7 +85,7 @@ class TestSensorAggregator(unittest.TestCase):
                 sensor_type="air_temperature",
                 value=60.0,  # أعلى من الحد الأقصى (45°C)
                 unit="°C",
-                timestamp=datetime.now(UTC).isoformat(),
+                timestamp=datetime.now(timezone.utc).isoformat(),
             ),
             SensorReading(
                 device_id=self.device_id,
@@ -93,7 +93,7 @@ class TestSensorAggregator(unittest.TestCase):
                 sensor_type="air_temperature",
                 value=25.0,  # قيمة طبيعية
                 unit="°C",
-                timestamp=datetime.now(UTC).isoformat(),
+                timestamp=datetime.now(timezone.utc).isoformat(),
             ),
         ]
 
@@ -117,8 +117,8 @@ class TestSensorAggregator(unittest.TestCase):
         )
 
         time_range = (
-            datetime.now(UTC) - timedelta(hours=24),
-            datetime.now(UTC),
+            datetime.now(timezone.utc) - timedelta(hours=24),
+            datetime.now(timezone.utc),
         )
 
         aggregated = self.aggregator.aggregate_by_field(
@@ -142,8 +142,8 @@ class TestSensorAggregator(unittest.TestCase):
         )
 
         time_range = (
-            datetime.now(UTC) - timedelta(hours=24),
-            datetime.now(UTC),
+            datetime.now(timezone.utc) - timedelta(hours=24),
+            datetime.now(timezone.utc),
         )
 
         aggregated = self.aggregator.aggregate_by_sensor_type(
@@ -214,7 +214,7 @@ class TestSensorAggregator(unittest.TestCase):
         # إنشاء قراءات مع انحراف تدريجي
         # Create readings with gradual drift
         readings = []
-        start_time = datetime.now(UTC) - timedelta(hours=24)
+        start_time = datetime.now(timezone.utc) - timedelta(hours=24)
 
         for i in range(50):
             # زيادة تدريجية من 20 إلى 30
@@ -273,7 +273,7 @@ class TestSensorAggregator(unittest.TestCase):
         # إنشاء قراءات بمعدل تغيير ثابت
         # Create readings with constant rate of change
         readings = []
-        start_time = datetime.now(UTC) - timedelta(hours=10)
+        start_time = datetime.now(timezone.utc) - timedelta(hours=10)
 
         for i in range(10):
             # زيادة 1 درجة كل ساعة - Increase 1 degree per hour
@@ -311,13 +311,13 @@ class TestSensorAggregator(unittest.TestCase):
                 sensor_type="rainfall",
                 value=value,
                 unit="mm",
-                timestamp=(datetime.now(UTC) + timedelta(hours=i)).isoformat(),
+                timestamp=(datetime.now(timezone.utc) + timedelta(hours=i)).isoformat(),
             )
             readings.append(reading)
 
         time_range = (
-            datetime.now(UTC) - timedelta(hours=1),
-            datetime.now(UTC) + timedelta(hours=10),
+            datetime.now(timezone.utc) - timedelta(hours=1),
+            datetime.now(timezone.utc) + timedelta(hours=10),
         )
 
         aggregated = self.aggregator._aggregate_readings(
@@ -345,7 +345,7 @@ class TestSensorReadingModel(unittest.TestCase):
             sensor_type="temperature",
             value=25.5,
             unit="°C",
-            timestamp=datetime.now(UTC).isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
 
         self.assertEqual(reading.device_id, "test_device")
@@ -360,7 +360,7 @@ class TestSensorReadingModel(unittest.TestCase):
             sensor_type="temperature",
             value=25.5,
             unit="°C",
-            timestamp=datetime.now(UTC).isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             metadata={"battery": 95},
         )
 

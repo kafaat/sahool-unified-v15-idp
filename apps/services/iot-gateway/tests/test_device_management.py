@@ -3,7 +3,7 @@ Comprehensive Device Management Tests
 Tests device registry, status tracking, lifecycle management
 """
 
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from time import sleep
 
 import pytest
@@ -66,14 +66,14 @@ class TestDevice:
             device_type="soil_sensor",
             name_ar="حساس",
             name_en="Sensor",
-            last_seen=datetime.now(UTC).isoformat(),
+            last_seen=datetime.now(timezone.utc).isoformat(),
         )
 
         assert device.is_online(timeout_minutes=15) is True
 
     def test_device_is_offline_with_old_timestamp(self):
         """Test device is considered offline with old last_seen"""
-        old_time = datetime.now(UTC) - timedelta(minutes=30)
+        old_time = datetime.now(timezone.utc) - timedelta(minutes=30)
         device = Device(
             device_id="dev_001",
             tenant_id="tenant_1",
@@ -307,10 +307,10 @@ class TestDeviceStatusTracking:
         registry = DeviceRegistry()
         registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
 
-        before = datetime.now(UTC)
+        before = datetime.now(timezone.utc)
         registry.update_status(device_id="dev_001")
         device = registry.get("dev_001")
-        after = datetime.now(UTC)
+        after = datetime.now(timezone.utc)
 
         last_seen = datetime.fromisoformat(device.last_seen.replace("Z", "+00:00"))
         assert before <= last_seen <= after
@@ -390,7 +390,7 @@ class TestOfflineDeviceDetection:
 
         # Register device and set old last_seen
         registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
-        old_time = datetime.now(UTC) - timedelta(minutes=30)
+        old_time = datetime.now(timezone.utc) - timedelta(minutes=30)
         device = registry.get("dev_001")
         device.last_seen = old_time.isoformat()
         device.status = DeviceStatus.ONLINE.value
@@ -408,7 +408,7 @@ class TestOfflineDeviceDetection:
         registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
         device = registry.get("dev_001")
         device.status = DeviceStatus.OFFLINE.value
-        old_time = datetime.now(UTC) - timedelta(minutes=30)
+        old_time = datetime.now(timezone.utc) - timedelta(minutes=30)
         device.last_seen = old_time.isoformat()
 
         offline = registry.check_offline_devices()
@@ -431,7 +431,7 @@ class TestOfflineDeviceDetection:
             )
 
         # Make them all old
-        old_time = datetime.now(UTC) - timedelta(minutes=30)
+        old_time = datetime.now(timezone.utc) - timedelta(minutes=30)
         for i in range(3):
             device = registry.get(f"dev_{i:03d}")
             device.last_seen = old_time.isoformat()

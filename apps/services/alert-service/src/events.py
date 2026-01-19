@@ -8,7 +8,7 @@ import json
 import logging
 import os
 from collections.abc import Awaitable, Callable
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 from uuid import uuid4
 
 import nats
@@ -85,7 +85,7 @@ class AlertEventPublisher:
         event_id = str(uuid4())
         payload = {
             "event_id": event_id,
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "topic": topic,
             **data,
         }

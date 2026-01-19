@@ -14,7 +14,7 @@ import logging
 import os
 import uuid
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 
 import jwt
 from jwt import PyJWTError
@@ -169,7 +169,7 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
 
                 # Convert iat to datetime if it's a timestamp
                 if isinstance(iat, int | float):
-                    iat = datetime.fromtimestamp(iat, tz=UTC)
+                    iat = datetime.fromtimestamp(iat, tz=timezone.utc)
 
                 is_revoked, reason = revocation_svc.is_revoked(
                     jti=jti,
@@ -255,7 +255,7 @@ def create_token(
     Returns:
         Encoded JWT token string
     """
-    now = datetime.now(UTC)
+    now = datetime.now(timezone.utc)
 
     if expires_delta:
         expire = now + expires_delta

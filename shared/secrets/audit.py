@@ -9,7 +9,7 @@ anomaly detection, and security monitoring.
 import json
 import logging
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -56,7 +56,7 @@ class SecretAccessEvent:
         metadata: Additional context
     """
 
-    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     access_type: SecretAccessType = SecretAccessType.READ
     secret_path: str = ""
     backend: str = "environment"
@@ -159,7 +159,7 @@ class SecretAuditLogger:
     def _track_access(self, event: SecretAccessEvent) -> None:
         """Track access in memory for pattern analysis"""
         # Keep only recent history (last 24 hours)
-        cutoff = datetime.now(UTC) - timedelta(hours=24)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
         self._access_history = [e for e in self._access_history if e.timestamp > cutoff]
 
         # Add new event
@@ -176,7 +176,7 @@ class SecretAuditLogger:
             self._failed_attempts[event.user].append(event.timestamp)
 
             # Clean old failed attempts
-            recent_cutoff = datetime.now(UTC) - timedelta(minutes=15)
+            recent_cutoff = datetime.now(timezone.utc) - timedelta(minutes=15)
             self._failed_attempts[event.user] = [
                 t for t in self._failed_attempts[event.user] if t > recent_cutoff
             ]
@@ -241,7 +241,7 @@ class SecretAuditLogger:
         Returns:
             Dictionary with access statistics
         """
-        cutoff = datetime.now(UTC) - timedelta(hours=hours)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
         recent_events = [e for e in self._access_history if e.timestamp > cutoff]
 
         if not recent_events:

@@ -8,7 +8,7 @@ Quick test to ensure all components work correctly
 """
 
 import sys
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 
 
 def verify_imports():
@@ -88,8 +88,8 @@ def verify_basic_functionality():
 
         # 7. Time range aggregation
         time_range = (
-            datetime.now(UTC) - timedelta(hours=24),
-            datetime.now(UTC),
+            datetime.now(timezone.utc) - timedelta(hours=24),
+            datetime.now(timezone.utc),
         )
         agg = aggregator.aggregate_by_field(
             "test_field", time_range, readings, TimeGranularity.DAILY
@@ -181,7 +181,7 @@ def verify_data_models():
             sensor_type="temperature",
             value=25.0,
             unit="°C",
-            timestamp=datetime.now(UTC).isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
         reading.to_dict()
         print("✓ SensorReading model works")
@@ -190,8 +190,8 @@ def verify_data_models():
         agg = AggregatedData(
             field_id="test",
             sensor_type="temperature",
-            time_range_start=datetime.now(UTC).isoformat(),
-            time_range_end=datetime.now(UTC).isoformat(),
+            time_range_start=datetime.now(timezone.utc).isoformat(),
+            time_range_end=datetime.now(timezone.utc).isoformat(),
             granularity=TimeGranularity.DAILY,
             mean=25.0,
             count=10,
@@ -205,7 +205,7 @@ def verify_data_models():
             field_id="test",
             sensor_type="temperature",
             status=SensorStatus.HEALTHY,
-            timestamp=datetime.now(UTC).isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
         health.to_dict()
         print("✓ SensorHealth model works")

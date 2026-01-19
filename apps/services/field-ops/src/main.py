@@ -8,7 +8,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 from uuid import uuid4
 
 from fastapi import Depends, FastAPI, HTTPException, Query
@@ -125,7 +125,7 @@ def health():
         "status": "ok",
         "service": "field_ops",
         "version": "15.3.3",
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -206,7 +206,7 @@ async def create_field(
 ):
     """Create a new agricultural field"""
     field_id = str(uuid4())
-    now = datetime.now(UTC).isoformat()
+    now = datetime.now(timezone.utc).isoformat()
 
     field_data = {
         "id": field_id,
@@ -301,7 +301,7 @@ async def delete_field(field_id: str):
 async def create_operation(op: OperationCreate):
     """Create a field operation"""
     op_id = str(uuid4())
-    now = datetime.now(UTC).isoformat()
+    now = datetime.now(timezone.utc).isoformat()
 
     op_data = {
         "id": op_id,

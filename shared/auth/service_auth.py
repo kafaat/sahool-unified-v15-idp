@@ -6,7 +6,7 @@ JWT-based authentication for microservices communication
 import logging
 import uuid
 from collections import defaultdict
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from typing import Optional
 
 import jwt
@@ -121,7 +121,7 @@ class ServiceTokenRevocationStore:
             jti: The JWT ID (jti claim) to revoke
         """
         self.revoked_tokens.add(jti)
-        self.revocation_timestamps[jti] = datetime.now(UTC)
+        self.revocation_timestamps[jti] = datetime.now(timezone.utc)
         logger.info(f"Service token revoked: {jti}")
 
     def is_revoked(self, jti: str) -> bool:
@@ -198,7 +198,7 @@ class ServiceCallAuditLog:
             error_message: Error message if call failed
         """
         entry = {
-            "timestamp": datetime.now(UTC),
+            "timestamp": datetime.now(timezone.utc),
             "source_service": source_service,
             "target_service": target_service,
             "jti": jti,
@@ -249,7 +249,7 @@ class ServiceCallAuditLog:
         Returns:
             List of failed call entries
         """
-        cutoff = datetime.now(UTC) - timedelta(hours=hours)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
         return [
             entry for entry in self.log_entries
             if not entry["success"] and entry["timestamp"] > cutoff
@@ -412,7 +412,7 @@ class ServiceToken:
                 status_code=403,
             )
 
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         expire = now + timedelta(seconds=ttl)
 
         # Generate unique token ID
@@ -531,8 +531,8 @@ class ServiceToken:
                 "service_name": service_name,
                 "target_service": target_service,
                 "jti": jti,
-                "exp": datetime.fromtimestamp(payload["exp"], tz=UTC),
-                "iat": datetime.fromtimestamp(payload["iat"], tz=UTC),
+                "exp": datetime.fromtimestamp(payload["exp"], tz=timezone.utc),
+                "iat": datetime.fromtimestamp(payload["iat"], tz=timezone.utc),
             }
 
         except jwt.ExpiredSignatureError:

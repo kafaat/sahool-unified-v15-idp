@@ -7,7 +7,7 @@ Sprint 8: Time-series storage with temporal indexing
 
 from __future__ import annotations
 
-from datetime import UTC, date, datetime
+from datetime import timezone, date, datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import Date, DateTime, Float, Index, String, Text
@@ -135,7 +135,7 @@ class NdviObservation(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(UTC),
+        default=lambda: datetime.now(timezone.utc),
         comment="When this record was created",
     )
 
@@ -272,7 +272,7 @@ class NdviAlert(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(UTC),
+        default=lambda: datetime.now(timezone.utc),
     )
 
     __table_args__ = (

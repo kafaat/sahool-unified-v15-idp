@@ -5,10 +5,7 @@ Tortoise ORM models for security audit trail
 
 from enum import Enum
 
-from tortoise import fields
-from tortoise.models import Model
-
-
+# Enums are defined first (no dependencies)
 class AuditSeverity(str, Enum):
     """Audit event severity levels"""
 
@@ -30,133 +27,145 @@ class AuditCategory(str, Enum):
     SYSTEM = "system"  # System events
 
 
-class AuditLog(Model):
-    """
-    Security Audit Log
+# ORM Models - only available when tortoise is installed
+try:
+    from tortoise import fields
+    from tortoise.models import Model
 
-    Immutable record of security-relevant events.
-    Indexed for fast queries on common access patterns.
-    """
+    class AuditLog(Model):
+        """
+        Security Audit Log
 
-    id = fields.UUIDField(pk=True)
+        Immutable record of security-relevant events.
+        Indexed for fast queries on common access patterns.
+        """
 
-    # Identity
-    tenant_id = fields.CharField(max_length=64, index=True)
-    user_id = fields.CharField(max_length=64, index=True)
+        id = fields.UUIDField(pk=True)
 
-    # Action
-    action = fields.CharField(max_length=128, index=True)
-    category = fields.CharField(max_length=32, index=True)
-    severity = fields.CharField(max_length=16, default="info")
+        # Identity
+        tenant_id = fields.CharField(max_length=64, index=True)
+        user_id = fields.CharField(max_length=64, index=True)
 
-    # Resource
-    resource_type = fields.CharField(max_length=64, null=True, index=True)
-    resource_id = fields.CharField(max_length=128, null=True)
+        # Action
+        action = fields.CharField(max_length=128, index=True)
+        category = fields.CharField(max_length=32, index=True)
+        severity = fields.CharField(max_length=16, default="info")
 
-    # Context
-    correlation_id = fields.CharField(max_length=64, null=True, index=True)
-    session_id = fields.CharField(max_length=64, null=True, index=True)
+        # Resource
+        resource_type = fields.CharField(max_length=64, null=True, index=True)
+        resource_id = fields.CharField(max_length=128, null=True)
 
-    # Request info
-    ip_address = fields.CharField(max_length=64, null=True)
-    user_agent = fields.TextField(null=True)
-    request_method = fields.CharField(max_length=16, null=True)
-    request_path = fields.CharField(max_length=512, null=True)
+        # Context
+        correlation_id = fields.CharField(max_length=64, null=True, index=True)
+        session_id = fields.CharField(max_length=64, null=True, index=True)
 
-    # Details
-    details = fields.JSONField(null=True)
-    old_value = fields.JSONField(null=True)  # For data changes
-    new_value = fields.JSONField(null=True)  # For data changes
+        # Request info
+        ip_address = fields.CharField(max_length=64, null=True)
+        user_agent = fields.TextField(null=True)
+        request_method = fields.CharField(max_length=16, null=True)
+        request_path = fields.CharField(max_length=512, null=True)
 
-    # Result
-    success = fields.BooleanField(default=True)
-    error_code = fields.CharField(max_length=64, null=True)
-    error_message = fields.TextField(null=True)
+        # Details
+        details = fields.JSONField(null=True)
+        old_value = fields.JSONField(null=True)  # For data changes
+        new_value = fields.JSONField(null=True)  # For data changes
 
-    # Hash Chain (for audit integrity verification)
-    prev_hash = fields.CharField(max_length=64, null=True, index=True)
-    entry_hash = fields.CharField(max_length=64, null=True, index=True)
+        # Result
+        success = fields.BooleanField(default=True)
+        error_code = fields.CharField(max_length=64, null=True)
+        error_message = fields.TextField(null=True)
 
-    # Metadata (for extensibility)
-    metadata = fields.JSONField(null=True)
-    source_system = fields.CharField(max_length=64, null=True)
-    user_role_snapshot = fields.CharField(max_length=128, null=True)  # User role at time of event
+        # Hash Chain (for audit integrity verification)
+        prev_hash = fields.CharField(max_length=64, null=True, index=True)
+        entry_hash = fields.CharField(max_length=64, null=True, index=True)
 
-    # Timestamp
-    created_at = fields.DatetimeField(auto_now_add=True, index=True)
+        # Metadata (for extensibility)
+        metadata = fields.JSONField(null=True)
+        source_system = fields.CharField(max_length=64, null=True)
+        user_role_snapshot = fields.CharField(max_length=128, null=True)  # User role at time of event
 
-    class Meta:
-        table = "security_audit_logs"
-        indexes = [
-            ("tenant_id", "created_at"),
-            ("user_id", "created_at"),
-            ("action", "created_at"),
-            ("category", "created_at"),
-            ("resource_type", "resource_id"),
-        ]
+        # Timestamp
+        created_at = fields.DatetimeField(auto_now_add=True, index=True)
 
-    def __str__(self):
-        return f"AuditLog({self.action} by {self.user_id})"
+        class Meta:
+            table = "security_audit_logs"
+            indexes = [
+                ("tenant_id", "created_at"),
+                ("user_id", "created_at"),
+                ("action", "created_at"),
+                ("category", "created_at"),
+                ("resource_type", "resource_id"),
+            ]
 
-
-class AuditLogSummary(Model):
-    """
-    Aggregated audit statistics per tenant/day.
-    Used for dashboards and reports.
-    """
-
-    id = fields.UUIDField(pk=True)
-    tenant_id = fields.CharField(max_length=64, index=True)
-    date = fields.DateField(index=True)
-
-    # Counts
-    total_events = fields.IntField(default=0)
-    auth_events = fields.IntField(default=0)
-    access_events = fields.IntField(default=0)
-    data_events = fields.IntField(default=0)
-    admin_events = fields.IntField(default=0)
-    security_events = fields.IntField(default=0)
-
-    # Failures
-    failed_logins = fields.IntField(default=0)
-    permission_denials = fields.IntField(default=0)
-
-    # Active users
-    unique_users = fields.IntField(default=0)
-    unique_ips = fields.IntField(default=0)
-
-    class Meta:
-        table = "security_audit_summaries"
-        unique_together = ("tenant_id", "date")
+        def __str__(self):
+            return f"AuditLog({self.action} by {self.user_id})"
 
 
-class SessionLog(Model):
-    """
-    User session tracking for security monitoring.
-    """
+    class AuditLogSummary(Model):
+        """
+        Aggregated audit statistics per tenant/day.
+        Used for dashboards and reports.
+        """
 
-    id = fields.UUIDField(pk=True)
-    tenant_id = fields.CharField(max_length=64, index=True)
-    user_id = fields.CharField(max_length=64, index=True)
-    session_id = fields.CharField(max_length=64, unique=True, index=True)
+        id = fields.UUIDField(pk=True)
+        tenant_id = fields.CharField(max_length=64, index=True)
+        date = fields.DateField(index=True)
 
-    # Session info
-    ip_address = fields.CharField(max_length=64, null=True)
-    user_agent = fields.TextField(null=True)
-    device_type = fields.CharField(max_length=32, null=True)
+        # Counts
+        total_events = fields.IntField(default=0)
+        auth_events = fields.IntField(default=0)
+        access_events = fields.IntField(default=0)
+        data_events = fields.IntField(default=0)
+        admin_events = fields.IntField(default=0)
+        security_events = fields.IntField(default=0)
 
-    # Timestamps
-    started_at = fields.DatetimeField(auto_now_add=True)
-    last_activity_at = fields.DatetimeField(null=True)
-    ended_at = fields.DatetimeField(null=True)
+        # Failures
+        failed_logins = fields.IntField(default=0)
+        permission_denials = fields.IntField(default=0)
 
-    # Status
-    is_active = fields.BooleanField(default=True)
-    end_reason = fields.CharField(max_length=32, null=True)  # logout, expired, revoked
+        # Active users
+        unique_users = fields.IntField(default=0)
+        unique_ips = fields.IntField(default=0)
 
-    class Meta:
-        table = "security_sessions"
-        indexes = [
-            ("tenant_id", "user_id"),
-            ("is_active", "last_activity_at"),
-        ]
+        class Meta:
+            table = "security_audit_summaries"
+            unique_together = ("tenant_id", "date")
+
+
+    class SessionLog(Model):
+        """
+        User session tracking for security monitoring.
+        """
+
+        id = fields.UUIDField(pk=True)
+        tenant_id = fields.CharField(max_length=64, index=True)
+        user_id = fields.CharField(max_length=64, index=True)
+        session_id = fields.CharField(max_length=64, unique=True, index=True)
+
+        # Session info
+        ip_address = fields.CharField(max_length=64, null=True)
+        user_agent = fields.TextField(null=True)
+        device_type = fields.CharField(max_length=32, null=True)
+
+        # Timestamps
+        started_at = fields.DatetimeField(auto_now_add=True)
+        last_activity_at = fields.DatetimeField(null=True)
+        ended_at = fields.DatetimeField(null=True)
+
+        # Status
+        is_active = fields.BooleanField(default=True)
+        end_reason = fields.CharField(max_length=32, null=True)  # logout, expired, revoked
+
+        class Meta:
+            table = "security_sessions"
+            indexes = [
+                ("tenant_id", "user_id"),
+                ("is_active", "last_activity_at"),
+            ]
+
+except ImportError:
+    # Tortoise ORM not available - ORM models will not be defined
+    # This allows importing the enums without requiring tortoise
+    AuditLog = None  # type: ignore
+    AuditLogSummary = None  # type: ignore
+    SessionLog = None  # type: ignore

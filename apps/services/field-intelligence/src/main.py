@@ -16,7 +16,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 from pathlib import Path as PathLib
 
 from fastapi import FastAPI
@@ -257,7 +257,7 @@ def health():
         "status": "healthy",
         "service": "field-intelligence",
         "version": "16.0.0",
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -273,7 +273,7 @@ def healthz():
         "version": "16.0.0",
         "rules_engine": "operational",
         "event_processor": "operational",
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -571,8 +571,8 @@ if ENVIRONMENT in ("development", "dev", "test"):
                     actions=[ActionConfig(**a) for a in rule_data["actions"]],
                     cooldown_minutes=rule_data["cooldown_minutes"],
                     priority=rule_data["priority"],
-                    created_at=datetime.now(UTC),
-                    updated_at=datetime.now(UTC),
+                    created_at=datetime.now(timezone.utc),
+                    updated_at=datetime.now(timezone.utc),
                     metadata=rule_data["metadata"],
                 )
                 _rules_fallback[rule.rule_id] = rule

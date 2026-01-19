@@ -318,21 +318,21 @@ async def get_audit_logs(
     # Apply filters
     filtered = logs
     if user_id:
-        filtered = [l for l in filtered if l.get("user_id") == user_id]
+        filtered = [entry for entry in filtered if entry.get("user_id") == user_id]
     if action:
-        filtered = [l for l in filtered if l.get("action") == action]
+        filtered = [entry for entry in filtered if entry.get("action") == action]
     if category:
-        filtered = [l for l in filtered if l.get("category") == category]
+        filtered = [entry for entry in filtered if entry.get("category") == category]
     if resource_type:
-        filtered = [l for l in filtered if l.get("resource_type") == resource_type]
+        filtered = [entry for entry in filtered if entry.get("resource_type") == resource_type]
     if resource_id:
-        filtered = [l for l in filtered if l.get("resource_id") == resource_id]
+        filtered = [entry for entry in filtered if entry.get("resource_id") == resource_id]
     if success is not None:
-        filtered = [l for l in filtered if l.get("success") == success]
+        filtered = [entry for entry in filtered if entry.get("success") == success]
     if start_date:
-        filtered = [l for l in filtered if l.get("created_at", "") >= start_date.isoformat()]
+        filtered = [entry for entry in filtered if entry.get("created_at", "") >= start_date.isoformat()]
     if end_date:
-        filtered = [l for l in filtered if l.get("created_at", "") <= end_date.isoformat()]
+        filtered = [entry for entry in filtered if entry.get("created_at", "") <= end_date.isoformat()]
 
     total = len(filtered)
     items = filtered[skip : skip + limit]
@@ -377,10 +377,10 @@ async def get_user_audit_trail(
     جلب مسار التدقيق لمستخدم محدد
     """
     logs = _get_logs_for_tenant(tenant_id)
-    filtered = [l for l in logs if l.get("user_id") == user_id]
+    filtered = [entry for entry in logs if entry.get("user_id") == user_id]
 
     if category:
-        filtered = [l for l in filtered if l.get("category") == category]
+        filtered = [entry for entry in filtered if entry.get("category") == category]
 
     # Sort by created_at descending
     filtered.sort(key=lambda x: x.get("created_at", ""), reverse=True)
@@ -412,8 +412,8 @@ async def get_resource_audit_trail(
     """
     logs = _get_logs_for_tenant(tenant_id)
     filtered = [
-        l for l in logs
-        if l.get("resource_type") == resource_type and l.get("resource_id") == resource_id
+        entry for entry in logs
+        if entry.get("resource_type") == resource_type and entry.get("resource_id") == resource_id
     ]
 
     # Sort by created_at descending
@@ -452,9 +452,9 @@ async def validate_hash_chain(
     # Filter by date range
     filtered = logs
     if start_date:
-        filtered = [l for l in filtered if l.get("created_at", "") >= start_date.isoformat()]
+        filtered = [entry for entry in filtered if entry.get("created_at", "") >= start_date.isoformat()]
     if end_date:
-        filtered = [l for l in filtered if l.get("created_at", "") <= end_date.isoformat()]
+        filtered = [entry for entry in filtered if entry.get("created_at", "") <= end_date.isoformat()]
 
     # Sort by created_at
     filtered.sort(key=lambda x: x.get("created_at", ""))
@@ -494,7 +494,7 @@ async def get_chain_summary(tenant_id: str = Depends(get_tenant_id)):
     جلب ملخص سلسلة التجزئة للمستأجر
     """
     logs = _get_logs_for_tenant(tenant_id)
-    entries_with_hash = [l for l in logs if l.get("entry_hash")]
+    entries_with_hash = [entry for entry in logs if entry.get("entry_hash")]
 
     first_entry = min(logs, key=lambda x: x.get("created_at", "")) if logs else None
     last_entry = max(logs, key=lambda x: x.get("created_at", "")) if logs else None
@@ -531,30 +531,30 @@ async def get_compliance_report(
 
     # Filter by date range
     filtered = [
-        l for l in logs
-        if start_date.isoformat() <= l.get("created_at", "") <= end_date.isoformat()
+        entry for entry in logs
+        if start_date.isoformat() <= entry.get("created_at", "") <= end_date.isoformat()
     ]
 
     # Count by category
     category_counts = {}
-    for log in filtered:
-        cat = log.get("category", "unknown")
+    for log_entry in filtered:
+        cat = log_entry.get("category", "unknown")
         category_counts[cat] = category_counts.get(cat, 0) + 1
 
     # Count by severity
     severity_counts = {}
-    for log in filtered:
-        sev = log.get("severity", "info")
+    for log_entry in filtered:
+        sev = log_entry.get("severity", "info")
         severity_counts[sev] = severity_counts.get(sev, 0) + 1
 
     # Failed events
-    failed_events = [l for l in filtered if not l.get("success", True)]
+    failed_events = [entry for entry in filtered if not entry.get("success", True)]
 
     # Security events
-    security_events = [l for l in filtered if l.get("category") == "security"]
+    security_events = [entry for entry in filtered if entry.get("category") == "security"]
 
     # Unique users
-    unique_users = len(set(l.get("user_id") for l in filtered if l.get("user_id")))
+    unique_users = len(set(entry.get("user_id") for entry in filtered if entry.get("user_id")))
 
     return {
         "tenant_id": tenant_id,
@@ -602,28 +602,28 @@ async def get_audit_stats(
     cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
 
     # Filter by period
-    filtered = [l for l in logs if l.get("created_at", "") >= cutoff]
+    filtered = [entry for entry in logs if entry.get("created_at", "") >= cutoff]
 
     # Count by category
     category_counts = {}
-    for log in filtered:
-        cat = log.get("category", "unknown")
+    for log_entry in filtered:
+        cat = log_entry.get("category", "unknown")
         category_counts[cat] = category_counts.get(cat, 0) + 1
 
     # Count by severity
     severity_counts = {}
-    for log in filtered:
-        sev = log.get("severity", "info")
+    for log_entry in filtered:
+        sev = log_entry.get("severity", "info")
         severity_counts[sev] = severity_counts.get(sev, 0) + 1
 
     # Failed events
-    failed_events = [l for l in filtered if not l.get("success", True)]
+    failed_events = [entry for entry in filtered if not entry.get("success", True)]
 
     # Unique users
-    unique_users = len(set(l.get("user_id") for l in filtered if l.get("user_id")))
+    unique_users = len(set(entry.get("user_id") for entry in filtered if entry.get("user_id")))
 
     # Chain coverage
-    entries_with_hash = [l for l in filtered if l.get("entry_hash")]
+    entries_with_hash = [entry for entry in filtered if entry.get("entry_hash")]
     chain_coverage = (len(entries_with_hash) / len(filtered) * 100) if filtered else 0
 
     return {
@@ -648,7 +648,7 @@ async def get_security_events(
     جلب أحداث الأمان الأخيرة
     """
     logs = _get_logs_for_tenant(tenant_id)
-    filtered = [l for l in logs if l.get("category") == "security"]
+    filtered = [entry for entry in logs if entry.get("category") == "security"]
 
     # Sort by created_at descending
     filtered.sort(key=lambda x: x.get("created_at", ""), reverse=True)
@@ -681,9 +681,9 @@ async def get_failed_logins(
     cutoff = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
 
     filtered = [
-        l for l in logs
-        if l.get("action") == "auth.login.failed"
-        and l.get("created_at", "") >= cutoff
+        entry for entry in logs
+        if entry.get("action") == "auth.login.failed"
+        and entry.get("created_at", "") >= cutoff
     ]
 
     # Sort by created_at descending
@@ -724,8 +724,8 @@ async def export_audit_logs(
 
     # Filter by date range
     filtered = [
-        l for l in logs
-        if start_date.isoformat() <= l.get("created_at", "") <= end_date.isoformat()
+        entry for entry in logs
+        if start_date.isoformat() <= entry.get("created_at", "") <= end_date.isoformat()
     ]
 
     # Sort by created_at

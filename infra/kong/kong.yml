@@ -3012,6 +3012,8 @@ services:
 
 plugins:
   # CORS للسماح بالطلبات من المتصفحات
+  # SECURITY: In production, replace origins with specific allowed domains
+  # أمان: في الإنتاج، استبدل الأصول بالنطاقات المسموح بها فقط
   - name: cors
     config:
       origins:
@@ -3032,10 +3034,24 @@ plugins:
         - Date
         - Authorization
         - X-Auth-Token
+        - X-Correlation-Id
       exposed_headers:
         - X-Request-ID
-      credentials: true
+        - X-Correlation-Id
+        - X-RateLimit-Limit-Minute
+        - X-RateLimit-Remaining-Minute
+      # SECURITY FIX: credentials cannot be true with wildcard origin
+      # Set to false for development, true only with specific origins in production
+      credentials: false
       max_age: 3600
+
+  # تحديد حجم الطلب لمنع هجمات الحمولة الكبيرة
+  # Request size limiting to prevent large payload attacks
+  - name: request-size-limiting
+    config:
+      allowed_payload_size: 10
+      size_unit: megabytes
+      require_content_length: false
 
   # تسجيل الطلبات
   - name: file-log
@@ -3063,7 +3079,7 @@ plugins:
   - name: correlation-id
     config:
       header_name: X-Request-ID
-      generator: uuid
+      generator: uuid#counter
       echo_downstream: true
 
 # ============================================================================

@@ -336,8 +336,9 @@ jobs:
           image-ref: ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }}
           format: 'sarif'
           output: 'trivy-${{ matrix.service.name }}.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          exit-code: '0'
+          severity: 'CRITICAL'
+          exit-code: '1'
+          # Fail on CRITICAL vulnerabilities - container security requirement
 
       - name: Upload Trivy results
         if: steps.check_dockerfile.outputs.exists == 'true'

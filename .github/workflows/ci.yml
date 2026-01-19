@@ -107,13 +107,14 @@ jobs:
 
           # Minimum coverage threshold - enforced to maintain code quality
           # Coverage strategy: Gradually increase threshold as test suite matures
-          # - Phase 1 (current): 4.5% baseline (actual: ~4.66%)
+          # SAHOOL Coverage Roadmap:
+          # - Phase 1 (Q1 2026): 10% minimum - enforced baseline
           # - Phase 2 (Q2 2026): 20% target as test suite grows
           # - Phase 3 (Q3 2026): 40% target for core services
           # - Phase 4 (Q4 2026): 60% target for production-ready code
           # This incremental approach allows teams to write comprehensive tests
-          # while maintaining development velocity
-          MIN_COVERAGE=4.5
+          # while maintaining development velocity and code quality
+          MIN_COVERAGE=10
 
           # Check if coverage meets minimum - FAIL if below threshold
           python -c "
@@ -424,8 +425,9 @@ jobs:
         with:
           scan-type: 'fs'
           scan-ref: '.'
-          severity: 'HIGH,CRITICAL'
-          exit-code: '0'
+          severity: 'CRITICAL'
+          exit-code: '1'
+          # Fail pipeline on CRITICAL vulnerabilities only to avoid false positives
 
       - name: Check for private keys in repository
         run: |

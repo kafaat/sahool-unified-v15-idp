@@ -144,14 +144,15 @@ jobs:
       - name: Run Trivy filesystem scan
         uses: aquasecurity/trivy-action@0.28.0
         id: trivy
-        continue-on-error: true
+        continue-on-error: false
         with:
           scan-type: 'fs'
           scan-ref: '.'
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL'
           format: 'sarif'
           output: 'trivy-results.sarif'
-          exit-code: '0'
+          exit-code: '1'
+          # Fail pipeline on CRITICAL vulnerabilities - security is non-negotiable
 
       - name: Create empty SARIF if Trivy failed
         if: always()

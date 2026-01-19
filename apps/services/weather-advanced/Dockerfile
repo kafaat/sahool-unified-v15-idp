@@ -9,14 +9,10 @@ FROM python:3.11-slim-bookworm
 
 WORKDIR /app
 
-# Apply security patches to base OS packages
-RUN apt-get update && \
-    apt-get upgrade -y --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
-
 # Create non-root user for security
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+
 
 # Upgrade pip to latest version
 RUN pip install --no-cache-dir --upgrade pip

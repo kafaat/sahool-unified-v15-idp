@@ -10,11 +10,10 @@
 # ───────────────────────────────────────────────────────────────────────────────
 FROM python:3.11-slim-bookworm AS builder
 
-# Install build dependencies and apply security patches
-RUN apt-get update && \
-    apt-get upgrade -y --no-install-recommends && \
-    apt-get install -y --no-install-recommends build-essential && \
-    rm -rf /var/lib/apt/lists/*
+# Install build dependencies (needed for compiling Python packages)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -36,11 +35,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Stage 2: Production - Minimal runtime image
 # ───────────────────────────────────────────────────────────────────────────────
 FROM python:3.11-slim-bookworm AS production
-
-# Apply security patches to base OS packages
-RUN apt-get update && \
-    apt-get upgrade -y --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
 
 LABEL maintainer="Sahool Team <dev@sahool.io>"
 LABEL service="virtual-sensors"

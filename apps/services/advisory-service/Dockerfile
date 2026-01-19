@@ -20,14 +20,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Apply security patches to base OS packages
-RUN apt-get update && \
-    apt-get upgrade -y --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
-
 # Create non-root user
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
+
 
 # Upgrade pip (non-fatal in case of network issues)
 RUN pip install --no-cache-dir --upgrade pip || true

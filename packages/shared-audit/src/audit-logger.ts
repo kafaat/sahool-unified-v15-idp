@@ -510,6 +510,52 @@ export class AuditLogger {
   }
 
   /**
+   * Sanitize a string value for safe file logging
+   * Removes/replaces potentially dangerous characters and limits length
+   */
+  private sanitizeForLog(value: string | undefined | null, maxLength = 256): string | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    // Remove control characters, null bytes, and limit length
+    // Only allow printable ASCII and common unicode characters
+    const sanitized = String(value)
+      .replace(/[\x00-\x1f\x7f]/g, "") // Remove control characters
+      .replace(/[<>'"&\\]/g, "_") // Replace potentially dangerous chars
+      .substring(0, maxLength);
+    return sanitized || null;
+  }
+
+  /**
+   * Create a sanitized copy of the event for file logging
+   * Removes or sanitizes fields that could contain untrusted network data
+   */
+  private sanitizeEventForFileLog(event: AuditEvent): Record<string, unknown> {
+    return {
+      tenantId: this.sanitizeForLog(event.tenantId, 64),
+      actorId: this.sanitizeForLog(event.actorId, 64),
+      actorType: event.actorType,
+      action: this.sanitizeForLog(event.action, 128),
+      category: event.category,
+      severity: event.severity,
+      resourceType: this.sanitizeForLog(event.resourceType, 64),
+      resourceId: this.sanitizeForLog(event.resourceId, 128),
+      correlationId: this.sanitizeForLog(event.correlationId, 64),
+      sessionId: this.sanitizeForLog(event.sessionId, 64),
+      // Sanitize network-derived fields more aggressively
+      ipAddress: this.sanitizeForLog(event.ipAddress, 45), // Max IPv6 length
+      userAgent: this.sanitizeForLog(event.userAgent, 256),
+      // Exclude raw changes/diff/metadata from file fallback for security
+      // Only include essential audit info
+      success: event.success,
+      errorCode: this.sanitizeForLog(event.errorCode, 64),
+      errorMessage: this.sanitizeForLog(event.errorMessage, 512),
+      timestamp: event.timestamp?.toISOString(),
+      entryHash: event.entryHash,
+    };
+  }
+
+  /**
    * Write audit event to fallback file (append-only)
    */
   private async writeToFallbackFile(
@@ -527,12 +573,15 @@ export class AuditLogger {
     }
 
     try {
+      // Sanitize event data before writing to file to prevent log injection
+      const sanitizedEvent = this.sanitizeEventForFileLog(event);
+
       const fallbackEntry = {
         timestamp: new Date().toISOString(),
-        event,
+        event: sanitizedEvent,
         error: {
-          message: error.message,
-          name: error.name,
+          message: this.sanitizeForLog(error.message, 512),
+          name: this.sanitizeForLog(error.name, 64),
         },
         failureCount: this.auditFailureCount,
       };

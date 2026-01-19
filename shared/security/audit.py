@@ -550,20 +550,20 @@ async def get_compliance_report(
     Returns:
         Compliance report dictionary
     """
-    entries = await AuditLog.filter(
+    entries: list[AuditLog] = await AuditLog.filter(
         tenant_id=tenant_id,
         created_at__gte=start_date,
         created_at__lte=end_date,
     ).all()
 
-    # Count by category
-    category_counts = {}
-    for cat in AuditCategory:
+    # Count by category - iterate over enum members explicitly
+    category_counts: dict[str, int] = {}
+    for cat in list(AuditCategory):
         category_counts[cat.value] = sum(1 for e in entries if e.category == cat.value)
 
-    # Count by severity
-    severity_counts = {}
-    for sev in AuditSeverity:
+    # Count by severity - iterate over enum members explicitly
+    severity_counts: dict[str, int] = {}
+    for sev in list(AuditSeverity):
         severity_counts[sev.value] = sum(1 for e in entries if e.severity == sev.value)
 
     # Failed events

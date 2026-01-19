@@ -303,6 +303,34 @@ services:
     - postgres
     - redis
     - nats
+  audit-service:
+    build:
+      context: ../../apps/services/audit-service
+      dockerfile: Dockerfile
+    ports:
+    - 8114:8114
+    environment:
+    - PORT=8114
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8114/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
   inventory-service:
     build:
       context: ../../apps/services/inventory-service

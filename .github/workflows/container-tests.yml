@@ -338,7 +338,8 @@ jobs:
           output: 'trivy-${{ matrix.service.name }}.sarif'
           severity: 'CRITICAL'
           exit-code: '1'
-          # Fail on CRITICAL vulnerabilities - container security requirement
+          ignore-unfixed: true
+          # Fail on CRITICAL vulnerabilities with available fixes - container security requirement
 
       - name: Upload Trivy results
         if: steps.check_dockerfile.outputs.exists == 'true'

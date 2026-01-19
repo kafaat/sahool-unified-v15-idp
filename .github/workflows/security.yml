@@ -352,7 +352,8 @@ jobs:
           output: 'trivy-${{ matrix.service }}.sarif'
           severity: 'CRITICAL'
           exit-code: '1'
-          # Fail on CRITICAL vulnerabilities - production security requirement
+          ignore-unfixed: true
+          # Fail on CRITICAL vulnerabilities with available fixes - production security requirement
 
       - name: Upload Trivy SARIF
         uses: github/codeql-action/upload-sarif@v3

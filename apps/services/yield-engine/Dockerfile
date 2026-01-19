@@ -15,7 +15,7 @@
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 1: Builder
 # ───────────────────────────────────────────────────────────────────────────────
-FROM python:3.11-slim AS builder
+FROM python:3.11-slim-bookworm AS builder
 
 # Install build dependencies (needed for compiling Python packages)
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -35,7 +35,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production
 # ───────────────────────────────────────────────────────────────────────────────
-FROM python:3.11-slim AS production
+FROM python:3.11-slim-bookworm AS production
 
 LABEL maintainer="Sahool Team <dev@sahool.io>"
 LABEL service="yield-engine"

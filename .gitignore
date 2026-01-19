@@ -225,3 +225,4 @@ config/nats/generated/
 # Analysis reports
 analysis_report.txt
 analysis_report.json
+audit_report.json

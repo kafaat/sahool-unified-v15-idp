@@ -96,6 +96,38 @@ from .metrics import (
     get_metrics_collector,
 )
 
+# Validation
+from .validation import (
+    AIValidator,
+    ValidationResult,
+    ValidationIssue,
+    ValidationLevel,
+    ThreatCategory,
+    Severity,
+    get_validator,
+    validate_prompt,
+    validate_response,
+    is_safe_prompt,
+    is_safe_response,
+)
+
+# LLM Provider Manager (optional - requires httpx)
+try:
+    from .llm_provider import (
+        LLMProviderManager,
+        LLMProvider,
+        LLMConfig,
+        LLMResponse,
+        LLMProviderError,
+        AllProvidersFailedError,
+        get_llm_manager,
+        generate_text,
+        generate_with_ollama_fallback,
+    )
+    LLM_MANAGER_AVAILABLE = True
+except ImportError:
+    LLM_MANAGER_AVAILABLE = False
+
 # Ollama client (optional - requires httpx)
 try:
     from .ollama_client import (
@@ -131,7 +163,7 @@ try:
 except ImportError:
     TRAINING_AVAILABLE = False
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"
 
 __all__ = [
     # Context Engineering - Compression
@@ -195,10 +227,37 @@ __all__ = [
     "MetricType",
     "MetricValue",
     "get_metrics_collector",
+    # Validation
+    "AIValidator",
+    "ValidationResult",
+    "ValidationIssue",
+    "ValidationLevel",
+    "ThreatCategory",
+    "Severity",
+    "get_validator",
+    "validate_prompt",
+    "validate_response",
+    "is_safe_prompt",
+    "is_safe_response",
     # Availability flags
     "OLLAMA_AVAILABLE",
     "TRAINING_AVAILABLE",
+    "LLM_MANAGER_AVAILABLE",
 ]
+
+# Add LLM Manager exports if available
+if LLM_MANAGER_AVAILABLE:
+    __all__.extend([
+        "LLMProviderManager",
+        "LLMProvider",
+        "LLMConfig",
+        "LLMResponse",
+        "LLMProviderError",
+        "AllProvidersFailedError",
+        "get_llm_manager",
+        "generate_text",
+        "generate_with_ollama_fallback",
+    ])
 
 # Add Ollama exports if available
 if OLLAMA_AVAILABLE:

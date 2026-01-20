@@ -108,23 +108,44 @@ export default function SatelliteMap({
 
         const trendText = field.ndvi.trend === "up" ? "↑ صاعد" : field.ndvi.trend === "down" ? "↓ هابط" : "→ ثابت";
 
-        popupContent.innerHTML = `
-          ${title.outerHTML}
-          ${subtitle.outerHTML}
-          ${hr.outerHTML}
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-            <span>NDVI الحالي:</span>
-            <strong style="color: ${color}">${ndvi.toFixed(2)}</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-            <span>المتوسط:</span>
-            <strong>${field.ndvi.average.toFixed(2)}</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between;">
-            <span>الاتجاه:</span>
-            <strong>${trendText}</strong>
-          </div>
-        `;
+        // SECURITY: Use DOM methods instead of innerHTML to prevent XSS
+        popupContent.appendChild(title);
+        popupContent.appendChild(subtitle);
+        popupContent.appendChild(hr);
+
+        // Current NDVI row
+        const currentRow = document.createElement("div");
+        currentRow.style.cssText = "display: flex; justify-content: space-between; margin-bottom: 4px;";
+        const currentLabel = document.createElement("span");
+        currentLabel.textContent = "NDVI الحالي:";
+        const currentValue = document.createElement("strong");
+        currentValue.style.color = color;
+        currentValue.textContent = ndvi.toFixed(2);
+        currentRow.appendChild(currentLabel);
+        currentRow.appendChild(currentValue);
+        popupContent.appendChild(currentRow);
+
+        // Average row
+        const avgRow = document.createElement("div");
+        avgRow.style.cssText = "display: flex; justify-content: space-between; margin-bottom: 4px;";
+        const avgLabel = document.createElement("span");
+        avgLabel.textContent = "المتوسط:";
+        const avgValue = document.createElement("strong");
+        avgValue.textContent = field.ndvi.average.toFixed(2);
+        avgRow.appendChild(avgLabel);
+        avgRow.appendChild(avgValue);
+        popupContent.appendChild(avgRow);
+
+        // Trend row
+        const trendRow = document.createElement("div");
+        trendRow.style.cssText = "display: flex; justify-content: space-between;";
+        const trendLabel = document.createElement("span");
+        trendLabel.textContent = "الاتجاه:";
+        const trendValue = document.createElement("strong");
+        trendValue.textContent = trendText;
+        trendRow.appendChild(trendLabel);
+        trendRow.appendChild(trendValue);
+        popupContent.appendChild(trendRow);
 
         marker.bindPopup(popupContent);
 

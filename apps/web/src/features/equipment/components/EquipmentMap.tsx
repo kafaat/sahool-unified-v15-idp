@@ -100,7 +100,13 @@ export function EquipmentMap() {
 
           const statusP = document.createElement("p");
           statusP.style.cssText = "margin: 4px 0; font-size: 0.875rem;";
-          statusP.innerHTML = `الحالة: <span style="font-weight: 600;">${getStatusLabel(item.status)}</span>`;
+          const statusLabel = document.createElement("span");
+          statusLabel.textContent = "الحالة: ";
+          const statusValue = document.createElement("span");
+          statusValue.style.fontWeight = "600";
+          statusValue.textContent = getStatusLabel(item.status); // textContent prevents XSS
+          statusP.appendChild(statusLabel);
+          statusP.appendChild(statusValue);
           popupContent.appendChild(statusP);
 
           const marker = L.marker(

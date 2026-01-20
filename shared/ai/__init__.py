@@ -5,13 +5,16 @@ SAHOOL AI Module
 
 AI utilities and context engineering for the SAHOOL agricultural platform.
 Provides context compression, memory management, recommendation evaluation,
-automated code analysis/fixing, and model training.
+automated code analysis/fixing, model training, audit logging, and circuit breakers.
 
 Modules:
     - context_engineering: Context compression, memory, and evaluation
     - auto_fix: Automated code diagnostics and fixing
     - ollama_client: Local LLM integration via Ollama
     - model_training: Fine-tuning and training capabilities
+    - audit: Unified AI audit logging with cost tracking
+    - circuit_breaker: Resilience pattern for external services
+    - metrics: Prometheus-compatible observability metrics
 
 Author: SAHOOL Platform Team
 Updated: January 2026
@@ -57,6 +60,42 @@ from .auto_fix import (
     AuditEntry,
 )
 
+# Audit logging
+from .audit import (
+    AIAuditLogger,
+    AuditEvent,
+    AuditEventType,
+    SafetyLevel,
+    calculate_cost,
+    get_audit_logger,
+    get_cost_summary,
+    log_agent_call,
+    LLM_COSTS,
+)
+
+# Circuit breaker
+from .circuit_breaker import (
+    CircuitBreaker,
+    CircuitBreakerConfig,
+    CircuitBreakerError,
+    CircuitBreakerStats,
+    CircuitState,
+    get_circuit_breaker,
+    get_ollama_circuit_breaker,
+    get_anthropic_circuit_breaker,
+    get_openai_circuit_breaker,
+    get_all_circuit_breakers,
+    reset_all_circuit_breakers,
+)
+
+# Metrics
+from .metrics import (
+    AIMetricsCollector,
+    MetricType,
+    MetricValue,
+    get_metrics_collector,
+)
+
 # Ollama client (optional - requires httpx)
 try:
     from .ollama_client import (
@@ -92,7 +131,7 @@ try:
 except ImportError:
     TRAINING_AVAILABLE = False
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 
 __all__ = [
     # Context Engineering - Compression
@@ -129,6 +168,33 @@ __all__ = [
     "FixConfidence",
     "ToolType",
     "AuditEntry",
+    # Audit logging
+    "AIAuditLogger",
+    "AuditEvent",
+    "AuditEventType",
+    "SafetyLevel",
+    "calculate_cost",
+    "get_audit_logger",
+    "get_cost_summary",
+    "log_agent_call",
+    "LLM_COSTS",
+    # Circuit breaker
+    "CircuitBreaker",
+    "CircuitBreakerConfig",
+    "CircuitBreakerError",
+    "CircuitBreakerStats",
+    "CircuitState",
+    "get_circuit_breaker",
+    "get_ollama_circuit_breaker",
+    "get_anthropic_circuit_breaker",
+    "get_openai_circuit_breaker",
+    "get_all_circuit_breakers",
+    "reset_all_circuit_breakers",
+    # Metrics
+    "AIMetricsCollector",
+    "MetricType",
+    "MetricValue",
+    "get_metrics_collector",
     # Availability flags
     "OLLAMA_AVAILABLE",
     "TRAINING_AVAILABLE",

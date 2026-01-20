@@ -214,6 +214,24 @@ except ImportError:
     logger.info("ActionTemplate not available")
     ActionTemplateFactory = None
 
+# Satellite Image Storage (MinIO)
+_storage_service = None
+_storage_available = False
+try:
+    from .satellite_storage import (
+        get_satellite_storage,
+        init_satellite_storage,
+        ImageMetadata,
+        ImageType,
+        SatelliteSource as StorageSatelliteSource,
+    )
+    _storage_available = True
+    logger.info("Satellite storage module loaded")
+except ImportError as e:
+    logger.warning(f"Satellite storage module not available: {e}")
+    get_satellite_storage = None
+    init_satellite_storage = None
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -282,6 +300,22 @@ async def lifespan(app: FastAPI):
     if VRAGenerator:
         _vra_generator = VRAGenerator(multi_provider=_multi_provider)
         print("🗺️ VRA Generator initialized for prescription map generation")
+
+    # Initialize Satellite Image Storage (MinIO)
+    global _storage_service
+    if _storage_available and init_satellite_storage:
+        try:
+            storage_initialized = await init_satellite_storage()
+            if storage_initialized:
+                _storage_service = get_satellite_storage()
+                print("📦 Satellite Image Storage initialized (MinIO)")
+            else:
+                print("⚠️  Satellite Image Storage not available - images will not be stored")
+        except Exception as e:
+            print(f"⚠️  Failed to initialize satellite storage: {e}")
+            _storage_service = None
+    else:
+        print("⚠️  Satellite Image Storage module not loaded")
 
     # Register boundary detection endpoints
     if _boundary_detector:
@@ -772,6 +806,14 @@ async def health():
 
     cache_status = _cache_available and await is_cache_available()
 
+    # Check storage status
+    storage_status = None
+    if _storage_service:
+        try:
+            storage_status = await _storage_service.health_check()
+        except Exception as e:
+            storage_status = {"status": "error", "error": str(e)}
+
     return {
         "status": "ok",
         "service": "satellite-service",
@@ -783,6 +825,7 @@ async def health():
         "action_factory_available": _action_factory_available,
         "cache_available": cache_status,
         "sar_processor_available": _sar_processor is not None,
+        "image_storage": storage_status,
     }
 
 
@@ -832,6 +875,128 @@ async def cache_health():
     if not _cache_available:
         return {"status": "unavailable", "message": "Cache module not loaded"}
     return await cache_health_check()
+
+
+# =============================================================================
+# Storage Endpoints - تخزين صور الأقمار الصناعية
+# =============================================================================
+
+
+@app.get("/v1/storage/status")
+async def get_storage_status():
+    """
+    Get satellite image storage status and statistics.
+    الحصول على حالة وإحصائيات تخزين صور الأقمار الصناعية
+    """
+    if not _storage_service:
+        return {
+            "available": False,
+            "message": "Satellite image storage not configured",
+            "message_ar": "تخزين صور الأقمار الصناعية غير مُعَد",
+        }
+
+    try:
+        stats = await _storage_service.get_storage_stats()
+        return {
+            "available": True,
+            "message": "Satellite image storage is operational",
+            "message_ar": "تخزين صور الأقمار الصناعية يعمل بشكل صحيح",
+            **stats,
+        }
+    except Exception as e:
+        return {
+            "available": False,
+            "error": str(e),
+        }
+
+
+@app.get("/v1/storage/images/{tenant_id}/{field_id}")
+async def list_field_images(
+    tenant_id: str,
+    field_id: str,
+    image_type: str | None = Query(None, description="Filter by image type (raw, processed, thumbnail)"),
+):
+    """
+    List all stored satellite images for a field.
+    قائمة جميع صور الأقمار الصناعية المخزنة للحقل
+    """
+    if not _storage_service:
+        raise HTTPException(
+            status_code=503,
+            detail="Satellite image storage not available"
+        )
+
+    try:
+        # List from both raw and processed buckets
+        raw_images = await _storage_service.list_field_images(
+            tenant_id=tenant_id,
+            field_id=field_id,
+            bucket="sahool-satellite-raw",
+        )
+        processed_images = await _storage_service.list_field_images(
+            tenant_id=tenant_id,
+            field_id=field_id,
+            bucket="sahool-satellite-processed",
+        )
+
+        return {
+            "field_id": field_id,
+            "tenant_id": tenant_id,
+            "raw_images": raw_images,
+            "processed_images": processed_images,
+            "total_raw": len(raw_images),
+            "total_processed": len(processed_images),
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error listing images: {str(e)}"
+        )
+
+
+@app.get("/v1/storage/presigned-url")
+async def get_presigned_url(
+    bucket: str = Query(..., description="Bucket name"),
+    object_name: str = Query(..., description="Object path"),
+    expires_hours: int = Query(1, ge=1, le=24, description="URL expiration in hours"),
+):
+    """
+    Generate a presigned URL for direct image download.
+    إنشاء رابط مؤقت لتحميل الصورة مباشرة
+    """
+    if not _storage_service:
+        raise HTTPException(
+            status_code=503,
+            detail="Satellite image storage not available"
+        )
+
+    try:
+        from datetime import timedelta
+        url = await _storage_service.get_presigned_url(
+            bucket=bucket,
+            object_name=object_name,
+            expires=timedelta(hours=expires_hours),
+        )
+
+        if url:
+            return {
+                "url": url,
+                "expires_in_hours": expires_hours,
+                "bucket": bucket,
+                "object_name": object_name,
+            }
+        else:
+            raise HTTPException(
+                status_code=404,
+                detail="Image not found or URL generation failed"
+            )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error generating presigned URL: {str(e)}"
+        )
 
 
 @app.get("/v1/eo-status")

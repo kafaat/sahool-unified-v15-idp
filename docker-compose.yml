@@ -1498,6 +1498,15 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      # MinIO Satellite Image Storage
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-}
+      - MINIO_SECURE=false
+      - SATELLITE_BUCKET_RAW=${SATELLITE_BUCKET_RAW:-sahool-satellite-raw}
+      - SATELLITE_BUCKET_PROCESSED=${SATELLITE_BUCKET_PROCESSED:-sahool-satellite-processed}
+      - SATELLITE_BUCKET_CACHE=${SATELLITE_BUCKET_CACHE:-sahool-satellite-cache}
+      - SATELLITE_CACHE_TTL_DAYS=${SATELLITE_CACHE_TTL_DAYS:-30}
     ports:
       - "8090:8090"
     depends_on:
@@ -1507,6 +1516,8 @@ services:
         condition: service_healthy
       nats:
         condition: service_healthy
+      minio:
+        condition: service_started
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8090/healthz')" ]
       interval: 30s

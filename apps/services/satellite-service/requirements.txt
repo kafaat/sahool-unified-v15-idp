@@ -17,4 +17,8 @@ python-dotenv==1.0.1
 # ML/Scientific Computing
 numpy==1.26.4
 
+# Object Storage (MinIO S3-compatible)
+minio>=7.2.0
+
+# Logging
 structlog>=24.1.0

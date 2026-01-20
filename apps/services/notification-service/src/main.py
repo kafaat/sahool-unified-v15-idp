@@ -37,6 +37,15 @@ shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."
 sys.path.insert(0, shared_path)
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
+# Security headers middleware
+try:
+    from shared.middleware.security_headers import setup_security_headers
+    SECURITY_HEADERS_AVAILABLE = True
+except ImportError:
+    SECURITY_HEADERS_AVAILABLE = False
+    def setup_security_headers(app):
+        pass
+
 # Import authentication dependencies
 try:
     from auth.dependencies import get_current_user, get_optional_user
@@ -1013,6 +1022,10 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# Setup security headers
+if SECURITY_HEADERS_AVAILABLE:
+    setup_security_headers(app)
 
 # Include routers for multi-channel support
 app.include_router(channels_router)

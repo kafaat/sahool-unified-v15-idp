@@ -66,6 +66,15 @@ except ImportError:
         """Placeholder when auth not available"""
         return None
 
+# Security headers middleware
+try:
+    from shared.middleware.security_headers import setup_security_headers
+    SECURITY_HEADERS_AVAILABLE = True
+except ImportError:
+    SECURITY_HEADERS_AVAILABLE = False
+    def setup_security_headers(app):
+        pass
+
 
 # Configure logging
 logging.basicConfig(
@@ -152,6 +161,10 @@ except ImportError:
         allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
     )
+
+# Security headers - رؤوس الأمان
+if SECURITY_HEADERS_AVAILABLE:
+    setup_security_headers(app)
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Enums & Models

@@ -376,6 +376,20 @@ VALUES
     ('a7000000-0000-0000-0000-000000000004', 'WATER-EC', 'Water Electrical Conductivity', 'التوصيل الكهربائي للماء', 'water', ARRAY['water']::sample_type[], 'dS/m')
 ON CONFLICT (code) DO NOTHING;
 
+-- Insert demo experiment for research expansion (required for sample_batches FK)
+INSERT INTO experiments (id, tenant_id, title, title_ar, description, hypothesis, start_date, status, principal_researcher_id)
+VALUES (
+    'ae000000-0000-0000-0000-000000000001',
+    'a0000000-0000-0000-0000-000000000001',
+    'Soil Nutrient Analysis Study',
+    'دراسة تحليل العناصر الغذائية في التربة',
+    'Comprehensive soil nutrient analysis across multiple research plots',
+    'Soil nutrient levels correlate with crop yield improvements',
+    '2025-01-15',
+    'active',
+    'b0000000-0000-0000-0000-000000000005'
+) ON CONFLICT DO NOTHING;
+
 -- Insert demo sample batch
 INSERT INTO sample_batches (id, tenant_id, experiment_id, batch_code, laboratory_id, status, sample_count, collection_date)
 VALUES (

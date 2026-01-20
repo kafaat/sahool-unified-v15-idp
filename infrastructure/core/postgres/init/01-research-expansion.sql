@@ -404,10 +404,16 @@ VALUES (
 ) ON CONFLICT (batch_code) DO NOTHING;
 
 -- Update existing lab samples with batch info
+WITH numbered_samples AS (
+    SELECT id, ROW_NUMBER() OVER (ORDER BY created_at) as row_num
+    FROM lab_samples
+    WHERE batch_id IS NULL
+)
 UPDATE lab_samples
 SET batch_id = '5b000000-0000-0000-0000-000000000001',
-    barcode = 'SOIL-' || LPAD((ROW_NUMBER() OVER())::TEXT, 4, '0')
-WHERE batch_id IS NULL;
+    barcode = 'SOIL-' || LPAD(numbered_samples.row_num::TEXT, 4, '0')
+FROM numbered_samples
+WHERE lab_samples.id = numbered_samples.id;
 
 -- Insert demo research data points
 INSERT INTO research_data_points (id, experiment_id, measurement_date, parameter_name, parameter_code, value, unit, recorded_by)

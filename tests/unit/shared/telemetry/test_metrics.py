@@ -5,8 +5,7 @@ Tests validate OpenTelemetry integration, metrics collection, and tracing.
 """
 
 import pytest
-from unittest.mock import Mock, patch, MagicMock
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from dataclasses import dataclass, field
 import time
 

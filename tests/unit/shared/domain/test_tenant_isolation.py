@@ -5,7 +5,6 @@ Tests validate multi-tenant data isolation and security.
 """
 
 import pytest
-from unittest.mock import Mock, AsyncMock, patch
 from typing import Dict, Any, Optional
 import uuid
 

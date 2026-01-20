@@ -5,7 +5,7 @@ Tests validate JWT middleware, authorization, and request handling.
 """
 
 import pytest
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import Mock
 from typing import Optional, Dict, Any, Callable
 import time
 import jwt

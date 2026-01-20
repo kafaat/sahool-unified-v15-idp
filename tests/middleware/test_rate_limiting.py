@@ -6,10 +6,8 @@ Tests validate rate limiting, throttling, and abuse prevention.
 
 import pytest
 import time
-from unittest.mock import Mock, AsyncMock, patch
 from typing import Dict, Any, Optional
-from dataclasses import dataclass, field
-from collections import defaultdict
+from dataclasses import dataclass
 
 
 @dataclass

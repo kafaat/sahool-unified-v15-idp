@@ -5,8 +5,7 @@ Tests validate file upload security and validation rules.
 """
 
 import pytest
-from unittest.mock import Mock, patch
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List
 import io
 import struct
 

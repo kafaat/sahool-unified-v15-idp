@@ -5,7 +5,7 @@ Tests validate parameterized queries and input sanitization.
 """
 
 import pytest
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import AsyncMock
 from typing import Any, Dict, List
 
 

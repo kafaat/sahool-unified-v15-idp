@@ -9,8 +9,7 @@ import secrets
 import hmac
 import hashlib
 import time
-from unittest.mock import Mock, patch, MagicMock
-from typing import Optional
+from unittest.mock import Mock
 
 
 class CSRFTokenManager:

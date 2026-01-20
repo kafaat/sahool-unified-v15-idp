@@ -5,7 +5,6 @@ Tests validate database connection pooling, transactions, and query execution.
 """
 
 import pytest
-from unittest.mock import Mock, AsyncMock, patch, MagicMock
 from typing import Optional, Dict, Any, List
 import asyncio
 
@@ -194,13 +193,16 @@ class TestTransactions:
     @pytest.mark.asyncio
     async def test_transaction_rollback_on_error(self, mock_conn):
         """Test transaction rolls back on error."""
+        tx = None
         try:
-            async with mock_conn.transaction() as tx:
+            async with mock_conn.transaction() as transaction:
+                tx = transaction
                 await mock_conn.execute("INSERT INTO fields (name) VALUES ($1)", "Test")
                 raise ValueError("Simulated error")
         except ValueError:
             pass
 
+        assert tx is not None
         assert tx.rolled_back
         assert not tx.committed
 

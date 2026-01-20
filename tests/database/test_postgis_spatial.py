@@ -6,8 +6,7 @@ Tests validate geospatial queries, geometry operations, and field boundary handl
 
 import pytest
 import json
-from unittest.mock import Mock, AsyncMock
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from dataclasses import dataclass
 
 

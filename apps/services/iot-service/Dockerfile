@@ -31,6 +31,9 @@ COPY apps/services/iot-service ./iot-service/
 
 WORKDIR /workspace/iot-service
 
+# Update package.json to use local shared-events (prevents npm from fetching from registry)
+RUN sed -i 's|"@sahool/shared-events": "\*"|"@sahool/shared-events": "file:../packages/shared-events"|g' package.json
+
 # Install all dependencies with retry for network resilience
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 

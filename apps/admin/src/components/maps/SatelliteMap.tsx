@@ -186,11 +186,20 @@ export default function SatelliteMap({
       <div
         id="satellite-map"
         className="w-full h-full bg-gray-100 animate-pulse"
+        role="region"
+        aria-label="جاري تحميل خريطة البيانات الفضائية - Loading Satellite Map"
       />
     );
   }
 
-  return <div id="satellite-map" className="w-full h-full" />;
+  return (
+    <div
+      id="satellite-map"
+      className="w-full h-full"
+      role="region"
+      aria-label="خريطة البيانات الفضائية - Satellite Map"
+    />
+  );
 }
 
 function getNDVIColor(ndvi: number): string {

@@ -9,7 +9,6 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-import asyncio
 import json
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -23,7 +22,6 @@ pytest.importorskip("httpx")
 from shared.ai.ollama_client import (
     OllamaClient,
     OllamaConfig,
-    OllamaError,
     OllamaModel,
     OllamaResponse,
     analyze_code_with_ollama,

@@ -692,6 +692,7 @@ class TestIntegration:
 
         # Step 3: Apply fixes (dry run)
         results = await engine.apply_fix_plan(plan, report)
+        assert results is not None  # Verify apply returns results
 
         # Verify file unchanged (dry run)
         with open(temp_python_file, encoding="utf-8") as f:

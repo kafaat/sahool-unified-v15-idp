@@ -470,6 +470,8 @@ Output your analysis as JSON with the following structure:
             if start >= 0 and end > start:
                 return json.loads(response_text[start:end])
         except json.JSONDecodeError:
+            # JSON parsing failed - LLM response may not be valid JSON.
+            # Fall through to return raw response in fallback format below.
             pass
 
         return {

@@ -15,6 +15,9 @@ Modules:
     - audit: Unified AI audit logging with cost tracking
     - circuit_breaker: Resilience pattern for external services
     - metrics: Prometheus-compatible observability metrics
+    - embeddings: Unified embedding providers (sentence-transformers, OpenAI, Ollama)
+    - explainability: Explanation generation for AI recommendations
+    - feedback: User feedback collection and analysis
 
 Author: SAHOOL Platform Team
 Updated: January 2026
@@ -163,7 +166,52 @@ try:
 except ImportError:
     TRAINING_AVAILABLE = False
 
-__version__ = "1.4.0"
+# Embeddings adapter
+from .embeddings import (
+    EmbeddingsAdapter,
+    EmbeddingConfig,
+    EmbeddingResult,
+    BatchEmbeddingResult,
+    EmbeddingProvider,
+    EmbeddingProviderError,
+    EmbeddingCache,
+    get_embeddings_adapter,
+    embed_text,
+    embed_texts,
+    text_similarity,
+)
+
+# Explainability layer
+from .explainability import (
+    ExplainabilityEngine,
+    Explanation,
+    ContributingFactor,
+    AlternativeRecommendation,
+    RuleExplanation,
+    ExplanationType,
+    FactorType,
+    ImpactLevel,
+    get_explainability_engine,
+    explain_recommendation,
+)
+
+# Feedback collection
+from .feedback import (
+    FeedbackCollector,
+    FeedbackItem,
+    FeedbackSummary,
+    FeedbackStorage,
+    FeedbackType,
+    FeedbackSentiment,
+    RecommendationType,
+    OutcomeStatus,
+    get_feedback_collector,
+    collect_rating,
+    collect_outcome,
+    get_feedback_summary,
+)
+
+__version__ = "1.5.0"
 
 __all__ = [
     # Context Engineering - Compression
@@ -243,6 +291,42 @@ __all__ = [
     "OLLAMA_AVAILABLE",
     "TRAINING_AVAILABLE",
     "LLM_MANAGER_AVAILABLE",
+    # Embeddings
+    "EmbeddingsAdapter",
+    "EmbeddingConfig",
+    "EmbeddingResult",
+    "BatchEmbeddingResult",
+    "EmbeddingProvider",
+    "EmbeddingProviderError",
+    "EmbeddingCache",
+    "get_embeddings_adapter",
+    "embed_text",
+    "embed_texts",
+    "text_similarity",
+    # Explainability
+    "ExplainabilityEngine",
+    "Explanation",
+    "ContributingFactor",
+    "AlternativeRecommendation",
+    "RuleExplanation",
+    "ExplanationType",
+    "FactorType",
+    "ImpactLevel",
+    "get_explainability_engine",
+    "explain_recommendation",
+    # Feedback
+    "FeedbackCollector",
+    "FeedbackItem",
+    "FeedbackSummary",
+    "FeedbackStorage",
+    "FeedbackType",
+    "FeedbackSentiment",
+    "RecommendationType",
+    "OutcomeStatus",
+    "get_feedback_collector",
+    "collect_rating",
+    "collect_outcome",
+    "get_feedback_summary",
 ]
 
 # Add LLM Manager exports if available

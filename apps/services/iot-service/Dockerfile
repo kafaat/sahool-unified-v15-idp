@@ -26,12 +26,14 @@ COPY apps/services/iot-service ./iot-service/
 
 # Build shared-events package first
 WORKDIR /workspace/packages/shared-events
-RUN npm install --legacy-peer-deps && { npm run build || true; }
+RUN npm install --legacy-peer-deps && npm run build
 
 WORKDIR /workspace/iot-service
 
-# Update package.json to use local shared-events
-RUN sed -i 's|"@sahool/shared-events": "\*"|"@sahool/shared-events": "file:../packages/shared-events"|g' package.json
+# Update package.json to use local shared-events instead of npm registry
+# Use regex to handle any version specifier ("*", "^1.0.0", etc.)
+RUN sed -i 's|"@sahool/shared-events":.*|"@sahool/shared-events": "file:../packages/shared-events",|g' package.json && \
+    echo "Updated package.json:" && grep -A1 -B1 shared-events package.json
 
 # Install all dependencies with retry for network resilience
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
@@ -67,8 +69,11 @@ WORKDIR /app
 COPY --from=builder /workspace/iot-service/package.json ./
 COPY --from=builder /workspace/iot-service/package-lock.json ./
 
+# Remove the file: dependency before npm install (it won't resolve in production stage)
+# The shared-events package will be copied into node_modules separately
+RUN sed -i '/"@sahool\/shared-events":/d' package.json
+
 # Install production dependencies with retry for network resilience
-# Note: npm ci may fail on file: dependencies, fallback to npm install
 RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force || \
     npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force
 

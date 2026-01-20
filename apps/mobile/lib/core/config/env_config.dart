@@ -20,14 +20,23 @@ class EnvConfig {
   // Initialization
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Load environment configuration from .env file
+  /// Load environment configuration from .env file (with .env.example fallback)
   static Future<void> load() async {
     if (_initialized) return;
 
     try {
-      await dotenv.load(fileName: '.env');
-      if (kDebugMode) {
-        AppLogger.i('Environment configuration loaded from .env', tag: 'EnvConfig');
+      // Try .env first (local development), then .env.example (CI/default)
+      try {
+        await dotenv.load(fileName: '.env');
+        if (kDebugMode) {
+          AppLogger.i('Environment configuration loaded from .env', tag: 'EnvConfig');
+        }
+      } catch (_) {
+        // Fallback to .env.example for CI builds
+        await dotenv.load(fileName: '.env.example');
+        if (kDebugMode) {
+          AppLogger.i('Environment configuration loaded from .env.example', tag: 'EnvConfig');
+        }
       }
     } catch (e) {
       if (kDebugMode) {

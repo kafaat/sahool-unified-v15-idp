@@ -9,7 +9,7 @@ FastAPI routes for authentication:
 """
 
 import logging
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, EmailStr, Field

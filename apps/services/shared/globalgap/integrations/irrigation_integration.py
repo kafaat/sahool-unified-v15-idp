@@ -10,7 +10,7 @@ Links with irrigation-smart service to:
 
 import logging
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from enum import Enum
 from typing import Any
 

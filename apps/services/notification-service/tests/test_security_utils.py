@@ -173,13 +173,13 @@ class TestMaskIdentifier:
         """Should detect email and use email masking"""
         result = mask_identifier("user@example.com")
         assert "@" in result
-        assert "u***r@example.com" == result
+        assert result == "u***r@example.com"
 
     def test_detects_phone_and_masks_appropriately(self):
         """Should detect phone and use phone masking"""
         result = mask_identifier("+967712345678")
         assert "@" not in result
-        assert "***5678" == result
+        assert result == "***5678"
 
     def test_handles_none(self):
         """Should handle None"""

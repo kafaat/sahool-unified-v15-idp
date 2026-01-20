@@ -348,3 +348,248 @@ class TestJWTConfig:
         spec.loader.exec_module(module)
         assert hasattr(module, "config")
         assert isinstance(module.config, module.JWTConfig)
+
+    def test_validate_token_expiration_too_short(self):
+        """Test validation fails when access token expires too quickly"""
+        os.environ["ENVIRONMENT"] = "production"
+        os.environ["JWT_SECRET_KEY"] = "a" * 32
+        os.environ["JWT_ACCESS_TOKEN_EXPIRE_MINUTES"] = "0"
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with pytest.raises(module.JWTConfigError, match="ACCESS_TOKEN_EXPIRE_MINUTES"):
+            module.JWTConfig.validate()
+
+    def test_validate_token_expiration_too_long(self):
+        """Test validation fails when access token expiration exceeds maximum"""
+        os.environ["ENVIRONMENT"] = "production"
+        os.environ["JWT_SECRET_KEY"] = "a" * 32
+        os.environ["JWT_ACCESS_TOKEN_EXPIRE_MINUTES"] = "1441"
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with pytest.raises(module.JWTConfigError, match="ACCESS_TOKEN_EXPIRE_MINUTES"):
+            module.JWTConfig.validate()
+
+    def test_validate_refresh_token_expiration_too_long(self):
+        """Test validation fails when refresh token expiration exceeds maximum"""
+        os.environ["ENVIRONMENT"] = "production"
+        os.environ["JWT_SECRET_KEY"] = "a" * 32
+        os.environ["JWT_REFRESH_TOKEN_EXPIRE_DAYS"] = "366"
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with pytest.raises(module.JWTConfigError, match="REFRESH_TOKEN_EXPIRE_DAYS"):
+            module.JWTConfig.validate()
+
+    def test_validate_empty_issuer(self):
+        """Test validation fails when issuer is empty"""
+        os.environ["ENVIRONMENT"] = "production"
+        os.environ["JWT_SECRET_KEY"] = "a" * 32
+        os.environ["JWT_ISSUER"] = ""
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with pytest.raises(module.JWTConfigError, match="JWT_ISSUER"):
+            module.JWTConfig.validate()
+
+    def test_validate_empty_audience(self):
+        """Test validation fails when audience is empty"""
+        os.environ["ENVIRONMENT"] = "production"
+        os.environ["JWT_SECRET_KEY"] = "a" * 32
+        os.environ["JWT_AUDIENCE"] = ""
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with pytest.raises(module.JWTConfigError, match="JWT_AUDIENCE"):
+            module.JWTConfig.validate()
+
+    def test_validate_rate_limit_requests_invalid(self):
+        """Test validation fails with invalid rate limit requests"""
+        os.environ["ENVIRONMENT"] = "production"
+        os.environ["JWT_SECRET_KEY"] = "a" * 32
+        os.environ["RATE_LIMIT_ENABLED"] = "true"
+        os.environ["RATE_LIMIT_REQUESTS"] = "10001"
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with pytest.raises(module.JWTConfigError, match="RATE_LIMIT_REQUESTS"):
+            module.JWTConfig.validate()
+
+    def test_validate_rate_limit_window_invalid(self):
+        """Test validation fails with invalid rate limit window"""
+        os.environ["ENVIRONMENT"] = "production"
+        os.environ["JWT_SECRET_KEY"] = "a" * 32
+        os.environ["RATE_LIMIT_ENABLED"] = "true"
+        os.environ["RATE_LIMIT_WINDOW_SECONDS"] = "3601"
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with pytest.raises(module.JWTConfigError, match="RATE_LIMIT_WINDOW_SECONDS"):
+            module.JWTConfig.validate()
+
+    def test_validate_redis_port_invalid(self):
+        """Test validation fails with invalid Redis port"""
+        os.environ["ENVIRONMENT"] = "production"
+        os.environ["JWT_SECRET_KEY"] = "a" * 32
+        os.environ["TOKEN_REVOCATION_ENABLED"] = "true"
+        os.environ["REDIS_PORT"] = "65536"
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with pytest.raises(module.JWTConfigError, match="REDIS_PORT"):
+            module.JWTConfig.validate()
+
+    def test_validate_redis_db_invalid(self):
+        """Test validation fails with invalid Redis DB"""
+        os.environ["ENVIRONMENT"] = "production"
+        os.environ["JWT_SECRET_KEY"] = "a" * 32
+        os.environ["TOKEN_REVOCATION_ENABLED"] = "true"
+        os.environ["REDIS_DB"] = "16"
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with pytest.raises(module.JWTConfigError, match="REDIS_DB"):
+            module.JWTConfig.validate()
+
+    def test_validate_redis_not_configured(self):
+        """Test validation fails when token revocation enabled but Redis not configured"""
+        os.environ["ENVIRONMENT"] = "production"
+        os.environ["JWT_SECRET_KEY"] = "a" * 32
+        os.environ["TOKEN_REVOCATION_ENABLED"] = "true"
+        os.environ.pop("REDIS_URL", None)
+        os.environ.pop("REDIS_HOST", None)
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with pytest.raises(module.JWTConfigError, match="Redis"):
+            module.JWTConfig.validate()
+
+    def test_validate_with_report_returns_dict(self):
+        """Test validate_with_report returns proper report structure"""
+        os.environ["ENVIRONMENT"] = "production"
+        os.environ["JWT_SECRET_KEY"] = "a" * 32
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        report = module.JWTConfig.validate_with_report()
+        assert "valid" in report
+        assert "errors" in report
+        assert "warnings" in report
+        assert "environment" in report
+        assert "summary" in report
+        assert report["valid"] is True
+        assert isinstance(report["errors"], list)
+        assert isinstance(report["warnings"], list)
+
+    def test_validate_with_report_detects_errors(self):
+        """Test validate_with_report correctly identifies errors"""
+        os.environ["ENVIRONMENT"] = "production"
+        os.environ.pop("JWT_SECRET_KEY", None)
+        os.environ.pop("JWT_SECRET", None)
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        report = module.JWTConfig.validate_with_report()
+        assert report["valid"] is False
+        assert len(report["errors"]) > 0
+
+    def test_validate_with_report_summary_includes_secret_length(self):
+        """Test validate_with_report summary includes JWT secret length"""
+        os.environ["ENVIRONMENT"] = "production"
+        os.environ["JWT_SECRET_KEY"] = "a" * 32
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        report = module.JWTConfig.validate_with_report()
+        assert report["summary"]["jwt_secret_length"] == 32
+        assert report["summary"]["jwt_secret_configured"] is True
+
+    def test_validate_production_with_all_valid_settings(self):
+        """Test validation passes when all settings are valid in production"""
+        os.environ["ENVIRONMENT"] = "production"
+        os.environ["JWT_SECRET_KEY"] = "a" * 32
+        os.environ["JWT_ACCESS_TOKEN_EXPIRE_MINUTES"] = "30"
+        os.environ["JWT_REFRESH_TOKEN_EXPIRE_DAYS"] = "7"
+        os.environ["JWT_ISSUER"] = "sahool-platform"
+        os.environ["JWT_AUDIENCE"] = "sahool-api"
+        os.environ["RATE_LIMIT_ENABLED"] = "true"
+        os.environ["RATE_LIMIT_REQUESTS"] = "100"
+        os.environ["RATE_LIMIT_WINDOW_SECONDS"] = "60"
+        os.environ["TOKEN_REVOCATION_ENABLED"] = "true"
+        os.environ["REDIS_HOST"] = "localhost"
+        os.environ["REDIS_PORT"] = "6379"
+        os.environ["REDIS_DB"] = "0"
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        # Should not raise
+        module.JWTConfig.validate()
+
+    def test_jwt_config_error_exception_exists(self):
+        """Test JWTConfigError exception class exists"""
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        assert hasattr(module, "JWTConfigError")
+        assert issubclass(module.JWTConfigError, Exception)

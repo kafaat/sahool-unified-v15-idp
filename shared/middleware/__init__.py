@@ -22,7 +22,7 @@ from .api_versioning import (
     require_version,
     version_router,
 )
-from .cors import get_cors_config, get_cors_origins, setup_cors
+from .cors import DEFAULT_ORIGINS, get_cors_config, get_cors_origins, setup_cors
 from .rate_limit import (
     RateLimitConfig,
     RateLimiter,
@@ -53,6 +53,7 @@ from .tenant_context import TenantContextMiddleware
 
 __all__ = [
     # CORS
+    "DEFAULT_ORIGINS",
     "setup_cors",
     "get_cors_origins",
     "get_cors_config",

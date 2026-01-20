@@ -9,16 +9,20 @@ usage alerts, and seasonal pattern tracking.
 تنبيهات الاستخدام، وتتبع الأنماط الموسمية.
 """
 
+import logging
 from datetime import date, datetime
 from enum import Enum
 from typing import Any
 
+import httpx
 from pydantic import BaseModel, Field
 
 from .water_metrics import (
     WaterSource,
     WaterUsageMetric,
 )
+
+logger = logging.getLogger(__name__)
 
 # ==================== Alert Models ====================
 
@@ -236,6 +240,8 @@ class SpringIntegration:
         start_date: date,
         end_date: date,
         include_sensor_data: bool = True,
+        timeout: float = 30.0,
+        max_retries: int = 3,
     ) -> dict[str, Any]:
         """
         Pull irrigation data from irrigation-smart service
@@ -245,17 +251,75 @@ class SpringIntegration:
             start_date: Start date for data retrieval
             end_date: End date for data retrieval
             include_sensor_data: Include soil moisture sensor data
+            timeout: Request timeout in seconds
+            max_retries: Maximum number of retry attempts
 
         Returns:
             Dictionary containing irrigation data
 
-        Note:
-            This is a placeholder. In production, this would make HTTP requests
-            to the irrigation-smart service API.
+        Raises:
+            httpx.HTTPError: If API request fails after retries
         """
-        # TODO: Implement actual API integration
-        # For now, return structure that would be expected from API
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
 
+        params = {
+            "farm_id": self.farm_id,
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
+            "include_sensors": str(include_sensor_data).lower(),
+        }
+
+        url = f"{self.irrigation_service_url}/irrigation/data"
+
+        last_error = None
+        for attempt in range(max_retries):
+            try:
+                with httpx.Client(timeout=timeout) as client:
+                    response = client.get(url, headers=headers, params=params)
+                    response.raise_for_status()
+                    return response.json()
+
+            except httpx.TimeoutException as e:
+                last_error = e
+                logger.warning(
+                    "Timeout pulling irrigation data (attempt %d/%d): %s",
+                    attempt + 1,
+                    max_retries,
+                    str(e),
+                )
+            except httpx.HTTPStatusError as e:
+                last_error = e
+                logger.warning(
+                    "HTTP error pulling irrigation data (attempt %d/%d): %s",
+                    attempt + 1,
+                    max_retries,
+                    str(e),
+                )
+                # Don't retry on 4xx errors (client errors)
+                if 400 <= e.response.status_code < 500:
+                    break
+            except httpx.RequestError as e:
+                last_error = e
+                logger.warning(
+                    "Request error pulling irrigation data (attempt %d/%d): %s",
+                    attempt + 1,
+                    max_retries,
+                    str(e),
+                )
+
+        # If all retries failed, log and return empty structure
+        logger.error(
+            "Failed to pull irrigation data after %d attempts: %s",
+            max_retries,
+            str(last_error),
+        )
+
+        # Return fallback structure for graceful degradation
         return {
             "farm_id": self.farm_id,
             "period_start": start_date.isoformat(),
@@ -268,7 +332,128 @@ class SpringIntegration:
                 "active_zones": 0,
                 "maintenance_alerts": [],
             },
+            "_error": str(last_error) if last_error else None,
+            "_fallback": True,
         }
+
+    async def pull_irrigation_data_async(
+        self,
+        start_date: date,
+        end_date: date,
+        include_sensor_data: bool = True,
+        timeout: float = 30.0,
+        max_retries: int = 3,
+    ) -> dict[str, Any]:
+        """
+        Pull irrigation data asynchronously from irrigation-smart service
+        سحب بيانات الري بشكل غير متزامن من خدمة الري الذكي
+
+        Args:
+            start_date: Start date for data retrieval
+            end_date: End date for data retrieval
+            include_sensor_data: Include soil moisture sensor data
+            timeout: Request timeout in seconds
+            max_retries: Maximum number of retry attempts
+
+        Returns:
+            Dictionary containing irrigation data
+        """
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+
+        params = {
+            "farm_id": self.farm_id,
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
+            "include_sensors": str(include_sensor_data).lower(),
+        }
+
+        url = f"{self.irrigation_service_url}/irrigation/data"
+
+        last_error = None
+        for attempt in range(max_retries):
+            try:
+                async with httpx.AsyncClient(timeout=timeout) as client:
+                    response = await client.get(url, headers=headers, params=params)
+                    response.raise_for_status()
+                    return response.json()
+
+            except httpx.TimeoutException as e:
+                last_error = e
+                logger.warning(
+                    "Timeout pulling irrigation data async (attempt %d/%d)",
+                    attempt + 1,
+                    max_retries,
+                )
+            except httpx.HTTPStatusError as e:
+                last_error = e
+                if 400 <= e.response.status_code < 500:
+                    break
+            except httpx.RequestError as e:
+                last_error = e
+
+        logger.error("Failed to pull irrigation data async: %s", str(last_error))
+        return {
+            "farm_id": self.farm_id,
+            "period_start": start_date.isoformat(),
+            "period_end": end_date.isoformat(),
+            "usage_records": [],
+            "sensor_readings": [] if include_sensor_data else None,
+            "weather_data": {},
+            "irrigation_schedules": [],
+            "system_status": {"active_zones": 0, "maintenance_alerts": []},
+            "_error": str(last_error) if last_error else None,
+            "_fallback": True,
+        }
+
+    def push_alerts_to_service(
+        self,
+        alerts: list["WaterUsageAlert"],
+        timeout: float = 30.0,
+    ) -> dict[str, Any]:
+        """
+        Push water usage alerts to irrigation-smart service
+        إرسال تنبيهات استخدام المياه إلى خدمة الري الذكي
+
+        Args:
+            alerts: List of alerts to push
+            timeout: Request timeout in seconds
+
+        Returns:
+            API response with push status
+        """
+        if not alerts:
+            return {"status": "success", "pushed_count": 0}
+
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+
+        url = f"{self.irrigation_service_url}/alerts/batch"
+        payload = {
+            "farm_id": self.farm_id,
+            "alerts": [alert.model_dump(mode="json") for alert in alerts],
+        }
+
+        try:
+            with httpx.Client(timeout=timeout) as client:
+                response = client.post(url, headers=headers, json=payload)
+                response.raise_for_status()
+                return response.json()
+        except httpx.HTTPError as e:
+            logger.error("Failed to push alerts: %s", str(e))
+            return {
+                "status": "error",
+                "error": str(e),
+                "pushed_count": 0,
+            }
 
     def calculate_water_footprint(
         self,
@@ -330,6 +515,236 @@ class SpringIntegration:
             global_benchmark_m3_per_kg=benchmarks.get("global"),
             performance_vs_benchmark=performance,
         )
+
+    # ==================== Mock Data Generation Methods ====================
+
+    def _generate_mock_usage_records(self, start_date: date, end_date: date) -> list[dict[str, Any]]:
+        """Generate realistic mock water usage records for the period"""
+        from datetime import timedelta
+        import random
+
+        records = []
+        current_date = start_date
+        record_counter = 1
+
+        # Define farm irrigation patterns (realistic for Yemen agriculture)
+        water_sources = [
+            {"source_id": "WELL-001", "name": "North Field Well"},
+            {"source_id": "WELL-002", "name": "South Field Well"},
+            {"source_id": "CANAL-001", "name": "Main Canal"},
+        ]
+
+        fields = [
+            {"field_id": "FIELD-N1", "crop": "Tomatoes", "area": 2.5, "method": "DRIP"},
+            {"field_id": "FIELD-N2", "crop": "Cucumbers", "area": 1.8, "method": "DRIP"},
+            {"field_id": "FIELD-S1", "crop": "Wheat", "area": 5.0, "method": "SPRINKLER"},
+            {"field_id": "FIELD-S2", "crop": "Date Palm", "area": 3.5, "method": "SUBSURFACE"},
+        ]
+
+        while current_date <= end_date:
+            # Generate 2-3 irrigation events per day (realistic for Yemen)
+            num_events = random.randint(1, 3)
+
+            for _ in range(num_events):
+                source = random.choice(water_sources)
+                field = random.choice(fields)
+
+                # Realistic water volume based on field size and crop
+                if field["crop"] == "Date Palm":
+                    volume = random.uniform(80, 150)
+                    duration = random.uniform(3, 6)
+                elif field["crop"] in ["Tomatoes", "Cucumbers"]:
+                    volume = random.uniform(60, 120)
+                    duration = random.uniform(4, 8)
+                else:  # Wheat, others
+                    volume = random.uniform(100, 200)
+                    duration = random.uniform(5, 10)
+
+                usage_id = f"WU-{current_date.strftime('%Y%m%d')}-{record_counter:04d}"
+                flow_rate = volume / duration if duration > 0 else 0
+
+                records.append({
+                    "usage_id": usage_id,
+                    "source_id": source["source_id"],
+                    "source_name": source["name"],
+                    "field_id": field["field_id"],
+                    "crop_type": field["crop"],
+                    "measurement_date": current_date.isoformat(),
+                    "volume_cubic_meters": round(volume, 2),
+                    "crop_area_hectares": field["area"],
+                    "irrigation_method": field["method"],
+                    "duration_hours": round(duration, 2),
+                    "flow_rate_m3_per_hour": round(flow_rate, 2),
+                })
+                record_counter += 1
+
+            current_date += timedelta(days=1)
+
+        return records
+
+    def _generate_mock_sensor_readings(self, start_date: date, end_date: date) -> list[dict[str, Any]]:
+        """Generate realistic mock soil moisture sensor readings"""
+        from datetime import timedelta
+        import random
+
+        readings = []
+        current_date = start_date
+        sensor_counter = 1
+
+        # Define sensor locations (one per field)
+        sensors = [
+            {"sensor_id": "SM-001", "field_id": "FIELD-N1", "depth_cm": 20},
+            {"sensor_id": "SM-002", "field_id": "FIELD-N2", "depth_cm": 20},
+            {"sensor_id": "SM-003", "field_id": "FIELD-S1", "depth_cm": 30},
+            {"sensor_id": "SM-004", "field_id": "FIELD-S2", "depth_cm": 40},
+        ]
+
+        while current_date <= end_date:
+            # Generate 2 readings per day (morning and evening)
+            for hour in [6, 18]:
+                for sensor in sensors:
+                    # Realistic soil moisture values (30-70% is optimal, lower after irrigation)
+                    base_moisture = random.uniform(35, 65)
+                    soil_moisture = max(25, min(75, base_moisture))
+                    soil_temperature = random.uniform(18, 35)  # Yemen climate
+
+                    readings.append({
+                        "reading_id": f"SR-{current_date.strftime('%Y%m%d')}-{sensor['sensor_id']}-{hour:02d}",
+                        "sensor_id": sensor["sensor_id"],
+                        "field_id": sensor["field_id"],
+                        "measurement_date": current_date.isoformat(),
+                        "measurement_hour": hour,
+                        "soil_moisture_percent": round(soil_moisture, 1),
+                        "soil_temperature_celsius": round(soil_temperature, 1),
+                        "sensor_depth_cm": sensor["depth_cm"],
+                        "battery_level_percent": random.randint(70, 100),
+                        "signal_strength": random.choice(["STRONG", "GOOD", "FAIR"]),
+                    })
+
+            current_date += timedelta(days=1)
+
+        return readings
+
+    def _generate_mock_weather_data(self, start_date: date, end_date: date) -> dict[str, Any]:
+        """Generate realistic mock weather data for the period"""
+        from datetime import timedelta
+        import random
+
+        weather_records = []
+        current_date = start_date
+
+        while current_date <= end_date:
+            # Realistic Yemen weather patterns
+            min_temp = random.uniform(15, 25)  # Cooler at night
+            max_temp = random.uniform(28, 40)  # Hotter during day
+            rainfall = random.uniform(0, 5) if random.random() > 0.8 else 0  # 20% chance of rain
+            relative_humidity = random.uniform(30, 70)
+            wind_speed = random.uniform(5, 20)  # km/h
+
+            weather_records.append({
+                "date": current_date.isoformat(),
+                "min_temperature_celsius": round(min_temp, 1),
+                "max_temperature_celsius": round(max_temp, 1),
+                "avg_temperature_celsius": round((min_temp + max_temp) / 2, 1),
+                "rainfall_mm": round(rainfall, 1),
+                "relative_humidity_percent": round(relative_humidity, 1),
+                "wind_speed_kmh": round(wind_speed, 1),
+                "solar_radiation_mj_m2": round(random.uniform(15, 25), 2),
+                "evapotranspiration_mm": round(random.uniform(3, 8), 2),
+            })
+
+            current_date += timedelta(days=1)
+
+        return {
+            "weather_records": weather_records,
+            "aggregated_rainfall_mm": sum(r["rainfall_mm"] for r in weather_records),
+            "avg_temperature_celsius": round(
+                sum(r["avg_temperature_celsius"] for r in weather_records) / len(weather_records),
+                1
+            ) if weather_records else 0,
+        }
+
+    def _generate_mock_irrigation_schedules(self, start_date: date, end_date: date) -> list[dict[str, Any]]:
+        """Generate realistic mock irrigation schedules for planned events"""
+        from datetime import timedelta
+        import random
+
+        schedules = []
+        current_date = start_date
+        schedule_counter = 1
+
+        fields = [
+            {"field_id": "FIELD-N1", "crop": "Tomatoes", "area": 2.5},
+            {"field_id": "FIELD-N2", "crop": "Cucumbers", "area": 1.8},
+            {"field_id": "FIELD-S1", "crop": "Wheat", "area": 5.0},
+            {"field_id": "FIELD-S2", "crop": "Date Palm", "area": 3.5},
+        ]
+
+        while current_date <= end_date:
+            # Generate 2-3 scheduled events per day
+            num_schedules = random.randint(2, 4)
+
+            for _ in range(num_schedules):
+                field = random.choice(fields)
+                start_hour = random.choice([5, 6, 7, 18, 19, 20])  # Early morning or evening
+                duration = random.uniform(3, 8)
+
+                # Realistic planned volumes
+                if field["crop"] == "Date Palm":
+                    planned_volume = random.uniform(80, 150)
+                elif field["crop"] in ["Tomatoes", "Cucumbers"]:
+                    planned_volume = random.uniform(60, 120)
+                else:
+                    planned_volume = random.uniform(100, 200)
+
+                status = random.choice(["SCHEDULED", "IN_PROGRESS", "COMPLETED"])
+
+                schedules.append({
+                    "schedule_id": f"SCH-{current_date.strftime('%Y%m%d')}-{schedule_counter:04d}",
+                    "field_id": field["field_id"],
+                    "crop_type": field["crop"],
+                    "scheduled_date": current_date.isoformat(),
+                    "scheduled_start_hour": start_hour,
+                    "planned_duration_hours": round(duration, 1),
+                    "planned_volume_cubic_meters": round(planned_volume, 2),
+                    "status": status,
+                    "priority": random.choice(["LOW", "NORMAL", "HIGH"]),
+                    "scheduling_reason": random.choice(
+                        ["Soil moisture threshold", "Growth stage", "Weather forecast", "Manual request"]
+                    ),
+                })
+                schedule_counter += 1
+
+            current_date += timedelta(days=1)
+
+        return schedules
+
+    def _generate_mock_system_status(self) -> dict[str, Any]:
+        """Generate realistic mock irrigation system status"""
+        return {
+            "active_zones": 4,
+            "total_zones": 6,
+            "zones_operational": ["ZONE-A", "ZONE-B", "ZONE-C", "ZONE-D"],
+            "zones_offline": ["ZONE-E", "ZONE-F"],
+            "total_equipment": 12,
+            "equipment_operational": 11,
+            "equipment_needing_maintenance": 1,
+            "maintenance_alerts": [
+                {
+                    "alert_id": "MA-001",
+                    "equipment_id": "PUMP-002",
+                    "alert_type": "SCHEDULED_MAINTENANCE",
+                    "priority": "MEDIUM",
+                    "description": "Filter replacement due",
+                    "recommended_action": "Schedule filter replacement within 7 days",
+                    "last_maintenance": "2024-12-01",
+                    "next_scheduled": "2025-01-15",
+                }
+            ],
+            "last_system_check": datetime.utcnow().isoformat(),
+            "overall_system_health": "GOOD",
+            "system_uptime_percent": 98.5,
+        }
 
     def generate_usage_alerts(
         self,

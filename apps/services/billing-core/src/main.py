@@ -21,7 +21,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import UTC, date, datetime, timedelta
+from datetime import timezone, date, datetime, timedelta, UTC
 from decimal import Decimal
 from enum import Enum
 from pathlib import Path
@@ -75,6 +75,15 @@ try:
 except ImportError:
     setup_exception_handlers = None
     add_request_id_middleware = None
+
+# Security headers middleware
+try:
+    from shared.middleware.security_headers import setup_security_headers
+    SECURITY_HEADERS_AVAILABLE = True
+except ImportError:
+    SECURITY_HEADERS_AVAILABLE = False
+    def setup_security_headers(app):
+        pass
 
 try:
     from auth.dependencies import (
@@ -233,6 +242,10 @@ try:
     logger.info("Rate limiting enabled for billing-core")
 except ImportError:
     logger.warning("Rate limiter not available - proceeding without rate limiting")
+
+# Security headers - رؤوس الأمان
+if SECURITY_HEADERS_AVAILABLE:
+    setup_security_headers(app)
 
 # Environment configuration
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY", "")

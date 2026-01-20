@@ -1,1 +1,1 @@
-# SAHOOL AI Unit Tests
+"""Tests for SAHOOL AI module."""

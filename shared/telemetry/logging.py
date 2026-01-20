@@ -34,7 +34,7 @@ import json
 import logging
 import os
 import sys
-from datetime import UTC, datetime
+from datetime import datetime, UTC
 from typing import Any
 
 from opentelemetry import trace

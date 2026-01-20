@@ -17,7 +17,7 @@ import logging
 import random
 import time
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 from typing import Any
 
 import aiohttp
@@ -112,7 +112,7 @@ class SoilSensor(IoTDevice):
             },
             "battery_level": self.battery_level,
             "signal_strength": -30 - random.randint(0, 60),
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
 
@@ -136,7 +136,7 @@ class WeatherStation(IoTDevice):
                 "region": self.location["region"],
             },
             "battery_level": self.battery_level,
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
 
@@ -163,7 +163,7 @@ class IrrigationController(IoTDevice):
                 "farm_name": self.location["name"],
             },
             "battery_level": self.battery_level,
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
 
@@ -187,7 +187,7 @@ class GPSTracker(IoTDevice):
             },
             "battery_level": self.battery_level,
             "signal_strength": -30 - random.randint(0, 70),
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
 
@@ -238,7 +238,7 @@ class IoTSimulator:
             "payload": payload,
             "qos": 1,
             "retain": False,
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         headers = {
@@ -333,7 +333,7 @@ class IoTSimulator:
 
         # Save results to JSON
         results = {
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "configuration": {
                 "gateway_url": self.gateway_url,
                 "num_devices": self.num_devices,

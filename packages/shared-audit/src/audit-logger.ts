@@ -7,6 +7,8 @@ import { Injectable, Logger } from "@nestjs/common";
 import { v4 as uuidv4 } from "uuid";
 import { diff } from "deep-diff";
 import * as crypto from "crypto";
+import * as fs from "fs";
+import * as path from "path";
 import {
   AuditEvent,
   AuditLogOptions,
@@ -19,6 +21,7 @@ import {
   AuditQueryOptions,
   AuditStats,
   HashChainValidation,
+  AuditFallbackConfig,
 } from "./audit-types";
 import { AuditAlertService } from "./audit-alerts";
 
@@ -30,6 +33,9 @@ export class AuditLogger {
   private readonly logger = new Logger(AuditLogger.name);
   private readonly config: Required<AuditLoggerConfig>;
   private alertService?: AuditAlertService;
+  private auditFailureCount = 0;
+  private lastFailureAlertTime = 0;
+  private static readonly FAILURE_ALERT_INTERVAL_MS = 60000; // Alert at most once per minute
 
   constructor(config: AuditLoggerConfig = {}) {
     this.config = {
@@ -48,6 +54,12 @@ export class AuditLogger {
         "refreshToken",
       ],
       hashFunction: config.hashFunction || this.defaultHashFunction,
+      fallbackConfig: config.fallbackConfig || {
+        enabled: true,
+        maxRetries: 3,
+        retryDelayMs: 100,
+        emitFailureMetrics: true,
+      },
     };
 
     if (this.config.enableAlerts) {
@@ -346,40 +358,373 @@ export class AuditLogger {
   }
 
   /**
-   * Store event in database
+   * Store event in database with retry and fallback mechanisms
    */
   private async storeEvent(event: AuditEvent): Promise<void> {
+    const fallbackConfig = this.config.fallbackConfig;
+    const maxRetries = fallbackConfig?.maxRetries || 3;
+    const retryDelayMs = fallbackConfig?.retryDelayMs || 100;
+    let lastError: Error | null = null;
+
+    // Try to store with retry logic
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        await this.config.prisma.auditLog.create({
+          data: {
+            id: uuidv4(),
+            tenantId: event.tenantId,
+            actorId: event.actorId,
+            actorType: event.actorType,
+            action: event.action,
+            category: event.category,
+            severity: event.severity,
+            resourceType: event.resourceType,
+            resourceId: event.resourceId,
+            correlationId: event.correlationId,
+            sessionId: event.sessionId,
+            ipAddress: event.ipAddress,
+            userAgent: event.userAgent,
+            changes: event.changes || [],
+            diff: event.diff || {},
+            metadata: event.metadata || {},
+            success: event.success,
+            errorCode: event.errorCode,
+            errorMessage: event.errorMessage,
+            prevHash: event.prevHash,
+            entryHash: event.entryHash,
+            createdAt: event.timestamp,
+          },
+        });
+        // Success - reset failure count
+        this.auditFailureCount = 0;
+        return;
+      } catch (error) {
+        lastError = error as Error;
+        this.logger.warn(
+          `Audit storage attempt ${attempt}/${maxRetries} failed: ${lastError.message}`,
+        );
+
+        if (attempt < maxRetries) {
+          // Exponential backoff
+          await this.sleep(retryDelayMs * Math.pow(2, attempt - 1));
+        }
+      }
+    }
+
+    // All retries failed - execute fallback mechanisms
+    await this.handleAuditFailure(event, lastError!);
+  }
+
+  /**
+   * Handle audit storage failure with fallback mechanisms
+   */
+  private async handleAuditFailure(
+    event: AuditEvent,
+    error: Error,
+  ): Promise<void> {
+    const fallbackConfig = this.config.fallbackConfig;
+    this.auditFailureCount++;
+
+    // Log the failure (always)
+    this.logger.error(
+      `CRITICAL: Audit storage failed after all retries. Event: ${event.action} on ${event.resourceType}/${event.resourceId}. Error: ${error.message}`,
+      { event, error: error.stack },
+    );
+
+    // Emit failure metrics if enabled
+    if (fallbackConfig?.emitFailureMetrics) {
+      this.emitAuditFailureMetric(event, error);
+    }
+
+    // Write to fallback file if configured
+    if (fallbackConfig?.enabled && fallbackConfig.fallbackFilePath) {
+      await this.writeToFallbackFile(event, error);
+    }
+
+    // Send emergency webhook notification if configured (rate-limited)
+    if (fallbackConfig?.emergencyWebhookUrl) {
+      await this.sendEmergencyWebhook(event, error);
+    }
+
+    // Call custom failure handler if provided
+    if (fallbackConfig?.onFailure) {
+      try {
+        await fallbackConfig.onFailure(event, error);
+      } catch (handlerError) {
+        this.logger.error(
+          "Custom audit failure handler threw an error",
+          handlerError,
+        );
+      }
+    }
+
+    // Alert if we haven't alerted recently
+    await this.maybeAlertOnFailure(event, error);
+  }
+
+  /**
+   * Allowed base directory for fallback audit files
+   * This prevents path traversal attacks by ensuring all writes stay within this directory
+   */
+  private static readonly FALLBACK_BASE_DIR =
+    process.env.AUDIT_FALLBACK_DIR || "/var/log/sahool/audit";
+
+  /**
+   * Validate and sanitize fallback file path to prevent path traversal attacks
+   * @returns Sanitized absolute path or null if path is invalid
+   */
+  private sanitizeFallbackPath(configuredPath: string): string | null {
     try {
-      await this.config.prisma.auditLog.create({
-        data: {
-          id: uuidv4(),
-          tenantId: event.tenantId,
-          actorId: event.actorId,
-          actorType: event.actorType,
+      // Resolve to absolute path
+      const resolvedPath = path.resolve(
+        AuditLogger.FALLBACK_BASE_DIR,
+        path.basename(configuredPath),
+      );
+
+      // Ensure the resolved path is within the allowed base directory
+      const normalizedBase = path.normalize(AuditLogger.FALLBACK_BASE_DIR);
+      const normalizedResolved = path.normalize(resolvedPath);
+
+      if (!normalizedResolved.startsWith(normalizedBase + path.sep)) {
+        this.logger.error(
+          `Path traversal attempt detected: ${configuredPath} resolved outside allowed directory`,
+        );
+        return null;
+      }
+
+      // Additional check: reject paths with directory traversal sequences
+      if (configuredPath.includes("..") || configuredPath.includes("\0")) {
+        this.logger.error(
+          `Invalid path detected (traversal or null byte): ${configuredPath}`,
+        );
+        return null;
+      }
+
+      return resolvedPath;
+    } catch (error) {
+      this.logger.error(
+        `Path sanitization failed: ${(error as Error).message}`,
+      );
+      return null;
+    }
+  }
+
+  /**
+   * Sanitize a string value for safe file logging
+   * Removes/replaces potentially dangerous characters and limits length
+   */
+  private sanitizeForLog(value: string | undefined | null, maxLength = 256): string | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    // Remove control characters, null bytes, and limit length
+    // Only allow printable ASCII and common unicode characters
+    const sanitized = String(value)
+      .replace(/[\x00-\x1f\x7f]/g, "") // Remove control characters
+      .replace(/[<>'"&\\]/g, "_") // Replace potentially dangerous chars
+      .substring(0, maxLength);
+    return sanitized || null;
+  }
+
+  /**
+   * Create a sanitized copy of the event for file logging
+   * Removes or sanitizes fields that could contain untrusted network data
+   */
+  private sanitizeEventForFileLog(event: AuditEvent): Record<string, unknown> {
+    return {
+      tenantId: this.sanitizeForLog(event.tenantId, 64),
+      actorId: this.sanitizeForLog(event.actorId, 64),
+      actorType: event.actorType,
+      action: this.sanitizeForLog(event.action, 128),
+      category: event.category,
+      severity: event.severity,
+      resourceType: this.sanitizeForLog(event.resourceType, 64),
+      resourceId: this.sanitizeForLog(event.resourceId, 128),
+      correlationId: this.sanitizeForLog(event.correlationId, 64),
+      sessionId: this.sanitizeForLog(event.sessionId, 64),
+      // Sanitize network-derived fields more aggressively
+      ipAddress: this.sanitizeForLog(event.ipAddress, 45), // Max IPv6 length
+      userAgent: this.sanitizeForLog(event.userAgent, 256),
+      // Exclude raw changes/diff/metadata from file fallback for security
+      // Only include essential audit info
+      success: event.success,
+      errorCode: this.sanitizeForLog(event.errorCode, 64),
+      errorMessage: this.sanitizeForLog(event.errorMessage, 512),
+      timestamp: event.timestamp?.toISOString(),
+      entryHash: event.entryHash,
+    };
+  }
+
+  /**
+   * Write audit event to fallback file (append-only)
+   */
+  private async writeToFallbackFile(
+    event: AuditEvent,
+    error: Error,
+  ): Promise<void> {
+    const configuredPath = this.config.fallbackConfig?.fallbackFilePath;
+    if (!configuredPath) return;
+
+    // Sanitize and validate the path to prevent path traversal
+    const fallbackPath = this.sanitizeFallbackPath(configuredPath);
+    if (!fallbackPath) {
+      this.logger.error("Fallback file path validation failed, skipping write");
+      return;
+    }
+
+    try {
+      // Sanitize event data before writing to file to prevent log injection
+      const sanitizedEvent = this.sanitizeEventForFileLog(event);
+
+      const fallbackEntry = {
+        timestamp: new Date().toISOString(),
+        event: sanitizedEvent,
+        error: {
+          message: this.sanitizeForLog(error.message, 512),
+          name: this.sanitizeForLog(error.name, 64),
+        },
+        failureCount: this.auditFailureCount,
+      };
+
+      // Ensure directory exists
+      const dir = path.dirname(fallbackPath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+
+      // Append to file (newline-delimited JSON)
+      fs.appendFileSync(fallbackPath, JSON.stringify(fallbackEntry) + "\n", {
+        encoding: "utf8",
+        flag: "a",
+      });
+
+      this.logger.warn(`Audit event written to fallback file: ${fallbackPath}`);
+    } catch (fileError) {
+      this.logger.error(
+        `Failed to write to fallback file: ${(fileError as Error).message}`,
+      );
+    }
+  }
+
+  /**
+   * Send emergency webhook notification (rate-limited)
+   */
+  private async sendEmergencyWebhook(
+    event: AuditEvent,
+    error: Error,
+  ): Promise<void> {
+    const webhookUrl = this.config.fallbackConfig?.emergencyWebhookUrl;
+    if (!webhookUrl) return;
+
+    const now = Date.now();
+    if (now - this.lastFailureAlertTime < AuditLogger.FAILURE_ALERT_INTERVAL_MS) {
+      return; // Rate limited
+    }
+    this.lastFailureAlertTime = now;
+
+    try {
+      const payload = {
+        alert_type: "audit_storage_failure",
+        severity: "critical",
+        message: `Audit logging failed: ${error.message}`,
+        event_summary: {
           action: event.action,
-          category: event.category,
-          severity: event.severity,
           resourceType: event.resourceType,
           resourceId: event.resourceId,
-          correlationId: event.correlationId,
-          sessionId: event.sessionId,
-          ipAddress: event.ipAddress,
-          userAgent: event.userAgent,
-          changes: event.changes || [],
-          diff: event.diff || {},
-          metadata: event.metadata || {},
-          success: event.success,
-          errorCode: event.errorCode,
-          errorMessage: event.errorMessage,
-          prevHash: event.prevHash,
-          entryHash: event.entryHash,
-          createdAt: event.timestamp,
+          tenantId: event.tenantId,
+          timestamp: event.timestamp?.toISOString(),
         },
+        failure_count: this.auditFailureCount,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Use native fetch (Node.js 18+) or fall back to http module
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
-    } catch (error) {
-      this.logger.error("Failed to store audit event", error);
-      // Don't throw - audit logging should not break the application
+
+      if (!response.ok) {
+        this.logger.error(
+          `Emergency webhook returned ${response.status}: ${response.statusText}`,
+        );
+      }
+    } catch (webhookError) {
+      this.logger.error(
+        `Failed to send emergency webhook: ${(webhookError as Error).message}`,
+      );
     }
+  }
+
+  /**
+   * Emit audit failure metric for monitoring systems
+   */
+  private emitAuditFailureMetric(event: AuditEvent, error: Error): void {
+    // Emit metric in Prometheus format via console (can be scraped by log aggregator)
+    const metric = {
+      metric_name: "sahool_audit_storage_failure_total",
+      labels: {
+        tenant_id: event.tenantId,
+        action: event.action,
+        resource_type: event.resourceType,
+        error_type: error.name,
+      },
+      value: 1,
+      timestamp: Date.now(),
+    };
+
+    // Log as structured JSON for metric scrapers
+    this.logger.warn(`METRIC: ${JSON.stringify(metric)}`);
+  }
+
+  /**
+   * Alert on audit failure if we haven't recently
+   */
+  private async maybeAlertOnFailure(
+    event: AuditEvent,
+    error: Error,
+  ): Promise<void> {
+    if (!this.alertService) return;
+
+    const now = Date.now();
+    if (now - this.lastFailureAlertTime < AuditLogger.FAILURE_ALERT_INTERVAL_MS) {
+      return; // Already alerted recently
+    }
+
+    // Create a synthetic audit event for the failure itself
+    const failureEvent: AuditEvent = {
+      tenantId: event.tenantId,
+      actorType: ActorType.SYSTEM,
+      action: "audit_storage_failure",
+      category: AuditCategory.SYSTEM,
+      severity: AuditSeverity.CRITICAL,
+      resourceType: "audit_system",
+      resourceId: "primary_storage",
+      correlationId: event.correlationId,
+      metadata: {
+        originalEvent: {
+          action: event.action,
+          resourceType: event.resourceType,
+          resourceId: event.resourceId,
+        },
+        errorMessage: error.message,
+        failureCount: this.auditFailureCount,
+      },
+      success: false,
+      errorCode: "AUDIT_STORAGE_FAILURE",
+      errorMessage: error.message,
+      timestamp: new Date(),
+    };
+
+    await this.alertService.checkEvent(failureEvent);
+  }
+
+  /**
+   * Sleep helper for retry delays
+   */
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**

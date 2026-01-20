@@ -111,7 +111,14 @@ export class TokenRevocationGuard implements CanActivate {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       this.logger.error(`Error checking token revocation: ${errorMessage}`);
-      return true;
+
+      // SECURITY: Fail closed - deny access if Redis is unavailable
+      // أمان: رفض الوصول إذا كان Redis غير متاح
+      throw new UnauthorizedException({
+        error: "SERVICE_UNAVAILABLE",
+        message: "Token validation service temporarily unavailable",
+        messageAr: "خدمة التحقق من الرموز غير متاحة مؤقتاً",
+      });
     }
   }
 

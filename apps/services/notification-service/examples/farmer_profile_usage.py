@@ -10,12 +10,12 @@ import asyncio
 import os
 import sys
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+# Add notification-service root to path so 'from src.X import' works
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from repository import FarmerProfileRepository
+from src.repository import FarmerProfileRepository
 
-from database import close_db, init_db
+from src.database import close_db, init_notification_db
 
 
 async def example_create_farmer():
@@ -228,7 +228,7 @@ async def run_all_examples():
 
     # Initialize database
     print("\n📊 Initializing database...")
-    await init_db(create_db=False)  # Don't recreate schema
+    await init_notification_db(create_schema=False)  # Don't recreate schema
     print("✅ Database initialized")
 
     try:

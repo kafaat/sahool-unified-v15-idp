@@ -5,7 +5,7 @@ Automatically creates FieldOps tasks from recommendations and plans
 
 import json
 import os
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 
 import httpx
 from nats.aio.client import Client as NATS

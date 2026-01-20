@@ -13,7 +13,7 @@ import {
   MaxLength,
   IsBoolean,
 } from "class-validator";
-import { UserRole, UserStatus } from "../../utils/validation";
+import { UserRole, UserStatus, IsStrongPassword } from "../../utils/validation";
 
 export class UpdateUserDto {
   @ApiPropertyOptional({
@@ -33,12 +33,11 @@ export class UpdateUserDto {
   phone?: string;
 
   @ApiPropertyOptional({
-    description: "User password (min 8 characters)",
+    description: "User password (min 8 characters with uppercase, lowercase, number, and special character)",
     example: "NewSecurePassword123!",
   })
   @IsOptional()
-  @IsString()
-  @MinLength(8)
+  @IsStrongPassword(8)
   password?: string;
 
   @ApiPropertyOptional({

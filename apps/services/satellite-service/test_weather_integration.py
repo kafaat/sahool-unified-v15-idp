@@ -11,8 +11,10 @@ Usage:
 import asyncio
 import sys
 from datetime import date, timedelta
+from pathlib import Path
 
-sys.path.insert(0, "/home/user/sahool-unified-v15-idp/apps/services/satellite-service")
+# Dynamic path: add current directory (satellite-service) to path
+sys.path.insert(0, str(Path(__file__).parent.resolve()))
 
 from src.weather_integration import WeatherIntegration
 

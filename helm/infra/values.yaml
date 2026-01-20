@@ -3,6 +3,12 @@
 
 environment: staging
 
+# External Secrets Operator Configuration
+# When enabled, secrets are managed by External Secrets Operator
+# When disabled, placeholder secrets are created (for development only)
+externalSecrets:
+  enabled: false
+
 # Namespace configuration
 namespace:
   create: true

@@ -724,6 +724,60 @@ agents:
             recommendations: { type: array }
             auto_fixable: { type: array }
 
+      - name: "diagnose_codebase"
+        description: "Run comprehensive code diagnostics using multi-tool analysis (Ruff, ESLint, Mypy, Bandit)"
+        description_ar: "تشغيل تشخيصات شاملة للكود باستخدام تحليل متعدد الأدوات"
+        input_schema:
+          type: object
+          required: ["target"]
+          properties:
+            target: { type: string, description: "File or directory path" }
+            tools: { type: array, items: { type: string, enum: ["ruff", "eslint", "mypy", "bandit", "dart_analyze"] } }
+            include_patterns: { type: array, items: { type: string } }
+            exclude_patterns: { type: array, items: { type: string } }
+        output_schema:
+          type: object
+          properties:
+            total_issues: { type: integer }
+            errors: { type: integer }
+            warnings: { type: integer }
+            diagnostics: { type: array }
+            tools_used: { type: array }
+            scan_duration_ms: { type: number }
+
+      - name: "auto_fix_issues"
+        description: "Automatically fix detected code issues with safe rollback support"
+        description_ar: "إصلاح مشاكل الكود المكتشفة تلقائياً مع دعم التراجع الآمن"
+        input_schema:
+          type: object
+          required: ["diagnostic_report_id"]
+          properties:
+            diagnostic_report_id: { type: string }
+            strategy: { type: string, enum: ["minimal", "safe", "comprehensive", "refactor"], default: "safe" }
+            max_fixes: { type: integer, default: 50 }
+            dry_run: { type: boolean, default: false }
+        output_schema:
+          type: object
+          properties:
+            fixes_applied: { type: integer }
+            fixes_failed: { type: integer }
+            rollback_available: { type: boolean }
+            audit_log: { type: array }
+
+      - name: "rollback_fixes"
+        description: "Rollback previously applied code fixes"
+        description_ar: "التراجع عن إصلاحات الكود المطبقة سابقاً"
+        input_schema:
+          type: object
+          required: ["plan_id"]
+          properties:
+            plan_id: { type: string }
+        output_schema:
+          type: object
+          properties:
+            rollbacks_successful: { type: integer }
+            rollbacks_failed: { type: integer }
+
       - name: "run_full_audit"
         description: "Execute complete audit analysis suite"
         description_ar: "تنفيذ مجموعة التدقيق الكاملة"
@@ -764,10 +818,30 @@ agents:
         level: "advanced"
         keywords: ["remediation", "auto-fix", "healing"]
 
+      - skill_id: "code_diagnostics"
+        name: "Code Diagnostics"
+        name_ar: "تشخيص الكود"
+        level: "expert"
+        keywords: ["diagnostics", "linting", "analysis", "auto-fix"]
+
+    # Model configuration with Ollama support
+    model_config:
+      primary:
+        provider: "ollama"
+        model: "codellama:13b"
+        endpoint: "${OLLAMA_BASE_URL:-http://localhost:11434}"
+        context_length: 16384
+        temperature: 0.1
+      fallback:
+        provider: "anthropic"
+        model: "claude-sonnet-4-20250514"
+        context_length: 200000
+
     dependencies:
       - audit-service
       - notification-service
       - alert-service
+      - auto-fix-engine
 
     endpoint:
       url: "https://api.sahool.app/agents/audit-agent/invoke"
@@ -909,9 +983,39 @@ agents:
         level: "expert"
         keywords: ["review", "pr", "feedback", "best-practices"]
 
+      - skill_id: "auto_fix"
+        name: "Auto-Fix Engine"
+        name_ar: "محرك الإصلاح التلقائي"
+        level: "expert"
+        keywords: ["auto-fix", "diagnostics", "ruff", "eslint", "bandit"]
+
+    # Model configuration with Ollama support
+    model_config:
+      primary:
+        provider: "ollama"
+        model: "deepseek-coder:6.7b"
+        endpoint: "${OLLAMA_BASE_URL:-http://localhost:11434}"
+        context_length: 16384
+        temperature: 0.0
+      fallback:
+        provider: "anthropic"
+        model: "claude-sonnet-4-20250514"
+        context_length: 200000
+
+    # Integration with shared auto-fix module
+    auto_fix_integration:
+      module: "shared.ai.auto_fix"
+      classes:
+        - AutoFixEngine
+        - CodeDiagnostics
+        - CodeFixer
+      default_strategy: "safe"
+      audit_enabled: true
+
     dependencies:
       - git-service
       - ci-cd-pipeline
+      - auto-fix-engine
 
     endpoint:
       url: "https://api.sahool.app/agents/code-fix/invoke"

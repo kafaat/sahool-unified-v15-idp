@@ -16,7 +16,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 from pathlib import Path as PathLib
 
 from fastapi import FastAPI
@@ -50,6 +50,15 @@ except ImportError:
         pass
 
     def add_request_id_middleware(app):
+        pass
+
+# Security headers middleware
+try:
+    from shared.middleware.security_headers import setup_security_headers
+    SECURITY_HEADERS_AVAILABLE = True
+except ImportError:
+    SECURITY_HEADERS_AVAILABLE = False
+    def setup_security_headers(app):
         pass
 
 
@@ -236,6 +245,10 @@ add_request_id_middleware(app)
 
 # CORS - استخدام الإعداد المركزي الآمن
 setup_cors_middleware(app)
+
+# Security headers - رؤوس الأمان
+if SECURITY_HEADERS_AVAILABLE:
+    setup_security_headers(app)
 
 # تضمين المسارات
 app.include_router(router, prefix="/api/v1", tags=["Field Intelligence"])

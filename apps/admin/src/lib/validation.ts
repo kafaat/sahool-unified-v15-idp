@@ -3,7 +3,7 @@
  * Comprehensive security utilities for input validation and sanitization
  */
 
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Validators

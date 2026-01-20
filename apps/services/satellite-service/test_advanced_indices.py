@@ -5,8 +5,10 @@ Verifies that all new functionality works correctly
 """
 
 import sys
+from pathlib import Path
 
-sys.path.insert(0, "/home/user/sahool-unified-v15-idp/apps/services/satellite-service/src")
+# Dynamic path: add current directory/src to path
+sys.path.insert(0, str(Path(__file__).parent.resolve() / "src"))
 
 from vegetation_indices import (
     BandData,

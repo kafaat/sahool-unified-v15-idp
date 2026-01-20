@@ -451,34 +451,30 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
       className={`relative rounded-xl overflow-hidden border-2 border-gray-200 shadow-lg ${className}`}
       style={{ height }}
     >
-      {/* TODO: react-leaflet 4.2.1 types incompatible with React 19 - using type assertion */}
+      {/* react-leaflet with React 19 compatible types (see types/external.d.ts) */}
       <MapContainer
         center={mapCenter}
         zoom={zoom}
         zoomControl={false}
         className="w-full h-full"
         style={{ height: "100%", width: "100%" }}
-        {...({} as any)}
       >
         {/* Base Map Tiles / خرائط الأساس */}
-        <LayersControl position="topright" {...({} as any)}>
+        <LayersControl position="topright">
           <LayersControl.BaseLayer
             checked
             name="خريطة الشوارع"
-            {...({} as any)}
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              {...({} as any)}
             />
           </LayersControl.BaseLayer>
 
-          <LayersControl.BaseLayer name="صور الأقمار الصناعية" {...({} as any)}>
+          <LayersControl.BaseLayer name="صور الأقمار الصناعية">
             <TileLayer
               attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-              {...({} as any)}
             />
           </LayersControl.BaseLayer>
         </LayersControl>

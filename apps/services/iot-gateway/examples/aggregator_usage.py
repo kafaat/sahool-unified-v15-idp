@@ -6,7 +6,7 @@ Sensor Aggregator Usage Examples
 Demonstrates how to use the sensor data aggregation service
 """
 
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 
 from apps.services.iot_gateway.src.models.sensor_data import (
     SensorReading,

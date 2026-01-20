@@ -5,7 +5,7 @@ SAHOOL NDVI Processor - Processing Logic
 
 import os
 import random
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from uuid import uuid4
 
 from .models import (

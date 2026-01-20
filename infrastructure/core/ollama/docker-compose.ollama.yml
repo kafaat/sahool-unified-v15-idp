@@ -1,0 +1,163 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Ollama Local LLM Service
+# خدمة Ollama للنماذج اللغوية المحلية
+#
+# Usage:
+#   docker compose -f infrastructure/core/ollama/docker-compose.ollama.yml up -d
+#
+# With GPU support:
+#   docker compose -f infrastructure/core/ollama/docker-compose.ollama.yml --profile gpu up -d
+#
+# API: http://localhost:11434
+#
+# Environment Variables:
+#   OLLAMA_MODEL: Default model to use (default: llama3.2)
+#   OLLAMA_HOST: Host to bind to (default: 0.0.0.0)
+#   OLLAMA_NUM_GPU: Number of GPUs to use (default: 1)
+#   OLLAMA_KEEP_ALIVE: How long to keep models in memory (default: 24h)
+#
+# Supported Models:
+#   - llama3.2, llama3.1: General purpose, good for chat
+#   - mistral, mixtral: Fast, efficient models
+#   - qwen2.5: Good for multilingual including Arabic
+#   - codellama: Specialized for code generation
+#   - nomic-embed-text: Embeddings model for RAG
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Ollama CPU-only Service (Default)
+  # ─────────────────────────────────────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sahool-ollama
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_HOST=${OLLAMA_HOST:-0.0.0.0}
+      - OLLAMA_ORIGINS=${OLLAMA_ORIGINS:-*}
+      - OLLAMA_KEEP_ALIVE=${OLLAMA_KEEP_ALIVE:-24h}
+      - OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL:-2}
+      - OLLAMA_MAX_LOADED_MODELS=${OLLAMA_MAX_LOADED_MODELS:-1}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - sahool-network
+    profiles:
+      - cpu
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Ollama GPU Service (NVIDIA)
+  # ─────────────────────────────────────────────────────────────────────────────
+  ollama-gpu:
+    image: ollama/ollama:latest
+    container_name: sahool-ollama-gpu
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_HOST=${OLLAMA_HOST:-0.0.0.0}
+      - OLLAMA_ORIGINS=${OLLAMA_ORIGINS:-*}
+      - OLLAMA_KEEP_ALIVE=${OLLAMA_KEEP_ALIVE:-24h}
+      - OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL:-24}
+      - OLLAMA_MAX_LOADED_MODELS=${OLLAMA_MAX_LOADED_MODELS:-2}
+      - OLLAMA_NUM_GPU=${OLLAMA_NUM_GPU:-1}
+      - OLLAMA_GPU_LAYERS=${OLLAMA_GPU_LAYERS:-999}
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - sahool-network
+    profiles:
+      - gpu
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Ollama Model Initializer
+  # Downloads and prepares default models on startup
+  # ─────────────────────────────────────────────────────────────────────────────
+  ollama-init:
+    image: curlimages/curl:latest
+    container_name: sahool-ollama-init
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Initializing Ollama models..."
+
+        # Pull default chat model
+        echo "Pulling ${OLLAMA_MODEL:-llama3.2}..."
+        curl -X POST http://ollama:11434/api/pull -d '{"name":"${OLLAMA_MODEL:-llama3.2}","stream":false}'
+
+        # Pull embeddings model for RAG
+        echo "Pulling nomic-embed-text for embeddings..."
+        curl -X POST http://ollama:11434/api/pull -d '{"name":"nomic-embed-text","stream":false}'
+
+        echo "Ollama initialization complete!"
+    networks:
+      - sahool-network
+    profiles:
+      - init
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Ollama GPU Model Initializer
+  # ─────────────────────────────────────────────────────────────────────────────
+  ollama-gpu-init:
+    image: curlimages/curl:latest
+    container_name: sahool-ollama-gpu-init
+    depends_on:
+      ollama-gpu:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Initializing Ollama GPU models..."
+
+        # Pull default chat model
+        echo "Pulling ${OLLAMA_MODEL:-llama3.2}..."
+        curl -X POST http://ollama-gpu:11434/api/pull -d '{"name":"${OLLAMA_MODEL:-llama3.2}","stream":false}'
+
+        # Pull embeddings model for RAG
+        echo "Pulling nomic-embed-text for embeddings..."
+        curl -X POST http://ollama-gpu:11434/api/pull -d '{"name":"nomic-embed-text","stream":false}'
+
+        # Pull multilingual model for Arabic support
+        echo "Pulling qwen2.5 for Arabic support..."
+        curl -X POST http://ollama-gpu:11434/api/pull -d '{"name":"qwen2.5:7b","stream":false}'
+
+        echo "Ollama GPU initialization complete!"
+    networks:
+      - sahool-network
+    profiles:
+      - gpu-init
+
+volumes:
+  ollama_models:
+    name: sahool-ollama-models
+    driver: local
+
+networks:
+  sahool-network:
+    name: sahool-network
+    external: true

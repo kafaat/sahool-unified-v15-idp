@@ -7,8 +7,11 @@ Demonstrates how to use the weather integration in your applications.
 
 import asyncio
 import sys
+from pathlib import Path
 
-sys.path.insert(0, "/home/user/sahool-unified-v15-idp/apps/services/satellite-service")
+# Dynamic path: navigate to apps/services, then satellite-service
+services_dir = Path(__file__).parent.parent.parent.resolve()
+sys.path.insert(0, str(services_dir / "satellite-service"))
 
 from datetime import date, timedelta
 

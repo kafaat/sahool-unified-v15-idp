@@ -19,18 +19,24 @@ Usage:
 """
 
 from .manager import (
+    EnvironmentSecretsProvider,
     SecretBackend,
     SecretKey,
     SecretsManager,
+    SecretsManagerConfig,
+    SecretsProvider,
     get_secrets_manager,
     initialize_secrets,
 )
 from .vault import VaultClient, VaultConfig
 
 __all__ = [
+    "EnvironmentSecretsProvider",
     "SecretBackend",
     "SecretKey",
     "SecretsManager",
+    "SecretsManagerConfig",
+    "SecretsProvider",
     "get_secrets_manager",
     "initialize_secrets",
     "VaultClient",

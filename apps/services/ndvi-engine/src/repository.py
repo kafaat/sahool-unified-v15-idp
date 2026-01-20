@@ -8,7 +8,7 @@ Sprint 8: Clean separation of DB access from business logic
 from __future__ import annotations
 
 from collections.abc import Sequence
-from datetime import UTC, date, datetime
+from datetime import timezone, date, datetime, UTC
 from uuid import UUID
 
 from sqlalchemy import func, select

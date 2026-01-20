@@ -4,7 +4,7 @@ Tests JWT token creation, verification, and security features.
 """
 
 import pytest
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch, MagicMock
 import jwt
 
@@ -90,7 +90,7 @@ class TestCreateAccessToken:
 
         payload = verify_token(token)
 
-        expected_exp = datetime.now(UTC) + timedelta(hours=2)
+        expected_exp = datetime.now(timezone.utc) + timedelta(hours=2)
         assert abs((payload.exp - expected_exp).total_seconds()) < 5
 
     def test_extra_claims(self):
@@ -198,8 +198,8 @@ class TestVerifyToken:
         payload = {
             "sub": "user123",
             "roles": ["admin"],
-            "exp": datetime.now(UTC) + timedelta(hours=1),
-            "iat": datetime.now(UTC),
+            "exp": datetime.now(timezone.utc) + timedelta(hours=1),
+            "iat": datetime.now(timezone.utc),
         }
 
         # Manually create a token with 'none' algorithm
@@ -344,9 +344,9 @@ class TestSecurityFeatures:
 
     def test_iat_is_current_time(self):
         """Test that iat (issued at) is set to current time."""
-        before = datetime.now(UTC)
+        before = datetime.now(timezone.utc)
         token = create_access_token(user_id="user123", roles=["farmer"])
-        after = datetime.now(UTC)
+        after = datetime.now(timezone.utc)
 
         payload = verify_token(token)
 

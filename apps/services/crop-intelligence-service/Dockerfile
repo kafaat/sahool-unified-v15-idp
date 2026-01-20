@@ -4,7 +4,7 @@
 # Version: 16.0.0
 
 ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim AS base
+FROM python:${PYTHON_VERSION}-slim-bookworm AS base
 
 # Build arguments
 ARG SERVICE_NAME=crop-intelligence

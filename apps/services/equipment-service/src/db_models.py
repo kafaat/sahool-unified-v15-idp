@@ -7,7 +7,7 @@ SQLAlchemy ORM models for equipment, maintenance, and alerts storage
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 from decimal import Decimal
 
 from sqlalchemy import Boolean, DateTime, Index, Integer, Numeric, String, Text

@@ -17,7 +17,7 @@ Updated: January 2025
 """
 
 import pytest
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 from shared.ai.context_engineering.evaluation import (

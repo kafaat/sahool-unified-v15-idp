@@ -16,7 +16,10 @@ import {
   HttpStatus,
   ForbiddenException,
   UseGuards,
+  ParseIntPipe,
+  DefaultValuePipe,
 } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import {
   ApiTags,
   ApiOperation,
@@ -34,6 +37,7 @@ import { RolesGuard } from "../auth/roles.guard";
 import { Roles } from "../auth/roles.decorator";
 
 @ApiTags("Users")
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller("users")
 export class UsersController {
@@ -85,9 +89,11 @@ export class UsersController {
   }
 
   @Get()
+  @UseGuards(RolesGuard)
+  @Roles("ADMIN", "MANAGER")
   @ApiOperation({
-    summary: "Get all users",
-    description: "الحصول على جميع المستخدمين",
+    summary: "Get all users (Admin/Manager only)",
+    description: "الحصول على جميع المستخدمين (للمشرفين والمديرين فقط)",
   })
   @ApiQuery({ name: "tenantId", required: false })
   @ApiQuery({ name: "role", required: false })
@@ -97,6 +103,10 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: "Users retrieved successfully",
+  })
+  @ApiResponse({
+    status: 403,
+    description: "Forbidden - User does not have ADMIN or MANAGER role",
   })
   async findAll(
     @Query("tenantId") tenantId?: string,
@@ -158,14 +168,21 @@ export class UsersController {
   }
 
   @Get("email/:email")
+  @UseGuards(RolesGuard)
+  @Roles("ADMIN", "MANAGER")
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({
-    summary: "Get a user by email",
-    description: "الحصول على مستخدم بواسطة البريد الإلكتروني",
+    summary: "Get a user by email (Admin/Manager only)",
+    description: "الحصول على مستخدم بواسطة البريد الإلكتروني (للمشرفين والمديرين فقط)",
   })
   @ApiParam({ name: "email", description: "User email" })
   @ApiResponse({
     status: 200,
     description: "User retrieved successfully",
+  })
+  @ApiResponse({
+    status: 403,
+    description: "Forbidden - User does not have ADMIN or MANAGER role",
   })
   @ApiResponse({
     status: 404,
@@ -286,14 +303,20 @@ export class UsersController {
   }
 
   @Get("stats/count/:tenantId")
+  @UseGuards(RolesGuard)
+  @Roles("ADMIN", "MANAGER")
   @ApiOperation({
-    summary: "Get user count by tenant",
-    description: "الحصول على عدد المستخدمين حسب المستأجر",
+    summary: "Get user count by tenant (Admin/Manager only)",
+    description: "الحصول على عدد المستخدمين حسب المستأجر (للمشرفين والمديرين فقط)",
   })
   @ApiParam({ name: "tenantId", description: "Tenant ID" })
   @ApiResponse({
     status: 200,
     description: "User count retrieved successfully",
+  })
+  @ApiResponse({
+    status: 403,
+    description: "Forbidden - User does not have ADMIN or MANAGER role",
   })
   async countByTenant(@Param("tenantId") tenantId: string) {
     const count = await this.usersService.countByTenant(tenantId);
@@ -304,13 +327,19 @@ export class UsersController {
   }
 
   @Get("stats/active")
+  @UseGuards(RolesGuard)
+  @Roles("ADMIN", "MANAGER")
   @ApiOperation({
-    summary: "Get active users count",
-    description: "الحصول على عدد المستخدمين النشطين",
+    summary: "Get active users count (Admin/Manager only)",
+    description: "الحصول على عدد المستخدمين النشطين (للمشرفين والمديرين فقط)",
   })
   @ApiResponse({
     status: 200,
     description: "Active users count retrieved successfully",
+  })
+  @ApiResponse({
+    status: 403,
+    description: "Forbidden - User does not have ADMIN or MANAGER role",
   })
   async countActive() {
     const count = await this.usersService.countActive();

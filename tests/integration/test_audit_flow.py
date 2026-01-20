@@ -6,7 +6,7 @@ Tests the complete audit logging flow including hash chain integrity
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 from uuid import uuid4
 
 from shared.libs.audit.hashchain import (
@@ -344,7 +344,7 @@ class TestAuditLogModel:
             details_json="{}",
             prev_hash=None,
             entry_hash="abc123",
-            created_at=datetime.now(UTC),
+            created_at=datetime.now(timezone.utc),
         )
 
         data = log.to_dict()
@@ -368,7 +368,7 @@ class TestAuditLogModel:
             details_json="{}",
             prev_hash=None,
             entry_hash="abc123",
-            created_at=datetime.now(UTC),
+            created_at=datetime.now(timezone.utc),
         )
 
         repr_str = repr(log)
@@ -416,7 +416,7 @@ class TestAuditIntegration:
 
         # Build canonical string
         details_json = json.dumps(safe_details, sort_keys=True)
-        created_at = datetime.now(UTC).isoformat()
+        created_at = datetime.now(timezone.utc).isoformat()
 
         canonical = build_canonical_string(
             tenant_id=str(tenant_id),
@@ -443,7 +443,7 @@ class TestAuditIntegration:
 
         # Create 10 entries
         for i in range(10):
-            created_at = datetime.now(UTC).isoformat()
+            created_at = datetime.now(timezone.utc).isoformat()
             canonical = build_canonical_string(
                 tenant_id=str(tenant_id),
                 actor_id=str(uuid4()),

@@ -1,12 +1,19 @@
 /**
  * JWT Strategy for User Service
  * استراتيجية JWT لخدمة المستخدمين
+ *
+ * Security features:
+ * - Token revocation check via Redis
+ * - User-level revocation check
+ * - Tenant-level revocation check
+ * - User status validation
  */
 
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable, UnauthorizedException, Logger } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { PrismaService } from "../prisma/prisma.service";
+import { RedisTokenRevocationStore } from "../utils/token-revocation";
 import { JWTConfig } from "../utils/jwt.config";
 
 export interface JwtPayload {
@@ -22,7 +29,12 @@ export interface JwtPayload {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly prisma: PrismaService) {
+  private readonly logger = new Logger(JwtStrategy.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly revocationStore: RedisTokenRevocationStore,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -34,6 +46,34 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
+    // Check if token is revoked (fail-closed: deny on Redis errors)
+    try {
+      const revocationResult = await this.revocationStore.isRevoked({
+        jti: payload.jti,
+        userId: payload.sub,
+        tenantId: payload.tid,
+        issuedAt: payload.iat,
+      });
+
+      if (revocationResult.isRevoked) {
+        this.logger.warn(
+          `Revoked token used: jti=${payload.jti?.substring(0, 8)}..., reason=${revocationResult.reason}`,
+        );
+        throw new UnauthorizedException("Token has been revoked");
+      }
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      // Fail-closed: If Redis is unavailable, deny access for security
+      this.logger.error(
+        `Token revocation check failed (fail-closed): ${error.message}`,
+      );
+      throw new UnauthorizedException(
+        "Authentication service temporarily unavailable",
+      );
+    }
+
     // Validate user exists in database
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },

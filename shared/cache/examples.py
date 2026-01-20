@@ -15,7 +15,7 @@ from collections.abc import Callable
 from functools import wraps
 from typing import Any
 
-from redis_sentinel import get_redis_client
+from .redis_sentinel import get_redis_client
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Example 1: Basic Cache Decorator

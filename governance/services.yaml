@@ -38,7 +38,7 @@ event_architecture:
 
     business:
       description: "Business operations layer - طبقة الأعمال"
-      services: [notification-service, marketplace-service, billing-core, community-chat, research-core, mcp-server, task-service, equipment-service, ws-gateway]
+      services: [notification-service, marketplace-service, billing-core, community-chat, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service]
       rules:
         - "Consumes from Decision"
         - "User-facing operations"
@@ -1247,6 +1247,56 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
+  # AUDIT SERVICE - خدمة التدقيق والمراجعة
+  # ═══════════════════════════════════════════════════════════════════════════
+  audit-service:
+    name: "Audit Service"
+    name_ar: "خدمة التدقيق والمراجعة"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/audit-service"
+    port: 8114
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    description: |
+      Centralized audit logging service for security compliance and operational traceability.
+      Provides hash chain integrity validation, field-level change tracking, and compliance reporting.
+    events:
+      produces:
+        - AuditLogged.v1
+        - AuditAlertTriggered.v1
+        - ComplianceReportGenerated.v1
+      consumes:
+        - UserAuthenticated.v1
+        - UserRegistered.v1
+        - FieldCreated.v1
+        - FieldUpdated.v1
+        - FieldDeleted.v1
+        - AlertTriggered.v1
+        - TaskCreated.v1
+        - TaskCompleted.v1
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "400m"
+      memory: "384Mi"
+      replicas: 2
+    compliance:
+      - GDPR
+      - SOC2
+      - ISO27001
+    features:
+      - hash_chain_integrity
+      - field_level_tracking
+      - compliance_reporting
+      - real_time_alerts
+      - fallback_logging
+
+  # ═══════════════════════════════════════════════════════════════════════════
   # AGRO ADVISOR - مستشار الزراعة
   # ═══════════════════════════════════════════════════════════════════════════
   agro-advisor:
@@ -1578,3 +1628,49 @@ governance:
     - id: GOV-005
       rule: "Frontend apps MUST be in apps/{web,admin,mobile}"
       enforce: true
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # AUDIT & COMPLIANCE GOVERNANCE RULES
+    # ═══════════════════════════════════════════════════════════════════════════
+    - id: GOV-006
+      rule: "All services MUST implement audit logging for security-relevant operations"
+      description: |
+        Services must log authentication, authorization, data changes, and administrative
+        actions using the shared audit module (shared/security/audit.py or packages/shared-audit).
+      enforce: true
+      category: audit
+
+    - id: GOV-007
+      rule: "All CRITICAL operations MUST be logged to the audit trail"
+      description: |
+        Operations classified as CRITICAL (login/logout, permission changes, data deletion,
+        financial transactions, security config changes) must be logged with full context.
+      enforce: true
+      category: audit
+
+    - id: GOV-008
+      rule: "Audit logs MUST support hash chain integrity verification"
+      description: |
+        New audit entries must include prev_hash and entry_hash fields to enable
+        tamper detection and compliance verification.
+      enforce: true
+      category: audit
+
+    - id: GOV-009
+      rule: "Audit logs MUST be retained for minimum 90 days"
+      description: |
+        Audit log retention must comply with regulatory requirements:
+        - GDPR: 90+ days
+        - SOC 2: 1 year
+        - ISO 27001: 1 year
+        Archival strategy must be documented.
+      enforce: true
+      category: compliance
+
+    - id: GOV-010
+      rule: "Compliance reports MUST be generated monthly"
+      description: |
+        Automated compliance reports must be generated monthly for each tenant,
+        including hash chain validation status and audit statistics.
+      enforce: false
+      category: compliance

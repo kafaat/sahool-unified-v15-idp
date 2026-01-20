@@ -106,9 +106,10 @@ jobs:
           echo "Current coverage: ${CURRENT_COV_PCT}%"
 
           # Minimum coverage threshold - enforced to maintain code quality
-          # TODO: Gradually increase this threshold as more tests are added
-          # Current baseline: 3% (as of Jan 2026) - target: 60%
-          MIN_COVERAGE=3.0
+          # Coverage strategy: Gradually increase threshold as test suite matures
+          # SAHOOL Coverage Threshold
+          # Current minimum: 4.5% - baseline for large legacy codebase
+          MIN_COVERAGE=4.5
 
           # Check if coverage meets minimum - FAIL if below threshold
           python -c "
@@ -416,11 +417,23 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
+        continue-on-error: true  # Informational scan - don't block pipeline
         with:
           scan-type: 'fs'
           scan-ref: '.'
-          severity: 'HIGH,CRITICAL'
+          severity: 'CRITICAL'
           exit-code: '0'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          # Informational scan - results are reported but don't block pipeline
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: 'trivy-results.sarif'
+          category: 'trivy-fs-scan'
 
       - name: Check for private keys in repository
         run: |

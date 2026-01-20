@@ -43,15 +43,30 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={direction}>
       <head>
+        {/* Font preload for better performance */}
+        <link
+          rel="preconnect"
+          href="https://fonts.googleapis.com"
+          crossOrigin="anonymous"
+        />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
           rel="stylesheet"
+        />
+        {/* Preload Leaflet CSS for non-blocking load */}
+        <link
+          rel="preload"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          as="style"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossOrigin="anonymous"
         />
         <link
           rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossOrigin=""
+          crossOrigin="anonymous"
         />
       </head>
       <body className="font-tajawal bg-gray-50 min-h-screen">

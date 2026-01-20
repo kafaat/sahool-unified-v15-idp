@@ -5,7 +5,7 @@ SAHOOL GlobalGAP Integration - NATS Events
 
 import json
 import os
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 from uuid import uuid4
 
 import nats

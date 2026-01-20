@@ -6,7 +6,7 @@ Data models for multi-tenancy
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, UTC
 from enum import Enum
 from uuid import uuid4
 

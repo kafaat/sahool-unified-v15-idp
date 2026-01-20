@@ -88,9 +88,11 @@ class TestSensitiveDataMasker:
 
     def test_mask_aws_access_key(self):
         """Test masking AWS access keys"""
-        text = "AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE"
+        # Use clearly fake AWS key pattern (AKIA followed by exactly 16 uppercase alphanumeric chars)
+        # Pattern: AKIA + 16 chars = 20 total chars
+        text = "AWS_ACCESS_KEY_ID=AKIAFAKEFAKEKEY12345"
         result = SensitiveDataMasker.mask_string(text)
-        assert "AKIAIOSFODNN7EXAMPLE" not in result
+        assert "AKIAFAKEFAKEKEY12345" not in result
         assert "AWS_KEY_REDACTED" in result
 
     def test_mask_non_string_input(self):

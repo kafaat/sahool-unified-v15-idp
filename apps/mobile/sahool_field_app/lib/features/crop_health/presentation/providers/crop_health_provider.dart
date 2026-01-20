@@ -71,6 +71,45 @@ class DiagnosisNotifier extends StateNotifier<DiagnosisState> {
   void clear() {
     state = const DiagnosisState();
   }
+
+  /// تعليم إجراء كمكتمل
+  Future<bool> markActionCompleted(
+    String fieldId,
+    String zoneId,
+    String actionType,
+  ) async {
+    if (state.diagnosis == null) return false;
+
+    try {
+      await _api.markActionCompleted(
+        fieldId,
+        zoneId,
+        actionType: actionType,
+        date: state.diagnosis!.date,
+      );
+
+      // تحديث الحالة المحلية بإزالة الإجراء المكتمل
+      final updatedActions = state.diagnosis!.actions
+          .where((a) => !(a.zoneId == zoneId && a.type == actionType))
+          .toList();
+
+      final updatedDiagnosis = FieldDiagnosis(
+        fieldId: state.diagnosis!.fieldId,
+        date: state.diagnosis!.date,
+        summary: state.diagnosis!.summary,
+        actions: updatedActions,
+        mapLayers: state.diagnosis!.mapLayers,
+      );
+
+      state = state.copyWith(diagnosis: updatedDiagnosis);
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        error: 'فشل تعليم الإجراء كمكتمل: ${e.toString()}',
+      );
+      return false;
+    }
+  }
 }
 
 /// Diagnosis Provider

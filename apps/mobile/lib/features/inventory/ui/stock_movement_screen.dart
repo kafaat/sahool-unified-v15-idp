@@ -4,6 +4,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/config/config.dart';
+import '../../../core/di/providers.dart';
 import '../data/inventory_models.dart';
 import '../providers/inventory_providers.dart';
 
@@ -144,24 +146,48 @@ class _StockMovementScreenState extends ConsumerState<StockMovementScreen> {
 
             // محدد الحقل (للتطبيق الحقلي فقط)
             if (_selectedMovementType == MovementType.fieldApplication) ...[
-              DropdownButtonFormField<String>(
-                value: _selectedFieldId,
-                decoration: const InputDecoration(
-                  labelText: 'الحقل',
-                  border: OutlineInputBorder(),
-                ),
-                items: const [], // TODO: Load fields from provider
-                onChanged: (value) {
-                  setState(() {
-                    _selectedFieldId = value;
-                  });
-                },
-                validator: (value) {
-                  if (_selectedMovementType == MovementType.fieldApplication &&
-                      (value == null || value.isEmpty)) {
-                    return 'الرجاء اختيار الحقل';
-                  }
-                  return null;
+              Builder(
+                builder: (context) {
+                  final fieldsAsync = ref.watch(
+                    fieldsStreamProvider(AppConfig.defaultTenantId),
+                  );
+                  final fields = fieldsAsync.valueOrNull ?? [];
+
+                  return DropdownButtonFormField<String>(
+                    value: _selectedFieldId,
+                    decoration: InputDecoration(
+                      labelText: 'الحقل',
+                      border: const OutlineInputBorder(),
+                      suffixIcon: fieldsAsync.isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: Padding(
+                                padding: EdgeInsets.all(12),
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            )
+                          : null,
+                    ),
+                    items: fields.map((field) {
+                      return DropdownMenuItem<String>(
+                        value: field.id,
+                        child: Text(field.name),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedFieldId = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (_selectedMovementType == MovementType.fieldApplication &&
+                          (value == null || value.isEmpty)) {
+                        return 'الرجاء اختيار الحقل';
+                      }
+                      return null;
+                    },
+                  );
                 },
               ),
               const SizedBox(height: 16),

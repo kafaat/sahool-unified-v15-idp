@@ -8,10 +8,18 @@ _transform: true
 # Only includes services that actually exist in docker-compose.yml
 # ------------------------------------------------------------------------------
 
-# Optional: global plugins (applies to all routes/services)
+# ==============================================================================
+# Global Plugins (applies to all routes/services)
+# الإضافات العالمية (تُطبق على جميع المسارات والخدمات)
+# ==============================================================================
 plugins:
+  # CORS Configuration - Configured for development
+  # Note: In production, replace origins with specific allowed domains
+  # ملاحظة: في الإنتاج، استبدل الأصول بالنطاقات المسموح بها فقط
   - name: cors
     config:
+      # SECURITY: In production, specify exact origins instead of wildcard
+      # Example: ["https://app.sahool.com", "https://admin.sahool.com"]
       origins:
         - "*"
       methods:
@@ -29,14 +37,37 @@ plugins:
         - Content-Type
         - Date
         - X-Request-Id
+        - X-Correlation-Id
       exposed_headers:
         - X-Request-Id
-      credentials: true
+        - X-Correlation-Id
+        - X-RateLimit-Limit-Minute
+        - X-RateLimit-Remaining-Minute
+      # SECURITY FIX: credentials cannot be true with wildcard origin
+      # Set to false for development, true only with specific origins in production
+      credentials: false
       max_age: 3600
       preflight_continue: false
 
+  # Prometheus metrics for monitoring
   - name: prometheus
     config: {}
+
+  # Request correlation ID for distributed tracing
+  # معرف ارتباط الطلب للتتبع الموزع
+  - name: correlation-id
+    config:
+      header_name: X-Correlation-Id
+      generator: uuid#counter
+      echo_downstream: true
+
+  # Request size limiting to prevent large payload attacks
+  # تحديد حجم الطلب لمنع هجمات الحمولة الكبيرة
+  - name: request-size-limiting
+    config:
+      allowed_payload_size: 10  # MB
+      size_unit: megabytes
+      require_content_length: false
 
 # ------------------------------------------------------------------------------
 # Services + Routes
@@ -60,14 +91,68 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
+  # User Service - Public Authentication Routes (no JWT required)
+  # مسارات المصادقة العامة - لا تتطلب رمز JWT
+  - name: user-service-public
+    host: user-service
+    port: 3025
+    protocol: http
+    routes:
+      - name: user-service-auth-public
+        paths:
+          - /api/v1/auth/login
+          - /api/v1/auth/register
+          - /api/v1/auth/forgot-password
+          - /api/v1/auth/reset-password
+          - /api/v1/auth/send-otp
+          - /api/v1/auth/verify-otp
+          - /api/v1/auth/refresh
+        strip_path: false
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 500
+          policy: local
+          fault_tolerant: true
+
+  # User Service - Protected Routes (requires JWT in production)
+  # مسارات المستخدمين المحمية
   - name: user-service
     host: user-service
     port: 3025
     protocol: http
     routes:
-      - name: user-service-route
-        paths: ["/api/v1/auth", "/api/v1/users", "/auth", "/users"]
-        strip_path: true
+      - name: user-service-protected
+        paths:
+          - /api/v1/auth/logout
+          - /api/v1/auth/logout-all
+          - /api/v1/auth/me
+          - /api/v1/users
+        strip_path: false
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # User Service - Health endpoints (no auth, no rate limit)
+  # نقاط فحص الصحة
+  - name: user-service-health
+    host: user-service
+    port: 3025
+    protocol: http
+    routes:
+      - name: user-service-health-route
+        paths:
+          - /api/v1/health
+          - /api/v1/healthz
+          - /api/v1/readyz
+        strip_path: false
         protocols: ["http", "https"]
 
   - name: marketplace-service

@@ -20,6 +20,9 @@ import {
  * Default alert rules for common security patterns
  */
 const DEFAULT_ALERT_RULES: AlertRule[] = [
+  // ═══════════════════════════════════════════════════════════════════════════
+  // AUTHENTICATION & ACCESS CONTROL RULES
+  // ═══════════════════════════════════════════════════════════════════════════
   {
     name: "multiple_failed_logins",
     description: "Multiple failed login attempts from same IP",
@@ -40,32 +43,6 @@ const DEFAULT_ALERT_RULES: AlertRule[] = [
     severity: AuditSeverity.CRITICAL,
   },
   {
-    name: "financial_transaction_failure",
-    description: "Financial transaction failed",
-    conditions: [
-      { field: "category", operator: "equals", value: AuditCategory.FINANCIAL },
-      { field: "success", operator: "equals", value: false },
-    ],
-    severity: AuditSeverity.ERROR,
-  },
-  {
-    name: "data_deletion",
-    description: "Data deletion event",
-    conditions: [
-      { field: "action", operator: "contains", value: "delete" },
-      { field: "category", operator: "equals", value: AuditCategory.DATA },
-    ],
-    severity: AuditSeverity.WARNING,
-  },
-  {
-    name: "critical_error",
-    description: "Critical severity event occurred",
-    conditions: [
-      { field: "severity", operator: "equals", value: AuditSeverity.CRITICAL },
-    ],
-    severity: AuditSeverity.CRITICAL,
-  },
-  {
     name: "unauthorized_access",
     description: "Unauthorized access attempt",
     conditions: [
@@ -75,11 +52,33 @@ const DEFAULT_ALERT_RULES: AlertRule[] = [
     severity: AuditSeverity.WARNING,
   },
   {
-    name: "security_config_change",
-    description: "Security configuration changed",
+    name: "concurrent_session_detected",
+    description: "Same user logged in from multiple IP addresses simultaneously",
     conditions: [
+      { field: "action", operator: "equals", value: "auth.concurrent_session" },
       { field: "category", operator: "equals", value: AuditCategory.SECURITY },
-      { field: "action", operator: "contains", value: "update" },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+  {
+    name: "session_hijack_attempt",
+    description: "Potential session hijacking attempt detected",
+    conditions: [
+      { field: "action", operator: "equals", value: "auth.session_hijack" },
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DATA SECURITY RULES
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    name: "data_deletion",
+    description: "Data deletion event",
+    conditions: [
+      { field: "action", operator: "contains", value: "delete" },
+      { field: "category", operator: "equals", value: AuditCategory.DATA },
     ],
     severity: AuditSeverity.WARNING,
   },
@@ -91,6 +90,189 @@ const DEFAULT_ALERT_RULES: AlertRule[] = [
       { field: "category", operator: "equals", value: AuditCategory.DATA },
     ],
     severity: AuditSeverity.INFO,
+  },
+  {
+    name: "sensitive_field_access",
+    description: "Access to sensitive data fields (PII, financial, medical)",
+    conditions: [
+      { field: "action", operator: "contains", value: "sensitive" },
+      { field: "category", operator: "equals", value: AuditCategory.DATA },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+  {
+    name: "database_schema_change",
+    description: "Database schema modification detected",
+    conditions: [
+      { field: "action", operator: "matches", value: "^db\\.(alter|drop|truncate)" },
+      { field: "category", operator: "equals", value: AuditCategory.DATA },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+  {
+    name: "bulk_record_modification",
+    description: "Bulk record modification (>100 records) detected",
+    conditions: [
+      { field: "action", operator: "contains", value: "bulk_update" },
+      { field: "category", operator: "equals", value: AuditCategory.DATA },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CONFIGURATION & SECURITY RULES
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    name: "security_config_change",
+    description: "Security configuration changed",
+    conditions: [
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+      { field: "action", operator: "contains", value: "update" },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+  {
+    name: "role_permission_change",
+    description: "User role or permission change without approval workflow",
+    conditions: [
+      { field: "action", operator: "matches", value: "^(role|permission)\\.(create|update|delete)" },
+      { field: "category", operator: "equals", value: AuditCategory.ADMIN },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+  {
+    name: "api_key_created",
+    description: "New API key created",
+    conditions: [
+      { field: "action", operator: "equals", value: "api_key.create" },
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+    ],
+    severity: AuditSeverity.INFO,
+  },
+  {
+    name: "api_key_expiration_warning",
+    description: "API key approaching expiration",
+    conditions: [
+      { field: "action", operator: "equals", value: "api_key.expiration_warning" },
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+  {
+    name: "encryption_key_rotation",
+    description: "Encryption key rotation event",
+    conditions: [
+      { field: "action", operator: "equals", value: "encryption.key_rotation" },
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+    ],
+    severity: AuditSeverity.INFO,
+  },
+  {
+    name: "encryption_key_rotation_overdue",
+    description: "Encryption key rotation is overdue",
+    conditions: [
+      { field: "action", operator: "equals", value: "encryption.rotation_overdue" },
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // FINANCIAL & COMPLIANCE RULES
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    name: "financial_transaction_failure",
+    description: "Financial transaction failed",
+    conditions: [
+      { field: "category", operator: "equals", value: AuditCategory.FINANCIAL },
+      { field: "success", operator: "equals", value: false },
+    ],
+    severity: AuditSeverity.ERROR,
+  },
+  {
+    name: "high_value_transaction",
+    description: "High-value financial transaction detected",
+    conditions: [
+      { field: "action", operator: "contains", value: "transaction.high_value" },
+      { field: "category", operator: "equals", value: AuditCategory.FINANCIAL },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+  {
+    name: "compliance_violation",
+    description: "Compliance policy violation detected",
+    conditions: [
+      { field: "action", operator: "contains", value: "compliance.violation" },
+      { field: "category", operator: "equals", value: AuditCategory.COMPLIANCE },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+  {
+    name: "data_retention_breach",
+    description: "Data retention policy breach detected",
+    conditions: [
+      { field: "action", operator: "equals", value: "compliance.retention_breach" },
+      { field: "category", operator: "equals", value: AuditCategory.COMPLIANCE },
+    ],
+    severity: AuditSeverity.ERROR,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SYSTEM & INFRASTRUCTURE RULES
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    name: "critical_error",
+    description: "Critical severity event occurred",
+    conditions: [
+      { field: "severity", operator: "equals", value: AuditSeverity.CRITICAL },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+  {
+    name: "backup_verification_failure",
+    description: "Backup verification failed",
+    conditions: [
+      { field: "action", operator: "equals", value: "backup.verification_failed" },
+      { field: "category", operator: "equals", value: AuditCategory.SYSTEM },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+  {
+    name: "backup_creation_failure",
+    description: "Backup creation failed",
+    conditions: [
+      { field: "action", operator: "equals", value: "backup.creation_failed" },
+      { field: "category", operator: "equals", value: AuditCategory.SYSTEM },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+  {
+    name: "audit_storage_failure",
+    description: "Audit log storage failure detected",
+    conditions: [
+      { field: "action", operator: "equals", value: "audit_storage_failure" },
+      { field: "category", operator: "equals", value: AuditCategory.SYSTEM },
+    ],
+    severity: AuditSeverity.CRITICAL,
+  },
+  {
+    name: "service_health_degraded",
+    description: "Service health degradation detected",
+    conditions: [
+      { field: "action", operator: "equals", value: "service.health_degraded" },
+      { field: "category", operator: "equals", value: AuditCategory.SYSTEM },
+    ],
+    severity: AuditSeverity.WARNING,
+  },
+  {
+    name: "rate_limit_exceeded",
+    description: "API rate limit exceeded",
+    conditions: [
+      { field: "action", operator: "equals", value: "api.rate_limit_exceeded" },
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+    ],
+    severity: AuditSeverity.WARNING,
+    batchSimilar: true,
   },
 ];
 
@@ -377,24 +559,358 @@ export const consoleAlertHandler: AlertHandler = {
 };
 
 /**
- * Email alert handler (placeholder - integrate with your email service)
+ * Email configuration from environment variables
+ */
+interface EmailConfig {
+  apiKey: string;
+  fromAddress: string;
+  toAddresses: string[];
+}
+
+/**
+ * Email parameters for sending
+ */
+interface EmailParams {
+  to: string[];
+  subject: string;
+  body: string;
+  htmlBody?: string;
+}
+
+/**
+ * Get email configuration from environment variables
+ */
+function getEmailConfig(): EmailConfig | null {
+  const apiKey = process.env.EMAIL_SERVICE_API_KEY;
+  const fromAddress = process.env.EMAIL_FROM_ADDRESS;
+  const toAddresses = process.env.EMAIL_ALERT_RECIPIENTS?.split(",").map((e) =>
+    e.trim(),
+  );
+
+  if (!apiKey || !fromAddress) {
+    return null;
+  }
+
+  return {
+    apiKey,
+    fromAddress,
+    toAddresses: toAddresses || [],
+  };
+}
+
+/**
+ * Logger for email handler
+ */
+const emailLogger = new Logger("EmailAlertHandler");
+
+/**
+ * Send email via SendGrid API
+ */
+async function sendEmail(params: EmailParams): Promise<void> {
+  const config = getEmailConfig();
+
+  if (!config) {
+    emailLogger.warn(
+      "Email service not configured. Set EMAIL_SERVICE_API_KEY and EMAIL_FROM_ADDRESS environment variables.",
+    );
+    return;
+  }
+
+  const recipients = params.to.length > 0 ? params.to : config.toAddresses;
+
+  if (recipients.length === 0) {
+    emailLogger.warn(
+      "No email recipients configured. Set EMAIL_ALERT_RECIPIENTS environment variable.",
+    );
+    return;
+  }
+
+  emailLogger.log(
+    `Sending email alert to ${recipients.length} recipient(s): ${params.subject}`,
+  );
+
+  const payload = {
+    personalizations: [
+      {
+        to: recipients.map((email) => ({ email })),
+      },
+    ],
+    from: { email: config.fromAddress },
+    subject: params.subject,
+    content: [
+      {
+        type: "text/plain",
+        value: params.body,
+      },
+      ...(params.htmlBody
+        ? [
+            {
+              type: "text/html",
+              value: params.htmlBody,
+            },
+          ]
+        : []),
+    ],
+  };
+
+  try {
+    const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.apiKey}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `SendGrid API error: ${response.status} ${response.statusText} - ${errorText}`,
+      );
+    }
+
+    emailLogger.log(`Email alert sent successfully to ${recipients.join(", ")}`);
+  } catch (error) {
+    emailLogger.error(
+      `Failed to send email alert: ${error instanceof Error ? error.message : String(error)}`,
+    );
+    throw error;
+  }
+}
+
+/**
+ * Format alert as plain text for email body
+ */
+function formatAlertAsText(alert: AuditAlert): string {
+  const lines = [
+    `SECURITY ALERT: ${alert.rule}`,
+    ``,
+    `Severity: ${alert.severity.toUpperCase()}`,
+    `Message: ${alert.message}`,
+    `Timestamp: ${alert.timestamp.toISOString()}`,
+    `Alert ID: ${alert.id}`,
+    ``,
+    `Events (${alert.events.length}):`,
+  ];
+
+  for (const event of alert.events.slice(0, 10)) {
+    lines.push(
+      `  - ${event.action} on ${event.resourceType}/${event.resourceId} by ${event.actorType}/${event.actorId || "system"}`,
+    );
+  }
+
+  if (alert.events.length > 10) {
+    lines.push(`  ... and ${alert.events.length - 10} more events`);
+  }
+
+  return lines.join("\n");
+}
+
+/**
+ * Format alert as HTML for email body
+ */
+function formatAlertAsHtml(alert: AuditAlert): string {
+  const severityColor =
+    {
+      critical: "#dc2626",
+      error: "#ea580c",
+      warning: "#ca8a04",
+      info: "#2563eb",
+      debug: "#6b7280",
+    }[alert.severity] || "#6b7280";
+
+  const eventRows = alert.events
+    .slice(0, 10)
+    .map(
+      (event) =>
+        `<tr>
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${event.action}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${event.resourceType}/${event.resourceId}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${event.actorType}/${event.actorId || "system"}</td>
+        </tr>`,
+    )
+    .join("");
+
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background-color: ${severityColor}; color: white; padding: 16px; border-radius: 8px 8px 0 0;">
+        <h2 style="margin: 0;">Security Alert: ${alert.rule}</h2>
+      </div>
+      <div style="border: 1px solid #e5e7eb; border-top: none; padding: 16px; border-radius: 0 0 8px 8px;">
+        <p><strong>Severity:</strong> ${alert.severity.toUpperCase()}</p>
+        <p><strong>Message:</strong> ${alert.message}</p>
+        <p><strong>Timestamp:</strong> ${alert.timestamp.toISOString()}</p>
+        <p><strong>Alert ID:</strong> ${alert.id}</p>
+
+        <h3>Events (${alert.events.length})</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background-color: #f3f4f6;">
+              <th style="padding: 8px; text-align: left;">Action</th>
+              <th style="padding: 8px; text-align: left;">Resource</th>
+              <th style="padding: 8px; text-align: left;">Actor</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${eventRows}
+          </tbody>
+        </table>
+        ${alert.events.length > 10 ? `<p><em>... and ${alert.events.length - 10} more events</em></p>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Email alert handler - sends security alerts via email using SendGrid
+ *
+ * Required environment variables:
+ * - EMAIL_SERVICE_API_KEY: SendGrid API key
+ * - EMAIL_FROM_ADDRESS: Sender email address (must be verified in SendGrid)
+ * - EMAIL_ALERT_RECIPIENTS: Comma-separated list of recipient email addresses
  */
 export const emailAlertHandler: AlertHandler = {
   name: "email",
   async handle(alert: AuditAlert): Promise<void> {
-    // TODO: Integrate with email service (SendGrid, AWS SES, etc.)
-    console.log("Email alert:", alert.message);
+    const subject = `[${alert.severity.toUpperCase()}] Security Alert: ${alert.rule}`;
+    const body = formatAlertAsText(alert);
+    const htmlBody = formatAlertAsHtml(alert);
+
+    await sendEmail({
+      to: [],
+      subject,
+      body,
+      htmlBody,
+    });
   },
 };
 
 /**
- * Slack alert handler (placeholder - integrate with Slack)
+ * Slack severity color mapping
+ */
+const SLACK_SEVERITY_COLORS: Record<AuditSeverity, string> = {
+  [AuditSeverity.DEBUG]: "#808080", // Gray
+  [AuditSeverity.INFO]: "#36a64f", // Green
+  [AuditSeverity.WARNING]: "#ff9900", // Orange
+  [AuditSeverity.ERROR]: "#ff0000", // Red
+  [AuditSeverity.CRITICAL]: "#8b0000", // Dark red
+};
+
+/**
+ * Slack message payload interface
+ */
+interface SlackMessagePayload {
+  channel?: string;
+  text: string;
+  attachments?: SlackAttachment[];
+}
+
+/**
+ * Slack attachment interface
+ */
+interface SlackAttachment {
+  color: string;
+  title: string;
+  text: string;
+  fields?: Array<{
+    title: string;
+    value: string;
+    short: boolean;
+  }>;
+  footer?: string;
+  ts?: number;
+}
+
+/**
+ * Logger for Slack handler
+ */
+const slackLogger = new Logger("SlackAlertHandler");
+
+/**
+ * Slack alert handler - sends audit alerts to Slack via webhook
  */
 export const slackAlertHandler: AlertHandler = {
   name: "slack",
   async handle(alert: AuditAlert): Promise<void> {
-    // TODO: Integrate with Slack webhook
-    console.log("Slack alert:", alert.message);
+    const webhookUrl = process.env.SLACK_WEBHOOK_URL;
+
+    if (!webhookUrl) {
+      slackLogger.warn(
+        "SLACK_WEBHOOK_URL not configured, skipping Slack notification",
+      );
+      return;
+    }
+
+    slackLogger.log(
+      `Sending Slack notification for alert: ${alert.rule} (severity: ${alert.severity})`,
+    );
+
+    const payload: SlackMessagePayload = {
+      text: `Security Alert: ${alert.message}`,
+      attachments: [
+        {
+          color: SLACK_SEVERITY_COLORS[alert.severity] || "#808080",
+          title: `Alert: ${alert.rule}`,
+          text: alert.message,
+          fields: [
+            {
+              title: "Severity",
+              value: alert.severity.toUpperCase(),
+              short: true,
+            },
+            {
+              title: "Events",
+              value: String(alert.events.length),
+              short: true,
+            },
+            {
+              title: "Alert ID",
+              value: alert.id,
+              short: true,
+            },
+            {
+              title: "Timestamp",
+              value: alert.timestamp.toISOString(),
+              short: true,
+            },
+          ],
+          footer: "SAHOOL Audit System",
+          ts: Math.floor(alert.timestamp.getTime() / 1000),
+        },
+      ],
+    };
+
+    // Add channel override if specified in environment
+    const slackChannel = process.env.SLACK_ALERT_CHANNEL;
+    if (slackChannel) {
+      payload.channel = slackChannel;
+    }
+
+    try {
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `Slack webhook failed with status ${response.status}: ${errorText}`,
+        );
+      }
+
+      slackLogger.log(
+        `Slack notification sent successfully for alert: ${alert.id}`,
+      );
+    } catch (error) {
+      slackLogger.error(
+        `Failed to send Slack notification for alert ${alert.id}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      // Re-throw to allow upstream handling if needed
+      throw error;
+    }
   },
 };
 

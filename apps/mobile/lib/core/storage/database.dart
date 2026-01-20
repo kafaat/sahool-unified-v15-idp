@@ -12,7 +12,13 @@ import 'database_encryption.dart';
 
 part 'database.g.dart';
 
-/// Tasks Table
+/// Tasks Table with performance indexes
+@TableIndex(name: 'tasks_tenant_idx', columns: {#tenantId})
+@TableIndex(name: 'tasks_field_idx', columns: {#fieldId})
+@TableIndex(name: 'tasks_status_idx', columns: {#status})
+@TableIndex(name: 'tasks_synced_idx', columns: {#synced})
+@TableIndex(name: 'tasks_tenant_status_idx', columns: {#tenantId, #status})
+@TableIndex(name: 'tasks_created_idx', columns: {#createdAt})
 class Tasks extends Table {
   TextColumn get id => text()();
   TextColumn get tenantId => text()();
@@ -35,6 +41,11 @@ class Tasks extends Table {
 }
 
 /// Outbox Table (for offline-first sync with ETag support)
+@TableIndex(name: 'outbox_tenant_idx', columns: {#tenantId})
+@TableIndex(name: 'outbox_synced_idx', columns: {#isSynced})
+@TableIndex(name: 'outbox_entity_idx', columns: {#entityType, #entityId})
+@TableIndex(name: 'outbox_created_idx', columns: {#createdAt})
+@TableIndex(name: 'outbox_tenant_synced_idx', columns: {#tenantId, #isSynced})
 class Outbox extends Table {
   IntColumn get id => integer().autoIncrement()();
 
@@ -60,7 +71,14 @@ class Outbox extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-/// Fields Cache Table (GIS-enabled)
+/// Fields Cache Table (GIS-enabled) with performance indexes
+@TableIndex(name: 'fields_tenant_idx', columns: {#tenantId})
+@TableIndex(name: 'fields_farm_idx', columns: {#farmId})
+@TableIndex(name: 'fields_synced_idx', columns: {#synced})
+@TableIndex(name: 'fields_deleted_idx', columns: {#isDeleted})
+@TableIndex(name: 'fields_tenant_deleted_idx', columns: {#tenantId, #isDeleted})
+@TableIndex(name: 'fields_updated_idx', columns: {#updatedAt})
+@TableIndex(name: 'fields_remote_idx', columns: {#remoteId})
 class Fields extends Table {
   TextColumn get id => text()();
   TextColumn get remoteId => text().nullable()(); // PostGIS ID
@@ -104,7 +122,11 @@ class SyncLogs extends Table {
   DateTimeColumn get timestamp => dateTime()();
 }
 
-/// Sync Events Table - Ø£Ø­Ø¯Ø§Ø« Ø§Ù„Ù…Ø²Ø§Ù…Ù†Ø© ÙˆØ§Ù„ØªØ¹Ø§Ø±Ø¶Ø§Øª
+/// Sync Events Table - أحداث المزامنة والتعارضات
+@TableIndex(name: 'sync_events_tenant_idx', columns: {#tenantId})
+@TableIndex(name: 'sync_events_read_idx', columns: {#isRead})
+@TableIndex(name: 'sync_events_tenant_read_idx', columns: {#tenantId, #isRead})
+@TableIndex(name: 'sync_events_created_idx', columns: {#createdAt})
 class SyncEvents extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get tenantId => text()();

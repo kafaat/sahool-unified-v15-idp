@@ -19,9 +19,34 @@ COPY packages/shared-hooks/package.json ./packages/shared-hooks/
 COPY packages/api-client/package.json ./packages/api-client/
 COPY packages/tailwind-config/package.json ./packages/tailwind-config/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
+COPY packages/design-system/package.json ./packages/design-system/
+COPY packages/i18n/package.json ./packages/i18n/
+COPY packages/field-shared/package.json ./packages/field-shared/
+COPY packages/mock-data/package.json ./packages/mock-data/
+COPY packages/nestjs-auth/package.json ./packages/nestjs-auth/
+COPY packages/shared-audit/package.json ./packages/shared-audit/
+COPY packages/shared-crypto/package.json ./packages/shared-crypto/
+COPY packages/shared-db/package.json ./packages/shared-db/
+COPY packages/shared-events/package.json ./packages/shared-events/
+COPY packages/shared-types/package.json ./packages/shared-types/
 
 # Copy admin package.json
 COPY apps/admin/package.json ./apps/admin/
+
+# Copy service workspaces (needed for npm workspace resolution)
+COPY apps/services/field-management-service/package.json ./apps/services/field-management-service/
+COPY apps/services/field-core/package.json ./apps/services/field-core/
+COPY apps/services/chat-service/package.json ./apps/services/chat-service/
+COPY apps/services/community-chat/package.json ./apps/services/community-chat/
+COPY apps/services/crop-growth-model/package.json ./apps/services/crop-growth-model/
+COPY apps/services/disaster-assessment/package.json ./apps/services/disaster-assessment/
+COPY apps/services/iot-service/package.json ./apps/services/iot-service/
+COPY apps/services/lai-estimation/package.json ./apps/services/lai-estimation/
+COPY apps/services/marketplace-service/package.json ./apps/services/marketplace-service/
+COPY apps/services/research-core/package.json ./apps/services/research-core/
+COPY apps/services/yield-prediction/package.json ./apps/services/yield-prediction/
+COPY apps/services/yield-prediction-service/package.json ./apps/services/yield-prediction-service/
+COPY apps/web/package.json ./apps/web/
 
 # Install all dependencies at root level
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000

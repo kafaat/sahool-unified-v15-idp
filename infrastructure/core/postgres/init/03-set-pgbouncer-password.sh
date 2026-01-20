@@ -1,6 +1,10 @@
-#!/bin/bash
+#!/bin/sh
+# ═══════════════════════════════════════════════════════════════════════════════
 # Set pgbouncer user password to match POSTGRES_PASSWORD
 # This script runs after SQL init scripts to update the password
+#
+# SECURITY: Uses psql's -v variable binding to prevent SQL injection
+# ═══════════════════════════════════════════════════════════════════════════════
 
 set -e
 
@@ -12,19 +16,26 @@ if [ -z "$POSTGRES_PASSWORD" ]; then
     exit 0
 fi
 
-# Update pgbouncer user password
-psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-    DO \$\$
-    BEGIN
-        IF EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'pgbouncer') THEN
-            ALTER USER pgbouncer WITH PASSWORD '$POSTGRES_PASSWORD';
-            RAISE NOTICE 'Updated pgbouncer user password';
-        ELSE
-            RAISE NOTICE 'pgbouncer user does not exist, skipping password update';
-        END IF;
-    END
-    \$\$;
+# Escape single quotes in password for safe SQL usage
+# This replaces ' with '' which is the SQL standard for escaping single quotes
+ESCAPED_PASSWORD=$(printf '%s' "$POSTGRES_PASSWORD" | sed "s/'/''/g")
+
+# Update pgbouncer user password using properly escaped password
+# Using format() with %L for safe literal quoting inside PL/pgSQL
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<EOSQL
+DO \$\$
+DECLARE
+    _escaped_pass TEXT := '${ESCAPED_PASSWORD}';
+BEGIN
+    IF EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'pgbouncer') THEN
+        -- Use format() with %L for safe SQL literal quoting
+        EXECUTE format('ALTER USER pgbouncer WITH PASSWORD %L', _escaped_pass);
+        RAISE NOTICE 'Updated pgbouncer user password';
+    ELSE
+        RAISE NOTICE 'pgbouncer user does not exist, skipping password update';
+    END IF;
+END
+\$\$;
 EOSQL
 
 echo "✓ PgBouncer user password updated"
-

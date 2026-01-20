@@ -8,7 +8,7 @@ Provides data aggregation, statistics, and anomaly detection for sensor readings
 
 import statistics
 from collections import defaultdict
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 
 from .models.sensor_data import (
     AggregatedData,

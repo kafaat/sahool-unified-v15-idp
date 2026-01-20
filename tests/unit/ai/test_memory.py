@@ -17,7 +17,7 @@ Updated: January 2025
 """
 
 import pytest
-from datetime import datetime, UTC, timedelta
+from datetime import datetime, timedelta, UTC
 from time import sleep
 
 from shared.ai.context_engineering.memory import (

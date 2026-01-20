@@ -238,6 +238,112 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
   }
 
+  /// Block a user
+  Future<bool> blockUser(String userId, String conversationId) async {
+    try {
+      await _repository.blockUser(userId, conversationId);
+
+      // Remove conversation from state
+      final updatedConversations = state.conversations
+          .where((c) => c.id != conversationId)
+          .toList();
+
+      // Clear active conversation if it's the blocked one
+      final clearActive = state.activeConversationId == conversationId;
+
+      state = state.copyWith(
+        conversations: updatedConversations,
+        clearActiveConversation: clearActive,
+      );
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        error: 'فشل في حظر المستخدم: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
+  /// Mute a conversation
+  Future<bool> muteConversation(String conversationId, {bool mute = true}) async {
+    try {
+      await _repository.muteConversation(conversationId, mute: mute);
+
+      // Update conversation in state
+      final updatedConversations = state.conversations.map((c) {
+        if (c.id == conversationId) {
+          return c.copyWith(isMuted: mute);
+        }
+        return c;
+      }).toList();
+
+      state = state.copyWith(conversations: updatedConversations);
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        error: mute
+            ? 'فشل في كتم المحادثة: ${e.toString()}'
+            : 'فشل في إلغاء كتم المحادثة: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
+  /// Report a conversation/user
+  Future<bool> reportConversation(
+    String conversationId, {
+    required String reason,
+    String? description,
+  }) async {
+    try {
+      await _repository.reportConversation(
+        conversationId,
+        reason: reason,
+        description: description,
+      );
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        error: 'فشل في إرسال البلاغ: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
+  /// Clear chat history for a conversation
+  Future<bool> clearChatHistory(String conversationId) async {
+    try {
+      await _repository.clearChatHistory(conversationId);
+
+      // Clear messages from state
+      final updatedMessagesMap = {...state.messagesMap};
+      updatedMessagesMap[conversationId] = [];
+
+      // Update conversation to clear last message
+      final updatedConversations = state.conversations.map((c) {
+        if (c.id == conversationId) {
+          return c.copyWith(clearLastMessage: true);
+        }
+        return c;
+      }).toList();
+
+      state = state.copyWith(
+        messagesMap: updatedMessagesMap,
+        conversations: updatedConversations,
+      );
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        error: 'فشل في مسح المحادثة: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
   // ───────────────────────────────────────────────────────────────────────────
   // Messages
   // ───────────────────────────────────────────────────────────────────────────

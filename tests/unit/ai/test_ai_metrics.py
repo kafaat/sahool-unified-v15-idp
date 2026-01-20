@@ -448,11 +448,17 @@ class TestLatencyMetrics:
     @pytest.mark.asyncio
     async def test_track_operation_async_context_manager(self):
         """Test async context manager for operation tracking"""
+        # track_operation_async is a lightweight context manager for logging
+        # It doesn't record to histograms - just logs operation timing
+        # Verify it completes successfully without raising exceptions
+
+        # Execute operation within async context manager
         async with track_operation_async("test_operation"):
             await asyncio.sleep(0.01)
 
-        # If we reach here, context manager worked correctly
-        assert True
+        # If we reach here, the context manager worked correctly
+        # The function logs latency but doesn't record to histograms
+        assert True, "Context manager should complete without errors"
 
     @pytest.mark.asyncio
     async def test_track_operation_async_error_handling(self):

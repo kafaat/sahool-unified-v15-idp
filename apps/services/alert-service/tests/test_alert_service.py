@@ -4,7 +4,7 @@ Comprehensive unit tests for alert business logic
 Coverage: Repository operations, alert rules, statistics, event processing
 """
 
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
 

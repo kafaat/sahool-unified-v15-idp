@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../domain/entities/crop_health_entities.dart';
@@ -675,7 +676,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                         child: OutlinedButton.icon(
                           onPressed: () {
                             Navigator.pop(context);
-                            // TODO: Navigate to zone on map
+                            _navigateToZoneOnMap(action.zoneId);
                           },
                           icon: const Icon(Icons.map),
                           label: const Text('عرض على الخريطة'),
@@ -686,7 +687,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                         child: ElevatedButton.icon(
                           onPressed: () {
                             Navigator.pop(context);
-                            // TODO: Mark as done
+                            _markActionAsDone(action);
                           },
                           icon: const Icon(Icons.check),
                           label: const Text('تم التنفيذ'),
@@ -716,6 +717,99 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
         return 'عالية';
       default:
         return hint;
+    }
+  }
+
+  /// Navigate to map screen and focus on the specified zone
+  void _navigateToZoneOnMap(String zoneId) {
+    final zonesState = ref.read(zonesProvider);
+    final zone = zonesState.zones.where((z) => z.zoneId == zoneId).firstOrNull;
+
+    context.push('/map', extra: {
+      'zoneId': zoneId,
+      'zoneName': zone?.nameAr ?? zone?.name ?? zoneId,
+      'geometry': zone?.geometry,
+      'fieldId': widget.fieldId,
+      'fieldName': widget.fieldName,
+    });
+  }
+
+  /// Mark an action as completed
+  Future<void> _markActionAsDone(DiagnosisAction action) async {
+    // Show loading indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Text('جاري تحديث الإجراء: ${action.title}...'),
+          ],
+        ),
+        backgroundColor: const Color(0xFF367C2B),
+        duration: const Duration(seconds: 30), // Long duration, will be dismissed
+      ),
+    );
+
+    try {
+      // Call the provider to mark the action as completed
+      await ref.read(diagnosisProvider.notifier).markActionCompleted(
+            widget.fieldId,
+            action.zoneId,
+            action.type,
+          );
+
+      if (mounted) {
+        // Hide loading and show success
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('تم تنفيذ: ${action.title}'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        // Hide loading and show error
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('فشل تحديث الإجراء: ${e.toString()}'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'إعادة المحاولة',
+              textColor: Colors.white,
+              onPressed: () => _markActionAsDone(action),
+            ),
+          ),
+        );
+      }
     }
   }
 }

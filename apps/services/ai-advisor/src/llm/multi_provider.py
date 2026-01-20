@@ -138,6 +138,7 @@ class LLMProviderType(Enum):
     ANTHROPIC = "anthropic"
     OPENAI = "openai"
     GOOGLE = "google"
+    OLLAMA = "ollama"
 
 
 @dataclass
@@ -592,6 +593,253 @@ class GoogleGeminiProvider(LLMProvider):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Ollama Provider (Local LLM)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class OllamaProvider(LLMProvider):
+    """
+    Ollama Local LLM Provider
+    مزود أولاما للنماذج المحلية
+    https://ollama.ai/
+
+    Supports local LLM models like:
+    - llama3.2, llama3.1
+    - mistral, mixtral
+    - qwen2.5
+    - phi3
+    - gemma2
+    - codellama
+    - arabic-llama (for Arabic support)
+    """
+
+    def __init__(self):
+        super().__init__("Ollama Local", "أولاما المحلي")
+        self.base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        self._configured = self._check_ollama_available()
+        self.circuit_breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=30)
+
+    def _check_ollama_available(self) -> bool:
+        """Check if Ollama server is available"""
+        try:
+            import httpx
+
+            with httpx.Client(timeout=5.0) as client:
+                response = client.get(f"{self.base_url}/api/tags")
+                return response.status_code == 200
+        except Exception:
+            return False
+
+    @property
+    def is_configured(self) -> bool:
+        return self._configured
+
+    @property
+    def default_model(self) -> str:
+        return os.getenv("OLLAMA_MODEL", "llama3.2")
+
+    @retry(**RETRY_CONFIG)
+    async def chat(
+        self,
+        messages: list[LLMMessage],
+        model: str | None = None,
+        max_tokens: int = 4096,
+        temperature: float = 0.7,
+    ) -> LLMResponse:
+        return await self.circuit_breaker.call_async(
+            self._chat_impl, messages, model, max_tokens, temperature
+        )
+
+    async def _chat_impl(
+        self,
+        messages: list[LLMMessage],
+        model: str | None = None,
+        max_tokens: int = 4096,
+        temperature: float = 0.7,
+    ) -> LLMResponse:
+        """Internal chat implementation with Ollama API"""
+        import time
+
+        import httpx
+
+        start = time.time()
+
+        # Format messages for Ollama
+        ollama_messages = [{"role": msg.role, "content": msg.content} for msg in messages]
+
+        model_name = model or self.default_model
+
+        # Ollama API request
+        payload = {
+            "model": model_name,
+            "messages": ollama_messages,
+            "stream": False,
+            "options": {
+                "num_predict": max_tokens,
+                "temperature": temperature,
+            },
+        }
+
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            response = await client.post(
+                f"{self.base_url}/api/chat",
+                json=payload,
+            )
+            response.raise_for_status()
+            data = response.json()
+
+        latency = (time.time() - start) * 1000
+
+        # Extract response
+        content = data.get("message", {}).get("content", "")
+
+        # Token counting from Ollama response
+        input_tokens = data.get("prompt_eval_count", 0)
+        output_tokens = data.get("eval_count", 0)
+
+        # Ollama is local/free, so no cost
+        cost = 0.0
+
+        return LLMResponse(
+            content=content,
+            provider=self.name,
+            model=model_name,
+            tokens_used=input_tokens + output_tokens,
+            latency_ms=latency,
+            finish_reason=data.get("done_reason", "stop"),
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+            cost=cost,
+        )
+
+    async def complete(
+        self,
+        prompt: str,
+        model: str | None = None,
+        max_tokens: int = 4096,
+        temperature: float = 0.7,
+    ) -> LLMResponse:
+        messages = [LLMMessage(role="user", content=prompt)]
+        return await self.chat(messages, model, max_tokens, temperature)
+
+    async def generate(
+        self,
+        prompt: str,
+        model: str | None = None,
+        max_tokens: int = 4096,
+        temperature: float = 0.7,
+    ) -> LLMResponse:
+        """
+        Generate completion using Ollama's generate API (non-chat)
+        توليد استجابة باستخدام API التوليد (غير المحادثة)
+        """
+        import time
+
+        import httpx
+
+        start = time.time()
+
+        model_name = model or self.default_model
+
+        payload = {
+            "model": model_name,
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "num_predict": max_tokens,
+                "temperature": temperature,
+            },
+        }
+
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            response = await client.post(
+                f"{self.base_url}/api/generate",
+                json=payload,
+            )
+            response.raise_for_status()
+            data = response.json()
+
+        latency = (time.time() - start) * 1000
+
+        content = data.get("response", "")
+        input_tokens = data.get("prompt_eval_count", 0)
+        output_tokens = data.get("eval_count", 0)
+
+        return LLMResponse(
+            content=content,
+            provider=self.name,
+            model=model_name,
+            tokens_used=input_tokens + output_tokens,
+            latency_ms=latency,
+            finish_reason="stop" if data.get("done") else "length",
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+            cost=0.0,
+        )
+
+    async def list_models(self) -> list[dict]:
+        """
+        List available Ollama models
+        قائمة النماذج المتاحة في أولاما
+        """
+        import httpx
+
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(f"{self.base_url}/api/tags")
+            response.raise_for_status()
+            data = response.json()
+
+        return data.get("models", [])
+
+    async def pull_model(self, model_name: str) -> bool:
+        """
+        Pull (download) a model from Ollama registry
+        تحميل نموذج من مستودع أولاما
+        """
+        import httpx
+
+        try:
+            async with httpx.AsyncClient(timeout=600.0) as client:
+                response = await client.post(
+                    f"{self.base_url}/api/pull",
+                    json={"name": model_name, "stream": False},
+                )
+                response.raise_for_status()
+                return True
+        except Exception as e:
+            logger.error(f"Failed to pull model {model_name}: {e}")
+            return False
+
+    async def embeddings(
+        self,
+        text: str | list[str],
+        model: str | None = None,
+    ) -> list[list[float]]:
+        """
+        Generate embeddings using Ollama
+        توليد التضمينات باستخدام أولاما
+        """
+        import httpx
+
+        model_name = model or os.getenv("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
+
+        texts = [text] if isinstance(text, str) else text
+        embeddings = []
+
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            for t in texts:
+                response = await client.post(
+                    f"{self.base_url}/api/embeddings",
+                    json={"model": model_name, "prompt": t},
+                )
+                response.raise_for_status()
+                data = response.json()
+                embeddings.append(data.get("embedding", []))
+
+        return embeddings
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # Multi-Provider LLM Service
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -605,6 +853,7 @@ class MultiLLMService:
     1. Anthropic Claude (if ANTHROPIC_API_KEY set)
     2. OpenAI GPT (if OPENAI_API_KEY set)
     3. Google Gemini (if GOOGLE_API_KEY or GEMINI_API_KEY set)
+    4. Ollama Local (if Ollama server is running)
     """
 
     def __init__(self, primary_provider: str | None = None):
@@ -612,7 +861,7 @@ class MultiLLMService:
         Initialize multi-provider service
 
         Args:
-            primary_provider: Override primary provider (anthropic, openai, google)
+            primary_provider: Override primary provider (anthropic, openai, google, ollama)
         """
         self.providers: list[LLMProvider] = []
 
@@ -621,6 +870,8 @@ class MultiLLMService:
             self._add_openai_first()
         elif primary_provider == "google":
             self._add_google_first()
+        elif primary_provider == "ollama":
+            self._add_ollama_first()
         else:
             self._add_anthropic_first()
 
@@ -640,6 +891,10 @@ class MultiLLMService:
         if google.is_configured:
             self.providers.append(google)
 
+        ollama = OllamaProvider()
+        if ollama.is_configured:
+            self.providers.append(ollama)
+
     def _add_openai_first(self):
         openai = OpenAIProvider()
         if openai.is_configured:
@@ -653,6 +908,10 @@ class MultiLLMService:
         if google.is_configured:
             self.providers.append(google)
 
+        ollama = OllamaProvider()
+        if ollama.is_configured:
+            self.providers.append(ollama)
+
     def _add_google_first(self):
         google = GoogleGeminiProvider()
         if google.is_configured:
@@ -665,6 +924,28 @@ class MultiLLMService:
         openai = OpenAIProvider()
         if openai.is_configured:
             self.providers.append(openai)
+
+        ollama = OllamaProvider()
+        if ollama.is_configured:
+            self.providers.append(ollama)
+
+    def _add_ollama_first(self):
+        """Add Ollama as primary provider (useful for offline/local deployments)"""
+        ollama = OllamaProvider()
+        if ollama.is_configured:
+            self.providers.append(ollama)
+
+        anthropic = AnthropicProvider()
+        if anthropic.is_configured:
+            self.providers.append(anthropic)
+
+        openai = OpenAIProvider()
+        if openai.is_configured:
+            self.providers.append(openai)
+
+        google = GoogleGeminiProvider()
+        if google.is_configured:
+            self.providers.append(google)
 
     async def chat(
         self,
@@ -742,6 +1023,7 @@ class MultiLLMService:
             AnthropicProvider(),
             OpenAIProvider(),
             GoogleGeminiProvider(),
+            OllamaProvider(),
         ]
         return [
             {

@@ -5,7 +5,7 @@ Standard envelope for all events in the platform
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 from typing import Any
 from uuid import UUID, uuid4
 

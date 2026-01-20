@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 /// ويدجت ملخص الإجراءات
 class ActionSummaryWidget extends StatelessWidget {
@@ -83,7 +84,7 @@ class ActionSummaryWidget extends StatelessWidget {
         // زر عرض الكل
         TextButton(
           onPressed: () {
-            // TODO: Navigate to all actions
+            context.push('/tasks');
           },
           child: const Text('عرض جميع الإجراءات'),
         ),
@@ -177,7 +178,11 @@ class ActionSummaryWidget extends StatelessWidget {
           ),
         ),
         onTap: () {
-          // TODO: Navigate to action details
+          Navigator.pushNamed(
+            context,
+            '/task/details',
+            arguments: action,
+          );
         },
       ),
     );

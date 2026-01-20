@@ -93,6 +93,56 @@ class ChatRepository {
     return await _api.getUnreadCount();
   }
 
+  /// Block a user
+  Future<void> blockUser(String userId, String conversationId) async {
+    await _api.blockUser(userId);
+
+    // Remove conversation from cache
+    _conversationsCache.remove(conversationId);
+    _messagesCache.remove(conversationId);
+  }
+
+  /// Mute a conversation
+  Future<void> muteConversation(String conversationId, {bool mute = true}) async {
+    await _api.muteConversation(conversationId, mute: mute);
+
+    // Update cache
+    if (_conversationsCache.containsKey(conversationId)) {
+      final conversation = _conversationsCache[conversationId]!;
+      _conversationsCache[conversationId] = conversation.copyWith(isMuted: mute);
+    }
+  }
+
+  /// Report a conversation/user
+  Future<void> reportConversation(
+    String conversationId, {
+    required String reason,
+    String? description,
+  }) async {
+    await _api.reportConversation(
+      conversationId,
+      reason: reason,
+      description: description,
+    );
+  }
+
+  /// Clear chat history for a conversation
+  Future<void> clearChatHistory(String conversationId) async {
+    await _api.clearChatHistory(conversationId);
+
+    // Clear messages from cache
+    _messagesCache.remove(conversationId);
+
+    // Update conversation in cache to remove last message
+    if (_conversationsCache.containsKey(conversationId)) {
+      final conversation = _conversationsCache[conversationId]!;
+      _conversationsCache[conversationId] = conversation.copyWith(
+        lastMessage: null,
+        clearLastMessage: true,
+      );
+    }
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
   // Messages
   // ─────────────────────────────────────────────────────────────────────────────

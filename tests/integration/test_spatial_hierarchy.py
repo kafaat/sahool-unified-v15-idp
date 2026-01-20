@@ -299,9 +299,17 @@ class TestGeometryValidation:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.skip(reason="Enable when PostGIS test DB is configured")
 class TestPostGISIntegration:
-    """Integration tests requiring PostGIS database"""
+    """Integration tests requiring PostGIS database
+
+    These tests require PostGIS extension to be installed and enabled.
+
+    To run these tests in development:
+    1. Ensure PostGIS is installed: CREATE EXTENSION postgis;
+    2. Run tests with --postgis flag: pytest --postgis
+
+    The tests will be automatically skipped if PostGIS is not available.
+    """
 
     def test_fields_in_bbox_uses_spatial_index(self, db_session):
         """fields_in_bbox query uses GIST index"""

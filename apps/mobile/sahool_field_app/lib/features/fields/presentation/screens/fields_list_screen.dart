@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/auth/auth_service.dart';
+import '../../../../core/di/providers.dart';
+import '../../../field/domain/entities/field.dart' hide FieldStatus;
 import '../../domain/entities/field_entity.dart';
 import '../widgets/enhanced_field_card.dart';
 import 'field_details_screen.dart';
@@ -19,94 +22,58 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   FieldStatus? _selectedStatus;
   String _sortBy = 'name';
   bool _isGridView = false;
+  bool _isRefreshing = false;
 
-  // Mock data - في الإنتاج سيأتي من API
-  final List<FieldEntity> _fields = [
-    FieldEntity(
-      id: '1',
-      tenantId: 't1',
-      name: 'حقل القمح الشمالي',
-      areaHectares: 45.5,
-      cropType: 'قمح',
-      healthScore: 0.85,
-      ndviValue: 0.72,
-      ndwiValue: -0.05,
-      soilType: 'طيني',
-      irrigationType: 'محوري',
-      plantingDate: DateTime.now().subtract(const Duration(days: 60)),
-      expectedHarvest: DateTime.now().add(const Duration(days: 90)),
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    FieldEntity(
-      id: '2',
-      tenantId: 't1',
-      name: 'حقل الذرة الغربي',
-      areaHectares: 60.0,
-      cropType: 'ذرة',
-      healthScore: 0.72,
-      ndviValue: 0.65,
-      ndwiValue: -0.12,
-      soilType: 'رملي',
-      irrigationType: 'تنقيط',
-      plantingDate: DateTime.now().subtract(const Duration(days: 45)),
-      expectedHarvest: DateTime.now().add(const Duration(days: 75)),
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    FieldEntity(
-      id: '3',
-      tenantId: 't1',
-      name: 'حقل الشعير',
-      areaHectares: 35.0,
-      cropType: 'شعير',
-      healthScore: 0.45,
-      ndviValue: 0.42,
-      ndwiValue: -0.25,
-      soilType: 'طيني',
-      irrigationType: 'غمر',
-      plantingDate: DateTime.now().subtract(const Duration(days: 90)),
-      expectedHarvest: DateTime.now().add(const Duration(days: 30)),
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    FieldEntity(
-      id: '4',
-      tenantId: 't1',
-      name: 'حقل البرسيم',
-      areaHectares: 50.0,
-      cropType: 'برسيم',
-      healthScore: 0.92,
-      ndviValue: 0.85,
-      ndwiValue: 0.02,
-      soilType: 'طيني رملي',
-      irrigationType: 'محوري',
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    FieldEntity(
-      id: '5',
-      tenantId: 't1',
-      name: 'حقل النخيل',
-      areaHectares: 25.0,
-      cropType: 'نخيل',
-      healthScore: 0.78,
-      ndviValue: 0.68,
-      ndwiValue: -0.08,
-      soilType: 'رملي',
-      irrigationType: 'تنقيط',
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-  ];
+  /// Map domain Field entity to FieldEntity for UI
+  /// تحويل كيان الحقل من المستودع إلى كيان العرض
+  FieldEntity _mapDomainToUiEntity(Field field) {
+    // Calculate health score from NDVI value
+    final healthScore = field.ndviCurrent ?? 0.0;
 
-  List<FieldEntity> get _filteredFields {
-    var fields = _fields.where((f) {
+    // Map domain status string to UI FieldStatus enum
+    FieldStatus status;
+    switch (field.status?.toLowerCase()) {
+      case 'fallow':
+        status = FieldStatus.fallow;
+        break;
+      case 'preparing':
+        status = FieldStatus.preparing;
+        break;
+      case 'harvested':
+        status = FieldStatus.harvested;
+        break;
+      case 'inactive':
+        status = FieldStatus.inactive;
+        break;
+      default:
+        status = FieldStatus.active;
+    }
+
+    return FieldEntity(
+      id: field.id,
+      tenantId: field.tenantId,
+      name: field.name,
+      farmId: field.farmId,
+      areaHectares: field.areaHectares,
+      cropType: field.cropType ?? 'غير محدد',
+      healthScore: healthScore,
+      ndviValue: field.ndviCurrent,
+      status: status,
+      center: field.centroid != null
+          ? GeoLocation(
+              latitude: field.centroid!.latitude,
+              longitude: field.centroid!.longitude,
+            )
+          : null,
+      createdAt: field.createdAt,
+      updatedAt: field.updatedAt,
+    );
+  }
+
+  /// Filter and sort fields based on current criteria
+  /// تصفية وترتيب الحقول حسب المعايير الحالية
+  List<FieldEntity> _filterAndSortFields(List<FieldEntity> fields) {
+    var filteredFields = fields.where((f) {
       if (_searchQuery.isNotEmpty &&
           !f.name.toLowerCase().contains(_searchQuery.toLowerCase())) {
         return false;
@@ -123,21 +90,81 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     // Sort
     switch (_sortBy) {
       case 'name':
-        fields.sort((a, b) => a.name.compareTo(b.name));
+        filteredFields.sort((a, b) => a.name.compareTo(b.name));
         break;
       case 'area':
-        fields.sort((a, b) => b.areaHectares.compareTo(a.areaHectares));
+        filteredFields.sort((a, b) => b.areaHectares.compareTo(a.areaHectares));
         break;
       case 'health':
-        fields.sort((a, b) => b.healthScore.compareTo(a.healthScore));
+        filteredFields.sort((a, b) => b.healthScore.compareTo(a.healthScore));
         break;
     }
 
-    return fields;
+    return filteredFields;
+  }
+
+  /// Refresh fields from the API
+  /// تحديث الحقول من الخادم
+  Future<void> _refreshFieldsFromApi() async {
+    if (_isRefreshing) return;
+
+    setState(() => _isRefreshing = true);
+
+    try {
+      final authState = ref.read(authStateProvider);
+      final tenantId = authState.user?.tenantId;
+
+      if (tenantId == null) {
+        // User not authenticated, show error
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('يرجى تسجيل الدخول أولاً'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Fetch fresh data from the API and update local database
+      final repo = ref.read(fieldsRepoProvider);
+      final refreshedCount = await repo.refreshFromServer(tenantId);
+
+      // Invalidate the providers to trigger UI refresh with new data
+      ref.invalidate(fieldsStreamProvider(tenantId));
+      ref.invalidate(allFieldsProvider(tenantId));
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('تم تحديث $refreshedCount حقل'),
+            backgroundColor: const Color(0xFF367C2B),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('فشل التحديث: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isRefreshing = false);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Get authenticated user's tenant ID
+    final authState = ref.watch(authStateProvider);
+    final tenantId = authState.user?.tenantId;
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -195,31 +222,128 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
             ),
           ],
         ),
-        body: Column(
-          children: [
-            // Search and filters
-            _buildSearchAndFilters(),
-
-            // Stats bar
-            _buildStatsBar(),
-
-            // Fields list/grid
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  // TODO: Refresh from API
-                },
-                child: _isGridView ? _buildGridView() : _buildListView(),
-              ),
-            ),
-          ],
-        ),
+        body: tenantId == null
+            ? _buildUnauthenticatedState()
+            : _buildAuthenticatedBody(tenantId),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: _addField,
           backgroundColor: const Color(0xFF367C2B),
           icon: const Icon(Icons.add),
           label: const Text('حقل جديد'),
         ),
+      ),
+    );
+  }
+
+  /// Build UI when user is not authenticated
+  /// واجهة عندما لا يكون المستخدم مسجل الدخول
+  Widget _buildUnauthenticatedState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.lock_outline, size: 80, color: Colors.grey[300]),
+          const SizedBox(height: 16),
+          Text(
+            'يرجى تسجيل الدخول',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'سجل دخولك لعرض الحقول',
+            style: TextStyle(color: Colors.grey[500]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build body for authenticated users with fields data from providers
+  /// بناء المحتوى للمستخدمين المصادق عليهم مع بيانات الحقول من المزودات
+  Widget _buildAuthenticatedBody(String tenantId) {
+    // Watch the fields stream for live updates from the local database
+    final fieldsStream = ref.watch(fieldsStreamProvider(tenantId));
+
+    return fieldsStream.when(
+      data: (domainFields) {
+        // Map domain fields to UI entities
+        final fields = domainFields
+            .where((f) => !f.isDeleted) // Filter out soft-deleted fields
+            .map(_mapDomainToUiEntity)
+            .toList();
+
+        // Apply search, filter, and sort
+        final filteredFields = _filterAndSortFields(fields);
+
+        return Column(
+          children: [
+            // Search and filters
+            _buildSearchAndFilters(),
+
+            // Stats bar
+            _buildStatsBar(filteredFields),
+
+            // Fields list/grid with pull-to-refresh
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _refreshFieldsFromApi,
+                child: filteredFields.isEmpty
+                    ? _buildEmptyState()
+                    : _isGridView
+                        ? _buildGridView(filteredFields)
+                        : _buildListView(filteredFields),
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF367C2B)),
+        ),
+      ),
+      error: (error, stack) => _buildErrorState(error, tenantId),
+    );
+  }
+
+  /// Build error state with retry button
+  /// بناء حالة الخطأ مع زر إعادة المحاولة
+  Widget _buildErrorState(Object error, String tenantId) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 80, color: Colors.red[300]),
+          const SizedBox(height: 16),
+          Text(
+            'حدث خطأ في تحميل الحقول',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            error.toString(),
+            style: TextStyle(color: Colors.grey[500]),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () {
+              ref.invalidate(fieldsStreamProvider(tenantId));
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('إعادة المحاولة'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF367C2B),
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -318,15 +442,15 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     );
   }
 
-  Widget _buildStatsBar() {
-    final totalArea = _filteredFields.fold<double>(
+  Widget _buildStatsBar(List<FieldEntity> filteredFields) {
+    final totalArea = filteredFields.fold<double>(
       0,
       (sum, f) => sum + f.areaHectares,
     );
-    final avgHealth = _filteredFields.isEmpty
+    final avgHealth = filteredFields.isEmpty
         ? 0.0
-        : _filteredFields.fold<double>(0, (sum, f) => sum + f.healthScore) /
-            _filteredFields.length;
+        : filteredFields.fold<double>(0, (sum, f) => sum + f.healthScore) /
+            filteredFields.length;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -337,7 +461,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
           _buildStatItem(
             icon: Icons.landscape,
             label: 'الحقول',
-            value: '${_filteredFields.length}',
+            value: '${filteredFields.length}',
           ),
           _buildStatItem(
             icon: Icons.square_foot,
@@ -384,16 +508,12 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     );
   }
 
-  Widget _buildListView() {
-    if (_filteredFields.isEmpty) {
-      return _buildEmptyState();
-    }
-
+  Widget _buildListView(List<FieldEntity> filteredFields) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _filteredFields.length,
+      itemCount: filteredFields.length,
       itemBuilder: (context, index) {
-        final field = _filteredFields[index];
+        final field = filteredFields[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: EnhancedFieldCard(
@@ -405,11 +525,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     );
   }
 
-  Widget _buildGridView() {
-    if (_filteredFields.isEmpty) {
-      return _buildEmptyState();
-    }
-
+  Widget _buildGridView(List<FieldEntity> filteredFields) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -418,9 +534,9 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
         crossAxisSpacing: 12,
         childAspectRatio: 0.85,
       ),
-      itemCount: _filteredFields.length,
+      itemCount: filteredFields.length,
       itemBuilder: (context, index) {
-        final field = _filteredFields[index];
+        final field = filteredFields[index];
         return EnhancedFieldCard(
           field: field,
           isCompact: true,
@@ -431,28 +547,40 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.landscape, size: 80, color: Colors.grey[300]),
-          const SizedBox(height: 16),
-          Text(
-            _searchQuery.isNotEmpty || _selectedCrop != null
-                ? 'لا توجد نتائج'
-                : 'لا توجد حقول',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[600],
+    // Use ListView for proper RefreshIndicator support (needs scrollable child)
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.5,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.landscape, size: 80, color: Colors.grey[300]),
+                const SizedBox(height: 16),
+                Text(
+                  _searchQuery.isNotEmpty || _selectedCrop != null
+                      ? 'لا توجد نتائج'
+                      : 'لا توجد حقول',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _searchQuery.isNotEmpty || _selectedCrop != null
+                      ? 'اسحب للتحديث أو غير معايير البحث'
+                      : 'اسحب للتحديث من الخادم أو أضف حقلاً جديداً',
+                  style: TextStyle(color: Colors.grey[500]),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'أضف حقلاً جديداً للبدء',
-            style: TextStyle(color: Colors.grey[500]),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -460,7 +588,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => FieldDetailsScreen(field: field),
+        builder: (context) => FieldDetailsScreen(fieldId: field.id, field: field),
       ),
     );
   }

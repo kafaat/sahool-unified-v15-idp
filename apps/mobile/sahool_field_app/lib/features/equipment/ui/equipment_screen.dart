@@ -1,7 +1,9 @@
 /// Equipment Screen - شاشة إدارة المعدات
 /// متكاملة مع FastAPI Equipment Service
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
@@ -512,7 +514,17 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      // TODO: Navigate to map
+                      if (equipment.currentLat != null && equipment.currentLon != null) {
+                        Navigator.pop(context);
+                        _showEquipmentLocationMap(context, equipment);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('موقع المعدة غير متوفر'),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                      }
                     },
                     child: const Text("عرض على الخريطة"),
                   ),
@@ -558,7 +570,8 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    // TODO: Show history
+                    Navigator.pop(context);
+                    _showEquipmentHistory(context, equipment);
                   },
                   icon: const Icon(Icons.history),
                   label: const Text("السجل"),
@@ -630,6 +643,24 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
+
+  void _showEquipmentLocationMap(BuildContext context, Equipment equipment) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _EquipmentLocationMapSheet(equipment: equipment),
+    );
+  }
+
+  void _showEquipmentHistory(BuildContext context, Equipment equipment) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _EquipmentHistorySheet(equipment: equipment),
+    );
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -647,6 +678,7 @@ class _AddEquipmentSheetState extends ConsumerState<_AddEquipmentSheet> {
   final _nameController = TextEditingController();
   final _serialController = TextEditingController();
   EquipmentType _selectedType = EquipmentType.tractor;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -737,18 +769,62 @@ class _AddEquipmentSheetState extends ConsumerState<_AddEquipmentSheet> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () async {
+              onPressed: _isSubmitting ? null : () async {
                 if (_nameController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('الرجاء إدخال اسم المعدة')),
+                    const SnackBar(
+                      content: Text('الرجاء إدخال اسم المعدة'),
+                      backgroundColor: Colors.orange,
+                    ),
                   );
                   return;
                 }
 
-                // TODO: Call repository to create equipment
-                Navigator.pop(context);
-                ref.invalidate(equipmentListProvider);
-                ref.invalidate(equipmentStatsProvider);
+                setState(() => _isSubmitting = true);
+
+                try {
+                  final controller = ref.read(equipmentControllerProvider.notifier);
+                  final success = await controller.createEquipment(
+                    name: _nameController.text,
+                    nameAr: _nameController.text,
+                    type: _selectedType,
+                    serialNumber: _serialController.text.isNotEmpty
+                        ? _serialController.text
+                        : null,
+                  );
+
+                  if (mounted) {
+                    if (success) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('تم إضافة المعدة بنجاح'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('فشل في إضافة المعدة'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('حدث خطأ: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                } finally {
+                  if (mounted) {
+                    setState(() => _isSubmitting = false);
+                  }
+                }
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -758,7 +834,16 @@ class _AddEquipmentSheetState extends ConsumerState<_AddEquipmentSheet> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text("إضافة المعدة", style: TextStyle(fontSize: 16)),
+              child: _isSubmitting
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text("إضافة المعدة", style: TextStyle(fontSize: 16)),
             ),
           ),
         ],
@@ -1480,5 +1565,572 @@ class _AddMaintenanceRecordSheetState
         ],
       ),
     );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Equipment Location Map Bottom Sheet
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _EquipmentLocationMapSheet extends StatelessWidget {
+  final Equipment equipment;
+
+  const _EquipmentLocationMapSheet({required this.equipment});
+
+  @override
+  Widget build(BuildContext context) {
+    final lat = equipment.currentLat ?? 0.0;
+    final lon = equipment.currentLon ?? 0.0;
+    final location = LatLng(lat, lon);
+
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.75,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          // Handle
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+
+          // Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: SahoolColors.forestGreen.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.location_on,
+                    color: SahoolColors.forestGreen,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        equipment.getDisplayName('ar'),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      Text(
+                        equipment.locationName ?? 'موقع المعدة',
+                        style: const TextStyle(color: Colors.grey, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+          ),
+
+          const Divider(height: 24),
+
+          // Map
+          Expanded(
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(24),
+                bottomRight: Radius.circular(24),
+              ),
+              child: FlutterMap(
+                options: MapOptions(
+                  initialCenter: location,
+                  initialZoom: 15,
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'com.sahool.field',
+                    maxZoom: 19,
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: location,
+                        width: 80,
+                        height: 80,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: SahoolColors.forestGreen,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: SahoolColors.forestGreen.withOpacity(0.4),
+                                    blurRadius: 8,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                _getEquipmentIcon(equipment.equipmentType),
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                            CustomPaint(
+                              size: const Size(16, 8),
+                              painter: _MapMarkerTrianglePainter(
+                                color: SahoolColors.forestGreen,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Coordinates Info
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(24),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.gps_fixed, size: 16, color: Colors.grey),
+                const SizedBox(width: 8),
+                Text(
+                  '${lat.toStringAsFixed(6)}, ${lon.toStringAsFixed(6)}',
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 13,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Triangle painter for map marker
+class _MapMarkerTrianglePainter extends CustomPainter {
+  final Color color;
+
+  _MapMarkerTrianglePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+      ..moveTo(size.width / 2, size.height)
+      ..lineTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _MapMarkerTrianglePainter oldDelegate) =>
+      color != oldDelegate.color;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Equipment History Bottom Sheet
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _EquipmentHistorySheet extends ConsumerWidget {
+  final Equipment equipment;
+
+  const _EquipmentHistorySheet({required this.equipment});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final historyAsync = ref.watch(maintenanceHistoryProvider(equipment.equipmentId));
+
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.8,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          // Handle
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+
+          // Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: SahoolColors.forestGreen.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.history,
+                    color: SahoolColors.forestGreen,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "سجل الصيانة والاستخدام",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      Text(
+                        equipment.getDisplayName('ar'),
+                        style: const TextStyle(color: Colors.grey, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+          ),
+
+          const Divider(height: 24),
+
+          // Content
+          Expanded(
+            child: historyAsync.when(
+              data: (records) {
+                if (records.isEmpty) {
+                  return _buildEmptyState();
+                }
+                return _buildHistoryList(records);
+              },
+              loading: () => const Center(
+                child: CircularProgressIndicator(
+                  color: SahoolColors.forestGreen,
+                ),
+              ),
+              error: (error, _) => _buildErrorState(error, ref),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.history,
+              size: 64,
+              color: Colors.grey[300],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'لا يوجد سجل صيانة',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'سيظهر هنا سجل الصيانة والاستخدام للمعدة',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[500],
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(Object error, WidgetRef ref) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: SahoolColors.danger,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'حدث خطأ في جلب السجل',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => ref.invalidate(
+                maintenanceHistoryProvider(equipment.equipmentId),
+              ),
+              icon: const Icon(Icons.refresh),
+              label: const Text('إعادة المحاولة'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: SahoolColors.forestGreen,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHistoryList(List<MaintenanceRecord> records) {
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      itemCount: records.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final record = records[index];
+        return _HistoryRecordItem(record: record);
+      },
+    );
+  }
+}
+
+class _HistoryRecordItem extends StatelessWidget {
+  final MaintenanceRecord record;
+
+  const _HistoryRecordItem({required this.record});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Row
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _getMaintenanceTypeColor(record.maintenanceType).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  _getMaintenanceTypeIcon(record.maintenanceType),
+                  size: 20,
+                  color: _getMaintenanceTypeColor(record.maintenanceType),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      record.maintenanceType.nameAr,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                    Text(
+                      _formatDate(record.performedAt),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (record.cost != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: SahoolColors.harvestGold.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${record.cost!.toStringAsFixed(0)} ريال',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: SahoolColors.harvestGold,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+
+          // Description
+          if (record.getDescription('ar').isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              record.getDescription('ar'),
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[700],
+              ),
+            ),
+          ],
+
+          // Performed By
+          if (record.performedBy != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.person_outline, size: 14, color: Colors.grey[500]),
+                const SizedBox(width: 4),
+                Text(
+                  record.performedBy!,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ],
+
+          // Parts Replaced
+          if (record.partsReplaced != null && record.partsReplaced!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: record.partsReplaced!.map((part) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    part,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Colors.blue,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  Color _getMaintenanceTypeColor(MaintenanceType type) {
+    switch (type) {
+      case MaintenanceType.oilChange:
+        return Colors.amber;
+      case MaintenanceType.filterChange:
+        return Colors.blue;
+      case MaintenanceType.tireCheck:
+        return Colors.grey;
+      case MaintenanceType.batteryCheck:
+        return Colors.green;
+      case MaintenanceType.calibration:
+        return Colors.purple;
+      case MaintenanceType.generalService:
+        return SahoolColors.forestGreen;
+      case MaintenanceType.repair:
+        return SahoolColors.danger;
+      case MaintenanceType.other:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getMaintenanceTypeIcon(MaintenanceType type) {
+    switch (type) {
+      case MaintenanceType.oilChange:
+        return Icons.oil_barrel;
+      case MaintenanceType.filterChange:
+        return Icons.filter_alt;
+      case MaintenanceType.tireCheck:
+        return Icons.tire_repair;
+      case MaintenanceType.batteryCheck:
+        return Icons.battery_charging_full;
+      case MaintenanceType.calibration:
+        return Icons.tune;
+      case MaintenanceType.generalService:
+        return Icons.build;
+      case MaintenanceType.repair:
+        return Icons.handyman;
+      case MaintenanceType.other:
+        return Icons.more_horiz;
+    }
   }
 }

@@ -70,6 +70,75 @@ final equipmentByQrProvider = FutureProvider.autoDispose
   throw Exception(result.errorAr ?? result.error ?? 'المعدة غير موجودة');
 });
 
+/// مزود سجل الصيانة لمعدة محددة
+final maintenanceHistoryProvider = FutureProvider.autoDispose
+    .family<List<MaintenanceRecord>, String>((ref, equipmentId) async {
+  final repo = ref.watch(equipmentRepositoryProvider);
+  final result = await repo.getMaintenanceHistory(equipmentId);
+
+  if (result.isSuccess && result.data != null) {
+    return result.data!.map((json) => MaintenanceRecord.fromJson(json)).toList();
+  }
+  throw Exception(result.errorAr ?? result.error ?? 'فشل في جلب سجل الصيانة');
+});
+
+/// سجل الصيانة
+class MaintenanceRecord {
+  final String recordId;
+  final String equipmentId;
+  final MaintenanceType maintenanceType;
+  final String description;
+  final String? descriptionAr;
+  final String? performedBy;
+  final double? cost;
+  final String? notes;
+  final List<String>? partsReplaced;
+  final DateTime performedAt;
+  final DateTime createdAt;
+
+  const MaintenanceRecord({
+    required this.recordId,
+    required this.equipmentId,
+    required this.maintenanceType,
+    required this.description,
+    this.descriptionAr,
+    this.performedBy,
+    this.cost,
+    this.notes,
+    this.partsReplaced,
+    required this.performedAt,
+    required this.createdAt,
+  });
+
+  String getDescription(String locale) {
+    return locale == 'ar' && descriptionAr != null ? descriptionAr! : description;
+  }
+
+  factory MaintenanceRecord.fromJson(Map<String, dynamic> json) {
+    return MaintenanceRecord(
+      recordId: json['record_id'] as String? ?? json['id'] as String? ?? '',
+      equipmentId: json['equipment_id'] as String? ?? '',
+      maintenanceType: MaintenanceType.fromString(
+        json['maintenance_type'] as String? ?? 'other',
+      ),
+      description: json['description'] as String? ?? '',
+      descriptionAr: json['description_ar'] as String?,
+      performedBy: json['performed_by'] as String?,
+      cost: (json['cost'] as num?)?.toDouble(),
+      notes: json['notes'] as String?,
+      partsReplaced: json['parts_replaced'] != null
+          ? List<String>.from(json['parts_replaced'] as List)
+          : null,
+      performedAt: json['performed_at'] != null
+          ? DateTime.parse(json['performed_at'] as String)
+          : DateTime.now(),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+    );
+  }
+}
+
 /// حالة الفلتر المحددة
 final selectedEquipmentFilterProvider = StateProvider<EquipmentFilter?>((ref) => null);
 
@@ -200,6 +269,36 @@ class EquipmentController extends StateNotifier<AsyncValue<void>> {
 
     state = AsyncValue.error(
       result.errorAr ?? result.error ?? 'فشل في حذف المعدة',
+      StackTrace.current,
+    );
+    return false;
+  }
+
+  /// إنشاء معدة جديدة
+  Future<bool> createEquipment({
+    required String name,
+    String? nameAr,
+    required EquipmentType type,
+    String? serialNumber,
+  }) async {
+    state = const AsyncValue.loading();
+
+    final result = await _repo.createEquipment(
+      name: name,
+      nameAr: nameAr,
+      type: type,
+      serialNumber: serialNumber,
+    );
+
+    if (result.isSuccess) {
+      state = const AsyncValue.data(null);
+      _ref.invalidate(equipmentListProvider);
+      _ref.invalidate(equipmentStatsProvider);
+      return true;
+    }
+
+    state = AsyncValue.error(
+      result.errorAr ?? result.error ?? 'فشل في إنشاء المعدة',
       StackTrace.current,
     );
     return false;

@@ -51,10 +51,11 @@ const DEFAULT_CONFIG: Required<CsrfConfig> = {
   cookieName: "sahool_admin_csrf",
   headerName: "x-csrf-token",
   excludePaths: [
-    "/api/auth/login",
-    "/api/auth/logout",
-    "/api/health",
-    "/login",
+    "/api/auth/login", // Login needs to work without CSRF token initially
+    "/api/health", // Health checks are read-only
+    "/login", // Login page renders without CSRF
+    // Note: /api/auth/logout is NOT excluded - logout must be CSRF-protected
+    // to prevent malicious logout attacks (logout CSRF)
   ],
 };
 

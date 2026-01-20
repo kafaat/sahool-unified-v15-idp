@@ -14,7 +14,7 @@ import logging
 import os
 import uuid
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 import jwt
 from jwt import PyJWTError

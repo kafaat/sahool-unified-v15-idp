@@ -70,6 +70,20 @@ final equipmentByQrProvider = FutureProvider.autoDispose
   throw Exception(result.errorAr ?? result.error ?? 'المعدة غير موجودة');
 });
 
+/// مزود سجل صيانة المعدة
+final equipmentHistoryProvider = FutureProvider.autoDispose
+    .family<List<MaintenanceRecord>, String>((ref, equipmentId) async {
+  final repo = ref.watch(equipmentRepositoryProvider);
+  final result = await repo.getMaintenanceHistory(equipmentId);
+
+  if (result.isSuccess) {
+    return (result.data ?? [])
+        .map((record) => MaintenanceRecord.fromJson(record))
+        .toList();
+  }
+  throw Exception(result.errorAr ?? result.error ?? 'فشل في جلب سجل الصيانة');
+});
+
 /// حالة الفلتر المحددة
 final selectedEquipmentFilterProvider = StateProvider<EquipmentFilter?>((ref) => null);
 
@@ -200,6 +214,46 @@ class EquipmentController extends StateNotifier<AsyncValue<void>> {
 
     state = AsyncValue.error(
       result.errorAr ?? result.error ?? 'فشل في حذف المعدة',
+      StackTrace.current,
+    );
+    return false;
+  }
+
+  /// إنشاء معدة جديدة
+  Future<bool> createEquipment({
+    required String name,
+    String? nameAr,
+    required EquipmentType type,
+    String? serialNumber,
+    String? brand,
+    String? model,
+    int? year,
+    String? fieldId,
+    String? locationName,
+  }) async {
+    state = const AsyncValue.loading();
+
+    final result = await _repo.createEquipment(
+      name: name,
+      nameAr: nameAr,
+      type: type,
+      serialNumber: serialNumber,
+      brand: brand,
+      model: model,
+      year: year,
+      fieldId: fieldId,
+      locationName: locationName,
+    );
+
+    if (result.isSuccess) {
+      state = const AsyncValue.data(null);
+      _ref.invalidate(equipmentListProvider);
+      _ref.invalidate(equipmentStatsProvider);
+      return true;
+    }
+
+    state = AsyncValue.error(
+      result.errorAr ?? result.error ?? 'فشل في إنشاء المعدة',
       StackTrace.current,
     );
     return false;

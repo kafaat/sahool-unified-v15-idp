@@ -5,7 +5,7 @@ Event Publisher - SAHOOL NDVI Engine
 import json
 import os
 import uuid
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 
 from nats.aio.client import Client as NATS
 

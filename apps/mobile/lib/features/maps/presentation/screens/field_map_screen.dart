@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
+
+import '../../../../core/geo/geojson.dart';
 
 /// شاشة خريطة الحقل مع طبقات NDVI
 /// Field Map Screen with NDVI Layers
@@ -28,6 +33,60 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   bool _isTracking = false;
   String? _selectedZoneId;
   double _currentZoom = 15.0;
+
+  /// Map controller for programmatic camera control
+  late final MapController _mapController;
+
+  /// Field boundary coordinates (loaded from field data)
+  List<LatLng> _fieldBoundary = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _mapController = MapController();
+    _loadFieldBoundary();
+  }
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  /// Load field boundary from initial center data or fetch from repository
+  void _loadFieldBoundary() {
+    // Try to extract boundary from initialCenter if provided as GeoJSON
+    if (widget.initialCenter != null) {
+      final geometry = widget.initialCenter!['geometry'];
+      if (geometry != null && geometry['type'] == 'Polygon') {
+        try {
+          _fieldBoundary = GeoJson.parsePolygon(geometry as Map<String, dynamic>);
+        } catch (_) {
+          // Fallback: use center point to create a small bounding area
+          _createBoundaryFromCenter();
+        }
+      } else if (widget.initialCenter!['lat'] != null &&
+          widget.initialCenter!['lng'] != null) {
+        _createBoundaryFromCenter();
+      }
+    }
+  }
+
+  /// Create a small bounding area from center point (fallback)
+  void _createBoundaryFromCenter() {
+    final lat = (widget.initialCenter!['lat'] as num?)?.toDouble();
+    final lng = (widget.initialCenter!['lng'] as num?)?.toDouble();
+    if (lat != null && lng != null) {
+      // Create a small polygon around the center (approximately 100m x 100m)
+      const offset = 0.001; // ~100m at equator
+      _fieldBoundary = [
+        LatLng(lat - offset, lng - offset),
+        LatLng(lat - offset, lng + offset),
+        LatLng(lat + offset, lng + offset),
+        LatLng(lat + offset, lng - offset),
+      ];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -553,20 +612,86 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     );
   }
 
+  /// Center map on field bounds with padding and smooth animation
+  ///
+  /// Calculates the bounding box of the field geometry and uses
+  /// the map controller to fit the bounds with appropriate padding.
   void _centerOnField() {
-    // TODO: Center map on field bounds
+    // Check if we have field boundary data
+    if (_fieldBoundary.isEmpty) {
+      // Try to use initialCenter as fallback
+      if (widget.initialCenter != null) {
+        final lat = (widget.initialCenter!['lat'] as num?)?.toDouble();
+        final lng = (widget.initialCenter!['lng'] as num?)?.toDouble();
+        if (lat != null && lng != null) {
+          // Animate to center point with default zoom
+          _mapController.move(
+            LatLng(lat, lng),
+            16.0, // Default zoom for single point
+          );
+          setState(() => _currentZoom = 16.0);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('تم التوسيط على موقع الحقل'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          return;
+        }
+      }
+
+      // No boundary or center data available
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('لا تتوفر بيانات حدود الحقل'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Calculate the bounding box of the field geometry
+    final bounds = GeoJson.calculateBounds(_fieldBoundary);
+
+    // Add padding around the field (in screen pixels)
+    // This ensures the field boundary is not flush against the screen edges
+    const EdgeInsets padding = EdgeInsets.all(50.0);
+
+    // Use fitCamera to fit the bounds with padding and animation
+    // CameraFit.bounds calculates the optimal center and zoom level
+    _mapController.fitCamera(
+      CameraFit.bounds(
+        bounds: bounds,
+        padding: padding,
+        // Maximum zoom level to prevent over-zooming on small fields
+        maxZoom: 18.0,
+      ),
+    );
+
+    // Update the current zoom state to reflect the new camera position
+    // Note: The actual zoom is calculated by fitCamera based on bounds
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _currentZoom = _mapController.camera.zoom;
+        });
+      }
+    });
+
+    // Show feedback to user
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('توسيط على الحقل')),
+      const SnackBar(
+        content: Text('تم التوسيط على حدود الحقل'),
+        duration: Duration(seconds: 2),
+      ),
     );
   }
 
   void _openDiagnosis() {
-    // TODO: Navigate to diagnosis screen
-    Navigator.pushNamed(
-      context,
-      '/crop-health',
-      arguments: {'fieldId': widget.fieldId},
-    );
+    context.push('/crop-health', extra: {
+      'fieldId': widget.fieldId,
+      'fieldName': widget.fieldName,
+    });
   }
 }
 

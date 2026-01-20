@@ -151,6 +151,35 @@ export interface AuditLoggerConfig {
 
   // Custom hash function
   hashFunction?: (data: string) => string;
+
+  // Fallback configuration for audit failures
+  fallbackConfig?: AuditFallbackConfig;
+}
+
+/**
+ * Fallback configuration for handling audit storage failures
+ */
+export interface AuditFallbackConfig {
+  // Enable fallback logging when primary storage fails
+  enabled: boolean;
+
+  // File path for fallback audit log (local file storage)
+  fallbackFilePath?: string;
+
+  // Webhook URL for emergency notifications
+  emergencyWebhookUrl?: string;
+
+  // Maximum retry attempts for transient failures
+  maxRetries?: number;
+
+  // Retry delay in milliseconds (exponential backoff applied)
+  retryDelayMs?: number;
+
+  // Whether to emit metrics on audit failures
+  emitFailureMetrics?: boolean;
+
+  // Callback for custom failure handling
+  onFailure?: (event: AuditEvent, error: Error) => Promise<void>;
 }
 
 /**

@@ -3,7 +3,7 @@
  * Unified API client for admin dashboard with centralized token management
  */
 
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import { logger } from "./logger";
 import {
   API_BASE_URL,

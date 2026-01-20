@@ -11,7 +11,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/config/theme.dart';
+import '../../data/models/message_model.dart';
 import '../providers/chat_provider.dart';
 import '../../widgets/message_bubble.dart';
 import '../../widgets/chat_input.dart';
@@ -176,6 +178,38 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     ],
                   ),
                 ),
+              PopupMenuItem(
+                value: 'mute',
+                child: Row(
+                  children: [
+                    Icon(conversation.isMuted
+                        ? Icons.notifications_active
+                        : Icons.notifications_off),
+                    const SizedBox(width: 8),
+                    Text(conversation.isMuted ? 'إلغاء الكتم' : 'كتم المحادثة'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'clear_chat',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_sweep),
+                    SizedBox(width: 8),
+                    Text('مسح المحادثة'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'report',
+                child: Row(
+                  children: [
+                    Icon(Icons.flag, color: Colors.orange),
+                    SizedBox(width: 8),
+                    Text('إبلاغ', style: TextStyle(color: Colors.orange)),
+                  ],
+                ),
+              ),
               const PopupMenuItem(
                 value: 'block',
                 child: Row(
@@ -188,7 +222,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
             ],
             onSelected: (value) {
-              // TODO: Handle menu actions
               _handleMenuAction(value as String, conversation);
             },
           ),
@@ -295,6 +328,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     isTyping: isTyping,
                   );
             },
+            onFileSelected: (filePath, fileName, fileSize) {
+              ref.read(chatProvider.notifier).sendMessage(
+                    widget.conversationId,
+                    content: fileName,
+                    type: MessageType.file,
+                    attachmentUrl: filePath,
+                    metadata: {
+                      'fileName': fileName,
+                      'fileSize': fileSize,
+                      'filePath': filePath,
+                    },
+                  );
+
+              // Scroll to bottom
+              _scrollToBottom();
+            },
           ),
         ],
       ),
@@ -337,7 +386,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
           TextButton(
             onPressed: () {
-              // TODO: Navigate to product/order
+              // Navigate to product or order details based on conversation context
+              if (conversation.productId != null) {
+                context.push('/product/${conversation.productId}');
+              } else if (conversation.orderId != null) {
+                context.push('/order/${conversation.orderId}');
+              }
             },
             child: const Text('عرض'),
           ),
@@ -408,51 +462,136 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _handleMenuAction(String action, conversation) {
     switch (action) {
       case 'view_profile':
-        // TODO: Navigate to user profile
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('عرض الملف الشخصي - قيد التطوير')),
-        );
+        // Navigate to user profile
+        final currentUserId = ref.read(chatUserIdProvider);
+        final otherParticipant = conversation.getOtherParticipant(currentUserId);
+        if (otherParticipant != null) {
+          context.push(
+            '/user/${otherParticipant.userId}',
+            extra: {
+              'userId': otherParticipant.userId,
+              'name': otherParticipant.name,
+              'nameAr': otherParticipant.nameAr,
+              'avatarUrl': otherParticipant.avatarUrl,
+              'role': otherParticipant.role,
+            },
+          );
+        }
         break;
 
       case 'view_product':
-        // TODO: Navigate to product
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('عرض المنتج - قيد التطوير')),
-        );
+        if (conversation.productId != null) {
+          context.push('/product/${conversation.productId}');
+        }
         break;
 
       case 'view_order':
-        // TODO: Navigate to order
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('عرض الطلب - قيد التطوير')),
-        );
+        if (conversation.orderId != null) {
+          context.push('/order/${conversation.orderId}');
+        }
+        break;
+
+      case 'mute':
+        _handleMuteConversation(conversation);
+        break;
+
+      case 'clear_chat':
+        _showClearChatConfirmation(conversation);
+        break;
+
+      case 'report':
+        _showReportDialog(conversation);
         break;
 
       case 'block':
-        // TODO: Implement block user
-        _showBlockConfirmation();
+        _showBlockConfirmation(conversation);
         break;
     }
   }
 
-  void _showBlockConfirmation() {
+  void _showBlockConfirmation(conversation) {
+    final currentUserId = ref.read(chatUserIdProvider);
+    final otherParticipant = conversation.getOtherParticipant(currentUserId);
+
+    if (otherParticipant == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('لا يمكن حظر هذا المستخدم'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('حظر المستخدم'),
-        content: const Text('هل أنت متأكد أنك تريد حظر هذا المستخدم؟'),
+        content: Text(
+          'هل أنت متأكد أنك تريد حظر ${otherParticipant.displayName}؟\n\n'
+          'لن تتمكن من تلقي رسائل من هذا المستخدم بعد الآن.',
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('إلغاء'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // TODO: Implement block
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+
+              // Show loading indicator
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('تم حظر المستخدم')),
+                const SnackBar(
+                  content: Row(
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Text('جاري حظر المستخدم...'),
+                    ],
+                  ),
+                  duration: Duration(seconds: 30),
+                ),
               );
+
+              // Call block user API
+              final success = await ref.read(chatProvider.notifier).blockUser(
+                    otherParticipant.userId,
+                    conversation.id as String,
+                  );
+
+              if (!mounted) return;
+
+              // Hide loading snackbar
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+              if (success) {
+                // Show success message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('تم حظر ${otherParticipant.displayName}'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+
+                // Navigate back to conversations list
+                Navigator.pop(context);
+              } else {
+                // Show error message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('فشل في حظر المستخدم. يرجى المحاولة مرة أخرى.'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
@@ -460,6 +599,270 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             child: const Text('حظر'),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _handleMuteConversation(conversation) async {
+    final isMuted = conversation.isMuted as bool;
+    final newMuteState = !isMuted;
+
+    // Show loading indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Text(newMuteState ? 'جاري كتم المحادثة...' : 'جاري إلغاء كتم المحادثة...'),
+          ],
+        ),
+        duration: const Duration(seconds: 30),
+      ),
+    );
+
+    final success = await ref.read(chatProvider.notifier).muteConversation(
+          conversation.id as String,
+          mute: newMuteState,
+        );
+
+    if (!mounted) return;
+
+    // Hide loading snackbar
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(newMuteState ? 'تم كتم المحادثة' : 'تم إلغاء كتم المحادثة'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(newMuteState
+              ? 'فشل في كتم المحادثة. يرجى المحاولة مرة أخرى.'
+              : 'فشل في إلغاء كتم المحادثة. يرجى المحاولة مرة أخرى.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _showClearChatConfirmation(conversation) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('مسح المحادثة'),
+        content: const Text(
+          'هل أنت متأكد أنك تريد مسح جميع الرسائل في هذه المحادثة؟\n\n'
+          'لا يمكن التراجع عن هذا الإجراء.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+
+              // Show loading indicator
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Row(
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Text('جاري مسح المحادثة...'),
+                    ],
+                  ),
+                  duration: Duration(seconds: 30),
+                ),
+              );
+
+              final success = await ref
+                  .read(chatProvider.notifier)
+                  .clearChatHistory(conversation.id as String);
+
+              if (!mounted) return;
+
+              // Hide loading snackbar
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+              if (success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('تم مسح المحادثة بنجاح'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('فشل في مسح المحادثة. يرجى المحاولة مرة أخرى.'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('مسح'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showReportDialog(conversation) {
+    String? selectedReason;
+    final descriptionController = TextEditingController();
+
+    final reportReasons = [
+      {'value': 'spam', 'label': 'رسائل مزعجة (سبام)'},
+      {'value': 'harassment', 'label': 'مضايقة أو تحرش'},
+      {'value': 'fraud', 'label': 'احتيال أو نصب'},
+      {'value': 'inappropriate', 'label': 'محتوى غير لائق'},
+      {'value': 'fake_account', 'label': 'حساب مزيف'},
+      {'value': 'other', 'label': 'سبب آخر'},
+    ];
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('إبلاغ عن المحادثة'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'اختر سبب الإبلاغ:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                ...reportReasons.map((reason) => RadioListTile<String>(
+                      title: Text(reason['label']!),
+                      value: reason['value']!,
+                      groupValue: selectedReason,
+                      onChanged: (value) {
+                        setDialogState(() {
+                          selectedReason = value;
+                        });
+                      },
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                    )),
+                const SizedBox(height: 16),
+                const Text(
+                  'تفاصيل إضافية (اختياري):',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: descriptionController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    hintText: 'اكتب تفاصيل إضافية...',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                descriptionController.dispose();
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('إلغاء'),
+            ),
+            ElevatedButton(
+              onPressed: selectedReason == null
+                  ? null
+                  : () async {
+                      Navigator.pop(dialogContext);
+
+                      // Show loading indicator
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Row(
+                            children: [
+                              SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              Text('جاري إرسال البلاغ...'),
+                            ],
+                          ),
+                          duration: Duration(seconds: 30),
+                        ),
+                      );
+
+                      final success =
+                          await ref.read(chatProvider.notifier).reportConversation(
+                                conversation.id as String,
+                                reason: selectedReason!,
+                                description: descriptionController.text.isNotEmpty
+                                    ? descriptionController.text
+                                    : null,
+                              );
+
+                      descriptionController.dispose();
+
+                      if (!mounted) return;
+
+                      // Hide loading snackbar
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+                      if (success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('تم إرسال البلاغ بنجاح. شكرا لمساعدتك.'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content:
+                                Text('فشل في إرسال البلاغ. يرجى المحاولة مرة أخرى.'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+              ),
+              child: const Text('إرسال البلاغ'),
+            ),
+          ],
+        ),
       ),
     );
   }

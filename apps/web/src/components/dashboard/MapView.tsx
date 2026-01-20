@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import maplibregl, { type MapMouseEvent } from "maplibre-gl";
+import maplibregl, { type MapLayerMouseEvent } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { apiClient } from "@/lib/api";
 import type { Field } from "@/lib/api/types";
@@ -23,11 +23,11 @@ interface PopupData {
 }
 
 // Status colors for NDVI/health
-const STATUS_COLORS: Record<string, string> = {
+const STATUS_COLORS = {
   healthy: "#10b981",
   warning: "#f59e0b",
   critical: "#ef4444",
-};
+} as const;
 
 function getFieldStatus(
   ndviValue?: number,
@@ -259,7 +259,7 @@ const MapView = React.memo<MapViewProps>(function MapView({
     });
 
     // Click handler - using React createRoot for secure popup rendering
-    map.current.on("click", "fields-fill", (e: MapMouseEvent) => {
+    map.current.on("click", "fields-fill", (e: MapLayerMouseEvent) => {
       if (e.features && e.features[0]) {
         const feature = e.features[0];
         const props = feature.properties;

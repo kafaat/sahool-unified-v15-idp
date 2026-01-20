@@ -7,7 +7,7 @@ Port: 3000
 import os
 import sys
 from contextlib import asynccontextmanager, suppress
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 from uuid import uuid4
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Response

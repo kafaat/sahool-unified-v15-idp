@@ -119,15 +119,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // User type from API matches our User interface
         setUser(response.data);
       } else {
-        // SECURITY: Mock authentication bypass for E2E tests
-        // This MUST only be enabled in development environments
+        // SECURITY: Mock authentication bypass for E2E tests ONLY
+        // This MUST only be enabled in development with explicit E2E flag
         // WARNING: Allowing mock sessions in production is a critical security vulnerability
-        // that would allow anyone to bypass authentication by setting a cookie
-        if (process.env.NODE_ENV === "development") {
+        const isE2ETestMode =
+          process.env.NODE_ENV === "development" &&
+          (process.env.NEXT_PUBLIC_E2E_TEST === "true" ||
+           (typeof window !== "undefined" && window.location.hostname === "localhost"));
+
+        if (isE2ETestMode) {
           const mockSession = Cookies.get("user_session");
           if (mockSession) {
             try {
               const mockUser = JSON.parse(mockSession);
+              logger.warn("Using mock authentication - E2E test mode only");
               setUser({
                 id: mockUser.id || "test-user",
                 email: mockUser.email || "test@sahool.com",
@@ -147,15 +152,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await fetch("/api/auth/session", { method: "DELETE" });
       }
     } catch {
-      // SECURITY: Mock authentication bypass for E2E tests
-      // This MUST only be enabled in development environments
+      // SECURITY: Mock authentication bypass for E2E tests ONLY
+      // This MUST only be enabled in development with explicit E2E flag
       // WARNING: Allowing mock sessions in production is a critical security vulnerability
-      // that would allow anyone to bypass authentication by setting a cookie
-      if (process.env.NODE_ENV === "development") {
+      const isE2ETestMode =
+        process.env.NODE_ENV === "development" &&
+        (process.env.NEXT_PUBLIC_E2E_TEST === "true" ||
+         (typeof window !== "undefined" && window.location.hostname === "localhost"));
+
+      if (isE2ETestMode) {
         const mockSession = Cookies.get("user_session");
         if (mockSession) {
           try {
             const mockUser = JSON.parse(mockSession);
+            logger.warn("Using mock authentication - E2E test mode only");
             setUser({
               id: mockUser.id || "test-user",
               email: mockUser.email || "test@sahool.com",

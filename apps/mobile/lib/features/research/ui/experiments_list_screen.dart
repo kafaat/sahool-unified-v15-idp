@@ -96,7 +96,10 @@ class _ExperimentsListScreenState extends State<ExperimentsListScreen>
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              // TODO: Implement search
+              showSearch(
+                context: context,
+                delegate: _ExperimentSearchDelegate(experiments: _experiments),
+              );
             },
           ),
         ],
@@ -110,9 +113,7 @@ class _ExperimentsListScreenState extends State<ExperimentsListScreen>
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // TODO: Navigate to create experiment
-        },
+        onPressed: () => _navigateToCreateExperiment(),
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
@@ -159,6 +160,22 @@ class _ExperimentsListScreenState extends State<ExperimentsListScreen>
         builder: (context) => ExperimentDetailsScreen(experiment: experiment),
       ),
     );
+  }
+
+  Future<void> _navigateToCreateExperiment() async {
+    final result = await Navigator.push<Experiment>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const CreateExperimentScreen(),
+      ),
+    );
+
+    // Handle navigation result if experiment was created
+    if (result != null && mounted) {
+      setState(() {
+        _experiments.insert(0, result);
+      });
+    }
   }
 }
 
@@ -353,8 +370,18 @@ class ExperimentDetailsScreen extends StatelessWidget {
           if (experiment.status == ExperimentStatus.active)
             IconButton(
               icon: const Icon(Icons.edit),
-              onPressed: () {
-                // TODO: Edit experiment
+              onPressed: () async {
+                final result = await Navigator.push<Experiment>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditExperimentScreen(experiment: experiment),
+                  ),
+                );
+                // Handle result when returning - pop details screen if experiment was updated
+                // to refresh the list with updated data
+                if (result != null && context.mounted) {
+                  Navigator.pop(context, result);
+                }
               },
             ),
         ],
@@ -742,6 +769,311 @@ class PlotsMapScreen extends StatelessWidget {
       ),
       body: const Center(
         child: Text('خريطة القطع التجريبية - قيد التطوير'),
+      ),
+    );
+  }
+}
+
+/// مندوب البحث في التجارب
+/// Experiment Search Delegate
+class _ExperimentSearchDelegate extends SearchDelegate<Experiment?> {
+  final List<Experiment> experiments;
+
+  _ExperimentSearchDelegate({required this.experiments});
+
+  @override
+  String get searchFieldLabel => 'ابحث عن تجربة...';
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    final theme = Theme.of(context);
+    return theme.copyWith(
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        hintStyle: TextStyle(color: Colors.white70),
+        border: InputBorder.none,
+      ),
+    );
+  }
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      if (query.isNotEmpty)
+        IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () {
+            query = '';
+          },
+        ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return _buildSearchResults(context);
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return _buildSearchResults(context);
+  }
+
+  Widget _buildSearchResults(BuildContext context) {
+    final filteredExperiments = _filterExperiments(query);
+
+    if (query.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search, size: 64, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
+            Text(
+              'ابحث بالاسم أو الوصف أو نوع المحصول',
+              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (filteredExperiments.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off, size: 64, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
+            Text(
+              'لا توجد نتائج لـ "$query"',
+              style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'جرّب كلمات بحث مختلفة',
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: filteredExperiments.length,
+      itemBuilder: (context, index) {
+        final experiment = filteredExperiments[index];
+        return _SearchResultCard(
+          experiment: experiment,
+          query: query,
+          onTap: () {
+            close(context, experiment);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    ExperimentDetailsScreen(experiment: experiment),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  List<Experiment> _filterExperiments(String query) {
+    if (query.isEmpty) return [];
+
+    final lowerQuery = query.toLowerCase();
+    return experiments.where((experiment) {
+      // Search by Arabic title
+      if (experiment.title.toLowerCase().contains(lowerQuery)) return true;
+      // Search by English title
+      if (experiment.titleEn.toLowerCase().contains(lowerQuery)) return true;
+      // Search by principal researcher
+      if (experiment.principalResearcher.toLowerCase().contains(lowerQuery)) {
+        return true;
+      }
+      return false;
+    }).toList();
+  }
+}
+
+/// بطاقة نتيجة البحث
+class _SearchResultCard extends StatelessWidget {
+  final Experiment experiment;
+  final String query;
+  final VoidCallback onTap;
+
+  const _SearchResultCard({
+    required this.experiment,
+    required this.query,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(16),
+        leading: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: Colors.indigo.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(Icons.science, color: Colors.indigo),
+        ),
+        title: Text(
+          experiment.title,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(
+              experiment.titleEn,
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(Icons.person_outline, size: 14, color: Colors.grey.shade500),
+                const SizedBox(width: 4),
+                Text(
+                  experiment.principalResearcher,
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                ),
+              ],
+            ),
+          ],
+        ),
+        trailing: _StatusBadge(status: experiment.status),
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+/// شاشة إنشاء تجربة جديدة
+/// Create Experiment Screen
+class CreateExperimentScreen extends StatelessWidget {
+  const CreateExperimentScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('تجربة جديدة'),
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
+      ),
+      body: const Center(
+        child: Text('شاشة إنشاء تجربة جديدة - قيد التطوير'),
+      ),
+    );
+  }
+}
+
+/// شاشة تعديل التجربة
+/// Edit Experiment Screen
+class EditExperimentScreen extends StatelessWidget {
+  final Experiment experiment;
+
+  const EditExperimentScreen({super.key, required this.experiment});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('تعديل التجربة'),
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.check),
+            onPressed: () {
+              // Return the updated experiment when saving
+              // For now, return the original experiment as placeholder
+              Navigator.pop(context, experiment);
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title field
+            TextFormField(
+              initialValue: experiment.title,
+              decoration: const InputDecoration(
+                labelText: 'عنوان التجربة (عربي)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              initialValue: experiment.titleEn,
+              decoration: const InputDecoration(
+                labelText: 'Experiment Title (English)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              initialValue: experiment.principalResearcher,
+              decoration: const InputDecoration(
+                labelText: 'الباحث الرئيسي',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              initialValue: experiment.plotsCount.toString(),
+              decoration: const InputDecoration(
+                labelText: 'عدد القطع التجريبية',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  // Return the updated experiment
+                  Navigator.pop(context, experiment);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.indigo,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Text('حفظ التغييرات'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -14,6 +14,7 @@ Provides task management for agricultural operations:
 
 import logging
 import os
+import re
 import sys
 import uuid
 from datetime import datetime, timedelta
@@ -65,6 +66,15 @@ except ImportError:
         """Placeholder when auth not available"""
         return None
 
+# Security headers middleware
+try:
+    from shared.middleware.security_headers import setup_security_headers
+    SECURITY_HEADERS_AVAILABLE = True
+except ImportError:
+    SECURITY_HEADERS_AVAILABLE = False
+    def setup_security_headers(app):
+        pass
+
 
 # Configure logging
 logging.basicConfig(
@@ -72,6 +82,38 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+
+# Regex pattern for all ASCII control characters (0x00-0x1F and 0x7F)
+_CONTROL_CHAR_PATTERN = re.compile(r'[\x00-\x1f\x7f]')
+
+
+def _sanitize_for_log(value: str | None, max_length: int = 100) -> str:
+    """
+    Sanitize user input for safe logging to prevent log injection attacks.
+    تعقيم المدخلات لمنع هجمات حقن السجلات
+
+    This function removes ALL ASCII control characters (0x00-0x1F, 0x7F)
+    to prevent log injection attacks including newline injection.
+
+    Args:
+        value: The input value to sanitize
+        max_length: Maximum length of the output string
+
+    Returns:
+        A sanitized string safe for logging
+    """
+    if value is None:
+        return "<none>"
+    # Convert to string
+    raw = str(value)
+    # Remove ALL ASCII control characters using regex
+    sanitized = _CONTROL_CHAR_PATTERN.sub('', raw)
+    # Additional safety: keep only printable characters
+    sanitized = ''.join(c for c in sanitized if c.isprintable())
+    # Truncate to max length
+    return sanitized[:max_length] if len(sanitized) > max_length else sanitized
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Configuration
@@ -81,6 +123,9 @@ SERVICE_NAME = "sahool-task-service"
 SERVICE_PORT = int(os.getenv("PORT", "8103"))
 ASTRONOMICAL_SERVICE_URL = os.getenv(
     "ASTRONOMICAL_SERVICE_URL", "http://astronomical-calendar:8111"
+)
+FIELD_SERVICE_URL = os.getenv(
+    "FIELD_SERVICE_URL", "http://field-service:8115"
 )
 
 app = FastAPI(
@@ -116,6 +161,10 @@ except ImportError:
         allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
     )
+
+# Security headers - رؤوس الأمان
+if SECURITY_HEADERS_AVAILABLE:
+    setup_security_headers(app)
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Enums & Models
@@ -407,6 +456,10 @@ class DateValidationResponse(BaseModel):
 # ═══════════════════════════════════════════════════════════════════════════
 # PostgreSQL Database Storage - تخزين قاعدة بيانات PostgreSQL
 # ═══════════════════════════════════════════════════════════════════════════
+
+# NOTE: All endpoints now use TaskRepository for PostgreSQL storage.
+# In-memory storage has been fully migrated to persistent database storage.
+# Data survives service restarts and supports multi-instance deployments.
 
 # Astronomical data cache - التخزين المؤقت للبيانات الفلكية
 # Cache format: {(activity, days): (data, timestamp)}
@@ -755,6 +808,74 @@ async def send_task_notification(
     except Exception as e:
         logger.error(f"Error sending task notification: {e}", exc_info=True)
         return False
+
+
+async def fetch_field_manager(field_id: str, tenant_id: str) -> str | None:
+    """
+    Fetch field manager/owner from field service
+    جلب مدير/مالك الحقل من خدمة الحقول
+
+    Args:
+        field_id: Field ID to look up
+        tenant_id: Tenant ID for authentication
+
+    Returns:
+        str | None: User ID of the field manager, or None if not found
+    """
+    # Validate and sanitize field_id to prevent SSRF
+    if not field_id or not re.match(r'^[a-zA-Z0-9_-]+$', field_id):
+        logger.warning("Invalid field_id format detected")
+        return None
+
+    # Create validated copy for URL (SSRF prevention)
+    validated_field_id = field_id[:100]
+    # Create sanitized version for logging (log injection prevention)
+    log_field_id = _sanitize_for_log(field_id)
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(
+                f"{FIELD_SERVICE_URL}/fields/{validated_field_id}",
+                headers={
+                    "X-Tenant-Id": tenant_id,
+                    "Content-Type": "application/json",
+                },
+            )
+
+            if response.status_code == 200:
+                field_data = response.json()
+                # The field service returns user_id as the field owner/manager
+                manager_id = field_data.get("user_id")
+                if manager_id:
+                    log_manager_id = _sanitize_for_log(manager_id)
+                    logger.info(
+                        "Fetched field manager for field %s: %s", log_field_id, log_manager_id
+                    )
+                    return manager_id
+                else:
+                    logger.warning(
+                        "Field %s has no user_id/manager assigned", log_field_id
+                    )
+                    return None
+            elif response.status_code == 404:
+                logger.warning("Field %s not found in field service", log_field_id)
+                return None
+            else:
+                logger.error(
+                    "Field service returned status %d for field %s",
+                    response.status_code, log_field_id
+                )
+                return None
+
+    except httpx.TimeoutException:
+        logger.error("Timeout fetching field manager for field %s", log_field_id)
+        return None
+    except httpx.RequestError as e:
+        logger.error("Error connecting to field service: %s", type(e).__name__)
+        return None
+    except Exception as e:
+        logger.error("Unexpected error fetching field manager", exc_info=True)
+        return None
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1106,20 +1227,23 @@ async def list_tasks(
 @app.get("/api/v1/tasks/today", response_model=dict)
 async def get_today_tasks(
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """Get tasks due today"""
     today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
     today_end = today_start + timedelta(days=1)
 
-    today_tasks = [
-        t
-        for t in tasks_db.values()
-        if t.tenant_id == tenant_id and t.due_date and today_start <= t.due_date < today_end
-    ]
+    repo = TaskRepository(db)
+    tasks, _ = repo.list_tasks(
+        tenant_id=tenant_id,
+        due_after=today_start,
+        due_before=today_end,
+        limit=100,
+    )
 
     return {
-        "tasks": [t.model_dump() for t in today_tasks],
-        "count": len(today_tasks),
+        "tasks": [db_task_to_dict(t) for t in tasks],
+        "count": len(tasks),
     }
 
 
@@ -1127,23 +1251,30 @@ async def get_today_tasks(
 async def get_upcoming_tasks(
     days: int = Query(7, ge=1, le=30),
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """Get upcoming tasks for the next N days"""
     now = datetime.utcnow()
     future = now + timedelta(days=days)
     tomorrow = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
 
+    repo = TaskRepository(db)
+    # Get pending and in_progress tasks for the upcoming period
+    tasks, _ = repo.list_tasks(
+        tenant_id=tenant_id,
+        due_after=tomorrow,
+        due_before=future,
+        limit=100,
+    )
+
+    # Filter out completed and cancelled tasks
     upcoming = [
-        t
-        for t in tasks_db.values()
-        if t.tenant_id == tenant_id
-        and t.due_date
-        and tomorrow <= t.due_date <= future
-        and t.status not in [TaskStatus.COMPLETED, TaskStatus.CANCELLED]
+        t for t in tasks
+        if t.status not in ["completed", "cancelled"]
     ]
 
     return {
-        "tasks": [t.model_dump() for t in upcoming],
+        "tasks": [db_task_to_dict(t) for t in upcoming],
         "count": len(upcoming),
         "days": days,
     }
@@ -1152,54 +1283,25 @@ async def get_upcoming_tasks(
 @app.get("/api/v1/tasks/stats", response_model=dict)
 async def get_task_stats(
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """Get task statistics"""
-    tenant_tasks = [t for t in tasks_db.values() if t.tenant_id == tenant_id]
-
-    now = datetime.utcnow()
-    week_start = now - timedelta(days=now.weekday())
-    week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
-    week_end = week_start + timedelta(days=7)
-
-    week_tasks = [t for t in tenant_tasks if t.due_date and week_start <= t.due_date < week_end]
-
-    completed_this_week = len([t for t in week_tasks if t.status == TaskStatus.COMPLETED])
-    total_this_week = len(week_tasks)
-
-    return {
-        "total": len(tenant_tasks),
-        "pending": len([t for t in tenant_tasks if t.status == TaskStatus.PENDING]),
-        "in_progress": len([t for t in tenant_tasks if t.status == TaskStatus.IN_PROGRESS]),
-        "completed": len([t for t in tenant_tasks if t.status == TaskStatus.COMPLETED]),
-        "overdue": len(
-            [
-                t
-                for t in tenant_tasks
-                if t.status not in [TaskStatus.COMPLETED, TaskStatus.CANCELLED]
-                and t.due_date
-                and t.due_date < now
-            ]
-        ),
-        "week_progress": {
-            "completed": completed_this_week,
-            "total": total_this_week,
-            "percentage": (
-                round(completed_this_week / total_this_week * 100) if total_this_week > 0 else 0
-            ),
-        },
-    }
+    repo = TaskRepository(db)
+    return repo.get_task_stats(tenant_id)
 
 
 @app.get("/api/v1/tasks/{task_id}", response_model=Task)
 async def get_task(
     task_id: str,
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """Get a specific task by ID"""
-    task = tasks_db.get(task_id)
-    if not task or task.tenant_id != tenant_id:
+    repo = TaskRepository(db)
+    task = repo.get_task_by_id(task_id, tenant_id)
+    if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-    return task
+    return db_task_to_dict(task)
 
 
 @app.post("/api/v1/tasks", response_model=Task, status_code=201)
@@ -1207,46 +1309,69 @@ async def create_task(
     data: TaskCreate,
     user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """Create a new task"""
     now = datetime.utcnow()
     task_id = f"task_{uuid.uuid4().hex[:12]}"
+    created_by = user.id if user else "user_system"
 
-    task = Task(
+    # Create SQLAlchemy Task model for database
+    db_task = TaskModel(
         task_id=task_id,
         tenant_id=tenant_id,
         title=data.title,
         title_ar=data.title_ar,
         description=data.description,
         description_ar=data.description_ar,
-        task_type=data.task_type,
-        priority=data.priority,
-        status=TaskStatus.PENDING,
+        task_type=data.task_type.value if isinstance(data.task_type, TaskType) else data.task_type,
+        priority=data.priority.value if isinstance(data.priority, TaskPriority) else data.priority,
+        status="pending",
         field_id=data.field_id,
         zone_id=data.zone_id,
         assigned_to=data.assigned_to,
-        created_by="user_system",  # Would come from auth in production
+        created_by=created_by,
         due_date=data.due_date,
         scheduled_time=data.scheduled_time,
         estimated_duration_minutes=data.estimated_duration_minutes,
-        created_at=now,
-        updated_at=now,
-        metadata=data.metadata,
+        task_metadata=data.metadata,
+        # Astronomical fields
+        astronomical_score=data.astronomical_score,
+        moon_phase_at_due_date=data.moon_phase_at_due_date,
+        lunar_mansion_at_due_date=data.lunar_mansion_at_due_date,
+        optimal_time_of_day=data.optimal_time_of_day,
+        suggested_by_calendar=data.suggested_by_calendar or False,
+        astronomical_recommendation=data.astronomical_recommendation,
     )
 
     # Fetch and populate astronomical data if due_date is provided
     if data.due_date:
-        task = await validate_and_enrich_task_with_astronomy(task, data.task_type)
-    else:
-        # Set astronomical fields from request if provided
-        task.astronomical_score = data.astronomical_score
-        task.moon_phase_at_due_date = data.moon_phase_at_due_date
-        task.lunar_mansion_at_due_date = data.lunar_mansion_at_due_date
-        task.optimal_time_of_day = data.optimal_time_of_day
-        task.suggested_by_calendar = data.suggested_by_calendar
-        task.astronomical_recommendation = data.astronomical_recommendation
+        # Create a temporary Pydantic task to use the astronomical function
+        temp_task = Task(
+            task_id=task_id,
+            tenant_id=tenant_id,
+            title=data.title,
+            task_type=data.task_type,
+            priority=data.priority,
+            status=TaskStatus.PENDING,
+            due_date=data.due_date,
+            created_by=created_by,
+            created_at=now,
+            updated_at=now,
+        )
+        enriched_task = await validate_and_enrich_task_with_astronomy(temp_task, data.task_type)
+        # Copy astronomical fields back to db_task
+        db_task.astronomical_score = enriched_task.astronomical_score
+        db_task.moon_phase_at_due_date = enriched_task.moon_phase_at_due_date
+        db_task.lunar_mansion_at_due_date = enriched_task.lunar_mansion_at_due_date
+        db_task.optimal_time_of_day = enriched_task.optimal_time_of_day
+        db_task.suggested_by_calendar = enriched_task.suggested_by_calendar
+        db_task.astronomical_recommendation = enriched_task.astronomical_recommendation
+        db_task.astronomical_warnings = enriched_task.astronomical_warnings
 
-    tasks_db[task_id] = task
+    # Save to database using repository
+    repo = TaskRepository(db)
+    created_task = repo.create_task(db_task)
 
     # Publish task created event
     if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
@@ -1256,16 +1381,16 @@ async def create_task(
             await publish_task_created(
                 task_id=task_id,
                 tenant_id=tenant_id,
-                task_type=task.task_type.value,
-                priority=task.priority.value,
-                field_id=task.field_id,
-                assigned_to=task.assigned_to,
-                due_date=task.due_date.isoformat() if task.due_date else None,
+                task_type=created_task.task_type,
+                priority=created_task.priority,
+                field_id=created_task.field_id,
+                assigned_to=created_task.assigned_to,
+                due_date=created_task.due_date.isoformat() if created_task.due_date else None,
             )
         except Exception as e:
             logger.warning(f"Failed to publish task_created event: {e}")
 
-    return task
+    return db_task_to_dict(created_task)
 
 
 @app.put("/api/v1/tasks/{task_id}", response_model=Task)
@@ -1273,22 +1398,28 @@ async def update_task(
     task_id: str,
     data: TaskUpdate,
     tenant_id: str = Depends(get_tenant_id),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    db: Session = Depends(get_db),
 ):
     """Update a task"""
-    task = tasks_db.get(task_id)
-    if not task or task.tenant_id != tenant_id:
-        raise HTTPException(status_code=404, detail="Task not found")
+    repo = TaskRepository(db)
+    performed_by = user.id if user else "system"
 
+    # Prepare update data, converting enums to strings
     update_data = data.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(task, field, value)
+    if "task_type" in update_data and isinstance(update_data["task_type"], TaskType):
+        update_data["task_type"] = update_data["task_type"].value
+    if "priority" in update_data and isinstance(update_data["priority"], TaskPriority):
+        update_data["priority"] = update_data["priority"].value
+    if "status" in update_data and isinstance(update_data["status"], TaskStatus):
+        update_data["status"] = update_data["status"].value
+    # Map 'metadata' to 'task_metadata' for database
+    if "metadata" in update_data:
+        update_data["task_metadata"] = update_data.pop("metadata")
 
-    # Refresh astronomical data if due_date was changed
-    if "due_date" in update_data and update_data["due_date"]:
-        task = await validate_and_enrich_task_with_astronomy(task, task.task_type)
-
-    task.updated_at = datetime.utcnow()
-    tasks_db[task_id] = task
+    task = repo.update_task(task_id, tenant_id, update_data, performed_by)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
 
     # Publish task updated event
     if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
@@ -1303,7 +1434,7 @@ async def update_task(
         except Exception as e:
             logger.warning(f"Failed to publish task_updated event: {e}")
 
-    return task
+    return db_task_to_dict(task)
 
 
 @app.post("/api/v1/tasks/{task_id}/complete", response_model=Task)
@@ -1311,38 +1442,38 @@ async def complete_task(
     task_id: str,
     data: TaskComplete,
     tenant_id: str = Depends(get_tenant_id),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    db: Session = Depends(get_db),
 ):
     """Mark a task as completed with evidence"""
-    task = tasks_db.get(task_id)
-    if not task or task.tenant_id != tenant_id:
+    repo = TaskRepository(db)
+    performed_by = user.id if user else "system"
+    now = datetime.utcnow()
+
+    # Complete the task
+    task = repo.complete_task(
+        task_id=task_id,
+        tenant_id=tenant_id,
+        performed_by=performed_by,
+        notes=data.notes or data.notes_ar,
+        actual_duration_minutes=data.actual_duration_minutes,
+        completion_metadata=data.completion_metadata,
+    )
+    if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    now = datetime.utcnow()
-    task.status = TaskStatus.COMPLETED
-    task.completed_at = now
-    task.updated_at = now
-    task.completion_notes = data.notes or data.notes_ar
-
-    if data.actual_duration_minutes:
-        task.actual_duration_minutes = data.actual_duration_minutes
-
-    # Add photo evidence
+    # Add photo evidence if provided
     if data.photo_urls:
+        from .models import TaskEvidence
         for url in data.photo_urls:
-            evidence = Evidence(
+            evidence = TaskEvidence(
                 evidence_id=f"ev_{uuid.uuid4().hex[:8]}",
                 task_id=task_id,
                 type="photo",
                 content=url,
                 captured_at=now,
             )
-            task.evidence.append(evidence)
-            evidence_db[evidence.evidence_id] = evidence
-
-    if data.completion_metadata:
-        task.task_metadata = {**(task.task_metadata or {}), **data.completion_metadata}
-
-    tasks_db[task_id] = task
+            repo.add_evidence(evidence)
 
     # Publish task completed event
     if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
@@ -1358,40 +1489,41 @@ async def complete_task(
         except Exception as e:
             logger.warning(f"Failed to publish task_completed event: {e}")
 
-    return task
+    return db_task_to_dict(task)
 
 
 @app.post("/api/v1/tasks/{task_id}/start", response_model=Task)
 async def start_task(
     task_id: str,
     tenant_id: str = Depends(get_tenant_id),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    db: Session = Depends(get_db),
 ):
     """Mark a task as in progress"""
-    task = tasks_db.get(task_id)
-    if not task or task.tenant_id != tenant_id:
-        raise HTTPException(status_code=404, detail="Task not found")
+    repo = TaskRepository(db)
+    performed_by = user.id if user else "system"
 
-    if task.status != TaskStatus.PENDING:
-        raise HTTPException(status_code=400, detail="Task is not pending")
+    try:
+        task = repo.start_task(task_id, tenant_id, performed_by)
+        if not task:
+            raise HTTPException(status_code=404, detail="Task not found")
 
-    task.status = TaskStatus.IN_PROGRESS
-    task.updated_at = datetime.utcnow()
-    tasks_db[task_id] = task
+        # Publish task started event
+        if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+            try:
+                from events import publish_task_started
 
-    # Publish task started event
-    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
-        try:
-            from events import publish_task_started
+                await publish_task_started(
+                    task_id=task_id,
+                    tenant_id=tenant_id,
+                    started_by=task.assigned_to or "system",
+                )
+            except Exception as e:
+                logger.warning(f"Failed to publish task_started event: {e}")
 
-            await publish_task_started(
-                task_id=task_id,
-                tenant_id=tenant_id,
-                started_by=task.assigned_to or "system",
-            )
-        except Exception as e:
-            logger.warning(f"Failed to publish task_started event: {e}")
-
-    return task
+        return db_task_to_dict(task)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @app.post("/api/v1/tasks/{task_id}/cancel", response_model=Task)
@@ -1399,18 +1531,16 @@ async def cancel_task(
     task_id: str,
     reason: str | None = None,
     tenant_id: str = Depends(get_tenant_id),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    db: Session = Depends(get_db),
 ):
     """Cancel a task"""
-    task = tasks_db.get(task_id)
-    if not task or task.tenant_id != tenant_id:
+    repo = TaskRepository(db)
+    performed_by = user.id if user else "system"
+
+    task = repo.cancel_task(task_id, tenant_id, performed_by, reason)
+    if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-
-    task.status = TaskStatus.CANCELLED
-    task.updated_at = datetime.utcnow()
-    if reason:
-        task.task_metadata = {**(task.task_metadata or {}), "cancel_reason": reason}
-
-    tasks_db[task_id] = task
 
     # Publish task cancelled event
     if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
@@ -1426,20 +1556,20 @@ async def cancel_task(
         except Exception as e:
             logger.warning(f"Failed to publish task_cancelled event: {e}")
 
-    return task
+    return db_task_to_dict(task)
 
 
 @app.delete("/api/v1/tasks/{task_id}", status_code=204)
 async def delete_task(
     task_id: str,
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """Delete a task"""
-    task = tasks_db.get(task_id)
-    if not task or task.tenant_id != tenant_id:
+    repo = TaskRepository(db)
+    success = repo.delete_task(task_id, tenant_id)
+    if not success:
         raise HTTPException(status_code=404, detail="Task not found")
-
-    del tasks_db[task_id]
 
 
 @app.post("/api/v1/tasks/{task_id}/evidence", response_model=Evidence, status_code=201)
@@ -1450,13 +1580,19 @@ async def add_evidence(
     lat: float | None = None,
     lon: float | None = None,
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """Add evidence to a task"""
-    task = tasks_db.get(task_id)
-    if not task or task.tenant_id != tenant_id:
+    repo = TaskRepository(db)
+
+    # Check if task exists
+    task = repo.get_task_by_id(task_id, tenant_id)
+    if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    evidence = Evidence(
+    # Create and save evidence
+    from .models import TaskEvidence
+    db_evidence = TaskEvidence(
         evidence_id=f"ev_{uuid.uuid4().hex[:8]}",
         task_id=task_id,
         type=evidence_type,
@@ -1465,12 +1601,17 @@ async def add_evidence(
         location={"lat": lat, "lon": lon} if lat and lon else None,
     )
 
-    task.evidence.append(evidence)
-    task.updated_at = datetime.utcnow()
-    tasks_db[task_id] = task
-    evidence_db[evidence.evidence_id] = evidence
+    saved_evidence = repo.add_evidence(db_evidence)
 
-    return evidence
+    # Convert to Pydantic response model
+    return Evidence(
+        evidence_id=saved_evidence.evidence_id,
+        task_id=saved_evidence.task_id,
+        type=saved_evidence.type,
+        content=saved_evidence.content,
+        captured_at=saved_evidence.captured_at,
+        location=saved_evidence.location,
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1485,6 +1626,7 @@ async def add_evidence(
 async def create_task_from_ndvi_alert(
     data: NdviAlertTaskRequest,
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """
     Create task from NDVI alert
@@ -1540,10 +1682,17 @@ async def create_task_from_ndvi_alert(
         # Determine assignee
         assigned_to = data.assigned_to
         if data.auto_assign and not assigned_to:
-            # TODO: Fetch field manager from field service
-            # For now, use a placeholder
-            assigned_to = "field_manager"
-            logger.info(f"Auto-assigned task to {assigned_to}")
+            # Fetch field manager from field service
+            safe_field_id = str(data.field_id).replace('\n', '').replace('\r', '')[:100]
+            field_manager = await fetch_field_manager(data.field_id, tenant_id)
+            if field_manager:
+                assigned_to = field_manager
+                logger.info("Auto-assigned NDVI task to field manager: %s", assigned_to)
+            else:
+                logger.warning(
+                    "Could not fetch field manager for field %s, task will be created without assignment",
+                    safe_field_id
+                )
 
         # Build metadata
         metadata = {
@@ -1554,35 +1703,50 @@ async def create_task_from_ndvi_alert(
             **(data.alert_metadata or {}),
         }
 
-        # Create task
+        # Create task using repository
         task_id = f"task_{uuid.uuid4().hex[:12]}"
-        task = Task(
+        db_task = TaskModel(
             task_id=task_id,
             tenant_id=tenant_id,
             title=title,
             title_ar=title_ar,
             description=description,
             description_ar=description_ar,
-            task_type=task_type,
-            priority=priority,
-            status=TaskStatus.PENDING,
+            task_type=task_type.value if isinstance(task_type, TaskType) else task_type,
+            priority=priority.value if isinstance(priority, TaskPriority) else priority,
+            status="pending",
             field_id=data.field_id,
             zone_id=data.zone_id,
             assigned_to=assigned_to,
             created_by="system_ndvi",
             due_date=due_date,
-            created_at=now,
-            updated_at=now,
-            metadata=metadata,
+            task_metadata=metadata,
         )
 
-        tasks_db[task_id] = task
+        repo = TaskRepository(db)
+        created_task = repo.create_task(db_task)
 
         # Send notification if task is assigned
         if assigned_to:
+            # Convert db task to pydantic for notification
+            pydantic_task = Task(
+                task_id=created_task.task_id,
+                tenant_id=created_task.tenant_id,
+                title=created_task.title,
+                title_ar=created_task.title_ar,
+                task_type=TaskType(created_task.task_type),
+                priority=TaskPriority(created_task.priority),
+                status=TaskStatus(created_task.status),
+                field_id=created_task.field_id,
+                assigned_to=created_task.assigned_to,
+                created_by=created_task.created_by,
+                due_date=created_task.due_date,
+                created_at=created_task.created_at,
+                updated_at=created_task.updated_at,
+            )
             await send_task_notification(
                 tenant_id=tenant_id,
-                task=task,
+                task=pydantic_task,
                 notification_type="ndvi_alert_task",
             )
 
@@ -1591,7 +1755,7 @@ async def create_task_from_ndvi_alert(
             f"(priority={priority.value}, assigned_to={assigned_to})"
         )
 
-        return task
+        return db_task_to_dict(created_task)
 
     except Exception as e:
         logger.error(f"Error creating task from NDVI alert: {e}", exc_info=True)
@@ -1615,7 +1779,9 @@ async def get_task_suggestions_for_field(
     - Suggests preventive and corrective actions
     - Returns prioritized list with confidence scores
     """
-    logger.info(f"Generating task suggestions for field: {field_id}")
+    # Sanitize field_id for logging to prevent log injection
+    safe_field_id = str(field_id).replace('\n', '').replace('\r', '')[:100]
+    logger.info("Generating task suggestions for field: %s", safe_field_id)
 
     try:
         # Import NDVI client for field health analysis
@@ -1629,8 +1795,8 @@ async def get_task_suggestions_for_field(
         health_data = await ndvi_client.get_field_health(field_id)
 
         logger.info(
-            f"Field {field_id} health: score={health_data.health_score}, "
-            f"status={health_data.health_status.value}"
+            "Field %s health: score=%s, status=%s",
+            safe_field_id, health_data.health_score, health_data.health_status.value
         )
 
         # Generate task suggestions based on actual field health data
@@ -1681,7 +1847,7 @@ async def get_task_suggestions_for_field(
                 )
             )
 
-        logger.info(f"Generated {len(suggestions)} task suggestions for field {field_id}")
+        logger.info("Generated %d task suggestions for field %s", len(suggestions), safe_field_id)
 
         return {
             "field_id": field_id,
@@ -1697,9 +1863,9 @@ async def get_task_suggestions_for_field(
         }
 
     except Exception as e:
-        logger.error(f"Error generating task suggestions: {e}", exc_info=True)
+        logger.error("Error generating task suggestions", exc_info=True)
         raise HTTPException(
-            status_code=500, detail=f"Failed to generate task suggestions: {str(e)}"
+            status_code=500, detail="Failed to generate task suggestions"
         )
 
 
@@ -1742,6 +1908,7 @@ async def get_field_health(
 async def auto_create_tasks(
     data: TaskAutoCreateRequest,
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """
     Batch create tasks from recommendations
@@ -1764,9 +1931,20 @@ async def auto_create_tasks(
         # Determine assignee
         assigned_to = data.assigned_to
         if data.auto_assign and not assigned_to:
-            # TODO: Fetch field manager from field service
-            assigned_to = "field_manager"
-            logger.info(f"Auto-assigned tasks to {assigned_to}")
+            # Fetch field manager from field service
+            safe_field_id = str(data.field_id).replace('\n', '').replace('\r', '')[:100]
+            field_manager = await fetch_field_manager(data.field_id, tenant_id)
+            if field_manager:
+                assigned_to = field_manager
+                logger.info("Auto-assigned batch tasks to field manager: %s", assigned_to)
+            else:
+                logger.warning(
+                    "Could not fetch field manager for field %s, tasks will be created without assignment",
+                    safe_field_id
+                )
+
+        # Create repository instance
+        repo = TaskRepository(db)
 
         # Create tasks from suggestions
         for idx, suggestion in enumerate(data.suggestions):
@@ -1774,25 +1952,23 @@ async def auto_create_tasks(
                 # Calculate due date
                 due_date = now + timedelta(days=suggestion.suggested_due_days)
 
-                # Create task
+                # Create task using repository
                 task_id = f"task_{uuid.uuid4().hex[:12]}"
-                task = Task(
+                db_task = TaskModel(
                     task_id=task_id,
                     tenant_id=tenant_id,
                     title=suggestion.title,
                     title_ar=suggestion.title_ar,
                     description=suggestion.description,
                     description_ar=suggestion.description_ar,
-                    task_type=suggestion.task_type,
-                    priority=suggestion.priority,
-                    status=TaskStatus.PENDING,
+                    task_type=suggestion.task_type.value if isinstance(suggestion.task_type, TaskType) else suggestion.task_type,
+                    priority=suggestion.priority.value if isinstance(suggestion.priority, TaskPriority) else suggestion.priority,
+                    status="pending",
                     field_id=data.field_id,
                     assigned_to=assigned_to,
                     created_by="system_auto",
                     due_date=due_date,
-                    created_at=now,
-                    updated_at=now,
-                    metadata={
+                    task_metadata={
                         "source": "auto_create",
                         "confidence": suggestion.confidence,
                         "reason": suggestion.reason,
@@ -1801,8 +1977,8 @@ async def auto_create_tasks(
                     },
                 )
 
-                tasks_db[task_id] = task
-                created_tasks.append(task)
+                created_task = repo.create_task(db_task)
+                created_tasks.append(db_task_to_dict(created_task))
 
                 logger.info(
                     f"Auto-created task {idx + 1}/{len(data.suggestions)}: "
@@ -1945,6 +2121,7 @@ async def get_best_days_for_activity(
 async def create_task_with_astronomical_recommendation(
     data: AstronomicalTaskCreate,
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """
     Create task with astronomical recommendation
@@ -2005,17 +2182,17 @@ async def create_task_with_astronomical_recommendation(
     # Merge metadata
     metadata = {**(data.metadata if hasattr(data, "metadata") else {}), **astronomical_metadata}
 
-    # Create the task
-    task = Task(
+    # Create the task using repository
+    db_task = TaskModel(
         task_id=task_id,
         tenant_id=tenant_id,
         title=data.title,
         title_ar=data.title_ar or f"{activity_ar} - {data.field_id}",
         description=data.description,
         description_ar=data.description_ar,
-        task_type=data.task_type,
-        priority=data.priority,
-        status=TaskStatus.PENDING,
+        task_type=data.task_type.value if isinstance(data.task_type, TaskType) else data.task_type,
+        priority=data.priority.value if isinstance(data.priority, TaskPriority) else data.priority,
+        status="pending",
         field_id=data.field_id,
         zone_id=data.zone_id,
         assigned_to=data.assigned_to,
@@ -2023,18 +2200,23 @@ async def create_task_with_astronomical_recommendation(
         due_date=due_date,
         scheduled_time=astronomical_metadata.get("best_time"),
         estimated_duration_minutes=data.estimated_duration_minutes,
-        created_at=now,
-        updated_at=now,
-        metadata=metadata,
+        task_metadata=metadata,
+        # Astronomical fields
+        astronomical_score=astronomical_metadata.get("suitability_score"),
+        moon_phase_at_due_date=astronomical_metadata.get("moon_phase"),
+        lunar_mansion_at_due_date=astronomical_metadata.get("lunar_mansion"),
+        suggested_by_calendar=astronomical_metadata.get("astronomical_recommendation", False),
+        astronomical_recommendation=astronomical_metadata,
     )
 
-    tasks_db[task_id] = task
+    repo = TaskRepository(db)
+    created_task = repo.create_task(db_task)
 
     logger.info(
         f"Created astronomical task {task_id} with due date {due_date.isoformat() if due_date else 'None'}"
     )
 
-    return task
+    return db_task_to_dict(created_task)
 
 
 @app.post(

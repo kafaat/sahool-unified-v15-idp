@@ -5,7 +5,7 @@ SQLAlchemy models for the transactional outbox pattern
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import timezone, datetime, UTC
 from uuid import UUID, uuid4
 
 from sqlalchemy import Boolean, DateTime, Index, Integer, String, Text

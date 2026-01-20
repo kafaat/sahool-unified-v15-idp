@@ -8,6 +8,7 @@ import '../../../core/theme/organic_widgets.dart';
 import '../../../core/widgets/barcode_scanner_widget.dart';
 import '../data/equipment_models.dart';
 import '../providers/equipment_providers.dart';
+import 'equipment_location_map_screen.dart';
 
 /// شاشة إدارة المعدات والأصول الزراعية
 /// مستوحاة من تصميم John Deere Operations Center
@@ -220,8 +221,14 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
           );
         }
 
-        return Column(
-          children: equipmentList.map((equipment) {
+        // Use ListView.builder for efficient lazy rendering
+        // Only builds visible items, better for large equipment lists
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: equipmentList.length,
+          itemBuilder: (context, index) {
+            final equipment = equipmentList[index];
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: _EquipmentItem(
@@ -229,7 +236,7 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
                 onTap: () => _showEquipmentDetails(context, equipment),
               ),
             );
-          }).toList(),
+          },
         );
       },
       loading: () => const Center(
@@ -512,7 +519,19 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      // TODO: Navigate to map
+                      if (equipment.currentLat != null && equipment.currentLon != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EquipmentLocationMapScreen(
+                              equipmentName: equipment.getDisplayName('ar'),
+                              latitude: equipment.currentLat!,
+                              longitude: equipment.currentLon!,
+                              locationName: equipment.locationName,
+                            ),
+                          ),
+                        );
+                      }
                     },
                     child: const Text("عرض على الخريطة"),
                   ),
@@ -558,7 +577,15 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    // TODO: Show history
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => _EquipmentHistorySheet(
+                        equipmentId: equipment.equipmentId,
+                        equipmentName: equipment.getDisplayName('ar'),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.history),
                   label: const Text("السجل"),
@@ -745,10 +772,34 @@ class _AddEquipmentSheetState extends ConsumerState<_AddEquipmentSheet> {
                   return;
                 }
 
-                // TODO: Call repository to create equipment
-                Navigator.pop(context);
-                ref.invalidate(equipmentListProvider);
-                ref.invalidate(equipmentStatsProvider);
+                // Call repository to create equipment
+                final controller = ref.read(equipmentControllerProvider.notifier);
+                final success = await controller.createEquipment(
+                  name: _nameController.text.trim(),
+                  type: _selectedType,
+                  serialNumber: _serialController.text.isNotEmpty
+                      ? _serialController.text.trim()
+                      : null,
+                );
+
+                if (context.mounted) {
+                  if (success) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('تم إضافة المعدة بنجاح'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('فشل في إضافة المعدة'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -1479,6 +1530,383 @@ class _AddMaintenanceRecordSheetState
           ),
         ],
       ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Equipment History Bottom Sheet
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _EquipmentHistorySheet extends ConsumerWidget {
+  final String equipmentId;
+  final String equipmentName;
+
+  const _EquipmentHistorySheet({
+    required this.equipmentId,
+    required this.equipmentName,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final historyAsync = ref.watch(equipmentHistoryProvider(equipmentId));
+
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.75,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          // Handle
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+
+          // Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: SahoolColors.forestGreen.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.history,
+                    color: SahoolColors.forestGreen,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "سجل الصيانة",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      Text(
+                        equipmentName,
+                        style: const TextStyle(color: Colors.grey, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+          ),
+
+          const Divider(height: 32),
+
+          // History List
+          Expanded(
+            child: historyAsync.when(
+              data: (records) {
+                if (records.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.history,
+                          size: 64,
+                          color: Colors.grey[300],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'لا يوجد سجل صيانة',
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'ستظهر هنا سجلات الصيانة عند إضافتها',
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  itemCount: records.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final record = records[index];
+                    return _MaintenanceRecordTile(record: record);
+                  },
+                );
+              },
+              loading: () => const Center(
+                child: CircularProgressIndicator(
+                  color: SahoolColors.forestGreen,
+                ),
+              ),
+              error: (error, _) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: SahoolColors.danger,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      error.toString(),
+                      style: TextStyle(color: SahoolColors.danger),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: () => ref.invalidate(equipmentHistoryProvider),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('إعادة المحاولة'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: SahoolColors.forestGreen,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MaintenanceRecordTile extends StatelessWidget {
+  final MaintenanceRecord record;
+
+  const _MaintenanceRecordTile({required this.record});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Icon with type color
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: _getTypeColor(record.maintenanceType).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              _getTypeIcon(record.maintenanceType),
+              color: _getTypeColor(record.maintenanceType),
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 16),
+
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Type and date row
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        record.maintenanceType.nameAr,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      _formatDate(record.performedAt),
+                      style: TextStyle(
+                        color: Colors.grey[500],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+
+                // Description
+                Text(
+                  record.getDescription('ar'),
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: 14,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 8),
+
+                // Meta info row
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
+                  children: [
+                    // Technician
+                    if (record.performedBy != null)
+                      _MetaChip(
+                        icon: Icons.person,
+                        label: record.performedBy!,
+                      ),
+
+                    // Cost
+                    if (record.cost != null)
+                      _MetaChip(
+                        icon: Icons.attach_money,
+                        label: '${record.cost!.toStringAsFixed(0)} ريال',
+                      ),
+
+                    // Parts replaced
+                    if (record.partsReplaced != null && record.partsReplaced!.isNotEmpty)
+                      _MetaChip(
+                        icon: Icons.build,
+                        label: '${record.partsReplaced!.length} قطع',
+                      ),
+                  ],
+                ),
+
+                // Notes
+                if (record.notes != null && record.notes!.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.note,
+                          size: 14,
+                          color: Colors.grey[500],
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            record.notes!,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  Color _getTypeColor(MaintenanceType type) {
+    switch (type) {
+      case MaintenanceType.oilChange:
+        return Colors.amber;
+      case MaintenanceType.filterChange:
+        return Colors.blue;
+      case MaintenanceType.tireCheck:
+        return Colors.grey;
+      case MaintenanceType.batteryCheck:
+        return Colors.green;
+      case MaintenanceType.calibration:
+        return Colors.purple;
+      case MaintenanceType.generalService:
+        return SahoolColors.forestGreen;
+      case MaintenanceType.repair:
+        return SahoolColors.danger;
+      case MaintenanceType.other:
+        return Colors.teal;
+    }
+  }
+
+  IconData _getTypeIcon(MaintenanceType type) {
+    switch (type) {
+      case MaintenanceType.oilChange:
+        return Icons.oil_barrel;
+      case MaintenanceType.filterChange:
+        return Icons.filter_alt;
+      case MaintenanceType.tireCheck:
+        return Icons.tire_repair;
+      case MaintenanceType.batteryCheck:
+        return Icons.battery_charging_full;
+      case MaintenanceType.calibration:
+        return Icons.tune;
+      case MaintenanceType.generalService:
+        return Icons.build;
+      case MaintenanceType.repair:
+        return Icons.handyman;
+      case MaintenanceType.other:
+        return Icons.settings;
+    }
+  }
+}
+
+class _MetaChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _MetaChip({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: Colors.grey[500]),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 12,
+          ),
+        ),
+      ],
     );
   }
 }

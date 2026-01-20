@@ -5,12 +5,13 @@
 /// - List of conversations
 /// - Pull to refresh
 /// - Unread badge in app bar
-/// - Search conversations (future)
+/// - Search conversations by contact name or last message
 /// - Empty state
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/theme.dart';
+import '../../data/models/conversation_model.dart';
 import '../providers/chat_provider.dart';
 import '../../widgets/conversation_tile.dart';
 import 'chat_screen.dart';
@@ -23,6 +24,10 @@ class ConversationsScreen extends ConsumerStatefulWidget {
 }
 
 class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  bool _isSearching = false;
+
   @override
   void initState() {
     super.initState();
@@ -30,6 +35,57 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
     Future.microtask(() {
       ref.read(chatProvider.notifier).loadConversations();
     });
+    // Listen to search input changes
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _searchQuery = _searchController.text.toLowerCase().trim();
+    });
+  }
+
+  /// Filter conversations based on search query
+  List<Conversation> _filterConversations(
+    List<Conversation> conversations,
+    String currentUserId,
+  ) {
+    if (_searchQuery.isEmpty) {
+      return conversations;
+    }
+
+    return conversations.where((conversation) {
+      // Search by contact name
+      final displayName = conversation.getDisplayName(currentUserId).toLowerCase();
+      if (displayName.contains(_searchQuery)) {
+        return true;
+      }
+
+      // Search by participant names (including Arabic names)
+      for (final participant in conversation.participants) {
+        if (participant.name.toLowerCase().contains(_searchQuery)) {
+          return true;
+        }
+        if (participant.nameAr?.toLowerCase().contains(_searchQuery) ?? false) {
+          return true;
+        }
+      }
+
+      // Search by last message content
+      final lastMessagePreview = conversation.lastMessagePreview.toLowerCase();
+      if (lastMessagePreview.contains(_searchQuery)) {
+        return true;
+      }
+
+      return false;
+    }).toList();
   }
 
   @override
@@ -40,11 +96,36 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('المحادثات'),
-        centerTitle: true,
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'بحث باسم المستخدم أو الرسالة...',
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(color: Colors.white70),
+                ),
+                style: const TextStyle(color: Colors.white),
+                cursorColor: Colors.white,
+              )
+            : const Text('المحادثات'),
+        centerTitle: !_isSearching,
+        leading: _isSearching
+            ? IconButton(
+                onPressed: () {
+                  setState(() {
+                    _isSearching = false;
+                    _searchController.clear();
+                    _searchQuery = '';
+                  });
+                },
+                icon: const Icon(Icons.arrow_back),
+                tooltip: 'إلغاء البحث',
+              )
+            : null,
         actions: [
-          // Unread badge
-          if (unreadCount > 0)
+          // Unread badge (hide when searching)
+          if (unreadCount > 0 && !_isSearching)
             Padding(
               padding: const EdgeInsets.only(left: 16),
               child: Center(
@@ -69,35 +150,42 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
               ),
             ),
 
-          // Search button (future feature)
-          IconButton(
-            onPressed: () {
-              // TODO: Implement search
-              _showSearchDialog(context);
-            },
-            icon: const Icon(Icons.search),
-            tooltip: 'بحث',
-          ),
+          // Search button / Clear button
+          if (_isSearching)
+            IconButton(
+              onPressed: () {
+                _searchController.clear();
+              },
+              icon: const Icon(Icons.close),
+              tooltip: 'مسح',
+            )
+          else
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _isSearching = true;
+                });
+              },
+              icon: const Icon(Icons.search),
+              tooltip: 'بحث',
+            ),
         ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
           await ref.read(chatProvider.notifier).refreshConversations();
         },
-        child: _buildBody(state, currentUserId),
+        child: _buildBody(state, currentUserId, _filterConversations(state.conversations, currentUserId)),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Implement new conversation
-          _showNewConversationDialog(context);
-        },
-        child: const Icon(Icons.message),
+        onPressed: () => _showNewConversationDialog(context),
         tooltip: 'محادثة جديدة',
+        child: const Icon(Icons.message),
       ),
     );
   }
 
-  Widget _buildBody(ChatState state, String currentUserId) {
+  Widget _buildBody(ChatState state, String currentUserId, List<Conversation> filteredConversations) {
     if (state.isLoading && state.conversations.isEmpty) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -140,10 +228,15 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
       return _buildEmptyState();
     }
 
+    // Handle empty search results
+    if (_isSearching && filteredConversations.isEmpty) {
+      return _buildEmptySearchResults();
+    }
+
     return ListView.builder(
-      itemCount: state.conversations.length,
+      itemCount: filteredConversations.length,
       itemBuilder: (context, index) {
-        final conversation = state.conversations[index];
+        final conversation = filteredConversations[index];
         return ConversationTile(
           conversation: conversation,
           currentUserId: currentUserId,
@@ -159,6 +252,46 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
           },
         );
       },
+    );
+  }
+
+  Widget _buildEmptySearchResults() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.search_off,
+            size: 80,
+            color: Colors.grey[300],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'لا توجد نتائج',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'لم يتم العثور على محادثات تطابق "$_searchQuery"',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () {
+              _searchController.clear();
+            },
+            child: const Text('مسح البحث'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -203,98 +336,162 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
     );
   }
 
-  void _showSearchDialog(BuildContext context) {
+  void _showNewConversationDialog(BuildContext context) {
+    final userIdController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool isLoading = false;
+    String? errorText;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('بحث في المحادثات'),
-        content: const TextField(
-          decoration: InputDecoration(
-            hintText: 'اكتب اسم المستخدم...',
-            prefixIcon: Icon(Icons.search),
+      barrierDismissible: false,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('محادثة جديدة'),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'أدخل معرف المستخدم الذي تريد التواصل معه',
+                  style: TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: userIdController,
+                  enabled: !isLoading,
+                  decoration: InputDecoration(
+                    hintText: 'معرف المستخدم',
+                    prefixIcon: const Icon(Icons.person),
+                    errorText: errorText,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'يرجى إدخال معرف المستخدم';
+                    }
+                    return null;
+                  },
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: isLoading ? null : (_) => _startConversation(
+                    dialogContext,
+                    userIdController,
+                    formKey,
+                    setDialogState,
+                    () => isLoading,
+                    (value) => isLoading = value,
+                    (value) => errorText = value,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'أو ابحث عن المستخدم من قائمة البائعين في السوق',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                if (isLoading) ...[
+                  const SizedBox(height: 16),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      SizedBox(width: 12),
+                      Text('جاري إنشاء المحادثة...'),
+                    ],
+                  ),
+                ],
+              ],
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: isLoading ? null : () => Navigator.pop(dialogContext),
+              child: const Text('إلغاء'),
+            ),
+            ElevatedButton(
+              onPressed: isLoading
+                  ? null
+                  : () => _startConversation(
+                        dialogContext,
+                        userIdController,
+                        formKey,
+                        setDialogState,
+                        () => isLoading,
+                        (value) => isLoading = value,
+                        (value) => errorText = value,
+                      ),
+              child: const Text('بدء المحادثة'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // TODO: Implement search
-              Navigator.pop(context);
-            },
-            child: const Text('بحث'),
-          ),
-        ],
       ),
     );
   }
 
-  void _showNewConversationDialog(BuildContext context) {
-    final userIdController = TextEditingController();
+  Future<void> _startConversation(
+    BuildContext dialogContext,
+    TextEditingController userIdController,
+    GlobalKey<FormState> formKey,
+    void Function(void Function()) setDialogState,
+    bool Function() getIsLoading,
+    void Function(bool) setIsLoading,
+    void Function(String?) setErrorText,
+  ) async {
+    // Validate form
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('محادثة جديدة'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'أدخل معرف المستخدم الذي تريد التواصل معه',
-              style: TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: userIdController,
-              decoration: const InputDecoration(
-                hintText: 'معرف المستخدم',
-                prefixIcon: Icon(Icons.person),
+    final userId = userIdController.text.trim();
+
+    // Set loading state
+    setDialogState(() {
+      setIsLoading(true);
+      setErrorText(null);
+    });
+
+    try {
+      // Create conversation
+      final conversation = await ref
+          .read(chatProvider.notifier)
+          .createConversation(participantId: userId);
+
+      if (!dialogContext.mounted) return;
+
+      if (conversation != null) {
+        // Close dialog and navigate to chat
+        Navigator.pop(dialogContext);
+
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                conversationId: conversation.id,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'أو ابحث عن المستخدم من قائمة البائعين في السوق',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final userId = userIdController.text.trim();
-              if (userId.isEmpty) return;
-
-              Navigator.pop(context);
-
-              // Create conversation
-              final conversation = await ref
-                  .read(chatProvider.notifier)
-                  .createConversation(participantId: userId);
-
-              if (conversation != null && context.mounted) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatScreen(
-                      conversationId: conversation.id,
-                    ),
-                  ),
-                );
-              }
-            },
-            child: const Text('بدء المحادثة'),
-          ),
-        ],
-      ),
-    );
+          );
+        }
+      } else {
+        // Show error from provider state
+        final error = ref.read(chatProvider).error;
+        setDialogState(() {
+          setIsLoading(false);
+          setErrorText(error ?? 'فشل في إنشاء المحادثة');
+        });
+      }
+    } catch (e) {
+      if (!dialogContext.mounted) return;
+      setDialogState(() {
+        setIsLoading(false);
+        setErrorText('حدث خطأ غير متوقع');
+      });
+    }
   }
 }

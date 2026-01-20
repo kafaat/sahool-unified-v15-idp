@@ -129,11 +129,22 @@ async def lifespan(app: FastAPI):
     # Initialize agent
     app.state.agent = CodeFixAgent(agent_id=f"{SERVICE_NAME}_001")
 
-    # TODO: Initialize NATS connection
+    # Initialize NATS connection
     nats_url = os.getenv("NATS_URL")
     if nats_url:
-        logger.info("nats_configured", url=nats_url)
-        # app.state.nc = await nats.connect(nats_url)
+        try:
+            import nats
+
+            app.state.nc = await nats.connect(nats_url)
+            app.state.nats_connected = True
+            logger.info("nats_connected", url=nats_url)
+        except Exception as e:
+            logger.warning("nats_connection_failed", error=str(e), url=nats_url)
+            app.state.nc = None
+            app.state.nats_connected = False
+    else:
+        app.state.nc = None
+        app.state.nats_connected = False
 
     logger.info("service_ready", service=SERVICE_NAME)
 

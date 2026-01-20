@@ -28,7 +28,8 @@ import {
   Loader2,
   RefreshCw,
 } from "lucide-react";
-import { useField, useDeleteField } from "@/features/fields/hooks/useFields";
+import { useField, useDeleteField, useUpdateField } from "@/features/fields/hooks/useFields";
+import { useToast } from "@/components/ui/toast";
 import { FieldForm } from "@/features/fields/components/FieldForm";
 import { Modal } from "@/components/ui/modal";
 import type { FieldFormData } from "@/features/fields/types";
@@ -44,6 +45,8 @@ export default function FieldDetailsClient({
   const router = useRouter();
   const { data: field, isLoading, error, refetch } = useField(fieldId);
   const deleteField = useDeleteField();
+  const updateField = useUpdateField();
+  const { showToast } = useToast();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -56,10 +59,23 @@ export default function FieldDetailsClient({
     }
   };
 
-  const handleEditSubmit = async (_data: FieldFormData) => {
-    // TODO: Implement update when backend is ready
-    logger.log("Update field data:", _data);
-    setShowEditModal(false);
+  const handleEditSubmit = async (data: FieldFormData) => {
+    try {
+      await updateField.mutateAsync({ id: fieldId, data });
+      setShowEditModal(false);
+      showToast({
+        type: "success",
+        message: "Field updated successfully",
+        messageAr: "تم تحديث الحقل بنجاح",
+      });
+    } catch (err) {
+      logger.error("Failed to update field:", err);
+      showToast({
+        type: "error",
+        message: "Failed to update field",
+        messageAr: "فشل تحديث الحقل",
+      });
+    }
   };
 
   if (isLoading) {
@@ -526,6 +542,7 @@ export default function FieldDetailsClient({
           field={field}
           onSubmit={handleEditSubmit}
           onCancel={() => setShowEditModal(false)}
+          isSubmitting={updateField.isPending}
         />
       </Modal>
 

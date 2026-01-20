@@ -3,7 +3,7 @@
 // Activity Feed Component
 // تدفق النشاطات
 
-import { useState } from "react";
+import { useState, useMemo, useCallback, memo } from "react";
 import {
   Activity,
   Bug,
@@ -52,7 +52,7 @@ interface ActivityFeedProps {
   className?: string;
 }
 
-export default function ActivityFeed({
+function ActivityFeed({
   activities,
   maxItems = 20,
   showFilters = true,
@@ -62,62 +62,68 @@ export default function ActivityFeed({
   const [filter, setFilter] = useState<
     "all" | "diagnosis" | "irrigation" | "task" | "alert"
   >("all");
-  const [filteredActivities, setFilteredActivities] = useState<ActivityItem[]>(
-    activities.slice(0, maxItems),
-  );
+  const [visibleItems, setVisibleItems] = useState(maxItems);
 
-  const handleFilterChange = (newFilter: typeof filter) => {
-    setFilter(newFilter);
+  // Memoized filtered activities to prevent recalculation on every render
+  const filteredActivities = useMemo(() => {
     let filtered = activities;
-
-    if (newFilter !== "all") {
-      filtered = activities.filter((a) => a.type === newFilter);
+    if (filter !== "all") {
+      filtered = activities.filter((a) => a.type === filter);
     }
+    return filtered.slice(0, visibleItems);
+  }, [activities, filter, visibleItems]);
 
-    setFilteredActivities(filtered.slice(0, maxItems));
-  };
+  const handleFilterChange = useCallback((newFilter: typeof filter) => {
+    setFilter(newFilter);
+  }, []);
 
-  const getActivityIcon = (type: string) => {
-    const icons: Record<string, typeof Activity> = {
-      diagnosis: Bug,
-      irrigation: Droplets,
-      task: FileText,
-      alert: AlertTriangle,
-      farm: MapPin,
-      prescription: Sprout,
-      sensor: Activity,
-      general: Activity,
-    };
-    return icons[type] || Activity;
-  };
+  // Memoized icon map - defined once, not recreated on each call
+  const activityIcons = useMemo<Record<string, typeof Activity>>(() => ({
+    diagnosis: Bug,
+    irrigation: Droplets,
+    task: FileText,
+    alert: AlertTriangle,
+    farm: MapPin,
+    prescription: Sprout,
+    sensor: Activity,
+    general: Activity,
+  }), []);
 
-  const getActivityColor = (type: string) => {
-    const colors: Record<string, string> = {
-      diagnosis: "bg-purple-100 text-purple-600",
-      irrigation: "bg-blue-100 text-blue-600",
-      task: "bg-yellow-100 text-yellow-600",
-      alert: "bg-red-100 text-red-600",
-      farm: "bg-green-100 text-green-600",
-      prescription: "bg-emerald-100 text-emerald-600",
-      sensor: "bg-cyan-100 text-cyan-600",
-      general: "bg-gray-100 text-gray-600",
-    };
-    return colors[type] || "bg-gray-100 text-gray-600";
-  };
+  // Memoized color map
+  const activityColors = useMemo<Record<string, string>>(() => ({
+    diagnosis: "bg-purple-100 text-purple-600",
+    irrigation: "bg-blue-100 text-blue-600",
+    task: "bg-yellow-100 text-yellow-600",
+    alert: "bg-red-100 text-red-600",
+    farm: "bg-green-100 text-green-600",
+    prescription: "bg-emerald-100 text-emerald-600",
+    sensor: "bg-cyan-100 text-cyan-600",
+    general: "bg-gray-100 text-gray-600",
+  }), []);
 
-  const getActivityTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      diagnosis: "تشخيص",
-      irrigation: "ري",
-      task: "مهمة",
-      alert: "تنبيه",
-      farm: "مزرعة",
-      prescription: "وصفة",
-      sensor: "مستشعر",
-      general: "عام",
-    };
-    return labels[type] || type;
-  };
+  // Memoized label map
+  const activityLabels = useMemo<Record<string, string>>(() => ({
+    diagnosis: "تشخيص",
+    irrigation: "ري",
+    task: "مهمة",
+    alert: "تنبيه",
+    farm: "مزرعة",
+    prescription: "وصفة",
+    sensor: "مستشعر",
+    general: "عام",
+  }), []);
+
+  const getActivityIcon = useCallback((type: string) => {
+    return activityIcons[type] || Activity;
+  }, [activityIcons]);
+
+  const getActivityColor = useCallback((type: string) => {
+    return activityColors[type] || "bg-gray-100 text-gray-600";
+  }, [activityColors]);
+
+  const getActivityTypeLabel = useCallback((type: string) => {
+    return activityLabels[type] || type;
+  }, [activityLabels]);
 
   return (
     <div
@@ -139,6 +145,7 @@ export default function ActivityFeed({
                   handleFilterChange(e.target.value as typeof filter)
                 }
                 className="px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                aria-label="تصفية النشاطات حسب النوع"
               >
                 <option value="all">الكل</option>
                 <option value="diagnosis">تشخيصات</option>
@@ -232,9 +239,7 @@ export default function ActivityFeed({
         filteredActivities.length < activities.length && (
           <div className="p-3 border-t border-gray-100 text-center">
             <button
-              onClick={() =>
-                setFilteredActivities(activities.slice(0, maxItems + 10))
-              }
+              onClick={() => setVisibleItems((prev) => prev + 10)}
               className="text-sm text-sahool-600 hover:text-sahool-700 font-medium"
             >
               تحميل المزيد ←
@@ -244,3 +249,6 @@ export default function ActivityFeed({
     </div>
   );
 }
+
+// Memoized export to prevent unnecessary re-renders
+export default memo(ActivityFeed);

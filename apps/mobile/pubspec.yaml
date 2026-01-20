@@ -159,7 +159,7 @@ flutter:
   generate: true
 
   assets:
-    - .env
+    - .env.example
     - assets/images/
     - assets/icons/
     - assets/icon/

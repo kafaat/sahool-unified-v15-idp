@@ -14,7 +14,6 @@ import asyncio
 import os
 import re
 import shutil
-import subprocess
 import tempfile
 import uuid
 from datetime import datetime
@@ -23,10 +22,8 @@ from typing import Any
 
 from .models import (
     CodeFix,
-    CodeLocation,
     Diagnostic,
     DiagnosticCategory,
-    DiagnosticSeverity,
     FixConfidence,
     FixResult,
     FixStrategy,
@@ -249,7 +246,7 @@ class CodeFixer:
             finally:
                 os.unlink(tmp_path)
 
-        except (OSError, asyncio.TimeoutError):
+        except (TimeoutError, OSError):
             pass
 
         return None
@@ -513,7 +510,7 @@ class CodeFixer:
 
             return proc.returncode == 0 and not stderr
 
-        except (asyncio.TimeoutError, OSError):
+        except (TimeoutError, OSError):
             return False
 
     async def batch_apply_fixes(

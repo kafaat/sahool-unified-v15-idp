@@ -17,16 +17,14 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-import asyncio
 import json
 import os
 import uuid
 from datetime import datetime
-from pathlib import Path
 from typing import Any, Callable
 
 from .diagnostics import CodeDiagnostics, DiagnosticError
-from .fixers import CodeFixer, FixerError
+from .fixers import CodeFixer
 from .models import (
     AuditEntry,
     CodeFix,
@@ -495,8 +493,8 @@ class AutoFixEngine:
             "",
             "## Summary | ملخص",
             "",
-            f"| Metric | Value |",
-            f"|--------|-------|",
+            "| Metric | Value |",
+            "|--------|-------|",
             f"| Target | `{report.target}` |",
             f"| Total Issues Found | {len(report.diagnostics)} |",
             f"| Errors | {report.total_errors} |",

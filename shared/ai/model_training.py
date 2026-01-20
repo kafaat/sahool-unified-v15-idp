@@ -120,7 +120,7 @@ class TrainingDataset:
     def load(cls, path: str, dataset_id: str = None) -> "TrainingDataset":
         """Load dataset from JSONL file."""
         examples = []
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     data = json.loads(line)
@@ -464,7 +464,7 @@ Provide expert advice:"""
 
         for report_file in reports_path.glob("*.json"):
             try:
-                with open(report_file, "r", encoding="utf-8") as f:
+                with open(report_file, encoding="utf-8") as f:
                     report = json.load(f)
 
                 for diagnostic in report.get("diagnostics", []):

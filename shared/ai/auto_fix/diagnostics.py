@@ -20,12 +20,9 @@ Updated: January 2026
 import asyncio
 import json
 import os
-import re
-import subprocess
 import time
 import uuid
 from pathlib import Path
-from typing import Any
 
 from .models import (
     CodeLocation,
@@ -195,7 +192,7 @@ class CodeDiagnostics:
             )
             await asyncio.wait_for(proc.wait(), timeout=5)
             self._tool_available[tool] = proc.returncode == 0
-        except (asyncio.TimeoutError, FileNotFoundError, OSError):
+        except (TimeoutError, FileNotFoundError, OSError):
             self._tool_available[tool] = False
 
         return self._tool_available[tool] or False
@@ -400,7 +397,7 @@ class CodeDiagnostics:
 
             return diagnostics
 
-        except (asyncio.TimeoutError, json.JSONDecodeError, OSError) as e:
+        except (TimeoutError, json.JSONDecodeError, OSError) as e:
             raise DiagnosticError(f"Ruff execution failed: {e}") from e
 
     async def _run_eslint(self, file_path: str) -> list[Diagnostic]:
@@ -454,7 +451,7 @@ class CodeDiagnostics:
 
             return diagnostics
 
-        except (asyncio.TimeoutError, json.JSONDecodeError, OSError) as e:
+        except (TimeoutError, json.JSONDecodeError, OSError) as e:
             raise DiagnosticError(f"ESLint execution failed: {e}") from e
 
     async def _run_mypy(self, file_path: str) -> list[Diagnostic]:
@@ -507,7 +504,7 @@ class CodeDiagnostics:
 
             return diagnostics
 
-        except (asyncio.TimeoutError, OSError) as e:
+        except (TimeoutError, OSError) as e:
             raise DiagnosticError(f"Mypy execution failed: {e}") from e
 
     async def _run_bandit(self, file_path: str) -> list[Diagnostic]:
@@ -558,7 +555,7 @@ class CodeDiagnostics:
 
             return diagnostics
 
-        except (asyncio.TimeoutError, json.JSONDecodeError, OSError) as e:
+        except (TimeoutError, json.JSONDecodeError, OSError) as e:
             raise DiagnosticError(f"Bandit execution failed: {e}") from e
 
     async def _run_dart_analyze(self, file_path: str) -> list[Diagnostic]:
@@ -611,7 +608,7 @@ class CodeDiagnostics:
 
             return diagnostics
 
-        except (asyncio.TimeoutError, json.JSONDecodeError, OSError) as e:
+        except (TimeoutError, json.JSONDecodeError, OSError) as e:
             raise DiagnosticError(f"Dart analyze execution failed: {e}") from e
 
     def format_report_markdown(
@@ -640,8 +637,8 @@ class CodeDiagnostics:
             "",
             "## Summary | ملخص",
             "",
-            f"| Severity | Count |",
-            f"|----------|-------|",
+            "| Severity | Count |",
+            "|----------|-------|",
             f"| 🔴 Errors | {report.total_errors} |",
             f"| 🟠 Warnings | {report.total_warnings} |",
             f"| 🔵 Info | {report.total_info} |",

@@ -12,7 +12,7 @@ License: MIT
 import json
 import logging
 import os
-from datetime import timezone, datetime, UTC
+from datetime import datetime, timezone, UTC
 from enum import Enum
 from typing import Any
 from uuid import uuid4

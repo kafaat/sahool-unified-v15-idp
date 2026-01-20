@@ -774,6 +774,9 @@ Consider local climate, soil conditions, and available resources."""
                             correct += 1
 
                 except Exception:
+                    # Individual evaluation failures (network, model errors) should not
+                    # stop the entire evaluation loop. Failed examples are counted as
+                    # incorrect, which is reflected in the accuracy metrics.
                     pass
 
         accuracy = correct / eval_count if eval_count > 0 else 0

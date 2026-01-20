@@ -316,7 +316,6 @@ class CodeDiagnostics:
                     break
 
                 # Check exclusions
-                rel_path = str(file_path.relative_to(dir_path))
                 excluded = any(
                     file_path.match(excl) for excl in exclude_patterns
                 )

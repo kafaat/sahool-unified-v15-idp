@@ -247,6 +247,9 @@ class CodeFixer:
                 os.unlink(tmp_path)
 
         except (TimeoutError, OSError):
+            # Ruff fix generation is best-effort; failures are expected for some
+            # diagnostics (e.g., complex multi-line issues) and are handled by
+            # falling back to pattern-based or AI-suggested fixes in generate_fix()
             pass
 
         return None
@@ -490,6 +493,9 @@ class CodeFixer:
                 os.unlink(result.backup_path)
                 return True
         except OSError:
+            # Rollback failure is non-critical; the backup file may have been
+            # already cleaned up or the file system state changed. We return
+            # False to indicate rollback was not successful.
             pass
 
         return False

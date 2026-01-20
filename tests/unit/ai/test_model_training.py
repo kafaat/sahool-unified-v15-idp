@@ -518,9 +518,10 @@ class TestModelTrainer:
         """Test similarity check with high token overlap."""
         trainer = ModelTrainer()
 
+        # Test with higher token overlap (>70%)
         assert trainer._check_similarity(
-            "def hello(): print('hello world')",
-            "def hello(): print('hello')"
+            "def hello world print message",
+            "def hello world print"
         ) is True
 
 

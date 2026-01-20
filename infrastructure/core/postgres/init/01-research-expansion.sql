@@ -388,7 +388,7 @@ VALUES (
     '2025-01-15',
     'active',
     'b0000000-0000-0000-0000-000000000005'
-) ON CONFLICT DO NOTHING;
+) ON CONFLICT (id) DO NOTHING;
 
 -- Insert demo sample batch
 INSERT INTO sample_batches (id, tenant_id, experiment_id, batch_code, laboratory_id, status, sample_count, collection_date)
@@ -404,10 +404,16 @@ VALUES (
 ) ON CONFLICT (batch_code) DO NOTHING;
 
 -- Update existing lab samples with batch info
-UPDATE lab_samples
+-- Note: ROW_NUMBER() cannot be used directly in UPDATE SET, so we use a subquery
+UPDATE lab_samples ls
 SET batch_id = '5b000000-0000-0000-0000-000000000001',
-    barcode = 'SOIL-' || LPAD((ROW_NUMBER() OVER())::TEXT, 4, '0')
-WHERE batch_id IS NULL;
+    barcode = subq.barcode
+FROM (
+    SELECT id, 'SOIL-' || LPAD(ROW_NUMBER() OVER (ORDER BY id)::TEXT, 4, '0') as barcode
+    FROM lab_samples
+    WHERE batch_id IS NULL
+) subq
+WHERE ls.id = subq.id AND ls.batch_id IS NULL;
 
 -- Insert demo research data points
 INSERT INTO research_data_points (id, experiment_id, measurement_date, parameter_name, parameter_code, value, unit, recorded_by)
@@ -416,7 +422,7 @@ VALUES
     ('ad000000-0000-0000-0000-000000000002', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Leaf Count', 'LEAF_COUNT', 12, 'count', 'b0000000-0000-0000-0000-000000000005'),
     ('ad000000-0000-0000-0000-000000000003', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Plant Height', 'PLANT_HEIGHT', 52.3, 'cm', 'b0000000-0000-0000-0000-000000000005'),
     ('ad000000-0000-0000-0000-000000000004', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Chlorophyll Index', 'SPAD', 42.8, 'SPAD', 'b0000000-0000-0000-0000-000000000005')
-ON CONFLICT DO NOTHING;
+ON CONFLICT (id) DO NOTHING;
 
 -- Summary
 DO $$

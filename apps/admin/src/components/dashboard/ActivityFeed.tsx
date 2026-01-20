@@ -62,6 +62,7 @@ function ActivityFeed({
   const [filter, setFilter] = useState<
     "all" | "diagnosis" | "irrigation" | "task" | "alert"
   >("all");
+  const [visibleItems, setVisibleItems] = useState(maxItems);
 
   // Memoized filtered activities to prevent recalculation on every render
   const filteredActivities = useMemo(() => {
@@ -69,8 +70,8 @@ function ActivityFeed({
     if (filter !== "all") {
       filtered = activities.filter((a) => a.type === filter);
     }
-    return filtered.slice(0, maxItems);
-  }, [activities, filter, maxItems]);
+    return filtered.slice(0, visibleItems);
+  }, [activities, filter, visibleItems]);
 
   const handleFilterChange = useCallback((newFilter: typeof filter) => {
     setFilter(newFilter);
@@ -238,9 +239,7 @@ function ActivityFeed({
         filteredActivities.length < activities.length && (
           <div className="p-3 border-t border-gray-100 text-center">
             <button
-              onClick={() =>
-                setFilteredActivities(activities.slice(0, maxItems + 10))
-              }
+              onClick={() => setVisibleItems((prev) => prev + 10)}
               className="text-sm text-sahool-600 hover:text-sahool-700 font-medium"
             >
               تحميل المزيد ←

@@ -75,7 +75,10 @@ sahool-unified-v15-idp/
 │   ├── secrets/                # Secrets management
 │   ├── telemetry/              # OpenTelemetry
 │   ├── a2a/                    # Agent-to-Agent communication
-│   ├── ai/                     # AI utilities
+│   ├── ai/                     # AI utilities & Auto-Fix Engine
+│   │   ├── auto_fix/           # Automated code diagnostics & fixing
+│   │   ├── ollama_client.py    # Local LLM hosting via Ollama
+│   │   └── model_training.py   # Model fine-tuning & evaluation
 │   ├── globalgap/              # GlobalGAP compliance
 │   ├── versioning/             # API versioning utilities
 │   └── python-lib/             # Python library utilities
@@ -745,6 +748,231 @@ This service has been migrated to [new-service]
 | disaster-assessment | Node.js | 3020 | Disaster risk assessment |
 | field-chat          | Python  | 8099 | Field-level chat         |
 | inventory-service   | Python  | 8116 | Inventory management     |
+
+---
+
+## AI Auto-Fix Engine
+
+The SAHOOL platform includes a comprehensive AI-powered code auto-fix system located in `shared/ai/` that enables automated code diagnostics, fixing, and model training capabilities.
+
+### Architecture Overview
+
+```
+shared/ai/
+├── auto_fix/                    # Auto-Fix Engine
+│   ├── __init__.py             # Package exports
+│   ├── models.py               # Data models (Diagnostic, CodeFix, AuditEntry)
+│   ├── diagnostics.py          # Multi-tool code analysis
+│   ├── fixers.py               # Automated code fixing
+│   └── engine.py               # Main orchestration engine
+├── ollama_client.py            # Local LLM integration via Ollama
+└── model_training.py           # Model fine-tuning & evaluation
+```
+
+### Auto-Fix Engine (`shared/ai/auto_fix/`)
+
+The Auto-Fix Engine provides automated code diagnostics and fixing with full audit trail integration.
+
+#### Supported Tools
+
+| Tool | Language | Description |
+|------|----------|-------------|
+| **Ruff** | Python | Fast linting & formatting (F401, E501, etc.) |
+| **ESLint** | TypeScript/JavaScript | Code quality & style |
+| **Mypy** | Python | Static type checking |
+| **Bandit** | Python | Security vulnerability scanning |
+| **Dart Analyze** | Dart/Flutter | Flutter code analysis |
+
+#### Usage Example
+
+```python
+from shared.ai.auto_fix import AutoFixEngine, FixStrategy
+
+# Initialize engine
+engine = AutoFixEngine(
+    working_dir="/path/to/project",
+    audit_enabled=True
+)
+
+# Run diagnostics
+report = await engine.diagnose(
+    paths=["apps/services/", "shared/"],
+    tools=["ruff", "mypy", "bandit"]
+)
+
+print(f"Found {report.total_diagnostics} issues")
+print(f"Auto-fixable: {report.fixable_count}")
+
+# Auto-fix issues
+results = await engine.auto_fix(
+    report=report,
+    strategy=FixStrategy.SAFE,  # SAFE, AGGRESSIVE, or MANUAL
+    dry_run=False
+)
+
+# View audit trail
+for entry in engine.get_audit_log():
+    print(f"{entry.timestamp}: {entry.action} - {entry.description}")
+```
+
+#### Fix Strategies
+
+| Strategy | Description | Use Case |
+|----------|-------------|----------|
+| `SAFE` | Only apply fixes with high confidence | Production code |
+| `AGGRESSIVE` | Apply all suggested fixes | Development |
+| `MANUAL` | Generate fix plan for review | Code review |
+
+#### Data Models
+
+```python
+from shared.ai.auto_fix.models import (
+    Diagnostic,           # Single code issue
+    DiagnosticReport,     # Collection of diagnostics
+    CodeFix,              # Proposed fix
+    FixPlan,              # Plan with multiple fixes
+    FixResult,            # Result of applying fix
+    AuditEntry,           # Audit log entry
+    DiagnosticSeverity,   # ERROR, WARNING, INFO, HINT
+    DiagnosticCategory,   # STYLE, SECURITY, PERFORMANCE, etc.
+    FixConfidence,        # HIGH, MEDIUM, LOW
+)
+```
+
+### Ollama Integration (`shared/ai/ollama_client.py`)
+
+Local LLM hosting for code analysis and generation without external API dependencies.
+
+#### Supported Models
+
+| Model | Size | Use Case |
+|-------|------|----------|
+| `codellama:7b` | 7B | Code completion & fixing |
+| `codellama:13b` | 13B | Complex code analysis |
+| `deepseek-coder:6.7b` | 6.7B | Multi-language support |
+| `starcoder2:7b` | 7B | Code generation |
+
+#### Usage Example
+
+```python
+from shared.ai.ollama_client import OllamaClient, OllamaConfig
+
+# Initialize client
+client = OllamaClient(OllamaConfig(
+    base_url="http://localhost:11434",
+    model="codellama:7b",
+    temperature=0.1
+))
+
+# Check availability
+if await client.is_available():
+    # Analyze code
+    response = await client.generate(
+        prompt="Review this code for security issues:\n```python\n...\n```"
+    )
+    print(response.text)
+
+# Helper functions
+from shared.ai.ollama_client import (
+    analyze_code_with_ollama,
+    fix_code_with_ollama,
+    generate_tests_with_ollama
+)
+
+# Quick analysis
+analysis = await analyze_code_with_ollama(code, language="python")
+```
+
+### Model Training (`shared/ai/model_training.py`)
+
+Fine-tune models on SAHOOL-specific code patterns and agricultural domain knowledge.
+
+#### Dataset Types
+
+| Type | Description | Example |
+|------|-------------|---------|
+| `CODE_FIX` | Error → Fix pairs | Linting fixes |
+| `CODE_REVIEW` | Code → Review pairs | Review comments |
+| `TEST_GENERATION` | Code → Tests pairs | Unit tests |
+| `AGRICULTURAL` | Query → Advisory pairs | Crop advice |
+
+#### Usage Example
+
+```python
+from shared.ai.model_training import (
+    DatasetBuilder,
+    ModelTrainer,
+    TrainingConfig
+)
+
+# Build dataset
+builder = DatasetBuilder()
+builder.add_code_fix_example(
+    original="x= 1",
+    fixed="x = 1",
+    error_message="E225 missing whitespace"
+)
+builder.add_agricultural_advisory_example(
+    query="متى أسقي القمح؟",
+    response="يُنصح بالري كل 10-14 يوم في مرحلة التفريع",
+    crop_type="wheat",
+    language_code="ar"
+)
+
+dataset = builder.build(
+    name="sahool-fixes",
+    name_ar="إصلاحات سهول"
+)
+
+# Train model
+trainer = ModelTrainer()
+config = TrainingConfig(
+    base_model="codellama:7b",
+    output_model="sahool-codefix:latest",
+    epochs=3
+)
+
+job = await trainer.create_training_job(dataset, config)
+job = await trainer.start_training(job.id)
+
+print(f"Accuracy: {job.evaluation_result.accuracy:.2%}")
+```
+
+### Integration with Audit System
+
+All auto-fix operations are logged to the audit system for compliance:
+
+```python
+# Audit entry structure
+{
+    "id": "audit-uuid",
+    "timestamp": "2026-01-20T10:30:00Z",
+    "action": "auto_fix",
+    "agent_id": "code-fix-agent",
+    "description": "Fixed 15 linting issues in shared/ai/",
+    "details": {
+        "files_modified": 5,
+        "fixes_applied": 15,
+        "strategy": "SAFE"
+    },
+    "user_id": "system",
+    "tenant_id": "sahool"
+}
+```
+
+### Environment Variables
+
+```bash
+# Ollama Configuration
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=codellama:7b
+OLLAMA_TIMEOUT=60
+
+# Auto-Fix Configuration
+AUTO_FIX_ENABLED=true
+AUTO_FIX_DRY_RUN=false
+AUTO_FIX_AUDIT_ENABLED=true
+```
 
 ---
 

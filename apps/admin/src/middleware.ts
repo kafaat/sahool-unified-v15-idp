@@ -188,10 +188,19 @@ export async function middleware(request: NextRequest) {
   // ============================================
   // SECURITY HEADERS
   // ============================================
-  const response = NextResponse.next();
 
   // Generate nonce for CSP
   const nonce = generateNonce();
+
+  // Create new request headers with nonce for layout.tsx to access
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("X-Nonce", nonce);
+
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 
   // ============================================
   // CSRF TOKEN GENERATION

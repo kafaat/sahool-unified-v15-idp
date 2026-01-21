@@ -3,7 +3,7 @@
  * Comprehensive security utilities for input validation and sanitization
  */
 
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeInput as sanitizeHtmlTags } from "./sanitize";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Validators
@@ -141,8 +141,8 @@ export const validators = {
 
 export const sanitizers = {
   /**
-   * Remove all HTML tags and dangerous patterns using DOMPurify
-   * Security: Uses industry-standard DOMPurify library for comprehensive sanitization
+   * Remove all HTML tags and dangerous patterns
+   * Security: Uses regex-based sanitization safe for SSR
    * Covers: script tags, event handlers, dangerous protocols, data URIs,
    *         encoded entities, null bytes, unicode escapes, and more
    * @param input - The input string to sanitize
@@ -150,18 +150,7 @@ export const sanitizers = {
    */
   html: (input: string): string => {
     if (!input || typeof input !== "string") return "";
-
-    // Use DOMPurify with strict configuration - remove all HTML tags
-    // ALLOWED_TAGS: [] means no HTML tags are allowed (pure text output)
-    // ALLOWED_ATTR: [] means no attributes are allowed
-    const sanitized = DOMPurify.sanitize(input, {
-      ALLOWED_TAGS: [],
-      ALLOWED_ATTR: [],
-      KEEP_CONTENT: true,
-    });
-
-    // Remove null bytes and control characters
-    return sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "").trim();
+    return sanitizeHtmlTags(input);
   },
 
   /**

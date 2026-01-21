@@ -13,6 +13,10 @@
 
 set -e
 
+mkdir -p /etc/pgbouncer/runtime
+chown -R pgbouncer:pgbouncer /etc/pgbouncer/runtime
+chmod 700 /etc/pgbouncer/runtime
+
 # Configuration from environment
 DB_HOST="${DB_HOST:-postgres}"
 DB_PORT="${DB_PORT:-5432}"

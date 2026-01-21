@@ -14,6 +14,7 @@ try:
     SQLALCHEMY_AVAILABLE = True
 except ImportError:
     SQLALCHEMY_AVAILABLE = False
+    AsyncSession = None  # Type stub for when SQLAlchemy is not installed
 
 logger = logging.getLogger(__name__)
 

@@ -61,8 +61,14 @@
     "diagnose:js": "npx oxlint . && npx knip",
     "diagnose:security": "npm audit && npx snyk test",
     "diagnose:all": "npm run diagnose",
+    "diagnose:frontend": "node scripts/diagnose-frontend.js",
+    "diagnose:web": "node scripts/diagnose-frontend.js --web",
+    "diagnose:mobile": "node scripts/diagnose-frontend.js --mobile",
     "fix": "ruff check --fix apps/ shared/ && ruff format apps/ shared/ && npm run lint:fix",
     "fix:py": "ruff check --fix --unsafe-fixes apps/ shared/ && ruff format apps/ shared/",
+    "fix:frontend": "node scripts/diagnose-frontend.js --fix",
+    "fix:web": "node scripts/diagnose-frontend.js --web --fix",
+    "fix:mobile": "node scripts/diagnose-frontend.js --mobile --fix",
     "dead-code": "npx knip"
   },
   "devDependencies": {

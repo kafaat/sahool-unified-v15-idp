@@ -536,7 +536,7 @@ class LSPClient:
                 tree = ast.parse(content)
 
                 for node in ast.walk(tree):
-                    if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
+                    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                         symbols.append(SymbolInformation(
                             name=node.name,
                             kind=self.SYMBOL_KINDS["function"],

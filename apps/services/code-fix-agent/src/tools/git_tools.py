@@ -939,11 +939,7 @@ class GitTools:
             r"^ssh://git@.*",
         ]
 
-        for pattern in git_url_patterns:
-            if re.match(pattern, url):
-                return True
-
-        return False
+        return any(re.match(pattern, url) for pattern in git_url_patterns)
 
     def get_file_history(
         self,

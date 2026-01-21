@@ -16,9 +16,8 @@ Updated: January 2026
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 import hashlib
-import json
 import os
 import time
 from datetime import datetime
@@ -42,8 +41,8 @@ class EmbeddingConfig:
     model: str = "all-MiniLM-L6-v2"
 
     # API settings (for cloud providers)
-    api_key: Optional[str] = None
-    api_base_url: Optional[str] = None
+    api_key: str | None = None
+    api_base_url: str | None = None
 
     # Local settings (for Ollama/SentenceTransformers)
     ollama_base_url: str = "http://localhost:11434"
@@ -58,10 +57,10 @@ class EmbeddingConfig:
     cache_ttl_seconds: int = 3600  # 1 hour
 
     # Dimension settings (auto-detected if not specified)
-    embedding_dimension: Optional[int] = None
+    embedding_dimension: int | None = None
 
     # Huggingface settings
-    huggingface_api_token: Optional[str] = None
+    huggingface_api_token: str | None = None
     huggingface_use_local: bool = True  # Use local models by default (offline-first)
 
     def __post_init__(self):
@@ -142,7 +141,7 @@ class EmbeddingProviderError(Exception):
         message: str,
         provider: EmbeddingProvider,
         recoverable: bool = True,
-        original_error: Optional[Exception] = None,
+        original_error: Exception | None = None,
     ):
         super().__init__(message)
         self.provider = provider
@@ -187,7 +186,7 @@ class EmbeddingCache:
         content = f"{model}:{text}"
         return hashlib.sha256(content.encode()).hexdigest()[:32]
 
-    def get(self, text: str, model: str) -> Optional[list[float]]:
+    def get(self, text: str, model: str) -> list[float] | None:
         """Get cached embedding if exists and not expired"""
         key = self._hash_text(text, model)
         if key in self._cache:
@@ -280,7 +279,7 @@ class EmbeddingsAdapter:
         "BAAI/bge-large-en-v1.5": 1024,
     }
 
-    def __init__(self, config: Optional[EmbeddingConfig] = None):
+    def __init__(self, config: EmbeddingConfig | None = None):
         """Initialize the embeddings adapter"""
         self.config = config or EmbeddingConfig()
         self._cache = EmbeddingCache(
@@ -288,8 +287,8 @@ class EmbeddingsAdapter:
         ) if self.config.cache_enabled else None
 
         # Provider availability flags
-        self._sentence_transformers_available: Optional[bool] = None
-        self._ollama_available: Optional[bool] = None
+        self._sentence_transformers_available: bool | None = None
+        self._ollama_available: bool | None = None
 
         # Lazy-loaded provider clients
         self._st_model = None
@@ -709,10 +708,10 @@ class EmbeddingsAdapter:
 
 
 # Convenience functions
-_default_adapter: Optional[EmbeddingsAdapter] = None
+_default_adapter: EmbeddingsAdapter | None = None
 
 
-def get_embeddings_adapter(config: Optional[EmbeddingConfig] = None) -> EmbeddingsAdapter:
+def get_embeddings_adapter(config: EmbeddingConfig | None = None) -> EmbeddingsAdapter:
     """Get or create the default embeddings adapter"""
     global _default_adapter
     if _default_adapter is None or config is not None:

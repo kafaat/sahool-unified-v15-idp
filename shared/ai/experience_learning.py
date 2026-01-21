@@ -15,8 +15,6 @@ Inspired by Acontext concepts, this module enables AI agents to:
 ٤. التحسين المستمر عبر حلقات التغذية الراجعة
 """
 
-import hashlib
-import json
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
 from enum import Enum
@@ -614,7 +612,7 @@ class ExperienceLearner:
             "total_sops": len(sops),
             "high_confidence_sops": len([s for s in sops if s.confidence == SOPConfidence.HIGH]),
             "medium_confidence_sops": len([s for s in sops if s.confidence == SOPConfidence.MEDIUM]),
-            "task_types_covered": list(set(e.task_type for e in executions)),
+            "task_types_covered": list({e.task_type for e in executions}),
         }
 
 

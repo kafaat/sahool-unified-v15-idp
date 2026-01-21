@@ -15,7 +15,7 @@ Updated: January 2026
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from datetime import datetime
 import json
 
@@ -70,9 +70,9 @@ class ContributingFactor:
     direction: str  # "supports", "opposes", "neutral"
 
     # Evidence
-    evidence: Optional[str] = None
-    evidence_ar: Optional[str] = None
-    source: Optional[str] = None
+    evidence: str | None = None
+    evidence_ar: str | None = None
+    source: str | None = None
     confidence: float = 0.8
 
     def to_dict(self) -> dict[str, Any]:
@@ -349,11 +349,11 @@ class ExplainabilityEngine:
         recommendation_type: str,
         recommendation_text: str = "",
         recommendation_text_ar: str = "",
-        factors: Optional[list[ContributingFactor]] = None,
-        rules_applied: Optional[list[RuleExplanation]] = None,
-        alternatives_considered: Optional[list[AlternativeRecommendation]] = None,
+        factors: list[ContributingFactor] | None = None,
+        rules_applied: list[RuleExplanation] | None = None,
+        alternatives_considered: list[AlternativeRecommendation] | None = None,
         confidence: float = 0.8,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> Explanation:
         """
         Generate a complete explanation for a recommendation
@@ -430,7 +430,7 @@ class ExplainabilityEngine:
         crop_stage: str,
         et_value: float,
         recommended_amount_mm: float,
-        alternatives: Optional[list[dict]] = None,
+        alternatives: list[dict] | None = None,
     ) -> Explanation:
         """
         Generate explanation for irrigation recommendation
@@ -819,7 +819,7 @@ class ExplainabilityEngine:
 
 
 # Convenience functions
-_default_engine: Optional[ExplainabilityEngine] = None
+_default_engine: ExplainabilityEngine | None = None
 
 
 def get_explainability_engine(language: str = "both") -> ExplainabilityEngine:

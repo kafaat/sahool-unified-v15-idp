@@ -427,7 +427,7 @@ async def check_infrastructure() -> list[HealthCheckResult]:
     """Check infrastructure only | فحص البنية التحتية فقط"""
     checker = HealthChecker()
     results = await asyncio.gather(
-        checker.check_postgres(),
+        checker.check_postgresql(),
         checker.check_redis(),
         checker.check_nats(),
         checker.check_pgbouncer(),

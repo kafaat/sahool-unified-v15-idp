@@ -17,6 +17,7 @@ export default defineConfig({
       "packages/**/*.{test,spec}.{ts,tsx}",
       "apps/web/src/**/*.{test,spec}.{ts,tsx}",
       "apps/admin/src/**/*.{test,spec}.{ts,tsx}",
+      "shared/**/*.{test,spec}.{ts,tsx}",
     ],
     exclude: [
       "**/node_modules/**",

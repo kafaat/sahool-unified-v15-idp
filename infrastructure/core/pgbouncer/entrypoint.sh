@@ -13,9 +13,12 @@
 
 set -e
 
+# Create runtime directory with proper permissions
+# Note: edoburu/pgbouncer (Alpine-based) runs as 'postgres' user
+# The mounted volume should already have correct ownership
 mkdir -p /etc/pgbouncer/runtime
-chown -R pgbouncer:pgbouncer /etc/pgbouncer/runtime
-chmod 700 /etc/pgbouncer/runtime
+# chmod may fail due to security settings (no-new-privileges) - make it non-fatal
+chmod 700 /etc/pgbouncer/runtime 2>/dev/null || true
 
 # Configuration from environment
 DB_HOST="${DB_HOST:-postgres}"
@@ -100,12 +103,8 @@ generate_userlist() {
 EOF
 
     # Set proper permissions (readable by pgbouncer process)
-    chmod 600 "$USERLIST_FILE"
-
-    # Try to change ownership if pgbouncer user exists
-    if id pgbouncer >/dev/null 2>&1; then
-        chown pgbouncer:pgbouncer "$USERLIST_FILE" 2>/dev/null || true
-    fi
+    # chmod may fail due to security settings - make it non-fatal
+    chmod 600 "$USERLIST_FILE" 2>/dev/null || true
 
     log_info "userlist.txt generated successfully at ${USERLIST_FILE}"
 }

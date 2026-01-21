@@ -156,9 +156,10 @@ jobs:
           echo "🔍 Checking Python dependencies for known vulnerabilities..."
 
           # Find all requirements files
+          # Using 'scan' command (check was deprecated June 2024)
           find . -name "requirements*.txt" -type f | while read req_file; do
             echo "Checking: $req_file"
-            safety check -r "$req_file" --output json || true
+            safety scan --target "$req_file" --output json || true
           done
 
           echo "✅ Dependency check completed"

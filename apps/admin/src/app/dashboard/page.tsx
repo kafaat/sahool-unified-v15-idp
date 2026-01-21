@@ -491,6 +491,7 @@ export default function DashboardPage() {
           </div>
           <div className="h-[400px]">
             <FarmsMap
+              key="dashboard-farms-map"
               farms={farms}
               onFarmClick={handleFarmClick}
               selectedFarmId={selectedFarm?.id}

@@ -21,6 +21,17 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- User & Auth Enums
+-- UserRole enum matching Prisma schema
+DO $$ BEGIN
+    CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'MANAGER', 'FARMER', 'WORKER', 'VIEWER');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- UserStatus enum matching Prisma schema
+DO $$ BEGIN
+    CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'INACTIVE', 'SUSPENDED', 'PENDING');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- Legacy user_role enum for backward compatibility with other tables
 DO $$ BEGIN
     CREATE TYPE user_role AS ENUM ('super_admin', 'admin', 'manager', 'agronomist', 'field_worker', 'researcher', 'viewer');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
@@ -199,31 +210,107 @@ CREATE TABLE IF NOT EXISTS tenants (
 );
 
 -- Users (المستخدمين)
+-- Updated to match Prisma schema with first_name/last_name and UserRole/UserStatus enums
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    full_name VARCHAR(255) NOT NULL,
-    full_name_ar VARCHAR(255),
     phone VARCHAR(50),
-    role user_role DEFAULT 'viewer',
-    avatar_url VARCHAR(500),
-    language VARCHAR(10) DEFAULT 'ar',
-    timezone VARCHAR(50) DEFAULT 'Asia/Riyadh',
-    is_active BOOLEAN DEFAULT true,
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    role "UserRole" DEFAULT 'VIEWER',
+    status "UserStatus" DEFAULT 'PENDING',
     email_verified BOOLEAN DEFAULT false,
     phone_verified BOOLEAN DEFAULT false,
-    last_login TIMESTAMPTZ,
-    fcm_token VARCHAR(500),
-    settings JSONB DEFAULT '{}',
+    last_login_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    
+    -- Account lockout fields for security
+    failed_login_attempts INTEGER DEFAULT 0,
+    lockout_until TIMESTAMPTZ,
+    last_failed_login_at TIMESTAMPTZ,
+    
+    -- Password reset fields
+    password_reset_token VARCHAR(255),
+    password_reset_expiry TIMESTAMPTZ
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_tenant ON users(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+
+-- User Profiles (ملفات المستخدمين)
+CREATE TABLE IF NOT EXISTS user_profiles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    national_id VARCHAR(50),
+    date_of_birth DATE,
+    address TEXT,
+    city VARCHAR(100),
+    region VARCHAR(100),
+    country VARCHAR(3) DEFAULT 'SA',
+    avatar_url VARCHAR(500),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_profiles_user ON user_profiles(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_national_id ON user_profiles(national_id);
+
+-- User Roles (الأدوار المخصصة)
+-- For custom roles and permissions (separate from UserRole enum)
+CREATE TABLE IF NOT EXISTS user_roles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) UNIQUE NOT NULL,
+    permissions JSONB NOT NULL,
+    is_system BOOLEAN DEFAULT false,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- User Sessions (جلسات المستخدمين)
+CREATE TABLE IF NOT EXISTS user_sessions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(500) UNIQUE NOT NULL,
+    ip_address VARCHAR(50),
+    user_agent TEXT,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_sessions_user ON user_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_token ON user_sessions(token);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_expires ON user_sessions(expires_at);
+CREATE INDEX IF NOT EXISTS idx_session_user_expiry ON user_sessions(user_id, expires_at);
+
+-- Refresh Tokens (رموز التحديث)
+-- For JWT refresh token rotation and security
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    jti VARCHAR(255) UNIQUE NOT NULL,
+    family VARCHAR(255) NOT NULL,
+    token VARCHAR(500) UNIQUE NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    revoked BOOLEAN DEFAULT false,
+    used BOOLEAN DEFAULT false,
+    used_at TIMESTAMPTZ,
+    replaced_by VARCHAR(255),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user ON refresh_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_jti ON refresh_tokens(jti);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_family ON refresh_tokens(family);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires ON refresh_tokens(expires_at);
+CREATE INDEX IF NOT EXISTS idx_refresh_token_cleanup ON refresh_tokens(user_id, revoked, expires_at);
+CREATE INDEX IF NOT EXISTS idx_refresh_token_revoked_expiry ON refresh_tokens(revoked, expires_at);
+
 
 -- Crops Master Data (المحاصيل)
 CREATE TABLE IF NOT EXISTS crops (
@@ -1312,29 +1399,29 @@ VALUES (
 
 -- Insert admin user (password: admin)
 -- Using pgcrypto for bcrypt hash
-INSERT INTO users (id, tenant_id, email, password_hash, full_name, full_name_ar, role, is_active, email_verified)
+INSERT INTO users (id, tenant_id, email, password_hash, first_name, last_name, role, status, email_verified)
 VALUES (
     'b0000000-0000-0000-0000-000000000001',
     'a0000000-0000-0000-0000-000000000001',
     'n@admin.com',
     crypt('admin', gen_salt('bf', 12)),
-    'Administrator',
-    'المدير',
-    'super_admin',
-    true,
+    'Admin',
+    'User',
+    'ADMIN',
+    'ACTIVE',
     true
 ) ON CONFLICT (email) DO UPDATE SET
     password_hash = crypt('admin', gen_salt('bf', 12)),
-    role = 'super_admin',
-    is_active = true;
+    role = 'ADMIN',
+    status = 'ACTIVE';
 
 -- Insert demo users
-INSERT INTO users (id, tenant_id, email, password_hash, full_name, full_name_ar, role, is_active, email_verified)
+INSERT INTO users (id, tenant_id, email, password_hash, first_name, last_name, role, status, email_verified)
 VALUES
-    ('b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'manager@sahool.io', crypt('manager123', gen_salt('bf', 12)), 'Farm Manager', 'مدير المزرعة', 'manager', true, true),
-    ('b0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'agronomist@sahool.io', crypt('agro123', gen_salt('bf', 12)), 'Ahmed Al-Rashid', 'أحمد الراشد', 'agronomist', true, true),
-    ('b0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'worker@sahool.io', crypt('worker123', gen_salt('bf', 12)), 'Mohammed Ali', 'محمد علي', 'field_worker', true, true),
-    ('b0000000-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000001', 'researcher@sahool.io', crypt('research123', gen_salt('bf', 12)), 'Dr. Fatima Hassan', 'د. فاطمة حسن', 'researcher', true, true)
+    ('b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'manager@sahool.io', crypt('manager123', gen_salt('bf', 12)), 'Farm', 'Manager', 'MANAGER', 'ACTIVE', true),
+    ('b0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'agronomist@sahool.io', crypt('agro123', gen_salt('bf', 12)), 'Ahmed', 'Al-Rashid', 'FARMER', 'ACTIVE', true),
+    ('b0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'worker@sahool.io', crypt('worker123', gen_salt('bf', 12)), 'Mohammed', 'Ali', 'WORKER', 'ACTIVE', true),
+    ('b0000000-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000001', 'researcher@sahool.io', crypt('research123', gen_salt('bf', 12)), 'Fatima', 'Hassan', 'VIEWER', 'ACTIVE', true)
 ON CONFLICT (email) DO NOTHING;
 
 -- Insert crops master data

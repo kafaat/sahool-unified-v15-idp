@@ -3,7 +3,7 @@
  * Unified API client for admin dashboard with centralized token management
  */
 
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeInput } from "./sanitize";
 import { logger } from "./logger";
 import {
   API_BASE_URL,
@@ -82,23 +82,6 @@ if (
   logger.warn(
     "Warning: API_BASE_URL should use HTTPS in production environment",
   );
-}
-
-// Helper function to sanitize HTML and prevent XSS using DOMPurify
-function sanitizeInput(input: string): string {
-  if (typeof input !== "string") return input;
-
-  // Use DOMPurify with strict configuration - remove all HTML tags
-  // ALLOWED_TAGS: [] means no HTML tags are allowed (pure text output)
-  // ALLOWED_ATTR: [] means no attributes are allowed
-  const sanitized = DOMPurify.sanitize(input, {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: [],
-    KEEP_CONTENT: true,
-  });
-
-  // Remove null bytes and control characters
-  return sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "").trim();
 }
 
 // Helper function to delay for retry logic

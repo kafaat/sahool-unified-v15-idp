@@ -30,8 +30,8 @@ export default async function RootLayout({
   const nonce = headersList.get("X-Nonce") || "";
 
   return (
-    <html lang="ar" dir="rtl">
-      <head>
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <head suppressHydrationWarning>
         <link
           href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
           rel="stylesheet"
@@ -45,7 +45,7 @@ export default async function RootLayout({
           nonce={nonce}
         />
       </head>
-      <body className="font-tajawal bg-gray-50 min-h-screen">
+      <body className="font-tajawal bg-gray-50 min-h-screen" suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

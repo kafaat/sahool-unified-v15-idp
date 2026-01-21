@@ -6,8 +6,8 @@ import { logger } from "@/lib/logger";
 interface User {
   id: string;
   email: string;
-  name: string;
-  name_ar?: string;
+  name_first: string;
+  name_second: string;
   role: "admin" | "supervisor" | "viewer";
   tenant_id?: string;
 }

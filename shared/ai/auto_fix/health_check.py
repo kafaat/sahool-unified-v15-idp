@@ -39,6 +39,7 @@ class ComponentType(str, Enum):
     DATABASE = "database"
     CACHE = "cache"
     MESSAGE_QUEUE = "message_queue"
+    API_GATEWAY = "api_gateway"
     CONTAINER = "container"
     DEPENDENCY = "dependency"
 
@@ -54,6 +55,11 @@ class HealthCheckResult:
     latency_ms: float | None = None
     details: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.now)
+
+    @property
+    def is_healthy(self) -> bool:
+        """Check if component is healthy | فحص إذا كان المكون صحي"""
+        return self.status == HealthStatus.HEALTHY
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -72,7 +78,7 @@ class HealthCheckResult:
 class HealthReport:
     """Complete health report | تقرير صحة كامل"""
     results: list[HealthCheckResult] = field(default_factory=list)
-    overall_status: HealthStatus = HealthStatus.UNKNOWN
+    _overall_status: HealthStatus | None = field(default=None, repr=False)
     timestamp: datetime = field(default_factory=datetime.now)
 
     @property
@@ -84,8 +90,31 @@ class HealthReport:
         return sum(1 for r in self.results if r.status == HealthStatus.UNHEALTHY)
 
     @property
+    def degraded_count(self) -> int:
+        return sum(1 for r in self.results if r.status == HealthStatus.DEGRADED)
+
+    @property
     def total_count(self) -> int:
         return len(self.results)
+
+    @property
+    def overall_status(self) -> HealthStatus:
+        """Calculate overall status from results | حساب الحالة العامة من النتائج"""
+        if self._overall_status is not None:
+            return self._overall_status
+        if not self.results:
+            return HealthStatus.UNKNOWN
+        if self.unhealthy_count > 0:
+            return HealthStatus.UNHEALTHY
+        if self.degraded_count > 0:
+            return HealthStatus.DEGRADED
+        if self.healthy_count == self.total_count:
+            return HealthStatus.HEALTHY
+        return HealthStatus.UNKNOWN
+
+    @overall_status.setter
+    def overall_status(self, value: HealthStatus) -> None:
+        self._overall_status = value
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -108,7 +137,7 @@ class HealthChecker:
     def __init__(self, working_dir: str | Path = "."):
         self.working_dir = Path(working_dir)
 
-    async def check_port(self, host: str, port: int, timeout: float = 2.0) -> tuple[bool, float]:
+    async def _check_port(self, host: str, port: int, timeout: float = 2.0) -> tuple[bool, float]:
         """Check if a port is open | فحص إذا كان المنفذ مفتوحاً"""
         start = asyncio.get_event_loop().time()
         try:
@@ -123,9 +152,9 @@ class HealthChecker:
         except Exception:
             return False, 0
 
-    async def check_postgres(self, host: str = "localhost", port: int = 5432) -> HealthCheckResult:
+    async def check_postgresql(self, host: str = "localhost", port: int = 5432) -> HealthCheckResult:
         """Check PostgreSQL health | فحص صحة PostgreSQL"""
-        is_open, latency = await self.check_port(host, port)
+        is_open, latency = await self._check_port(host, port)
 
         if is_open:
             return HealthCheckResult(
@@ -147,7 +176,7 @@ class HealthChecker:
 
     async def check_redis(self, host: str = "localhost", port: int = 6379) -> HealthCheckResult:
         """Check Redis health | فحص صحة Redis"""
-        is_open, latency = await self.check_port(host, port)
+        is_open, latency = await self._check_port(host, port)
 
         if is_open:
             return HealthCheckResult(
@@ -169,7 +198,7 @@ class HealthChecker:
 
     async def check_nats(self, host: str = "localhost", port: int = 4222) -> HealthCheckResult:
         """Check NATS health | فحص صحة NATS"""
-        is_open, latency = await self.check_port(host, port)
+        is_open, latency = await self._check_port(host, port)
 
         if is_open:
             return HealthCheckResult(
@@ -191,7 +220,7 @@ class HealthChecker:
 
     async def check_pgbouncer(self, host: str = "localhost", port: int = 6432) -> HealthCheckResult:
         """Check PgBouncer health | فحص صحة PgBouncer"""
-        is_open, latency = await self.check_port(host, port)
+        is_open, latency = await self._check_port(host, port)
 
         if is_open:
             return HealthCheckResult(
@@ -349,7 +378,7 @@ class HealthChecker:
 
         # Infrastructure checks
         infrastructure_checks = [
-            self.check_postgres(),
+            self.check_postgresql(),
             self.check_redis(),
             self.check_nats(),
             self.check_pgbouncer(),
@@ -382,10 +411,9 @@ class HealthChecker:
         else:
             overall_status = HealthStatus.HEALTHY
 
-        return HealthReport(
-            results=results,
-            overall_status=overall_status,
-        )
+        report = HealthReport(results=results)
+        report.overall_status = overall_status
+        return report
 
 
 # Convenience functions

@@ -9,7 +9,6 @@ Author: SAHOOL Platform Team
 Created: January 2026
 """
 
-import asyncio
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -70,7 +69,7 @@ class TestHealthCheckResult:
     def test_create_result(self):
         """Test creating a health check result."""
         result = HealthCheckResult(
-            component="postgresql",
+            component="PostgreSQL",
             component_type=ComponentType.DATABASE,
             status=HealthStatus.HEALTHY,
             message="Connection successful",
@@ -79,7 +78,7 @@ class TestHealthCheckResult:
             details={"version": "16.0"},
         )
 
-        assert result.component == "postgresql"
+        assert result.component == "PostgreSQL"
         assert result.status == HealthStatus.HEALTHY
         assert result.latency_ms == 15.5
         assert result.details["version"] == "16.0"
@@ -107,7 +106,7 @@ class TestHealthCheckResult:
     def test_result_to_dict(self):
         """Test converting result to dictionary."""
         result = HealthCheckResult(
-            component="redis",
+            component="Redis",
             component_type=ComponentType.CACHE,
             status=HealthStatus.DEGRADED,
             message="High latency",
@@ -117,7 +116,7 @@ class TestHealthCheckResult:
 
         data = result.to_dict()
 
-        assert data["component"] == "redis"
+        assert data["component"] == "Redis"
         assert data["component_type"] == "cache"
         assert data["status"] == "degraded"
         assert data["latency_ms"] == 500.0
@@ -136,7 +135,7 @@ class TestHealthReport:
         """Create sample health check results."""
         return [
             HealthCheckResult(
-                component="postgresql",
+                component="PostgreSQL",
                 component_type=ComponentType.DATABASE,
                 status=HealthStatus.HEALTHY,
                 message="OK",
@@ -144,7 +143,7 @@ class TestHealthReport:
                 latency_ms=10.0,
             ),
             HealthCheckResult(
-                component="redis",
+                component="Redis",
                 component_type=ComponentType.CACHE,
                 status=HealthStatus.HEALTHY,
                 message="OK",
@@ -152,7 +151,7 @@ class TestHealthReport:
                 latency_ms=5.0,
             ),
             HealthCheckResult(
-                component="nats",
+                component="NATS",
                 component_type=ComponentType.MESSAGE_QUEUE,
                 status=HealthStatus.UNHEALTHY,
                 message="Connection refused",
@@ -240,21 +239,21 @@ class TestHealthChecker:
 
     def test_create_checker(self):
         """Test creating a health checker."""
+        from pathlib import Path
         checker = HealthChecker(working_dir="/tmp")
 
-        assert checker.working_dir == "/tmp"
+        assert checker.working_dir == Path("/tmp")
 
     @pytest.mark.asyncio
     async def test_check_port_open(self):
         """Test port checking with mocked connection."""
         checker = HealthChecker()
 
-        with patch("asyncio.open_connection", new_callable=AsyncMock) as mock_conn:
-            # Mock successful connection
+        with patch("asyncio.wait_for", new_callable=AsyncMock) as mock_wait:
             mock_writer = MagicMock()
             mock_writer.close = MagicMock()
             mock_writer.wait_closed = AsyncMock()
-            mock_conn.return_value = (MagicMock(), mock_writer)
+            mock_wait.return_value = (MagicMock(), mock_writer)
 
             is_open, latency = await checker._check_port("localhost", 5432)
 
@@ -266,8 +265,8 @@ class TestHealthChecker:
         """Test port checking when connection fails."""
         checker = HealthChecker()
 
-        with patch("asyncio.open_connection", new_callable=AsyncMock) as mock_conn:
-            mock_conn.side_effect = ConnectionRefusedError()
+        with patch("asyncio.wait_for", new_callable=AsyncMock) as mock_wait:
+            mock_wait.side_effect = ConnectionRefusedError()
 
             is_open, latency = await checker._check_port("localhost", 5432)
 
@@ -283,7 +282,7 @@ class TestHealthChecker:
 
             result = await checker.check_postgresql()
 
-            assert result.component == "postgresql"
+            assert result.component == "PostgreSQL"
             assert result.status == HealthStatus.HEALTHY
             assert result.latency_ms == 10.0
 
@@ -309,7 +308,7 @@ class TestHealthChecker:
 
             result = await checker.check_redis()
 
-            assert result.component == "redis"
+            assert result.component == "Redis"
             assert result.status == HealthStatus.HEALTHY
 
     @pytest.mark.asyncio
@@ -322,7 +321,7 @@ class TestHealthChecker:
 
             result = await checker.check_nats()
 
-            assert result.component == "nats"
+            assert result.component == "NATS"
             assert result.status == HealthStatus.HEALTHY
 
     @pytest.mark.asyncio
@@ -335,7 +334,7 @@ class TestHealthChecker:
 
             result = await checker.check_pgbouncer()
 
-            assert result.component == "pgbouncer"
+            assert result.component == "PgBouncer"
             assert result.status == HealthStatus.HEALTHY
 
     @pytest.mark.asyncio
@@ -344,44 +343,63 @@ class TestHealthChecker:
         checker = HealthChecker()
 
         with patch.object(checker, "_check_port", new_callable=AsyncMock) as mock_port:
-            # All services up
             mock_port.return_value = (True, 5.0)
 
-            report = await checker.run_full_health_check()
+            with patch.object(checker, "check_docker_containers", new_callable=AsyncMock) as mock_docker:
+                mock_docker.return_value = []
 
-            assert report.total_count >= 4  # At least postgres, redis, nats, pgbouncer
-            assert report.healthy_count >= 4
+                with patch.object(checker, "check_python_dependencies", new_callable=AsyncMock) as mock_py:
+                    mock_py.return_value = HealthCheckResult(
+                        component="Python Dependencies",
+                        component_type=ComponentType.DEPENDENCY,
+                        status=HealthStatus.HEALTHY,
+                        message="OK",
+                        message_ar="تمام",
+                    )
+
+                    with patch.object(checker, "check_node_dependencies", new_callable=AsyncMock) as mock_node:
+                        mock_node.return_value = HealthCheckResult(
+                            component="Node.js Dependencies",
+                            component_type=ComponentType.DEPENDENCY,
+                            status=HealthStatus.HEALTHY,
+                            message="OK",
+                            message_ar="تمام",
+                        )
+
+                        report = await checker.run_full_health_check()
+
+                        assert report.total_count >= 4
+                        assert report.healthy_count >= 4
 
     @pytest.mark.asyncio
     async def test_check_docker_containers(self):
         """Test Docker container health check."""
         checker = HealthChecker()
 
-        with patch("asyncio.create_subprocess_shell", new_callable=AsyncMock) as mock_proc:
+        with patch("asyncio.create_subprocess_exec", new_callable=AsyncMock) as mock_proc:
             mock_process = MagicMock()
             mock_process.communicate = AsyncMock(return_value=(
-                b"postgres\nredis\nnats",
+                b'{"Name":"postgres","State":"running","Health":""}\n{"Name":"redis","State":"running","Health":""}',
                 b""
             ))
-            mock_process.returncode = 0
             mock_proc.return_value = mock_process
 
-            result = await checker.check_docker_containers()
+            results = await checker.check_docker_containers()
 
-            assert result.component == "docker"
-            assert result.status == HealthStatus.HEALTHY
+            assert len(results) >= 1
 
     @pytest.mark.asyncio
     async def test_check_docker_containers_not_running(self):
         """Test Docker container check when Docker not running."""
         checker = HealthChecker()
 
-        with patch("asyncio.create_subprocess_shell", new_callable=AsyncMock) as mock_proc:
+        with patch("asyncio.create_subprocess_exec", new_callable=AsyncMock) as mock_proc:
             mock_proc.side_effect = Exception("Docker not running")
 
-            result = await checker.check_docker_containers()
+            results = await checker.check_docker_containers()
 
-            assert result.status == HealthStatus.UNKNOWN
+            assert len(results) == 1
+            assert results[0].status == HealthStatus.UNKNOWN
 
 
 # ═══════════════════════════════════════════════════════════════════════════

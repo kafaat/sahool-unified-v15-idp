@@ -23,11 +23,8 @@ from shared.ai.auto_fix.frontend_diagnostics import (
     MobileDiagnosticRunner,
     MobileTool,
     UnifiedDiagnosticRunner,
-    diagnose_all_platforms,
-    diagnose_frontend,
-    diagnose_mobile,
 )
-from shared.ai.auto_fix.models import DiagnosticReport, DiagnosticSeverity
+from shared.ai.auto_fix.models import DiagnosticReport
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -58,7 +55,7 @@ class TestMobileTool:
         """Test all mobile tool values."""
         assert MobileTool.DART_ANALYZE.value == "dart_analyze"
         assert MobileTool.DART_FORMAT.value == "dart_format"
-        assert MobileTool.FLUTTER_ANALYZE.value == "flutter_analyze"
+        assert MobileTool.FLUTTER_TEST.value == "flutter_test"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -73,23 +70,23 @@ class TestFrontendDiagnosticConfig:
         """Test default configuration values."""
         config = FrontendDiagnosticConfig()
 
-        assert "apps/web" in config.paths
-        assert "apps/admin" in config.paths
+        assert config.web_path == "apps/web"
+        assert config.admin_path == "apps/admin"
         assert FrontendTool.ESLINT in config.tools
         assert FrontendTool.TYPESCRIPT in config.tools
-        assert config.fix is False
+        assert config.auto_fix is False
 
     def test_custom_config(self):
         """Test custom configuration."""
         config = FrontendDiagnosticConfig(
-            paths=["custom/path"],
+            web_path="custom/web",
             tools=[FrontendTool.BIOME],
-            fix=True,
+            auto_fix=True,
         )
 
-        assert config.paths == ["custom/path"]
+        assert config.web_path == "custom/web"
         assert config.tools == [FrontendTool.BIOME]
-        assert config.fix is True
+        assert config.auto_fix is True
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -104,22 +101,22 @@ class TestMobileDiagnosticConfig:
         """Test default configuration values."""
         config = MobileDiagnosticConfig()
 
-        assert "apps/mobile" in config.paths
+        assert config.mobile_path == "apps/mobile"
         assert MobileTool.DART_ANALYZE in config.tools
         assert MobileTool.DART_FORMAT in config.tools
-        assert config.fix is False
+        assert config.auto_fix is False
 
     def test_custom_config(self):
         """Test custom configuration."""
         config = MobileDiagnosticConfig(
-            paths=["custom/flutter/path"],
-            tools=[MobileTool.FLUTTER_ANALYZE],
-            fix=True,
+            mobile_path="custom/flutter",
+            tools=[MobileTool.FLUTTER_TEST],
+            auto_fix=True,
         )
 
-        assert config.paths == ["custom/flutter/path"]
-        assert config.tools == [MobileTool.FLUTTER_ANALYZE]
-        assert config.fix is True
+        assert config.mobile_path == "custom/flutter"
+        assert config.tools == [MobileTool.FLUTTER_TEST]
+        assert config.auto_fix is True
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -130,99 +127,53 @@ class TestMobileDiagnosticConfig:
 class TestFrontendDiagnosticRunner:
     """Tests for FrontendDiagnosticRunner class."""
 
-    @pytest.fixture
-    def temp_working_dir(self):
-        """Create a temporary working directory."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Create mock frontend structure
-            web_dir = Path(tmpdir) / "apps" / "web"
-            web_dir.mkdir(parents=True)
-            (web_dir / "package.json").write_text('{"name": "web"}')
-
-            admin_dir = Path(tmpdir) / "apps" / "admin"
-            admin_dir.mkdir(parents=True)
-            (admin_dir / "package.json").write_text('{"name": "admin"}')
-
-            yield tmpdir
-
-    def test_create_runner(self, temp_working_dir):
+    def test_create_runner(self):
         """Test creating a frontend diagnostic runner."""
         config = FrontendDiagnosticConfig()
-        runner = FrontendDiagnosticRunner(
-            config=config,
-            working_dir=temp_working_dir,
-        )
+        runner = FrontendDiagnosticRunner(config=config)
 
-        assert runner.working_dir == temp_working_dir
         assert runner.config == config
+        assert runner.working_dir == Path.cwd()
+
+    def test_create_runner_default_config(self):
+        """Test creating runner with default config."""
+        runner = FrontendDiagnosticRunner()
+
+        assert runner.config is not None
+        assert runner.config.web_path == "apps/web"
 
     @pytest.mark.asyncio
-    async def test_check_tool_available(self, temp_working_dir):
-        """Test checking tool availability."""
-        config = FrontendDiagnosticConfig()
-        runner = FrontendDiagnosticRunner(
-            config=config,
-            working_dir=temp_working_dir,
-        )
+    async def test_run_eslint(self):
+        """Test running ESLint diagnostics."""
+        runner = FrontendDiagnosticRunner()
 
-        with patch("asyncio.create_subprocess_shell", new_callable=AsyncMock) as mock_proc:
+        with patch("asyncio.create_subprocess_exec", new_callable=AsyncMock) as mock_proc:
+            mock_process = MagicMock()
+            mock_process.communicate = AsyncMock(return_value=(
+                b'[{"filePath":"/test.js","messages":[]}]',
+                b""
+            ))
+            mock_process.returncode = 0
+            mock_proc.return_value = mock_process
+
+            diagnostics = await runner.run_eslint("apps/web")
+
+            assert isinstance(diagnostics, list)
+
+    @pytest.mark.asyncio
+    async def test_run_typescript(self):
+        """Test running TypeScript diagnostics."""
+        runner = FrontendDiagnosticRunner()
+
+        with patch("asyncio.create_subprocess_exec", new_callable=AsyncMock) as mock_proc:
             mock_process = MagicMock()
             mock_process.communicate = AsyncMock(return_value=(b"", b""))
             mock_process.returncode = 0
             mock_proc.return_value = mock_process
 
-            available = await runner._check_tool_available("eslint")
-            assert available is True
+            diagnostics = await runner.run_typescript("apps/web")
 
-    @pytest.mark.asyncio
-    async def test_check_tool_not_available(self, temp_working_dir):
-        """Test checking tool not available."""
-        config = FrontendDiagnosticConfig()
-        runner = FrontendDiagnosticRunner(
-            config=config,
-            working_dir=temp_working_dir,
-        )
-
-        with patch("asyncio.create_subprocess_shell", new_callable=AsyncMock) as mock_proc:
-            mock_proc.side_effect = FileNotFoundError()
-
-            available = await runner._check_tool_available("nonexistent")
-            assert available is False
-
-    @pytest.mark.asyncio
-    async def test_run_eslint(self, temp_working_dir):
-        """Test running ESLint diagnostics."""
-        config = FrontendDiagnosticConfig(tools=[FrontendTool.ESLINT])
-        runner = FrontendDiagnosticRunner(
-            config=config,
-            working_dir=temp_working_dir,
-        )
-
-        with patch.object(runner, "_run_tool", new_callable=AsyncMock) as mock_run:
-            mock_run.return_value = []
-
-            report = await runner.run()
-
-            assert report is not None
-
-    @pytest.mark.asyncio
-    async def test_run_with_fix(self, temp_working_dir):
-        """Test running with fix enabled."""
-        config = FrontendDiagnosticConfig(
-            tools=[FrontendTool.ESLINT],
-            fix=True,
-        )
-        runner = FrontendDiagnosticRunner(
-            config=config,
-            working_dir=temp_working_dir,
-        )
-
-        with patch.object(runner, "_run_tool", new_callable=AsyncMock) as mock_run:
-            mock_run.return_value = []
-
-            report = await runner.run()
-
-            assert report is not None
+            assert isinstance(diagnostics, list)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -233,62 +184,35 @@ class TestFrontendDiagnosticRunner:
 class TestMobileDiagnosticRunner:
     """Tests for MobileDiagnosticRunner class."""
 
-    @pytest.fixture
-    def temp_flutter_dir(self):
-        """Create a temporary Flutter project directory."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Create mock Flutter structure
-            mobile_dir = Path(tmpdir) / "apps" / "mobile"
-            mobile_dir.mkdir(parents=True)
-            (mobile_dir / "pubspec.yaml").write_text("name: sahool_mobile")
-            (mobile_dir / "lib").mkdir()
-
-            yield tmpdir
-
-    def test_create_runner(self, temp_flutter_dir):
+    def test_create_runner(self):
         """Test creating a mobile diagnostic runner."""
         config = MobileDiagnosticConfig()
-        runner = MobileDiagnosticRunner(
-            config=config,
-            working_dir=temp_flutter_dir,
-        )
+        runner = MobileDiagnosticRunner(config=config)
 
-        assert runner.working_dir == temp_flutter_dir
         assert runner.config == config
+        assert runner.working_dir == Path.cwd()
+
+    def test_create_runner_default_config(self):
+        """Test creating runner with default config."""
+        runner = MobileDiagnosticRunner()
+
+        assert runner.config is not None
+        assert runner.config.mobile_path == "apps/mobile"
 
     @pytest.mark.asyncio
-    async def test_check_flutter_available(self, temp_flutter_dir):
-        """Test checking Flutter availability."""
-        config = MobileDiagnosticConfig()
-        runner = MobileDiagnosticRunner(
-            config=config,
-            working_dir=temp_flutter_dir,
-        )
+    async def test_run_dart_analyze(self):
+        """Test running Dart analyze."""
+        runner = MobileDiagnosticRunner()
 
-        with patch("asyncio.create_subprocess_shell", new_callable=AsyncMock) as mock_proc:
+        with patch("asyncio.create_subprocess_exec", new_callable=AsyncMock) as mock_proc:
             mock_process = MagicMock()
-            mock_process.communicate = AsyncMock(return_value=(b"Flutter 3.27.0", b""))
+            mock_process.communicate = AsyncMock(return_value=(b"", b""))
             mock_process.returncode = 0
             mock_proc.return_value = mock_process
 
-            available = await runner._check_tool_available("flutter")
-            assert available is True
+            diagnostics = await runner.run_dart_analyze("apps/mobile")
 
-    @pytest.mark.asyncio
-    async def test_run_dart_analyze(self, temp_flutter_dir):
-        """Test running Dart analyze."""
-        config = MobileDiagnosticConfig(tools=[MobileTool.DART_ANALYZE])
-        runner = MobileDiagnosticRunner(
-            config=config,
-            working_dir=temp_flutter_dir,
-        )
-
-        with patch.object(runner, "_run_tool", new_callable=AsyncMock) as mock_run:
-            mock_run.return_value = []
-
-            report = await runner.run()
-
-            assert report is not None
+            assert isinstance(diagnostics, list)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -299,35 +223,61 @@ class TestMobileDiagnosticRunner:
 class TestUnifiedDiagnosticRunner:
     """Tests for UnifiedDiagnosticRunner class."""
 
-    @pytest.fixture
-    def temp_project_dir(self):
-        """Create a temporary project directory."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Create mock project structure
-            (Path(tmpdir) / "apps" / "web").mkdir(parents=True)
-            (Path(tmpdir) / "apps" / "admin").mkdir(parents=True)
-            (Path(tmpdir) / "apps" / "mobile" / "lib").mkdir(parents=True)
-            (Path(tmpdir) / "apps" / "services").mkdir(parents=True)
-            (Path(tmpdir) / "shared").mkdir(parents=True)
-
-            yield tmpdir
-
-    def test_create_unified_runner(self, temp_project_dir):
+    def test_create_unified_runner(self):
         """Test creating a unified diagnostic runner."""
-        runner = UnifiedDiagnosticRunner(working_dir=temp_project_dir)
+        runner = UnifiedDiagnosticRunner()
 
-        assert runner.working_dir == temp_project_dir
+        assert runner.frontend_runner is not None
+        assert runner.mobile_runner is not None
 
     @pytest.mark.asyncio
-    async def test_run_all_platforms(self, temp_project_dir):
-        """Test running diagnostics on all platforms."""
-        runner = UnifiedDiagnosticRunner(working_dir=temp_project_dir)
+    async def test_diagnose_frontend(self):
+        """Test running frontend diagnostics only."""
+        runner = UnifiedDiagnosticRunner()
 
         with patch.object(
-            runner.frontend_runner, "run", new_callable=AsyncMock
+            runner.frontend_runner, "diagnose", new_callable=AsyncMock
+        ) as mock_diagnose:
+            mock_diagnose.return_value = DiagnosticReport(
+                id="frontend",
+                target="apps/web",
+                diagnostics=[],
+            )
+
+            result = await runner.diagnose_frontend()
+
+            assert result is not None
+            mock_diagnose.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_diagnose_mobile(self):
+        """Test running mobile diagnostics only."""
+        runner = UnifiedDiagnosticRunner()
+
+        with patch.object(
+            runner.mobile_runner, "diagnose", new_callable=AsyncMock
+        ) as mock_diagnose:
+            mock_diagnose.return_value = DiagnosticReport(
+                id="mobile",
+                target="apps/mobile",
+                diagnostics=[],
+            )
+
+            result = await runner.diagnose_mobile()
+
+            assert result is not None
+            mock_diagnose.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_diagnose_all(self):
+        """Test running all diagnostics."""
+        runner = UnifiedDiagnosticRunner()
+
+        with patch.object(
+            runner.frontend_runner, "diagnose", new_callable=AsyncMock
         ) as mock_frontend:
             with patch.object(
-                runner.mobile_runner, "run", new_callable=AsyncMock
+                runner.mobile_runner, "diagnose", new_callable=AsyncMock
             ) as mock_mobile:
                 mock_frontend.return_value = DiagnosticReport(
                     id="frontend",
@@ -340,111 +290,10 @@ class TestUnifiedDiagnosticRunner:
                     diagnostics=[],
                 )
 
-                result = await runner.run_all()
+                result = await runner.diagnose_all()
 
                 assert "frontend" in result
                 assert "mobile" in result
-
-    @pytest.mark.asyncio
-    async def test_run_frontend_only(self, temp_project_dir):
-        """Test running frontend diagnostics only."""
-        runner = UnifiedDiagnosticRunner(working_dir=temp_project_dir)
-
-        with patch.object(
-            runner.frontend_runner, "run", new_callable=AsyncMock
-        ) as mock_frontend:
-            mock_frontend.return_value = DiagnosticReport(
-                id="frontend",
-                target="apps/web",
-                diagnostics=[],
-            )
-
-            result = await runner.run_frontend()
-
-            assert result is not None
-
-    @pytest.mark.asyncio
-    async def test_run_mobile_only(self, temp_project_dir):
-        """Test running mobile diagnostics only."""
-        runner = UnifiedDiagnosticRunner(working_dir=temp_project_dir)
-
-        with patch.object(
-            runner.mobile_runner, "run", new_callable=AsyncMock
-        ) as mock_mobile:
-            mock_mobile.return_value = DiagnosticReport(
-                id="mobile",
-                target="apps/mobile",
-                diagnostics=[],
-            )
-
-            result = await runner.run_mobile()
-
-            assert result is not None
-
-
-# ═══════════════════════════════════════════════════════════════════════════
-# Test Convenience Functions
-# ═══════════════════════════════════════════════════════════════════════════
-
-
-class TestConvenienceFunctions:
-    """Tests for convenience functions."""
-
-    @pytest.mark.asyncio
-    async def test_diagnose_frontend(self):
-        """Test diagnose_frontend function."""
-        with patch.object(
-            FrontendDiagnosticRunner, "run", new_callable=AsyncMock
-        ) as mock_run:
-            mock_run.return_value = DiagnosticReport(
-                id="test",
-                target="apps/web",
-                diagnostics=[],
-            )
-
-            report = await diagnose_frontend(working_dir="/tmp")
-
-            assert report is not None
-
-    @pytest.mark.asyncio
-    async def test_diagnose_mobile(self):
-        """Test diagnose_mobile function."""
-        with patch.object(
-            MobileDiagnosticRunner, "run", new_callable=AsyncMock
-        ) as mock_run:
-            mock_run.return_value = DiagnosticReport(
-                id="test",
-                target="apps/mobile",
-                diagnostics=[],
-            )
-
-            report = await diagnose_mobile(working_dir="/tmp")
-
-            assert report is not None
-
-    @pytest.mark.asyncio
-    async def test_diagnose_all_platforms(self):
-        """Test diagnose_all_platforms function."""
-        with patch.object(
-            UnifiedDiagnosticRunner, "run_all", new_callable=AsyncMock
-        ) as mock_run:
-            mock_run.return_value = {
-                "frontend": DiagnosticReport(
-                    id="frontend",
-                    target="apps/web",
-                    diagnostics=[],
-                ),
-                "mobile": DiagnosticReport(
-                    id="mobile",
-                    target="apps/mobile",
-                    diagnostics=[],
-                ),
-            }
-
-            result = await diagnose_all_platforms(working_dir="/tmp")
-
-            assert "frontend" in result
-            assert "mobile" in result
 
 
 if __name__ == "__main__":

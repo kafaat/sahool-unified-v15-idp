@@ -63,6 +63,10 @@ class EmbeddingConfig:
     huggingface_api_token: str | None = None
     huggingface_use_local: bool = True  # Use local models by default (offline-first)
 
+    # Huggingface settings
+    huggingface_api_token: Optional[str] = None
+    huggingface_use_local: bool = True  # Use local models by default (offline-first)
+
     def __post_init__(self):
         """Load API keys from environment if not provided"""
         if self.api_key is None:

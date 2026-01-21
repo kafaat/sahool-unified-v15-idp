@@ -21,11 +21,13 @@ Updated: January 2026
 """
 
 import base64
+import io
+import json
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, BinaryIO
 from uuid import uuid4
 
 

@@ -23,7 +23,7 @@ import time
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +75,7 @@ class HuggingfaceConfig:
     """
 
     # API settings
-    api_token: str | None = None
+    api_token: Optional[str] = None
     api_url: str = "https://api-inference.huggingface.co"
 
     # Model settings
@@ -83,13 +83,13 @@ class HuggingfaceConfig:
     default_text_model: str = "aubmindlab/bert-base-arabertv02"
 
     # Cache settings
-    cache_dir: str | None = None
+    cache_dir: Optional[str] = None
     cache_enabled: bool = True
     cache_ttl_seconds: int = 3600 * 24  # 24 hours
 
     # Local model settings
     use_local_models: bool = True
-    local_model_dir: str | None = None
+    local_model_dir: Optional[str] = None
     download_if_missing: bool = True
 
     # Performance settings
@@ -171,7 +171,7 @@ class ModelInfo:
 
     model_id: str
     model_type: HuggingfaceModelType
-    family: EmbeddingModelFamily | None = None
+    family: Optional[EmbeddingModelFamily] = None
 
     # Model characteristics
     dimension: int = 0
@@ -312,7 +312,7 @@ class EmbeddingCache:
 
     def __init__(
         self,
-        cache_dir: str | None = None,
+        cache_dir: Optional[str] = None,
         ttl_seconds: int = 3600 * 24,
         max_size: int = 10000,
     ):
@@ -331,7 +331,7 @@ class EmbeddingCache:
         content = f"{model}:{text}"
         return hashlib.sha256(content.encode()).hexdigest()[:32]
 
-    def get(self, text: str, model: str) -> list[float] | None:
+    def get(self, text: str, model: str) -> Optional[list[float]]:
         """Get embedding from cache"""
         key = self._hash_key(text, model)
 
@@ -408,7 +408,7 @@ class HuggingfaceProvider:
         ])
     """
 
-    def __init__(self, config: HuggingfaceConfig | None = None):
+    def __init__(self, config: Optional[HuggingfaceConfig] = None):
         self.config = config or HuggingfaceConfig()
 
         # Cache
@@ -422,7 +422,7 @@ class HuggingfaceProvider:
         self._tokenizers: dict[str, Any] = {}
 
         # HTTP client for API calls
-        self._http_client: Any | None = None
+        self._http_client: Optional[Any] = None
 
         # Statistics
         self._stats = {
@@ -474,6 +474,7 @@ class HuggingfaceProvider:
 
         try:
             from transformers import AutoModel, AutoTokenizer
+            import torch
 
             device = self._get_device()
             cache_dir = self.config.local_model_dir
@@ -621,7 +622,7 @@ class HuggingfaceProvider:
     async def embed(
         self,
         text: str,
-        model_id: str | None = None,
+        model_id: Optional[str] = None,
     ) -> EmbeddingResult:
         """Generate embedding for a single text
 
@@ -684,7 +685,7 @@ class HuggingfaceProvider:
     async def embed_batch(
         self,
         texts: list[str],
-        model_id: str | None = None,
+        model_id: Optional[str] = None,
         show_progress: bool = False,
     ) -> BatchEmbeddingResult:
         """Generate embeddings for multiple texts
@@ -770,7 +771,7 @@ class HuggingfaceProvider:
         self,
         text1: str,
         text2: str,
-        model_id: str | None = None,
+        model_id: Optional[str] = None,
     ) -> float:
         """Calculate semantic similarity between two texts
 
@@ -804,7 +805,7 @@ class HuggingfaceProvider:
         query: str,
         candidates: list[str],
         top_k: int = 5,
-        model_id: str | None = None,
+        model_id: Optional[str] = None,
     ) -> list[tuple[str, float, int]]:
         """Find most similar texts from candidates
 
@@ -840,7 +841,7 @@ class HuggingfaceProvider:
         similarities.sort(key=lambda x: x[1], reverse=True)
         return similarities[:top_k]
 
-    def get_model_info(self, model_id: str) -> ModelInfo | None:
+    def get_model_info(self, model_id: str) -> Optional[ModelInfo]:
         """Get information about a model
 
         الحصول على معلومات النموذج
@@ -850,7 +851,7 @@ class HuggingfaceProvider:
     def list_models(
         self,
         arabic_only: bool = False,
-        family: EmbeddingModelFamily | None = None,
+        family: Optional[EmbeddingModelFamily] = None,
     ) -> list[ModelInfo]:
         """List available models
 
@@ -911,11 +912,11 @@ class HuggingfaceProvider:
 # Singleton Instance and Convenience Functions
 # ============================================================================
 
-_provider_instance: HuggingfaceProvider | None = None
+_provider_instance: Optional[HuggingfaceProvider] = None
 
 
 def get_huggingface_provider(
-    config: HuggingfaceConfig | None = None,
+    config: Optional[HuggingfaceConfig] = None,
 ) -> HuggingfaceProvider:
     """Get or create Huggingface provider singleton
 
@@ -931,7 +932,7 @@ def get_huggingface_provider(
 
 async def embed_text(
     text: str,
-    model_id: str | None = None,
+    model_id: Optional[str] = None,
 ) -> EmbeddingResult:
     """Convenience function to embed single text
 
@@ -943,7 +944,7 @@ async def embed_text(
 
 async def embed_texts(
     texts: list[str],
-    model_id: str | None = None,
+    model_id: Optional[str] = None,
 ) -> BatchEmbeddingResult:
     """Convenience function to embed multiple texts
 
@@ -956,7 +957,7 @@ async def embed_texts(
 async def text_similarity(
     text1: str,
     text2: str,
-    model_id: str | None = None,
+    model_id: Optional[str] = None,
 ) -> float:
     """Convenience function to calculate similarity
 

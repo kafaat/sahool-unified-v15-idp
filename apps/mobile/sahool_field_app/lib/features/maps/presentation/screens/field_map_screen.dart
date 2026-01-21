@@ -93,15 +93,6 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    // Set initial zone selection from highlightZoneId parameter
-    if (widget.highlightZoneId != null) {
-      _selectedZoneId = widget.highlightZoneId;
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,

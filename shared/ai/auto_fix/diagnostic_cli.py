@@ -117,7 +117,7 @@ class DiagnosticCLI:
     def __init__(self, working_dir: str = "."):
         self.working_dir = Path(working_dir)
         self.audit = create_audit(enabled=True, audit_dir=str(self.working_dir / ".audit"))
-        self.engine = AutoFixEngine(working_dir=working_dir)
+        self.engine = AutoFixEngine()
 
     async def run_python_diagnostics(self, fix: bool = False, dry_run: bool = True) -> dict[str, Any]:
         """Run Python diagnostics | تشغيل تشخيص Python"""
@@ -177,10 +177,7 @@ class DiagnosticCLI:
         print_header("Frontend Diagnostics (Web/Admin)", "تشخيص الواجهة")
 
         try:
-            report = await diagnose_frontend(
-                working_dir=str(self.working_dir),
-                fix=fix,
-            )
+            report = await diagnose_frontend(auto_fix=fix)
 
             total_issues = report.total_diagnostics
             print_status(f"Found {total_issues} issues", "info" if total_issues == 0 else "warning")
@@ -207,10 +204,7 @@ class DiagnosticCLI:
         print_header("Mobile Diagnostics (Flutter)", "تشخيص تطبيق الهاتف")
 
         try:
-            report = await diagnose_mobile(
-                working_dir=str(self.working_dir),
-                fix=fix,
-            )
+            report = await diagnose_mobile(auto_fix=fix)
 
             total_issues = report.total_diagnostics
             print_status(f"Found {total_issues} issues", "info" if total_issues == 0 else "warning")

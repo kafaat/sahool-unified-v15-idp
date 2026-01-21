@@ -48,15 +48,29 @@ import {
   Area,
 } from "recharts";
 
-// Dynamic import for map (no SSR)
-const FarmsMap = dynamic(() => import("@/components/maps/FarmsMap"), {
-  ssr: false,
-  loading: () => (
-    <div className="h-[400px] bg-gray-100 animate-pulse rounded-xl flex items-center justify-center">
-      <p className="text-gray-500">جاري تحميل الخريطة...</p>
-    </div>
-  ),
-});
+// Dynamic import for map (no SSR) with error handling
+const FarmsMap = dynamic(
+  () =>
+    import("@/components/maps/FarmsMap").catch((err) => {
+      logger.error("Failed to load FarmsMap:", err);
+      // Return a fallback component on error
+      return {
+        default: () => (
+          <div className="h-[400px] bg-red-50 rounded-xl flex items-center justify-center">
+            <p className="text-red-600">فشل تحميل الخريطة. يرجى تحديث الصفحة.</p>
+          </div>
+        ),
+      };
+    }),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[400px] bg-gray-100 animate-pulse rounded-xl flex items-center justify-center">
+        <p className="text-gray-500">جاري تحميل الخريطة...</p>
+      </div>
+    ),
+  },
+);
 
 // Chart colors
 const CHART_COLORS = {
@@ -103,6 +117,7 @@ export default function DashboardPage() {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [recentDiagnoses, setRecentDiagnoses] = useState<DiagnosisRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
 
   // WebSocket integration for real-time updates
@@ -112,20 +127,53 @@ export default function DashboardPage() {
     minSeverity: "medium",
   });
 
-  // Load initial data
+  // Load initial data with individual error handling using Promise.allSettled
   useEffect(() => {
     async function loadData() {
       try {
-        const [statsData, farmsData, diagnosesData] = await Promise.all([
+        // Use Promise.allSettled to handle partial failures gracefully
+        const results = await Promise.allSettled([
           fetchDashboardStats(),
           fetchFarms(),
           fetchDiagnoses({ limit: 5 }),
         ]);
-        setStats(statsData);
-        setFarms(farmsData);
-        setRecentDiagnoses(diagnosesData.slice(0, 5));
+
+        let failedCount = 0;
+
+        // Handle stats result
+        if (results[0].status === "fulfilled") {
+          setStats(results[0].value);
+        } else {
+          logger.error("Failed to load dashboard stats:", results[0].reason);
+          failedCount++;
+        }
+
+        // Handle farms result
+        if (results[1].status === "fulfilled") {
+          setFarms(results[1].value);
+        } else {
+          logger.error("Failed to load farms:", results[1].reason);
+          failedCount++;
+        }
+
+        // Handle diagnoses result
+        if (results[2].status === "fulfilled") {
+          setRecentDiagnoses(results[2].value.slice(0, 5));
+        } else {
+          logger.error("Failed to load diagnoses:", results[2].reason);
+          failedCount++;
+        }
+
+        // Show error if all requests failed
+        if (failedCount === 3) {
+          setLoadError("فشل تحميل بيانات لوحة التحكم. يرجى التحقق من الاتصال.");
+        } else if (failedCount > 0) {
+          // Partial failure - log but don't show error to user
+          logger.warn(`${failedCount} of 3 dashboard data requests failed`);
+        }
       } catch (error) {
         logger.error("Failed to load dashboard data:", error);
+        setLoadError("حدث خطأ غير متوقع. يرجى تحديث الصفحة.");
       } finally {
         setIsLoading(false);
       }
@@ -173,12 +221,14 @@ export default function DashboardPage() {
   });
 
   // Update critical alerts count from real-time data
+  // Uses functional update to safely handle null stats state
   useEffect(() => {
-    if (criticalAlerts.length > 0) {
-      setStats((prev) =>
-        prev ? { ...prev, criticalAlerts: criticalAlerts.length } : prev,
-      );
-    }
+    setStats((prev) => {
+      // If stats is null or critical alerts count is unchanged, no update needed
+      if (!prev) return prev;
+      if (prev.criticalAlerts === criticalAlerts.length) return prev;
+      return { ...prev, criticalAlerts: criticalAlerts.length };
+    });
   }, [criticalAlerts.length]);
 
   // Accept any farm-like object that has at least the base properties
@@ -197,6 +247,25 @@ export default function DashboardPage() {
               className="h-32 bg-gray-200 animate-pulse rounded-xl"
             ></div>
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Show error message if data loading completely failed
+  if (loadError && !stats && farms.length === 0) {
+    return (
+      <div className="p-6">
+        <Header title="لوحة التحكم" subtitle="نظرة عامة على المنصة" />
+        <div className="mt-6 bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-red-700 font-medium">{loadError}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            إعادة تحميل الصفحة
+          </button>
         </div>
       </div>
     );

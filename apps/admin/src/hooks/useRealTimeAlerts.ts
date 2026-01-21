@@ -82,6 +82,14 @@ interface UseRealTimeAlertsReturn {
  * }
  * ```
  */
+// Severity levels for filtering - defined outside component to prevent recreation
+const SEVERITY_LEVELS: Record<string, number> = {
+  low: 0,
+  medium: 1,
+  high: 2,
+  critical: 3,
+} as const;
+
 export function useRealTimeAlerts(
   options: UseRealTimeAlertsOptions = {},
 ): UseRealTimeAlertsReturn {
@@ -95,21 +103,13 @@ export function useRealTimeAlerts(
 
   const [alerts, setAlerts] = useState<Alert[]>([]);
 
-  // Severity levels for filtering
-  const severityLevels = {
-    low: 0,
-    medium: 1,
-    high: 2,
-    critical: 3,
-  };
-
   // Filter alert based on options
   const shouldIncludeAlert = useCallback(
     (alert: AlertMessage): boolean => {
       // Check severity filter
       if (minSeverity) {
-        const alertLevel = severityLevels[alert.severity];
-        const minLevel = severityLevels[minSeverity];
+        const alertLevel = SEVERITY_LEVELS[alert.severity] ?? 0;
+        const minLevel = SEVERITY_LEVELS[minSeverity] ?? 0;
         if (alertLevel < minLevel) {
           return false;
         }
@@ -124,7 +124,7 @@ export function useRealTimeAlerts(
 
       return true;
     },
-    [minSeverity, alertTypes, severityLevels],
+    [minSeverity, alertTypes],
   );
 
   // Handle new alert from WebSocket

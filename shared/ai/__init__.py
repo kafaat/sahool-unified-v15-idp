@@ -19,6 +19,7 @@ Modules:
     - explainability: Explanation generation for AI recommendations
     - feedback: User feedback collection and analysis
     - experience_learning: Self-learning agents with SOP generation (Acontext-inspired)
+    - graph_memory: Graph-based memory with ECL pipeline (Cognee-inspired)
 
 Author: SAHOOL Platform Team
 Updated: January 2026
@@ -226,7 +227,25 @@ from .experience_learning import (
     get_task_guidance,
 )
 
-__version__ = "1.6.0"
+# Graph-based memory (Cognee-inspired)
+from .graph_memory import (
+    GraphMemory,
+    GraphStore,
+    Entity,
+    EntityType,
+    Relationship,
+    RelationType,
+    SearchResult,
+    SimpleEmbedder,
+    get_graph_memory,
+    add as graph_add,
+    cognify,
+    memify,
+    search as graph_search,
+    cosine_similarity,
+)
+
+__version__ = "1.7.0"
 
 __all__ = [
     # Context Engineering - Compression
@@ -353,6 +372,21 @@ __all__ = [
     "get_experience_learner",
     "record_task_execution",
     "get_task_guidance",
+    # Graph Memory (Cognee-inspired)
+    "GraphMemory",
+    "GraphStore",
+    "Entity",
+    "EntityType",
+    "Relationship",
+    "RelationType",
+    "SearchResult",
+    "SimpleEmbedder",
+    "get_graph_memory",
+    "graph_add",
+    "cognify",
+    "memify",
+    "graph_search",
+    "cosine_similarity",
 ]
 
 # Add LLM Manager exports if available

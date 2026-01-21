@@ -145,16 +145,17 @@ jobs:
       - name: Scan with Safety
         run: |
           echo "🔍 Scanning Python dependencies with Safety..."
+          # Using 'scan' command (check was deprecated June 2024)
 
           for req in $(find . -name "requirements.txt" -type f -not -path "./archive/*"); do
             echo "Scanning: $req"
-            safety check -r "$req" --full-report --json > safety-report-$(echo $req | md5sum | cut -d' ' -f1).json || true
+            safety scan --target "$req" --output json > safety-report-$(echo $req | md5sum | cut -d' ' -f1).json || true
           done
 
           # Check pyproject.toml
           if [ -f "pyproject.toml" ]; then
             pip install -e ".[base,infrastructure,testing]" || true
-            safety check --json > safety-report-pyproject.json || true
+            safety scan --output json > safety-report-pyproject.json || true
           fi
 
       - name: Scan with pip-audit

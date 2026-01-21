@@ -118,10 +118,11 @@ jobs:
         run: |
           echo "🔍 Scanning Python dependencies with Safety..."
           # Note: Safety now requires API key for full functionality
+          # Using 'scan' command (check was deprecated June 2024)
           SAFETY_ISSUES=0
           for req in $(find . -name "requirements.txt" -type f -not -path "./.git/*" -not -path "./archive/*"); do
             echo "Scanning: $req"
-            safety check -r "$req" --full-report 2>&1 || SAFETY_ISSUES=$((SAFETY_ISSUES + 1))
+            safety scan --target "$req" 2>&1 || SAFETY_ISSUES=$((SAFETY_ISSUES + 1))
           done
           if [ $SAFETY_ISSUES -gt 0 ]; then
             echo "::warning::Safety found potential issues in $SAFETY_ISSUES requirements files"

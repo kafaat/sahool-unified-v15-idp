@@ -30,6 +30,7 @@ class EmbeddingProvider(str, Enum):
     OLLAMA = "ollama"
     OPENAI = "openai"
     GOOGLE = "google"
+    HUGGINGFACE = "huggingface"  # New: Huggingface models with Arabic support
 
 
 @dataclass
@@ -59,6 +60,10 @@ class EmbeddingConfig:
     # Dimension settings (auto-detected if not specified)
     embedding_dimension: Optional[int] = None
 
+    # Huggingface settings
+    huggingface_api_token: Optional[str] = None
+    huggingface_use_local: bool = True  # Use local models by default (offline-first)
+
     def __post_init__(self):
         """Load API keys from environment if not provided"""
         if self.api_key is None:
@@ -66,6 +71,9 @@ class EmbeddingConfig:
                 self.api_key = os.getenv("OPENAI_API_KEY")
             elif self.provider == EmbeddingProvider.GOOGLE:
                 self.api_key = os.getenv("GOOGLE_API_KEY")
+
+        if self.huggingface_api_token is None:
+            self.huggingface_api_token = os.getenv("HUGGINGFACE_API_TOKEN")
 
 
 @dataclass
@@ -259,6 +267,17 @@ class EmbeddingsAdapter:
         # Google
         "textembedding-gecko": 768,
         "textembedding-gecko-multilingual": 768,
+        # Huggingface - Multilingual (Arabic support)
+        "intfloat/multilingual-e5-large": 1024,
+        "intfloat/multilingual-e5-base": 768,
+        "sentence-transformers/paraphrase-multilingual-mpnet-base-v2": 768,
+        # Huggingface - Arabic-specific
+        "aubmindlab/bert-base-arabertv02": 768,
+        "UBC-NLP/MARBERT": 768,
+        # Huggingface - English
+        "sentence-transformers/all-MiniLM-L6-v2": 384,
+        "sentence-transformers/all-mpnet-base-v2": 768,
+        "BAAI/bge-large-en-v1.5": 1024,
     }
 
     def __init__(self, config: Optional[EmbeddingConfig] = None):
@@ -428,6 +447,8 @@ class EmbeddingsAdapter:
             return await self._embed_openai(text)
         elif provider == EmbeddingProvider.GOOGLE:
             return await self._embed_google(text)
+        elif provider == EmbeddingProvider.HUGGINGFACE:
+            return await self._embed_huggingface(text)
         else:
             raise EmbeddingProviderError(
                 f"Unknown provider: {provider}",
@@ -564,6 +585,80 @@ class EmbeddingsAdapter:
             raise EmbeddingProviderError(
                 f"Google error: {str(e)}",
                 provider=EmbeddingProvider.GOOGLE,
+                original_error=e,
+            )
+
+    async def _embed_huggingface(self, text: str) -> list[float]:
+        """Generate embedding using Huggingface (local or API)
+
+        توليد التضمين باستخدام Huggingface
+        """
+        try:
+            # Try to use the HuggingfaceProvider from our module
+            from .huggingface_provider import (
+                HuggingfaceProvider,
+                HuggingfaceConfig,
+            )
+
+            # Lazy initialize provider
+            if not hasattr(self, "_hf_provider") or self._hf_provider is None:
+                hf_config = HuggingfaceConfig(
+                    api_token=self.config.huggingface_api_token,
+                    default_embedding_model=self.config.model,
+                    use_local_models=self.config.huggingface_use_local,
+                    cache_enabled=self.config.cache_enabled,
+                )
+                self._hf_provider = HuggingfaceProvider(hf_config)
+
+            result = await self._hf_provider.embed(text, self.config.model)
+            return result.embedding
+
+        except ImportError:
+            # Fallback to direct API call if huggingface_provider not available
+            try:
+                if self._http_client is None:
+                    import httpx
+                    self._http_client = httpx.AsyncClient(timeout=self.config.timeout_seconds)
+
+                url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{self.config.model}"
+                headers = {}
+                if self.config.huggingface_api_token:
+                    headers["Authorization"] = f"Bearer {self.config.huggingface_api_token}"
+
+                response = await self._http_client.post(
+                    url,
+                    headers=headers,
+                    json={"inputs": text, "options": {"wait_for_model": True}},
+                )
+                response.raise_for_status()
+
+                data = response.json()
+
+                # Handle different response formats
+                if isinstance(data, list) and len(data) > 0:
+                    if isinstance(data[0], list):
+                        # Token-level embeddings - mean pool
+                        return [sum(col) / len(data) for col in zip(*data)]
+                    return data
+
+                raise EmbeddingProviderError(
+                    f"Unexpected Huggingface response format: {type(data)}",
+                    provider=EmbeddingProvider.HUGGINGFACE,
+                )
+
+            except Exception as e:
+                raise EmbeddingProviderError(
+                    f"Huggingface error: {str(e)}",
+                    provider=EmbeddingProvider.HUGGINGFACE,
+                    original_error=e,
+                )
+
+        except EmbeddingProviderError:
+            raise
+        except Exception as e:
+            raise EmbeddingProviderError(
+                f"Huggingface error: {str(e)}",
+                provider=EmbeddingProvider.HUGGINGFACE,
                 original_error=e,
             )
 

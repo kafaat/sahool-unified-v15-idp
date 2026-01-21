@@ -12,7 +12,6 @@ Created: January 2026
 import asyncio
 import json
 import logging
-import os
 import re
 import subprocess
 from dataclasses import dataclass, field
@@ -140,7 +139,7 @@ class FrontendDiagnosticRunner:
                                 fix_confidence=FixConfidence.HIGH if message.get("fix") else FixConfidence.LOW,
                             ))
                 except json.JSONDecodeError:
-                    logger.warning(f"Failed to parse ESLint JSON output")
+                    logger.warning("Failed to parse ESLint JSON output")
 
         except subprocess.TimeoutExpired:
             logger.error(f"ESLint timeout for {path}")

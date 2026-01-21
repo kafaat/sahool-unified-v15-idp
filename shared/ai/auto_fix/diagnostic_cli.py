@@ -31,15 +31,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from .auto_audit import AutoAudit, AuditAction, AuditSeverity, create_audit
+from .auto_audit import create_audit
 from .engine import AutoFixEngine
 from .frontend_diagnostics import (
-    UnifiedDiagnosticRunner,
-    diagnose_all_platforms,
     diagnose_frontend,
     diagnose_mobile,
 )
-from .health_check import HealthChecker, HealthStatus, quick_health_check
+from .health_check import HealthChecker, HealthStatus
 from .models import FixStrategy
 
 logger = logging.getLogger(__name__)

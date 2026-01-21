@@ -80,11 +80,13 @@ jobs:
           # Auth & security dependencies
           pip install pyjwt cffi cryptography
           # Database & messaging dependencies
-          pip install sqlalchemy tortoise-orm redis
+          pip install sqlalchemy tortoise-orm redis asyncpg aiosqlite greenlet
           # Utility dependencies
           pip install structlog jsonschema
-          # AI module dependencies for unit tests
-          pip install numpy pillow aiofiles
+          # AI & geospatial dependencies
+          pip install numpy pillow aiofiles shapely
+          # Monitoring dependencies
+          pip install prometheus-client opentelemetry-api opentelemetry-sdk
 
       - name: Run unified tests with coverage (parallel)
         run: |

@@ -62,14 +62,14 @@ class TestCircuitBreaker:
             raise ValueError("Test error")
 
         # First failure
-        result, success = cb.call(failing_func)
-        assert success is False
+        with pytest.raises(ValueError):
+            cb.call(failing_func)
         assert cb.failure_count == 1
         assert cb.state == CircuitState.CLOSED
 
         # Second failure - should open circuit
-        result, success = cb.call(failing_func)
-        assert success is False
+        with pytest.raises(ValueError):
+            cb.call(failing_func)
         assert cb.failure_count == 2
         assert cb.state == CircuitState.OPEN
 
@@ -82,7 +82,8 @@ class TestCircuitBreaker:
 
         # Make failures up to threshold
         for _ in range(3):
-            cb.call(failing_func)
+            with pytest.raises(Exception):
+                cb.call(failing_func)
 
         assert cb.state == CircuitState.OPEN
         assert cb.failure_count == 3
@@ -98,7 +99,8 @@ class TestCircuitBreaker:
         assert cb.state == CircuitState.CLOSED
 
         # Fail to open circuit
-        cb.call(failing_func)
+        with pytest.raises(Exception):
+            cb.call(failing_func)
         assert cb.state == CircuitState.OPEN
 
         # Wait for recovery timeout
@@ -108,7 +110,8 @@ class TestCircuitBreaker:
         def success_func():
             return "ok"
 
-        cb.call(success_func)
+        result, success = cb.call(success_func)
+        assert success is True
         # After successful call in half-open, should transition back to closed
         assert cb.state in [CircuitState.HALF_OPEN, CircuitState.CLOSED]
 
@@ -130,7 +133,8 @@ class TestCircuitBreaker:
             raise Exception("Error")
 
         # Open the circuit
-        cb.call(failing_func)
+        with pytest.raises(Exception):
+            cb.call(failing_func)
         assert cb.state == CircuitState.OPEN
 
         # Reset

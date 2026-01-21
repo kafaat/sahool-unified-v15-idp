@@ -591,7 +591,8 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
     // Create user with default tenant if not provided
-    const defaultTenantId = tenantId || "default-tenant";
+    // Use the default tenant UUID from database (sahool-demo tenant)
+    const defaultTenantId = tenantId || "a0000000-0000-0000-0000-000000000001";
 
     const user = await this.prisma.user.create({
       data: {

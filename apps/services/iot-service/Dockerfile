@@ -32,7 +32,8 @@ COPY apps/services/iot-service ./iot-service/
 WORKDIR /workspace/iot-service
 
 # Update package.json to use local shared-events (prevents npm from fetching from registry)
-RUN sed -i 's|"@sahool/shared-events": "\*"|"@sahool/shared-events": "file:../packages/shared-events"|g' package.json
+# Using npm pkg set for reliable package.json modification (more robust than sed)
+RUN npm pkg set dependencies.'@sahool/shared-events'='file:../packages/shared-events'
 
 # Install all dependencies with retry for network resilience
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
@@ -64,16 +65,22 @@ RUN apk add --no-cache curl openssl openssl-dev
 WORKDIR /app
 
 # Copy package files from builder (includes generated package-lock.json)
-# NOTE: Using npm ci for deterministic builds
 COPY --from=builder /workspace/iot-service/package.json ./
 COPY --from=builder /workspace/iot-service/package-lock.json ./
+
+# Copy built shared-events package BEFORE npm install (required for file: protocol)
+COPY --from=builder /workspace/packages/shared-events ./packages/shared-events/
+
+# Remove @sahool/shared-events from dependencies before production install
+# (we'll copy the pre-built package directly to node_modules after)
+RUN npm pkg delete dependencies.'@sahool/shared-events' || true
 
 # Install production dependencies with retry for network resilience
 RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force || \
     npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force
 
-# Copy built shared-events package to node_modules (after npm ci to prevent overwrite)
-COPY --from=builder /workspace/packages/shared-events /app/node_modules/@sahool/shared-events
+# Copy built shared-events package to node_modules
+RUN mkdir -p node_modules/@sahool && cp -r packages/shared-events node_modules/@sahool/shared-events && rm -rf packages
 
 # Copy Prisma schema and regenerate client for production
 COPY --from=builder /workspace/iot-service/prisma ./prisma

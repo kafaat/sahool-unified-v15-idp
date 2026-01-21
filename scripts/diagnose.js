@@ -47,9 +47,28 @@ const options = {
   all: !args.includes('--py') && !args.includes('--js') && !args.includes('--security'),
 };
 
-// Run a command and return result
+// Allowlist of safe commands for diagnostic purposes
+const ALLOWED_COMMANDS = new Set([
+  'ruff', 'pyright', 'bandit', 'vulture', 'safety',
+  'npx', 'npm', 'docker', 'which', 'where'
+]);
+
+// Validate command against allowlist
+function isAllowedCommand(cmd) {
+  const baseCommand = cmd.split(/\s+/)[0];
+  return ALLOWED_COMMANDS.has(baseCommand) || baseCommand === 'npx' || baseCommand === 'npm' || baseCommand === 'docker';
+}
+
+// Run a command and return result (with allowlist validation)
 function runCommand(cmd, description, ignoreError = false) {
   log.subheader(description);
+
+  // Security: validate command against allowlist
+  if (!isAllowedCommand(cmd)) {
+    log.error(`Command not in allowlist: ${cmd.split(/\s+/)[0]}`);
+    return { success: false, output: 'Command not allowed' };
+  }
+
   try {
     const output = execSync(cmd, {
       encoding: 'utf8',
@@ -75,10 +94,16 @@ function runCommand(cmd, description, ignoreError = false) {
   }
 }
 
-// Check if a command exists
+// Check if a command exists (only for allowed commands)
 function commandExists(cmd) {
+  // Security: only check for commands in our allowlist
+  if (!ALLOWED_COMMANDS.has(cmd)) {
+    return false;
+  }
   try {
-    execSync(`which ${cmd} 2>/dev/null || where ${cmd} 2>nul`, { stdio: 'pipe' });
+    // Use platform-specific command lookup
+    const checkCmd = process.platform === 'win32' ? `where ${cmd}` : `which ${cmd}`;
+    execSync(checkCmd, { stdio: 'pipe' });
     return true;
   } catch {
     return false;

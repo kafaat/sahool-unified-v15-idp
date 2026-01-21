@@ -4,7 +4,6 @@ Tests for shared/ai/graph_memory.py module
 """
 
 import pytest
-from datetime import datetime, UTC
 
 
 class TestEntityType:
@@ -674,6 +673,7 @@ class TestConvenienceFunctions:
 
         results = await search("wheat")
         # Results may be empty or contain matches depending on previous tests
+        assert isinstance(results, list)
 
     def test_get_graph_memory_singleton(self):
         """Test get_graph_memory returns singleton"""

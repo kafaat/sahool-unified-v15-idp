@@ -5,13 +5,20 @@ SAHOOL AI Module
 
 AI utilities and context engineering for the SAHOOL agricultural platform.
 Provides context compression, memory management, recommendation evaluation,
-automated code analysis/fixing, and model training.
+automated code analysis/fixing, model training, audit logging, and circuit breakers.
 
 Modules:
     - context_engineering: Context compression, memory, and evaluation
     - auto_fix: Automated code diagnostics and fixing
     - ollama_client: Local LLM integration via Ollama
     - model_training: Fine-tuning and training capabilities
+    - audit: Unified AI audit logging with cost tracking
+    - circuit_breaker: Resilience pattern for external services
+    - metrics: Prometheus-compatible observability metrics
+    - embeddings: Unified embedding providers (sentence-transformers, OpenAI, Ollama)
+    - explainability: Explanation generation for AI recommendations
+    - feedback: User feedback collection and analysis
+    - experience_learning: Self-learning agents with SOP generation (Acontext-inspired)
 
 Author: SAHOOL Platform Team
 Updated: January 2026
@@ -57,6 +64,74 @@ from .auto_fix import (
     AuditEntry,
 )
 
+# Audit logging
+from .audit import (
+    AIAuditLogger,
+    AuditEvent,
+    AuditEventType,
+    SafetyLevel,
+    calculate_cost,
+    get_audit_logger,
+    get_cost_summary,
+    log_agent_call,
+    LLM_COSTS,
+)
+
+# Circuit breaker
+from .circuit_breaker import (
+    CircuitBreaker,
+    CircuitBreakerConfig,
+    CircuitBreakerError,
+    CircuitBreakerStats,
+    CircuitState,
+    get_circuit_breaker,
+    get_ollama_circuit_breaker,
+    get_anthropic_circuit_breaker,
+    get_openai_circuit_breaker,
+    get_all_circuit_breakers,
+    reset_all_circuit_breakers,
+)
+
+# Metrics
+from .metrics import (
+    AIMetricsCollector,
+    MetricType,
+    MetricValue,
+    get_metrics_collector,
+)
+
+# Validation
+from .validation import (
+    AIValidator,
+    ValidationResult,
+    ValidationIssue,
+    ValidationLevel,
+    ThreatCategory,
+    Severity,
+    get_validator,
+    validate_prompt,
+    validate_response,
+    is_safe_prompt,
+    is_safe_response,
+)
+
+# LLM Provider Manager (optional - requires httpx)
+try:
+    from .llm_provider import (
+        LLMProviderManager,
+        LLMProvider,
+        LLMConfig,
+        LLMResponse,
+        LLMProviderError,
+        AllProvidersFailedError,
+        get_llm_manager,
+        generate_text,
+        generate_with_ollama_fallback,
+    )
+    LLM_MANAGER_AVAILABLE = True
+except ImportError:
+    LLM_MANAGER_AVAILABLE = False
+
 # Ollama client (optional - requires httpx)
 try:
     from .ollama_client import (
@@ -92,7 +167,66 @@ try:
 except ImportError:
     TRAINING_AVAILABLE = False
 
-__version__ = "1.2.0"
+# Embeddings adapter
+from .embeddings import (
+    EmbeddingsAdapter,
+    EmbeddingConfig,
+    EmbeddingResult,
+    BatchEmbeddingResult,
+    EmbeddingProvider,
+    EmbeddingProviderError,
+    EmbeddingCache,
+    get_embeddings_adapter,
+    embed_text,
+    embed_texts,
+    text_similarity,
+)
+
+# Explainability layer
+from .explainability import (
+    ExplainabilityEngine,
+    Explanation,
+    ContributingFactor,
+    AlternativeRecommendation,
+    RuleExplanation,
+    ExplanationType,
+    FactorType,
+    ImpactLevel,
+    get_explainability_engine,
+    explain_recommendation,
+)
+
+# Feedback collection
+from .feedback import (
+    FeedbackCollector,
+    FeedbackItem,
+    FeedbackSummary,
+    FeedbackStorage,
+    FeedbackType,
+    FeedbackSentiment,
+    RecommendationType,
+    OutcomeStatus,
+    get_feedback_collector,
+    collect_rating,
+    collect_outcome,
+    get_feedback_summary,
+)
+
+# Experience-based learning (Acontext-inspired)
+from .experience_learning import (
+    ExperienceLearner,
+    ExperienceStore,
+    ExecutionStatus,
+    ExecutionStep,
+    TaskExecution,
+    SOP,
+    SOPConfidence,
+    get_experience_learner,
+    record_task_execution,
+    get_task_guidance,
+)
+
+__version__ = "1.6.0"
 
 __all__ = [
     # Context Engineering - Compression
@@ -129,10 +263,111 @@ __all__ = [
     "FixConfidence",
     "ToolType",
     "AuditEntry",
+    # Audit logging
+    "AIAuditLogger",
+    "AuditEvent",
+    "AuditEventType",
+    "SafetyLevel",
+    "calculate_cost",
+    "get_audit_logger",
+    "get_cost_summary",
+    "log_agent_call",
+    "LLM_COSTS",
+    # Circuit breaker
+    "CircuitBreaker",
+    "CircuitBreakerConfig",
+    "CircuitBreakerError",
+    "CircuitBreakerStats",
+    "CircuitState",
+    "get_circuit_breaker",
+    "get_ollama_circuit_breaker",
+    "get_anthropic_circuit_breaker",
+    "get_openai_circuit_breaker",
+    "get_all_circuit_breakers",
+    "reset_all_circuit_breakers",
+    # Metrics
+    "AIMetricsCollector",
+    "MetricType",
+    "MetricValue",
+    "get_metrics_collector",
+    # Validation
+    "AIValidator",
+    "ValidationResult",
+    "ValidationIssue",
+    "ValidationLevel",
+    "ThreatCategory",
+    "Severity",
+    "get_validator",
+    "validate_prompt",
+    "validate_response",
+    "is_safe_prompt",
+    "is_safe_response",
     # Availability flags
     "OLLAMA_AVAILABLE",
     "TRAINING_AVAILABLE",
+    "LLM_MANAGER_AVAILABLE",
+    # Embeddings
+    "EmbeddingsAdapter",
+    "EmbeddingConfig",
+    "EmbeddingResult",
+    "BatchEmbeddingResult",
+    "EmbeddingProvider",
+    "EmbeddingProviderError",
+    "EmbeddingCache",
+    "get_embeddings_adapter",
+    "embed_text",
+    "embed_texts",
+    "text_similarity",
+    # Explainability
+    "ExplainabilityEngine",
+    "Explanation",
+    "ContributingFactor",
+    "AlternativeRecommendation",
+    "RuleExplanation",
+    "ExplanationType",
+    "FactorType",
+    "ImpactLevel",
+    "get_explainability_engine",
+    "explain_recommendation",
+    # Feedback
+    "FeedbackCollector",
+    "FeedbackItem",
+    "FeedbackSummary",
+    "FeedbackStorage",
+    "FeedbackType",
+    "FeedbackSentiment",
+    "RecommendationType",
+    "OutcomeStatus",
+    "get_feedback_collector",
+    "collect_rating",
+    "collect_outcome",
+    "get_feedback_summary",
+    # Experience Learning (Acontext-inspired)
+    "ExperienceLearner",
+    "ExperienceStore",
+    "ExecutionStatus",
+    "ExecutionStep",
+    "TaskExecution",
+    "SOP",
+    "SOPConfidence",
+    "get_experience_learner",
+    "record_task_execution",
+    "get_task_guidance",
 ]
+
+# Add LLM Manager exports if available
+if LLM_MANAGER_AVAILABLE:
+    __all__.extend([
+        "LLMProviderManager",
+        "LLMProvider",
+        "LLMConfig",
+        "LLMResponse",
+        "LLMProviderError",
+        "AllProvidersFailedError",
+        "get_llm_manager",
+        "generate_text",
+        "generate_with_ollama_fallback",
+    ])
 
 # Add Ollama exports if available
 if OLLAMA_AVAILABLE:

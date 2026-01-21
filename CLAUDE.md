@@ -765,8 +765,20 @@ shared/ai/
 │   ├── diagnostics.py          # Multi-tool code analysis
 │   ├── fixers.py               # Automated code fixing
 │   └── engine.py               # Main orchestration engine
+├── context_engineering/         # Context Engineering
+│   ├── compression.py          # Token compression
+│   ├── memory.py               # Farm memory management
+│   └── evaluation.py           # LLM-as-Judge evaluation
 ├── ollama_client.py            # Local LLM integration via Ollama
-└── model_training.py           # Model fine-tuning & evaluation
+├── model_training.py           # Model fine-tuning & evaluation
+├── audit.py                    # AI audit logging with cost tracking
+├── circuit_breaker.py          # Resilience pattern for services
+├── metrics.py                  # Prometheus-compatible metrics
+├── llm_provider.py             # Multi-provider LLM manager
+├── validation.py               # Input/output validation
+├── embeddings.py               # Unified embedding providers
+├── explainability.py           # Recommendation explanations
+└── feedback.py                 # User feedback collection
 ```
 
 ### Auto-Fix Engine (`shared/ai/auto_fix/`)
@@ -972,6 +984,240 @@ OLLAMA_TIMEOUT=60
 AUTO_FIX_ENABLED=true
 AUTO_FIX_DRY_RUN=false
 AUTO_FIX_AUDIT_ENABLED=true
+```
+
+---
+
+## Embeddings Adapter
+
+The Embeddings Adapter provides a unified interface for multiple embedding providers, supporting offline-first architecture with automatic fallback.
+
+### Supported Providers
+
+| Provider | Type | Models |
+|----------|------|--------|
+| **Sentence Transformers** | Local | all-MiniLM-L6-v2, all-mpnet-base-v2, paraphrase-multilingual |
+| **Ollama** | Local | nomic-embed-text, mxbai-embed-large |
+| **OpenAI** | Cloud | text-embedding-3-small, text-embedding-3-large, ada-002 |
+| **Google** | Cloud | textembedding-gecko, textembedding-gecko-multilingual |
+
+### Usage Example
+
+```python
+from shared.ai.embeddings import (
+    EmbeddingsAdapter,
+    EmbeddingConfig,
+    EmbeddingProvider,
+)
+
+# Initialize with local provider (offline-first)
+config = EmbeddingConfig(
+    provider=EmbeddingProvider.SENTENCE_TRANSFORMERS,
+    model="all-MiniLM-L6-v2",
+    cache_enabled=True,
+)
+adapter = EmbeddingsAdapter(config)
+
+# Single embedding
+result = await adapter.embed("Agricultural advisory for wheat irrigation")
+print(f"Dimension: {result.dimension}, Latency: {result.latency_ms}ms")
+
+# Batch embedding
+results = await adapter.embed_batch([
+    "Wheat irrigation schedule",
+    "جدول ري القمح",
+    "Nitrogen fertilizer application",
+])
+
+# Semantic similarity
+similarity = await adapter.similarity(
+    "wheat disease symptoms",
+    "أعراض مرض القمح"
+)
+print(f"Similarity: {similarity:.2f}")
+
+# Find most similar
+matches = await adapter.find_most_similar(
+    query="irrigation advice",
+    candidates=["watering schedule", "fertilizer tips", "pest control"],
+    top_k=2
+)
+```
+
+---
+
+## Explainability Layer
+
+The Explainability Layer provides detailed explanations for AI recommendations, answering "Why this recommendation?" (لماذا هذه التوصية؟).
+
+### Features
+
+- **Factor-based explanations**: Soil, weather, crop stage contributions
+- **Rule-based explanations**: Agronomic rules that were applied
+- **Alternative comparison**: Other options considered with rejection reasons
+- **Bilingual support**: Arabic and English explanations
+- **Confidence analysis**: Uncertainty reasons and data sources
+
+### Usage Example
+
+```python
+from shared.ai.explainability import (
+    ExplainabilityEngine,
+    ContributingFactor,
+    FactorType,
+    ImpactLevel,
+)
+
+engine = ExplainabilityEngine()
+
+# Explain irrigation recommendation
+explanation = engine.explain_irrigation(
+    recommendation_id="irr_001",
+    soil_moisture=35.0,
+    weather_forecast={"rain_probability": 10, "temperature": 28},
+    crop_stage="tillering",
+    et_value=5.5,
+    recommended_amount_mm=25.0,
+)
+
+# Get human-readable summary
+print(explanation.summary)        # English
+print(explanation.summary_ar)     # Arabic
+
+# Get detailed explanation
+print(engine.format_for_display(explanation, language="both"))
+
+# Explain fertilizer recommendation
+explanation = engine.explain_fertilizer(
+    recommendation_id="fert_001",
+    soil_test={"nitrogen": 18, "phosphorus": 25, "potassium": 150},
+    crop_type="wheat",
+    crop_stage="tillering",
+    target_yield=5.0,
+    recommended_fertilizer="Urea 46%",
+    recommended_rate=46.0,
+)
+
+# Access contributing factors
+for factor in explanation.primary_factors:
+    print(f"{factor.name_ar}: {factor.value} ({factor.impact.value})")
+```
+
+### Explanation Output
+
+```yaml
+recommendation_id: irr_001
+explanation_type: factor_based
+overall_confidence: 85%
+
+summary: "This irrigation recommendation is based on Soil Moisture, Weather Forecast."
+summary_ar: "هذه التوصية بشأن الري مبنية على رطوبة التربة، توقعات الطقس."
+
+factors:
+  - name: Soil Moisture | رطوبة التربة
+    value: 35%
+    impact: HIGH
+    direction: supports
+  - name: Weather Forecast | توقعات الطقس
+    value: "No rain expected"
+    impact: HIGH
+    direction: supports
+```
+
+---
+
+## Feedback Collection
+
+The Feedback Collection module enables collecting and analyzing user feedback on AI recommendations for continuous quality improvement.
+
+### Features
+
+- **Multiple feedback types**: Rating (1-5), thumbs up/down, outcome, correction
+- **Sentiment analysis**: Automatic sentiment scoring
+- **Outcome tracking**: Did the advice work? Yield and cost impact
+- **Training data export**: Export for model fine-tuning
+- **Summary statistics**: Analytics and insights
+
+### Usage Example
+
+```python
+from shared.ai.feedback import (
+    FeedbackCollector,
+    RecommendationType,
+    OutcomeStatus,
+)
+
+# Initialize collector
+collector = FeedbackCollector(tenant_id="farm_001")
+
+# Collect rating feedback (1-5 stars)
+await collector.collect_rating(
+    recommendation_id="rec_001",
+    rating=4,
+    recommendation_type=RecommendationType.IRRIGATION,
+    comment="The irrigation advice worked well",
+    comment_ar="نصيحة الري نجحت بشكل جيد",
+)
+
+# Collect thumbs up/down
+await collector.collect_thumbs(
+    recommendation_id="rec_002",
+    thumbs_up=True,
+)
+
+# Collect outcome feedback (did it work?)
+await collector.collect_outcome(
+    recommendation_id="rec_001",
+    outcome=OutcomeStatus.SUCCESS,
+    yield_impact=15.0,  # 15% yield improvement
+    cost_impact=500.0,  # Cost in local currency
+    outcome_details="Crop health improved significantly",
+    outcome_details_ar="تحسنت صحة المحصول بشكل ملحوظ",
+)
+
+# Collect correction (user provides correct answer)
+await collector.collect_correction(
+    recommendation_id="rec_003",
+    correction="The correct irrigation amount is 30mm not 25mm",
+)
+
+# Get summary statistics
+summary = await collector.get_summary(days=30)
+print(f"Total feedback: {summary.total_feedback}")
+print(f"Average rating: {summary.average_rating:.1f}")
+print(f"Success rate: {summary.success_rate:.0%}")
+print(f"By type: {summary.by_recommendation_type}")
+
+# Export for model training
+training_data = await collector.export_for_training(min_rating=4)
+```
+
+### Feedback Summary Output
+
+```yaml
+total_feedback: 150
+average_rating: 4.2
+success_rate: 78%
+thumbs_up_count: 95
+thumbs_down_count: 15
+
+by_recommendation_type:
+  irrigation:
+    count: 60
+    average_rating: 4.5
+    positive: 52
+    negative: 8
+  fertilizer:
+    count: 45
+    average_rating: 4.1
+    positive: 38
+    negative: 7
+
+outcome_distribution:
+  success: 85
+  partial_success: 20
+  failure: 10
+  not_applicable: 5
 ```
 
 ---

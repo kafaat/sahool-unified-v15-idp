@@ -26,7 +26,11 @@ License: MIT
 import logging
 import time
 from dataclasses import dataclass
+
+
+
 from datetime import datetime, timezone, UTC
+
 from typing import Any
 
 import numpy as np
@@ -34,9 +38,9 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-# =============================================================================
+# ======================================================================
 # Constants - الثوابت
-# =============================================================================
+# ======================================================================
 
 # Satellite band mappings for NDVI calculation
 # تعيينات نطاقات الأقمار الصناعية لحساب NDVI
@@ -51,9 +55,9 @@ SATELLITE_BANDS = {
 MAX_CLOUD_COVERAGE_PERCENT = 30  # Maximum acceptable cloud coverage
 
 
-# =============================================================================
+# ======================================================================
 # Data Classes - فئات البيانات
-# =============================================================================
+# ======================================================================
 
 
 @dataclass
@@ -130,9 +134,9 @@ class ProcessingResult:
         }
 
 
-# =============================================================================
+# ======================================================================
 # Processing Functions - دوال المعالجة
-# =============================================================================
+# ======================================================================
 
 
 def simulate_band_download(
@@ -568,9 +572,9 @@ def handle_satellite_image_processing(payload: dict[str, Any]) -> dict[str, Any]
     logger.info(f"Processing satellite image for field: {payload.get('field_id')}")
 
     try:
-        # =================================================================
+        # ==========================================================
         # Step 1: Validate input - التحقق من صحة الإدخال
-        # =================================================================
+        # ==========================================================
         image_url = payload.get("image_url")
         field_id = payload.get("field_id")
         satellite_type = payload.get("satellite_type", "Sentinel-2")
@@ -584,9 +588,9 @@ def handle_satellite_image_processing(payload: dict[str, Any]) -> dict[str, Any]
             f"satellite={satellite_type}, bands={bands}"
         )
 
-        # =================================================================
+        # ==========================================================
         # Step 2: Execute processing pipeline - تنفيذ خط المعالجة
-        # =================================================================
+        # ==========================================================
         # The process_satellite_image function handles:
         # 1. Download/load image from URL - تحميل الصورة من URL
         # 2. Extract required bands - استخراج النطاقات المطلوبة
@@ -598,9 +602,9 @@ def handle_satellite_image_processing(payload: dict[str, Any]) -> dict[str, Any]
 
         processing_result = process_satellite_image(payload)
 
-        # =================================================================
+        # ==========================================================
         # Step 3: Prepare response - إعداد الاستجابة
-        # =================================================================
+        # ==========================================================
         if not processing_result.success:
             logger.error(
                 f"Satellite processing failed for field {field_id}: "

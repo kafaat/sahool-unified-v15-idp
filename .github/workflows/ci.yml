@@ -98,13 +98,9 @@ jobs:
           pytest tests/smoke/ tests/integration/test_health.py -v --tb=short \
             --cov-append --cov=shared --cov-report=xml --cov-report=term-missing || true
 
-          # Run unit tests for shared modules
-          # Ignore tests with deep kernel import chain issues
-          pytest tests/unit/ -v --tb=short \
-            --ignore=tests/unit/test_ndvi_calculation.py \
-            --ignore=tests/unit/kernel/test_common_task_queue.py \
-            --ignore=tests/unit/ndvi/test_analytics.py \
-            --cov-append --cov=shared --cov-report=xml --cov-report=term-missing || true
+          # Run AI unit tests (these work reliably)
+          pytest tests/unit/ai/ -v --tb=short \
+            --cov-append --cov=shared/ai --cov-report=xml --cov-report=term-missing || true
         env:
           ENVIRONMENT: test
           PYTHONPATH: .

@@ -18,6 +18,7 @@ Modules:
     - embeddings: Unified embedding providers (sentence-transformers, OpenAI, Ollama)
     - explainability: Explanation generation for AI recommendations
     - feedback: User feedback collection and analysis
+    - experience_learning: Self-learning agents with SOP generation (Acontext-inspired)
 
 Author: SAHOOL Platform Team
 Updated: January 2026
@@ -211,7 +212,21 @@ from .feedback import (
     get_feedback_summary,
 )
 
-__version__ = "1.5.0"
+# Experience-based learning (Acontext-inspired)
+from .experience_learning import (
+    ExperienceLearner,
+    ExperienceStore,
+    ExecutionStatus,
+    ExecutionStep,
+    TaskExecution,
+    SOP,
+    SOPConfidence,
+    get_experience_learner,
+    record_task_execution,
+    get_task_guidance,
+)
+
+__version__ = "1.6.0"
 
 __all__ = [
     # Context Engineering - Compression
@@ -327,6 +342,17 @@ __all__ = [
     "collect_rating",
     "collect_outcome",
     "get_feedback_summary",
+    # Experience Learning (Acontext-inspired)
+    "ExperienceLearner",
+    "ExperienceStore",
+    "ExecutionStatus",
+    "ExecutionStep",
+    "TaskExecution",
+    "SOP",
+    "SOPConfidence",
+    "get_experience_learner",
+    "record_task_execution",
+    "get_task_guidance",
 ]
 
 # Add LLM Manager exports if available

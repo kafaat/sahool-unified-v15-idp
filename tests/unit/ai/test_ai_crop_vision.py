@@ -15,60 +15,30 @@ Created: January 2026
 """
 
 import pytest
+import tempfile
 from datetime import datetime
+from pathlib import Path
 
 from shared.ai.crop_vision import (
     CropVisionAnalyzer,
-    CropVisionConfig,
     CropType,
     DiseaseType,
     GrowthStage,
     PestType,
     Severity,
-    ImageAnalysisResult,
+    BoundingBox,
+    VisionAnalysisResult,
     DiseaseDetection,
     GrowthStageDetection,
     PestDetection,
     YieldEstimate,
     NDVIAnalysis,
+    ImagePreprocessor,
     get_crop_vision_analyzer,
     analyze_crop_image,
-    detect_disease,
-    detect_growth_stage,
-    estimate_yield,
-    analyze_ndvi,
+    detect_crop_disease,
+    detect_crop_pests,
 )
-
-
-# ============================================================================
-# Config Tests
-# ============================================================================
-
-class TestCropVisionConfig:
-    """Tests for CropVisionConfig"""
-
-    def test_default_config(self):
-        """Test default configuration values"""
-        config = CropVisionConfig()
-
-        assert config.default_crop_type == CropType.WHEAT
-        assert config.confidence_threshold == 0.7
-        assert config.max_detections == 10
-        assert config.enable_caching is True
-
-    def test_custom_config(self):
-        """Test custom configuration"""
-        config = CropVisionConfig(
-            default_crop_type=CropType.DATE_PALM,
-            confidence_threshold=0.8,
-            max_detections=5,
-            enable_caching=False,
-        )
-
-        assert config.default_crop_type == CropType.DATE_PALM
-        assert config.confidence_threshold == 0.8
-        assert config.max_detections == 5
-        assert config.enable_caching is False
 
 
 # ============================================================================
@@ -86,39 +56,46 @@ class TestEnums:
         assert CropType.TOMATO.value == "tomato"
         assert CropType.CUCUMBER.value == "cucumber"
         assert CropType.ALFALFA.value == "alfalfa"
+        assert CropType.CORN.value == "corn"
+        assert CropType.RICE.value == "rice"
+        assert CropType.UNKNOWN.value == "unknown"
 
     def test_disease_types(self):
         """Test DiseaseType enum values"""
-        assert DiseaseType.RUST.value == "rust"
-        assert DiseaseType.POWDERY_MILDEW.value == "powdery_mildew"
-        assert DiseaseType.BLIGHT.value == "blight"
-        assert DiseaseType.LEAF_SPOT.value == "leaf_spot"
-        assert DiseaseType.ROOT_ROT.value == "root_rot"
+        assert DiseaseType.WHEAT_RUST.value == "wheat_rust"
+        assert DiseaseType.WHEAT_POWDERY_MILDEW.value == "wheat_powdery_mildew"
+        assert DiseaseType.TOMATO_LATE_BLIGHT.value == "tomato_late_blight"
+        assert DiseaseType.NUTRIENT_DEFICIENCY.value == "nutrient_deficiency"
+        assert DiseaseType.WATER_STRESS.value == "water_stress"
         assert DiseaseType.HEALTHY.value == "healthy"
+        assert DiseaseType.UNKNOWN.value == "unknown"
 
     def test_growth_stages(self):
-        """Test GrowthStage enum values"""
+        """Test GrowthStage enum values (Zadoks scale for cereals)"""
         assert GrowthStage.GERMINATION.value == "germination"
         assert GrowthStage.SEEDLING.value == "seedling"
-        assert GrowthStage.VEGETATIVE.value == "vegetative"
+        assert GrowthStage.TILLERING.value == "tillering"
+        assert GrowthStage.STEM_ELONGATION.value == "stem_elongation"
+        assert GrowthStage.BOOTING.value == "booting"
+        assert GrowthStage.HEADING.value == "heading"
         assert GrowthStage.FLOWERING.value == "flowering"
-        assert GrowthStage.FRUITING.value == "fruiting"
-        assert GrowthStage.MATURITY.value == "maturity"
-        assert GrowthStage.HARVEST.value == "harvest"
+        assert GrowthStage.RIPENING.value == "ripening"
+        assert GrowthStage.HARVEST_READY.value == "harvest_ready"
 
     def test_pest_types(self):
         """Test PestType enum values"""
         assert PestType.APHIDS.value == "aphids"
+        assert PestType.LOCUSTS.value == "locusts"
         assert PestType.WHITEFLY.value == "whitefly"
-        assert PestType.MITES.value == "mites"
         assert PestType.RED_PALM_WEEVIL.value == "red_palm_weevil"
+        assert PestType.SPIDER_MITES.value == "spider_mites"
         assert PestType.NONE_DETECTED.value == "none_detected"
 
     def test_severity_levels(self):
         """Test Severity enum values"""
         assert Severity.NONE.value == "none"
         assert Severity.LOW.value == "low"
-        assert Severity.MEDIUM.value == "medium"
+        assert Severity.MODERATE.value == "moderate"
         assert Severity.HIGH.value == "high"
         assert Severity.CRITICAL.value == "critical"
 
@@ -127,23 +104,46 @@ class TestEnums:
 # Data Class Tests
 # ============================================================================
 
+class TestBoundingBox:
+    """Tests for BoundingBox data class"""
+
+    def test_bounding_box_creation(self):
+        """Test creating a bounding box"""
+        box = BoundingBox(x=0.1, y=0.2, width=0.3, height=0.4)
+
+        assert box.x == 0.1
+        assert box.y == 0.2
+        assert box.width == 0.3
+        assert box.height == 0.4
+
+    def test_bounding_box_to_dict(self):
+        """Test converting bounding box to dictionary"""
+        box = BoundingBox(x=0.1, y=0.2, width=0.3, height=0.4)
+        data = box.to_dict()
+
+        assert data["x"] == 0.1
+        assert data["y"] == 0.2
+        assert data["width"] == 0.3
+        assert data["height"] == 0.4
+
+
 class TestDiseaseDetection:
     """Tests for DiseaseDetection data class"""
 
     def test_disease_detection_creation(self):
         """Test creating a disease detection"""
         detection = DiseaseDetection(
-            disease_type=DiseaseType.RUST,
+            disease_type=DiseaseType.WHEAT_RUST,
             confidence=0.85,
-            severity=Severity.MEDIUM,
+            severity=Severity.MODERATE,
             affected_area_percent=25.0,
             recommendations=["Apply fungicide", "Remove affected leaves"],
             recommendations_ar=["تطبيق مبيد فطري", "إزالة الأوراق المصابة"],
         )
 
-        assert detection.disease_type == DiseaseType.RUST
+        assert detection.disease_type == DiseaseType.WHEAT_RUST
         assert detection.confidence == 0.85
-        assert detection.severity == Severity.MEDIUM
+        assert detection.severity == Severity.MODERATE
         assert detection.affected_area_percent == 25.0
         assert len(detection.recommendations) == 2
         assert len(detection.recommendations_ar) == 2
@@ -151,7 +151,7 @@ class TestDiseaseDetection:
     def test_disease_detection_to_dict(self):
         """Test converting disease detection to dictionary"""
         detection = DiseaseDetection(
-            disease_type=DiseaseType.POWDERY_MILDEW,
+            disease_type=DiseaseType.WHEAT_POWDERY_MILDEW,
             confidence=0.9,
             severity=Severity.HIGH,
             affected_area_percent=40.0,
@@ -159,26 +159,25 @@ class TestDiseaseDetection:
 
         data = detection.to_dict()
 
-        assert data["disease_type"] == "powdery_mildew"
+        assert data["disease_type"] == "wheat_powdery_mildew"
         assert data["confidence"] == 0.9
         assert data["severity"] == "high"
         assert data["affected_area_percent"] == 40.0
 
-    def test_disease_detection_from_dict(self):
-        """Test creating disease detection from dictionary"""
-        data = {
-            "disease_type": "blight",
-            "confidence": 0.75,
-            "severity": "medium",
-            "affected_area_percent": 30.0,
-            "recommendations": ["Treat early"],
-        }
+    def test_disease_detection_with_bounding_boxes(self):
+        """Test disease detection with bounding boxes"""
+        box = BoundingBox(x=0.2, y=0.3, width=0.4, height=0.3)
+        detection = DiseaseDetection(
+            disease_type=DiseaseType.TOMATO_LATE_BLIGHT,
+            confidence=0.88,
+            severity=Severity.HIGH,
+            affected_area_percent=35.0,
+            bounding_boxes=[box],
+        )
 
-        detection = DiseaseDetection.from_dict(data)
-
-        assert detection.disease_type == DiseaseType.BLIGHT
-        assert detection.confidence == 0.75
-        assert detection.severity == Severity.MEDIUM
+        data = detection.to_dict()
+        assert len(data["bounding_boxes"]) == 1
+        assert data["bounding_boxes"][0]["x"] == 0.2
 
 
 class TestGrowthStageDetection:
@@ -190,15 +189,17 @@ class TestGrowthStageDetection:
             stage=GrowthStage.TILLERING,
             confidence=0.92,
             days_in_stage=14,
-            estimated_days_to_next_stage=7,
-            next_stage=GrowthStage.STEM_ELONGATION,
+            estimated_days_to_next=7,
+            crop_type=CropType.WHEAT,
+            health_score=0.85,
         )
 
         assert detection.stage == GrowthStage.TILLERING
         assert detection.confidence == 0.92
         assert detection.days_in_stage == 14
-        assert detection.estimated_days_to_next_stage == 7
-        assert detection.next_stage == GrowthStage.STEM_ELONGATION
+        assert detection.estimated_days_to_next == 7
+        assert detection.crop_type == CropType.WHEAT
+        assert detection.health_score == 0.85
 
     def test_growth_stage_to_dict(self):
         """Test converting growth stage to dictionary"""
@@ -222,14 +223,17 @@ class TestPestDetection:
             pest_type=PestType.APHIDS,
             confidence=0.8,
             severity=Severity.LOW,
-            population_density="moderate",
+            count_estimate=50,
+            treatment_urgency="normal",
             recommendations=["Apply insecticide"],
+            recommendations_ar=["تطبيق مبيد حشري"],
         )
 
         assert detection.pest_type == PestType.APHIDS
         assert detection.confidence == 0.8
         assert detection.severity == Severity.LOW
-        assert detection.population_density == "moderate"
+        assert detection.count_estimate == 50
+        assert detection.treatment_urgency == "normal"
 
     def test_pest_detection_to_dict(self):
         """Test converting pest detection to dictionary"""
@@ -237,12 +241,14 @@ class TestPestDetection:
             pest_type=PestType.RED_PALM_WEEVIL,
             confidence=0.95,
             severity=Severity.CRITICAL,
+            treatment_urgency="immediate",
         )
 
         data = detection.to_dict()
 
         assert data["pest_type"] == "red_palm_weevil"
         assert data["severity"] == "critical"
+        assert data["treatment_urgency"] == "immediate"
 
 
 class TestYieldEstimate:
@@ -251,29 +257,35 @@ class TestYieldEstimate:
     def test_yield_estimate_creation(self):
         """Test creating a yield estimate"""
         estimate = YieldEstimate(
+            crop_type=CropType.WHEAT,
             estimated_yield_kg_per_ha=5500.0,
+            confidence_range=(5000.0, 6000.0),
             confidence=0.75,
-            yield_range_min=5000.0,
-            yield_range_max=6000.0,
-            factors_affecting_yield=["weather", "soil quality"],
+            quality_grade="B",
+            factors={"vegetation_density": 0.9, "health_factor": 0.95},
         )
 
+        assert estimate.crop_type == CropType.WHEAT
         assert estimate.estimated_yield_kg_per_ha == 5500.0
+        assert estimate.confidence_range == (5000.0, 6000.0)
         assert estimate.confidence == 0.75
-        assert estimate.yield_range_min == 5000.0
-        assert estimate.yield_range_max == 6000.0
-        assert len(estimate.factors_affecting_yield) == 2
+        assert estimate.quality_grade == "B"
+        assert len(estimate.factors) == 2
 
     def test_yield_estimate_to_dict(self):
         """Test converting yield estimate to dictionary"""
         estimate = YieldEstimate(
+            crop_type=CropType.BARLEY,
             estimated_yield_kg_per_ha=4000.0,
+            confidence_range=(3500.0, 4500.0),
             confidence=0.7,
         )
 
         data = estimate.to_dict()
 
+        assert data["crop_type"] == "barley"
         assert data["estimated_yield_kg_per_ha"] == 4000.0
+        assert data["confidence_range"] == [3500.0, 4500.0]
         assert data["confidence"] == 0.7
 
 
@@ -286,72 +298,148 @@ class TestNDVIAnalysis:
             mean_ndvi=0.72,
             min_ndvi=0.45,
             max_ndvi=0.85,
-            health_category="healthy",
-            health_category_ar="صحي",
+            std_ndvi=0.1,
             vegetation_coverage_percent=85.0,
+            health_classification="good",
+            temporal_trend="stable",
         )
 
         assert analysis.mean_ndvi == 0.72
         assert analysis.min_ndvi == 0.45
         assert analysis.max_ndvi == 0.85
-        assert analysis.health_category == "healthy"
+        assert analysis.std_ndvi == 0.1
         assert analysis.vegetation_coverage_percent == 85.0
+        assert analysis.health_classification == "good"
+        assert analysis.temporal_trend == "stable"
 
     def test_ndvi_analysis_to_dict(self):
         """Test converting NDVI analysis to dictionary"""
         analysis = NDVIAnalysis(
             mean_ndvi=0.65,
-            health_category="moderate",
+            min_ndvi=0.4,
+            max_ndvi=0.8,
+            std_ndvi=0.12,
+            vegetation_coverage_percent=75.0,
+            health_classification="moderate",
         )
 
         data = analysis.to_dict()
 
         assert data["mean_ndvi"] == 0.65
-        assert data["health_category"] == "moderate"
+        assert data["health_classification"] == "moderate"
 
 
-class TestImageAnalysisResult:
-    """Tests for ImageAnalysisResult data class"""
+class TestVisionAnalysisResult:
+    """Tests for VisionAnalysisResult data class"""
 
-    def test_image_analysis_result_creation(self):
-        """Test creating an image analysis result"""
-        result = ImageAnalysisResult(
-            image_id="img_001",
+    def test_vision_analysis_result_creation(self):
+        """Test creating a vision analysis result"""
+        result = VisionAnalysisResult(
+            id="test_001",
+            image_path="/path/to/image.jpg",
+            timestamp=datetime.now(),
             crop_type=CropType.WHEAT,
-            analysis_timestamp=datetime.now(),
             disease_detections=[
                 DiseaseDetection(
-                    disease_type=DiseaseType.RUST,
+                    disease_type=DiseaseType.HEALTHY,
                     confidence=0.85,
-                    severity=Severity.MEDIUM,
+                    severity=Severity.NONE,
+                    affected_area_percent=0.0,
                 )
             ],
             growth_stage=GrowthStageDetection(
                 stage=GrowthStage.TILLERING,
                 confidence=0.9,
             ),
-            overall_health_score=0.7,
+            overall_health_score=0.9,
+            priority_actions=["Continue monitoring"],
+            priority_actions_ar=["استمر في المراقبة"],
         )
 
-        assert result.image_id == "img_001"
+        assert result.id == "test_001"
         assert result.crop_type == CropType.WHEAT
         assert len(result.disease_detections) == 1
         assert result.growth_stage.stage == GrowthStage.TILLERING
-        assert result.overall_health_score == 0.7
+        assert result.overall_health_score == 0.9
 
-    def test_image_analysis_result_to_dict(self):
-        """Test converting image analysis result to dictionary"""
-        result = ImageAnalysisResult(
-            image_id="img_002",
+    def test_vision_analysis_result_to_dict(self):
+        """Test converting vision analysis result to dictionary"""
+        result = VisionAnalysisResult(
+            id="test_002",
+            image_path=None,
+            timestamp=datetime.now(),
             crop_type=CropType.DATE_PALM,
             overall_health_score=0.85,
         )
 
         data = result.to_dict()
 
-        assert data["image_id"] == "img_002"
+        assert data["id"] == "test_002"
         assert data["crop_type"] == "date_palm"
         assert data["overall_health_score"] == 0.85
+
+
+# ============================================================================
+# Image Preprocessor Tests
+# ============================================================================
+
+class TestImagePreprocessor:
+    """Tests for ImagePreprocessor class"""
+
+    def test_supported_formats(self):
+        """Test supported image formats"""
+        assert ".jpg" in ImagePreprocessor.SUPPORTED_FORMATS
+        assert ".jpeg" in ImagePreprocessor.SUPPORTED_FORMATS
+        assert ".png" in ImagePreprocessor.SUPPORTED_FORMATS
+        assert ".webp" in ImagePreprocessor.SUPPORTED_FORMATS
+
+    def test_validate_nonexistent_file(self):
+        """Test validation of nonexistent file"""
+        valid, message = ImagePreprocessor.validate_image("/nonexistent/path.jpg")
+        assert valid is False
+        assert "not found" in message.lower()
+
+    def test_validate_unsupported_format(self):
+        """Test validation of unsupported format"""
+        with tempfile.NamedTemporaryFile(suffix=".xyz", delete=False) as f:
+            f.write(b"test")
+            temp_path = f.name
+
+        try:
+            valid, message = ImagePreprocessor.validate_image(temp_path)
+            assert valid is False
+            assert "unsupported" in message.lower()
+        finally:
+            Path(temp_path).unlink()
+
+    def test_validate_valid_image(self):
+        """Test validation of valid image file"""
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            f.write(b"fake_image_data")
+            temp_path = f.name
+
+        try:
+            valid, message = ImagePreprocessor.validate_image(temp_path)
+            assert valid is True
+            assert message == "Valid"
+        finally:
+            Path(temp_path).unlink()
+
+    def test_get_image_metadata(self):
+        """Test getting image metadata"""
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+            f.write(b"test_image_data")
+            temp_path = f.name
+
+        try:
+            metadata = ImagePreprocessor.get_image_metadata(temp_path)
+            assert "filename" in metadata
+            assert "format" in metadata
+            assert "size_bytes" in metadata
+            assert metadata["format"] == ".png"
+            assert metadata["size_bytes"] == 15  # len(b"test_image_data")
+        finally:
+            Path(temp_path).unlink()
 
 
 # ============================================================================
@@ -362,103 +450,72 @@ class TestCropVisionAnalyzer:
     """Tests for CropVisionAnalyzer class"""
 
     def test_analyzer_creation_default(self):
-        """Test creating analyzer with default config"""
+        """Test creating analyzer with default settings"""
         analyzer = CropVisionAnalyzer()
 
-        assert analyzer.config is not None
-        assert analyzer.config.default_crop_type == CropType.WHEAT
+        assert analyzer.model_provider == "local"
+        assert analyzer.confidence_threshold == 0.7
+        assert analyzer.preprocessor is not None
 
-    def test_analyzer_creation_custom_config(self):
-        """Test creating analyzer with custom config"""
-        config = CropVisionConfig(
-            default_crop_type=CropType.TOMATO,
+    def test_analyzer_creation_custom(self):
+        """Test creating analyzer with custom settings"""
+        analyzer = CropVisionAnalyzer(
+            model_provider="openai",
             confidence_threshold=0.8,
         )
-        analyzer = CropVisionAnalyzer(config)
 
-        assert analyzer.config.default_crop_type == CropType.TOMATO
-        assert analyzer.config.confidence_threshold == 0.8
-
-    @pytest.mark.asyncio
-    async def test_analyze_crop_image(self):
-        """Test analyzing a crop image"""
-        analyzer = CropVisionAnalyzer()
-
-        # Test with simulated data (no actual image)
-        result = await analyzer.analyze_crop_image(
-            image_data=b"fake_image_data",
-            crop_type=CropType.WHEAT,
-        )
-
-        assert result is not None
-        assert isinstance(result, ImageAnalysisResult)
-        assert result.crop_type == CropType.WHEAT
+        assert analyzer.model_provider == "openai"
+        assert analyzer.confidence_threshold == 0.8
 
     @pytest.mark.asyncio
-    async def test_detect_disease(self):
-        """Test disease detection"""
-        analyzer = CropVisionAnalyzer()
+    async def test_analyze_image_valid_file(self):
+        """Test analyzing a valid image file"""
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            f.write(b"test_image_data")
+            temp_path = f.name
 
-        detections = await analyzer.detect_disease(
-            image_data=b"fake_image_data",
-            crop_type=CropType.WHEAT,
-        )
+        try:
+            analyzer = CropVisionAnalyzer()
+            result = await analyzer.analyze_image(
+                temp_path,
+                crop_type=CropType.WHEAT,
+            )
 
-        assert isinstance(detections, list)
-
-    @pytest.mark.asyncio
-    async def test_detect_growth_stage(self):
-        """Test growth stage detection"""
-        analyzer = CropVisionAnalyzer()
-
-        detection = await analyzer.detect_growth_stage(
-            image_data=b"fake_image_data",
-            crop_type=CropType.WHEAT,
-        )
-
-        assert detection is not None
-        assert isinstance(detection, GrowthStageDetection)
-        assert detection.confidence > 0
+            assert result is not None
+            assert isinstance(result, VisionAnalysisResult)
+            assert result.crop_type == CropType.WHEAT
+            assert result.id is not None
+            assert 0 <= result.overall_health_score <= 1
+        finally:
+            Path(temp_path).unlink()
 
     @pytest.mark.asyncio
-    async def test_detect_pests(self):
-        """Test pest detection"""
+    async def test_analyze_image_invalid_file(self):
+        """Test analyzing an invalid image file"""
         analyzer = CropVisionAnalyzer()
 
-        detections = await analyzer.detect_pests(
-            image_data=b"fake_image_data",
-            crop_type=CropType.DATE_PALM,
-        )
-
-        assert isinstance(detections, list)
+        with pytest.raises(ValueError, match="not found"):
+            await analyzer.analyze_image("/nonexistent/path.jpg")
 
     @pytest.mark.asyncio
-    async def test_estimate_yield(self):
-        """Test yield estimation"""
-        analyzer = CropVisionAnalyzer()
+    async def test_analyze_image_with_analysis_types(self):
+        """Test analyzing with specific analysis types"""
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            f.write(b"test_image_data")
+            temp_path = f.name
 
-        estimate = await analyzer.estimate_yield(
-            image_data=b"fake_image_data",
-            crop_type=CropType.WHEAT,
-            field_area_ha=10.0,
-        )
+        try:
+            analyzer = CropVisionAnalyzer()
+            result = await analyzer.analyze_image(
+                temp_path,
+                crop_type=CropType.WHEAT,
+                analysis_types=["disease", "growth"],
+            )
 
-        assert estimate is not None
-        assert isinstance(estimate, YieldEstimate)
-        assert estimate.estimated_yield_kg_per_ha > 0
-
-    @pytest.mark.asyncio
-    async def test_analyze_ndvi(self):
-        """Test NDVI analysis"""
-        analyzer = CropVisionAnalyzer()
-
-        analysis = await analyzer.analyze_ndvi(
-            image_data=b"fake_image_data",
-        )
-
-        assert analysis is not None
-        assert isinstance(analysis, NDVIAnalysis)
-        assert -1.0 <= analysis.mean_ndvi <= 1.0
+            assert result.disease_detections is not None
+            assert result.growth_stage is not None
+        finally:
+            Path(temp_path).unlink()
 
 
 # ============================================================================
@@ -476,15 +533,6 @@ class TestSingleton:
         # Should return same instance
         assert analyzer1 is analyzer2
 
-    def test_get_crop_vision_analyzer_with_config(self):
-        """Test getting analyzer with custom config"""
-        config = CropVisionConfig(
-            default_crop_type=CropType.BARLEY,
-        )
-        analyzer = get_crop_vision_analyzer(config)
-
-        assert analyzer.config.default_crop_type == CropType.BARLEY
-
 
 # ============================================================================
 # Convenience Function Tests
@@ -496,56 +544,54 @@ class TestConvenienceFunctions:
     @pytest.mark.asyncio
     async def test_analyze_crop_image_function(self):
         """Test analyze_crop_image convenience function"""
-        result = await analyze_crop_image(
-            image_data=b"test_data",
-            crop_type=CropType.WHEAT,
-        )
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            f.write(b"test_data")
+            temp_path = f.name
 
-        assert result is not None
-        assert isinstance(result, ImageAnalysisResult)
+        try:
+            result = await analyze_crop_image(
+                temp_path,
+                crop_type=CropType.WHEAT,
+            )
 
-    @pytest.mark.asyncio
-    async def test_detect_disease_function(self):
-        """Test detect_disease convenience function"""
-        detections = await detect_disease(
-            image_data=b"test_data",
-            crop_type=CropType.TOMATO,
-        )
-
-        assert isinstance(detections, list)
+            assert result is not None
+            assert isinstance(result, VisionAnalysisResult)
+        finally:
+            Path(temp_path).unlink()
 
     @pytest.mark.asyncio
-    async def test_detect_growth_stage_function(self):
-        """Test detect_growth_stage convenience function"""
-        detection = await detect_growth_stage(
-            image_data=b"test_data",
-            crop_type=CropType.WHEAT,
-        )
+    async def test_detect_crop_disease_function(self):
+        """Test detect_crop_disease convenience function"""
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            f.write(b"test_data")
+            temp_path = f.name
 
-        assert detection is not None
-        assert isinstance(detection, GrowthStageDetection)
+        try:
+            detections = await detect_crop_disease(
+                temp_path,
+                crop_type=CropType.TOMATO,
+            )
 
-    @pytest.mark.asyncio
-    async def test_estimate_yield_function(self):
-        """Test estimate_yield convenience function"""
-        estimate = await estimate_yield(
-            image_data=b"test_data",
-            crop_type=CropType.BARLEY,
-            field_area_ha=5.0,
-        )
-
-        assert estimate is not None
-        assert isinstance(estimate, YieldEstimate)
+            assert isinstance(detections, list)
+        finally:
+            Path(temp_path).unlink()
 
     @pytest.mark.asyncio
-    async def test_analyze_ndvi_function(self):
-        """Test analyze_ndvi convenience function"""
-        analysis = await analyze_ndvi(
-            image_data=b"test_data",
-        )
+    async def test_detect_crop_pests_function(self):
+        """Test detect_crop_pests convenience function"""
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            f.write(b"test_data")
+            temp_path = f.name
 
-        assert analysis is not None
-        assert isinstance(analysis, NDVIAnalysis)
+        try:
+            detections = await detect_crop_pests(
+                temp_path,
+                crop_type=CropType.DATE_PALM,
+            )
+
+            assert isinstance(detections, list)
+        finally:
+            Path(temp_path).unlink()
 
 
 # ============================================================================
@@ -558,50 +604,123 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_full_analysis_workflow(self):
         """Test complete analysis workflow"""
-        analyzer = CropVisionAnalyzer()
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            f.write(b"test_image_data")
+            temp_path = f.name
 
-        # Analyze image
-        result = await analyzer.analyze_crop_image(
-            image_data=b"test_image_data",
-            crop_type=CropType.WHEAT,
-        )
+        try:
+            analyzer = CropVisionAnalyzer()
+            result = await analyzer.analyze_image(
+                temp_path,
+                crop_type=CropType.WHEAT,
+            )
 
-        # Verify all components
-        assert result.image_id is not None
-        assert result.crop_type == CropType.WHEAT
-        assert result.analysis_timestamp is not None
-        assert 0 <= result.overall_health_score <= 1
+            # Verify all components
+            assert result.id is not None
+            assert result.crop_type == CropType.WHEAT
+            assert result.timestamp is not None
+            assert 0 <= result.overall_health_score <= 1
+            assert result.priority_actions is not None
+            assert result.priority_actions_ar is not None
+        finally:
+            Path(temp_path).unlink()
 
     @pytest.mark.asyncio
     async def test_multiple_crop_types(self):
         """Test analysis for different crop types"""
-        analyzer = CropVisionAnalyzer()
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            f.write(b"test_data")
+            temp_path = f.name
 
-        crop_types = [CropType.WHEAT, CropType.DATE_PALM, CropType.TOMATO]
+        try:
+            analyzer = CropVisionAnalyzer()
+            crop_types = [CropType.WHEAT, CropType.DATE_PALM, CropType.TOMATO]
 
-        for crop_type in crop_types:
-            result = await analyzer.analyze_crop_image(
-                image_data=b"test_data",
-                crop_type=crop_type,
-            )
+            for crop_type in crop_types:
+                result = await analyzer.analyze_image(
+                    temp_path,
+                    crop_type=crop_type,
+                )
 
-            assert result.crop_type == crop_type
+                assert result.crop_type == crop_type
+        finally:
+            Path(temp_path).unlink()
 
     @pytest.mark.asyncio
     async def test_bilingual_output(self):
         """Test that outputs include Arabic translations"""
-        analyzer = CropVisionAnalyzer()
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            f.write(b"test_data")
+            temp_path = f.name
 
-        result = await analyzer.analyze_crop_image(
-            image_data=b"test_data",
-            crop_type=CropType.WHEAT,
-        )
+        try:
+            analyzer = CropVisionAnalyzer()
+            result = await analyzer.analyze_image(
+                temp_path,
+                crop_type=CropType.WHEAT,
+            )
 
-        # Check for Arabic fields in detections
-        if result.disease_detections:
-            for detection in result.disease_detections:
-                # Recommendations should have Arabic versions
-                assert detection.recommendations_ar is not None or len(detection.recommendations_ar) >= 0
+            # Check for Arabic fields
+            assert result.priority_actions_ar is not None
+
+            # Check disease detections have Arabic
+            if result.disease_detections:
+                for detection in result.disease_detections:
+                    assert hasattr(detection, "recommendations_ar")
+        finally:
+            Path(temp_path).unlink()
+
+
+# ============================================================================
+# Batch Analysis Tests
+# ============================================================================
+
+class TestBatchAnalysis:
+    """Tests for batch image analysis"""
+
+    @pytest.mark.asyncio
+    async def test_batch_analyze(self):
+        """Test batch analysis of multiple images"""
+        temp_files = []
+        try:
+            # Create temporary image files
+            for i in range(3):
+                f = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
+                f.write(f"test_data_{i}".encode())
+                f.close()
+                temp_files.append(f.name)
+
+            analyzer = CropVisionAnalyzer()
+            results = await analyzer.batch_analyze(
+                temp_files,
+                crop_type=CropType.WHEAT,
+            )
+
+            assert len(results) == 3
+            for result in results:
+                assert isinstance(result, VisionAnalysisResult)
+        finally:
+            for path in temp_files:
+                Path(path).unlink()
+
+    @pytest.mark.asyncio
+    async def test_batch_analyze_with_errors(self):
+        """Test batch analysis handles errors gracefully"""
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            f.write(b"test_data")
+            valid_path = f.name
+
+        try:
+            analyzer = CropVisionAnalyzer()
+            results = await analyzer.batch_analyze(
+                [valid_path, "/nonexistent/path.jpg"],
+                crop_type=CropType.WHEAT,
+            )
+
+            # Should return results for all, with error in metadata for invalid
+            assert len(results) == 2
+        finally:
+            Path(valid_path).unlink()
 
 
 # ============================================================================
@@ -612,37 +731,30 @@ class TestEdgeCases:
     """Tests for edge cases and error handling"""
 
     @pytest.mark.asyncio
-    async def test_empty_image_data(self):
-        """Test handling of empty image data"""
-        analyzer = CropVisionAnalyzer()
-
-        result = await analyzer.analyze_crop_image(
-            image_data=b"",
-            crop_type=CropType.WHEAT,
-        )
-
-        # Should still return a result (with low confidence)
-        assert result is not None
-
-    @pytest.mark.asyncio
     async def test_unknown_crop_type_handling(self):
         """Test handling when crop type is UNKNOWN"""
-        analyzer = CropVisionAnalyzer()
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            f.write(b"test_data")
+            temp_path = f.name
 
-        result = await analyzer.analyze_crop_image(
-            image_data=b"test_data",
-            crop_type=CropType.UNKNOWN,
-        )
+        try:
+            analyzer = CropVisionAnalyzer()
+            result = await analyzer.analyze_image(
+                temp_path,
+                crop_type=CropType.UNKNOWN,
+            )
 
-        assert result is not None
-        assert result.crop_type == CropType.UNKNOWN
+            assert result is not None
+            assert result.crop_type == CropType.UNKNOWN
+        finally:
+            Path(temp_path).unlink()
 
     def test_severity_ordering(self):
         """Test that severity levels can be compared"""
         severities = [
             Severity.NONE,
             Severity.LOW,
-            Severity.MEDIUM,
+            Severity.MODERATE,
             Severity.HIGH,
             Severity.CRITICAL,
         ]
@@ -650,3 +762,27 @@ class TestEdgeCases:
         # Just verify all values exist
         for severity in severities:
             assert severity.value is not None
+
+    def test_recommendations_database(self):
+        """Test that disease recommendations exist"""
+        analyzer = CropVisionAnalyzer()
+
+        assert DiseaseType.WHEAT_RUST in analyzer.DISEASE_RECOMMENDATIONS
+        assert DiseaseType.TOMATO_LATE_BLIGHT in analyzer.DISEASE_RECOMMENDATIONS
+
+        rust_recs = analyzer.DISEASE_RECOMMENDATIONS[DiseaseType.WHEAT_RUST]
+        assert "en" in rust_recs
+        assert "ar" in rust_recs
+        assert len(rust_recs["en"]) > 0
+        assert len(rust_recs["ar"]) > 0
+
+    def test_pest_recommendations_database(self):
+        """Test that pest recommendations exist"""
+        analyzer = CropVisionAnalyzer()
+
+        assert PestType.RED_PALM_WEEVIL in analyzer.PEST_RECOMMENDATIONS
+        assert PestType.APHIDS in analyzer.PEST_RECOMMENDATIONS
+
+        rpw_recs = analyzer.PEST_RECOMMENDATIONS[PestType.RED_PALM_WEEVIL]
+        assert "en" in rpw_recs
+        assert "ar" in rpw_recs

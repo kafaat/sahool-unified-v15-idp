@@ -1,0 +1,42 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "apps/web/src/main.tsx",
+    "apps/admin/src/main.tsx",
+    "apps/services/**/src/index.ts",
+    "packages/*/src/index.ts"
+  ],
+  "project": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx}"
+  ],
+  "ignore": [
+    "archive/**",
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/*.d.ts",
+    "**/prisma/generated/**",
+    "**/*.config.{js,ts}",
+    "**/vite.config.ts"
+  ],
+  "ignoreDependencies": [
+    "@types/*",
+    "typescript",
+    "vitest",
+    "@vitest/*",
+    "eslint*",
+    "prettier",
+    "@biomejs/biome"
+  ],
+  "workspaces": {
+    "apps/web": {
+      "entry": ["src/main.tsx", "src/App.tsx"]
+    },
+    "apps/admin": {
+      "entry": ["src/main.tsx", "src/App.tsx"]
+    },
+    "packages/*": {
+      "entry": ["src/index.ts"]
+    }
+  }
+}

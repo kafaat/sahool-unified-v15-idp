@@ -559,8 +559,8 @@ class ExplainabilityEngine:
 
         # Soil nutrient factors
         n_level = soil_test.get("nitrogen", 0)
-        p_level = soil_test.get("phosphorus", 0)
-        k_level = soil_test.get("potassium", 0)
+        _p_level = soil_test.get("phosphorus", 0)  # Reserved for future P factor
+        _k_level = soil_test.get("potassium", 0)  # Reserved for future K factor
 
         factors.append(ContributingFactor(
             factor_type=FactorType.SOIL,

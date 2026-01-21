@@ -254,7 +254,7 @@ class CircuitBreaker:
             async with self._lock:
                 self._record_success()
             return result
-        except Exception as e:
+        except Exception:
             async with self._lock:
                 self._record_failure()
             raise

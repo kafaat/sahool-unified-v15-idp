@@ -539,7 +539,7 @@ Return only the fixed code:""",
         if response_text.startswith("```"):
             lines = response_text.split("\n")
             # Skip first and last lines (code block markers)
-            lines = [l for l in lines[1:-1] if not l.startswith("```")]
+            lines = [line for line in lines[1:-1] if not line.startswith("```")]
             response_text = "\n".join(lines)
 
         return response_text
@@ -601,7 +601,7 @@ Return only the test code:""",
         # Remove markdown code blocks if present
         if response_text.startswith("```"):
             lines = response_text.split("\n")
-            lines = [l for l in lines[1:-1] if not l.startswith("```")]
+            lines = [line for line in lines[1:-1] if not line.startswith("```")]
             response_text = "\n".join(lines)
 
         return response_text

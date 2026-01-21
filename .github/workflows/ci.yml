@@ -73,7 +73,16 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pytest pytest-asyncio pytest-cov pytest-xdist httpx pyjwt fastapi pydantic jsonschema sqlalchemy tortoise-orm structlog
+          # Core testing dependencies
+          pip install pytest pytest-asyncio pytest-cov pytest-xdist
+          # Web framework dependencies
+          pip install fastapi httpx pydantic starlette
+          # Auth & security dependencies
+          pip install pyjwt cffi cryptography
+          # Database & messaging dependencies
+          pip install sqlalchemy tortoise-orm redis
+          # Utility dependencies
+          pip install structlog jsonschema
           # AI module dependencies for unit tests
           pip install numpy pillow aiofiles
 

@@ -5,7 +5,7 @@ Tests for field operations logic without I/O
 
 # Import from the service
 import sys
-from datetime import timezone, datetime
+from datetime import timezone, datetime, UTC
 
 import pytest
 from pydantic import ValidationError
@@ -141,7 +141,7 @@ class TestOperationCreateModel:
 
     def test_operation_with_schedule(self, test_tenant_id):
         """Operation should accept scheduled date"""
-        scheduled = datetime.now(timezone.utc).isoformat()
+        scheduled = datetime.now(UTC).isoformat()
 
         op = OperationCreate(
             tenant_id=test_tenant_id,
@@ -192,8 +192,8 @@ class TestFieldResponse:
             "name_ar": None,
             "area_hectares": 25.0,
             "crop_type": "wheat",
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
+            "updated_at": datetime.now(UTC).isoformat(),
         }
 
         response = FieldResponse(**data)

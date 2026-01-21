@@ -3,7 +3,7 @@ Tests for Two-Factor Authentication Configuration
 اختبارات إعدادات المصادقة الثنائية
 """
 
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 
 import pytest
 
@@ -138,19 +138,19 @@ class TestTwoFAConfig:
     def test_is_within_grace_period_new_user(self, module):
         """Test is_within_grace_period for newly created user"""
         config = module.TwoFAConfig(grace_period_days=7)
-        user_created = datetime.now(timezone.utc) - timedelta(days=1)
+        user_created = datetime.now(UTC) - timedelta(days=1)
         assert config.is_within_grace_period(user_created) is True
 
     def test_is_within_grace_period_old_user(self, module):
         """Test is_within_grace_period for user beyond grace period"""
         config = module.TwoFAConfig(grace_period_days=7)
-        user_created = datetime.now(timezone.utc) - timedelta(days=10)
+        user_created = datetime.now(UTC) - timedelta(days=10)
         assert config.is_within_grace_period(user_created) is False
 
     def test_is_within_grace_period_zero_days(self, module):
         """Test is_within_grace_period with zero grace period"""
         config = module.TwoFAConfig(grace_period_days=0)
-        user_created = datetime.now(timezone.utc)
+        user_created = datetime.now(UTC)
         assert config.is_within_grace_period(user_created) is False
 
 

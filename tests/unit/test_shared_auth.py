@@ -4,7 +4,7 @@ Tests JWT token creation, verification, and user authentication
 """
 
 import uuid
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from unittest.mock import MagicMock, patch
 
 import jwt
@@ -84,8 +84,8 @@ class TestCreateAccessToken:
             issuer="sahool",
             audience="sahool-api",
         )
-        exp_time = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
-        iat_time = datetime.fromtimestamp(payload["iat"], tz=timezone.utc)
+        exp_time = datetime.fromtimestamp(payload["exp"], tz=UTC)
+        iat_time = datetime.fromtimestamp(payload["iat"], tz=UTC)
         delta = exp_time - iat_time
 
         assert abs(delta.total_seconds() - 3600) < 5  # Should be ~60 minutes
@@ -308,7 +308,7 @@ class TestVerifyToken:
         mock_config.JWT_AUDIENCE = "sahool-api"
 
         # Create token without 'sub' field
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         token = jwt.encode(
             {"exp": now + timedelta(minutes=30), "iat": now},
             secret,
@@ -403,7 +403,7 @@ class TestTokenPayload:
 
     def test_token_payload_creation(self):
         """Test creating TokenPayload"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         payload = TokenPayload(
             user_id="user123",
             roles=["farmer", "admin"],

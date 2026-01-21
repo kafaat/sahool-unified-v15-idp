@@ -23,13 +23,13 @@ class MockAsyncConnection:
             raise RuntimeError("Connection is closed")
         return "OK"
 
-    async def fetch(self, query: str, *args) -> List[Dict]:
+    async def fetch(self, query: str, *args) -> list[dict]:
         """Fetch multiple rows."""
         if self.is_closed:
             raise RuntimeError("Connection is closed")
         return self._results
 
-    async def fetchrow(self, query: str, *args) -> Optional[Dict]:
+    async def fetchrow(self, query: str, *args) -> dict | None:
         """Fetch a single row."""
         if self.is_closed:
             raise RuntimeError("Connection is closed")
@@ -76,8 +76,8 @@ class MockConnectionPool:
     def __init__(self, min_size: int = 2, max_size: int = 10):
         self.min_size = min_size
         self.max_size = max_size
-        self._connections: List[MockAsyncConnection] = []
-        self._available: List[MockAsyncConnection] = []
+        self._connections: list[MockAsyncConnection] = []
+        self._available: list[MockAsyncConnection] = []
         self.is_closed = False
 
     async def acquire(self) -> MockAsyncConnection:
@@ -443,7 +443,7 @@ class TestQueryTimeout:
 
         try:
             result = await asyncio.wait_for(long_query(), timeout=0.05)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             result = "timeout"
 
         assert result == "timeout"

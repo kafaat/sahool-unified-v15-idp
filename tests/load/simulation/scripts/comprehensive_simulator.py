@@ -38,7 +38,7 @@ import time
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from typing import Any
 
 import aiohttp
@@ -260,7 +260,7 @@ class FieldSimulator(ServiceSimulator):
                 "nitrogen": random.uniform(10, 100),
                 "phosphorus": random.uniform(5, 50),
                 "potassium": random.uniform(50, 200),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
 
@@ -738,7 +738,7 @@ class EquipmentSimulator(ServiceSimulator):
                 "operator_id": f"operator-{random.randint(1, 20)}",
                 "field_id": f"field-{random.randint(1, 50)}",
                 "task_type": random.choice(TASK_TYPES),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
 
@@ -1038,7 +1038,7 @@ class IoTSimulator(ServiceSimulator):
         payload = {
             "device_id": device_id,
             "device_type": device_type,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "location": {
                 "latitude": location["lat"] + random.uniform(-0.1, 0.1),
                 "longitude": location["lng"] + random.uniform(-0.1, 0.1),
@@ -1261,7 +1261,7 @@ class ComprehensiveSimulator:
         duration = time.time() - self.stats.start_time
 
         results = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "configuration": {
                 "gateway_url": self.gateway_url,
                 "num_users": self.num_users,

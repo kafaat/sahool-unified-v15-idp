@@ -11,7 +11,7 @@ def generate(results: dict) -> str:
 
     # Header
     project = results.get("project", {})
-    lines.append(f"# 🔍 SAHOOL Audit Report")
+    lines.append("# 🔍 SAHOOL Audit Report")
     lines.append("")
     lines.append(f"**Project:** {project.get('name', 'Unknown')}")
     lines.append(f"**Version:** {project.get('version', 'N/A')}")

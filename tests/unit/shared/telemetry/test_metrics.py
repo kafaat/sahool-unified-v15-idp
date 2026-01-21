@@ -15,7 +15,7 @@ class MetricPoint:
     """Single metric data point."""
     name: str
     value: float
-    labels: Dict[str, str] = field(default_factory=dict)
+    labels: dict[str, str] = field(default_factory=dict)
     timestamp: float = field(default_factory=time.time)
 
 
@@ -31,24 +31,24 @@ class MetricsCollector:
     """Metrics collector for testing."""
 
     def __init__(self):
-        self.counters: Dict[str, float] = {}
-        self.gauges: Dict[str, float] = {}
-        self.histograms: Dict[str, List[float]] = {}
-        self.points: List[MetricPoint] = []
+        self.counters: dict[str, float] = {}
+        self.gauges: dict[str, float] = {}
+        self.histograms: dict[str, list[float]] = {}
+        self.points: list[MetricPoint] = []
 
-    def increment_counter(self, name: str, value: float = 1.0, labels: Dict[str, str] = None):
+    def increment_counter(self, name: str, value: float = 1.0, labels: dict[str, str] = None):
         """Increment a counter metric."""
         key = self._make_key(name, labels)
         self.counters[key] = self.counters.get(key, 0) + value
         self.points.append(MetricPoint(name, self.counters[key], labels or {}))
 
-    def set_gauge(self, name: str, value: float, labels: Dict[str, str] = None):
+    def set_gauge(self, name: str, value: float, labels: dict[str, str] = None):
         """Set a gauge metric value."""
         key = self._make_key(name, labels)
         self.gauges[key] = value
         self.points.append(MetricPoint(name, value, labels or {}))
 
-    def record_histogram(self, name: str, value: float, labels: Dict[str, str] = None):
+    def record_histogram(self, name: str, value: float, labels: dict[str, str] = None):
         """Record a histogram observation."""
         key = self._make_key(name, labels)
         if key not in self.histograms:
@@ -56,24 +56,24 @@ class MetricsCollector:
         self.histograms[key].append(value)
         self.points.append(MetricPoint(name, value, labels or {}))
 
-    def _make_key(self, name: str, labels: Dict[str, str] = None) -> str:
+    def _make_key(self, name: str, labels: dict[str, str] = None) -> str:
         """Create unique key from name and labels."""
         if not labels:
             return name
         label_str = ",".join(f"{k}={v}" for k, v in sorted(labels.items()))
         return f"{name}{{{label_str}}}"
 
-    def get_counter(self, name: str, labels: Dict[str, str] = None) -> float:
+    def get_counter(self, name: str, labels: dict[str, str] = None) -> float:
         """Get counter value."""
         key = self._make_key(name, labels)
         return self.counters.get(key, 0)
 
-    def get_gauge(self, name: str, labels: Dict[str, str] = None) -> float:
+    def get_gauge(self, name: str, labels: dict[str, str] = None) -> float:
         """Get gauge value."""
         key = self._make_key(name, labels)
         return self.gauges.get(key, 0)
 
-    def get_histogram_values(self, name: str, labels: Dict[str, str] = None) -> List[float]:
+    def get_histogram_values(self, name: str, labels: dict[str, str] = None) -> list[float]:
         """Get histogram values."""
         key = self._make_key(name, labels)
         return self.histograms.get(key, [])
@@ -88,8 +88,8 @@ class TracingSpan:
             trace_id=f"trace-{time.time_ns()}",
             span_id=f"span-{time.time_ns()}"
         )
-        self.attributes: Dict[str, Any] = {}
-        self.events: List[Dict[str, Any]] = []
+        self.attributes: dict[str, Any] = {}
+        self.events: list[dict[str, Any]] = []
         self.status: str = "OK"
         self.start_time: float = time.time()
         self.end_time: Optional[float] = None
@@ -98,7 +98,7 @@ class TracingSpan:
         """Set span attribute."""
         self.attributes[key] = value
 
-    def add_event(self, name: str, attributes: Dict[str, Any] = None):
+    def add_event(self, name: str, attributes: dict[str, Any] = None):
         """Add event to span."""
         self.events.append({
             "name": name,

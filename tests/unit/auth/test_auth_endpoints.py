@@ -20,7 +20,7 @@ Updated: January 2026
 """
 
 import pytest
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from unittest.mock import Mock, MagicMock, patch
 from fastapi import HTTPException, status
 from fastapi.testclient import TestClient
@@ -473,7 +473,7 @@ class TestTwoFALoginEndpoint:
             "user_id": "user-456",
             "email": "admin@sahool.io",
             "temp": True,
-            "exp": (datetime.now(timezone.utc) - timedelta(minutes=10)).isoformat(),
+            "exp": (datetime.now(UTC) - timedelta(minutes=10)).isoformat(),
         }
         expired_token = base64.b64encode(json.dumps(payload).encode()).decode()
 
@@ -714,7 +714,7 @@ class TestTokenRefresh:
         )
 
         # Set expiration to past
-        payload["exp"] = datetime.now(timezone.utc) - timedelta(hours=1)
+        payload["exp"] = datetime.now(UTC) - timedelta(hours=1)
 
         expired_token = jwt.encode(
             payload, config.get_signing_key(), algorithm="HS256"
@@ -914,7 +914,7 @@ class TestTemporaryToken:
             "user_id": user_id,
             "email": email,
             "temp": True,
-            "exp": (datetime.now(timezone.utc) - timedelta(minutes=10)).isoformat(),
+            "exp": (datetime.now(UTC) - timedelta(minutes=10)).isoformat(),
         }
         expired_token = base64.b64encode(json.dumps(payload).encode()).decode()
 
@@ -931,7 +931,7 @@ class TestTemporaryToken:
             "user_id": "user-123",
             "email": "farmer@sahool.io",
             "temp": False,  # Missing or false
-            "exp": (datetime.now(timezone.utc) + timedelta(minutes=5)).isoformat(),
+            "exp": (datetime.now(UTC) + timedelta(minutes=5)).isoformat(),
         }
         token = base64.b64encode(json.dumps(payload).encode()).decode()
 

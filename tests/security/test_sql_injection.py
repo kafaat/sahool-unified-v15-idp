@@ -35,9 +35,9 @@ class ParameterizedQueryBuilder:
     """Mock parameterized query builder for testing."""
 
     def __init__(self):
-        self.queries: List[Dict[str, Any]] = []
+        self.queries: list[dict[str, Any]] = []
 
-    def build_select(self, table: str, conditions: Dict[str, Any]) -> tuple:
+    def build_select(self, table: str, conditions: dict[str, Any]) -> tuple:
         """Build parameterized SELECT query."""
         if not table.isidentifier():
             raise ValueError(f"Invalid table name: {table}")
@@ -59,7 +59,7 @@ class ParameterizedQueryBuilder:
         self.queries.append({"query": query, "params": params})
         return query, params
 
-    def build_insert(self, table: str, data: Dict[str, Any]) -> tuple:
+    def build_insert(self, table: str, data: dict[str, Any]) -> tuple:
         """Build parameterized INSERT query."""
         if not table.isidentifier():
             raise ValueError(f"Invalid table name: {table}")
@@ -79,7 +79,7 @@ class ParameterizedQueryBuilder:
         self.queries.append({"query": query, "params": params})
         return query, params
 
-    def build_update(self, table: str, data: Dict[str, Any], conditions: Dict[str, Any]) -> tuple:
+    def build_update(self, table: str, data: dict[str, Any], conditions: dict[str, Any]) -> tuple:
         """Build parameterized UPDATE query."""
         if not table.isidentifier():
             raise ValueError(f"Invalid table name: {table}")

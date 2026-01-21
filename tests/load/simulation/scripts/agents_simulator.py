@@ -26,7 +26,7 @@ import random
 import time
 import uuid
 from dataclasses import dataclass, field
-from datetime import timezone, datetime, timedelta
+from datetime import timezone, datetime, timedelta, UTC
 from typing import Any
 
 import aiohttp
@@ -616,7 +616,7 @@ class AgentsSimulator:
         duration = time.time() - self.stats.start_time
 
         results = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "configuration": {
                 "gateway_url": self.gateway_url,
                 "num_users": self.num_users,

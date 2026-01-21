@@ -35,10 +35,10 @@ class RateLimiter:
 
     def __init__(self, config: RateLimitConfig = None):
         self.config = config or RateLimitConfig()
-        self.clients: Dict[str, RateLimitState] = {}
-        self.blocked_ips: Dict[str, float] = {}
+        self.clients: dict[str, RateLimitState] = {}
+        self.blocked_ips: dict[str, float] = {}
 
-    def get_client_key(self, ip: str, user_id: Optional[str] = None) -> str:
+    def get_client_key(self, ip: str, user_id: str | None = None) -> str:
         """Get client identifier for rate limiting."""
         if user_id:
             return f"user:{user_id}"
@@ -55,7 +55,7 @@ class RateLimiter:
             )
         return self.clients[client_key]
 
-    def check_rate_limit(self, client_key: str) -> tuple[bool, Dict[str, Any]]:
+    def check_rate_limit(self, client_key: str) -> tuple[bool, dict[str, Any]]:
         """Check if request is within rate limits."""
         now = time.time()
         state = self.get_state(client_key)

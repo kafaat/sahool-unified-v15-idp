@@ -15,15 +15,15 @@ class ContextMessage:
     """Message in context window."""
     role: str
     content: str
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass
 class ContextWindow:
     """Context window for LLM interactions."""
-    messages: List[ContextMessage]
+    messages: list[ContextMessage]
     max_tokens: int = 128000
-    system_prompt: Optional[str] = None
+    system_prompt: str | None = None
 
     def get_token_count(self) -> int:
         """Estimate token count (rough approximation)."""
@@ -37,7 +37,7 @@ class ContextWindow:
         estimated_tokens = len(content) // 4
         return self.get_token_count() + estimated_tokens <= self.max_tokens
 
-    def add_message(self, role: str, content: str, metadata: Dict = None) -> bool:
+    def add_message(self, role: str, content: str, metadata: dict = None) -> bool:
         """Add message to context."""
         if not self.can_add_message(content):
             return False
@@ -52,7 +52,7 @@ class ContextWindow:
 class PromptTemplate:
     """Template for generating prompts."""
 
-    def __init__(self, template: str, variables: List[str] = None):
+    def __init__(self, template: str, variables: list[str] = None):
         self.template = template
         self.variables = variables or []
 
@@ -82,7 +82,7 @@ class MCPClient:
         self,
         content: str,
         system_prompt: str = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Send message to model."""
         self.call_count += 1
 

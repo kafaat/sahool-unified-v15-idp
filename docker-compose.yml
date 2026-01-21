@@ -92,17 +92,17 @@ services:
       # TLS Certificates
       - ./config/certs:/etc/pgbouncer/certs:ro
 
-      # Writable runtime directory for userlist.txt
-      - pgbouncer-userlist:/etc/pgbouncer/runtime
+    # Use tmpfs for runtime directory (userlist.txt) to avoid permission issues
+    tmpfs:
+      - /etc/pgbouncer/runtime
     ports:
       - "127.0.0.1:6432:6432" # SECURITY: localhost only
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
-      # Simple port check - nc is available in Alpine-based edoburu/pgbouncer image
-      # pg_isready is NOT available in this image
-      test: [ "CMD-SHELL", "nc -z localhost 6432 || exit 1" ]
+      # Check if pgbouncer process is running (more reliable than port check in Alpine)
+      test: [ "CMD-SHELL", "pidof pgbouncer || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 5

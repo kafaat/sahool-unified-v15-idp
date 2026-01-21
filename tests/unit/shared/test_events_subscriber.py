@@ -8,7 +8,7 @@ Tests for the SAHOOL platform event subscriber module.
 import json
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from uuid import uuid4
 
 # Import the module under test
@@ -53,7 +53,7 @@ def sample_event_data():
     """Create sample event data as dict."""
     return {
         "event_id": str(uuid4()),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "tenant_id": "tenant-001",
         "source_service": "test-service",
         "field_id": "field-123",

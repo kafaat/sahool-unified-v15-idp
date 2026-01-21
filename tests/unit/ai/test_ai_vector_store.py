@@ -18,7 +18,7 @@ import pytest
 import tempfile
 import shutil
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 from shared.ai.vector_store import (
     VectorStore,
@@ -154,8 +154,8 @@ class TestVectorDocument:
             "vector": [0.3, 0.4],
             "content": "Test content",
             "metadata": {"type": "test"},
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
+            "updated_at": datetime.now(UTC).isoformat(),
             "collection": "default",
         }
 
@@ -219,8 +219,8 @@ class TestCollectionInfo:
             document_count=100,
             dimension=768,
             distance_metric=DistanceMetric.COSINE,
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
+            updated_at=datetime.now(UTC),
             metadata={"description": "Test collection"},
         )
 

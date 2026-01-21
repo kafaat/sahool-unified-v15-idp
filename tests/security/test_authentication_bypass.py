@@ -44,7 +44,7 @@ class JWTAuthenticator:
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
-    def verify_token(self, token: str) -> Optional[Dict[str, Any]]:
+    def verify_token(self, token: str) -> dict[str, Any] | None:
         """Verify and decode a JWT token."""
         try:
             payload = jwt.decode(

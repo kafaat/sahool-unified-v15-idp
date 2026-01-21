@@ -15,20 +15,17 @@ Author: SAHOOL Platform Team
 Created: January 2026
 """
 
-import asyncio
-import hashlib
 import json
 import logging
 import os
 import sqlite3
 import struct
-import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable
 import uuid
 
 logger = logging.getLogger(__name__)
@@ -73,7 +70,7 @@ class VectorStoreConfig:
 
     # Backend settings
     backend: VectorStoreBackend = VectorStoreBackend.SQLITE
-    storage_path: Optional[str] = None
+    storage_path: str | None = None
 
     # Vector settings
     dimension: int = 768  # Default for multilingual-e5-base
@@ -116,8 +113,8 @@ class VectorDocument:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     # Timestamps
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     # Collection
     collection: str = "default"
@@ -147,8 +144,8 @@ class VectorDocument:
             vector=data["vector"],
             content=data.get("content", ""),
             metadata=data.get("metadata", {}),
-            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.now(timezone.utc),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if "updated_at" in data else datetime.now(timezone.utc),
+            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if "updated_at" in data else datetime.now(UTC),
             collection=data.get("collection", "default"),
         )
 
@@ -220,7 +217,7 @@ class VectorStoreBackendBase(ABC):
         name: str,
         dimension: int,
         distance_metric: DistanceMetric,
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> CollectionInfo:
         """Create a new collection"""
         pass
@@ -236,7 +233,7 @@ class VectorStoreBackendBase(ABC):
         pass
 
     @abstractmethod
-    async def get_collection_info(self, name: str) -> Optional[CollectionInfo]:
+    async def get_collection_info(self, name: str) -> CollectionInfo | None:
         """Get collection information"""
         pass
 
@@ -272,7 +269,7 @@ class VectorStoreBackendBase(ABC):
         self,
         id: str,
         collection: str,
-    ) -> Optional[VectorDocument]:
+    ) -> VectorDocument | None:
         """Get document by ID"""
         pass
 
@@ -282,7 +279,7 @@ class VectorStoreBackendBase(ABC):
         vector: list[float],
         collection: str,
         top_k: int = 10,
-        filter: Optional[dict[str, Any]] = None,
+        filter: dict[str, Any] | None = None,
     ) -> list[SearchResult]:
         """Search for similar vectors"""
         pass
@@ -312,7 +309,7 @@ class SQLiteBackend(VectorStoreBackendBase):
     ):
         self.storage_path = Path(storage_path)
         self.distance_metric = distance_metric
-        self._conn: Optional[sqlite3.Connection] = None
+        self._conn: sqlite3.Connection | None = None
 
     def _serialize_vector(self, vector: list[float]) -> bytes:
         """Serialize vector to bytes for storage"""
@@ -405,10 +402,10 @@ class SQLiteBackend(VectorStoreBackendBase):
         name: str,
         dimension: int,
         distance_metric: DistanceMetric,
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> CollectionInfo:
         """Create a new collection"""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
 
         cursor = self._conn.cursor()
         cursor.execute("""
@@ -472,7 +469,7 @@ class SQLiteBackend(VectorStoreBackendBase):
 
         return results
 
-    async def get_collection_info(self, name: str) -> Optional[CollectionInfo]:
+    async def get_collection_info(self, name: str) -> CollectionInfo | None:
         """Get collection information"""
         cursor = self._conn.cursor()
         cursor.execute("""
@@ -532,7 +529,7 @@ class SQLiteBackend(VectorStoreBackendBase):
         cursor.execute("""
             UPDATE collections SET updated_at = ?
             WHERE name = ?
-        """, (datetime.now(timezone.utc).isoformat(), collection))
+        """, (datetime.now(UTC).isoformat(), collection))
 
         self._conn.commit()
         return ids
@@ -543,7 +540,7 @@ class SQLiteBackend(VectorStoreBackendBase):
         collection: str,
     ) -> bool:
         """Update a document"""
-        document.updated_at = datetime.now(timezone.utc)
+        document.updated_at = datetime.now(UTC)
         cursor = self._conn.cursor()
 
         cursor.execute("""
@@ -595,7 +592,7 @@ class SQLiteBackend(VectorStoreBackendBase):
         self,
         id: str,
         collection: str,
-    ) -> Optional[VectorDocument]:
+    ) -> VectorDocument | None:
         """Get document by ID"""
         cursor = self._conn.cursor()
         cursor.execute("""
@@ -622,7 +619,7 @@ class SQLiteBackend(VectorStoreBackendBase):
         vector: list[float],
         collection: str,
         top_k: int = 10,
-        filter: Optional[dict[str, Any]] = None,
+        filter: dict[str, Any] | None = None,
     ) -> list[SearchResult]:
         """Search for similar vectors"""
         cursor = self._conn.cursor()
@@ -756,10 +753,10 @@ class MemoryBackend(VectorStoreBackendBase):
         name: str,
         dimension: int,
         distance_metric: DistanceMetric,
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> CollectionInfo:
         """Create a new collection"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         info = CollectionInfo(
             name=name,
@@ -792,7 +789,7 @@ class MemoryBackend(VectorStoreBackendBase):
             result.append(info)
         return result
 
-    async def get_collection_info(self, name: str) -> Optional[CollectionInfo]:
+    async def get_collection_info(self, name: str) -> CollectionInfo | None:
         """Get collection information"""
         info = self._collections.get(name)
         if info:
@@ -814,7 +811,7 @@ class MemoryBackend(VectorStoreBackendBase):
             ids.append(doc.id)
 
         if collection in self._collections:
-            self._collections[collection].updated_at = datetime.now(timezone.utc)
+            self._collections[collection].updated_at = datetime.now(UTC)
 
         return ids
 
@@ -825,7 +822,7 @@ class MemoryBackend(VectorStoreBackendBase):
     ) -> bool:
         """Update a document"""
         if collection in self._documents and document.id in self._documents[collection]:
-            document.updated_at = datetime.now(timezone.utc)
+            document.updated_at = datetime.now(UTC)
             self._documents[collection][document.id] = document
             return True
         return False
@@ -848,7 +845,7 @@ class MemoryBackend(VectorStoreBackendBase):
         self,
         id: str,
         collection: str,
-    ) -> Optional[VectorDocument]:
+    ) -> VectorDocument | None:
         """Get document by ID"""
         return self._documents.get(collection, {}).get(id)
 
@@ -857,7 +854,7 @@ class MemoryBackend(VectorStoreBackendBase):
         vector: list[float],
         collection: str,
         top_k: int = 10,
-        filter: Optional[dict[str, Any]] = None,
+        filter: dict[str, Any] | None = None,
     ) -> list[SearchResult]:
         """Search for similar vectors"""
         if collection not in self._documents:
@@ -942,14 +939,14 @@ class VectorStore:
         )
     """
 
-    def __init__(self, config: Optional[VectorStoreConfig] = None):
+    def __init__(self, config: VectorStoreConfig | None = None):
         self.config = config or VectorStoreConfig()
 
         # Backend
-        self._backend: Optional[VectorStoreBackendBase] = None
+        self._backend: VectorStoreBackendBase | None = None
 
         # Embedding function (to be set)
-        self._embed_fn: Optional[Callable] = None
+        self._embed_fn: Callable | None = None
 
         # Statistics
         self._stats = {
@@ -1001,8 +998,8 @@ class VectorStore:
     async def create_collection(
         self,
         name: str,
-        dimension: Optional[int] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        dimension: int | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> CollectionInfo:
         """Create a new collection
 
@@ -1031,11 +1028,11 @@ class VectorStore:
 
     async def add(
         self,
-        texts: Optional[list[str]] = None,
-        vectors: Optional[list[list[float]]] = None,
-        ids: Optional[list[str]] = None,
-        metadatas: Optional[list[dict[str, Any]]] = None,
-        collection: Optional[str] = None,
+        texts: list[str] | None = None,
+        vectors: list[list[float]] | None = None,
+        ids: list[str] | None = None,
+        metadatas: list[dict[str, Any]] | None = None,
+        collection: str | None = None,
     ) -> list[str]:
         """Add documents to collection
 
@@ -1097,11 +1094,11 @@ class VectorStore:
 
     async def search(
         self,
-        query: Optional[str] = None,
-        vector: Optional[list[float]] = None,
-        collection: Optional[str] = None,
+        query: str | None = None,
+        vector: list[float] | None = None,
+        collection: str | None = None,
         top_k: int = 10,
-        filter: Optional[dict[str, Any]] = None,
+        filter: dict[str, Any] | None = None,
         include_content: bool = True,
     ) -> list[SearchResult]:
         """Search for similar documents
@@ -1146,8 +1143,8 @@ class VectorStore:
     async def get(
         self,
         id: str,
-        collection: Optional[str] = None,
-    ) -> Optional[VectorDocument]:
+        collection: str | None = None,
+    ) -> VectorDocument | None:
         """Get document by ID
 
         الحصول على مستند بواسطة المعرف
@@ -1158,7 +1155,7 @@ class VectorStore:
     async def delete(
         self,
         ids: list[str],
-        collection: Optional[str] = None,
+        collection: str | None = None,
     ) -> int:
         """Delete documents by IDs
 
@@ -1169,7 +1166,7 @@ class VectorStore:
         self._stats["total_deletes"] += count
         return count
 
-    async def count(self, collection: Optional[str] = None) -> int:
+    async def count(self, collection: str | None = None) -> int:
         """Count documents in collection
 
         عدد المستندات في المجموعة
@@ -1180,10 +1177,10 @@ class VectorStore:
     async def update(
         self,
         id: str,
-        text: Optional[str] = None,
-        vector: Optional[list[float]] = None,
-        metadata: Optional[dict[str, Any]] = None,
-        collection: Optional[str] = None,
+        text: str | None = None,
+        vector: list[float] | None = None,
+        metadata: dict[str, Any] | None = None,
+        collection: str | None = None,
     ) -> bool:
         """Update a document
 
@@ -1221,11 +1218,11 @@ class VectorStore:
 # Singleton and Convenience Functions
 # ============================================================================
 
-_store_instance: Optional[VectorStore] = None
+_store_instance: VectorStore | None = None
 
 
 async def get_vector_store(
-    config: Optional[VectorStoreConfig] = None,
+    config: VectorStoreConfig | None = None,
 ) -> VectorStore:
     """Get or create vector store singleton
 
@@ -1242,7 +1239,7 @@ async def get_vector_store(
 
 async def add_documents(
     texts: list[str],
-    metadatas: Optional[list[dict[str, Any]]] = None,
+    metadatas: list[dict[str, Any]] | None = None,
     collection: str = "default",
 ) -> list[str]:
     """Convenience function to add documents
@@ -1261,7 +1258,7 @@ async def search_documents(
     query: str,
     collection: str = "default",
     top_k: int = 10,
-    filter: Optional[dict[str, Any]] = None,
+    filter: dict[str, Any] | None = None,
 ) -> list[SearchResult]:
     """Convenience function to search documents
 

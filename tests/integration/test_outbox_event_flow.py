@@ -5,7 +5,7 @@ Tests for schema validation and outbox event flow
 
 from __future__ import annotations
 
-from datetime import timezone, datetime
+from datetime import timezone, datetime, UTC
 from uuid import uuid4
 
 import pytest
@@ -74,7 +74,7 @@ class TestSchemaValidation:
             "farm_id": str(uuid4()),
             "name": "Test Field",
             "geometry_wkt": "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
 
         # Should not raise
@@ -89,7 +89,7 @@ class TestSchemaValidation:
             "farm_id": str(uuid4()),
             # name is missing
             "geometry_wkt": "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
 
         with pytest.raises(jsonschema.ValidationError):
@@ -104,7 +104,7 @@ class TestSchemaValidation:
             "farm_id": str(uuid4()),
             "name": "Test Field",
             "geometry_wkt": "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
 
         with pytest.raises(jsonschema.ValidationError):
@@ -119,7 +119,7 @@ class TestSchemaValidation:
             "farm_id": str(uuid4()),
             "name": "Test Field",
             "geometry_wkt": "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "unexpected_field": "should fail",  # Not in schema
         }
 
@@ -212,7 +212,7 @@ class TestProducerHelpers:
                 "farm_id": str(uuid4()),
                 "name": "Test",
                 "geometry_wkt": "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now(UTC).isoformat(),
             },
         )
 

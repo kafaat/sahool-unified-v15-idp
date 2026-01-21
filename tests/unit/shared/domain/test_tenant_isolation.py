@@ -12,7 +12,7 @@ import uuid
 class TenantContext:
     """Tenant context for request handling."""
 
-    _current_tenant: Optional[str] = None
+    _current_tenant: str | None = None
 
     @classmethod
     def set_tenant(cls, tenant_id: str):
@@ -20,7 +20,7 @@ class TenantContext:
         cls._current_tenant = tenant_id
 
     @classmethod
-    def get_tenant(cls) -> Optional[str]:
+    def get_tenant(cls) -> str | None:
         """Get current tenant context."""
         return cls._current_tenant
 
@@ -35,22 +35,22 @@ class TenantAwareRepository:
 
     def __init__(self, tenant_id: str):
         self.tenant_id = tenant_id
-        self._data: Dict[str, Dict[str, Any]] = {}
+        self._data: dict[str, dict[str, Any]] = {}
 
-    def _get_tenant_data(self) -> Dict[str, Any]:
+    def _get_tenant_data(self) -> dict[str, Any]:
         """Get data for current tenant."""
         if self.tenant_id not in self._data:
             self._data[self.tenant_id] = {}
         return self._data[self.tenant_id]
 
-    def create(self, id: str, data: Dict[str, Any]) -> Dict[str, Any]:
+    def create(self, id: str, data: dict[str, Any]) -> dict[str, Any]:
         """Create a record for current tenant."""
         tenant_data = self._get_tenant_data()
         record = {**data, "id": id, "tenant_id": self.tenant_id}
         tenant_data[id] = record
         return record
 
-    def get(self, id: str) -> Optional[Dict[str, Any]]:
+    def get(self, id: str) -> dict[str, Any] | None:
         """Get a record for current tenant."""
         tenant_data = self._get_tenant_data()
         return tenant_data.get(id)
@@ -261,7 +261,7 @@ class TestTenantAuditLogging:
 
     def test_audit_log_tenant_cannot_be_null(self):
         """Test audit log tenant cannot be null."""
-        def validate_audit_entry(entry: Dict[str, Any]) -> bool:
+        def validate_audit_entry(entry: dict[str, Any]) -> bool:
             return entry.get("tenant_id") is not None
 
         valid_entry = {"tenant_id": "tenant123", "action": "test"}

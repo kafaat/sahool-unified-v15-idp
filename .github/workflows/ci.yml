@@ -73,7 +73,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pytest pytest-asyncio pytest-cov pytest-xdist httpx pyjwt fastapi pydantic jsonschema sqlalchemy tortoise-orm structlog
+          pip install pytest pytest-asyncio pytest-cov pytest-xdist httpx pyjwt fastapi pydantic jsonschema sqlalchemy tortoise-orm structlog langchain-anthropic redis numpy
 
       - name: Run unified tests with coverage (parallel)
         run: |
@@ -127,12 +127,14 @@ jobs:
       - name: Upload coverage report
         uses: codecov/codecov-action@v4
         if: always()
+        continue-on-error: true  # Don't fail if token is missing
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           fail_ci_if_error: false
           flags: unittests
           name: codecov-sahool
+          verbose: true
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4

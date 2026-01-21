@@ -185,6 +185,7 @@ tools/env/used_env.txt
 # Sprint 2 Testing
 # ─────────────────────────────────────────────────────────────────────────────
 coverage_html/
+coverage.xml
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Sprint 5 Security - PKI (CRITICAL - Never commit private keys!)

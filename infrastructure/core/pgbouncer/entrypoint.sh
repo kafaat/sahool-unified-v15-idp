@@ -13,8 +13,14 @@
 
 set -e
 
+# Create runtime directory
 mkdir -p /etc/pgbouncer/runtime
-chown -R pgbouncer:pgbouncer /etc/pgbouncer/runtime
+
+# Only change ownership if pgbouncer user exists in the container
+# Some images (like edoburu/pgbouncer) run as root or different user
+if id pgbouncer >/dev/null 2>&1; then
+    chown -R pgbouncer:pgbouncer /etc/pgbouncer/runtime
+fi
 chmod 700 /etc/pgbouncer/runtime
 
 # Configuration from environment

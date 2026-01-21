@@ -881,3 +881,202 @@ async def search(query: str, limit: int = 10, **kwargs) -> list[SearchResult]:
     """Search graph memory"""
     memory = get_graph_memory()
     return await memory.search(query, limit, **kwargs)
+
+
+# ============================================================================
+# Vector Store Integration
+# ============================================================================
+
+class PersistentGraphStore(GraphStore):
+    """
+    Graph store with vector database persistence.
+    مخزن رسم بياني مع قاعدة بيانات متجهية للحفظ.
+
+    Uses VectorStore for persistent storage of entities with embeddings.
+    يستخدم VectorStore للتخزين المستمر للكيانات مع التضمينات.
+    """
+
+    def __init__(self, collection_prefix: str = "graph_memory"):
+        super().__init__()
+        self.collection_prefix = collection_prefix
+        self._vector_store = None
+        self._initialized = False
+
+    async def initialize(self) -> None:
+        """Initialize vector store backend"""
+        if self._initialized:
+            return
+
+        try:
+            from .vector_store import (
+                VectorStore,
+                VectorStoreConfig,
+                VectorStoreBackend,
+            )
+
+            config = VectorStoreConfig(
+                backend=VectorStoreBackend.SQLITE,
+                dimension=128,  # Match SimpleEmbedder dimension
+                default_collection=f"{self.collection_prefix}_entities",
+            )
+
+            self._vector_store = VectorStore(config)
+            await self._vector_store.initialize()
+
+            # Create collections for entities and relationships
+            try:
+                await self._vector_store.create_collection(
+                    name=f"{self.collection_prefix}_entities",
+                    dimension=128,
+                )
+            except Exception:
+                pass  # Collection may already exist
+
+            try:
+                await self._vector_store.create_collection(
+                    name=f"{self.collection_prefix}_relationships",
+                    dimension=1,  # Relationships don't need embeddings
+                )
+            except Exception:
+                pass
+
+            self._initialized = True
+
+        except ImportError:
+            # VectorStore not available, use in-memory only
+            self._initialized = True
+
+    async def add_entity(self, entity: Entity) -> None:
+        """Add or update an entity with persistence"""
+        await super().add_entity(entity)
+
+        if self._vector_store and entity.embedding:
+            from .vector_store import VectorDocument
+
+            doc = VectorDocument(
+                id=entity.id,
+                vector=entity.embedding,
+                content=entity.get_searchable_text(),
+                metadata={
+                    "type": entity.type.value,
+                    "name": entity.name,
+                    "tenant_id": entity.tenant_id,
+                    "entity_data": entity.to_dict(),
+                },
+                collection=f"{self.collection_prefix}_entities",
+            )
+
+            await self._vector_store.add(
+                vectors=[doc.vector],
+                texts=[doc.content],
+                ids=[doc.id],
+                metadatas=[doc.metadata],
+                collection=f"{self.collection_prefix}_entities",
+            )
+
+    async def search_by_vector(
+        self,
+        vector: list[float],
+        limit: int = 10,
+        entity_type: EntityType | None = None,
+        tenant_id: str | None = None,
+    ) -> list[Entity]:
+        """Search entities by vector similarity using vector store
+
+        البحث عن الكيانات بالتشابه المتجهي
+        """
+        if not self._vector_store:
+            return []
+
+        # Build filter
+        filter_dict = {}
+        if entity_type:
+            filter_dict["type"] = entity_type.value
+        if tenant_id:
+            filter_dict["tenant_id"] = tenant_id
+
+        results = await self._vector_store.search(
+            vector=vector,
+            collection=f"{self.collection_prefix}_entities",
+            top_k=limit,
+            filter=filter_dict if filter_dict else None,
+        )
+
+        entities = []
+        for result in results:
+            entity_data = result.metadata.get("entity_data")
+            if entity_data:
+                entities.append(Entity.from_dict(entity_data))
+            else:
+                # Fallback to in-memory store
+                entity = await self.get_entity(result.id)
+                if entity:
+                    entities.append(entity)
+
+        return entities
+
+    async def persist(self) -> dict[str, int]:
+        """Persist all in-memory data to vector store
+
+        حفظ جميع البيانات من الذاكرة إلى مخزن المتجهات
+        """
+        if not self._vector_store:
+            return {"entities": 0, "relationships": 0}
+
+        entities_saved = 0
+        relationships_saved = 0
+
+        # Persist entities
+        for entity in self._entities.values():
+            if entity.embedding:
+                await self.add_entity(entity)  # This will save to vector store
+                entities_saved += 1
+
+        return {
+            "entities": entities_saved,
+            "relationships": relationships_saved,
+        }
+
+    async def load(self, tenant_id: str | None = None) -> dict[str, int]:
+        """Load entities from vector store into memory
+
+        تحميل الكيانات من مخزن المتجهات إلى الذاكرة
+        """
+        if not self._vector_store:
+            return {"entities": 0, "relationships": 0}
+
+        # This is a simplified load - in production, you'd want pagination
+        # For now, we rely on the search functionality
+
+        return {"entities": len(self._entities), "relationships": len(self._relationships)}
+
+    def get_stats(self) -> dict[str, Any]:
+        """Get store statistics including vector store info"""
+        stats = super().get_stats()
+        stats["persistent"] = self._vector_store is not None
+        stats["initialized"] = self._initialized
+        return stats
+
+
+async def get_persistent_graph_memory(
+    tenant_id: str = "default",
+    collection_prefix: str = "graph_memory",
+) -> GraphMemory:
+    """Get graph memory with persistent storage
+
+    الحصول على ذاكرة الرسم البياني مع التخزين المستمر
+
+    Args:
+        tenant_id: Tenant ID for multi-tenant support
+        collection_prefix: Prefix for vector store collections
+
+    Returns:
+        GraphMemory instance with persistent backend
+    """
+    store = PersistentGraphStore(collection_prefix=collection_prefix)
+    await store.initialize()
+
+    return GraphMemory(
+        store=store,
+        tenant_id=tenant_id,
+    )

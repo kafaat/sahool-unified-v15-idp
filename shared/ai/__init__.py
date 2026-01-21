@@ -15,11 +15,14 @@ Modules:
     - audit: Unified AI audit logging with cost tracking
     - circuit_breaker: Resilience pattern for external services
     - metrics: Prometheus-compatible observability metrics
-    - embeddings: Unified embedding providers (sentence-transformers, OpenAI, Ollama)
+    - embeddings: Unified embedding providers (sentence-transformers, OpenAI, Ollama, Huggingface)
     - explainability: Explanation generation for AI recommendations
     - feedback: User feedback collection and analysis
     - experience_learning: Self-learning agents with SOP generation (Acontext-inspired)
     - graph_memory: Graph-based memory with ECL pipeline (Cognee-inspired)
+    - crop_vision: Computer vision for crop disease/pest detection (GenAI Roadmap)
+    - huggingface_provider: Arabic & multilingual embeddings via Huggingface
+    - vector_store: Persistent vector database for RAG and semantic search
 
 Author: SAHOOL Platform Team
 Updated: January 2026
@@ -231,6 +234,7 @@ from .experience_learning import (
 from .graph_memory import (
     GraphMemory,
     GraphStore,
+    PersistentGraphStore,
     Entity,
     EntityType,
     Relationship,
@@ -238,6 +242,7 @@ from .graph_memory import (
     SearchResult,
     SimpleEmbedder,
     get_graph_memory,
+    get_persistent_graph_memory,
     add as graph_add,
     cognify,
     memify,
@@ -245,7 +250,68 @@ from .graph_memory import (
     cosine_similarity,
 )
 
-__version__ = "1.7.0"
+# Crop Vision (Computer Vision for Agriculture)
+from .crop_vision import (
+    CropVisionAnalyzer,
+    CropVisionConfig,
+    CropType,
+    DiseaseType,
+    GrowthStage,
+    PestType,
+    Severity,
+    ImageAnalysisResult,
+    DiseaseDetection,
+    GrowthStageDetection,
+    PestDetection,
+    YieldEstimate,
+    NDVIAnalysis,
+    get_crop_vision_analyzer,
+    analyze_crop_image,
+    detect_disease,
+    detect_growth_stage,
+    estimate_yield,
+    analyze_ndvi,
+)
+
+# Huggingface Provider (Arabic & Multilingual Embeddings)
+from .huggingface_provider import (
+    HuggingfaceProvider,
+    HuggingfaceConfig,
+    HuggingfaceModelType,
+    EmbeddingModelFamily,
+    EmbeddingResult as HFEmbeddingResult,
+    BatchEmbeddingResult as HFBatchEmbeddingResult,
+    ModelInfo,
+    EmbeddingCache as HFEmbeddingCache,
+    EMBEDDING_MODELS,
+    AGRICULTURAL_MODELS,
+    get_huggingface_provider,
+    embed_text as hf_embed_text,
+    embed_texts as hf_embed_texts,
+    text_similarity as hf_text_similarity,
+    list_arabic_models,
+    get_best_arabic_model,
+)
+
+# Vector Store (Persistent Vector Database)
+from .vector_store import (
+    VectorStore,
+    VectorStoreConfig,
+    VectorStoreBackend,
+    DistanceMetric,
+    IndexType,
+    VectorDocument,
+    SearchResult as VectorSearchResult,
+    CollectionInfo,
+    VectorStoreBackendBase,
+    SQLiteBackend,
+    MemoryBackend,
+    get_vector_store,
+    add_documents,
+    search_documents,
+)
+
+__version__ = "1.8.0"
 
 __all__ = [
     # Context Engineering - Compression
@@ -375,6 +441,7 @@ __all__ = [
     # Graph Memory (Cognee-inspired)
     "GraphMemory",
     "GraphStore",
+    "PersistentGraphStore",
     "Entity",
     "EntityType",
     "Relationship",
@@ -382,11 +449,64 @@ __all__ = [
     "SearchResult",
     "SimpleEmbedder",
     "get_graph_memory",
+    "get_persistent_graph_memory",
     "graph_add",
     "cognify",
     "memify",
     "graph_search",
     "cosine_similarity",
+    # Crop Vision (Computer Vision for Agriculture)
+    "CropVisionAnalyzer",
+    "CropVisionConfig",
+    "CropType",
+    "DiseaseType",
+    "GrowthStage",
+    "PestType",
+    "Severity",
+    "ImageAnalysisResult",
+    "DiseaseDetection",
+    "GrowthStageDetection",
+    "PestDetection",
+    "YieldEstimate",
+    "NDVIAnalysis",
+    "get_crop_vision_analyzer",
+    "analyze_crop_image",
+    "detect_disease",
+    "detect_growth_stage",
+    "estimate_yield",
+    "analyze_ndvi",
+    # Huggingface Provider (Arabic & Multilingual Embeddings)
+    "HuggingfaceProvider",
+    "HuggingfaceConfig",
+    "HuggingfaceModelType",
+    "EmbeddingModelFamily",
+    "HFEmbeddingResult",
+    "HFBatchEmbeddingResult",
+    "ModelInfo",
+    "HFEmbeddingCache",
+    "EMBEDDING_MODELS",
+    "AGRICULTURAL_MODELS",
+    "get_huggingface_provider",
+    "hf_embed_text",
+    "hf_embed_texts",
+    "hf_text_similarity",
+    "list_arabic_models",
+    "get_best_arabic_model",
+    # Vector Store (Persistent Vector Database)
+    "VectorStore",
+    "VectorStoreConfig",
+    "VectorStoreBackend",
+    "DistanceMetric",
+    "IndexType",
+    "VectorDocument",
+    "VectorSearchResult",
+    "CollectionInfo",
+    "VectorStoreBackendBase",
+    "SQLiteBackend",
+    "MemoryBackend",
+    "get_vector_store",
+    "add_documents",
+    "search_documents",
 ]
 
 # Add LLM Manager exports if available

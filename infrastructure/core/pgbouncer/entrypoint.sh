@@ -14,9 +14,14 @@
 set -e
 
 # Create runtime directory with proper permissions
-# Note: edoburu/pgbouncer (Alpine-based) runs as 'postgres' user
-# The mounted volume should already have correct ownership
+# Note: edoburu/pgbouncer (Alpine-based) may run as 'postgres' user or other
 mkdir -p /etc/pgbouncer/runtime
+
+# Only change ownership if pgbouncer user exists in the container
+if id pgbouncer >/dev/null 2>&1; then
+    chown -R pgbouncer:pgbouncer /etc/pgbouncer/runtime 2>/dev/null || true
+fi
+
 # chmod may fail due to security settings (no-new-privileges) - make it non-fatal
 chmod 700 /etc/pgbouncer/runtime 2>/dev/null || true
 

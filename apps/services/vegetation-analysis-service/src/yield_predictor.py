@@ -19,6 +19,7 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 
 # Define CropInfo first as fallback (with all needed attributes)

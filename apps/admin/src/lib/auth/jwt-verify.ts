@@ -27,16 +27,22 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
   try {
     // Get JWT secret from environment
     // SECURITY: Never use NEXT_PUBLIC_* for secrets - they are exposed to the client
-    const secret = process.env.JWT_SECRET;
+    const secret = process.env.JWT_SECRET || process.env.JWT_SECRET_KEY;
 
     if (!secret) {
-      throw new Error("JWT_SECRET is not configured");
+      throw new Error(
+        "JWT_SECRET is not configured. Set JWT_SECRET or JWT_SECRET_KEY environment variable."
+      );
     }
 
-    // Verify token signature and expiry
+    // Verify token signature, expiry, issuer, and audience
     const { payload } = await jwtVerify(
       token,
       new TextEncoder().encode(secret),
+      {
+        issuer: "sahool-platform",
+        audience: "sahool-api",
+      }
     );
 
     // Validate required fields

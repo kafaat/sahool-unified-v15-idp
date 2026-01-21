@@ -144,7 +144,7 @@ def check_startup_order(repo_root: Path) -> list:
                                 "component": service_name,
                                 "issue": f"{service_name} uses database but may not wait for it",
                                 "impact": "Service may crash on startup before DB is ready",
-                                "fix": f"Add depends_on: postgres with condition: service_healthy",
+                                "fix": "Add depends_on: postgres with condition: service_healthy",
                                 "file": str(compose_file),
                             }
                         )
@@ -175,7 +175,7 @@ def check_port_conflicts(repo_root: Path) -> list:
                     "component": "Infrastructure",
                     "issue": f"Port conflict: {host_port} is mapped multiple times",
                     "impact": "Only one service will be able to bind to this port",
-                    "fix": f"Change one of the services to use a different host port",
+                    "fix": "Change one of the services to use a different host port",
                     "file": str(compose_file),
                 }
             )
@@ -211,7 +211,7 @@ def check_entrypoints(repo_root: Path) -> list:
                 {
                     "severity": "HIGH",
                     "component": service_dir.name,
-                    "issue": f"Missing CMD or ENTRYPOINT in Dockerfile",
+                    "issue": "Missing CMD or ENTRYPOINT in Dockerfile",
                     "impact": "Container will not know how to start",
                     "fix": "Add CMD or ENTRYPOINT instruction to Dockerfile",
                     "file": str(dockerfile),

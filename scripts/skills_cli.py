@@ -97,7 +97,7 @@ class MemoryEntry:
 
     id: str
     tenant_id: str
-    field_id: Optional[str]
+    field_id: str | None
     memory_type: str
     content: Any
     timestamp: str
@@ -226,7 +226,7 @@ def compress_field_data(field_data: dict[str, Any]) -> CompressionResult:
 
 def create_memory_entry(
     tenant_id: str,
-    field_id: Optional[str],
+    field_id: str | None,
     memory_type: str,
     content: Any,
     language: str = "en",
@@ -253,7 +253,7 @@ def create_memory_entry(
 def evaluate_advisory(
     advisory_type: AdvisoryType,
     advisory_text: str,
-    context: Optional[dict[str, Any]] = None,
+    context: dict[str, Any] | None = None,
 ) -> EvaluationResult:
     """Evaluate an agricultural advisory"""
     # Dimension weights
@@ -267,7 +267,7 @@ def evaluate_advisory(
 
     # Simulate scoring based on text content
     scores = {}
-    for dimension in weights.keys():
+    for dimension in weights:
         # Check for key terms
         if dimension == "accuracy":
             score = 4.0 if any(w in advisory_text.lower() for w in ["precise", "specific", "based on"]) else 3.0
@@ -283,7 +283,7 @@ def evaluate_advisory(
         scores[dimension] = min(5.0, max(1.0, score))
 
     # Calculate overall score
-    overall_score = sum(scores[d] * weights[d] for d in weights.keys())
+    overall_score = sum(scores[d] * weights[d] for d in weights)
 
     # Assign grade
     if overall_score >= 4.5:
@@ -396,7 +396,7 @@ Example:
     type=str,
     help="Output file (JSON format)",
 )
-def compress(text: Optional[str], json_data: Optional[str], level: str, language: str, output: Optional[str]):
+def compress(text: str | None, json_data: str | None, level: str, language: str, output: str | None):
     """Compress agricultural data"""
 
     result = None
@@ -511,12 +511,12 @@ Example:
 )
 def remember(
     tenant_id: str,
-    field_id: Optional[str],
+    field_id: str | None,
     memory_type: str,
-    content: Optional[str],
-    json_data: Optional[str],
+    content: str | None,
+    json_data: str | None,
     language: str,
-    output: Optional[str],
+    output: str | None,
 ):
     """Store a memory entry"""
 
@@ -622,11 +622,11 @@ Example:
 )
 def recall(
     tenant_id: str,
-    field_id: Optional[str],
-    memory_type: Optional[str],
-    query: Optional[str],
+    field_id: str | None,
+    memory_type: str | None,
+    query: str | None,
     limit: int,
-    output: Optional[str],
+    output: str | None,
 ):
     """Recall memory entries"""
 
@@ -748,8 +748,8 @@ Example:
 def evaluate(
     advisory_type: str,
     text: str,
-    context: Optional[str],
-    output: Optional[str],
+    context: str | None,
+    output: str | None,
 ):
     """Evaluate advisory quality"""
 
@@ -848,7 +848,7 @@ Example:
     type=str,
     help="Output file",
 )
-def generate_doc(list: bool, skill: Optional[str], format: str, output: Optional[str]):
+def generate_doc(list: bool, skill: str | None, format: str, output: str | None):
     """Generate skill documentation"""
 
     if list:

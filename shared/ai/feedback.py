@@ -15,7 +15,7 @@ Updated: January 2026
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 from datetime import datetime
 import json
 import os
@@ -77,23 +77,23 @@ class FeedbackItem:
     # User info (anonymized)
     user_id: str = ""
     tenant_id: str = ""
-    field_id: Optional[str] = None
-    crop_type: Optional[str] = None
+    field_id: str | None = None
+    crop_type: str | None = None
 
     # Feedback content
     feedback_type: FeedbackType = FeedbackType.RATING
-    rating: Optional[int] = None  # 1-5
-    thumbs_up: Optional[bool] = None
-    comment: Optional[str] = None
-    comment_ar: Optional[str] = None
-    correction: Optional[str] = None
+    rating: int | None = None  # 1-5
+    thumbs_up: bool | None = None
+    comment: str | None = None
+    comment_ar: str | None = None
+    correction: str | None = None
 
     # Outcome tracking
-    outcome: Optional[OutcomeStatus] = None
-    outcome_details: Optional[str] = None
-    outcome_details_ar: Optional[str] = None
-    yield_impact: Optional[float] = None  # Percentage change in yield
-    cost_impact: Optional[float] = None  # Cost impact in local currency
+    outcome: OutcomeStatus | None = None
+    outcome_details: str | None = None
+    outcome_details_ar: str | None = None
+    yield_impact: float | None = None  # Percentage change in yield
+    cost_impact: float | None = None  # Cost impact in local currency
 
     # Context at time of recommendation
     context: dict[str, Any] = field(default_factory=dict)
@@ -205,8 +205,8 @@ class FeedbackSummary:
     by_recommendation_type: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     # Time range
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
+    start_date: datetime | None = None
+    end_date: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -235,7 +235,7 @@ class FeedbackStorage:
     التخزين الخلفي للتغذية الراجعة
     """
 
-    def __init__(self, storage_path: Optional[str] = None):
+    def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
         self.storage_path = Path(storage_path or os.getenv(
             "FEEDBACK_STORAGE_PATH",
@@ -259,7 +259,7 @@ class FeedbackStorage:
 
         items = []
         async with self._lock:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 for line in f:
                     if line.strip():
                         data = json.loads(line)
@@ -332,8 +332,8 @@ class FeedbackCollector:
     def __init__(
         self,
         tenant_id: str,
-        storage: Optional[FeedbackStorage] = None,
-        on_feedback: Optional[Callable[[FeedbackItem], None]] = None,
+        storage: FeedbackStorage | None = None,
+        on_feedback: Callable[[FeedbackItem], None] | None = None,
     ):
         """
         Initialize the feedback collector
@@ -357,11 +357,11 @@ class FeedbackCollector:
         rating: int,
         recommendation_type: RecommendationType = RecommendationType.GENERAL,
         user_id: str = "",
-        comment: Optional[str] = None,
-        comment_ar: Optional[str] = None,
-        field_id: Optional[str] = None,
-        crop_type: Optional[str] = None,
-        context: Optional[dict[str, Any]] = None,
+        comment: str | None = None,
+        comment_ar: str | None = None,
+        field_id: str | None = None,
+        crop_type: str | None = None,
+        context: dict[str, Any] | None = None,
         source: str = "mobile_app",
     ) -> FeedbackItem:
         """
@@ -423,9 +423,9 @@ class FeedbackCollector:
         thumbs_up: bool,
         recommendation_type: RecommendationType = RecommendationType.GENERAL,
         user_id: str = "",
-        comment: Optional[str] = None,
-        comment_ar: Optional[str] = None,
-        context: Optional[dict[str, Any]] = None,
+        comment: str | None = None,
+        comment_ar: str | None = None,
+        context: dict[str, Any] | None = None,
         source: str = "mobile_app",
     ) -> FeedbackItem:
         """
@@ -456,11 +456,11 @@ class FeedbackCollector:
         outcome: OutcomeStatus,
         recommendation_type: RecommendationType = RecommendationType.GENERAL,
         user_id: str = "",
-        outcome_details: Optional[str] = None,
-        outcome_details_ar: Optional[str] = None,
-        yield_impact: Optional[float] = None,
-        cost_impact: Optional[float] = None,
-        context: Optional[dict[str, Any]] = None,
+        outcome_details: str | None = None,
+        outcome_details_ar: str | None = None,
+        yield_impact: float | None = None,
+        cost_impact: float | None = None,
+        context: dict[str, Any] | None = None,
         source: str = "mobile_app",
     ) -> FeedbackItem:
         """
@@ -505,9 +505,9 @@ class FeedbackCollector:
         correction: str,
         recommendation_type: RecommendationType = RecommendationType.GENERAL,
         user_id: str = "",
-        comment: Optional[str] = None,
-        comment_ar: Optional[str] = None,
-        context: Optional[dict[str, Any]] = None,
+        comment: str | None = None,
+        comment_ar: str | None = None,
+        context: dict[str, Any] | None = None,
         source: str = "mobile_app",
     ) -> FeedbackItem:
         """
@@ -544,8 +544,8 @@ class FeedbackCollector:
 
     async def get_summary(
         self,
-        days: Optional[int] = None,
-        recommendation_type: Optional[RecommendationType] = None,
+        days: int | None = None,
+        recommendation_type: RecommendationType | None = None,
     ) -> FeedbackSummary:
         """
         Get feedback summary statistics
@@ -756,7 +756,7 @@ async def collect_outcome(
 
 async def get_feedback_summary(
     tenant_id: str,
-    days: Optional[int] = None,
+    days: int | None = None,
 ) -> FeedbackSummary:
     """Get feedback summary for a tenant"""
     collector = get_feedback_collector(tenant_id)

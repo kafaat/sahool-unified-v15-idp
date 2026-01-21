@@ -134,7 +134,7 @@ class ProjectAnalyzer:
         files_to_analyze = []
 
         # Collect files
-        for ext in SUPPORTED_EXTENSIONS.keys():
+        for ext in SUPPORTED_EXTENSIONS:
             for file_path in root_path.rglob(f"*{ext}"):
                 if not self.should_skip(file_path):
                     files_to_analyze.append(file_path)
@@ -224,13 +224,13 @@ class ProjectAnalyzer:
         report.append("   SAHOOL Project Analysis Report")
         report.append("=" * 60)
         report.append(f"\n⏰ وقت الفحص: {self.results['scan_time']}")
-        report.append(f"\n📁 إحصائيات الملفات:")
+        report.append("\n📁 إحصائيات الملفات:")
         report.append(f"   - إجمالي الملفات: {self.results['total_files']}")
         report.append(f"   - الملفات المفحوصة: {self.results['files_analyzed']}")
         report.append(f"   - ملفات بها مشاكل: {self.results['files_with_issues']}")
-        report.append(f"\n🐛 إحصائيات المشاكل:")
+        report.append("\n🐛 إحصائيات المشاكل:")
         report.append(f"   - إجمالي المشاكل: {self.results['total_issues']}")
-        report.append(f"\n📈 المشاكل حسب الخطورة:")
+        report.append("\n📈 المشاكل حسب الخطورة:")
         for severity, count in self.results["issues_by_severity"].items():
             if count > 0:
                 emoji = {"critical": "🔴", "high": "🟠", "medium": "🟡", "low": "🟢"}.get(
@@ -239,14 +239,14 @@ class ProjectAnalyzer:
                 report.append(f"   {emoji} {severity}: {count}")
 
         if self.results["issues_by_type"]:
-            report.append(f"\n📋 المشاكل حسب النوع:")
+            report.append("\n📋 المشاكل حسب النوع:")
             for issue_type, count in sorted(
                 self.results["issues_by_type"].items(), key=lambda x: -x[1]
             )[:10]:
                 report.append(f"   - {issue_type}: {count}")
 
         if self.results["files_with_issues"] > 0:
-            report.append(f"\n📄 الملفات التي تحتاج مراجعة:")
+            report.append("\n📄 الملفات التي تحتاج مراجعة:")
             for file_info in sorted(
                 self.results["files"], key=lambda x: -x["issues_count"]
             )[:20]:

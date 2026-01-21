@@ -18,8 +18,8 @@ class MockRequest:
     """Mock HTTP request for testing."""
 
     def __init__(self):
-        self.headers: Dict[str, str] = {}
-        self.cookies: Dict[str, str] = {}
+        self.headers: dict[str, str] = {}
+        self.cookies: dict[str, str] = {}
         self.method: str = "GET"
         self.url: str = "/api/v1/fields"
         self.path: str = "/api/v1/fields"
@@ -29,10 +29,10 @@ class MockRequest:
 class MockResponse:
     """Mock HTTP response for testing."""
 
-    def __init__(self, status_code: int = 200, body: Dict = None):
+    def __init__(self, status_code: int = 200, body: dict = None):
         self.status_code = status_code
         self.body = body or {}
-        self.headers: Dict[str, str] = {}
+        self.headers: dict[str, str] = {}
 
 
 class AuthMiddleware:
@@ -48,7 +48,7 @@ class AuthMiddleware:
         self.algorithm = algorithm
         self.excluded_paths = excluded_paths or ["/healthz", "/readyz", "/docs"]
 
-    def extract_token(self, request: MockRequest) -> Optional[str]:
+    def extract_token(self, request: MockRequest) -> str | None:
         """Extract JWT token from request."""
         auth_header = request.headers.get("Authorization", "")
         if auth_header.startswith("Bearer "):
@@ -56,7 +56,7 @@ class AuthMiddleware:
 
         return request.cookies.get("access_token")
 
-    def verify_token(self, token: str) -> Optional[Dict[str, Any]]:
+    def verify_token(self, token: str) -> dict[str, Any] | None:
         """Verify JWT token and return payload."""
         try:
             return jwt.decode(

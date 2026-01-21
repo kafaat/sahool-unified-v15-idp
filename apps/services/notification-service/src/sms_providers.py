@@ -547,7 +547,7 @@ class MultiProviderSMSClient:
 
     def get_available_providers(self) -> list[str]:
         """الحصول على قائمة المزودين المتاحين"""
-        return [p.value for p in self._providers.keys() if self._providers[p].is_available()]
+        return [p.value for p in self._providers if self._providers[p].is_available()]
 
 
 # Global client instance

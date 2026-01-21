@@ -37,7 +37,7 @@ def check_database_indexes(repo_root: Path) -> list:
         try:
             content = migration.read_text(encoding='utf-8').lower()
             for col in index_columns:
-                if f"index" in content and col in content:
+                if "index" in content and col in content:
                     found_indexes.add(col)
         except Exception:
             continue

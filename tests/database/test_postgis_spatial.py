@@ -13,13 +13,13 @@ from dataclasses import dataclass
 @dataclass
 class GeoJSONPolygon:
     """GeoJSON Polygon representation."""
-    coordinates: List[List[List[float]]]
+    coordinates: list[list[list[float]]]
 
     @property
     def type(self) -> str:
         return "Polygon"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "type": self.type,
             "coordinates": self.coordinates
@@ -32,13 +32,13 @@ class GeoJSONPolygon:
 @dataclass
 class GeoJSONPoint:
     """GeoJSON Point representation."""
-    coordinates: List[float]
+    coordinates: list[float]
 
     @property
     def type(self) -> str:
         return "Point"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "type": self.type,
             "coordinates": self.coordinates
@@ -49,7 +49,7 @@ class GeometryValidator:
     """Validates GeoJSON geometry objects."""
 
     @staticmethod
-    def validate_polygon(geojson: Dict[str, Any]) -> bool:
+    def validate_polygon(geojson: dict[str, Any]) -> bool:
         """Validate a GeoJSON Polygon."""
         if geojson.get("type") != "Polygon":
             return False
@@ -74,7 +74,7 @@ class GeometryValidator:
         return True
 
     @staticmethod
-    def validate_point(geojson: Dict[str, Any]) -> bool:
+    def validate_point(geojson: dict[str, Any]) -> bool:
         """Validate a GeoJSON Point."""
         if geojson.get("type") != "Point":
             return False
@@ -87,7 +87,7 @@ class GeometryValidator:
         return -180 <= lon <= 180 and -90 <= lat <= 90
 
     @staticmethod
-    def calculate_area_hectares(polygon: Dict[str, Any]) -> float:
+    def calculate_area_hectares(polygon: dict[str, Any]) -> float:
         """Estimate polygon area in hectares using simple calculation."""
         coords = polygon.get("coordinates", [[]])[0]
         if len(coords) < 4:

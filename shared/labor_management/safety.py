@@ -15,8 +15,7 @@ Version: 1.0.0
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, date, time, timedelta
-from typing import Optional
+from datetime import datetime, date, timedelta
 from enum import Enum
 
 from .models import (
@@ -28,7 +27,6 @@ from .models import (
     SafetyViolationType,
     SafetyCertification,
     PPEType,
-    SkillCategory,
     PreTaskSafetyCheck,
     SafetyChecklistItem,
     create_rei_zone,
@@ -56,9 +54,9 @@ class HeatRiskLevel(str, Enum):
 class PPERequirementSet:
     """PPE requirement set for a task/zone - مجموعة متطلبات الحماية للمهمة/المنطقة"""
     required_ppe: list[PPEType]
-    task_category: Optional[TaskCategory] = None
-    rei_zone_id: Optional[str] = None
-    pesticide_id: Optional[str] = None
+    task_category: TaskCategory | None = None
+    rei_zone_id: str | None = None
+    pesticide_id: str | None = None
 
     description_en: str = ""
     description_ar: str = ""
@@ -93,14 +91,14 @@ class SafetyCheckResult:
     recommendations_ar: list[str] = field(default_factory=list)
 
     # Related entities
-    worker_id: Optional[str] = None
-    task_id: Optional[str] = None
-    field_id: Optional[str] = None
-    zone_id: Optional[str] = None
+    worker_id: str | None = None
+    task_id: str | None = None
+    field_id: str | None = None
+    zone_id: str | None = None
 
     # Metadata
     checked_at: datetime = field(default_factory=datetime.utcnow)
-    checked_by: Optional[str] = None
+    checked_by: str | None = None
 
 
 @dataclass
@@ -150,7 +148,7 @@ class REIComplianceResult:
 
     # Active zones
     active_zones: list[REIZone] = field(default_factory=list)
-    earliest_safe_entry: Optional[datetime] = None
+    earliest_safe_entry: datetime | None = None
 
     # Required PPE for early entry (if allowed)
     early_entry_ppe: list[PPEType] = field(default_factory=list)
@@ -342,9 +340,9 @@ class SafetyComplianceManager:
 
     def __init__(
         self,
-        workers: Optional[list[Worker]] = None,
-        rei_zones: Optional[list[REIZone]] = None,
-        violations: Optional[list[SafetyViolation]] = None,
+        workers: list[Worker] | None = None,
+        rei_zones: list[REIZone] | None = None,
+        violations: list[SafetyViolation] | None = None,
     ):
         self.workers: list[Worker] = workers or []
         self.rei_zones: list[REIZone] = rei_zones or []
@@ -385,10 +383,10 @@ class SafetyComplianceManager:
         application_time: datetime,
         rei_hours: int,
         area_hectares: float = 0.0,
-        boundary_coordinates: Optional[list[tuple[float, float]]] = None,
+        boundary_coordinates: list[tuple[float, float]] | None = None,
         early_entry_allowed: bool = False,
-        early_entry_tasks: Optional[list[str]] = None,
-        early_entry_ppe: Optional[list[PPEType]] = None,
+        early_entry_tasks: list[str] | None = None,
+        early_entry_ppe: list[PPEType] | None = None,
     ) -> REIZone:
         """
         Create an REI zone from a pesticide application
@@ -417,9 +415,9 @@ class SafetyComplianceManager:
 
     def get_active_rei_zones(
         self,
-        field_id: Optional[str] = None,
-        farm_id: Optional[str] = None,
-        check_time: Optional[datetime] = None,
+        field_id: str | None = None,
+        farm_id: str | None = None,
+        check_time: datetime | None = None,
     ) -> list[REIZone]:
         """Get currently active REI zones"""
         check = check_time or datetime.utcnow()
@@ -439,8 +437,8 @@ class SafetyComplianceManager:
     def check_rei_compliance(
         self,
         field_id: str,
-        task_category: Optional[TaskCategory] = None,
-        check_time: Optional[datetime] = None,
+        task_category: TaskCategory | None = None,
+        check_time: datetime | None = None,
     ) -> REIComplianceResult:
         """
         Check REI compliance for field entry - فحص امتثال فترة إعادة الدخول
@@ -533,7 +531,7 @@ class SafetyComplianceManager:
             warnings_ar=warnings_ar,
         )
 
-    def expire_rei_zones(self, check_time: Optional[datetime] = None) -> list[REIZone]:
+    def expire_rei_zones(self, check_time: datetime | None = None) -> list[REIZone]:
         """
         Mark expired REI zones as inactive
 
@@ -555,8 +553,8 @@ class SafetyComplianceManager:
     def get_ppe_requirements(
         self,
         task_category: TaskCategory,
-        field_id: Optional[str] = None,
-        check_time: Optional[datetime] = None,
+        field_id: str | None = None,
+        check_time: datetime | None = None,
     ) -> PPERequirementSet:
         """
         Get PPE requirements for a task/location - الحصول على متطلبات الحماية
@@ -578,8 +576,8 @@ class SafetyComplianceManager:
             )
             if rei_check.requires_ppe:
                 required_ppe.extend(rei_check.early_entry_ppe)
-                description_en += f" + REI early entry PPE"
-                description_ar += f" + معدات الدخول المبكر REI"
+                description_en += " + REI early entry PPE"
+                description_ar += " + معدات الدخول المبكر REI"
 
         # Deduplicate
         required_ppe = list(set(required_ppe))
@@ -635,7 +633,7 @@ class SafetyComplianceManager:
         self,
         worker_id: str,
         required_certifications: list[SafetyCertification],
-        check_date: Optional[date] = None,
+        check_date: date | None = None,
     ) -> SafetyCheckResult:
         """
         Verify worker has valid required certifications
@@ -1005,15 +1003,15 @@ class SafetyComplianceManager:
         farm_id: str,
         violation_type: SafetyViolationType,
         severity: str = "warning",
-        worker_id: Optional[str] = None,
-        field_id: Optional[str] = None,
-        task_id: Optional[str] = None,
+        worker_id: str | None = None,
+        field_id: str | None = None,
+        task_id: str | None = None,
         description: str = "",
         description_ar: str = "",
-        pesticide_id: Optional[str] = None,
-        pesticide_name: Optional[str] = None,
-        missing_ppe: Optional[list[PPEType]] = None,
-        reported_by: Optional[str] = None,
+        pesticide_id: str | None = None,
+        pesticide_name: str | None = None,
+        missing_ppe: list[PPEType] | None = None,
+        reported_by: str | None = None,
     ) -> SafetyViolation:
         """
         Record a safety violation - تسجيل مخالفة سلامة
@@ -1040,12 +1038,12 @@ class SafetyComplianceManager:
 
     def get_violations(
         self,
-        worker_id: Optional[str] = None,
-        farm_id: Optional[str] = None,
-        field_id: Optional[str] = None,
-        violation_type: Optional[SafetyViolationType] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        worker_id: str | None = None,
+        farm_id: str | None = None,
+        field_id: str | None = None,
+        violation_type: SafetyViolationType | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
         unresolved_only: bool = False,
     ) -> list[SafetyViolation]:
         """
@@ -1076,7 +1074,7 @@ class SafetyComplianceManager:
         resolved_by: str,
         resolution_notes: str = "",
         resolution_notes_ar: str = "",
-    ) -> Optional[SafetyViolation]:
+    ) -> SafetyViolation | None:
         """
         Mark a violation as resolved - تعليم المخالفة كمحلولة
         """
@@ -1094,8 +1092,8 @@ class SafetyComplianceManager:
     def get_safety_summary(
         self,
         farm_id: str,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
     ) -> dict:
         """
         Get safety summary statistics - الحصول على ملخص إحصائيات السلامة

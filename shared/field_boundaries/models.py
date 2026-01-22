@@ -13,7 +13,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -218,17 +218,17 @@ class BoundaryPoint(BaseModel):
         description="GPS accuracy in meters | دقة GPS بالمتر"
     )
     accuracy_level: CoordinateAccuracy = Field(default=CoordinateAccuracy.UNKNOWN)
-    altitude_m: Optional[float] = Field(
+    altitude_m: float | None = Field(
         default=None,
         description="Altitude in meters | الارتفاع بالمتر"
     )
     captured_at: datetime = Field(default_factory=datetime.utcnow)
-    device_id: Optional[str] = Field(
+    device_id: str | None = Field(
         default=None,
         description="Device that captured the point | الجهاز الذي التقط النقطة"
     )
-    notes: Optional[str] = Field(default=None)
-    notes_ar: Optional[str] = Field(default=None)
+    notes: str | None = Field(default=None)
+    notes_ar: str | None = Field(default=None)
 
     def to_point(self) -> Point:
         """Convert to GeoJSON Point | تحويل إلى نقطة GeoJSON"""
@@ -252,9 +252,9 @@ class FieldBoundary(BaseModel):
 
     # Boundary metadata | البيانات الوصفية للحدود
     name: str = Field(..., description="Boundary name | اسم الحد")
-    name_ar: Optional[str] = Field(default=None, description="Arabic name | الاسم بالعربية")
-    description: Optional[str] = Field(default=None)
-    description_ar: Optional[str] = Field(default=None)
+    name_ar: str | None = Field(default=None, description="Arabic name | الاسم بالعربية")
+    description: str | None = Field(default=None)
+    description_ar: str | None = Field(default=None)
     boundary_type: BoundaryType = Field(default=BoundaryType.FIELD)
     status: BoundaryStatus = Field(default=BoundaryStatus.DRAFT)
 
@@ -269,17 +269,17 @@ class FieldBoundary(BaseModel):
     )
 
     # Calculated properties | الخصائص المحسوبة
-    area_hectares: Optional[float] = Field(default=None, ge=0)
-    perimeter_meters: Optional[float] = Field(default=None, ge=0)
-    centroid: Optional[Point] = Field(default=None)
+    area_hectares: float | None = Field(default=None, ge=0)
+    perimeter_meters: float | None = Field(default=None, ge=0)
+    centroid: Point | None = Field(default=None)
 
     # Accuracy | الدقة
-    average_accuracy_m: Optional[float] = Field(default=None, ge=0)
+    average_accuracy_m: float | None = Field(default=None, ge=0)
     accuracy_level: CoordinateAccuracy = Field(default=CoordinateAccuracy.UNKNOWN)
 
     # Versioning | الإصدارات
     version: int = Field(default=1, ge=1)
-    previous_version_id: Optional[str] = Field(default=None)
+    previous_version_id: str | None = Field(default=None)
 
     # Sharing | المشاركة
     shared_with: list[str] = Field(
@@ -294,7 +294,7 @@ class FieldBoundary(BaseModel):
     # Timestamps | الطوابع الزمنية
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    approved_at: Optional[datetime] = Field(default=None)
+    approved_at: datetime | None = Field(default=None)
 
     # Additional metadata | بيانات وصفية إضافية
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -374,16 +374,16 @@ class BoundaryConflict(BaseModel):
 
     # Conflict details | تفاصيل التعارض
     conflict_type: ConflictType = Field(...)
-    conflict_geometry: Optional[Polygon | MultiPolygon] = Field(
+    conflict_geometry: Polygon | MultiPolygon | None = Field(
         default=None,
         description="Geometry of conflict area | هندسة منطقة التعارض"
     )
-    overlap_area_sqm: Optional[float] = Field(
+    overlap_area_sqm: float | None = Field(
         default=None,
         ge=0,
         description="Overlap area in square meters | مساحة التداخل بالمتر المربع"
     )
-    gap_distance_m: Optional[float] = Field(
+    gap_distance_m: float | None = Field(
         default=None,
         ge=0,
         description="Gap distance in meters | مسافة الفجوة بالمتر"
@@ -391,10 +391,10 @@ class BoundaryConflict(BaseModel):
 
     # Status | الحالة
     is_resolved: bool = Field(default=False)
-    resolution_notes: Optional[str] = Field(default=None)
-    resolution_notes_ar: Optional[str] = Field(default=None)
-    resolved_by: Optional[str] = Field(default=None)
-    resolved_at: Optional[datetime] = Field(default=None)
+    resolution_notes: str | None = Field(default=None)
+    resolution_notes_ar: str | None = Field(default=None)
+    resolved_by: str | None = Field(default=None)
+    resolved_at: datetime | None = Field(default=None)
 
     # Timestamps | الطوابع الزمنية
     detected_at: datetime = Field(default_factory=datetime.utcnow)
@@ -449,8 +449,8 @@ class BoundaryShareRequest(BaseModel):
     recipient_id: str = Field(..., description="User to share with | المستخدم المشارك معه")
 
     # Request details | تفاصيل الطلب
-    message: Optional[str] = Field(default=None)
-    message_ar: Optional[str] = Field(default=None)
+    message: str | None = Field(default=None)
+    message_ar: str | None = Field(default=None)
     permission_level: str = Field(
         default="view",
         description="Permission: view, edit, approve | الصلاحية: عرض، تعديل، موافقة"
@@ -461,13 +461,13 @@ class BoundaryShareRequest(BaseModel):
         default="pending",
         description="Status: pending, accepted, rejected, expired | الحالة"
     )
-    response_message: Optional[str] = Field(default=None)
-    response_message_ar: Optional[str] = Field(default=None)
+    response_message: str | None = Field(default=None)
+    response_message_ar: str | None = Field(default=None)
 
     # Timestamps | الطوابع الزمنية
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    responded_at: Optional[datetime] = Field(default=None)
-    expires_at: Optional[datetime] = Field(default=None)
+    responded_at: datetime | None = Field(default=None)
+    expires_at: datetime | None = Field(default=None)
 
 
 class GPSTrack(BaseModel):
@@ -478,9 +478,9 @@ class GPSTrack(BaseModel):
     مجموعة نقاط GPS المسجلة أثناء رسم حدود الحقل.
     """
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    field_id: Optional[str] = Field(default=None)
+    field_id: str | None = Field(default=None)
     user_id: str = Field(..., description="User who recorded track | المستخدم الذي سجل المسار")
-    device_id: Optional[str] = Field(default=None)
+    device_id: str | None = Field(default=None)
 
     # Track data | بيانات المسار
     points: list[BoundaryPoint] = Field(
@@ -494,13 +494,13 @@ class GPSTrack(BaseModel):
 
     # Metadata | البيانات الوصفية
     start_time: datetime = Field(default_factory=datetime.utcnow)
-    end_time: Optional[datetime] = Field(default=None)
-    total_distance_m: Optional[float] = Field(default=None, ge=0)
-    average_accuracy_m: Optional[float] = Field(default=None, ge=0)
+    end_time: datetime | None = Field(default=None)
+    total_distance_m: float | None = Field(default=None, ge=0)
+    average_accuracy_m: float | None = Field(default=None, ge=0)
 
     # Processing status | حالة المعالجة
     is_processed: bool = Field(default=False)
-    resulting_boundary_id: Optional[str] = Field(default=None)
+    resulting_boundary_id: str | None = Field(default=None)
 
     def add_point(self, point: BoundaryPoint) -> None:
         """Add point to track | إضافة نقطة للمسار"""

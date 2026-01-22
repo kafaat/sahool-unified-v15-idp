@@ -699,7 +699,9 @@ def get_audit_logger(tenant_id: str = "sahool") -> AIAuditLogger:
     """
     global _global_logger
     if _global_logger is None or _global_logger.tenant_id != tenant_id:
-        storage_path = os.getenv("AI_AUDIT_STORAGE_PATH", "/tmp/sahool_ai_audit")
+        import tempfile
+        default_path = os.path.join(tempfile.gettempdir(), "sahool_ai_audit")
+        storage_path = os.getenv("AI_AUDIT_STORAGE_PATH", default_path)
         _global_logger = AIAuditLogger(tenant_id=tenant_id, storage_path=storage_path)
     return _global_logger
 

@@ -12,19 +12,20 @@ RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 # Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY apps/services/ussd-gateway/requirements.txt .
 
-# Copy shared modules
-COPY ../../shared /app/shared
+# Copy shared libraries
+COPY shared/ ./shared/
 
-# Copy service code
-COPY src/ /app/src/
+# Copy source
+COPY apps/services/ussd-gateway/src/ ./src/
 
-# Set environment variables
-ENV PYTHONPATH=/app
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Install dependencies and set ownership
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt && \
+    chown -R sahool:sahool /app
+
+# Switch to non-root user
+USER sahool
 
 # Set ownership to non-root user
 RUN chown -R sahool:sahool /app
@@ -39,5 +40,4 @@ EXPOSE 8130
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8130/healthz')" || exit 1
 
-# Run service
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8130"]

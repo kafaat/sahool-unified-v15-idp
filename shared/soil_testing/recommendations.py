@@ -15,21 +15,18 @@ Author: SAHOOL Platform Team
 Version: 1.0.0
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Any, Optional
 import uuid
 
 from .models import (
     AmendmentPlan,
     AmendmentRecommendation,
     InterpretationReport,
-    NutrientInterpretation,
     NutrientStatus,
     SoilProperties,
     SoilTestResult,
-    SoilType,
 )
 from .interpreter import SoilTestInterpreter
 
@@ -440,7 +437,7 @@ CROP_REQUIREMENTS: dict[str, dict] = {
 class RecommendationConfig:
     """Configuration for amendment recommendations - إعدادات توصيات التعديل"""
     # Economic factors
-    max_budget_per_ha: Optional[Decimal] = None
+    max_budget_per_ha: Decimal | None = None
     currency: str = "SAR"
 
     # Environmental constraints
@@ -449,7 +446,7 @@ class RecommendationConfig:
 
     # Product preferences
     prefer_organic: bool = False
-    available_products: Optional[list[str]] = None
+    available_products: list[str] | None = None
 
     # Application constraints
     has_fertigation: bool = True
@@ -472,8 +469,8 @@ class SoilAmendmentRecommender:
 
     def __init__(
         self,
-        config: Optional[RecommendationConfig] = None,
-        custom_products: Optional[dict] = None,
+        config: RecommendationConfig | None = None,
+        custom_products: dict | None = None,
     ):
         """
         Initialize the recommender.
@@ -493,7 +490,7 @@ class SoilAmendmentRecommender:
         self,
         soil_test: SoilTestResult,
         crop: str,
-        target_yield: Optional[float] = None,
+        target_yield: float | None = None,
         field_area_ha: float = 1.0,
     ) -> AmendmentPlan:
         """
@@ -1015,7 +1012,7 @@ class SoilAmendmentRecommender:
 
         urgent = [r for r in recommendations if r.priority <= 2]
         if urgent:
-            summary_en += f"Priority actions: "
+            summary_en += "Priority actions: "
             summary_en += ", ".join([r.product_name for r in urgent[:3]])
             summary_en += "."
 
@@ -1023,7 +1020,7 @@ class SoilAmendmentRecommender:
         summary_ar += f"بتكلفة إجمالية تقديرية {total_cost:.2f} ريال/هـ. "
 
         if urgent:
-            summary_ar += f"الإجراءات ذات الأولوية: "
+            summary_ar += "الإجراءات ذات الأولوية: "
             summary_ar += "، ".join([r.product_name_ar for r in urgent[:3]])
             summary_ar += "."
 
@@ -1057,7 +1054,7 @@ class SoilAmendmentRecommender:
 def generate_amendment_plan(
     soil_test: SoilTestResult,
     crop: str,
-    target_yield: Optional[float] = None,
+    target_yield: float | None = None,
     field_area_ha: float = 1.0,
 ) -> AmendmentPlan:
     """
@@ -1096,7 +1093,7 @@ def get_available_products() -> list[dict]:
     ]
 
 
-def get_crop_requirements(crop: str) -> Optional[dict]:
+def get_crop_requirements(crop: str) -> dict | None:
     """
     Get nutrient requirements for a crop.
 

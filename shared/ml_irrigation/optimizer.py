@@ -14,13 +14,11 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
 from collections import defaultdict
-import math
 import logging
-import uuid
 import statistics
 
 from .models import (
@@ -31,9 +29,6 @@ from .models import (
     HistoricalPattern,
     AnomalyType,
     AnomalySeverity,
-    IrrigationType,
-    CropStage,
-    WeatherFeatures,
 )
 
 logger = logging.getLogger(__name__)

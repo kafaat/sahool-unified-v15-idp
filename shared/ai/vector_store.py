@@ -573,17 +573,18 @@ class SQLiteBackend(VectorStoreBackendBase):
         """Delete documents by IDs"""
         cursor = self._conn.cursor()
 
+        # Using parameterized query with ? placeholders - safe from SQL injection
         placeholders = ",".join("?" * len(ids))
         cursor.execute(f"""
             DELETE FROM documents
             WHERE id IN ({placeholders}) AND collection = ?
-        """, (*ids, collection))
+        """, (*ids, collection))  # nosec B608 - parameterized query
 
         # Delete from FTS
         cursor.execute(f"""
             DELETE FROM documents_fts
             WHERE id IN ({placeholders})
-        """, ids)
+        """, ids)  # nosec B608 - parameterized query
 
         self._conn.commit()
         return cursor.rowcount

@@ -15,9 +15,9 @@ Author: SAHOOL Platform Team
 Version: 1.0.0
 """
 
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from typing import Any, Optional
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any
 import statistics
 
 from .models import (
@@ -63,7 +63,7 @@ class SoilTrendAnalyzer:
 
     def __init__(
         self,
-        config: Optional[TrendAnalysisConfig] = None,
+        config: TrendAnalysisConfig | None = None,
     ):
         """
         Initialize the trend analyzer.
@@ -80,8 +80,8 @@ class SoilTrendAnalyzer:
         field_id: str,
         tenant_id: str,
         soil_tests: list[SoilTestResult],
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
     ) -> TrendReport:
         """
         Analyze trends across multiple soil tests.
@@ -705,9 +705,9 @@ class SoilTrendAnalyzer:
     def _generate_trend_recommendations(
         self,
         nutrient_trends: list[NutrientTrend],
-        ph_trend: Optional[NutrientTrend],
-        ec_trend: Optional[NutrientTrend],
-        om_trend: Optional[NutrientTrend],
+        ph_trend: NutrientTrend | None,
+        ec_trend: NutrientTrend | None,
+        om_trend: NutrientTrend | None,
     ) -> tuple[list[str], list[str]]:
         """Generate management recommendations based on trends"""
         recommendations_en = []

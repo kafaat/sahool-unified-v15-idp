@@ -14,14 +14,11 @@ Version: 1.0.0
 
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, date
-from typing import Optional, Callable
 from enum import Enum
-import calendar
 
 from .models import (
     Equipment,
     EquipmentType,
-    EquipmentStatus,
     MaintenanceSchedule,
     MaintenanceTask,
     MaintenanceType,
@@ -34,7 +31,6 @@ from .models import (
     PartRequirement,
     MaintenancePart,
     generate_id,
-    get_maintenance_type_name,
 )
 
 
@@ -597,7 +593,7 @@ class MaintenanceScheduler:
     def __init__(
         self,
         tenant_id: str,
-        season_configs: Optional[dict[AgriculturalSeason, SeasonConfig]] = None,
+        season_configs: dict[AgriculturalSeason, SeasonConfig] | None = None,
     ):
         """
         Initialize the scheduler
@@ -664,7 +660,7 @@ class MaintenanceScheduler:
 
         return schedules
 
-    def get_current_season(self, check_date: Optional[date] = None) -> AgriculturalSeason:
+    def get_current_season(self, check_date: date | None = None) -> AgriculturalSeason:
         """
         Determine the current agricultural season
         تحديد الموسم الزراعي الحالي
@@ -689,8 +685,8 @@ class MaintenanceScheduler:
         self,
         schedule: MaintenanceSchedule,
         equipment: Equipment,
-        from_date: Optional[datetime] = None,
-    ) -> Optional[datetime]:
+        from_date: datetime | None = None,
+    ) -> datetime | None:
         """
         Calculate the next due date for a schedule
         حساب تاريخ الاستحقاق التالي للجدول
@@ -757,7 +753,7 @@ class MaintenanceScheduler:
         self,
         schedule: MaintenanceSchedule,
         equipment: Equipment,
-    ) -> Optional[float]:
+    ) -> float | None:
         """
         Calculate the hours at which maintenance is next due
         حساب الساعات التي تستحق فيها الصيانة التالية
@@ -770,8 +766,8 @@ class MaintenanceScheduler:
 
     def get_due_schedules(
         self,
-        equipment_id: Optional[str] = None,
-        check_date: Optional[datetime] = None,
+        equipment_id: str | None = None,
+        check_date: datetime | None = None,
         include_approaching: bool = True,
     ) -> list[tuple[MaintenanceSchedule, str]]:
         """
@@ -838,7 +834,7 @@ class MaintenanceScheduler:
     def generate_task_from_schedule(
         self,
         schedule: MaintenanceSchedule,
-        scheduled_date: Optional[datetime] = None,
+        scheduled_date: datetime | None = None,
         triggered_by: str = "schedule",
     ) -> MaintenanceTask:
         """
@@ -897,7 +893,7 @@ class MaintenanceScheduler:
         self,
         start_date: datetime,
         end_date: datetime,
-        equipment_id: Optional[str] = None,
+        equipment_id: str | None = None,
     ) -> list[ScheduledTask]:
         """
         Generate all scheduled tasks for a date range
@@ -950,7 +946,7 @@ class MaintenanceScheduler:
         self,
         start_date: datetime,
         end_date: datetime,
-        equipment_id: Optional[str] = None,
+        equipment_id: str | None = None,
     ) -> list[ScheduleConflict]:
         """
         Detect scheduling conflicts in a date range
@@ -991,7 +987,7 @@ class MaintenanceScheduler:
         self,
         start_date: datetime,
         end_date: datetime,
-        equipment_id: Optional[str] = None,
+        equipment_id: str | None = None,
     ) -> WorkloadSummary:
         """
         Get workload summary for a period
@@ -1048,7 +1044,7 @@ class MaintenanceScheduler:
         self,
         schedule_id: str,
         completed_at: datetime,
-        hours_at_completion: Optional[float] = None,
+        hours_at_completion: float | None = None,
     ) -> None:
         """
         Update schedule after task completion
@@ -1075,7 +1071,7 @@ class MaintenanceScheduler:
 
     def generate_maintenance_alerts(
         self,
-        check_date: Optional[datetime] = None,
+        check_date: datetime | None = None,
     ) -> list[MaintenanceAlert]:
         """
         Generate maintenance alerts for all equipment

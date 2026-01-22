@@ -15,7 +15,7 @@ Version: 1.0.0
 Updated: January 2026
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -1054,9 +1054,7 @@ def generate_treatment_recommendation(
         urgency = TreatmentUrgency.IMMEDIATE
     elif infestation_level == InfestationLevel.HIGH:
         urgency = TreatmentUrgency.URGENT
-    elif infestation_level == InfestationLevel.MODERATE:
-        urgency = TreatmentUrgency.SOON
-    elif assessment and assessment.exceeds_action_threshold:
+    elif infestation_level == InfestationLevel.MODERATE or assessment and assessment.exceeds_action_threshold:
         urgency = TreatmentUrgency.SOON
     else:
         urgency = TreatmentUrgency.MONITOR

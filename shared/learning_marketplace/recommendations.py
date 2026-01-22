@@ -16,7 +16,7 @@ Updated: January 2026
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
 from typing import Any
 import uuid
@@ -24,16 +24,13 @@ import uuid
 from .models import (
     BilingualText,
     ContentLanguage,
-    ContentType,
     Course,
     CourseStatus,
     DifficultyLevel,
     FarmerProfile,
-    FarmerSkill,
     SkillCategory,
 )
 from .progress import (
-    CourseEnrollment,
     EnrollmentStatus,
     ProgressTracker,
 )

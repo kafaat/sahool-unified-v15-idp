@@ -8,7 +8,6 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Optional
 
 
 class FertilizerType(str, Enum):
@@ -139,15 +138,15 @@ class Fertilizer:
     registration_number: str = ""
 
     # Physical properties
-    density_kg_per_liter: Optional[float] = None  # For liquids
-    bulk_density_kg_per_m3: Optional[float] = None  # For solids
-    solubility_g_per_liter: Optional[float] = None
+    density_kg_per_liter: float | None = None  # For liquids
+    bulk_density_kg_per_m3: float | None = None  # For solids
+    solubility_g_per_liter: float | None = None
 
     # Application info
     recommended_crops: list[str] = field(default_factory=list)
     application_methods: list[ApplicationMethod] = field(default_factory=list)
-    max_application_rate_kg_ha: Optional[float] = None
-    min_application_rate_kg_ha: Optional[float] = None
+    max_application_rate_kg_ha: float | None = None
+    min_application_rate_kg_ha: float | None = None
 
     # Safety and compliance
     is_organic_certified: bool = False
@@ -207,8 +206,8 @@ class InventoryItem:
 
     # Batch info
     batch_number: str = ""
-    purchase_date: Optional[datetime] = None
-    expiry_date: Optional[datetime] = None
+    purchase_date: datetime | None = None
+    expiry_date: datetime | None = None
 
     # Cost tracking
     purchase_price_per_kg: Decimal = Decimal("0.00")
@@ -277,7 +276,7 @@ class FertilizerApplication:
     tenant_id: str
     field_id: str
     fertilizer_id: str
-    inventory_item_id: Optional[str] = None
+    inventory_item_id: str | None = None
 
     # Application details
     application_date: datetime = field(default_factory=datetime.utcnow)
@@ -300,13 +299,13 @@ class FertilizerApplication:
     growth_stage_ar: str = ""
 
     # Weather conditions
-    temperature_c: Optional[float] = None
-    humidity_percent: Optional[float] = None
-    soil_moisture_percent: Optional[float] = None
-    wind_speed_kmh: Optional[float] = None
+    temperature_c: float | None = None
+    humidity_percent: float | None = None
+    soil_moisture_percent: float | None = None
+    wind_speed_kmh: float | None = None
 
     # Applicator
-    applicator_id: Optional[str] = None
+    applicator_id: str | None = None
     applicator_name: str = ""
     equipment_used: str = ""
 
@@ -522,7 +521,7 @@ class EnvironmentalCompliance:
     p_compliance: ComplianceLevel = ComplianceLevel.COMPLIANT
 
     # Buffer zones
-    water_body_distance_m: Optional[float] = None
+    water_body_distance_m: float | None = None
     required_buffer_m: float = 10.0
     buffer_compliance: ComplianceLevel = ComplianceLevel.COMPLIANT
 

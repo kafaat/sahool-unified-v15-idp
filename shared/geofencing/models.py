@@ -5,7 +5,6 @@ Geofencing Models - نماذج السياج الجغرافي
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 
 class GeofenceType(str, Enum):
@@ -73,9 +72,9 @@ class Geofence:
     geofence_type: GeofenceType
 
     # Geometry - either circle or polygon
-    center: Optional[LatLng] = None  # For circular geofence
-    radius_m: Optional[float] = None  # For circular geofence (meters)
-    boundary: Optional[list[LatLng]] = None  # For polygon geofence
+    center: LatLng | None = None  # For circular geofence
+    radius_m: float | None = None  # For circular geofence (meters)
+    boundary: list[LatLng] | None = None  # For polygon geofence
 
     # Alert settings
     alert_on_exit: bool = True  # تنبيه عند الخروج
@@ -83,11 +82,11 @@ class Geofence:
     alert_channels: list[str] = field(default_factory=lambda: ["push", "sms"])
 
     # Speed limits (for speeding alerts)
-    max_speed_kmh: Optional[float] = None
+    max_speed_kmh: float | None = None
 
     # Operating hours (optional)
-    operating_hours_start: Optional[str] = None  # e.g., "06:00"
-    operating_hours_end: Optional[str] = None  # e.g., "18:00"
+    operating_hours_start: str | None = None  # e.g., "06:00"
+    operating_hours_end: str | None = None  # e.g., "18:00"
     alert_outside_hours: bool = False
 
     # Buffer zone for approaching alerts
@@ -134,20 +133,20 @@ class PositionUpdate:
     # Position
     lat: float
     lng: float
-    accuracy_m: Optional[float] = None
+    accuracy_m: float | None = None
 
     # Speed and heading
-    speed_kmh: Optional[float] = None
-    heading_degrees: Optional[float] = None
+    speed_kmh: float | None = None
+    heading_degrees: float | None = None
 
     # Engine status
-    engine_on: Optional[bool] = None
-    fuel_percent: Optional[float] = None
+    engine_on: bool | None = None
+    fuel_percent: float | None = None
 
     # Previous position (for movement detection)
-    prev_lat: Optional[float] = None
-    prev_lng: Optional[float] = None
-    prev_timestamp: Optional[datetime] = None
+    prev_lat: float | None = None
+    prev_lng: float | None = None
+    prev_timestamp: datetime | None = None
 
 
 @dataclass
@@ -174,10 +173,10 @@ class GeofenceAlert:
     # Position
     lat: float
     lng: float
-    speed_kmh: Optional[float] = None
+    speed_kmh: float | None = None
 
     # Distance info
-    distance_to_boundary_m: Optional[float] = None
+    distance_to_boundary_m: float | None = None
 
     # Messages
     title_en: str = ""
@@ -190,8 +189,8 @@ class GeofenceAlert:
 
     # Acknowledgment
     acknowledged: bool = False
-    acknowledged_by: Optional[str] = None
-    acknowledged_at: Optional[datetime] = None
+    acknowledged_by: str | None = None
+    acknowledged_at: datetime | None = None
 
     # Actions taken
     actions_taken: list[str] = field(default_factory=list)
@@ -243,7 +242,7 @@ class EquipmentZoneStatus:
     # Overall status
     is_within_allowed_zones: bool = True
     is_in_restricted_zone: bool = False
-    nearest_boundary_distance_m: Optional[float] = None
+    nearest_boundary_distance_m: float | None = None
 
     # Alerts
     active_alerts: list[str] = field(default_factory=list)  # Alert IDs

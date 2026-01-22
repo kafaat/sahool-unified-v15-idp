@@ -485,6 +485,7 @@ jobs:
             trivy-${{ matrix.service.name }}.json
             trivy-${{ matrix.service.name }}.sarif
           retention-days: 30
+          overwrite: true
 
   # Job 4: Validate docker-compose configurations (validation only, no startup)
   # Note: We only validate config syntax, not actually start services, because:

@@ -55,6 +55,8 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install pytest pytest-asyncio pytest-cov pytest-xdist httpx pydantic jsonschema pyyaml
+          # AI module dependencies for unit tests
+          pip install structlog redis slowapi aiohttp numpy
 
       - name: Run AI module tests
         run: |

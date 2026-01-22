@@ -7,6 +7,24 @@
 export { tokens } from "../tokens/tokens";
 export type { TokenColors, TokenSpacing } from "../tokens/tokens";
 
+// Re-export themes
+export * from "./themes";
+export {
+  lightTheme,
+  darkTheme,
+  themes,
+  defaultTheme,
+  getTheme,
+  initializeTheme,
+  applyTheme,
+  applyDirection,
+  getNDVIColor,
+  getMoistureColor,
+  getCropHealthColor,
+  themeClass,
+  directionClass,
+} from "./themes";
+
 // Import tokens for internal use
 import { tokens } from "../tokens/tokens";
 

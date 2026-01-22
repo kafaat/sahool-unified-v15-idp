@@ -2770,6 +2770,190 @@ services:
     networks:
       - sahool-network
 
+  # ─────────────────────────────────────────────────────────────────────────────
+  # AI Agents Service - خدمة الوكلاء الذكية
+  # Autonomous AI agents for agricultural intelligence
+  # ─────────────────────────────────────────────────────────────────────────────
+  ai-agents-service:
+    build:
+      context: .
+      dockerfile: apps/services/ai-agents-service/Dockerfile
+    container_name: sahool-ai-agents-service
+    environment:
+      - PORT=8130
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - NATS_URL=${NATS_URL:-nats://nats:4222}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://sahool:sahool@pgbouncer:6432/sahool}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-development-secret-key-min-32-chars}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+    ports:
+      - "8130:8130"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8130/healthz" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # CRM Service - خدمة إدارة علاقات المزارعين
+  # Customer Relationship Management for farmers
+  # ─────────────────────────────────────────────────────────────────────────────
+  crm-service:
+    build:
+      context: .
+      dockerfile: apps/services/crm-service/Dockerfile
+    container_name: sahool-crm-service
+    environment:
+      - PORT=8131
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB}}
+      - NATS_URL=${NATS_URL:-nats://nats:4222}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+    ports:
+      - "8131:8131"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8131/healthz" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Low-Code Engine - محرك التطوير منخفض الكود
+  # Low-code application development platform
+  # ─────────────────────────────────────────────────────────────────────────────
+  lowcode-engine:
+    build:
+      context: .
+      dockerfile: apps/services/lowcode-engine/Dockerfile
+    container_name: sahool-lowcode-engine
+    environment:
+      - PORT=8132
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB}}
+      - NATS_URL=${NATS_URL:-nats://nats:4222}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+    ports:
+      - "8132:8132"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8132/healthz" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # WeChat Service - خدمة ويتشات
+  # WeChat integration for farmer communication and engagement
+  wechat-service:
+    build:
+      context: .
+      dockerfile: apps/services/wechat-service/Dockerfile
+    container_name: sahool-wechat-service
+    environment:
+      - PORT=8133
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - WECHAT_APP_ID=${WECHAT_APP_ID:-}
+      - WECHAT_APP_SECRET=${WECHAT_APP_SECRET:-}
+      - WECHAT_TOKEN=${WECHAT_TOKEN:-}
+      - WECHAT_ENCODING_AES_KEY=${WECHAT_ENCODING_AES_KEY:-}
+    ports:
+      - "8133:8133"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8133/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Networks
 # ─────────────────────────────────────────────────────────────────────────────

@@ -11,6 +11,21 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
+    "./themes": {
+      "types": "./src/themes/index.ts",
+      "import": "./src/themes/index.ts",
+      "require": "./src/themes/index.ts"
+    },
+    "./themes/dark": {
+      "types": "./src/themes/dark.ts",
+      "import": "./src/themes/dark.ts",
+      "require": "./src/themes/dark.ts"
+    },
+    "./themes/light": {
+      "types": "./src/themes/light.ts",
+      "import": "./src/themes/light.ts",
+      "require": "./src/themes/light.ts"
+    },
     "./tokens": {
       "types": "./tokens/tokens.ts",
       "import": "./tokens/tokens.ts",

@@ -5,12 +5,33 @@
  * Provides environment-aware logging that:
  * - Only logs in development mode by default
  * - Provides critical logging for production errors
- * - Integrates with error tracking service
+ * - Integrates with error tracking service (when configured)
  */
 
-import * as Sentry from "@sentry/nextjs";
-
 const isDev = process.env.NODE_ENV === "development";
+
+// Sentry DSN check - only load Sentry when properly configured
+const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
+const isSentryEnabled = Boolean(SENTRY_DSN && SENTRY_DSN.length > 0);
+
+// Lazy-loaded Sentry module to avoid OpenTelemetry issues when not configured
+let SentryModule: typeof import("@sentry/nextjs") | null = null;
+
+async function getSentry() {
+  if (!isSentryEnabled) return null;
+  if (SentryModule) return SentryModule;
+
+  try {
+    SentryModule = await import("@sentry/nextjs");
+    return SentryModule;
+  } catch (error) {
+    // Sentry import failed - continue without it
+    if (isDev) {
+      console.warn("[Logger] Sentry import failed, continuing without error tracking:", error);
+    }
+    return null;
+  }
+}
 
 export const logger = {
   /**
@@ -88,35 +109,42 @@ export const logger = {
    * الأخطاء الحرجة التي يجب تسجيلها دائمًا
    *
    * These are logged in both development and production,
-   * and should be sent to an error tracking service.
+   * and should be sent to an error tracking service (when configured).
    */
   critical: (...args: unknown[]) => {
     // Always log critical errors
     console.error(...args);
 
-    // Send to error tracking service in production
-    if (!isDev) {
+    // Send to error tracking service in production (if Sentry is configured)
+    if (!isDev && isSentryEnabled) {
       const firstArg = args[0];
       const extraData = args.slice(1);
 
-      if (firstArg instanceof Error) {
-        // Handle Error objects
-        Sentry.captureException(firstArg, {
-          extra: extraData.length > 0 ? { context: extraData } : undefined,
-        });
-      } else if (typeof firstArg === "string") {
-        // Handle string messages
-        Sentry.captureMessage(firstArg, {
-          level: "error",
-          extra: extraData.length > 0 ? { context: extraData } : undefined,
-        });
-      } else {
-        // Handle other types (objects, etc.)
-        Sentry.captureMessage("Critical error occurred", {
-          level: "error",
-          extra: { context: args },
-        });
-      }
+      // Use async Sentry loading to avoid blocking and OpenTelemetry issues
+      getSentry().then((Sentry) => {
+        if (!Sentry) return;
+
+        if (firstArg instanceof Error) {
+          // Handle Error objects
+          Sentry.captureException(firstArg, {
+            extra: extraData.length > 0 ? { context: extraData } : undefined,
+          });
+        } else if (typeof firstArg === "string") {
+          // Handle string messages
+          Sentry.captureMessage(firstArg, {
+            level: "error",
+            extra: extraData.length > 0 ? { context: extraData } : undefined,
+          });
+        } else {
+          // Handle other types (objects, etc.)
+          Sentry.captureMessage("Critical error occurred", {
+            level: "error",
+            extra: { context: args },
+          });
+        }
+      }).catch(() => {
+        // Silently fail if Sentry cannot be loaded
+      });
     }
   },
 

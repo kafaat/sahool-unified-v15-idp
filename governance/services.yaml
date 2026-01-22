@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [indicators-service, lai-estimation, crop-health-ai, disaster-assessment, agro-rules, crop-intelligence-service, ndvi-processor, field-intelligence, vegetation-analysis-service, skills-service]
+      services: [indicators-service, lai-estimation, crop-health-ai, disaster-assessment, agro-rules, crop-intelligence-service, ndvi-processor, field-intelligence, vegetation-analysis-service, skills-service, ai-agents-service]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -38,7 +38,7 @@ event_architecture:
 
     business:
       description: "Business operations layer - طبقة الأعمال"
-      services: [notification-service, marketplace-service, billing-core, community-chat, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service]
+      services: [notification-service, marketplace-service, billing-core, community-chat, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service]
       rules:
         - "Consumes from Decision"
         - "User-facing operations"
@@ -1461,6 +1461,298 @@ services:
       cpu: "200m"
       memory: "256Mi"
       replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AI AGENTS SERVICE - خدمة الوكلاء الذكية
+  # Inspired by: Dexter, OpenCode, Claude Code patterns
+  # ═══════════════════════════════════════════════════════════════════════════
+  ai-agents-service:
+    name: "AI Agents Service"
+    name_ar: "خدمة الوكلاء الذكية"
+    description: "Autonomous AI agents for agricultural intelligence with task decomposition and self-validation"
+    description_ar: "وكلاء ذكاء اصطناعي مستقلين للذكاء الزراعي مع تحليل المهام والتحقق الذاتي"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/ai-agents-service"
+    port: 8130
+    protocol: http
+    health_endpoint: "/healthz"
+    readiness_endpoint: "/readyz"
+    status: active
+    version: "1.0.0"
+    events:
+      produces:
+        - AgentExecutionStarted.v1
+        - AgentExecutionCompleted.v1
+        - AgentExecutionFailed.v1
+        - AgentStepCompleted.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - WeatherDataReady.v1
+        - CropHealthAssessed.v1
+        - SensorReadingIngested.v1
+    dependencies:
+      - redis
+      - nats
+    modules:
+      - id: farm-advisor
+        name: "Farm Advisor Agent"
+        name_ar: "وكيل المستشار الزراعي"
+        endpoint: "/agents/farm_advisor"
+        description: "Dual-mode agent for farm advisory (Plan/Execute)"
+
+      - id: research
+        name: "Agricultural Research Agent"
+        name_ar: "وكيل البحث الزراعي"
+        endpoint: "/agents/research"
+        description: "Specialized agent for agricultural data analysis"
+
+      - id: planner
+        name: "Planner Agent"
+        name_ar: "وكيل التخطيط"
+        endpoint: "/agents/planner"
+        description: "Read-only planning agent for task analysis"
+
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 1
+      autoscaling:
+        enabled: true
+        min_replicas: 1
+        max_replicas: 3
+        target_cpu: 75
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CRM SERVICE - خدمة إدارة علاقات المزارعين
+  # Inspired by: CordysCRM
+  # ═══════════════════════════════════════════════════════════════════════════
+  crm-service:
+    name: "Farmer CRM Service"
+    name_ar: "خدمة إدارة علاقات المزارعين"
+    description: "Customer Relationship Management for farmers with harvest deal pipeline and natural language queries"
+    description_ar: "إدارة علاقات العملاء للمزارعين مع خط أنابيب صفقات الحصاد والاستعلامات بلغة طبيعية"
+    type: python
+    category: community
+    layer: business
+    path: "apps/services/crm-service"
+    port: 8131
+    protocol: http
+    health_endpoint: "/healthz"
+    readiness_endpoint: "/readyz"
+    status: active
+    version: "1.0.0"
+    events:
+      produces:
+        - FarmerCreated.v1
+        - FarmerUpdated.v1
+        - FarmerStatusChanged.v1
+        - HarvestDealCreated.v1
+        - HarvestDealStageChanged.v1
+        - InteractionLogged.v1
+      consumes:
+        - TaskCompleted.v1
+        - YieldPredicted.v1
+        - FieldCreated.v1
+    database:
+      type: postgresql
+      name: sahool_crm
+      schema: "crm"
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    modules:
+      - id: farmers
+        name: "Farmer Management"
+        name_ar: "إدارة المزارعين"
+        endpoint: "/farmers"
+        description: "Farmer lifecycle management with status tracking"
+
+      - id: deals
+        name: "Harvest Deal Pipeline"
+        name_ar: "خط أنابيب صفقات الحصاد"
+        endpoint: "/deals"
+        description: "Pipeline stages from prospecting to won/lost"
+
+      - id: interactions
+        name: "Interaction Tracking"
+        name_ar: "تتبع التفاعلات"
+        endpoint: "/interactions"
+        description: "Call, visit, WhatsApp, SMS tracking"
+
+      - id: query-bot
+        name: "Natural Language Query"
+        name_ar: "الاستعلام بلغة طبيعية"
+        endpoint: "/query"
+        description: "SQLBot-inspired natural language queries"
+
+    resources:
+      cpu: "400m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # LOW-CODE ENGINE - محرك التطوير منخفض الكود
+  # Inspired by: Alibaba LowCode Engine, NocoBase
+  # ═══════════════════════════════════════════════════════════════════════════
+  lowcode-engine:
+    name: "Low-Code Engine"
+    name_ar: "محرك التطوير منخفض الكود"
+    description: "Low-code application development platform for agricultural apps with AI-powered component suggestions"
+    description_ar: "منصة تطوير التطبيقات منخفضة الكود للتطبيقات الزراعية مع اقتراحات مكونات مدعومة بالذكاء الاصطناعي"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/lowcode-engine"
+    port: 8132
+    protocol: http
+    health_endpoint: "/healthz"
+    readiness_endpoint: "/readyz"
+    status: active
+    version: "1.0.0"
+    events:
+      produces:
+        - PageCreated.v1
+        - PagePublished.v1
+        - DataModelCreated.v1
+        - WorkflowExecuted.v1
+      consumes:
+        - FieldCreated.v1
+        - FarmerCreated.v1
+    database:
+      type: postgresql
+      name: sahool_lowcode
+      schema: "lowcode"
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    modules:
+      - id: components
+        name: "Material Registry"
+        name_ar: "سجل المواد"
+        endpoint: "/components"
+        description: "Component definitions with props, slots, events"
+
+      - id: data-models
+        name: "Data Model System"
+        name_ar: "نظام نماذج البيانات"
+        endpoint: "/models"
+        description: "Data model definitions with field types"
+
+      - id: pages
+        name: "Page Builder"
+        name_ar: "منشئ الصفحات"
+        endpoint: "/pages"
+        description: "Page definitions with block configurations"
+
+      - id: ai-suggest
+        name: "AI Component Suggester"
+        name_ar: "مقترح المكونات الذكي"
+        endpoint: "/ai/suggest"
+        description: "AI-powered component suggestions"
+
+    resources:
+      cpu: "400m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WECHAT SERVICE - خدمة ويتشات
+  # WeChat integration for farmer communication and engagement
+  # ═══════════════════════════════════════════════════════════════════════════
+  wechat-service:
+    name: "WeChat Service"
+    name_ar: "خدمة ويتشات"
+    description: "WeChat integration for farmer communication, messaging, and social engagement"
+    description_ar: "تكامل ويتشات للتواصل مع المزارعين والرسائل والتفاعل الاجتماعي"
+    type: python
+    category: community
+    layer: business
+    path: "apps/services/wechat-service"
+    port: 8133
+    protocol: http
+    health_endpoint: "/healthz"
+    readiness_endpoint: "/readyz"
+    status: active
+    version: "1.0.0"
+    events:
+      produces:
+        - WeChatMessageReceived.v1
+        - WeChatMessageSent.v1
+        - WeChatContactAdded.v1
+        - WeChatMomentPublished.v1
+        - WeChatChatSummarized.v1
+      consumes:
+        - NotificationQueued.v1
+        - AlertTriggered.v1
+        - AdvisoryGenerated.v1
+    database:
+      type: postgresql
+      name: sahool_wechat
+      schema: "wechat"
+    cache:
+      type: redis
+      purpose: "message queue, session cache, contact cache"
+      ttl: 3600
+    dependencies:
+      - redis
+      - nats
+    modules:
+      - id: messaging
+        name: "Messaging"
+        name_ar: "الرسائل"
+        endpoint: "/messages"
+        description: "Send and receive WeChat messages"
+
+      - id: contacts
+        name: "Contact Management"
+        name_ar: "إدارة جهات الاتصال"
+        endpoint: "/contacts"
+        description: "Manage WeChat contacts and groups"
+
+      - id: moments
+        name: "Moments Publishing"
+        name_ar: "نشر اللحظات"
+        endpoint: "/moments"
+        description: "Publish and manage WeChat Moments"
+
+      - id: chat-summary
+        name: "Chat Summarization"
+        name_ar: "تلخيص المحادثات"
+        endpoint: "/summary"
+        description: "AI-powered chat summarization for farmer interactions"
+
+    environment:
+      - DATABASE_URL
+      - REDIS_URL
+      - NATS_URL
+      - WECHAT_APP_ID
+      - WECHAT_APP_SECRET
+      - WECHAT_TOKEN
+      - WECHAT_ENCODING_AES_KEY
+    resources:
+      cpu: "300m"
+      memory: "384Mi"
+      replicas: 1
+      autoscaling:
+        enabled: true
+        min_replicas: 1
+        max_replicas: 3
+        target_cpu: 75
+    monitoring:
+      metrics:
+        - wechat_messages_sent_total
+        - wechat_messages_received_total
+        - wechat_contacts_total
+        - wechat_moments_published_total
+        - wechat_chat_summaries_generated_total
+      alerts:
+        - "WeChatAPIError"
+        - "WeChatRateLimitExceeded"
+        - "WeChatMessageDeliveryFailed"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Applications (Frontend)

@@ -7,14 +7,11 @@ Nutrient recommendations based on soil tests, crop requirements, and growth stag
 from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 
 from .models import (
     ApplicationMethod,
-    ComplianceLevel,
     Fertilizer,
     FertilizerType,
-    NutrientComposition,
     NutrientStatus,
     SoilTest,
 )
@@ -230,8 +227,8 @@ class FertilizerRecommendation:
     target_yield_tons_ha: float = 0.0
 
     # Soil test reference
-    soil_test_id: Optional[str] = None
-    soil_test_date: Optional[datetime] = None
+    soil_test_id: str | None = None
+    soil_test_date: datetime | None = None
 
     # Nutrient requirements
     total_n_required_kg_ha: float = 0.0
@@ -311,7 +308,7 @@ class FertilizerRecommendationEngine:
 
     def __init__(
         self,
-        available_fertilizers: Optional[list[Fertilizer]] = None,
+        available_fertilizers: list[Fertilizer] | None = None,
     ):
         """
         Initialize recommendation engine.
@@ -354,8 +351,8 @@ class FertilizerRecommendationEngine:
     def calculate_crop_requirements(
         self,
         crop: str,
-        target_yield_tons_ha: Optional[float] = None,
-        growth_stage: Optional[str] = None,
+        target_yield_tons_ha: float | None = None,
+        growth_stage: str | None = None,
     ) -> dict[str, float]:
         """
         Calculate total nutrient requirements for a crop.
@@ -443,8 +440,8 @@ class FertilizerRecommendationEngine:
         field_id: str,
         soil_test: SoilTest,
         crop: str,
-        target_yield_tons_ha: Optional[float] = None,
-        growth_stage: Optional[str] = None,
+        target_yield_tons_ha: float | None = None,
+        growth_stage: str | None = None,
         already_applied_n: float = 0.0,
         already_applied_p: float = 0.0,
         already_applied_k: float = 0.0,
@@ -798,7 +795,7 @@ class FertilizerRecommendationEngine:
         return f"توصية التسميد لمحصول {crop_ar}: يُطبق {n_required:.0f} كجم نيتروجين، {p_required:.0f} كجم فسفور، {k_required:.0f} كجم بوتاسيوم للهكتار لتحقيق الإنتاجية المستهدفة."
 
 
-def get_crop_requirements(crop: str) -> Optional[dict]:
+def get_crop_requirements(crop: str) -> dict | None:
     """
     Get nutrient requirements for a specific crop.
 
@@ -829,7 +826,7 @@ def calculate_quick_recommendation(
     soil_n_ppm: float,
     soil_p_ppm: float,
     soil_k_ppm: float,
-    target_yield: Optional[float] = None,
+    target_yield: float | None = None,
 ) -> dict:
     """
     Quick calculation of fertilizer recommendation.

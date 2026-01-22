@@ -16,8 +16,6 @@ Version: 1.0.0
 import math
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
-from enum import Enum
 
 from .models import (
     Coordinate,
@@ -80,7 +78,7 @@ class FlightPlanConfig:
 
     # Pattern - النمط
     pattern: FlightPattern = FlightPattern.PARALLEL
-    heading_deg: Optional[float] = None  # Auto-calculate if None
+    heading_deg: float | None = None  # Auto-calculate if None
     optimize_for_wind: bool = True  # Align with wind direction
 
     # Turn parameters - معاملات الانعطاف
@@ -106,7 +104,7 @@ class FlightPlanConfig:
 class FlightPlanResult:
     """Result of flight path generation - نتيجة إنشاء مسار الطيران"""
     success: bool
-    flight_path: Optional[FlightPath] = None
+    flight_path: FlightPath | None = None
 
     # Statistics - الإحصائيات
     total_waypoints: int = 0
@@ -420,7 +418,7 @@ class FlightPlanner:
     - Scouting missions | مهام الاستكشاف
     """
 
-    def __init__(self, config: Optional[FlightPlanConfig] = None):
+    def __init__(self, config: FlightPlanConfig | None = None):
         """
         Initialize flight planner.
 
@@ -434,7 +432,7 @@ class FlightPlanner:
         boundary: list[Coordinate],
         name: str = "Flight Path",
         name_ar: str = "مسار الطيران",
-        home_location: Optional[Coordinate] = None
+        home_location: Coordinate | None = None
     ) -> FlightPlanResult:
         """
         Generate parallel (boustrophedon) flight path.
@@ -637,7 +635,7 @@ class FlightPlanner:
         image_height_px: int = 3648,
         name: str = "Mapping Mission",
         name_ar: str = "مهمة التصوير",
-        home_location: Optional[Coordinate] = None
+        home_location: Coordinate | None = None
     ) -> FlightPlanResult:
         """
         Generate mapping flight path with photo overlap calculation.
@@ -780,7 +778,7 @@ class FlightPlanner:
         boundary: list[Coordinate],
         name: str = "Crosshatch Path",
         name_ar: str = "مسار متقاطع",
-        home_location: Optional[Coordinate] = None
+        home_location: Coordinate | None = None
     ) -> FlightPlanResult:
         """
         Generate crosshatch (perpendicular double coverage) flight path.
@@ -877,7 +875,7 @@ class FlightPlanner:
         passes: int = 2,
         name: str = "Perimeter Path",
         name_ar: str = "مسار المحيط",
-        home_location: Optional[Coordinate] = None
+        home_location: Coordinate | None = None
     ) -> FlightPlanResult:
         """
         Generate perimeter (boundary following) flight path.
@@ -1053,7 +1051,7 @@ class FlightPlanner:
         self,
         p1: Coordinate, p2: Coordinate,
         p3: Coordinate, p4: Coordinate
-    ) -> Optional[Coordinate]:
+    ) -> Coordinate | None:
         """
         Find intersection point of two line segments.
         إيجاد نقطة تقاطع قطعتي خط.
@@ -1090,7 +1088,7 @@ def assess_flight_weather(
     wind_direction_deg: float,
     precipitation_mm: float = 0,
     visibility_km: float = 10,
-    drone_specs: Optional[DroneSpecs] = None
+    drone_specs: DroneSpecs | None = None
 ) -> WeatherCheck:
     """
     Assess weather conditions for drone flight.
@@ -1225,7 +1223,7 @@ def create_spray_flight_plan(
     pattern: FlightPattern = FlightPattern.PARALLEL,
     name: str = "Spray Mission",
     name_ar: str = "مهمة الرش",
-    home_location: Optional[Coordinate] = None
+    home_location: Coordinate | None = None
 ) -> FlightPlanResult:
     """
     Create a spray mission flight plan.
@@ -1287,7 +1285,7 @@ def create_mapping_flight_plan(
     side_overlap: float = 70.0,
     name: str = "Mapping Mission",
     name_ar: str = "مهمة التصوير",
-    home_location: Optional[Coordinate] = None
+    home_location: Coordinate | None = None
 ) -> FlightPlanResult:
     """
     Create a mapping mission flight plan.

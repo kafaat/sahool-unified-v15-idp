@@ -23,7 +23,6 @@ from typing import Any
 import uuid
 
 from .models import (
-    Cooperative,
     CooperativeMember,
     RevenueShareMethod,
     MemberStatus,

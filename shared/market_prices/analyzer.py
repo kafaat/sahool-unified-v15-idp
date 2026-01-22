@@ -10,25 +10,21 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-from datetime import datetime, date, timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 from typing import Any
 from statistics import mean, median, stdev
 import math
 
 from .models import (
-    CropPrice,
     PriceTrend,
     TrendDirection,
     MarketComparison,
     SellingRecommendation,
     Currency,
     PriceUnit,
-    Season,
     Country,
     CROP_TYPES,
-    MAJOR_MARKETS,
-    ALL_REGIONS,
     MarketPriceErrors,
     MarketPriceException,
 )

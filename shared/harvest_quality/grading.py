@@ -24,20 +24,15 @@ from .models import (
     QualityStandard,
     QualityParameter,
     QualityTestRecord,
-    QualityTestResult,
     QualityTrendAnalysis,
     QualityTrendPoint,
     BuyerRequirement,
     BuyerMatch,
     CropCategory,
-    GrainType,
     DateVariety,
     VegetableType,
-    TestType,
     TestResult,
     TrendDirection,
-    BuyerType,
-    Currency,
 )
 
 

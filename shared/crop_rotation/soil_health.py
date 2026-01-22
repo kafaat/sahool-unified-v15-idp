@@ -12,21 +12,18 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
+from dataclasses import dataclass
+from datetime import date, timedelta
 from typing import Any
 from enum import Enum
-import uuid
 import statistics
 
 from .models import (
     CropType,
-    RotationBenefit,
     SoilHealthIndicator,
     SoilHealthMeasurement,
     SoilHealthTrend,
     SoilHealthReport,
-    NutrientBalance,
 )
 
 

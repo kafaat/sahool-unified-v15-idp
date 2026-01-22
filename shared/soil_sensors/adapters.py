@@ -4,11 +4,10 @@ Support for MQTT, LoRaWAN, HTTP protocols
 """
 
 import json
-import asyncio
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Callable, Optional
+from typing import Callable
 
 from .models import (
     SensorProtocol,
@@ -25,11 +24,11 @@ class AdapterConfig:
     # Connection settings
     host: str = "localhost"
     port: int = 1883
-    username: Optional[str] = None
-    password: Optional[str] = None
+    username: str | None = None
+    password: str | None = None
     # TLS
     use_tls: bool = False
-    ca_cert: Optional[str] = None
+    ca_cert: str | None = None
     # Timeouts
     connect_timeout: int = 30
     read_timeout: int = 60
@@ -79,7 +78,7 @@ class SensorAdapter(ABC):
                 print(f"Callback error: {e}")
 
     @abstractmethod
-    def parse_payload(self, payload: bytes, sensor: SoilSensor) -> Optional[SensorReading]:
+    def parse_payload(self, payload: bytes, sensor: SoilSensor) -> SensorReading | None:
         """Parse raw payload into SensorReading"""
         pass
 
@@ -146,7 +145,7 @@ class MQTTAdapter(SensorAdapter):
             # await self.client.unsubscribe(topic)
             pass
 
-    def parse_payload(self, payload: bytes, sensor: SoilSensor) -> Optional[SensorReading]:
+    def parse_payload(self, payload: bytes, sensor: SoilSensor) -> SensorReading | None:
         """
         Parse MQTT payload into SensorReading
         Supports multiple payload formats
@@ -233,7 +232,7 @@ class LoRaWANAdapter(SensorAdapter):
         if sensor.device_eui and sensor.device_eui in self._devices:
             del self._devices[sensor.device_eui]
 
-    def parse_payload(self, payload: bytes, sensor: SoilSensor) -> Optional[SensorReading]:
+    def parse_payload(self, payload: bytes, sensor: SoilSensor) -> SensorReading | None:
         """
         Parse LoRaWAN payload (typically binary encoded)
         تحليل حمولة LoRaWAN (مشفرة بشكل ثنائي عادة)
@@ -295,7 +294,7 @@ class HTTPAdapter(SensorAdapter):
         if sensor.id in self._sensors:
             del self._sensors[sensor.id]
 
-    def parse_payload(self, payload: bytes, sensor: SoilSensor) -> Optional[SensorReading]:
+    def parse_payload(self, payload: bytes, sensor: SoilSensor) -> SensorReading | None:
         """Parse HTTP webhook payload"""
         try:
             data = json.loads(payload.decode())
@@ -342,7 +341,7 @@ class HTTPAdapter(SensorAdapter):
 
         return None
 
-    async def poll_sensor(self, sensor: SoilSensor) -> Optional[SensorReading]:
+    async def poll_sensor(self, sensor: SoilSensor) -> SensorReading | None:
         """
         Poll sensor via HTTP GET (for pull-based sensors)
         استطلاع المجس عبر HTTP GET
@@ -392,7 +391,7 @@ class NBIoTAdapter(SensorAdapter):
         """Unregister from updates"""
         pass
 
-    def parse_payload(self, payload: bytes, sensor: SoilSensor) -> Optional[SensorReading]:
+    def parse_payload(self, payload: bytes, sensor: SoilSensor) -> SensorReading | None:
         """Parse NB-IoT payload (similar to LoRaWAN, often binary)"""
         return LoRaWANAdapter.parse_payload(self, payload, sensor)
 

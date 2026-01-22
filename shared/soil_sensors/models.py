@@ -67,17 +67,17 @@ class SensorReading:
     is_valid: bool = True
 
     # Location (if GPS-enabled)
-    lat: Optional[float] = None
-    lng: Optional[float] = None
-    depth_cm: Optional[float] = None  # Sensor depth
+    lat: float | None = None
+    lng: float | None = None
+    depth_cm: float | None = None  # Sensor depth
 
     # Raw data
-    raw_value: Optional[float] = None
-    raw_unit: Optional[str] = None
+    raw_value: float | None = None
+    raw_unit: str | None = None
 
     # Metadata
-    battery_percent: Optional[float] = None
-    signal_strength: Optional[int] = None  # RSSI
+    battery_percent: float | None = None
+    signal_strength: int | None = None  # RSSI
 
 
 @dataclass
@@ -104,31 +104,31 @@ class SoilSensor:
 
     # Status
     status: SensorStatus = SensorStatus.ACTIVE
-    battery_percent: Optional[float] = None
-    last_reading_at: Optional[datetime] = None
-    last_seen_at: Optional[datetime] = None
+    battery_percent: float | None = None
+    last_reading_at: datetime | None = None
+    last_seen_at: datetime | None = None
 
     # Configuration
     reading_interval_min: int = 60  # Reading frequency
     transmission_interval_min: int = 60  # Data transmission frequency
 
     # Thresholds for alerts
-    min_threshold: Optional[float] = None
-    max_threshold: Optional[float] = None
-    critical_min: Optional[float] = None
-    critical_max: Optional[float] = None
+    min_threshold: float | None = None
+    max_threshold: float | None = None
+    critical_min: float | None = None
+    critical_max: float | None = None
 
     # Calibration
     calibration: Optional["SensorCalibration"] = None
-    last_calibrated_at: Optional[datetime] = None
+    last_calibrated_at: datetime | None = None
 
     # Network
-    device_eui: Optional[str] = None  # For LoRaWAN
-    mqtt_topic: Optional[str] = None  # For MQTT
-    api_endpoint: Optional[str] = None  # For HTTP
+    device_eui: str | None = None  # For LoRaWAN
+    mqtt_topic: str | None = None  # For MQTT
+    api_endpoint: str | None = None  # For HTTP
 
     # Metadata
-    installed_at: Optional[datetime] = None
+    installed_at: datetime | None = None
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
     is_active: bool = True
@@ -181,11 +181,11 @@ class SensorCalibration:
     scale: float = 1.0
 
     # Soil type specific
-    soil_type: Optional[str] = None  # sandy, clay, loam
-    soil_type_ar: Optional[str] = None
+    soil_type: str | None = None  # sandy, clay, loam
+    soil_type_ar: str | None = None
 
     # Validity
-    valid_until: Optional[datetime] = None
+    valid_until: datetime | None = None
     notes: str = ""
 
     def apply_calibration(self, raw_value: float) -> float:
@@ -220,9 +220,9 @@ class SensorAlert:
     severity: AlertSeverity
 
     # Reading that triggered alert
-    reading_value: Optional[float] = None
-    reading_unit: Optional[str] = None
-    threshold_value: Optional[float] = None
+    reading_value: float | None = None
+    reading_unit: str | None = None
+    threshold_value: float | None = None
 
     # Messages
     title_en: str = ""
@@ -232,10 +232,10 @@ class SensorAlert:
 
     # Status
     acknowledged: bool = False
-    acknowledged_by: Optional[str] = None
-    acknowledged_at: Optional[datetime] = None
+    acknowledged_by: str | None = None
+    acknowledged_at: datetime | None = None
     resolved: bool = False
-    resolved_at: Optional[datetime] = None
+    resolved_at: datetime | None = None
 
     def to_dict(self) -> dict:
         """Convert to dictionary for NATS publishing"""

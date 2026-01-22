@@ -6,9 +6,7 @@ Data aggregation, anomaly detection, and field interpolation
 import math
 import uuid
 from collections import defaultdict
-from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Optional
 
 from .models import (
     SensorReading,
@@ -17,7 +15,6 @@ from .models import (
     SensorAggregation,
     FieldMoistureMap,
     SensorType,
-    SensorStatus,
     AlertSeverity,
 )
 
@@ -75,7 +72,7 @@ class SensorDataProcessor:
 
         return alerts
 
-    def _check_thresholds(self, reading: SensorReading, sensor: SoilSensor) -> Optional[SensorAlert]:
+    def _check_thresholds(self, reading: SensorReading, sensor: SoilSensor) -> SensorAlert | None:
         """Check if reading exceeds thresholds"""
         value = reading.value
 
@@ -162,7 +159,7 @@ class SensorDataProcessor:
             message_ar=msgs.get("message_ar", message),
         )
 
-    def _check_anomaly(self, reading: SensorReading) -> Optional[SensorAlert]:
+    def _check_anomaly(self, reading: SensorReading) -> SensorAlert | None:
         """
         Check for anomalous reading using statistical analysis
         التحقق من القراءة الشاذة باستخدام التحليل الإحصائي
@@ -208,7 +205,7 @@ class SensorDataProcessor:
 
         return None
 
-    def get_latest_readings(self, sensor_id: Optional[str] = None) -> dict[str, SensorReading]:
+    def get_latest_readings(self, sensor_id: str | None = None) -> dict[str, SensorReading]:
         """Get latest reading from each sensor"""
         result = {}
 
@@ -225,7 +222,7 @@ class SensorDataProcessor:
         self,
         sensor_id: str,
         period_hours: int = 24
-    ) -> Optional[SensorAggregation]:
+    ) -> SensorAggregation | None:
         """
         Get aggregated readings for time period
         الحصول على القراءات المجمعة لفترة زمنية
@@ -514,7 +511,7 @@ def generate_moisture_alert(
     field_id: str,
     tenant_id: str,
     moisture_map: FieldMoistureMap,
-) -> Optional[SensorAlert]:
+) -> SensorAlert | None:
     """
     Generate field-level moisture alert based on interpolated map
     إنشاء تنبيه رطوبة على مستوى الحقل بناءً على الخريطة المستوفاة

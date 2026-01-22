@@ -4,10 +4,8 @@ Main compliance checking logic for PHI, REI, tank mix, and drift risk
 """
 
 from datetime import datetime, timedelta
-from typing import Optional
 
 from .models import (
-    Pesticide,
     PesticideApplication,
     PHIViolation,
     REIViolation,
@@ -17,11 +15,9 @@ from .models import (
     ComplianceCheck,
     ComplianceStatus,
     MixCompatibility,
-    PPELevel,
 )
 from .database import (
     get_pesticide,
-    get_tank_mix_compatibility,
     PPE_ENHANCED,
     PPE_MAXIMUM,
 )
@@ -58,7 +54,7 @@ class PesticideComplianceChecker:
         self,
         field_id: str,
         planned_harvest_date: datetime,
-        check_date: Optional[datetime] = None,
+        check_date: datetime | None = None,
     ) -> list[PHIViolation]:
         """
         Check Pre-Harvest Interval compliance - فحص فترة ما قبل الحصاد
@@ -122,7 +118,7 @@ class PesticideComplianceChecker:
     def check_rei_compliance(
         self,
         field_id: str,
-        entry_time: Optional[datetime] = None,
+        entry_time: datetime | None = None,
     ) -> list[REIViolation]:
         """
         Check Re-Entry Interval compliance - فحص فترة إعادة الدخول
@@ -180,8 +176,8 @@ class PesticideComplianceChecker:
     def full_compliance_check(
         self,
         field_id: str,
-        planned_harvest_date: Optional[datetime] = None,
-        weather: Optional[dict] = None,
+        planned_harvest_date: datetime | None = None,
+        weather: dict | None = None,
     ) -> ComplianceCheck:
         """
         Perform full compliance check - فحص الامتثال الشامل
@@ -283,7 +279,7 @@ class PesticideComplianceChecker:
         phi_violations: list[PHIViolation],
         rei_violations: list[REIViolation],
         tank_mix_issues: list[TankMixCompatibility],
-        drift_assessment: Optional[SprayDriftRisk],
+        drift_assessment: SprayDriftRisk | None,
     ) -> str:
         """Generate English summary"""
         parts = []
@@ -305,7 +301,7 @@ class PesticideComplianceChecker:
         phi_violations: list[PHIViolation],
         rei_violations: list[REIViolation],
         tank_mix_issues: list[TankMixCompatibility],
-        drift_assessment: Optional[SprayDriftRisk],
+        drift_assessment: SprayDriftRisk | None,
     ) -> str:
         """Generate Arabic summary"""
         parts = []
@@ -327,7 +323,7 @@ class PesticideComplianceChecker:
         phi_violations: list[PHIViolation],
         rei_violations: list[REIViolation],
         tank_mix_issues: list[TankMixCompatibility],
-        drift_assessment: Optional[SprayDriftRisk],
+        drift_assessment: SprayDriftRisk | None,
     ) -> tuple[list[str], list[str]]:
         """Generate recommendations in English and Arabic"""
         rec_en = []
@@ -407,7 +403,7 @@ def check_phi_compliance(
 def check_rei_compliance(
     pesticide_id: str,
     application_date: datetime,
-    entry_time: Optional[datetime] = None,
+    entry_time: datetime | None = None,
 ) -> REIViolation | None:
     """
     Quick REI compliance check - فحص سريع لفترة إعادة الدخول

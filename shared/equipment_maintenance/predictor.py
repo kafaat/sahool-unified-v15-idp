@@ -16,16 +16,13 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import Enum
-from typing import Optional
 import math
 import statistics
 
 from .models import (
     Equipment,
     EquipmentType,
-    EquipmentStatus,
     MaintenanceType,
-    MaintenanceTask,
     MaintenancePriority,
     MaintenanceAlert,
     AlertType,
@@ -154,10 +151,10 @@ class ComponentHealth:
     current_wear_percent: float = 0.0  # Current wear level
 
     # Remaining useful life - العمر المتبقي
-    estimated_rul_hours: Optional[float] = None  # Remaining useful life
-    estimated_rul_days: Optional[int] = None
-    rul_confidence_low: Optional[float] = None  # Lower bound
-    rul_confidence_high: Optional[float] = None  # Upper bound
+    estimated_rul_hours: float | None = None  # Remaining useful life
+    estimated_rul_days: int | None = None
+    rul_confidence_low: float | None = None  # Lower bound
+    rul_confidence_high: float | None = None  # Upper bound
 
     # Risk assessment - تقييم المخاطر
     risk_level: RiskLevel = RiskLevel.LOW
@@ -234,7 +231,7 @@ class PredictiveInsight:
     # Recommended action - الإجراء الموصى به
     recommended_action: str = ""
     recommended_action_ar: str = ""
-    action_deadline: Optional[datetime] = None
+    action_deadline: datetime | None = None
     priority: MaintenancePriority = MaintenancePriority.MEDIUM
 
     # Supporting data - البيانات الداعمة
@@ -244,7 +241,7 @@ class PredictiveInsight:
 
     # Metadata
     generated_at: datetime = field(default_factory=datetime.utcnow)
-    valid_until: Optional[datetime] = None
+    valid_until: datetime | None = None
     is_active: bool = True
     acknowledged: bool = False
 
@@ -283,9 +280,9 @@ class FailurePrediction:
     confidence: float  # 0-1
 
     # Timing - التوقيت
-    earliest_failure: Optional[datetime] = None
-    most_likely_failure: Optional[datetime] = None
-    latest_failure: Optional[datetime] = None
+    earliest_failure: datetime | None = None
+    most_likely_failure: datetime | None = None
+    latest_failure: datetime | None = None
 
     # Impact - الأثر
     severity: AlertSeverity = AlertSeverity.WARNING
@@ -527,7 +524,7 @@ class PredictiveMaintenanceEngine:
         self,
         equipment_id: str,
         period_days: int = 30,
-    ) -> Optional[UsageMetrics]:
+    ) -> UsageMetrics | None:
         """
         Calculate usage metrics for an equipment over a period
         حساب مقاييس الاستخدام للمعدات خلال فترة
@@ -894,7 +891,7 @@ class PredictiveMaintenanceEngine:
                 id=generate_id("insight"),
                 equipment_id=equipment_id,
                 tenant_id=self.tenant_id,
-                title=f"Critical Components Require Attention",
+                title="Critical Components Require Attention",
                 title_ar="مكونات حرجة تتطلب الانتباه",
                 description=f"The following components are at high risk: {component_names}. Overall equipment health score is {avg_health:.0f}%.",
                 description_ar=f"المكونات التالية معرضة لخطر عالي: {component_names_ar}. درجة صحة المعدات الإجمالية {avg_health:.0f}%.",
@@ -1136,7 +1133,7 @@ class PredictiveMaintenanceEngine:
 
     def generate_maintenance_alerts(
         self,
-        equipment_id: Optional[str] = None,
+        equipment_id: str | None = None,
     ) -> list[MaintenanceAlert]:
         """
         Generate predictive maintenance alerts

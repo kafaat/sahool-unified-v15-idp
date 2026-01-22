@@ -20,7 +20,6 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 from .geometry import (
     calculate_centroid,
@@ -102,9 +101,9 @@ class MappingSession:
     جلسة رسم خرائط GPS نشطة.
     """
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    field_id: Optional[str] = None
+    field_id: str | None = None
     user_id: str = ""
-    device_id: Optional[str] = None
+    device_id: str | None = None
     config: MappingConfig = field(default_factory=MappingConfig)
 
     # Track data | بيانات المسار
@@ -112,8 +111,8 @@ class MappingSession:
 
     # Session state | حالة الجلسة
     is_active: bool = False
-    started_at: Optional[datetime] = None
-    ended_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
 
     # Statistics | الإحصائيات
     total_points_received: int = 0
@@ -121,8 +120,8 @@ class MappingSession:
     points_rejected: int = 0
 
     # Last point for filtering | آخر نقطة للتصفية
-    last_accepted_point: Optional[BoundaryPoint] = None
-    last_accepted_time: Optional[datetime] = None
+    last_accepted_point: BoundaryPoint | None = None
+    last_accepted_time: datetime | None = None
 
     def __post_init__(self) -> None:
         if self.user_id:
@@ -136,7 +135,7 @@ class MappingResult:
     نتيجة معالجة جلسة رسم الخرائط.
     """
     success: bool
-    boundary: Optional[FieldBoundary] = None
+    boundary: FieldBoundary | None = None
 
     # Processing statistics | إحصائيات المعالجة
     original_points: int = 0
@@ -165,7 +164,7 @@ class GPSMapper:
     لإنشاء مضلعات حدود حقول نظيفة.
     """
 
-    def __init__(self, config: Optional[MappingConfig] = None):
+    def __init__(self, config: MappingConfig | None = None):
         """
         Initialize GPS Mapper.
 
@@ -178,9 +177,9 @@ class GPSMapper:
     def start_session(
         self,
         user_id: str,
-        field_id: Optional[str] = None,
-        device_id: Optional[str] = None,
-        config: Optional[MappingConfig] = None
+        field_id: str | None = None,
+        device_id: str | None = None,
+        config: MappingConfig | None = None
     ) -> MappingSession:
         """
         Start a new mapping session.
@@ -215,11 +214,11 @@ class GPSMapper:
         longitude: float,
         latitude: float,
         accuracy_m: float = 5.0,
-        altitude_m: Optional[float] = None,
-        timestamp: Optional[datetime] = None,
-        device_id: Optional[str] = None,
-        notes: Optional[str] = None,
-        notes_ar: Optional[str] = None
+        altitude_m: float | None = None,
+        timestamp: datetime | None = None,
+        device_id: str | None = None,
+        notes: str | None = None,
+        notes_ar: str | None = None
     ) -> tuple[bool, str]:
         """
         Add a GPS point to the mapping session.
@@ -407,8 +406,8 @@ class GPSMapper:
     def process_track(
         self,
         track: GPSTrack,
-        config: Optional[MappingConfig] = None,
-        field_id: Optional[str] = None
+        config: MappingConfig | None = None,
+        field_id: str | None = None
     ) -> MappingResult:
         """
         Process a GPS track into a boundary polygon.
@@ -653,7 +652,7 @@ def create_boundary_from_coordinates(
     tenant_id: str,
     owner_id: str,
     name: str,
-    name_ar: Optional[str] = None,
+    name_ar: str | None = None,
     boundary_type: BoundaryType = BoundaryType.FIELD
 ) -> FieldBoundary:
     """
@@ -699,7 +698,7 @@ def create_boundary_from_coordinates(
 def merge_boundaries(
     boundaries: list[FieldBoundary],
     name: str,
-    name_ar: Optional[str] = None
+    name_ar: str | None = None
 ) -> FieldBoundary:
     """
     Merge multiple boundaries into a single boundary.

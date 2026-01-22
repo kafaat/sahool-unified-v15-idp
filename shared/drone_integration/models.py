@@ -8,9 +8,9 @@ Version: 1.0.0
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Optional, Any
+from typing import Any
 import uuid
 
 
@@ -150,8 +150,8 @@ class Coordinate:
     """Geographic coordinate with altitude - إحداثي جغرافي مع ارتفاع"""
     lat: float  # خط العرض
     lng: float  # خط الطول
-    alt_m: Optional[float] = None  # الارتفاع (متر)
-    alt_agl_m: Optional[float] = None  # الارتفاع فوق الأرض (متر)
+    alt_m: float | None = None  # الارتفاع (متر)
+    alt_agl_m: float | None = None  # الارتفاع فوق الأرض (متر)
 
     def to_tuple(self) -> tuple[float, float]:
         """Return (lat, lng) tuple"""
@@ -219,20 +219,20 @@ class DroneSpecs:
 
     # Spray system (if applicable) - نظام الرش
     has_spray_system: bool = False
-    tank_capacity_l: Optional[float] = None  # سعة الخزان (لتر)
-    spray_width_m: Optional[float] = None  # عرض الرش (متر)
-    flow_rate_l_min: Optional[float] = None  # معدل التدفق (لتر/دقيقة)
-    nozzle_count: Optional[int] = None  # عدد الفوهات
+    tank_capacity_l: float | None = None  # سعة الخزان (لتر)
+    spray_width_m: float | None = None  # عرض الرش (متر)
+    flow_rate_l_min: float | None = None  # معدل التدفق (لتر/دقيقة)
+    nozzle_count: int | None = None  # عدد الفوهات
 
     # Camera specs - مواصفات الكاميرا
     has_rgb_camera: bool = True
     has_multispectral: bool = False
     has_thermal: bool = False
-    camera_resolution_mp: Optional[float] = None  # دقة الكاميرا (ميجابكسل)
+    camera_resolution_mp: float | None = None  # دقة الكاميرا (ميجابكسل)
 
     # RTK support - دعم RTK
     has_rtk: bool = False
-    rtk_accuracy_cm: Optional[float] = None  # دقة RTK (سم)
+    rtk_accuracy_cm: float | None = None  # دقة RTK (سم)
 
     # Protocol support - دعم البروتوكولات
     protocol: str = "dji"  # dji, mavlink, custom
@@ -252,20 +252,20 @@ class Drone:
     status: str = "available"  # available, in_flight, maintenance, retired
 
     # Registration
-    registration_number: Optional[str] = None  # رقم التسجيل
-    registration_expiry: Optional[datetime] = None
+    registration_number: str | None = None  # رقم التسجيل
+    registration_expiry: datetime | None = None
 
     # Maintenance - الصيانة
     total_flight_hours: float = 0.0  # إجمالي ساعات الطيران
     total_flight_cycles: int = 0  # إجمالي دورات الطيران
-    last_maintenance_date: Optional[datetime] = None
-    next_maintenance_due: Optional[datetime] = None
+    last_maintenance_date: datetime | None = None
+    next_maintenance_due: datetime | None = None
 
     # Current state
-    battery_percent: Optional[float] = None
-    firmware_version: Optional[str] = None
-    last_location: Optional[Coordinate] = None
-    last_seen: Optional[datetime] = None
+    battery_percent: float | None = None
+    firmware_version: str | None = None
+    last_location: Coordinate | None = None
+    last_seen: datetime | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -302,13 +302,13 @@ class Waypoint:
     coordinate: Coordinate  # الإحداثيات
 
     # Navigation - الملاحة
-    speed_ms: Optional[float] = None  # السرعة عند هذه النقطة (م/ث)
-    heading_deg: Optional[float] = None  # الاتجاه (درجة)
+    speed_ms: float | None = None  # السرعة عند هذه النقطة (م/ث)
+    heading_deg: float | None = None  # الاتجاه (درجة)
     hover_time_s: float = 0  # وقت التحليق الثابت (ثانية)
 
     # Camera control - التحكم بالكاميرا
-    gimbal_pitch_deg: Optional[float] = None  # إمالة الجيمبل (درجة)
-    gimbal_yaw_deg: Optional[float] = None  # دوران الجيمبل (درجة)
+    gimbal_pitch_deg: float | None = None  # إمالة الجيمبل (درجة)
+    gimbal_yaw_deg: float | None = None  # دوران الجيمبل (درجة)
 
     # Actions - الإجراءات
     actions: list[WaypointAction] = field(default_factory=list)
@@ -316,12 +316,12 @@ class Waypoint:
 
     # Spray parameters (for spraying missions) - معاملات الرش
     spray_on: bool = False  # الرش مفعل
-    spray_rate_l_ha: Optional[float] = None  # معدل الرش (لتر/هكتار)
+    spray_rate_l_ha: float | None = None  # معدل الرش (لتر/هكتار)
 
     # Metadata
     is_photo_point: bool = False  # نقطة تصوير
     is_turn_point: bool = False  # نقطة انعطاف
-    segment_id: Optional[str] = None  # معرف القطاع
+    segment_id: str | None = None  # معرف القطاع
 
     def to_dict(self) -> dict:
         """Convert to dictionary"""
@@ -365,7 +365,7 @@ class FlightPath:
     effective_area_ha: float = 0  # المساحة الفعالة (هكتار)
 
     # Safety - السلامة
-    home_location: Optional[Coordinate] = None  # موقع المنزل
+    home_location: Coordinate | None = None  # موقع المنزل
     safe_altitude_m: float = 30  # ارتفاع آمن للعودة (متر)
 
     # Metadata
@@ -448,7 +448,7 @@ class WeatherCheck:
     humidity_percent: float  # الرطوبة
     wind_speed_ms: float  # سرعة الرياح (م/ث)
     wind_direction_deg: float  # اتجاه الرياح (درجة)
-    wind_gust_ms: Optional[float] = None  # هبات الرياح
+    wind_gust_ms: float | None = None  # هبات الرياح
 
     # Precipitation - الهطول
     precipitation_mm: float = 0  # الهطول (مم)
@@ -501,9 +501,9 @@ class SprayMission:
     # Application parameters - معاملات التطبيق
     application_mode: ApplicationMode = ApplicationMode.UNIFORM
     target_rate_l_ha: float = 0  # المعدل المستهدف (لتر/هكتار)
-    min_rate_l_ha: Optional[float] = None  # الحد الأدنى للمعدل
-    max_rate_l_ha: Optional[float] = None  # الحد الأقصى للمعدل
-    concentration_percent: Optional[float] = None  # التركيز (%)
+    min_rate_l_ha: float | None = None  # الحد الأدنى للمعدل
+    max_rate_l_ha: float | None = None  # الحد الأقصى للمعدل
+    concentration_percent: float | None = None  # التركيز (%)
 
     # Total application - إجمالي التطبيق
     total_area_ha: float = 0  # المساحة الإجمالية (هكتار)
@@ -516,7 +516,7 @@ class SprayMission:
     swath_width_m: float = 5  # عرض الرش (متر)
 
     # VRA settings (if applicable) - إعدادات المعدل المتغير
-    prescription_map_id: Optional[str] = None
+    prescription_map_id: str | None = None
     vra_zones: list["VRAZone"] = field(default_factory=list)
 
     # Safety - السلامة
@@ -525,18 +525,18 @@ class SprayMission:
     wind_limit_ms: float = 6  # حد الرياح (م/ث)
 
     # Scheduling - الجدولة
-    scheduled_date: Optional[datetime] = None
-    scheduled_time_start: Optional[str] = None  # e.g., "06:00"
-    scheduled_time_end: Optional[str] = None  # e.g., "10:00"
+    scheduled_date: datetime | None = None
+    scheduled_time_start: str | None = None  # e.g., "06:00"
+    scheduled_time_end: str | None = None  # e.g., "10:00"
 
     # Assigned resources - الموارد المخصصة
-    drone_id: Optional[str] = None
-    pilot_id: Optional[str] = None
-    pilot_name: Optional[str] = None
+    drone_id: str | None = None
+    pilot_id: str | None = None
+    pilot_name: str | None = None
 
     # Compliance - الامتثال
-    phi_days: Optional[int] = None  # فترة ما قبل الحصاد
-    rei_hours: Optional[int] = None  # فترة إعادة الدخول
+    phi_days: int | None = None  # فترة ما قبل الحصاد
+    rei_hours: int | None = None  # فترة إعادة الدخول
     compliance_checked: bool = False
 
     # Metadata
@@ -593,7 +593,7 @@ class MappingMission:
 
     # Pattern - النمط
     pattern: FlightPattern = FlightPattern.PARALLEL
-    heading_deg: Optional[float] = None  # اتجاه خطوط الطيران
+    heading_deg: float | None = None  # اتجاه خطوط الطيران
 
     # Coverage - التغطية
     total_area_ha: float = 0
@@ -606,13 +606,13 @@ class MappingMission:
     generate_ndvi: bool = False  # إنشاء خريطة NDVI
 
     # Scheduling - الجدولة
-    scheduled_date: Optional[datetime] = None
+    scheduled_date: datetime | None = None
     optimal_time_window_en: str = ""  # e.g., "10:00-14:00 for minimal shadows"
     optimal_time_window_ar: str = ""
 
     # Assigned resources
-    drone_id: Optional[str] = None
-    pilot_id: Optional[str] = None
+    drone_id: str | None = None
+    pilot_id: str | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -665,7 +665,7 @@ class FlightTelemetry:
     battery_percent: float = 100
     battery_voltage: float = 0
     battery_current: float = 0
-    battery_temperature_c: Optional[float] = None
+    battery_temperature_c: float | None = None
 
     # GPS - نظام تحديد المواقع
     gps_satellites: int = 0
@@ -674,12 +674,12 @@ class FlightTelemetry:
 
     # Spray status (if applicable) - حالة الرش
     spray_status: SprayStatus = SprayStatus.IDLE
-    tank_level_percent: Optional[float] = None
-    flow_rate_l_min: Optional[float] = None
+    tank_level_percent: float | None = None
+    flow_rate_l_min: float | None = None
     total_sprayed_l: float = 0
 
     # RC signal - إشارة التحكم
-    rc_signal_percent: Optional[float] = None
+    rc_signal_percent: float | None = None
     home_distance_m: float = 0
 
     # Warnings - التحذيرات
@@ -707,22 +707,22 @@ class FlightLog:
     id: str
     tenant_id: str
     drone_id: str
-    mission_id: Optional[str] = None
-    mission_type: Optional[FlightMode] = None
+    mission_id: str | None = None
+    mission_type: FlightMode | None = None
 
     # Flight status
     status: FlightStatus = FlightStatus.PLANNED
 
     # Timing - التوقيت
-    planned_start: Optional[datetime] = None
-    actual_start: Optional[datetime] = None
-    actual_end: Optional[datetime] = None
+    planned_start: datetime | None = None
+    actual_start: datetime | None = None
+    actual_end: datetime | None = None
     duration_min: float = 0
 
     # Location - الموقع
-    field_id: Optional[str] = None
-    takeoff_location: Optional[Coordinate] = None
-    landing_location: Optional[Coordinate] = None
+    field_id: str | None = None
+    takeoff_location: Coordinate | None = None
+    landing_location: Coordinate | None = None
 
     # Flight stats - إحصائيات الطيران
     max_altitude_m: float = 0
@@ -736,9 +736,9 @@ class FlightLog:
     tank_fills: int = 0
 
     # Battery - البطارية
-    start_battery_percent: Optional[float] = None
-    end_battery_percent: Optional[float] = None
-    battery_consumed_wh: Optional[float] = None
+    start_battery_percent: float | None = None
+    end_battery_percent: float | None = None
+    battery_consumed_wh: float | None = None
 
     # Telemetry - القياس عن بعد
     telemetry_log: list[FlightTelemetry] = field(default_factory=list)
@@ -753,14 +753,14 @@ class FlightLog:
     pilot_name: str = ""
 
     # Weather at time of flight - الطقس وقت الطيران
-    weather_at_start: Optional[WeatherCheck] = None
-    weather_at_end: Optional[WeatherCheck] = None
+    weather_at_start: WeatherCheck | None = None
+    weather_at_end: WeatherCheck | None = None
 
     # Issues and notes - المشاكل والملاحظات
     issues: list[str] = field(default_factory=list)
     issues_ar: list[str] = field(default_factory=list)
-    abort_reason: Optional[str] = None
-    abort_reason_ar: Optional[str] = None
+    abort_reason: str | None = None
+    abort_reason_ar: str | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -822,18 +822,18 @@ class VRAZone:
     # Geometry - الشكل الهندسي
     boundary: list[Coordinate]  # Polygon boundary
     area_ha: float = 0  # مساحة المنطقة (هكتار)
-    centroid: Optional[Coordinate] = None
+    centroid: Coordinate | None = None
 
     # Application rate - معدل التطبيق
     rate_l_ha: float = 0  # معدل التطبيق (لتر/هكتار)
     rate_percent: float = 100  # نسبة من المعدل الأساسي (%)
 
     # Source data - البيانات المصدر
-    ndvi_mean: Optional[float] = None
-    ndvi_std: Optional[float] = None
-    lai_mean: Optional[float] = None
-    source_imagery_id: Optional[str] = None
-    source_date: Optional[datetime] = None
+    ndvi_mean: float | None = None
+    ndvi_std: float | None = None
+    lai_mean: float | None = None
+    source_imagery_id: str | None = None
+    source_date: datetime | None = None
 
     # Labels - التسميات
     label_en: str = ""
@@ -897,14 +897,14 @@ class PrescriptionMap:
 
     # Base application parameters - معاملات التطبيق الأساسية
     base_rate_l_ha: float = 0  # المعدل الأساسي
-    product_id: Optional[str] = None
+    product_id: str | None = None
     product_name: str = ""
     product_name_ar: str = ""
 
     # Source data - البيانات المصدر
     source_type: str = "ndvi"  # ndvi, lai, yield, manual, soil
-    source_imagery_id: Optional[str] = None
-    source_date: Optional[datetime] = None
+    source_imagery_id: str | None = None
+    source_date: datetime | None = None
 
     # Classification - التصنيف
     zone_count: int = 5  # عدد المناطق
@@ -918,8 +918,8 @@ class PrescriptionMap:
 
     # Validation - التحقق
     validated: bool = False
-    validated_by: Optional[str] = None
-    validated_at: Optional[datetime] = None
+    validated_by: str | None = None
+    validated_at: datetime | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -992,10 +992,10 @@ class AerialImage:
     gsd_cm_px: float = 0  # دقة الأرض
 
     # Exposure - التعريض
-    iso: Optional[int] = None
-    shutter_speed: Optional[str] = None
-    aperture: Optional[float] = None
-    exposure_compensation: Optional[float] = None
+    iso: int | None = None
+    shutter_speed: str | None = None
+    aperture: float | None = None
+    exposure_compensation: float | None = None
 
     # Multispectral bands (if applicable) - النطاقات الطيفية
     bands: list[str] = field(default_factory=list)  # e.g., ["red", "green", "nir", "rededge"]
@@ -1005,12 +1005,12 @@ class AerialImage:
     footprint: list[Coordinate] = field(default_factory=list)  # Image footprint polygon
 
     # Quality - الجودة
-    blur_score: Optional[float] = None  # 0-1, higher is sharper
-    exposure_quality: Optional[str] = None  # underexposed, optimal, overexposed
+    blur_score: float | None = None  # 0-1, higher is sharper
+    exposure_quality: str | None = None  # underexposed, optimal, overexposed
 
     # Processing - المعالجة
     processed: bool = False
-    orthomosaic_id: Optional[str] = None
+    orthomosaic_id: str | None = None
 
     def to_dict(self) -> dict:
         """Convert to dictionary"""
@@ -1051,24 +1051,24 @@ class ProcessedImagery:
 
     # Coverage - التغطية
     coverage_area_ha: float = 0
-    bounding_box: Optional[BoundingBox] = None
+    bounding_box: BoundingBox | None = None
     gsd_cm_px: float = 0
 
     # Files - الملفات
     file_path: str = ""
     file_format: str = "geotiff"  # geotiff, cog, png
     file_size_mb: float = 0
-    thumbnail_path: Optional[str] = None
+    thumbnail_path: str | None = None
 
     # Statistics (for index maps) - الإحصائيات
-    min_value: Optional[float] = None
-    max_value: Optional[float] = None
-    mean_value: Optional[float] = None
-    std_value: Optional[float] = None
+    min_value: float | None = None
+    max_value: float | None = None
+    mean_value: float | None = None
+    std_value: float | None = None
 
     # Quality - الجودة
-    quality_score: Optional[float] = None  # 0-1
-    georef_accuracy_cm: Optional[float] = None
+    quality_score: float | None = None  # 0-1
+    georef_accuracy_cm: float | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)

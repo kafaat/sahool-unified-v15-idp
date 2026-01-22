@@ -7,7 +7,6 @@ Track fertilizer inventory, consumption, and reorder alerts.
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Optional
 import uuid
 
 from .models import (
@@ -87,8 +86,8 @@ class InventoryAlert:
     # Details
     current_quantity_kg: float
     threshold_kg: float
-    expiry_date: Optional[datetime] = None
-    days_until_expiry: Optional[int] = None
+    expiry_date: datetime | None = None
+    days_until_expiry: int | None = None
 
     # Messages
     title_en: str = ""
@@ -103,10 +102,10 @@ class InventoryAlert:
 
     # Status
     acknowledged: bool = False
-    acknowledged_by: Optional[str] = None
-    acknowledged_at: Optional[datetime] = None
+    acknowledged_by: str | None = None
+    acknowledged_at: datetime | None = None
     resolved: bool = False
-    resolved_at: Optional[datetime] = None
+    resolved_at: datetime | None = None
 
     created_at: datetime = field(default_factory=datetime.utcnow)
 
@@ -206,7 +205,7 @@ class FertilizerInventoryManager:
 
     def __init__(
         self,
-        inventory_items: Optional[list[InventoryItem]] = None,
+        inventory_items: list[InventoryItem] | None = None,
         expiry_warning_days: int = 30,
     ):
         """
@@ -240,7 +239,7 @@ class FertilizerInventoryManager:
         self._update_item_status(item)
         return item
 
-    def get_item(self, item_id: str) -> Optional[InventoryItem]:
+    def get_item(self, item_id: str) -> InventoryItem | None:
         """Get inventory item by ID."""
         return self._inventory.get(item_id)
 
@@ -266,7 +265,7 @@ class FertilizerInventoryManager:
         quantity_kg: float,
         unit_cost: Decimal,
         batch_number: str = "",
-        expiry_date: Optional[datetime] = None,
+        expiry_date: datetime | None = None,
         supplier: str = "",
         supplier_ar: str = "",
         created_by: str = "",
@@ -337,7 +336,7 @@ class FertilizerInventoryManager:
         self,
         item_id: str,
         quantity_kg: float,
-        application: Optional[FertilizerApplication] = None,
+        application: FertilizerApplication | None = None,
         created_by: str = "",
         reason: str = "",
         reason_ar: str = "",
@@ -721,10 +720,10 @@ class FertilizerInventoryManager:
     def get_transactions(
         self,
         tenant_id: str,
-        item_id: Optional[str] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-        transaction_type: Optional[str] = None,
+        item_id: str | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        transaction_type: str | None = None,
     ) -> list[InventoryTransaction]:
         """
         Get inventory transactions with filters.

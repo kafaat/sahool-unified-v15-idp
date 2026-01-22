@@ -15,7 +15,6 @@ Version: 1.0.0
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 from .models import (
     ExtractionMethod,
@@ -26,8 +25,6 @@ from .models import (
     NutrientStatus,
     SoilProperties,
     SoilTestResult,
-    SoilTexture,
-    SoilTextureClass,
     SoilType,
 )
 
@@ -339,10 +336,10 @@ class InterpretationConfig:
     """Configuration for soil test interpretation - إعدادات تفسير تحليل التربة"""
     # Regional adjustments
     region: str = "middle_east"
-    soil_type: Optional[SoilType] = None
+    soil_type: SoilType | None = None
 
     # Crop-specific
-    crop: Optional[str] = None
+    crop: str | None = None
 
     # Extraction methods used
     p_extraction: ExtractionMethod = ExtractionMethod.OLSEN
@@ -370,8 +367,8 @@ class SoilTestInterpreter:
 
     def __init__(
         self,
-        config: Optional[InterpretationConfig] = None,
-        custom_thresholds: Optional[dict] = None,
+        config: InterpretationConfig | None = None,
+        custom_thresholds: dict | None = None,
     ):
         """
         Initialize the interpreter.
@@ -391,7 +388,7 @@ class SoilTestInterpreter:
     def interpret(
         self,
         soil_test: SoilTestResult,
-        crop: Optional[str] = None,
+        crop: str | None = None,
     ) -> InterpretationReport:
         """
         Generate complete interpretation report for a soil test.
@@ -509,7 +506,7 @@ class SoilTestInterpreter:
         nutrient_code: str,
         value: float,
         ph: float = 7.0,
-        crop: Optional[str] = None,
+        crop: str | None = None,
     ) -> NutrientInterpretation:
         """
         Interpret a single nutrient value.
@@ -569,9 +566,7 @@ class SoilTestInterpreter:
             priority = 2
         elif status == NutrientStatus.TOXIC:
             priority = 1
-        elif status == NutrientStatus.EXCESSIVE:
-            priority = 3
-        elif status == NutrientStatus.LOW:
+        elif status == NutrientStatus.EXCESSIVE or status == NutrientStatus.LOW:
             priority = 3
 
         # Generate action description
@@ -611,7 +606,7 @@ class SoilTestInterpreter:
         self,
         macros: MacronutrientResults,
         ph: float,
-        crop: Optional[str],
+        crop: str | None,
     ) -> list[NutrientInterpretation]:
         """Interpret all macronutrients"""
         interpretations = []
@@ -658,7 +653,7 @@ class SoilTestInterpreter:
         self,
         micros: MicronutrientResults,
         ph: float,
-        crop: Optional[str],
+        crop: str | None,
     ) -> list[NutrientInterpretation]:
         """Interpret all micronutrients"""
         interpretations = []
@@ -841,7 +836,7 @@ class SoilTestInterpreter:
         ec_status: str,
         om_status: str,
         fertility_score: float,
-        crop: Optional[str],
+        crop: str | None,
     ) -> tuple[str, str]:
         """Generate summary text in both languages"""
         # English summary
@@ -894,7 +889,7 @@ class SoilTestInterpreter:
     def _generate_immediate_actions(
         self,
         interpretations: list[NutrientInterpretation],
-        properties: Optional[SoilProperties],
+        properties: SoilProperties | None,
     ) -> tuple[list[str], list[str]]:
         """Generate list of immediate actions needed"""
         actions_en = []
@@ -976,7 +971,7 @@ class SoilTestInterpreter:
         self,
         nutrient: str,
         status: NutrientStatus,
-        crop: Optional[str],
+        crop: str | None,
     ) -> tuple[str, str]:
         """Generate crop-specific impact description"""
         impacts = {
@@ -1038,7 +1033,7 @@ class SoilTestInterpreter:
 # Convenience functions
 def interpret_soil_test(
     soil_test: SoilTestResult,
-    crop: Optional[str] = None,
+    crop: str | None = None,
 ) -> InterpretationReport:
     """
     Quick interpretation of a soil test result.

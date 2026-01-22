@@ -8,9 +8,9 @@ from harvest to consumer, with full event history and verification.
 من الحصاد إلى المستهلك، مع سجل الأحداث الكامل والتحقق.
 """
 
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from typing import Optional, Callable
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Callable
 from uuid import uuid4
 
 from .models import (
@@ -124,7 +124,7 @@ class SupplyChainTracker:
     سلسلة التوريد مع تسجيل الأحداث والتحقق.
     """
 
-    def __init__(self, config: Optional[ChainConfig] = None):
+    def __init__(self, config: ChainConfig | None = None):
         """
         Initialize the supply chain tracker.
 
@@ -158,7 +158,7 @@ class SupplyChainTracker:
         quantity_unit: str = "kg",
         variety_en: str = "",
         variety_ar: str = "",
-        producer_id: Optional[str] = None,
+        producer_id: str | None = None,
     ) -> ProduceBatch:
         """
         Create a new produce batch.
@@ -201,11 +201,11 @@ class SupplyChainTracker:
 
         return batch
 
-    def get_batch(self, batch_id: str) -> Optional[ProduceBatch]:
+    def get_batch(self, batch_id: str) -> ProduceBatch | None:
         """Get a batch by ID"""
         return self._batches.get(batch_id)
 
-    def get_batch_by_code(self, batch_code: str) -> Optional[ProduceBatch]:
+    def get_batch_by_code(self, batch_code: str) -> ProduceBatch | None:
         """Get a batch by batch code"""
         for batch in self._batches.values():
             if batch.batch_code == batch_code:
@@ -216,7 +216,7 @@ class SupplyChainTracker:
         self,
         batch_id: str,
         status: BatchStatus,
-    ) -> Optional[ProduceBatch]:
+    ) -> ProduceBatch | None:
         """Update batch status"""
         batch = self._batches.get(batch_id)
         if batch:
@@ -236,16 +236,16 @@ class SupplyChainTracker:
         crop_type: str,
         harvest_method_en: str,
         harvest_method_ar: str,
-        location: Optional[GeoLocation] = None,
+        location: GeoLocation | None = None,
         actor_id: str = "",
         actor_name_en: str = "",
         actor_name_ar: str = "",
-        temperature_c: Optional[float] = None,
-        humidity_percent: Optional[float] = None,
+        temperature_c: float | None = None,
+        humidity_percent: float | None = None,
         quality_notes_en: str = "",
         quality_notes_ar: str = "",
-        photos: Optional[list[str]] = None,
-    ) -> Optional[HarvestEvent]:
+        photos: list[str] | None = None,
+    ) -> HarvestEvent | None:
         """
         Record a harvest event.
         تسجيل حدث الحصاد.
@@ -320,12 +320,12 @@ class SupplyChainTracker:
         input_quantity: float,
         output_quantity: float,
         quantity_unit: str = "kg",
-        quality_grade: Optional[QualityGrade] = None,
+        quality_grade: QualityGrade | None = None,
         quality_notes_en: str = "",
         quality_notes_ar: str = "",
-        location: Optional[GeoLocation] = None,
-        photos: Optional[list[str]] = None,
-    ) -> Optional[ProcessingEvent]:
+        location: GeoLocation | None = None,
+        photos: list[str] | None = None,
+    ) -> ProcessingEvent | None:
         """
         Record a processing/packing event.
         تسجيل حدث المعالجة/التعبئة.
@@ -386,14 +386,14 @@ class SupplyChainTracker:
         facility_name_ar: str,
         storage_unit_id: str,
         storage_condition: StorageCondition,
-        target_temperature_c: Optional[float] = None,
-        actual_temperature_c: Optional[float] = None,
-        target_humidity_percent: Optional[float] = None,
-        actual_humidity_percent: Optional[float] = None,
+        target_temperature_c: float | None = None,
+        actual_temperature_c: float | None = None,
+        target_humidity_percent: float | None = None,
+        actual_humidity_percent: float | None = None,
         condition_notes_en: str = "",
         condition_notes_ar: str = "",
-        location: Optional[GeoLocation] = None,
-    ) -> Optional[StorageEvent]:
+        location: GeoLocation | None = None,
+    ) -> StorageEvent | None:
         """
         Record a storage event.
         تسجيل حدث التخزين.
@@ -452,12 +452,12 @@ class SupplyChainTracker:
         destination_en: str,
         destination_ar: str,
         transport_mode: TransportMode,
-        origin_location: Optional[GeoLocation] = None,
-        destination_location: Optional[GeoLocation] = None,
-        target_temperature_c: Optional[float] = None,
-        departure_time: Optional[datetime] = None,
-        distance_km: Optional[float] = None,
-    ) -> Optional[TransportEvent]:
+        origin_location: GeoLocation | None = None,
+        destination_location: GeoLocation | None = None,
+        target_temperature_c: float | None = None,
+        departure_time: datetime | None = None,
+        distance_km: float | None = None,
+    ) -> TransportEvent | None:
         """
         Record a transport event.
         تسجيل حدث النقل.
@@ -505,10 +505,10 @@ class SupplyChainTracker:
     def complete_transport(
         self,
         transport_event_id: str,
-        arrival_time: Optional[datetime] = None,
-        min_temperature_c: Optional[float] = None,
-        max_temperature_c: Optional[float] = None,
-    ) -> Optional[TransportEvent]:
+        arrival_time: datetime | None = None,
+        min_temperature_c: float | None = None,
+        max_temperature_c: float | None = None,
+    ) -> TransportEvent | None:
         """
         Complete a transport event with arrival info.
         إكمال حدث النقل بمعلومات الوصول.
@@ -532,14 +532,14 @@ class SupplyChainTracker:
         store_location_ar: str,
         received_quantity: float,
         quantity_unit: str = "kg",
-        temperature_at_receipt_c: Optional[float] = None,
+        temperature_at_receipt_c: float | None = None,
         quality_check_passed: bool = True,
         display_location_en: str = "",
         display_location_ar: str = "",
-        unit_price: Optional[float] = None,
+        unit_price: float | None = None,
         currency: str = "SAR",
-        location: Optional[GeoLocation] = None,
-    ) -> Optional[RetailEvent]:
+        location: GeoLocation | None = None,
+    ) -> RetailEvent | None:
         """
         Record a retail arrival event.
         تسجيل حدث الوصول إلى التجزئة.
@@ -589,11 +589,11 @@ class SupplyChainTracker:
         batch_id: str,
         session_id: str,
         device_type: str = "mobile",
-        scan_location: Optional[GeoLocation] = None,
-        rating: Optional[int] = None,
-        feedback_en: Optional[str] = None,
-        feedback_ar: Optional[str] = None,
-    ) -> Optional[ConsumerScanEvent]:
+        scan_location: GeoLocation | None = None,
+        rating: int | None = None,
+        feedback_en: str | None = None,
+        feedback_ar: str | None = None,
+    ) -> ConsumerScanEvent | None:
         """
         Record a consumer QR scan event.
         تسجيل حدث مسح المستهلك لرمز QR.
@@ -628,7 +628,7 @@ class SupplyChainTracker:
     def get_events(
         self,
         batch_id: str,
-        event_type: Optional[EventType] = None,
+        event_type: EventType | None = None,
     ) -> list[SupplyChainEvent]:
         """
         Get events for a batch.
@@ -649,8 +649,8 @@ class SupplyChainTracker:
     def get_latest_event(
         self,
         batch_id: str,
-        event_type: Optional[EventType] = None,
-    ) -> Optional[SupplyChainEvent]:
+        event_type: EventType | None = None,
+    ) -> SupplyChainEvent | None:
         """Get the most recent event for a batch"""
         events = self.get_events(batch_id, event_type)
         return events[-1] if events else None
@@ -662,7 +662,7 @@ class SupplyChainTracker:
     def build_product_journey(
         self,
         batch_id: str,
-    ) -> Optional[ProductJourney]:
+    ) -> ProductJourney | None:
         """
         Build a consumer-friendly product journey.
         بناء رحلة منتج سهلة للمستهلك.
@@ -773,7 +773,7 @@ class SupplyChainTracker:
         self,
         batch_id: str,
         generated_by: str = "system",
-    ) -> Optional[BatchTraceReport]:
+    ) -> BatchTraceReport | None:
         """
         Generate a comprehensive trace report for a batch.
         إنشاء تقرير تتبع شامل لدفعة.
@@ -799,8 +799,8 @@ class SupplyChainTracker:
 
         # Calculate stats
         total_distance = 0.0
-        min_temp: Optional[float] = None
-        max_temp: Optional[float] = None
+        min_temp: float | None = None
+        max_temp: float | None = None
         temp_excursions = 0
         quality_passed = 0
         quality_failed = 0

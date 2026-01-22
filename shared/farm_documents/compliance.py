@@ -11,8 +11,7 @@ and certification verification functionality.
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
-from uuid import uuid4
+from datetime import date, datetime
 
 import structlog
 

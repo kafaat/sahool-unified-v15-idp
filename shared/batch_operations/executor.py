@@ -780,7 +780,7 @@ class BatchExecutor:
 
                 last_error = result_data.get("error", "Unknown error") if result_data else "Processing failed"
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 last_error = f"Timeout after {config.timeout_per_item_seconds}s"
                 logger.warning(f"Item {item.id} timed out on attempt {attempt + 1}")
 

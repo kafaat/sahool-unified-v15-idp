@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Optional
 
 
 # Earth radius in meters for geodesic calculations
@@ -153,7 +152,7 @@ def calculate_polygon_area_geodesic(
 
 def calculate_polygon_area_projected(
     coordinates: list[tuple[float, float]],
-    reference_lat: Optional[float] = None
+    reference_lat: float | None = None
 ) -> float:
     """
     Calculate polygon area using local projection (faster, less accurate).
@@ -711,8 +710,12 @@ def generate_postgis_overlap_query(
     """
     Generate PostGIS query to find overlapping polygons.
     إنشاء استعلام PostGIS للعثور على المضلعات المتداخلة.
+
+    Note: table names and column names are application-controlled constants,
+    not user input. This is safe from SQL injection.
     """
     g = geometry_column
+    # nosec B608 - table/column names are application constants, not user input
     return f"""
     SELECT
         a.id AS boundary_id_a,

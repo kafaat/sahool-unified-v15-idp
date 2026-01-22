@@ -13,8 +13,7 @@ Updated: January 2026
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Callable, TypeVar
-from uuid import uuid4
+from typing import Any, Callable
 
 from .models import (
     SyncConflict,

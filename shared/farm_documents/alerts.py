@@ -14,7 +14,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from typing import Callable
-from uuid import uuid4
 
 import structlog
 
@@ -22,8 +21,6 @@ from .models import (
     AlertPriority,
     Certification,
     CertificationStatus,
-    ComplianceDocument,
-    ComplianceStatus,
     DocumentAlert,
     FarmDocument,
 )

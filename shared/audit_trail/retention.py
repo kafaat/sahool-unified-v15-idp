@@ -19,7 +19,6 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable
@@ -30,11 +29,9 @@ import structlog
 from .models import (
     AuditCategory,
     AuditEntry,
-    AuditQueryFilter,
     RetentionJob,
     RetentionPeriod,
     RetentionPolicy,
-    RETENTION_DAYS,
 )
 
 logger = structlog.get_logger(__name__)
@@ -832,7 +829,9 @@ def get_retention_manager(
     """
     global _global_manager
     if _global_manager is None:
-        storage = storage_path or os.getenv("AUDIT_TRAIL_STORAGE_PATH", "/tmp/sahool_audit_trail")
+        # Default to /var/lib/sahool in production, /tmp for development only
+        default_path = "/var/lib/sahool/audit_trail" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_audit_trail"  # nosec B108
+        storage = storage_path or os.getenv("AUDIT_TRAIL_STORAGE_PATH", default_path)
         archive = archive_path or os.path.join(storage, "archive")
         _global_manager = RetentionManager(
             storage_path=storage,

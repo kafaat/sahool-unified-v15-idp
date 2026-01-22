@@ -100,6 +100,21 @@ const nextConfig = {
       parentNodeModules,
     ];
 
+    // Suppress OpenTelemetry critical dependency warnings from @sentry/nextjs
+    // These warnings occur due to dynamic requires in OpenTelemetry instrumentation
+    // and don't affect functionality when Sentry DSN is not configured
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings || []),
+      {
+        module: /@opentelemetry\/instrumentation/,
+        message: /Critical dependency/,
+      },
+      {
+        module: /@sentry/,
+        message: /Critical dependency/,
+      },
+    ];
+
     return config;
   },
 

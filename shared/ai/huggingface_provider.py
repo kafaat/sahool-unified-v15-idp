@@ -474,7 +474,7 @@ class HuggingfaceProvider:
 
         try:
             from transformers import AutoModel, AutoTokenizer
-            import torch
+            import torch as _torch  # noqa: F401 - Required for model operations
 
             device = self._get_device()
             cache_dir = self.config.local_model_dir
@@ -611,7 +611,7 @@ class HuggingfaceProvider:
                     logger.error(f"API error: {response.status_code} - {response.text}")
                     raise RuntimeError(f"API error: {response.status_code}")
 
-            except Exception as e:
+            except Exception:
                 if attempt < self.config.retry_count - 1:
                     await asyncio.sleep(self.config.retry_delay_seconds * (attempt + 1))
                 else:

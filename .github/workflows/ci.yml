@@ -73,7 +73,9 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pytest pytest-asyncio pytest-cov pytest-xdist httpx pyjwt fastapi pydantic jsonschema sqlalchemy tortoise-orm structlog langchain-anthropic redis numpy
+          pip install pytest pytest-asyncio pytest-cov pytest-xdist httpx pyjwt fastapi pydantic jsonschema sqlalchemy tortoise-orm structlog langchain-anthropic redis
+          # AI module dependencies for unit tests
+          pip install numpy pillow aiofiles
 
       - name: Run unified tests with coverage (parallel)
         run: |
@@ -108,7 +110,7 @@ jobs:
           # Minimum coverage threshold - enforced to maintain code quality
           # Coverage strategy: Gradually increase threshold as test suite matures
           # SAHOOL Coverage Threshold
-          # Current minimum: 4.3% - adjusted for new AI agents module
+          # Current minimum: 4.3% - adjusted for AI agents module + baseline for legacy codebase
           MIN_COVERAGE=4.3
 
           # Check if coverage meets minimum - FAIL if below threshold

@@ -1291,6 +1291,102 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8104'
       prometheus.io/path: /metrics
+  ai-agents-service:
+    enabled: true
+    name: ai-agents-service
+    image:
+      repository: ghcr.io/kafaat/sahool-ai-agents-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8130
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 500000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8130'
+    serviceAccount:
+      create: true
+      name: sahool-ai-agents-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8130'
+      prometheus.io/path: /metrics
+  crm-service:
+    enabled: true
+    name: crm-service
+    image:
+      repository: ghcr.io/kafaat/sahool-crm-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8131
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 400m
+        memory: 384Mi
+      limits:
+        cpu: 400000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8131'
+    serviceAccount:
+      create: true
+      name: sahool-crm-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8131'
+      prometheus.io/path: /metrics
+  lowcode-engine:
+    enabled: true
+    name: lowcode-engine
+    image:
+      repository: ghcr.io/kafaat/sahool-lowcode-engine
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8132
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 400m
+        memory: 384Mi
+      limits:
+        cpu: 400000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8132'
+    serviceAccount:
+      create: true
+      name: sahool-lowcode-engine
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8132'
+      prometheus.io/path: /metrics
 applications:
   web:
     enabled: true
@@ -1509,6 +1605,18 @@ ingress:
       pathType: Prefix
       service: provider-config
       port: 8104
+    - path: /api/v1/ai/agents/service
+      pathType: Prefix
+      service: ai-agents-service
+      port: 8130
+    - path: /api/v1/crm/service
+      pathType: Prefix
+      service: crm-service
+      port: 8131
+    - path: /api/v1/lowcode/engine
+      pathType: Prefix
+      service: lowcode-engine
+      port: 8132
   tls:
   - secretName: sahool-tls
     hosts:

@@ -1664,6 +1664,125 @@ services:
     - sahool.category=core
     - traefik.enable=true
     - traefik.http.routers.provider-config.rule=PathPrefix(`/api/v1/provider/config`)
+  ai-agents-service:
+    build:
+      context: ./apps/services/ai-agents-service
+      dockerfile: Dockerfile
+    container_name: sahool-ai-agents-service
+    ports:
+    - 8130:8130
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8130
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8130/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=ai-agents-service
+    - sahool.port=8130
+    - sahool.category=analytics
+    - traefik.enable=true
+    - traefik.http.routers.ai-agents-service.rule=PathPrefix(`/api/v1/ai/agents/service`)
+  crm-service:
+    build:
+      context: ./apps/services/crm-service
+      dockerfile: Dockerfile
+    container_name: sahool-crm-service
+    ports:
+    - 8131:8131
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8131
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - DB_NAME=sahool_crm
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8131/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=crm-service
+    - sahool.port=8131
+    - sahool.category=community
+    - traefik.enable=true
+    - traefik.http.routers.crm-service.rule=PathPrefix(`/api/v1/crm/service`)
+  lowcode-engine:
+    build:
+      context: ./apps/services/lowcode-engine
+      dockerfile: Dockerfile
+    container_name: sahool-lowcode-engine
+    ports:
+    - 8132:8132
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8132
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - DB_NAME=sahool_lowcode
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8132/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=lowcode-engine
+    - sahool.port=8132
+    - sahool.category=core
+    - traefik.enable=true
+    - traefik.http.routers.lowcode-engine.rule=PathPrefix(`/api/v1/lowcode/engine`)
   web:
     build:
       context: ./apps/web

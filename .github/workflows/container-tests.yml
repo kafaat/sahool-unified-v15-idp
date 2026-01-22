@@ -128,10 +128,13 @@ jobs:
       fail-fast: false
       matrix:
         service:
-          - name: satellite-service
-            path: apps/services/satellite-service
+          # ─────────────────────────────────────────────────────────────
+          # Active services (replacements for deprecated ones)
+          # ─────────────────────────────────────────────────────────────
+          - name: vegetation-analysis-service
+            path: apps/services/vegetation-analysis-service
             port: 8001
-            container_port: 8125
+            container_port: 8090
           - name: crop-growth-model
             path: apps/services/crop-growth-model
             port: 8002
@@ -140,16 +143,21 @@ jobs:
             path: apps/services/indicators-service
             port: 8003
             container_port: 8091
-          - name: weather-advanced
-            path: apps/services/weather-advanced
+          - name: weather-service
+            path: apps/services/weather-service
             port: 8004
-            container_port: 8126
-          # crop-health-ai removed - DEPRECATED (see docs/DEPRECATED_SERVICES.md)
-          # Use crop-intelligence-service instead
-          - name: fertilizer-advisor
-            path: apps/services/fertilizer-advisor
-            port: 8006
-            container_port: 8127
+            container_port: 8092
+          - name: crop-intelligence-service
+            path: apps/services/crop-intelligence-service
+            port: 8005
+            container_port: 8095
+          # ─────────────────────────────────────────────────────────────
+          # DEPRECATED services - see docs/DEPRECATED_SERVICES.md
+          # satellite-service → vegetation-analysis-service
+          # weather-advanced → weather-service
+          # crop-health-ai → crop-intelligence-service
+          # fertilizer-advisor → advisory-service
+          # ─────────────────────────────────────────────────────────────
           - name: irrigation-smart
             path: apps/services/irrigation-smart
             port: 8007
@@ -204,10 +212,11 @@ jobs:
             path: apps/services/vegetation-analysis-service
             port: 8019
             container_port: 8090
-          - name: field-service
-            path: apps/services/field-service
+          - name: field-management-service
+            path: apps/services/field-management-service
             port: 8020
-            container_port: 8115
+            container_port: 3000
+          # field-service DEPRECATED → field-management-service
           - name: crop-intelligence-service
             path: apps/services/crop-intelligence-service
             port: 8021
@@ -476,6 +485,7 @@ jobs:
             trivy-${{ matrix.service.name }}.json
             trivy-${{ matrix.service.name }}.sarif
           retention-days: 30
+          overwrite: true
 
   # Job 4: Validate docker-compose configurations (validation only, no startup)
   # Note: We only validate config syntax, not actually start services, because:

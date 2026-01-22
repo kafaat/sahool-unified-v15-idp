@@ -37,6 +37,9 @@ class DailyForecast:
     uv_index_max: float
     sunrise: str
     sunset: str
+    condition: str | None = None
+    condition_ar: str | None = None
+    icon: str | None = None
 
 
 @dataclass

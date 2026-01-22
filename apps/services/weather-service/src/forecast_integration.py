@@ -227,23 +227,24 @@ class WeatherForecastService:
         تهيئة مزودي الطقس
         """
         # Open-Meteo (always available)
-        if self.config.providers.get("open_meteo", {}).enabled:
+        open_meteo_config = self.config.providers.get("open_meteo")
+        if open_meteo_config and getattr(open_meteo_config, "enabled", False):
             self.providers["open_meteo"] = OpenMeteoProvider()
 
         # OpenWeatherMap
         owm_config = self.config.providers.get("openweathermap")
-        if owm_config and owm_config.enabled and owm_config.api_key:
+        if owm_config and getattr(owm_config, "enabled", False) and getattr(owm_config, "api_key", None):
             self.providers["openweathermap"] = OpenWeatherMapProvider(owm_config.api_key)
 
         # WeatherAPI
         wa_config = self.config.providers.get("weatherapi")
-        if wa_config and wa_config.enabled and wa_config.api_key:
+        if wa_config and getattr(wa_config, "enabled", False) and getattr(wa_config, "api_key", None):
             self.providers["weatherapi"] = WeatherAPIProvider(wa_config.api_key)
 
         # Yemen Met (mock)
         yemen_config = self.config.providers.get("yemen_met")
-        if yemen_config and yemen_config.enabled:
-            self.providers["yemen_met"] = YemenMetAdapter(yemen_config.api_key)
+        if yemen_config and getattr(yemen_config, "enabled", False):
+            self.providers["yemen_met"] = YemenMetAdapter(getattr(yemen_config, "api_key", None))
 
     async def fetch_forecast(
         self, lat: float, lon: float, days: int = 7
@@ -413,9 +414,9 @@ class WeatherForecastService:
                     wind_speed_max_kmh=sum(f.wind_speed_max_kmh for f in day_forecasts)
                     / len(day_forecasts),
                     uv_index_max=sum(f.uv_index_max for f in day_forecasts) / len(day_forecasts),
-                    condition=day_forecasts[0].condition,  # Use first provider's condition
-                    condition_ar=day_forecasts[0].condition_ar,
-                    icon=day_forecasts[0].icon,
+                    condition=getattr(day_forecasts[0], "condition", None),  # Use first provider's condition
+                    condition_ar=getattr(day_forecasts[0], "condition_ar", None),
+                    icon=getattr(day_forecasts[0], "icon", None),
                     sunrise=day_forecasts[0].sunrise,
                     sunset=day_forecasts[0].sunset,
                 )
@@ -867,9 +868,11 @@ def calculate_evapotranspiration(forecast: DailyForecast, method: str = "penman_
         tavg = (forecast.temp_max_c + forecast.temp_min_c) / 2.0
         trange = abs(forecast.temp_max_c - forecast.temp_min_c)
 
-        # Simplified calculation (requires solar radiation, using approximation)
-        # حساب مبسط (يتطلب الإشعاع الشمسي، باستخدام التقريب)
-        et0 = 0.0023 * (tavg + 17.8) * (trange**0.5) * 2.45  # Simplified
+        # Simplified calculation using estimated extraterrestrial radiation (Ra)
+        # حساب مبسط باستخدام تقدير للإشعاع الشمسي خارج الغلاف الجوي
+        # Default Ra ~17 MJ/m²/day is typical for Middle East agricultural regions
+        ra_estimate = 17.0  # Estimated extraterrestrial radiation MJ/m²/day
+        et0 = 0.0023 * ra_estimate * (tavg + 17.8) * (trange**0.5)
         return max(0, et0)
 
     else:

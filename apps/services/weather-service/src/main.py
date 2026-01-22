@@ -98,10 +98,11 @@ async def lifespan(app: FastAPI):
     yield
 
     # Cleanup
-    if app.state.multi_provider:
+    if getattr(app.state, "multi_provider", None):
         await app.state.multi_provider.close()
-    await app.state.weather_provider.close()
-    if app.state.publisher:
+    if getattr(app.state, "weather_provider", None):
+        await app.state.weather_provider.close()
+    if getattr(app.state, "publisher", None):
         await app.state.publisher.close()
     print("👋 Weather Core shutting down")
 
@@ -128,10 +129,13 @@ if SECURITY_HEADERS_AVAILABLE:
 @app.get("/healthz")
 def health():
     """Health check endpoint (liveness probe)"""
+    from datetime import datetime
+
     return {
-        "status": "ok",
+        "status": "healthy",
         "service": "weather-service",
         "version": "16.0.0",
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
 
@@ -203,7 +207,7 @@ async def assess(req: WeatherAssessRequest):
 
     # Publish alerts
     event_ids = []
-    if app.state.publisher and alerts:
+    if getattr(app.state, "publisher", None) and alerts:
         for alert in alerts:
             event_id = await app.state.publisher.publish_weather_alert(
                 tenant_id=req.tenant_id,
@@ -265,9 +269,10 @@ async def get_current_weather(req: LocationRequest):
 
         # Publish alerts
         event_ids = []
-        if app.state.publisher and alerts:
+        publisher = getattr(app.state, "publisher", None)
+        if publisher and alerts:
             for alert in alerts:
-                event_id = await app.state.publisher.publish_weather_alert(
+                event_id = await publisher.publish_weather_alert(
                     tenant_id=req.tenant_id,
                     field_id=req.field_id,
                     alert_type=alert.alert_type,
@@ -382,8 +387,9 @@ async def irrigation_adjustment(req: IrrigationRequest):
 
     # Publish event
     event_id = None
-    if app.state.publisher:
-        event_id = await app.state.publisher.publish_irrigation_adjustment(
+    publisher = getattr(app.state, "publisher", None)
+    if publisher:
+        event_id = await publisher.publish_irrigation_adjustment(
             tenant_id=req.tenant_id,
             field_id=req.field_id,
             adjustment_factor=adjustment["adjustment_factor"],

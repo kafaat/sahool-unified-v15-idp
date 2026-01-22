@@ -218,16 +218,26 @@ jobs:
       fail-fast: false
       matrix:
         service:
-          - apps/services/satellite-service
+          # Active Python services
           - apps/services/crop-growth-model
           - apps/services/indicators-service
-          - apps/services/weather-advanced
           - apps/services/iot-service
-          # crop-health-ai DEPRECATED - replaced by crop-intelligence-service
           - apps/services/crop-intelligence-service
-          - apps/services/fertilizer-advisor
           - apps/services/irrigation-smart
           - apps/services/yield-engine
+          - apps/services/vegetation-analysis-service
+          - apps/services/advisory-service
+          - apps/services/weather-service
+          # Note: field-management-service is Node.js, not Python
+          # ─────────────────────────────────────────────────────────────
+          # DEPRECATED services (kept for backward compatibility)
+          # See docs/DEPRECATED_SERVICES.md for migration guide
+          # ─────────────────────────────────────────────────────────────
+          # - apps/services/satellite-service      # → vegetation-analysis-service
+          # - apps/services/weather-advanced       # → weather-service
+          # - apps/services/crop-health-ai         # → crop-intelligence-service
+          # - apps/services/fertilizer-advisor     # → advisory-service
+          # - apps/services/field-ops              # → field-management-service
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -276,18 +286,13 @@ jobs:
       fail-fast: false
       matrix:
         service:
-          - name: satellite-service
-            path: apps/services/satellite-service
+          # Active services
           - name: crop-growth-model
             path: apps/services/crop-growth-model
           - name: indicators-service
             path: apps/services/indicators-service
-          - name: weather-advanced
-            path: apps/services/weather-advanced
           - name: crop-intelligence-service
             path: apps/services/crop-intelligence-service
-          - name: fertilizer-advisor
-            path: apps/services/fertilizer-advisor
           - name: irrigation-smart
             path: apps/services/irrigation-smart
           - name: yield-engine
@@ -296,6 +301,24 @@ jobs:
             path: apps/services/notification-service
           - name: marketplace-service
             path: apps/services/marketplace-service
+          - name: vegetation-analysis-service
+            path: apps/services/vegetation-analysis-service
+          - name: advisory-service
+            path: apps/services/advisory-service
+          - name: weather-service
+            path: apps/services/weather-service
+          - name: field-management-service
+            path: apps/services/field-management-service
+          # ─────────────────────────────────────────────────────────────
+          # DEPRECATED services - commented out
+          # See docs/DEPRECATED_SERVICES.md for migration guide
+          # ─────────────────────────────────────────────────────────────
+          # - name: satellite-service          # → vegetation-analysis-service
+          #   path: apps/services/satellite-service
+          # - name: weather-advanced           # → weather-service
+          #   path: apps/services/weather-advanced
+          # - name: fertilizer-advisor         # → advisory-service
+          #   path: apps/services/fertilizer-advisor
     steps:
       - name: Free up disk space
         run: |

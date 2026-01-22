@@ -1719,7 +1719,7 @@ Respond with JSON only."""
             context.get("crop_type", "unknown"),
             context.get("issue_type", "unknown"),
         ]
-        return hashlib.md5(":".join(key_parts).encode()).hexdigest()[:12]
+        return hashlib.sha256(":".join(key_parts).encode()).hexdigest()[:12]
 
     async def recall_similar_experience(
         self,

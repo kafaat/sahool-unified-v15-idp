@@ -23,6 +23,7 @@ Modules:
     - crop_vision: Computer vision for crop disease/pest detection (GenAI Roadmap)
     - huggingface_provider: Arabic & multilingual embeddings via Huggingface
     - vector_store: Persistent vector database for RAG and semantic search
+    - orchestration: Multi-agent orchestration framework (Claude-Flow inspired)
 
 Author: SAHOOL Platform Team
 Updated: January 2026
@@ -310,7 +311,7 @@ from .vector_store import (
     search_documents,
 )
 
-__version__ = "1.8.0"
+__version__ = "1.9.0"
 
 __all__ = [
     # Context Engineering - Compression
@@ -549,3 +550,128 @@ if TRAINING_AVAILABLE:
         "create_code_fix_dataset",
         "train_code_fixer",
     ])
+
+# Agent Orchestration Framework (Claude-Flow inspired)
+from .orchestration import (
+    # Enums
+    AgentCapability,
+    ConsensusType,
+    MemoryNamespace,
+    SwarmTopology,
+    TaskPriority,
+    TaskStatus,
+    # Agent Models
+    AgentProfile,
+    AgentScore,
+    AgentState as OrchestrationAgentState,
+    # Task Models
+    Task,
+    TaskResult,
+    # Swarm Models
+    SwarmConfig,
+    SwarmResult,
+    SwarmState,
+    # Consensus Models
+    ConsensusResult,
+    Vote,
+    # Memory Models
+    MemoryEntry as OrchestrationMemoryEntry,
+    MemoryStats,
+    PatternMatch,
+    # Routing Models
+    RoutingDecision,
+    RouterStats,
+    # Router
+    AgentRouter,
+    get_router,
+    reset_router,
+    # Swarm Coordination
+    SwarmCoordinator,
+    AggregationStrategy,
+    MajorityVoteAggregation,
+    WeightedAverageAggregation,
+    ConcatenateAggregation,
+    BestResultAggregation,
+    get_swarm_coordinator,
+    reset_swarm_coordinator,
+    # Consensus Protocols
+    ConsensusProtocol,
+    MajorityVoting,
+    WeightedVoting,
+    RaftConsensus,
+    UnanimousConsensus,
+    QuorumConsensus,
+    ConsensusManager,
+    get_consensus_manager,
+    reach_consensus,
+    # Collective Memory
+    CollectiveMemory,
+    LRUCache,
+    cosine_similarity,
+    jaccard_similarity,
+    text_similarity,
+    get_collective_memory,
+    reset_collective_memory,
+)
+
+__all__.extend([
+    # === Orchestration Enums ===
+    "AgentCapability",
+    "ConsensusType",
+    "MemoryNamespace",
+    "SwarmTopology",
+    "TaskPriority",
+    "TaskStatus",
+    # === Orchestration Agent Models ===
+    "AgentProfile",
+    "AgentScore",
+    "OrchestrationAgentState",
+    # === Orchestration Task Models ===
+    "Task",
+    "TaskResult",
+    # === Orchestration Swarm Models ===
+    "SwarmConfig",
+    "SwarmResult",
+    "SwarmState",
+    # === Orchestration Consensus Models ===
+    "ConsensusResult",
+    "Vote",
+    # === Orchestration Memory Models ===
+    "OrchestrationMemoryEntry",
+    "MemoryStats",
+    "PatternMatch",
+    # === Orchestration Routing Models ===
+    "RoutingDecision",
+    "RouterStats",
+    # === Router ===
+    "AgentRouter",
+    "get_router",
+    "reset_router",
+    # === Swarm Coordination ===
+    "SwarmCoordinator",
+    "AggregationStrategy",
+    "MajorityVoteAggregation",
+    "WeightedAverageAggregation",
+    "ConcatenateAggregation",
+    "BestResultAggregation",
+    "get_swarm_coordinator",
+    "reset_swarm_coordinator",
+    # === Consensus Protocols ===
+    "ConsensusProtocol",
+    "MajorityVoting",
+    "WeightedVoting",
+    "RaftConsensus",
+    "UnanimousConsensus",
+    "QuorumConsensus",
+    "ConsensusManager",
+    "get_consensus_manager",
+    "reach_consensus",
+    # === Collective Memory ===
+    "CollectiveMemory",
+    "LRUCache",
+    "cosine_similarity",
+    "jaccard_similarity",
+    "text_similarity",
+    "get_collective_memory",
+    "reset_collective_memory",
+])

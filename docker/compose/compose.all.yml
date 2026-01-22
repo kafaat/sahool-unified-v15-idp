@@ -454,6 +454,33 @@ services:
     - postgres
     - redis
     - nats
+  ai-agents-service:
+    build:
+      context: ../../apps/services/ai-agents-service
+      dockerfile: Dockerfile
+    ports:
+    - 8130:8130
+    environment:
+    - PORT=8130
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8130/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - redis
+    - nats
   marketplace-service:
     build:
       context: ../../apps/services/marketplace-service
@@ -867,6 +894,62 @@ services:
     depends_on:
     - postgres
     - redis
+  crm-service:
+    build:
+      context: ../../apps/services/crm-service
+      dockerfile: Dockerfile
+    ports:
+    - 8131:8131
+    environment:
+    - PORT=8131
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8131/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
+  lowcode-engine:
+    build:
+      context: ../../apps/services/lowcode-engine
+      dockerfile: Dockerfile
+    ports:
+    - 8132:8132
+    environment:
+    - PORT=8132
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8132/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
   iot-service:
     build:
       context: ../../apps/services/iot-service

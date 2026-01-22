@@ -163,19 +163,21 @@ def health():
 @app.get("/readyz")
 def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    # Check if service is ready (add more checks as needed)
-    is_ready = True
+    # Check if service is ready
+    engine_loaded = bool(CROP_REQUIREMENTS)
     checks = {
         "service": "ready",
-        "engine": "loaded" if CROP_REQUIREMENTS else "not_loaded",
+        "engine": "loaded" if engine_loaded else "not_loaded",
     }
 
+    # Service is ready if engine is loaded
+    is_ready = engine_loaded
+
     if not is_ready:
-        from fastapi import Response
-        return Response(
-            content='{"status": "not_ready", "checks": ' + str(checks) + '}',
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            content={"status": "not_ready", "service": "agro_advisor", "checks": checks},
             status_code=503,
-            media_type="application/json"
         )
 
     return {

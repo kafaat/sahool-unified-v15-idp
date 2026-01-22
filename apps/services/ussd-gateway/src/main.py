@@ -90,12 +90,14 @@ app = FastAPI(
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
-# CORS
+# CORS - Configure allowed origins from environment
+# In production, set CORS_ORIGINS to comma-separated list of allowed origins
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:3002").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

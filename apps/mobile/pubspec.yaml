@@ -71,10 +71,7 @@ dependencies:
 
   # Deep Linking
   app_links: ^3.5.1
-
-  # Firebase (required for dynamic links)
-  firebase_core: ^3.8.1
-  firebase_dynamic_links: ^6.0.9
+  # Note: firebase_dynamic_links removed - not used, app_links handles deep linking
 
   # Camera & Photos
   image_picker: ^1.1.2

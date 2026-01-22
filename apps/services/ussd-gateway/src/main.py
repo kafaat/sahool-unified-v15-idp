@@ -90,15 +90,15 @@ app = FastAPI(
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
-# CORS - Configure allowed origins from environment
+# CORS - Configure via environment variable for security
 # In production, set CORS_ORIGINS to comma-separated list of allowed origins
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:3002").split(",")
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "").split(",") if os.getenv("CORS_ORIGINS") else []
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
+    allow_origins=CORS_ORIGINS or ["https://sahool.kafaat.io", "https://admin.sahool.kafaat.io"],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 

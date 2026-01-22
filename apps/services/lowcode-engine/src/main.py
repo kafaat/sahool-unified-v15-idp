@@ -21,7 +21,7 @@ from typing import Any
 from datetime import datetime
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Depends, Query, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -30,7 +30,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirna
 
 from shared.lowcode import (
     LowCodeEngine,
-    ComponentMaterial,
     ComponentCategory,
     DataModel,
     FieldDefinition,

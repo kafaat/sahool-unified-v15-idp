@@ -20,7 +20,7 @@ from typing import Any
 from datetime import datetime, date
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Depends, Query, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, EmailStr
 
@@ -36,8 +36,6 @@ from shared.crm import (
     DealStage,
     Interaction,
     InteractionType,
-    SupplyContract,
-    ContractStatus,
 )
 
 # Service configuration
@@ -191,7 +189,7 @@ interactions: dict[str, Interaction] = {}
 
 # Initialize services
 crm_service = FarmerCRMService()
-query_bot = FarmerQueryBot()
+query_bot = FarmerQueryBot(crm_service)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -610,7 +608,16 @@ def get_pipeline_stats(tenant_id: str = Query(...)):
     all_deals = list(deals.values())
 
     by_stage: dict[str, dict[str, Any]] = {}
-    for stage in DealStage:
+    stage_names_ar = {
+        "prospecting": "استكشاف",
+        "qualification": "تأهيل",
+        "negotiation": "تفاوض",
+        "contracted": "متعاقد",
+        "delivered": "مسلم",
+        "paid": "مدفوع",
+        "closed_lost": "خسارة",
+    }
+    for stage in list(DealStage):
         stage_deals = [d for d in all_deals if d.stage == stage]
         total_value = sum(
             (d.price_per_ton or 0) * d.expected_quantity_tons
@@ -619,18 +626,11 @@ def get_pipeline_stats(tenant_id: str = Query(...)):
         by_stage[stage.value] = {
             "count": len(stage_deals),
             "total_value": total_value,
-            "name_ar": {
-                "prospecting": "استكشاف",
-                "qualified": "مؤهل",
-                "proposal": "عرض",
-                "negotiation": "تفاوض",
-                "won": "فاز",
-                "lost": "خسر",
-            }.get(stage.value, stage.value),
+            "name_ar": stage_names_ar.get(stage.value, stage.value),
         }
 
     total_deals = len(all_deals)
-    won_deals = len([d for d in all_deals if d.stage == DealStage.WON])
+    won_deals = len([d for d in all_deals if d.stage == DealStage.PAID])
     total_value = sum(
         (d.price_per_ton or 0) * d.expected_quantity_tons
         for d in all_deals

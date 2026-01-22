@@ -18,7 +18,7 @@ import sys
 from contextlib import asynccontextmanager
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Depends, Query, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from datetime import datetime
@@ -28,12 +28,10 @@ from uuid import uuid4
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))))
 
 from shared.ai.agents import (
-    BaseAutonomousAgent,
     AgriculturalResearchAgent,
     FarmAdvisorAgent,
     PlannerAgent,
     AgentMode,
-    AgentState,
 )
 
 # Service configuration

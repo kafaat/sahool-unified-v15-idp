@@ -20,7 +20,7 @@ dependencies:
   drift: ^2.24.0
   sqlcipher_flutter_libs: ^0.6.1  # SQLCipher for encrypted database (includes SQLite)
   path_provider: ^2.1.5
-  path: ^1.9.1  # Updated for flutter_map_tile_caching compatibility
+  path: ^1.9.0  # Must match Flutter SDK version requirement
 
   # Network
   dio: ^5.7.0

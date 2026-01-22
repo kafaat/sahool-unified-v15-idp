@@ -58,7 +58,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-    - .env
+    - .env.example
 
   # Note: Using system fonts until custom fonts are available
   # To add custom fonts, download and place in assets/fonts/ directory:

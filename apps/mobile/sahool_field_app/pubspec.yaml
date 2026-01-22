@@ -132,7 +132,7 @@ flutter:
   generate: true  # Enable code generation for l10n
 
   assets:
-    - .env
+    - .env.example
     - assets/images/
     - assets/icons/
     - assets/icon/

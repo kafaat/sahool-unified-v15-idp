@@ -630,6 +630,10 @@ def service_urls() -> dict[str, str]:
         "equipment_service": "http://localhost:8101",
         "yield_engine": "http://localhost:3021",
         "provider_config": "http://localhost:8104",
+        # Platform Integration Services
+        "ai_agents_service": "http://localhost:8130",
+        "crm_service": "http://localhost:8131",
+        "lowcode_engine": "http://localhost:8132",
     }
 
 
@@ -1001,3 +1005,391 @@ def mock_redis_connection():
         return mock
     except ImportError:
         return None
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Platform Integration Service Fixtures - إعدادات خدمات التكامل
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@pytest.fixture
+async def ai_agents_client(
+    http_client: AsyncClient, service_urls: dict[str, str], auth_headers: dict[str, str]
+) -> AsyncClient:
+    """
+    HTTP client for AI Agents Service
+    عميل HTTP لخدمة الوكلاء الذكية
+    """
+    base_url = service_urls.get("ai_agents_service", "http://localhost:8130")
+    http_client.base_url = base_url
+    http_client.headers.update(auth_headers)
+    return http_client
+
+
+@pytest.fixture
+async def crm_client(
+    http_client: AsyncClient, service_urls: dict[str, str], auth_headers: dict[str, str]
+) -> AsyncClient:
+    """
+    HTTP client for CRM Service
+    عميل HTTP لخدمة إدارة علاقات المزارعين
+    """
+    base_url = service_urls.get("crm_service", "http://localhost:8131")
+    http_client.base_url = base_url
+    http_client.headers.update(auth_headers)
+    return http_client
+
+
+@pytest.fixture
+async def lowcode_client(
+    http_client: AsyncClient, service_urls: dict[str, str], auth_headers: dict[str, str]
+) -> AsyncClient:
+    """
+    HTTP client for Low-Code Engine Service
+    عميل HTTP لمحرك التطوير منخفض الكود
+    """
+    base_url = service_urls.get("lowcode_engine", "http://localhost:8132")
+    http_client.base_url = base_url
+    http_client.headers.update(auth_headers)
+    return http_client
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Platform Integration Test Data Factories - مصانع بيانات اختبارات التكامل
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class AgentExecutionFactory:
+    """Factory for creating AI agent execution test data - مصنع لإنشاء بيانات تنفيذ الوكلاء الذكية"""
+
+    @staticmethod
+    def create(
+        agent_type: str = "farm_advisor",
+        mode: str = "hybrid",
+        tenant_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Create an agent execution request - إنشاء طلب تنفيذ وكيل"""
+        return {
+            "task": "Analyze field conditions and recommend next actions",
+            "task_ar": "تحليل ظروف الحقل واقتراح الإجراءات التالية",
+            "agent_type": agent_type,
+            "mode": mode,
+            "context": {
+                "crop_type": "wheat",
+                "growth_stage": "tillering",
+                "soil_moisture": 45.0,
+            },
+            "tenant_id": tenant_id or f"test-tenant-{faker_en.uuid4()[:8]}",
+            "field_id": f"field-{faker_en.uuid4()[:8]}",
+        }
+
+
+class FarmerCRMFactory:
+    """Factory for creating farmer CRM test data - مصنع لإنشاء بيانات CRM للمزارعين"""
+
+    @staticmethod
+    def create(tenant_id: str | None = None) -> dict[str, Any]:
+        """Create a farmer CRM record - إنشاء سجل CRM للمزارع"""
+        unique_id = faker_en.uuid4()[:8]
+        return {
+            "name": f"Test Farmer {unique_id}",
+            "name_ar": f"مزارع اختبار {unique_id}",
+            "phone": f"+9677{faker_en.random_int(1000000, 9999999)}",
+            "email": f"farmer_{unique_id}@test.sahool.com",
+            "national_id": f"ID{unique_id}",
+            "farm_location": "Sana'a, Yemen",
+            "farm_location_ar": "صنعاء، اليمن",
+            "farm_size_hectares": faker_en.pyfloat(min_value=1.0, max_value=50.0, right_digits=1),
+            "primary_crops": ["wheat", "barley"],
+            "tenant_id": tenant_id or f"test-tenant-{faker_en.uuid4()[:8]}",
+        }
+
+
+class HarvestDealFactory:
+    """Factory for creating harvest deal test data - مصنع لإنشاء بيانات صفقات الحصاد"""
+
+    @staticmethod
+    def create(farmer_id: str, crop_type: str = "wheat") -> dict[str, Any]:
+        """Create a harvest deal - إنشاء صفقة حصاد"""
+        return {
+            "farmer_id": farmer_id,
+            "crop_type": crop_type,
+            "crop_type_ar": "قمح" if crop_type == "wheat" else crop_type,
+            "expected_quantity_tons": faker_en.pyfloat(min_value=10.0, max_value=100.0, right_digits=1),
+            "expected_harvest_date": (datetime.utcnow() + timedelta(days=90)).strftime("%Y-%m-%d"),
+            "price_per_ton": faker_en.pyfloat(min_value=400.0, max_value=600.0, right_digits=2),
+            "notes": "Test harvest deal",
+            "notes_ar": "صفقة حصاد اختبار",
+        }
+
+
+class LowCodePageFactory:
+    """Factory for creating low-code page test data - مصنع لإنشاء بيانات صفحات التطوير منخفض الكود"""
+
+    @staticmethod
+    def create(tenant_id: str | None = None) -> dict[str, Any]:
+        """Create a low-code page - إنشاء صفحة تطوير منخفض الكود"""
+        unique_id = faker_en.uuid4()[:8]
+        return {
+            "name": f"TestPage{unique_id}",
+            "name_ar": f"صفحة اختبار {unique_id}",
+            "description": "Test page for integration testing",
+            "route": f"/test/{unique_id}",
+            "blocks": [
+                {
+                    "id": str(faker_en.uuid4()),
+                    "component_name": "field_map",
+                    "props": {"zoom": 12},
+                    "children": [],
+                },
+            ],
+            "tenant_id": tenant_id or f"test-tenant-{faker_en.uuid4()[:8]}",
+        }
+
+
+class LowCodeDataModelFactory:
+    """Factory for creating low-code data model test data - مصنع لإنشاء بيانات نماذج التطوير منخفض الكود"""
+
+    @staticmethod
+    def create(tenant_id: str | None = None) -> dict[str, Any]:
+        """Create a data model - إنشاء نموذج بيانات"""
+        unique_id = faker_en.uuid4()[:8]
+        return {
+            "name": f"TestModel{unique_id}",
+            "name_ar": f"نموذج اختبار {unique_id}",
+            "description": "Test data model",
+            "fields": [
+                {"name": "field_name", "type": "string", "required": True},
+                {"name": "area_hectares", "type": "number", "required": True},
+            ],
+            "tenant_id": tenant_id or f"test-tenant-{faker_en.uuid4()[:8]}",
+        }
+
+
+@pytest.fixture
+def agent_execution_factory() -> AgentExecutionFactory:
+    """Agent execution factory - مصنع تنفيذ الوكلاء"""
+    return AgentExecutionFactory()
+
+
+@pytest.fixture
+def farmer_crm_factory() -> FarmerCRMFactory:
+    """Farmer CRM factory - مصنع CRM المزارعين"""
+    return FarmerCRMFactory()
+
+
+@pytest.fixture
+def harvest_deal_factory() -> HarvestDealFactory:
+    """Harvest deal factory - مصنع صفقات الحصاد"""
+    return HarvestDealFactory()
+
+
+@pytest.fixture
+def lowcode_page_factory() -> LowCodePageFactory:
+    """Low-code page factory - مصنع صفحات التطوير منخفض الكود"""
+    return LowCodePageFactory()
+
+
+@pytest.fixture
+def lowcode_data_model_factory() -> LowCodeDataModelFactory:
+    """Low-code data model factory - مصنع نماذج التطوير منخفض الكود"""
+    return LowCodeDataModelFactory()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# NATS Event Helpers - مساعدات أحداث NATS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class NATSEventCollector:
+    """
+    Helper class for collecting NATS events during tests.
+    فئة مساعدة لتجميع أحداث NATS أثناء الاختبارات
+    """
+
+    def __init__(self):
+        self.events: list[dict[str, Any]] = []
+        self.subscriptions: list[Any] = []
+
+    async def subscribe(self, nats_client, subject: str) -> None:
+        """Subscribe to a NATS subject and collect events."""
+        import json
+
+        async def handler(msg):
+            try:
+                data = json.loads(msg.data.decode())
+                self.events.append({
+                    "subject": msg.subject,
+                    "data": data,
+                    "timestamp": datetime.utcnow().isoformat(),
+                })
+            except Exception:
+                pass
+
+        sub = await nats_client.subscribe(subject, cb=handler)
+        self.subscriptions.append(sub)
+
+    async def unsubscribe_all(self) -> None:
+        """Unsubscribe from all subjects."""
+        for sub in self.subscriptions:
+            try:
+                await sub.unsubscribe()
+            except Exception:
+                pass
+        self.subscriptions = []
+
+    def get_events(self, event_type: str | None = None) -> list[dict[str, Any]]:
+        """Get collected events, optionally filtered by type."""
+        if event_type:
+            return [
+                e for e in self.events
+                if e.get("data", {}).get("event_type") == event_type
+            ]
+        return self.events
+
+    def clear(self) -> None:
+        """Clear collected events."""
+        self.events = []
+
+
+@pytest.fixture
+def nats_event_collector() -> NATSEventCollector:
+    """NATS event collector - مجمع أحداث NATS"""
+    return NATSEventCollector()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Redis Connection Fixture - إعداد اتصال Redis
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@pytest.fixture(scope="session")
+async def redis_client(test_config: TestConfig):
+    """
+    Redis client for integration tests.
+    عميل Redis لاختبارات التكامل
+    """
+    try:
+        import redis.asyncio as redis
+
+        client = redis.from_url(test_config.redis_url)
+
+        # Wait for Redis to be ready
+        max_retries = 30
+        for attempt in range(max_retries):
+            try:
+                await client.ping()
+                yield client
+                await client.close()
+                return
+            except Exception:
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(2)
+                else:
+                    raise
+
+    except ImportError:
+        # Redis client not installed, yield mock
+        from unittest.mock import AsyncMock
+
+        yield AsyncMock()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Enhanced JWT Token Generation - توليد رموز JWT محسّنة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@pytest.fixture
+def generate_jwt_token(test_config: TestConfig):
+    """
+    Factory to generate JWT tokens with custom claims.
+    مصنع لتوليد رموز JWT مع مطالبات مخصصة
+    """
+    def _generate(
+        user_id: str = "test-user-123",
+        tenant_id: str = "test-tenant-123",
+        role: str = "farmer",
+        expires_in_hours: int = 1,
+    ) -> str:
+        try:
+            import jwt
+
+            payload = {
+                "sub": user_id,
+                "tenant_id": tenant_id,
+                "role": role,
+                "exp": datetime.utcnow() + timedelta(hours=expires_in_hours),
+                "iat": datetime.utcnow(),
+            }
+
+            return jwt.encode(payload, test_config.jwt_secret, algorithm="HS256")
+        except ImportError:
+            return f"mock-jwt-{user_id}-{tenant_id}-{role}"
+
+    return _generate
+
+
+@pytest.fixture
+def auth_headers_for_tenant(generate_jwt_token):
+    """
+    Factory to generate auth headers for a specific tenant.
+    مصنع لتوليد رؤوس المصادقة لمستأجر محدد
+    """
+    def _headers(tenant_id: str, user_id: str | None = None, role: str = "farmer") -> dict[str, str]:
+        token = generate_jwt_token(
+            user_id=user_id or f"user-{tenant_id}",
+            tenant_id=tenant_id,
+            role=role,
+        )
+        return {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-Tenant-ID": tenant_id,
+        }
+
+    return _headers
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Database Cleanup Helpers - مساعدات تنظيف قاعدة البيانات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@pytest.fixture
+async def cleanup_test_tenant(db_cursor):
+    """
+    Cleanup function to remove test data for a specific tenant.
+    دالة تنظيف لإزالة بيانات الاختبار لمستأجر محدد
+    """
+    tenants_to_cleanup = []
+
+    def register_tenant(tenant_id: str):
+        tenants_to_cleanup.append(tenant_id)
+        return tenant_id
+
+    yield register_tenant
+
+    # Cleanup after test
+    for tenant_id in tenants_to_cleanup:
+        try:
+            # Clean platform integration tables
+            tables = [
+                "agent_executions",
+                "interactions",
+                "harvest_deals",
+                "farmers",
+                "lowcode_pages",
+                "lowcode_data_models",
+            ]
+            for table in tables:
+                try:
+                    db_cursor.execute(
+                        f"DELETE FROM {table} WHERE tenant_id = %s",
+                        (tenant_id,)
+                    )
+                except Exception:
+                    pass
+        except Exception:
+            pass

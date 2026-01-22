@@ -14,6 +14,7 @@ Features:
 Port: 8132
 """
 
+import json
 import os
 import sys
 from contextlib import asynccontextmanager
@@ -21,9 +22,19 @@ from typing import Any
 from datetime import datetime
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Query
+import redis.asyncio as redis_client
+import structlog
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
+# Authentication imports
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))))
@@ -44,6 +55,61 @@ SERVICE_NAME = "lowcode-engine"
 SERVICE_NAME_AR = "محرك التطوير منخفض الكود"
 SERVICE_VERSION = "16.0.0"
 SERVICE_PORT = 8132
+
+# Logger
+logger = structlog.get_logger()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Error Response Model & Custom Exceptions
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class ErrorResponse(BaseModel):
+    """Standardized error response model"""
+    error: str
+    error_ar: str | None = None
+    error_code: str
+    detail: str | None = None
+    request_id: str | None = None
+
+
+class ServiceUnavailableError(Exception):
+    """Raised when a required service (DB, NATS) is unavailable"""
+    def __init__(self, service: str, message: str = "Service unavailable"):
+        self.service = service
+        self.message = message
+        super().__init__(self.message)
+
+
+class ResourceNotFoundError(Exception):
+    """Raised when a requested resource is not found"""
+    def __init__(self, resource_type: str, resource_id: str):
+        self.resource_type = resource_type
+        self.resource_id = resource_id
+        self.message = f"{resource_type} not found: {resource_id}"
+        super().__init__(self.message)
+
+
+class TenantAccessDeniedError(Exception):
+    """Raised when tenant access is denied"""
+    def __init__(self, tenant_id: str):
+        self.tenant_id = tenant_id
+        self.message = "Access denied: tenant mismatch"
+        super().__init__(self.message)
+
+
+class InvalidBlockConfigError(Exception):
+    """Raised when a block configuration is invalid"""
+    def __init__(self, block_id: str, reason: str):
+        self.block_id = block_id
+        self.reason = reason
+        self.message = f"Invalid block configuration for {block_id}: {reason}"
+        super().__init__(self.message)
+
+
+def get_request_id(request: Request) -> str | None:
+    """Extract or generate request ID from request"""
+    return getattr(request.state, "request_id", None) or request.headers.get("X-Request-ID")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -159,6 +225,21 @@ async def lifespan(app: FastAPI):
     # Startup
     print(f"🚀 Starting {SERVICE_NAME} v{SERVICE_VERSION}")
 
+    # Initialize Redis connection (if available)
+    redis_url = os.getenv("REDIS_URL")
+    if redis_url:
+        try:
+            app.state.redis = redis_client.from_url(redis_url, decode_responses=True)
+            app.state.redis_connected = True
+            print(f"✅ Redis connected: {redis_url}")
+        except Exception as e:
+            print(f"⚠️ Redis connection failed: {e}")
+            app.state.redis = None
+            app.state.redis_connected = False
+    else:
+        app.state.redis = None
+        app.state.redis_connected = False
+
     # Initialize NATS publisher (if available)
     nats_url = os.getenv("NATS_URL")
     if nats_url:
@@ -200,11 +281,60 @@ async def lifespan(app: FastAPI):
     yield
 
     # Shutdown
+    if hasattr(app.state, "redis") and app.state.redis:
+        await app.state.redis.close()
     if hasattr(app.state, "publisher") and app.state.publisher:
         await app.state.publisher.close()
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         await app.state.db_pool.close()
     print(f"👋 {SERVICE_NAME} shutdown complete")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Redis Cache Helpers
+# ═══════════════════════════════════════════════════════════════════════════════
+
+async def cache_get(key: str) -> dict | None:
+    """Get value from Redis cache."""
+    if hasattr(app.state, "redis") and app.state.redis:
+        try:
+            data = await app.state.redis.get(key)
+            if data:
+                return json.loads(data)
+        except Exception as e:
+            logger.warning("cache_get_error", key=key, error=str(e))
+    return None
+
+
+async def cache_set(key: str, value: dict, ttl: int = 300):
+    """Set value in Redis cache with TTL (default 5 minutes)."""
+    if hasattr(app.state, "redis") and app.state.redis:
+        try:
+            await app.state.redis.setex(key, ttl, json.dumps(value, default=str))
+        except Exception as e:
+            logger.warning("cache_set_error", key=key, error=str(e))
+
+
+async def cache_delete(key: str):
+    """Delete value from Redis cache."""
+    if hasattr(app.state, "redis") and app.state.redis:
+        try:
+            await app.state.redis.delete(key)
+        except Exception as e:
+            logger.warning("cache_delete_error", key=key, error=str(e))
+
+
+async def cache_delete_pattern(pattern: str):
+    """Delete all keys matching a pattern from Redis cache."""
+    if hasattr(app.state, "redis") and app.state.redis:
+        try:
+            keys = []
+            async for key in app.state.redis.scan_iter(match=pattern):
+                keys.append(key)
+            if keys:
+                await app.state.redis.delete(*keys)
+        except Exception as e:
+            logger.warning("cache_delete_pattern_error", pattern=pattern, error=str(e))
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -220,14 +350,273 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# CORS middleware
+# ═══════════════════════════════════════════════════════════════════════════════
+# Rate Limiting Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+
+
+def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+    """Custom handler for rate limit exceeded errors (429)"""
+    request_id = get_request_id(request)
+    logger.warning(
+        "rate_limit_exceeded",
+        path=request.url.path,
+        request_id=request_id,
+        detail=str(exc.detail),
+    )
+    return JSONResponse(
+        status_code=429,
+        content=ErrorResponse(
+            error="Rate limit exceeded",
+            error_ar="تم تجاوز الحد الأقصى للطلبات",
+            error_code="RATE_LIMIT_EXCEEDED",
+            detail=str(exc.detail),
+            request_id=request_id,
+        ).model_dump(),
+        headers={"Retry-After": "60"},
+    )
+
+
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Request ID Middleware
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.middleware("http")
+async def add_request_id_middleware(request: Request, call_next):
+    """Add request ID to all requests for tracing"""
+    request_id = request.headers.get("X-Request-ID") or str(uuid4())
+    request.state.request_id = request_id
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
+    return response
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Exception Handlers
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.exception_handler(ValueError)
+async def value_error_handler(request: Request, exc: ValueError) -> JSONResponse:
+    """Handle validation errors (400)"""
+    request_id = get_request_id(request)
+    logger.warning(
+        "validation_error",
+        path=request.url.path,
+        request_id=request_id,
+        error=str(exc),
+    )
+    return JSONResponse(
+        status_code=400,
+        content=ErrorResponse(
+            error="Validation error",
+            error_ar="خطأ في التحقق",
+            error_code="VALIDATION_ERROR",
+            detail=str(exc),
+            request_id=request_id,
+        ).model_dump(),
+    )
+
+
+@app.exception_handler(ResourceNotFoundError)
+async def resource_not_found_handler(request: Request, exc: ResourceNotFoundError) -> JSONResponse:
+    """Handle resource not found errors (404)"""
+    request_id = get_request_id(request)
+    logger.info(
+        "resource_not_found",
+        path=request.url.path,
+        request_id=request_id,
+        resource_type=exc.resource_type,
+        resource_id=exc.resource_id,
+    )
+    return JSONResponse(
+        status_code=404,
+        content=ErrorResponse(
+            error="Resource not found",
+            error_ar="المورد غير موجود",
+            error_code="NOT_FOUND",
+            detail=exc.message,
+            request_id=request_id,
+        ).model_dump(),
+    )
+
+
+@app.exception_handler(TenantAccessDeniedError)
+async def tenant_access_denied_handler(request: Request, exc: TenantAccessDeniedError) -> JSONResponse:
+    """Handle tenant access denied errors (403)"""
+    request_id = get_request_id(request)
+    logger.warning(
+        "tenant_access_denied",
+        path=request.url.path,
+        request_id=request_id,
+        tenant_id=exc.tenant_id,
+    )
+    return JSONResponse(
+        status_code=403,
+        content=ErrorResponse(
+            error="Access denied",
+            error_ar="تم رفض الوصول",
+            error_code="FORBIDDEN",
+            detail="Tenant mismatch | عدم تطابق المستأجر",
+            request_id=request_id,
+        ).model_dump(),
+    )
+
+
+@app.exception_handler(InvalidBlockConfigError)
+async def invalid_block_config_handler(request: Request, exc: InvalidBlockConfigError) -> JSONResponse:
+    """Handle invalid block configuration errors (400)"""
+    request_id = get_request_id(request)
+    logger.warning(
+        "invalid_block_config",
+        path=request.url.path,
+        request_id=request_id,
+        block_id=exc.block_id,
+        reason=exc.reason,
+    )
+    return JSONResponse(
+        status_code=400,
+        content=ErrorResponse(
+            error="Invalid block configuration",
+            error_ar="تكوين كتلة غير صالح",
+            error_code="INVALID_BLOCK_CONFIG",
+            detail=exc.message,
+            request_id=request_id,
+        ).model_dump(),
+    )
+
+
+@app.exception_handler(ServiceUnavailableError)
+async def service_unavailable_handler(request: Request, exc: ServiceUnavailableError) -> JSONResponse:
+    """Handle service unavailable errors (503)"""
+    request_id = get_request_id(request)
+    logger.error(
+        "service_unavailable",
+        path=request.url.path,
+        request_id=request_id,
+        service=exc.service,
+        error=exc.message,
+    )
+    return JSONResponse(
+        status_code=503,
+        content=ErrorResponse(
+            error="Service unavailable",
+            error_ar="الخدمة غير متاحة",
+            error_code="SERVICE_UNAVAILABLE",
+            detail=f"{exc.service} is unavailable",
+            request_id=request_id,
+        ).model_dump(),
+    )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    """Handle HTTP exceptions with consistent format"""
+    request_id = get_request_id(request)
+    error_codes = {
+        400: ("BAD_REQUEST", "طلب غير صالح"),
+        401: ("UNAUTHORIZED", "غير مصرح"),
+        403: ("FORBIDDEN", "ممنوع"),
+        404: ("NOT_FOUND", "غير موجود"),
+        409: ("CONFLICT", "تعارض"),
+        429: ("RATE_LIMIT_EXCEEDED", "تم تجاوز الحد"),
+        500: ("INTERNAL_ERROR", "خطأ داخلي"),
+        503: ("SERVICE_UNAVAILABLE", "الخدمة غير متاحة"),
+    }
+    error_code, error_ar = error_codes.get(exc.status_code, ("ERROR", "خطأ"))
+
+    if exc.status_code >= 500:
+        logger.error("http_exception", status_code=exc.status_code, path=request.url.path, request_id=request_id, detail=exc.detail)
+    else:
+        logger.warning("http_exception", status_code=exc.status_code, path=request.url.path, request_id=request_id, detail=exc.detail)
+
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=ErrorResponse(
+            error=str(exc.detail),
+            error_ar=error_ar,
+            error_code=error_code,
+            detail=str(exc.detail),
+            request_id=request_id,
+        ).model_dump(),
+    )
+
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Handle all unhandled exceptions (500)"""
+    request_id = get_request_id(request)
+    logger.error(
+        "unhandled_exception",
+        path=request.url.path,
+        request_id=request_id,
+        error=str(exc),
+        error_type=type(exc).__name__,
+        exc_info=True,
+    )
+    return JSONResponse(
+        status_code=500,
+        content=ErrorResponse(
+            error="Internal server error",
+            error_ar="خطأ داخلي في الخادم",
+            error_code="INTERNAL_ERROR",
+            detail="An unexpected error occurred",
+            request_id=request_id,
+        ).model_dump(),
+    )
+
+
+# CORS middleware - Get allowed origins from environment
+cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
 )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Tenant Validation Helper
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def validate_tenant_access(user: User, tenant_id: str) -> None:
+    """
+    Validate that user has access to the specified tenant.
+    Raises TenantAccessDeniedError if tenant_id doesn't match user's tenant.
+    """
+    if user.tenant_id and user.tenant_id != tenant_id:
+        raise TenantAccessDeniedError(tenant_id=tenant_id)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# NATS Event Publishing
+# ═══════════════════════════════════════════════════════════════════════════════
+
+async def publish_event(subject: str, data: dict) -> None:
+    """
+    Publish an event to NATS.
+
+    Args:
+        subject: NATS subject (e.g., sahool.{tenant_id}.lowcode.page.created)
+        data: Event payload data
+    """
+    if hasattr(app.state, "publisher") and app.state.publisher:
+        try:
+            await app.state.publisher.publish(
+                subject,
+                json.dumps(data).encode()
+            )
+            logger.info("event_published", subject=subject)
+        except Exception as e:
+            logger.error("event_publish_failed", subject=subject, error=str(e))
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -251,6 +640,7 @@ def readiness():
     return {
         "status": "ok",
         "database": getattr(app.state, "db_connected", False),
+        "redis": getattr(app.state, "redis_connected", False),
         "nats": getattr(app.state, "nats_connected", False),
         "components_loaded": len(lowcode_engine.list_components()) > 0,
     }
@@ -265,6 +655,7 @@ def health_detailed():
         "service_ar": SERVICE_NAME_AR,
         "version": SERVICE_VERSION,
         "database_connected": getattr(app.state, "db_connected", False),
+        "redis_connected": getattr(app.state, "redis_connected", False),
         "nats_connected": getattr(app.state, "nats_connected", False),
         "components_count": len(lowcode_engine.list_components()),
         "data_models_count": len(data_models),
@@ -277,16 +668,23 @@ def health_detailed():
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @app.get("/api/v1/components", response_model=list[ComponentResponse], tags=["Components"])
-def list_components(
+async def list_components(
     category: str | None = Query(None, description="Filter by category"),
 ):
     """List available components | قائمة المكونات المتاحة"""
+    cache_key = f"lowcode:components:{category or 'all'}"
+
+    # Try to get from cache first
+    cached = await cache_get(cache_key)
+    if cached:
+        return [ComponentResponse(**c) for c in cached]
+
     components = lowcode_engine.list_components()
 
     if category:
         components = [c for c in components if c.category.value == category]
 
-    return [
+    result = [
         ComponentResponse(
             component_id=c.component_id,
             name=c.name,
@@ -303,13 +701,18 @@ def list_components(
         for c in components
     ]
 
+    # Cache the result (longer TTL since components are static)
+    await cache_set(cache_key, [r.model_dump() for r in result], ttl=3600)
+
+    return result
+
 
 @app.get("/api/v1/components/{component_name}", response_model=ComponentResponse, tags=["Components"])
 def get_component(component_name: str):
     """Get component by name | الحصول على مكون بالاسم"""
     component = lowcode_engine.get_component(component_name)
     if not component:
-        raise HTTPException(status_code=404, detail="Component not found")
+        raise ResourceNotFoundError(resource_type="Component", resource_id=component_name)
 
     return ComponentResponse(
         component_id=component.component_id,
@@ -423,7 +826,7 @@ def list_data_models(
 def get_data_model(model_id: str):
     """Get data model by ID | الحصول على نموذج بيانات بالمعرف"""
     if model_id not in data_models:
-        raise HTTPException(status_code=404, detail="Data model not found")
+        raise ResourceNotFoundError(resource_type="DataModel", resource_id=model_id)
 
     m = data_models[model_id]
     return DataModelResponse(
@@ -523,13 +926,20 @@ def list_pages(
 
 
 @app.get("/api/v1/pages/{page_id}", response_model=PageResponse, tags=["Pages"])
-def get_page(page_id: str):
+async def get_page(page_id: str):
     """Get page by ID | الحصول على صفحة بالمعرف"""
+    cache_key = f"lowcode:page:{page_id}"
+
+    # Try to get from cache first
+    cached = await cache_get(cache_key)
+    if cached:
+        return PageResponse(**cached)
+
     if page_id not in pages:
-        raise HTTPException(status_code=404, detail="Page not found")
+        raise ResourceNotFoundError(resource_type="Page", resource_id=page_id)
 
     p = pages[page_id]
-    return PageResponse(
+    response = PageResponse(
         id=p.id,
         name=p.name,
         name_ar=p.name_ar,
@@ -543,16 +953,24 @@ def get_page(page_id: str):
         updated_at=p.updated_at,
     )
 
+    # Cache the result
+    await cache_set(cache_key, response.model_dump(), ttl=300)
+
+    return response
+
 
 @app.post("/api/v1/pages/{page_id}/publish", response_model=PageResponse, tags=["Pages"])
-def publish_page(page_id: str):
+async def publish_page(page_id: str):
     """Publish a page | نشر صفحة"""
     if page_id not in pages:
-        raise HTTPException(status_code=404, detail="Page not found")
+        raise ResourceNotFoundError(resource_type="Page", resource_id=page_id)
 
     p = pages[page_id]
     p.is_published = True
     p.updated_at = datetime.utcnow()
+
+    # Invalidate cache for this page
+    await cache_delete(f"lowcode:page:{page_id}")
 
     return PageResponse(
         id=p.id,
@@ -577,7 +995,7 @@ def render_page(page_id: str, data: str | None = Query(None)):
     عرض صفحة مع البيانات
     """
     if page_id not in pages:
-        raise HTTPException(status_code=404, detail="Page not found")
+        raise ResourceNotFoundError(resource_type="Page", resource_id=page_id)
 
     p = pages[page_id]
 
@@ -707,7 +1125,7 @@ async def generate_page_from_template(
     }
 
     if template_id not in templates:
-        raise HTTPException(status_code=404, detail="Template not found")
+        raise ResourceNotFoundError(resource_type="Template", resource_id=template_id)
 
     template = templates[template_id]
     page_id = str(uuid4())

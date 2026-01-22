@@ -2785,9 +2785,14 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - NATS_URL=${NATS_URL:-nats://nats:4222}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://sahool:sahool@pgbouncer:6432/sahool}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-development-secret-key-min-32-chars}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "8130:8130"
     depends_on:
+      pgbouncer:
+        condition: service_healthy
       redis:
         condition: service_healthy
       nats:

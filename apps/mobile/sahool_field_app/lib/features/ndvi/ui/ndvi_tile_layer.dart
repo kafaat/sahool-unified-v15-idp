@@ -82,7 +82,7 @@ class NdviTileLayerWidget extends StatelessWidget {
         additionalOptions: {
           if (config.apiKey != null) 'apiKey': config.apiKey!,
         },
-        tileSize: config.tileSize.toDouble(),
+        tileDimension: config.tileSize,  // Updated from deprecated tileSize
         minZoom: config.minZoom.toDouble(),
         maxZoom: config.maxZoom.toDouble(),
         backgroundColor: Colors.transparent,

@@ -83,10 +83,10 @@ class ServiceUnavailableError(Exception):
 
 class ResourceNotFoundError(Exception):
     """Raised when a requested resource is not found"""
-    def __init__(self, resource_type: str, resource_id: str):
+    def __init__(self, resource_type: str, resource_id: str = ""):
         self.resource_type = resource_type
         self.resource_id = resource_id
-        self.message = f"{resource_type} not found: {resource_id}"
+        self.message = f"{resource_type} not found"
         super().__init__(self.message)
 
 
@@ -204,11 +204,71 @@ class AISuggestionResponse(BaseModel):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Internal Storage Dataclasses
+# These match the API format (id, field_type, component_name) for easier response handling
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from dataclasses import dataclass as internal_dataclass, field as internal_field
+
+
+@internal_dataclass
+class InternalFieldDefinition:
+    """Internal field definition matching API format."""
+    name: str
+    name_ar: str | None = None
+    field_type: str = "text"
+    required: bool = False
+    default_value: Any = None
+    options: list[str] | None = None
+    validation: dict[str, Any] | None = None
+
+
+@internal_dataclass
+class InternalDataModel:
+    """Internal data model matching API format (uses 'id' instead of 'model_id')."""
+    id: str
+    name: str
+    name_ar: str | None = None
+    description: str | None = None
+    description_ar: str | None = None
+    fields: list[dict[str, Any]] = internal_field(default_factory=list)
+    created_at: datetime = internal_field(default_factory=datetime.utcnow)
+    updated_at: datetime = internal_field(default_factory=datetime.utcnow)
+
+
+@internal_dataclass
+class InternalBlock:
+    """Internal block config matching API format (uses 'id' and 'component_name')."""
+    id: str
+    component_name: str
+    props: dict[str, Any] = internal_field(default_factory=dict)
+    children: list[dict[str, Any]] = internal_field(default_factory=list)
+    conditions: dict[str, Any] | None = None
+    loop: dict[str, Any] | None = None
+
+
+@internal_dataclass
+class InternalPage:
+    """Internal page definition matching API format (uses 'id' instead of 'page_id')."""
+    id: str
+    name: str
+    name_ar: str | None = None
+    description: str | None = None
+    route: str = "/"
+    blocks: list[InternalBlock] = internal_field(default_factory=list)
+    data_model_id: str | None = None
+    is_published: bool = False
+    version: int = 1
+    created_at: datetime = internal_field(default_factory=datetime.utcnow)
+    updated_at: datetime = internal_field(default_factory=datetime.utcnow)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # In-memory storage (replace with database in production)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-data_models: dict[str, DataModel] = {}
-pages: dict[str, PageDefinition] = {}
+data_models: dict[str, InternalDataModel] = {}
+pages: dict[str, InternalPage] = {}
 
 # Initialize Low-Code Engine (includes built-in components)
 lowcode_engine = LowCodeEngine(tenant_id="sahool")
@@ -693,7 +753,7 @@ async def list_components(
             description=c.description,
             description_ar=c.description_ar,
             props=[{"name": p.name, "type": p.type, "default": p.default} for p in c.props],
-            slots=[{"name": s.name, "title": s.title} for s in c.slots],
+            slots=[{"name": s.name, "title": s.name_ar} for s in c.slots],
             events=[{"name": e.name, "description": e.description} for e in c.events],
             is_container=c.is_container,
             icon=c.icon,
@@ -705,28 +765,6 @@ async def list_components(
     await cache_set(cache_key, [r.model_dump() for r in result], ttl=3600)
 
     return result
-
-
-@app.get("/api/v1/components/{component_name}", response_model=ComponentResponse, tags=["Components"])
-def get_component(component_name: str):
-    """Get component by name | الحصول على مكون بالاسم"""
-    component = lowcode_engine.get_component(component_name)
-    if not component:
-        raise ResourceNotFoundError(resource_type="Component", resource_id=component_name)
-
-    return ComponentResponse(
-        component_id=component.component_id,
-        name=component.name,
-        name_ar=component.name_ar,
-        category=component.category.value,
-        description=component.description,
-        description_ar=component.description_ar,
-        props=[{"name": p.name, "type": p.type, "default": p.default} for p in component.props],
-        slots=[{"name": s.name, "title": s.title} for s in component.slots],
-        events=[{"name": e.name, "description": e.description} for e in component.events],
-        is_container=component.is_container,
-        icon=component.icon,
-    )
 
 
 @app.get("/api/v1/components/categories", tags=["Components"])
@@ -750,6 +788,29 @@ def list_categories():
     ]
 
 
+@app.get("/api/v1/components/{component_name}", response_model=ComponentResponse, tags=["Components"])
+def get_component(component_name: str):
+    """Get component by name | الحصول على مكون بالاسم"""
+    component = lowcode_engine.get_component(component_name)
+
+    if not component:
+        raise ResourceNotFoundError(resource_type="Component", resource_id=component_name)
+
+    return ComponentResponse(
+        component_id=component.component_id,
+        name=component.name,
+        name_ar=component.name_ar,
+        category=component.category.value,
+        description=component.description,
+        description_ar=component.description_ar,
+        props=[{"name": p.name, "type": p.type, "default": p.default} for p in component.props],
+        slots=[{"name": s.name, "title": s.name_ar} for s in component.slots],
+        events=[{"name": e.name, "description": e.description} for e in component.events],
+        is_container=component.is_container,
+        icon=component.icon,
+    )
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Data Model Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -760,21 +821,21 @@ async def create_data_model(request: DataModelCreateRequest):
     model_id = str(uuid4())
     now = datetime.utcnow()
 
-    # Parse fields
+    # Parse fields - keep as dict for internal storage
     fields = []
     for field_data in request.fields:
-        field = FieldDefinition(
-            name=field_data["name"],
-            name_ar=field_data.get("name_ar"),
-            field_type=FieldType(field_data.get("field_type", "text")),
-            required=field_data.get("required", False),
-            default_value=field_data.get("default_value"),
-            options=field_data.get("options"),
-            validation=field_data.get("validation"),
-        )
-        fields.append(field)
+        field_dict = {
+            "name": field_data["name"],
+            "name_ar": field_data.get("name_ar"),
+            "field_type": field_data.get("field_type", "text"),
+            "required": field_data.get("required", False),
+            "default_value": field_data.get("default_value"),
+            "options": field_data.get("options"),
+            "validation": field_data.get("validation"),
+        }
+        fields.append(field_dict)
 
-    model = DataModel(
+    model = InternalDataModel(
         id=model_id,
         name=request.name,
         name_ar=request.name_ar,
@@ -793,7 +854,7 @@ async def create_data_model(request: DataModelCreateRequest):
         name_ar=model.name_ar,
         description=model.description,
         description_ar=model.description_ar,
-        fields=[f.model_dump() for f in model.fields],
+        fields=model.fields,
         created_at=model.created_at,
         updated_at=model.updated_at,
     )
@@ -814,7 +875,7 @@ def list_data_models(
             name_ar=m.name_ar,
             description=m.description,
             description_ar=m.description_ar,
-            fields=[f.model_dump() for f in m.fields],
+            fields=m.fields,
             created_at=m.created_at,
             updated_at=m.updated_at,
         )
@@ -826,7 +887,7 @@ def list_data_models(
 def get_data_model(model_id: str):
     """Get data model by ID | الحصول على نموذج بيانات بالمعرف"""
     if model_id not in data_models:
-        raise ResourceNotFoundError(resource_type="DataModel", resource_id=model_id)
+        raise ResourceNotFoundError(resource_type="Data model", resource_id=model_id)
 
     m = data_models[model_id]
     return DataModelResponse(
@@ -835,7 +896,7 @@ def get_data_model(model_id: str):
         name_ar=m.name_ar,
         description=m.description,
         description_ar=m.description_ar,
-        fields=[f.model_dump() for f in m.fields],
+        fields=m.fields,
         created_at=m.created_at,
         updated_at=m.updated_at,
     )
@@ -851,10 +912,10 @@ async def create_page(request: PageCreateRequest):
     page_id = str(uuid4())
     now = datetime.utcnow()
 
-    # Parse blocks
+    # Parse blocks using internal format
     blocks = []
     for block_data in request.blocks:
-        block = BlockConfig(
+        block = InternalBlock(
             id=block_data.get("id", str(uuid4())),
             component_name=block_data["component_name"],
             props=block_data.get("props", {}),
@@ -864,7 +925,7 @@ async def create_page(request: PageCreateRequest):
         )
         blocks.append(block)
 
-    page = PageDefinition(
+    page = InternalPage(
         id=page_id,
         name=request.name,
         name_ar=request.name_ar,
@@ -886,7 +947,7 @@ async def create_page(request: PageCreateRequest):
         name_ar=page.name_ar,
         description=page.description,
         route=page.route,
-        blocks=[b.model_dump() for b in page.blocks],
+        blocks=[{"id": b.id, "component_name": b.component_name, "props": b.props, "children": b.children} for b in page.blocks],
         data_model_id=page.data_model_id,
         is_published=page.is_published,
         version=page.version,
@@ -914,7 +975,7 @@ def list_pages(
             name_ar=p.name_ar,
             description=p.description,
             route=p.route,
-            blocks=[b.model_dump() for b in p.blocks],
+            blocks=[{"id": b.id, "component_name": b.component_name, "props": b.props, "children": b.children} for b in p.blocks],
             data_model_id=p.data_model_id,
             is_published=p.is_published,
             version=p.version,
@@ -945,7 +1006,7 @@ async def get_page(page_id: str):
         name_ar=p.name_ar,
         description=p.description,
         route=p.route,
-        blocks=[b.model_dump() for b in p.blocks],
+        blocks=[{"id": b.id, "component_name": b.component_name, "props": b.props, "children": b.children} for b in p.blocks],
         data_model_id=p.data_model_id,
         is_published=p.is_published,
         version=p.version,
@@ -978,7 +1039,7 @@ async def publish_page(page_id: str):
         name_ar=p.name_ar,
         description=p.description,
         route=p.route,
-        blocks=[b.model_dump() for b in p.blocks],
+        blocks=[{"id": b.id, "component_name": b.component_name, "props": b.props, "children": b.children} for b in p.blocks],
         data_model_id=p.data_model_id,
         is_published=p.is_published,
         version=p.version,
@@ -1006,8 +1067,8 @@ def render_page(page_id: str, data: str | None = Query(None)):
         rendered_blocks.append({
             "id": block.id,
             "component_name": block.component_name,
-            "component_title": component.title if component else block.component_name,
-            "component_title_ar": component.title_ar if component else None,
+            "component_title": component.name if component else block.component_name,
+            "component_title_ar": component.name_ar if component else None,
             "props": block.props,
             "children": block.children,
         })
@@ -1131,10 +1192,10 @@ async def generate_page_from_template(
     page_id = str(uuid4())
     now = datetime.utcnow()
 
-    # Generate blocks from template
+    # Generate blocks from template using internal format
     blocks = []
     for comp_name in template["components"]:
-        block = BlockConfig(
+        block = InternalBlock(
             id=str(uuid4()),
             component_name=comp_name,
             props={},
@@ -1142,7 +1203,7 @@ async def generate_page_from_template(
         )
         blocks.append(block)
 
-    page = PageDefinition(
+    page = InternalPage(
         id=page_id,
         name=name,
         name_ar=name_ar,
@@ -1163,7 +1224,7 @@ async def generate_page_from_template(
         name_ar=page.name_ar,
         description=page.description,
         route=page.route,
-        blocks=[b.model_dump() for b in page.blocks],
+        blocks=[{"id": b.id, "component_name": b.component_name, "props": b.props, "children": b.children} for b in page.blocks],
         data_model_id=page.data_model_id,
         is_published=page.is_published,
         version=page.version,

@@ -1,0 +1,21 @@
+# CRM Service Coverage Configuration
+# Excludes database layer (requires integration tests)
+
+[run]
+omit =
+    */db/*
+    */db/__init__.py
+    */db/repository.py
+    */tests/*
+    */__pycache__/*
+    *conftest.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+
+fail_under = 60

@@ -1,57 +1,138 @@
 """
-SAHOOL Model Context Protocol (MCP) Integration
-================================================
+SAHOOL MCP Module - Model Context Protocol Implementation
+=========================================================
 
-Provides MCP server and client implementations for SAHOOL agricultural platform,
-enabling AI assistants to access agricultural tools and resources.
+Provides MCP (Model Context Protocol) server implementation for SAHOOL
+agricultural intelligence platform. Enables AI assistants to access
+SAHOOL tools, resources, and prompts.
 
 Components:
-- tools: Agricultural tool implementations (weather, crop health, irrigation)
-- resources: Data resource providers (fields, weather, crops)
-- server: MCP server with stdio and SSE transports
-- client: MCP client for connecting to MCP servers
-- skills_server: Advanced skills tools (crop advisor, farm documentation, context compression, memory query)
+- SAHOOLMCPServer: Main MCP server implementation
+- SAHOOLTools: Agricultural intelligence tools (field, crop, weather, irrigation, fertilizer)
+- ResourceManager: Data resources (fields, farmers, weather, crops, knowledge)
+- SAHOOLSkillsTools: Advanced skills (crop advisor, farm documentation, context compression)
+- MCPConfig: Configuration management
 
-Example:
-    from shared.mcp import MCPServer, SAHOOLTools, SAHOOLSkillsTools
+Usage:
+    from shared.mcp import SAHOOLMCPServer, SAHOOLTools, MCPConfig
 
-    server = MCPServer()
-    await server.start()
+    # Run with stdio transport
+    server = SAHOOLMCPServer()
+    await server.run_stdio()
+
+    # Run with HTTP transport
+    app = server.create_fastapi_app()
+
+Author: SAHOOL Platform Team
+Version: 1.0.0
+Updated: January 2026
 """
 
 # Skills server is always available (only requires httpx, pydantic)
-from .skills_server import SAHOOLSkillsTools, ToolResult, extend_mcp_server_with_skills
+from .skills_server import SAHOOLSkillsTools, extend_mcp_server_with_skills
 
 # Conditional imports for FastAPI-dependent modules
 try:
-    from .client import MCPClient
+    # Configuration
+    from .config import (
+        AgentConfig,
+        AgentType,
+        APIConfig,
+        AuthConfig,
+        BilingualConfig,
+        Language,
+        MCPConfig,
+        RateLimitTier,
+        ResourceDescriptions,
+        ServerConfig,
+        ToolDescriptions,
+        TransportType,
+        get_config,
+        reload_config,
+    )
+
+    # Resources
     from .resources import (
         CropCatalogResource,
+        FarmerDataResource,
         FieldDataResource,
+        KnowledgeBaseResource,
+        Resource,
+        ResourceContent,
+        ResourceManager,
         ResourceProvider,
         WeatherDataResource,
     )
-    from .server import MCPServer
-    from .tools import SAHOOLTools
+
+    # Server
+    from .server import (
+        JSONRPCError,
+        JSONRPCRequest,
+        JSONRPCResponse,
+        MCPServer,
+        SAHOOLMCPServer,
+        run_server,
+    )
+
+    # Tools
+    from .tools import (
+        AgentInstance,
+        SAHOOLTools,
+        ToolResult,
+    )
+
+    # Client
+    from .client import MCPClient
 
     __all__ = [
-        "MCPServer",
-        "MCPClient",
+        # Server
+        "SAHOOLMCPServer",
+        "MCPServer",  # Alias for backward compatibility
+        "JSONRPCRequest",
+        "JSONRPCResponse",
+        "JSONRPCError",
+        "run_server",
+        # Tools
         "SAHOOLTools",
         "SAHOOLSkillsTools",
         "ToolResult",
+        "AgentInstance",
+        "extend_mcp_server_with_skills",
+        # Resources
+        "ResourceManager",
         "ResourceProvider",
+        "Resource",
+        "ResourceContent",
         "FieldDataResource",
+        "FarmerDataResource",
         "WeatherDataResource",
         "CropCatalogResource",
-        "extend_mcp_server_with_skills",
+        "KnowledgeBaseResource",
+        # Configuration
+        "MCPConfig",
+        "ServerConfig",
+        "APIConfig",
+        "AuthConfig",
+        "AgentConfig",
+        "BilingualConfig",
+        "TransportType",
+        "Language",
+        "AgentType",
+        "RateLimitTier",
+        "ToolDescriptions",
+        "ResourceDescriptions",
+        "get_config",
+        "reload_config",
+        # Client
+        "MCPClient",
     ]
+
 except ImportError:
     # FastAPI not available - only skills_server is accessible
     __all__ = [
         "SAHOOLSkillsTools",
-        "ToolResult",
         "extend_mcp_server_with_skills",
     ]
 
 __version__ = "1.0.0"
+__author__ = "SAHOOL Platform Team"

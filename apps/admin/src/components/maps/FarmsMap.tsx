@@ -1,9 +1,9 @@
 "use client";
 
-// Sahool Farms Map Component
+// Sahool Farms Map Component - Fixed for React re-renders
 // خريطة المزارع التفاعلية
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import { getHealthScoreColor } from "@/lib/utils";
 
@@ -28,7 +28,6 @@ const MapLoadingFallback = () => (
 );
 
 // Dynamic import for Leaflet (SSR not supported)
-// Using type assertions to preserve react-leaflet prop types
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
   { ssr: false, loading: () => <MapLoadingFallback /> },
@@ -37,18 +36,14 @@ const TileLayer = dynamic(
   () => import("react-leaflet").then((mod) => mod.TileLayer),
   { ssr: false, loading: () => null },
 ) as any;
-const Marker = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Marker),
+const CircleMarker = dynamic(
+  () => import("react-leaflet").then((mod) => mod.CircleMarker),
   { ssr: false, loading: () => null },
 ) as any;
 const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
   ssr: false,
   loading: () => null,
 }) as any;
-const CircleMarker = dynamic(
-  () => import("react-leaflet").then((mod) => mod.CircleMarker),
-  { ssr: false, loading: () => null },
-) as any;
 
 interface FarmsMapProps<T extends BaseFarmData = BaseFarmData> {
   farms: T[];
@@ -70,9 +65,21 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
   className = "",
 }: FarmsMapProps<T>) {
   const [isMounted, setIsMounted] = useState(false);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsMounted(true);
+
+    // Cleanup function to remove any existing Leaflet instances
+    return () => {
+      if (mapContainerRef.current) {
+        const container = mapContainerRef.current;
+        // Remove any Leaflet-specific properties
+        if ((container as any)._leaflet_id) {
+          delete (container as any)._leaflet_id;
+        }
+      }
+    };
   }, []);
 
   const getMarkerColor = (healthScore: number): string => {
@@ -93,7 +100,10 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
   }
 
   return (
-    <div className={`relative rounded-lg overflow-hidden ${className}`}>
+    <div
+      ref={mapContainerRef}
+      className={`relative rounded-lg overflow-hidden ${className}`}
+    >
       {/* Map Legend */}
       <div className="absolute top-4 left-4 z-[1000] bg-white rounded-lg shadow-lg p-3">
         <h4 className="text-sm font-semibold mb-2 text-gray-700">
@@ -124,6 +134,8 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
         zoom={DEFAULT_ZOOM}
         style={{ height: "100%", minHeight: "500px", width: "100%" }}
         scrollWheelZoom={true}
+        // Force new instance on every mount
+        key={`map-${isMounted ? "mounted" : "unmounted"}`}
       >
         {/* Base tile layer - OpenStreetMap */}
         <TileLayer

@@ -507,6 +507,339 @@ class PaymentFailedEvent(BaseEvent):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# AI Agent Events - أحداث الوكلاء الذكية
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class AgentExecutionStartedEvent(BaseEvent):
+    """
+    Event emitted when an AI agent starts execution.
+    حدث يُطلق عند بدء تنفيذ وكيل ذكي
+    """
+
+    execution_id: str = Field(..., description="Execution identifier")
+    agent_type: str = Field(..., description="Type of agent (farm_advisor, research, planner)")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    task: str = Field(..., description="Task description")
+    mode: str = Field(default="hybrid", description="Execution mode (plan, execute, hybrid)")
+    field_id: str | None = Field(None, description="Target field ID if applicable")
+    farm_id: str | None = Field(None, description="Target farm ID if applicable")
+
+
+class AgentExecutionCompletedEvent(BaseEvent):
+    """
+    Event emitted when an AI agent completes execution successfully.
+    حدث يُطلق عند إكمال تنفيذ وكيل ذكي بنجاح
+    """
+
+    execution_id: str = Field(..., description="Execution identifier")
+    agent_type: str = Field(..., description="Type of agent")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    status: str = Field(default="completed", description="Completion status")
+    total_steps: int = Field(default=0, ge=0, description="Total steps executed")
+    duration_ms: int = Field(default=0, ge=0, description="Total duration in milliseconds")
+    result_summary: str | None = Field(None, description="Summary of execution result")
+    result_summary_ar: str | None = Field(None, description="Arabic summary")
+
+
+class AgentExecutionFailedEvent(BaseEvent):
+    """
+    Event emitted when an AI agent execution fails.
+    حدث يُطلق عند فشل تنفيذ وكيل ذكي
+    """
+
+    execution_id: str = Field(..., description="Execution identifier")
+    agent_type: str = Field(..., description="Type of agent")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    error_type: str = Field(..., description="Error type/code")
+    error_message: str = Field(..., description="Error message")
+    error_message_ar: str | None = Field(None, description="Arabic error message")
+    failed_at_step: int | None = Field(None, description="Step number where failure occurred")
+    duration_ms: int = Field(default=0, ge=0, description="Duration before failure")
+
+
+class AgentStepCompletedEvent(BaseEvent):
+    """
+    Event emitted when an AI agent completes a step.
+    حدث يُطلق عند إكمال وكيل ذكي لخطوة
+    """
+
+    execution_id: str = Field(..., description="Execution identifier")
+    step_number: int = Field(..., ge=1, description="Step number")
+    action: str = Field(..., description="Action taken")
+    action_ar: str | None = Field(None, description="Arabic action description")
+    tool_used: str | None = Field(None, description="Tool used in this step")
+    duration_ms: int = Field(default=0, ge=0, description="Step duration")
+    success: bool = Field(default=True, description="Whether step succeeded")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CRM Events - أحداث إدارة علاقات المزارعين
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class FarmerCreatedEvent(BaseEvent):
+    """
+    Event emitted when a new farmer is created in CRM.
+    حدث يُطلق عند إنشاء مزارع جديد
+    """
+
+    farmer_id: str = Field(..., description="Farmer identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    name: str = Field(..., description="Farmer name")
+    name_ar: str | None = Field(None, description="Arabic name")
+    phone: str = Field(..., description="Phone number")
+    status: str = Field(default="lead", description="Initial status")
+    farm_size_hectares: float | None = Field(None, ge=0, description="Farm size")
+    primary_crops: list[str] = Field(default_factory=list, description="Primary crops")
+
+
+class FarmerUpdatedEvent(BaseEvent):
+    """
+    Event emitted when a farmer profile is updated.
+    حدث يُطلق عند تحديث ملف مزارع
+    """
+
+    farmer_id: str = Field(..., description="Farmer identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    updated_fields: list[str] = Field(..., description="List of updated fields")
+    new_status: str | None = Field(None, description="New status if changed")
+
+
+class FarmerStatusChangedEvent(BaseEvent):
+    """
+    Event emitted when a farmer's status changes.
+    حدث يُطلق عند تغيير حالة مزارع
+    """
+
+    farmer_id: str = Field(..., description="Farmer identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    old_status: str = Field(..., description="Previous status")
+    new_status: str = Field(..., description="New status")
+    reason: str | None = Field(None, description="Reason for status change")
+
+
+class HarvestDealCreatedEvent(BaseEvent):
+    """
+    Event emitted when a new harvest deal is created.
+    حدث يُطلق عند إنشاء صفقة حصاد جديدة
+    """
+
+    deal_id: str = Field(..., description="Deal identifier")
+    farmer_id: str = Field(..., description="Farmer identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    crop_type: str = Field(..., description="Crop type")
+    crop_type_ar: str | None = Field(None, description="Arabic crop type")
+    expected_quantity_tons: float = Field(..., gt=0, description="Expected quantity")
+    expected_harvest_date: str = Field(..., description="Expected harvest date (ISO)")
+    price_per_ton: float | None = Field(None, gt=0, description="Price per ton")
+
+
+class HarvestDealStageChangedEvent(BaseEvent):
+    """
+    Event emitted when a harvest deal stage changes.
+    حدث يُطلق عند تغيير مرحلة صفقة الحصاد
+    """
+
+    deal_id: str = Field(..., description="Deal identifier")
+    farmer_id: str = Field(..., description="Farmer identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    old_stage: str = Field(..., description="Previous stage")
+    new_stage: str = Field(..., description="New stage")
+    total_value: float | None = Field(None, description="Total deal value")
+
+
+class InteractionLoggedEvent(BaseEvent):
+    """
+    Event emitted when an interaction with a farmer is logged.
+    حدث يُطلق عند تسجيل تفاعل مع مزارع
+    """
+
+    interaction_id: str = Field(..., description="Interaction identifier")
+    farmer_id: str = Field(..., description="Farmer identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    interaction_type: str = Field(..., description="Type (call, visit, whatsapp, sms, email)")
+    subject: str = Field(..., description="Interaction subject")
+    outcome: str | None = Field(None, description="Interaction outcome")
+    follow_up_required: bool = Field(default=False, description="Follow-up needed")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Low-Code Events - أحداث محرك التطوير منخفض الكود
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class PageCreatedEvent(BaseEvent):
+    """
+    Event emitted when a new page is created.
+    حدث يُطلق عند إنشاء صفحة جديدة
+    """
+
+    page_id: str = Field(..., description="Page identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    name: str = Field(..., description="Page name")
+    name_ar: str | None = Field(None, description="Arabic name")
+    route: str = Field(..., description="Page route")
+    blocks_count: int = Field(default=0, ge=0, description="Number of blocks")
+    data_model_id: str | None = Field(None, description="Associated data model")
+
+
+class PagePublishedEvent(BaseEvent):
+    """
+    Event emitted when a page is published.
+    حدث يُطلق عند نشر صفحة
+    """
+
+    page_id: str = Field(..., description="Page identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    name: str = Field(..., description="Page name")
+    route: str = Field(..., description="Published route")
+    version: int = Field(default=1, ge=1, description="Published version")
+
+
+class DataModelCreatedEvent(BaseEvent):
+    """
+    Event emitted when a data model is created.
+    حدث يُطلق عند إنشاء نموذج بيانات
+    """
+
+    model_id: str = Field(..., description="Data model identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    name: str = Field(..., description="Model name")
+    name_ar: str | None = Field(None, description="Arabic name")
+    fields_count: int = Field(default=0, ge=0, description="Number of fields")
+
+
+class WorkflowExecutedEvent(BaseEvent):
+    """
+    Event emitted when a workflow is executed.
+    حدث يُطلق عند تنفيذ سير عمل
+    """
+
+    workflow_id: str = Field(..., description="Workflow identifier")
+    page_id: str | None = Field(None, description="Associated page")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    trigger: str = Field(..., description="Workflow trigger")
+    status: str = Field(default="completed", description="Execution status")
+    duration_ms: int = Field(default=0, ge=0, description="Execution duration")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# WeChat Events - أحداث ويتشات
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class WeChatMessageReceivedEvent(BaseEvent):
+    """
+    Event emitted when a WeChat message is received.
+    حدث يُطلق عند استلام رسالة ويتشات
+    """
+
+    message_id: str = Field(..., description="WeChat message identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    from_user_id: str = Field(..., description="Sender WeChat user ID")
+    from_user_name: str | None = Field(None, description="Sender display name")
+    to_user_id: str = Field(..., description="Recipient WeChat user ID")
+    message_type: str = Field(
+        ...,
+        pattern="^(text|image|voice|video|location|link|event)$",
+        description="Message type",
+    )
+    content: str | None = Field(None, description="Message content (for text messages)")
+    media_id: str | None = Field(None, description="Media ID (for media messages)")
+    location_lat: float | None = Field(None, ge=-90, le=90, description="Location latitude")
+    location_lon: float | None = Field(None, ge=-180, le=180, description="Location longitude")
+    received_at: datetime = Field(default_factory=datetime.utcnow, description="Message received time")
+
+
+class WeChatMessageSentEvent(BaseEvent):
+    """
+    Event emitted when a WeChat message is sent.
+    حدث يُطلق عند إرسال رسالة ويتشات
+    """
+
+    message_id: str = Field(..., description="WeChat message identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    to_user_id: str = Field(..., description="Recipient WeChat user ID")
+    to_user_name: str | None = Field(None, description="Recipient display name")
+    message_type: str = Field(
+        ...,
+        pattern="^(text|image|voice|video|news|template)$",
+        description="Message type",
+    )
+    content: str | None = Field(None, description="Message content")
+    template_id: str | None = Field(None, description="Template ID for template messages")
+    status: str = Field(default="sent", description="Send status (sent, delivered, failed)")
+    sent_at: datetime = Field(default_factory=datetime.utcnow, description="Message sent time")
+    error_message: str | None = Field(None, description="Error message if failed")
+
+
+class WeChatContactAddedEvent(BaseEvent):
+    """
+    Event emitted when a new WeChat contact is added.
+    حدث يُطلق عند إضافة جهة اتصال ويتشات جديدة
+    """
+
+    contact_id: str = Field(..., description="Internal contact identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    wechat_user_id: str = Field(..., description="WeChat user ID")
+    nickname: str | None = Field(None, description="WeChat nickname")
+    avatar_url: str | None = Field(None, description="Profile avatar URL")
+    gender: str | None = Field(None, pattern="^(male|female|unknown)$", description="Gender")
+    city: str | None = Field(None, description="City")
+    province: str | None = Field(None, description="Province")
+    country: str | None = Field(None, description="Country")
+    language: str | None = Field(None, description="Language preference")
+    farmer_id: str | None = Field(None, description="Linked farmer ID in CRM")
+    subscribed_at: datetime = Field(default_factory=datetime.utcnow, description="Subscription time")
+
+
+class WeChatMomentPublishedEvent(BaseEvent):
+    """
+    Event emitted when a WeChat Moment is published.
+    حدث يُطلق عند نشر لحظة ويتشات
+    """
+
+    moment_id: str = Field(..., description="Moment identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    content: str = Field(..., description="Moment text content")
+    content_ar: str | None = Field(None, description="Arabic content")
+    media_urls: list[str] = Field(default_factory=list, description="Attached media URLs")
+    media_type: str | None = Field(None, pattern="^(image|video|link)$", description="Media type")
+    link_url: str | None = Field(None, description="External link URL")
+    link_title: str | None = Field(None, description="Link title")
+    visibility: str = Field(default="public", description="Visibility (public, contacts, private)")
+    published_at: datetime = Field(default_factory=datetime.utcnow, description="Publish time")
+    target_audience: list[str] = Field(default_factory=list, description="Target audience tags")
+
+
+class WeChatChatSummarizedEvent(BaseEvent):
+    """
+    Event emitted when a WeChat chat conversation is summarized.
+    حدث يُطلق عند تلخيص محادثة ويتشات
+    """
+
+    summary_id: str = Field(..., description="Summary identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    contact_id: str = Field(..., description="Contact identifier")
+    farmer_id: str | None = Field(None, description="Linked farmer ID")
+    conversation_start: datetime = Field(..., description="Conversation start time")
+    conversation_end: datetime = Field(..., description="Conversation end time")
+    message_count: int = Field(..., ge=1, description="Number of messages summarized")
+    summary: str = Field(..., description="AI-generated summary in English")
+    summary_ar: str | None = Field(None, description="AI-generated summary in Arabic")
+    key_topics: list[str] = Field(default_factory=list, description="Key topics discussed")
+    sentiment: str | None = Field(
+        None,
+        pattern="^(positive|neutral|negative|mixed)$",
+        description="Overall conversation sentiment",
+    )
+    action_items: list[str] = Field(default_factory=list, description="Extracted action items")
+    follow_up_required: bool = Field(default=False, description="Follow-up needed")
+    follow_up_date: datetime | None = Field(None, description="Suggested follow-up date")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Exports
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -534,4 +867,27 @@ __all__ = [
     "PaymentCompletedEvent",
     "SubscriptionRenewedEvent",
     "PaymentFailedEvent",
+    # AI Agent events
+    "AgentExecutionStartedEvent",
+    "AgentExecutionCompletedEvent",
+    "AgentExecutionFailedEvent",
+    "AgentStepCompletedEvent",
+    # CRM events
+    "FarmerCreatedEvent",
+    "FarmerUpdatedEvent",
+    "FarmerStatusChangedEvent",
+    "HarvestDealCreatedEvent",
+    "HarvestDealStageChangedEvent",
+    "InteractionLoggedEvent",
+    # Low-Code events
+    "PageCreatedEvent",
+    "PagePublishedEvent",
+    "DataModelCreatedEvent",
+    "WorkflowExecutedEvent",
+    # WeChat events
+    "WeChatMessageReceivedEvent",
+    "WeChatMessageSentEvent",
+    "WeChatContactAddedEvent",
+    "WeChatMomentPublishedEvent",
+    "WeChatChatSummarizedEvent",
 ]

@@ -25,27 +25,50 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Get nonce from headers for CSP
+  // Get nonce from headers for CSP (set by middleware)
   const headersList = await headers();
   const nonce = headersList.get("X-Nonce") || "";
 
   return (
-    <html lang="ar" dir="rtl">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
-          rel="stylesheet"
-          nonce={nonce}
-        />
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossOrigin=""
-          nonce={nonce}
-        />
+    // suppressHydrationWarning prevents errors from browser extensions (e.g., Dark Reader)
+    // that modify DOM attributes during hydration
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <head suppressHydrationWarning>
+        {/*
+          Conditional rendering: only add nonce attribute when nonce exists
+          This prevents hydration mismatch when nonce is empty on initial SSR
+        */}
+        {nonce ? (
+          <>
+            <link
+              href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
+              rel="stylesheet"
+              nonce={nonce}
+            />
+            <link
+              rel="stylesheet"
+              href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+              integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+              crossOrigin=""
+              nonce={nonce}
+            />
+          </>
+        ) : (
+          <>
+            <link
+              href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
+              rel="stylesheet"
+            />
+            <link
+              rel="stylesheet"
+              href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+              integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+              crossOrigin=""
+            />
+          </>
+        )}
       </head>
-      <body className="font-tajawal bg-gray-50 min-h-screen">
+      <body className="font-tajawal bg-gray-50 min-h-screen" suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

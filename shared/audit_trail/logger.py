@@ -17,7 +17,6 @@ Updated: January 2026
 from __future__ import annotations
 
 import asyncio
-import json
 import os
 from collections.abc import Callable
 from datetime import datetime
@@ -951,7 +950,9 @@ def get_audit_logger(tenant_id: str = "sahool") -> AuditTrailLogger:
     """
     global _global_logger
     if _global_logger is None or _global_logger.tenant_id != tenant_id:
-        storage_path = os.getenv("AUDIT_TRAIL_STORAGE_PATH", "/tmp/sahool_audit_trail")
+        # Default to /var/lib/sahool in production, /tmp for development only
+        default_path = "/var/lib/sahool/audit_trail" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_audit_trail"  # nosec B108
+        storage_path = os.getenv("AUDIT_TRAIL_STORAGE_PATH", default_path)
         _global_logger = AuditTrailLogger(tenant_id=tenant_id, storage_path=storage_path)
     return _global_logger
 

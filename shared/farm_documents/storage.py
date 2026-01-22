@@ -11,11 +11,9 @@ from __future__ import annotations
 import hashlib
 import mimetypes
 import os
-import shutil
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-from typing import BinaryIO
 from uuid import uuid4
 
 import structlog
@@ -480,7 +478,8 @@ class DocumentStorageService:
         md5_hash = None
         sha256_hash = None
         if self.config.compute_checksums:
-            md5_hash = hashlib.md5(file_content).hexdigest()
+            # MD5 used for backwards compatibility only, not for security
+            md5_hash = hashlib.md5(file_content, usedforsecurity=False).hexdigest()
             sha256_hash = hashlib.sha256(file_content).hexdigest()
 
         # Generate document ID and storage path

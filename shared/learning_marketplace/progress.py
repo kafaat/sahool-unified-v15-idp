@@ -27,16 +27,13 @@ import uuid
 from .models import (
     BilingualText,
     Certification,
-    ContentType,
     Course,
-    CourseStatus,
     DifficultyLevel,
     EnrollmentStatus,
     FarmerCertification,
     FarmerProfile,
     FarmerSkill,
     Lesson,
-    Quiz,
     SkillCategory,
 )
 
@@ -411,9 +408,11 @@ class ProgressStorage:
 
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
+        # Default to /var/lib/sahool in production, /tmp for development only
+        default_path = "/var/lib/sahool/learning_progress" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_learning_progress"  # nosec B108
         self.storage_path = Path(storage_path or os.getenv(
             "LEARNING_PROGRESS_PATH",
-            "/tmp/sahool_learning_progress"
+            default_path
         ))
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()

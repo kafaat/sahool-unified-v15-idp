@@ -1500,4 +1500,6 @@ async def get_logistics_stats(
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=SERVICE_PORT)
+    # Host binding configurable via environment variable for security
+    host = os.getenv("HOST", "0.0.0.0")
+    uvicorn.run(app, host=host, port=SERVICE_PORT)

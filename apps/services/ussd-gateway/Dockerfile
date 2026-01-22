@@ -27,17 +27,10 @@ RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt &&
 # Switch to non-root user
 USER sahool
 
-# Set ownership to non-root user
-RUN chown -R sahool:sahool /app
-
-# Switch to non-root user
-USER sahool
-
-# Set ownership to non-root user
-RUN chown -R sahool:sahool /app
-
-# Switch to non-root user
-USER sahool
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Expose port
 EXPOSE 8130

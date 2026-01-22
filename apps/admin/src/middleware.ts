@@ -37,9 +37,10 @@ import { logger } from "@/lib/logger";
 // Idle timeout: 30 minutes in milliseconds
 const IDLE_TIMEOUT = 30 * 60 * 1000;
 
-// Development mode bypass - allows dashboard access without real auth
+// Development mode bypass - DISABLED by default for security
+// To enable: set ENABLE_AUTH_BYPASS=true explicitly (NEVER in production)
 const isDevelopment = process.env.NODE_ENV === "development";
-const ENABLE_DEV_BYPASS = isDevelopment && process.env.DISABLE_AUTH_CHECK !== "false";
+const ENABLE_DEV_BYPASS = isDevelopment && process.env.ENABLE_AUTH_BYPASS === "true";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

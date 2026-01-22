@@ -324,10 +324,24 @@ if SECURITY_HEADERS_AVAILABLE:
 
 @app.get("/healthz")
 def health():
+    """Health check endpoint (liveness probe)"""
     return {
         "status": "ok",
-        "service": "crop_health",
-        "version": "1.0.0",
+        "service": "crop-intelligence-service",
+        "version": "16.0.0",
+    }
+
+
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "crop-intelligence-service",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
     }
 
 

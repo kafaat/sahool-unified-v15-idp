@@ -118,6 +118,19 @@ def health():
     return {"status": "healthy", "service": "weather-core", "version": "15.3.3"}
 
 
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "weather-core",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
+    }
+
+
 # ============== Request Models ==============
 
 

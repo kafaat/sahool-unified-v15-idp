@@ -355,6 +355,19 @@ def health():
     }
 
 
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "crop-health",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
+    }
+
+
 @app.get("/")
 def root():
     return {

@@ -71,7 +71,7 @@ dependencies:
 
   # Deep Linking
   app_links: ^3.5.1
-  firebase_dynamic_links: ^5.4.7
+  # firebase_dynamic_links: ^5.4.7  # DISABLED: Requires Firebase platform setup (google-services.json)
 
   # Camera & Photos
   image_picker: ^1.1.2

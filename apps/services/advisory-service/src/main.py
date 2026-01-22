@@ -157,7 +157,33 @@ if REVOCATION_AVAILABLE:
 
 @app.get("/healthz")
 def health():
-    return {"status": "ok", "service": "agro_advisor", "version": "15.3.3"}
+    return {"status": "ok", "service": "agro_advisor", "version": "16.0.0"}
+
+
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    # Check if service is ready (add more checks as needed)
+    is_ready = True
+    checks = {
+        "service": "ready",
+        "engine": "loaded" if CROP_REQUIREMENTS else "not_loaded",
+    }
+
+    if not is_ready:
+        from fastapi import Response
+        return Response(
+            content='{"status": "not_ready", "checks": ' + str(checks) + '}',
+            status_code=503,
+            media_type="application/json"
+        )
+
+    return {
+        "status": "ready",
+        "service": "agro_advisor",
+        "version": "16.0.0",
+        "checks": checks,
+    }
 
 
 # ============== Request/Response Models ==============

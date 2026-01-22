@@ -112,6 +112,19 @@ def health():
     return {"status": "ok", "service": "agro_advisor", "version": "15.3.3"}
 
 
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "agro-advisor",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
+    }
+
+
 # ============== Request/Response Models ==============
 
 

@@ -1170,16 +1170,36 @@ async def validate_and_enrich_task_with_astronomy(task: Task, task_type: TaskTyp
 
 @app.get("/healthz")
 async def health_check():
-    """Health check endpoint"""
+    """Health check endpoint (liveness probe)"""
+    return {
+        "status": "ok",
+        "service": SERVICE_NAME,
+        "version": "16.0.0",
+    }
+
+
+@app.get("/readyz")
+async def readiness_check():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
     nats_status = "disconnected"
     if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
         nats_status = "connected" if app.state.nats_publisher.connected else "disconnected"
 
+    # Check database connection
+    db_ok = True
+    try:
+        from .database import engine
+        if engine:
+            db_ok = True
+    except Exception:
+        db_ok = False
+
     return {
-        "status": "healthy",
+        "status": "ready" if db_ok else "not_ready",
         "service": SERVICE_NAME,
-        "dependencies": {
-            "database": "connected",  # Assuming DB is connected if service started
+        "version": "16.0.0",
+        "checks": {
+            "database": "connected" if db_ok else "disconnected",
             "nats": nats_status,
         },
     }

@@ -196,6 +196,19 @@ async def health_check():
     }
 
 
+@app.get("/readyz", tags=["Health"])
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "agent-registry",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
+    }
+
+
 @app.get("/v1/registry/stats", tags=["Registry"])
 async def get_registry_stats():
     """

@@ -123,6 +123,19 @@ async def health_check():
     }
 
 
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "ai-agents-core",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
+    }
+
+
 # Full analysis endpoint
 @app.post("/api/v1/analyze")
 async def analyze_field(request: AnalysisRequest):

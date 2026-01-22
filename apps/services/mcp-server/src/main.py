@@ -176,12 +176,16 @@ async def health():
 
 
 @app.get("/ready")
+@app.get("/readyz")
 async def ready():
-    """Readiness probe"""
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
     return {
         "status": "ready",
         "service": "mcp-server",
-        "timestamp": datetime.utcnow().isoformat(),
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
     }
 
 

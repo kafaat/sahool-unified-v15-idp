@@ -866,6 +866,19 @@ async def health_check():
     return {"status": "healthy", "timestamp": datetime.utcnow()}
 
 
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "provider-config",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
+    }
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # PROVIDER LISTING
 # ─────────────────────────────────────────────────────────────────────────────

@@ -408,8 +408,8 @@ class ProgressStorage:
 
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
-        import tempfile
-        default_path = os.path.join(tempfile.gettempdir(), "sahool_learning_progress")
+        # Default to /var/lib/sahool in production, /tmp for development only
+        default_path = "/var/lib/sahool/learning_progress" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_learning_progress"  # nosec B108
         self.storage_path = Path(storage_path or os.getenv(
             "LEARNING_PROGRESS_PATH",
             default_path

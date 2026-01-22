@@ -829,8 +829,8 @@ def get_retention_manager(
     """
     global _global_manager
     if _global_manager is None:
-        import tempfile
-        default_path = os.path.join(tempfile.gettempdir(), "sahool_audit_trail")
+        # Default to /var/lib/sahool in production, /tmp for development only
+        default_path = "/var/lib/sahool/audit_trail" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_audit_trail"  # nosec B108
         storage = storage_path or os.getenv("AUDIT_TRAIL_STORAGE_PATH", default_path)
         archive = archive_path or os.path.join(storage, "archive")
         _global_manager = RetentionManager(

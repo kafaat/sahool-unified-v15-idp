@@ -352,7 +352,7 @@ class QRCodeGenerator:
         batch_code: str,
         qr_data: str,
     ) -> str:
-        """Calculate checksum for QR data verification"""
+        """Calculate checksum for QR data verification using SHA256"""
         data = f"{batch_id}|{batch_code}|{qr_data}"
         return hashlib.sha256(data.encode()).hexdigest()[:32]
 

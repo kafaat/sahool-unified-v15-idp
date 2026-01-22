@@ -478,7 +478,7 @@ class DocumentStorageService:
         md5_hash = None
         sha256_hash = None
         if self.config.compute_checksums:
-            # MD5 used for backward compatibility, not security
+            # MD5 used for backwards compatibility only, not for security
             md5_hash = hashlib.md5(file_content, usedforsecurity=False).hexdigest()
             sha256_hash = hashlib.sha256(file_content).hexdigest()
 

@@ -643,8 +643,8 @@ class ClaimStorage:
 
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
-        import tempfile
-        default_path = os.path.join(tempfile.gettempdir(), "sahool_insurance_claims")
+        # Default to /var/lib/sahool in production, /tmp for development only
+        default_path = "/var/lib/sahool/insurance_claims" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_insurance_claims"  # nosec B108
         self.storage_path = Path(storage_path or os.getenv(
             "INSURANCE_CLAIMS_STORAGE_PATH",
             default_path

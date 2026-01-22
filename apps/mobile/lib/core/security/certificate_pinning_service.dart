@@ -193,7 +193,39 @@ class CertificatePinningService {
     Map<String, List<CertificatePin>>? certificatePins,
     this.allowDebugBypass = true,
     this.enforceStrict = true,
-  }) : _certificatePins = certificatePins ?? _getDefaultPins();
+  }) : _certificatePins = certificatePins ?? _getDefaultPins() {
+    // SECURITY CHECK: Reject placeholder values in release builds
+    if (!kDebugMode) {
+      _validateProductionPins();
+    }
+  }
+
+  /// Validate that production pins are not placeholder values
+  /// Throws an exception if placeholder values are detected in release mode
+  void _validateProductionPins() {
+    const placeholderValues = {
+      'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', // Empty SHA256
+      '2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae', // "foo"
+      '3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d', // "bar"
+      'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', // "abc"
+      'fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9', // "baz"
+      '88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589', // "hello"
+      'cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50', // "world"
+    };
+
+    for (final entry in _certificatePins.entries) {
+      for (final pin in entry.value) {
+        if (placeholderValues.contains(pin.value.toLowerCase())) {
+          throw Exception(
+            '⛔ SECURITY ERROR: Placeholder certificate pin detected for ${entry.key}!\n'
+            'You MUST replace placeholder values with actual certificate fingerprints before production deployment.\n'
+            'Use: ./scripts/generate_cert_pins.sh ${entry.key}\n'
+            'Or: final fingerprint = await getCertificateFingerprintFromUrl("https://${entry.key}");'
+          );
+        }
+      }
+    }
+  }
 
   /// Get default certificate pins for SAHOOL domains
   ///

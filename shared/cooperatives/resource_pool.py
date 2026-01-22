@@ -26,7 +26,6 @@ from .models import (
     ResourceType,
     ResourceStatus,
     CooperativeMember,
-    MemberStatus,
 )
 
 

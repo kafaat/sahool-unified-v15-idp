@@ -12,8 +12,7 @@ Version: 1.0.0
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, date, time, timedelta
-from typing import Optional
+from datetime import datetime, date, time
 from enum import Enum
 
 from .models import (
@@ -23,18 +22,14 @@ from .models import (
     TaskStatus,
     TaskPriority,
     TaskCategory,
-    TaskRequirement,
     WorkShift,
     WorkerSchedule,
-    AttendanceRecord,
-    AttendanceStatus,
     LeaveRequest,
     REIZone,
     SkillCategory,
     SkillLevel,
     SafetyCertification,
     PPEType,
-    generate_id,
 )
 
 
@@ -64,8 +59,8 @@ class SchedulingConflictType(str, Enum):
 class SchedulingConflict:
     """Scheduling conflict details - تفاصيل تعارض الجدولة"""
     conflict_type: SchedulingConflictType
-    worker_id: Optional[str] = None
-    task_id: Optional[str] = None
+    worker_id: str | None = None
+    task_id: str | None = None
 
     message_en: str = ""
     message_ar: str = ""
@@ -88,9 +83,9 @@ class WorkerAvailability:
     availability_date: date
 
     # Schedule details
-    shift_id: Optional[str] = None
-    shift_start: Optional[time] = None
-    shift_end: Optional[time] = None
+    shift_id: str | None = None
+    shift_start: time | None = None
+    shift_end: time | None = None
 
     # Hours
     scheduled_hours: float = 0.0
@@ -111,11 +106,11 @@ class TaskAssignment:
     worker_ids: list[str]
 
     assigned_at: datetime = field(default_factory=datetime.utcnow)
-    assigned_by: Optional[str] = None
+    assigned_by: str | None = None
 
     # Schedule
-    scheduled_start: Optional[datetime] = None
-    scheduled_end: Optional[datetime] = None
+    scheduled_start: datetime | None = None
+    scheduled_end: datetime | None = None
 
     # Status
     is_successful: bool = True
@@ -182,12 +177,12 @@ class LaborScheduler:
 
     def __init__(
         self,
-        workers: Optional[list[Worker]] = None,
-        tasks: Optional[list[Task]] = None,
-        shifts: Optional[list[WorkShift]] = None,
-        schedules: Optional[list[WorkerSchedule]] = None,
-        leave_requests: Optional[list[LeaveRequest]] = None,
-        rei_zones: Optional[list[REIZone]] = None,
+        workers: list[Worker] | None = None,
+        tasks: list[Task] | None = None,
+        shifts: list[WorkShift] | None = None,
+        schedules: list[WorkerSchedule] | None = None,
+        leave_requests: list[LeaveRequest] | None = None,
+        rei_zones: list[REIZone] | None = None,
     ):
         self.workers: list[Worker] = workers or []
         self.tasks: list[Task] = tasks or []
@@ -222,11 +217,11 @@ class LaborScheduler:
         """Add an REI zone restriction"""
         self.rei_zones.append(rei_zone)
 
-    def get_worker(self, worker_id: str) -> Optional[Worker]:
+    def get_worker(self, worker_id: str) -> Worker | None:
         """Get worker by ID"""
         return self._workers_by_id.get(worker_id)
 
-    def get_task(self, task_id: str) -> Optional[Task]:
+    def get_task(self, task_id: str) -> Task | None:
         """Get task by ID"""
         return self._tasks_by_id.get(task_id)
 
@@ -236,7 +231,7 @@ class LaborScheduler:
         self,
         worker_id: str,
         check_date: date,
-        check_time: Optional[datetime] = None,
+        check_time: datetime | None = None,
     ) -> WorkerAvailability:
         """
         Check worker availability for a specific date - تحقق من إتاحة العامل
@@ -335,9 +330,9 @@ class LaborScheduler:
     def get_available_workers(
         self,
         check_date: date,
-        farm_id: Optional[str] = None,
-        required_skills: Optional[list[tuple[SkillCategory, SkillLevel]]] = None,
-        required_certifications: Optional[list[SafetyCertification]] = None,
+        farm_id: str | None = None,
+        required_skills: list[tuple[SkillCategory, SkillLevel]] | None = None,
+        required_certifications: list[SafetyCertification] | None = None,
     ) -> list[WorkerAvailability]:
         """
         Get all available workers for a date - الحصول على جميع العمال المتاحين
@@ -394,7 +389,7 @@ class LaborScheduler:
     def check_rei_restrictions(
         self,
         field_id: str,
-        check_time: Optional[datetime] = None,
+        check_time: datetime | None = None,
     ) -> list[REIZone]:
         """
         Check REI restrictions for a field - تحقق من قيود فترة إعادة الدخول
@@ -415,7 +410,7 @@ class LaborScheduler:
         worker_id: str,
         field_id: str,
         task_category: TaskCategory,
-        check_time: Optional[datetime] = None,
+        check_time: datetime | None = None,
     ) -> tuple[bool, list[SchedulingConflict], list[PPEType]]:
         """
         Check if worker can enter a field considering REI zones
@@ -683,10 +678,10 @@ class LaborScheduler:
     def assign_task(
         self,
         task_id: str,
-        check_date: Optional[date] = None,
+        check_date: date | None = None,
         strategy: SchedulingStrategy = SchedulingStrategy.SKILL_PRIORITY,
-        preferred_workers: Optional[list[str]] = None,
-        exclude_workers: Optional[list[str]] = None,
+        preferred_workers: list[str] | None = None,
+        exclude_workers: list[str] | None = None,
     ) -> TaskAssignment:
         """
         Assign workers to a task - تعيين العمال للمهمة
@@ -806,8 +801,8 @@ class LaborScheduler:
 
     def bulk_schedule(
         self,
-        task_ids: Optional[list[str]] = None,
-        check_date: Optional[date] = None,
+        task_ids: list[str] | None = None,
+        check_date: date | None = None,
         strategy: SchedulingStrategy = SchedulingStrategy.SKILL_PRIORITY,
         prioritize_critical: bool = True,
     ) -> SchedulingResult:
@@ -975,7 +970,7 @@ class LaborScheduler:
     def get_scheduling_recommendations(
         self,
         task_id: str,
-        check_date: Optional[date] = None,
+        check_date: date | None = None,
     ) -> dict:
         """
         Get scheduling recommendations for a task - الحصول على توصيات الجدولة

@@ -12,10 +12,9 @@ Version: 1.0.0
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Optional, Any
 import uuid
 
 
@@ -156,28 +155,28 @@ class EquipmentSpecs:
     serial_number: str  # الرقم التسلسلي
 
     # Power specifications - مواصفات الطاقة
-    engine_power_hp: Optional[float] = None  # قوة المحرك (حصان)
-    engine_power_kw: Optional[float] = None  # قوة المحرك (كيلوواط)
+    engine_power_hp: float | None = None  # قوة المحرك (حصان)
+    engine_power_kw: float | None = None  # قوة المحرك (كيلوواط)
     fuel_type: FuelType = FuelType.DIESEL
-    fuel_capacity_l: Optional[float] = None  # سعة خزان الوقود (لتر)
-    fuel_consumption_l_hr: Optional[float] = None  # استهلاك الوقود (لتر/ساعة)
+    fuel_capacity_l: float | None = None  # سعة خزان الوقود (لتر)
+    fuel_consumption_l_hr: float | None = None  # استهلاك الوقود (لتر/ساعة)
 
     # Physical specifications - المواصفات الفيزيائية
-    weight_kg: Optional[float] = None  # الوزن (كجم)
-    length_m: Optional[float] = None  # الطول (متر)
-    width_m: Optional[float] = None  # العرض (متر)
-    height_m: Optional[float] = None  # الارتفاع (متر)
+    weight_kg: float | None = None  # الوزن (كجم)
+    length_m: float | None = None  # الطول (متر)
+    width_m: float | None = None  # العرض (متر)
+    height_m: float | None = None  # الارتفاع (متر)
 
     # Capacity - السعة
-    working_width_m: Optional[float] = None  # عرض العمل (متر)
-    tank_capacity_l: Optional[float] = None  # سعة الخزان (لتر)
-    hopper_capacity_kg: Optional[float] = None  # سعة القادوس (كجم)
+    working_width_m: float | None = None  # عرض العمل (متر)
+    tank_capacity_l: float | None = None  # سعة الخزان (لتر)
+    hopper_capacity_kg: float | None = None  # سعة القادوس (كجم)
 
     # Irrigation specific - خاص بالري
-    irrigation_type: Optional[IrrigationType] = None
-    flow_rate_m3_hr: Optional[float] = None  # معدل التدفق (م³/ساعة)
-    coverage_area_ha: Optional[float] = None  # مساحة التغطية (هكتار)
-    pressure_bar: Optional[float] = None  # الضغط (بار)
+    irrigation_type: IrrigationType | None = None
+    flow_rate_m3_hr: float | None = None  # معدل التدفق (م³/ساعة)
+    coverage_area_ha: float | None = None  # مساحة التغطية (هكتار)
+    pressure_bar: float | None = None  # الضغط (بار)
 
     # Service intervals - فترات الخدمة
     oil_change_hours: int = 250  # ساعات تغيير الزيت
@@ -224,41 +223,41 @@ class Equipment:
 
     # Status - الحالة
     status: EquipmentStatus = EquipmentStatus.OPERATIONAL
-    location: Optional[str] = None  # Current location
-    location_ar: Optional[str] = None
-    assigned_field_id: Optional[str] = None
+    location: str | None = None  # Current location
+    location_ar: str | None = None
+    assigned_field_id: str | None = None
 
     # Usage tracking - تتبع الاستخدام
     total_hours: float = 0.0  # إجمالي ساعات التشغيل
     total_kilometers: float = 0.0  # إجمالي الكيلومترات (للجرارات)
     total_hectares: float = 0.0  # إجمالي الهكتارات المعالجة
-    last_usage_date: Optional[datetime] = None
+    last_usage_date: datetime | None = None
 
     # Maintenance tracking - تتبع الصيانة
     hours_since_last_oil_change: float = 0.0
     hours_since_last_filter_change: float = 0.0
     hours_since_last_major_service: float = 0.0
     hours_since_last_overhaul: float = 0.0
-    last_maintenance_date: Optional[datetime] = None
-    next_maintenance_date: Optional[datetime] = None
-    next_maintenance_type: Optional[str] = None
-    next_maintenance_type_ar: Optional[str] = None
+    last_maintenance_date: datetime | None = None
+    next_maintenance_date: datetime | None = None
+    next_maintenance_type: str | None = None
+    next_maintenance_type_ar: str | None = None
 
     # Purchase and warranty - الشراء والضمان
-    purchase_date: Optional[datetime] = None
-    purchase_price: Optional[Decimal] = None
+    purchase_date: datetime | None = None
+    purchase_price: Decimal | None = None
     purchase_currency: str = "SAR"
-    warranty_expiry: Optional[datetime] = None
-    insurance_expiry: Optional[datetime] = None
-    registration_number: Optional[str] = None
+    warranty_expiry: datetime | None = None
+    insurance_expiry: datetime | None = None
+    registration_number: str | None = None
 
     # Telematics - القياس عن بعد
     has_telematics: bool = False
-    telematics_device_id: Optional[str] = None
-    last_telemetry_at: Optional[datetime] = None
-    fuel_level_percent: Optional[float] = None
-    current_lat: Optional[float] = None
-    current_lng: Optional[float] = None
+    telematics_device_id: str | None = None
+    last_telemetry_at: datetime | None = None
+    fuel_level_percent: float | None = None
+    current_lat: float | None = None
+    current_lng: float | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -351,22 +350,22 @@ class MaintenanceTask:
     progress_percent: float = 0.0
 
     # Scheduling - الجدولة
-    scheduled_date: Optional[datetime] = None
-    due_date: Optional[datetime] = None
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    scheduled_date: datetime | None = None
+    due_date: datetime | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
     estimated_duration_hours: float = 1.0
-    actual_duration_hours: Optional[float] = None
+    actual_duration_hours: float | None = None
 
     # Trigger conditions - شروط التفعيل
-    triggered_by_hours: Optional[float] = None  # Hours that triggered this task
+    triggered_by_hours: float | None = None  # Hours that triggered this task
     triggered_by_date: bool = False  # Triggered by calendar date
     triggered_by_condition: bool = False  # Triggered by detected condition
 
     # Assignment - التخصيص
-    assigned_to: Optional[str] = None  # Technician ID
-    assigned_to_name: Optional[str] = None
-    assigned_to_name_ar: Optional[str] = None
+    assigned_to: str | None = None  # Technician ID
+    assigned_to_name: str | None = None
+    assigned_to_name_ar: str | None = None
 
     # Parts required - قطع الغيار المطلوبة
     parts_required: list["MaintenancePart"] = field(default_factory=list)
@@ -389,8 +388,8 @@ class MaintenanceTask:
     # Documentation - التوثيق
     photos: list[str] = field(default_factory=list)  # Photo URLs
     documents: list[str] = field(default_factory=list)  # Document URLs
-    technician_signature: Optional[str] = None
-    supervisor_signature: Optional[str] = None
+    technician_signature: str | None = None
+    supervisor_signature: str | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -439,8 +438,8 @@ class ChecklistItem:
     description: str
     description_ar: str
     is_completed: bool = False
-    completed_at: Optional[datetime] = None
-    completed_by: Optional[str] = None
+    completed_at: datetime | None = None
+    completed_by: str | None = None
     notes: str = ""
     notes_ar: str = ""
 
@@ -474,17 +473,17 @@ class MaintenanceSchedule:
 
     # Trigger conditions - شروط التفعيل
     # Hours-based - بناءً على ساعات التشغيل
-    hours_interval: Optional[int] = None  # كل X ساعة
-    hours_warning_threshold: Optional[int] = None  # التحذير قبل X ساعة
+    hours_interval: int | None = None  # كل X ساعة
+    hours_warning_threshold: int | None = None  # التحذير قبل X ساعة
 
     # Calendar-based - بناءً على التقويم
-    calendar_interval_days: Optional[int] = None  # كل X يوم
-    calendar_day_of_week: Optional[int] = None  # يوم الأسبوع (0=الاثنين)
-    calendar_day_of_month: Optional[int] = None  # يوم الشهر
-    calendar_month: Optional[int] = None  # الشهر (للسنوية)
+    calendar_interval_days: int | None = None  # كل X يوم
+    calendar_day_of_week: int | None = None  # يوم الأسبوع (0=الاثنين)
+    calendar_day_of_month: int | None = None  # يوم الشهر
+    calendar_month: int | None = None  # الشهر (للسنوية)
 
     # Season-based (agricultural) - بناءً على الموسم
-    season_trigger: Optional[str] = None  # pre_season, post_season, mid_season
+    season_trigger: str | None = None  # pre_season, post_season, mid_season
 
     # Task template - قالب المهمة
     task_title: str = ""
@@ -501,16 +500,16 @@ class MaintenanceSchedule:
     currency: str = "SAR"
 
     # Execution - التنفيذ
-    last_executed_at: Optional[datetime] = None
-    last_executed_hours: Optional[float] = None
-    next_due_at: Optional[datetime] = None
-    next_due_hours: Optional[float] = None
+    last_executed_at: datetime | None = None
+    last_executed_hours: float | None = None
+    next_due_at: datetime | None = None
+    next_due_hours: float | None = None
     execution_count: int = 0
 
     # Active status - حالة النشاط
     is_active: bool = True
-    active_from: Optional[datetime] = None
-    active_until: Optional[datetime] = None
+    active_from: datetime | None = None
+    active_until: datetime | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -562,7 +561,7 @@ class SparePart:
 
     # Manufacturer info - معلومات الشركة المصنعة
     manufacturer: str = ""
-    manufacturer_part_number: Optional[str] = None
+    manufacturer_part_number: str | None = None
     alternative_part_numbers: list[str] = field(default_factory=list)
 
     # Compatible equipment - المعدات المتوافقة
@@ -582,36 +581,36 @@ class SparePart:
     # Location - الموقع
     warehouse_location: str = ""
     warehouse_location_ar: str = ""
-    bin_location: Optional[str] = None
+    bin_location: str | None = None
 
     # Pricing - التسعير
     unit_cost: Decimal = Decimal("0.00")
     selling_price: Decimal = Decimal("0.00")
     currency: str = "SAR"
-    last_purchase_price: Optional[Decimal] = None
-    last_purchase_date: Optional[datetime] = None
+    last_purchase_price: Decimal | None = None
+    last_purchase_date: datetime | None = None
 
     # Supplier info - معلومات المورد
-    primary_supplier_id: Optional[str] = None
-    primary_supplier_name: Optional[str] = None
+    primary_supplier_id: str | None = None
+    primary_supplier_name: str | None = None
     lead_time_days: int = 7  # وقت التوريد (أيام)
 
     # Physical attributes - الخصائص الفيزيائية
-    weight_kg: Optional[float] = None
-    dimensions: Optional[str] = None  # L x W x H
+    weight_kg: float | None = None
+    dimensions: str | None = None  # L x W x H
 
     # Shelf life - مدة الصلاحية
     has_expiry: bool = False
-    shelf_life_months: Optional[int] = None
-    expiry_date: Optional[datetime] = None
+    shelf_life_months: int | None = None
+    expiry_date: datetime | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
     is_active: bool = True
-    barcode: Optional[str] = None
-    qr_code: Optional[str] = None
-    image_url: Optional[str] = None
+    barcode: str | None = None
+    qr_code: str | None = None
+    image_url: str | None = None
 
     def to_dict(self) -> dict:
         """Convert to dictionary"""
@@ -711,10 +710,10 @@ class PartTransaction:
     quantity_after: int
 
     # Related entities - الكيانات المرتبطة
-    maintenance_task_id: Optional[str] = None
-    equipment_id: Optional[str] = None
-    purchase_order_id: Optional[str] = None
-    supplier_id: Optional[str] = None
+    maintenance_task_id: str | None = None
+    equipment_id: str | None = None
+    purchase_order_id: str | None = None
+    supplier_id: str | None = None
 
     # Cost tracking - تتبع التكلفة
     unit_cost: Decimal = Decimal("0.00")
@@ -758,7 +757,7 @@ class ServiceRecord:
     id: str
     tenant_id: str
     equipment_id: str
-    maintenance_task_id: Optional[str] = None
+    maintenance_task_id: str | None = None
 
     # Service details - تفاصيل الخدمة
     service_date: datetime = field(default_factory=datetime.utcnow)
@@ -769,7 +768,7 @@ class ServiceRecord:
     # Equipment state at service - حالة المعدات عند الخدمة
     hours_at_service: float = 0.0
     kilometers_at_service: float = 0.0
-    odometer_reading: Optional[float] = None
+    odometer_reading: float | None = None
 
     # Work performed - العمل المنجز
     work_summary: str = ""
@@ -790,23 +789,23 @@ class ServiceRecord:
     currency: str = "SAR"
 
     # Technician - الفني
-    technician_id: Optional[str] = None
+    technician_id: str | None = None
     technician_name: str = ""
     technician_name_ar: str = ""
     external_service: bool = False
-    service_provider: Optional[str] = None
-    service_provider_ar: Optional[str] = None
+    service_provider: str | None = None
+    service_provider_ar: str | None = None
 
     # Documentation - التوثيق
-    invoice_number: Optional[str] = None
-    work_order_number: Optional[str] = None
+    invoice_number: str | None = None
+    work_order_number: str | None = None
     photos: list[str] = field(default_factory=list)
     documents: list[str] = field(default_factory=list)
 
     # Next service - الخدمة التالية
-    next_service_date: Optional[datetime] = None
-    next_service_hours: Optional[float] = None
-    next_service_type: Optional[str] = None
+    next_service_date: datetime | None = None
+    next_service_hours: float | None = None
+    next_service_type: str | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -863,28 +862,28 @@ class MaintenanceAlert:
     # Trigger data - بيانات التفعيل
     triggered_at: datetime = field(default_factory=datetime.utcnow)
     triggered_by: str = ""  # system, hours, date, condition, user
-    trigger_value: Optional[str] = None  # The value that triggered the alert
-    threshold_value: Optional[str] = None  # The threshold that was exceeded
+    trigger_value: str | None = None  # The value that triggered the alert
+    threshold_value: str | None = None  # The threshold that was exceeded
 
     # Related entities - الكيانات المرتبطة
-    schedule_id: Optional[str] = None
-    task_id: Optional[str] = None
-    part_id: Optional[str] = None
+    schedule_id: str | None = None
+    task_id: str | None = None
+    part_id: str | None = None
 
     # Status - الحالة
     is_active: bool = True
     acknowledged: bool = False
-    acknowledged_by: Optional[str] = None
-    acknowledged_at: Optional[datetime] = None
+    acknowledged_by: str | None = None
+    acknowledged_at: datetime | None = None
     resolved: bool = False
-    resolved_by: Optional[str] = None
-    resolved_at: Optional[datetime] = None
+    resolved_by: str | None = None
+    resolved_at: datetime | None = None
     resolution_notes: str = ""
     resolution_notes_ar: str = ""
 
     # Notification - الإشعار
     notification_sent: bool = False
-    notification_sent_at: Optional[datetime] = None
+    notification_sent_at: datetime | None = None
     notification_channels: list[str] = field(default_factory=list)  # email, sms, push, whatsapp
 
     # Actions - الإجراءات
@@ -894,7 +893,7 @@ class MaintenanceAlert:
     action_taken_ar: str = ""
 
     # Metadata
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
@@ -1002,24 +1001,24 @@ class IrrigationMaintenanceProfile:
     pump_model: str = ""
     impeller_part_number: str = ""
     seal_kit_part_number: str = ""
-    pump_oil_type: Optional[str] = None
+    pump_oil_type: str | None = None
 
     # Filtration - الترشيح
     filter_type: str = ""  # disc, screen, sand
-    filter_mesh_size: Optional[int] = None
+    filter_mesh_size: int | None = None
     filter_cleaning_frequency_hours: int = 100
     filter_replacement_frequency_months: int = 12
 
     # Emitters/Sprinklers - البواعث/الرشاشات
     emitter_type: str = ""
     emitter_flow_rate_lph: float = 0.0
-    nozzle_part_number: Optional[str] = None
+    nozzle_part_number: str | None = None
     emitter_check_frequency_months: int = 3
 
     # Pressure - الضغط
     operating_pressure_bar: float = 2.0
     max_pressure_bar: float = 4.0
-    pressure_regulator_setting: Optional[float] = None
+    pressure_regulator_setting: float | None = None
 
     # Winterization - التجهيز للشتاء
     requires_winterization: bool = False
@@ -1063,7 +1062,7 @@ class SprayerMaintenanceProfile:
     filter_part_numbers: list[str] = field(default_factory=list)
 
     # Calibration - المعايرة
-    last_calibration_date: Optional[datetime] = None
+    last_calibration_date: datetime | None = None
     calibration_frequency_months: int = 6
     flow_rate_tolerance_percent: float = 10.0
 

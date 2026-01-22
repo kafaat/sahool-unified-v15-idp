@@ -14,9 +14,8 @@ Updated: January 2026
 """
 
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import date
 from typing import Any
-import uuid
 
 from .models import (
     CropType,
@@ -24,17 +23,12 @@ from .models import (
     Season,
     RotationBenefit,
     RecommendationPriority,
-    PlanStatus,
     CropCharacteristics,
-    RotationSlot,
-    RotationSequence,
-    RotationPlan,
     RotationRecommendation,
     MultiYearPlan,
     PestDiseaseRisk,
     PestBreakRecommendation,
     NutrientBalance,
-    CropHistoryRecord,
     FieldRotationHistory,
 )
 
@@ -2043,7 +2037,7 @@ def get_recommended_break_crops(
 ) -> list[CropType]:
     """Get list of good break crops for a given crop"""
     break_crops = []
-    for next_crop in CROP_DATABASE.keys():
+    for next_crop in CROP_DATABASE:
         score = get_rotation_compatibility(current_crop, next_crop)
         if score >= min_score:
             break_crops.append(next_crop)

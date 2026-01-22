@@ -9,10 +9,6 @@ from typing import Any
 
 from .models import (
     Geofence,
-    GeofenceAlert,
-    AlertType,
-    AlertSeverity,
-    PositionUpdate,
 )
 
 
@@ -183,8 +179,8 @@ def generate_speed_alert(
         "excess_speed_kmh": current_speed_kmh - max_speed,
 
         # Messages
-        "title_en": f"⚡ Speed Limit Exceeded",
-        "title_ar": f"⚡ تجاوز حد السرعة",
+        "title_en": "⚡ Speed Limit Exceeded",
+        "title_ar": "⚡ تجاوز حد السرعة",
         "message_en": f"{equipment_name} traveling at {current_speed_kmh:.1f} km/h in '{geofence.name}'. "
                       f"Speed limit: {max_speed} km/h",
         "message_ar": f"{equipment_name_ar} تسير بسرعة {current_speed_kmh:.1f} كم/س في '{geofence.name_ar}'. "

@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Optional
 
 
 # Earth radius in meters for geodesic calculations
@@ -153,7 +152,7 @@ def calculate_polygon_area_geodesic(
 
 def calculate_polygon_area_projected(
     coordinates: list[tuple[float, float]],
-    reference_lat: Optional[float] = None
+    reference_lat: float | None = None
 ) -> float:
     """
     Calculate polygon area using local projection (faster, less accurate).

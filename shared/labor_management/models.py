@@ -10,7 +10,6 @@ Version: 1.0.0
 from dataclasses import dataclass, field
 from datetime import datetime, date, time, timedelta
 from enum import Enum
-from typing import Optional
 from uuid import uuid4
 
 
@@ -179,26 +178,26 @@ class WorkerSkill:
 
     # Certification details
     is_certified: bool = False
-    certification_number: Optional[str] = None
-    certification_date: Optional[date] = None
-    certification_expiry: Optional[date] = None
-    certifying_authority: Optional[str] = None
+    certification_number: str | None = None
+    certification_date: date | None = None
+    certification_expiry: date | None = None
+    certifying_authority: str | None = None
 
     # Verification
-    verified_by: Optional[str] = None
-    verified_date: Optional[date] = None
+    verified_by: str | None = None
+    verified_date: date | None = None
 
     notes: str = ""
     notes_ar: str = ""
 
-    def is_certification_valid(self, check_date: Optional[date] = None) -> bool:
+    def is_certification_valid(self, check_date: date | None = None) -> bool:
         """Check if certification is still valid"""
         if not self.is_certified or not self.certification_expiry:
             return False
         check = check_date or date.today()
         return check <= self.certification_expiry
 
-    def days_until_expiry(self, check_date: Optional[date] = None) -> Optional[int]:
+    def days_until_expiry(self, check_date: date | None = None) -> int | None:
         """Get days until certification expires"""
         if not self.certification_expiry:
             return None
@@ -222,18 +221,18 @@ class WorkerCertification:
 
     # Verification
     is_verified: bool = True
-    verified_by: Optional[str] = None
-    verified_date: Optional[date] = None
+    verified_by: str | None = None
+    verified_date: date | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
 
-    def is_valid(self, check_date: Optional[date] = None) -> bool:
+    def is_valid(self, check_date: date | None = None) -> bool:
         """Check if certification is still valid"""
         check = check_date or date.today()
         return self.is_verified and check <= self.expiry_date
 
-    def days_until_expiry(self, check_date: Optional[date] = None) -> int:
+    def days_until_expiry(self, check_date: date | None = None) -> int:
         """Get days until certification expires"""
         check = check_date or date.today()
         return (self.expiry_date - check).days
@@ -246,8 +245,8 @@ class EmergencyContact:
     relationship: str
     relationship_ar: str
     phone: str
-    alternate_phone: Optional[str] = None
-    address: Optional[str] = None
+    alternate_phone: str | None = None
+    address: str | None = None
 
 
 @dataclass
@@ -270,27 +269,27 @@ class Worker:
 
     # Contact
     phone: str
-    email: Optional[str] = None
-    address: Optional[str] = None
-    address_ar: Optional[str] = None
+    email: str | None = None
+    address: str | None = None
+    address_ar: str | None = None
 
     # Employment
     status: WorkerStatus = WorkerStatus.ACTIVE
     worker_type: WorkerType = WorkerType.FULL_TIME
-    hire_date: Optional[date] = None
-    termination_date: Optional[date] = None
+    hire_date: date | None = None
+    termination_date: date | None = None
 
     # Work details
     department: str = ""
     department_ar: str = ""
     position: str = ""
     position_ar: str = ""
-    supervisor_id: Optional[str] = None
+    supervisor_id: str | None = None
 
     # Compensation
-    hourly_rate: Optional[float] = None
-    daily_rate: Optional[float] = None
-    monthly_salary: Optional[float] = None
+    hourly_rate: float | None = None
+    daily_rate: float | None = None
+    monthly_salary: float | None = None
     currency: str = "SAR"  # Saudi Riyal
 
     # Skills and certifications
@@ -298,15 +297,15 @@ class Worker:
     certifications: list[WorkerCertification] = field(default_factory=list)
 
     # Safety
-    emergency_contact: Optional[EmergencyContact] = None
-    blood_type: Optional[str] = None
+    emergency_contact: EmergencyContact | None = None
+    blood_type: str | None = None
     medical_conditions: list[str] = field(default_factory=list)
     allergies: list[str] = field(default_factory=list)
 
     # ID documents
-    national_id: Optional[str] = None
-    iqama_number: Optional[str] = None  # Saudi residence permit
-    passport_number: Optional[str] = None
+    national_id: str | None = None
+    iqama_number: str | None = None  # Saudi residence permit
+    passport_number: str | None = None
 
     # Languages
     languages: list[str] = field(default_factory=lambda: ["ar"])
@@ -341,7 +340,7 @@ class Worker:
                     return True
         return False
 
-    def has_valid_certification(self, cert_type: SafetyCertification, check_date: Optional[date] = None) -> bool:
+    def has_valid_certification(self, cert_type: SafetyCertification, check_date: date | None = None) -> bool:
         """Check if worker has valid certification of given type"""
         for cert in self.certifications:
             if cert.certification_type == cert_type and cert.is_valid(check_date):
@@ -388,7 +387,7 @@ class Task:
     task_id: str
     tenant_id: str
     farm_id: str
-    field_id: Optional[str] = None
+    field_id: str | None = None
 
     # Task details
     title: str = ""
@@ -401,31 +400,31 @@ class Task:
     status: TaskStatus = TaskStatus.PENDING
 
     # Scheduling
-    planned_start: Optional[datetime] = None
-    planned_end: Optional[datetime] = None
-    actual_start: Optional[datetime] = None
-    actual_end: Optional[datetime] = None
+    planned_start: datetime | None = None
+    planned_end: datetime | None = None
+    actual_start: datetime | None = None
+    actual_end: datetime | None = None
 
     estimated_hours: float = 1.0
-    actual_hours: Optional[float] = None
+    actual_hours: float | None = None
 
     # Assignment
     assigned_workers: list[str] = field(default_factory=list)  # Worker IDs
-    supervisor_id: Optional[str] = None
-    created_by: Optional[str] = None
+    supervisor_id: str | None = None
+    created_by: str | None = None
 
     # Requirements
-    requirements: Optional[TaskRequirement] = None
+    requirements: TaskRequirement | None = None
 
     # Location
     location_description: str = ""
     location_description_ar: str = ""
-    gps_coordinates: Optional[tuple[float, float]] = None
+    gps_coordinates: tuple[float, float] | None = None
 
     # Pesticide/Safety integration
-    related_pesticide_application_id: Optional[str] = None
+    related_pesticide_application_id: str | None = None
     rei_restricted: bool = False
-    rei_expiry_time: Optional[datetime] = None
+    rei_expiry_time: datetime | None = None
     safety_notes: str = ""
     safety_notes_ar: str = ""
 
@@ -435,20 +434,20 @@ class Task:
     # Completion
     completion_notes: str = ""
     completion_notes_ar: str = ""
-    quality_rating: Optional[int] = None  # 1-5
+    quality_rating: int | None = None  # 1-5
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
-    def is_blocked_by_rei(self, check_time: Optional[datetime] = None) -> bool:
+    def is_blocked_by_rei(self, check_time: datetime | None = None) -> bool:
         """Check if task is blocked due to REI restriction"""
         if not self.rei_restricted or not self.rei_expiry_time:
             return False
         check = check_time or datetime.utcnow()
         return check < self.rei_expiry_time
 
-    def get_rei_remaining_hours(self, check_time: Optional[datetime] = None) -> Optional[float]:
+    def get_rei_remaining_hours(self, check_time: datetime | None = None) -> float | None:
         """Get remaining REI hours"""
         if not self.rei_restricted or not self.rei_expiry_time:
             return None
@@ -511,13 +510,13 @@ class WorkerSchedule:
     task_ids: list[str] = field(default_factory=list)
 
     # Override times (if different from shift)
-    custom_start_time: Optional[time] = None
-    custom_end_time: Optional[time] = None
+    custom_start_time: time | None = None
+    custom_end_time: time | None = None
 
     # Status
     is_confirmed: bool = False
-    confirmed_by: Optional[str] = None
-    confirmed_at: Optional[datetime] = None
+    confirmed_by: str | None = None
+    confirmed_at: datetime | None = None
 
     # Notes
     notes: str = ""
@@ -543,26 +542,26 @@ class AttendanceRecord:
     status: AttendanceStatus = AttendanceStatus.PRESENT
 
     # Clock times
-    clock_in: Optional[datetime] = None
-    clock_out: Optional[datetime] = None
+    clock_in: datetime | None = None
+    clock_out: datetime | None = None
 
     # Breaks
-    break_start: Optional[datetime] = None
-    break_end: Optional[datetime] = None
+    break_start: datetime | None = None
+    break_end: datetime | None = None
     total_break_minutes: int = 0
 
     # Hours
     scheduled_hours: float = 8.0
-    worked_hours: Optional[float] = None
+    worked_hours: float | None = None
     overtime_hours: float = 0.0
 
     # Location (for mobile clock-in)
-    clock_in_location: Optional[tuple[float, float]] = None
-    clock_out_location: Optional[tuple[float, float]] = None
+    clock_in_location: tuple[float, float] | None = None
+    clock_out_location: tuple[float, float] | None = None
 
     # Verification
-    verified_by: Optional[str] = None
-    verified_at: Optional[datetime] = None
+    verified_by: str | None = None
+    verified_at: datetime | None = None
 
     # Notes
     notes: str = ""
@@ -571,7 +570,7 @@ class AttendanceRecord:
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
-    def calculate_worked_hours(self) -> Optional[float]:
+    def calculate_worked_hours(self) -> float | None:
         """Calculate worked hours from clock times"""
         if not self.clock_in or not self.clock_out:
             return None
@@ -600,8 +599,8 @@ class LeaveRequest:
 
     # Approval
     status: str = "pending"  # pending, approved, rejected
-    approved_by: Optional[str] = None
-    approved_at: Optional[datetime] = None
+    approved_by: str | None = None
+    approved_at: datetime | None = None
     rejection_reason: str = ""
     rejection_reason_ar: str = ""
 
@@ -640,9 +639,9 @@ class Timesheet:
 
     # Approval
     status: str = "draft"  # draft, submitted, approved, rejected
-    submitted_at: Optional[datetime] = None
-    approved_by: Optional[str] = None
-    approved_at: Optional[datetime] = None
+    submitted_at: datetime | None = None
+    approved_by: str | None = None
+    approved_at: datetime | None = None
 
     notes: str = ""
     notes_ar: str = ""
@@ -662,9 +661,9 @@ class SafetyViolation:
     violation_type: SafetyViolationType
 
     # Optional identifiers
-    field_id: Optional[str] = None
-    worker_id: Optional[str] = None
-    task_id: Optional[str] = None
+    field_id: str | None = None
+    worker_id: str | None = None
+    task_id: str | None = None
 
     severity: str = "warning"  # warning, minor, major, critical
 
@@ -673,9 +672,9 @@ class SafetyViolation:
     description_ar: str = ""
 
     # REI-specific (if applicable)
-    related_pesticide_id: Optional[str] = None
-    related_pesticide_name: Optional[str] = None
-    rei_expiry_time: Optional[datetime] = None
+    related_pesticide_id: str | None = None
+    related_pesticide_name: str | None = None
+    rei_expiry_time: datetime | None = None
 
     # PPE-specific (if applicable)
     missing_ppe: list[PPEType] = field(default_factory=list)
@@ -684,23 +683,23 @@ class SafetyViolation:
     incident_time: datetime = field(default_factory=datetime.utcnow)
     incident_location: str = ""
     incident_location_ar: str = ""
-    gps_coordinates: Optional[tuple[float, float]] = None
+    gps_coordinates: tuple[float, float] | None = None
 
     # Response
     corrective_action: str = ""
     corrective_action_ar: str = ""
-    action_taken_by: Optional[str] = None
-    action_taken_at: Optional[datetime] = None
+    action_taken_by: str | None = None
+    action_taken_at: datetime | None = None
 
     # Resolution
     is_resolved: bool = False
-    resolved_by: Optional[str] = None
-    resolved_at: Optional[datetime] = None
+    resolved_by: str | None = None
+    resolved_at: datetime | None = None
     resolution_notes: str = ""
     resolution_notes_ar: str = ""
 
     # Metadata
-    reported_by: Optional[str] = None
+    reported_by: str | None = None
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
@@ -754,14 +753,14 @@ class REIZone:
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
-    def is_currently_restricted(self, check_time: Optional[datetime] = None) -> bool:
+    def is_currently_restricted(self, check_time: datetime | None = None) -> bool:
         """Check if zone is currently restricted"""
         if not self.is_active:
             return False
         check = check_time or datetime.utcnow()
         return check < self.rei_expiry_time
 
-    def get_remaining_hours(self, check_time: Optional[datetime] = None) -> float:
+    def get_remaining_hours(self, check_time: datetime | None = None) -> float:
         """Get remaining REI hours"""
         check = check_time or datetime.utcnow()
         if check >= self.rei_expiry_time:
@@ -805,7 +804,7 @@ class PreTaskSafetyCheck:
 
     # REI check
     rei_check_passed: bool = True
-    rei_zone_id: Optional[str] = None
+    rei_zone_id: str | None = None
     rei_violation_acknowledged: bool = False
 
     # Certification verification
@@ -814,8 +813,8 @@ class PreTaskSafetyCheck:
 
     # Overall status
     is_approved: bool = False
-    approved_by: Optional[str] = None
-    approved_at: Optional[datetime] = None
+    approved_by: str | None = None
+    approved_at: datetime | None = None
 
     # Notes
     notes: str = ""

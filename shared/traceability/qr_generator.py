@@ -16,7 +16,6 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from io import BytesIO
-from typing import Optional
 from urllib.parse import urlencode
 
 from .models import (
@@ -63,7 +62,7 @@ class QRGenerationConfig:
     # Visual customization
     foreground_color: str = "#000000"  # Black
     background_color: str = "#FFFFFF"  # White
-    logo_url: Optional[str] = None  # Logo to embed in center
+    logo_url: str | None = None  # Logo to embed in center
     logo_size_ratio: float = 0.25  # Logo size as ratio of QR size
 
     # Error correction level (L, M, Q, H)
@@ -106,7 +105,7 @@ class QRCodeGenerator:
     ينشئ رموز QR ترتبط بمعلومات رحلة المنتج.
     """
 
-    def __init__(self, config: Optional[QRGenerationConfig] = None):
+    def __init__(self, config: QRGenerationConfig | None = None):
         """
         Initialize QR generator.
 
@@ -127,7 +126,7 @@ class QRCodeGenerator:
     def generate_for_batch(
         self,
         batch: ProduceBatch,
-        config: Optional[QRGenerationConfig] = None,
+        config: QRGenerationConfig | None = None,
     ) -> GeneratedQRCode:
         """
         Generate QR code for a produce batch.
@@ -174,7 +173,7 @@ class QRCodeGenerator:
     def generate_bulk(
         self,
         batches: list[ProduceBatch],
-        config: Optional[QRGenerationConfig] = None,
+        config: QRGenerationConfig | None = None,
     ) -> list[GeneratedQRCode]:
         """
         Generate QR codes for multiple batches.
@@ -192,7 +191,7 @@ class QRCodeGenerator:
     def generate_from_data(
         self,
         qr_code_data: QRCodeData,
-        config: Optional[QRGenerationConfig] = None,
+        config: QRGenerationConfig | None = None,
     ) -> GeneratedQRCode:
         """
         Generate QR code from QRCodeData object.
@@ -355,7 +354,7 @@ class QRCodeGenerator:
     ) -> str:
         """Calculate checksum for QR data verification"""
         data = f"{batch_id}|{batch_code}|{qr_data}"
-        return hashlib.md5(data.encode()).hexdigest()
+        return hashlib.sha256(data.encode()).hexdigest()[:32]
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -374,8 +373,8 @@ class LabelData:
     producer_name_en: str
     producer_name_ar: str
     harvest_date: str
-    expiry_date: Optional[str] = None
-    weight: Optional[str] = None  # e.g., "500g"
+    expiry_date: str | None = None
+    weight: str | None = None  # e.g., "500g"
     quality_grade: str = ""
     certifications: list[str] = field(default_factory=list)  # Certification logos/names
     qr_code_base64: str = ""
@@ -387,7 +386,7 @@ class LabelGenerator:
     إنشاء ملصقات قابلة للطباعة مع رموز QR
     """
 
-    def __init__(self, qr_generator: Optional[QRCodeGenerator] = None):
+    def __init__(self, qr_generator: QRCodeGenerator | None = None):
         self.qr_generator = qr_generator or QRCodeGenerator()
 
     def generate_label_data(
@@ -395,7 +394,7 @@ class LabelGenerator:
         batch: ProduceBatch,
         producer_name_en: str = "",
         producer_name_ar: str = "",
-        certifications: Optional[list[str]] = None,
+        certifications: list[str] | None = None,
     ) -> LabelData:
         """
         Generate label data for a batch.
@@ -544,7 +543,7 @@ def generate_batch_code(
     product_code: str,
     year: int,
     sequence: int,
-    farm_code: Optional[str] = None,
+    farm_code: str | None = None,
 ) -> str:
     """
     Generate a human-readable batch code.
@@ -570,7 +569,7 @@ def generate_batch_code(
     return f"{product_code.upper()}-{year_short}-{seq_padded}"
 
 
-def decode_qr_data(qr_data: str) -> Optional[dict]:
+def decode_qr_data(qr_data: str) -> dict | None:
     """
     Decode QR data string back to dictionary.
     فك تشفير سلسلة بيانات QR إلى قاموس.
@@ -610,5 +609,5 @@ def verify_qr_checksum(generated_qr: GeneratedQRCode) -> bool:
         True if checksum is valid
     """
     data = f"{generated_qr.batch_id}|{generated_qr.batch_code}|{generated_qr.qr_data}"
-    expected_checksum = hashlib.md5(data.encode()).hexdigest()
+    expected_checksum = hashlib.sha256(data.encode()).hexdigest()[:32]
     return generated_qr.checksum == expected_checksum

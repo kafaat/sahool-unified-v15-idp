@@ -5,8 +5,7 @@ Core geofencing logic with point-in-polygon and distance calculations
 
 import math
 import uuid
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import datetime
 
 from .models import (
     Geofence,
@@ -318,7 +317,7 @@ class GeofenceEngine:
         update: PositionUpdate,
         geofence: Geofence,
         is_inside: bool,
-        was_inside: Optional[bool],
+        was_inside: bool | None,
         distance_to_boundary: float,
     ) -> GeofenceAlert | None:
         """Check if an alert should be generated"""
@@ -445,7 +444,7 @@ class GeofenceEngine:
     def _check_for_theft(
         self,
         update: PositionUpdate,
-        prev_update: Optional[PositionUpdate],
+        prev_update: PositionUpdate | None,
         geofences: list[Geofence],
     ) -> GeofenceAlert | None:
         """
@@ -615,7 +614,7 @@ class GeofenceEngine:
     def get_unacknowledged_alerts(
         self,
         tenant_id: str,
-        equipment_id: Optional[str] = None,
+        equipment_id: str | None = None,
     ) -> list[GeofenceAlert]:
         """Get all unacknowledged alerts"""
         alerts = [

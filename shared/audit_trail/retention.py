@@ -19,7 +19,6 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable
@@ -30,11 +29,9 @@ import structlog
 from .models import (
     AuditCategory,
     AuditEntry,
-    AuditQueryFilter,
     RetentionJob,
     RetentionPeriod,
     RetentionPolicy,
-    RETENTION_DAYS,
 )
 
 logger = structlog.get_logger(__name__)

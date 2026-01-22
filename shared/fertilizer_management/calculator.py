@@ -5,9 +5,7 @@ Calculate application rates, costs, and environmental compliance.
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 
 from .models import (
     ApplicationMethod,
@@ -17,7 +15,6 @@ from .models import (
     Fertilizer,
     FertilizerApplication,
     NutrientBalance,
-    NutrientComposition,
     NutrientStatus,
     SoilTest,
 )
@@ -368,7 +365,7 @@ class FertilizerCalculator:
         target_n_kg_ha: float,
         target_p_kg_ha: float,
         target_k_kg_ha: float,
-        available_fertilizers: Optional[list[str]] = None,
+        available_fertilizers: list[str] | None = None,
     ) -> BlendCalculation:
         """
         Calculate optimal fertilizer blend to meet nutrient targets.
@@ -509,7 +506,7 @@ class FertilizerCalculator:
         self,
         field_id: str,
         applications: list[FertilizerApplication],
-        water_body_distance_m: Optional[float] = None,
+        water_body_distance_m: float | None = None,
     ) -> EnvironmentalCompliance:
         """
         Check environmental compliance for fertilizer applications.
@@ -606,7 +603,7 @@ class FertilizerCalculator:
         season: str,
         area_ha: float,
         applications: list[FertilizerApplication],
-        previous_season_cost: Optional[Decimal] = None,
+        previous_season_cost: Decimal | None = None,
     ) -> CostAnalysis:
         """
         Calculate cost analysis for fertilizer applications.

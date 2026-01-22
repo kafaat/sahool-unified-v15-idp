@@ -15,15 +15,11 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
-from uuid import uuid4
 
 from .models import (
     DeltaChange,
     DeltaPacket,
     SyncItem,
-    SyncMetadata,
-    SyncStatus,
-    SyncDirection,
     SyncOperationType,
     EntityType,
     BilingualMessage,

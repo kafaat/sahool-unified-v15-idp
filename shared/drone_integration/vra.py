@@ -15,7 +15,6 @@ Version: 1.0.0
 import math
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional, Callable
 from enum import Enum
 
 from .models import (
@@ -139,7 +138,7 @@ class GridCell:
     col: int
     center: Coordinate
     value: float
-    zone_type: Optional[VRAZoneType] = None
+    zone_type: VRAZoneType | None = None
     rate_l_ha: float = 0.0
 
     def to_dict(self) -> dict:
@@ -177,10 +176,10 @@ class VRARasterData:
 
     # Metadata
     source_type: VRASourceType = VRASourceType.NDVI
-    capture_date: Optional[datetime] = None
+    capture_date: datetime | None = None
     no_data_value: float = -999.0
 
-    def get_cell(self, lat: float, lng: float) -> Optional[GridCell]:
+    def get_cell(self, lat: float, lng: float) -> GridCell | None:
         """Get cell at geographic coordinate"""
         if not self.bounds:
             return None
@@ -215,7 +214,7 @@ class VRAGenerator:
     or other spatial data sources for precision agriculture applications.
     """
 
-    def __init__(self, config: Optional[VRAConfig] = None):
+    def __init__(self, config: VRAConfig | None = None):
         """
         Initialize VRA generator.
 

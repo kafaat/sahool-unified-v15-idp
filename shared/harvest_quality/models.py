@@ -226,9 +226,7 @@ class QualityParameter:
         """Determine grade based on measured value"""
         # Check rejection first
         if self.rejection_threshold is not None:
-            if self.lower_is_better and value > self.rejection_threshold:
-                return QualityGrade.REJECTED
-            elif not self.lower_is_better and value < self.rejection_threshold:
+            if self.lower_is_better and value > self.rejection_threshold or not self.lower_is_better and value < self.rejection_threshold:
                 return QualityGrade.REJECTED
 
         # Check each grade level

@@ -20,8 +20,7 @@ import csv
 import io
 import json
 from collections import Counter
-from datetime import datetime, timedelta
-from typing import Any
+from datetime import datetime
 from uuid import uuid4
 
 import structlog
@@ -30,11 +29,9 @@ from .models import (
     ACTION_LABELS,
     CATEGORY_LABELS,
     SEVERITY_LABELS,
-    ActorType,
     AuditActionType,
     AuditCategory,
     AuditEntry,
-    AuditQueryFilter,
     AuditReport,
     AuditSeverity,
     ExportFormat,

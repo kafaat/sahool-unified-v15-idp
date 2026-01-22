@@ -14,16 +14,14 @@ import asyncio
 import heapq
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Callable, Awaitable
-from uuid import uuid4
 
 from .models import (
     SyncItem,
     SyncStatus,
     SyncPriority,
     SyncDirection,
-    SyncOperationType,
     EntityType,
     SyncProgress,
     SyncSession,

@@ -27,16 +27,13 @@ import uuid
 from .models import (
     BilingualText,
     Certification,
-    ContentType,
     Course,
-    CourseStatus,
     DifficultyLevel,
     EnrollmentStatus,
     FarmerCertification,
     FarmerProfile,
     FarmerSkill,
     Lesson,
-    Quiz,
     SkillCategory,
 )
 

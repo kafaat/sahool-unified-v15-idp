@@ -3,9 +3,8 @@ Pesticide Compliance Models - نماذج بيانات سلامة المبيدا�
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 
 class ComplianceStatus(str, Enum):
@@ -131,22 +130,22 @@ class PesticideApplication:
     growth_stage: str
 
     # Weather conditions at application
-    temperature_c: Optional[float] = None
-    humidity_percent: Optional[float] = None
-    wind_speed_kmh: Optional[float] = None
-    wind_direction: Optional[str] = None
+    temperature_c: float | None = None
+    humidity_percent: float | None = None
+    wind_speed_kmh: float | None = None
+    wind_direction: str | None = None
 
     # Applicator info
-    applicator_id: Optional[str] = None
-    applicator_name: Optional[str] = None
+    applicator_id: str | None = None
+    applicator_name: str | None = None
     application_method: str = "sprayer"  # sprayer, drone, aerial, etc.
 
     # Tank mix
     tank_mix_products: list[str] = field(default_factory=list)
 
     # Compliance
-    phi_expiry_date: Optional[datetime] = None
-    rei_expiry_time: Optional[datetime] = None
+    phi_expiry_date: datetime | None = None
+    rei_expiry_time: datetime | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -193,7 +192,7 @@ class REIViolation:
     message_ar: str
 
     # PPE for early entry
-    early_entry_ppe: Optional[PPERequirement] = None
+    early_entry_ppe: PPERequirement | None = None
 
 
 @dataclass
@@ -265,7 +264,7 @@ class ComplianceCheck:
     phi_violations: list[PHIViolation] = field(default_factory=list)
     rei_violations: list[REIViolation] = field(default_factory=list)
     tank_mix_issues: list[TankMixCompatibility] = field(default_factory=list)
-    drift_assessment: Optional[SprayDriftRisk] = None
+    drift_assessment: SprayDriftRisk | None = None
 
     # Summary
     summary_en: str = ""

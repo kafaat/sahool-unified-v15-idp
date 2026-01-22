@@ -402,9 +402,7 @@ class HijriCalendar:
         # Hijri months alternate between 30 and 29 days
         # Odd months have 30 days, even months have 29 days
         # In leap years, the 12th month has 30 days
-        if hijri_month % 2 == 1:
-            return 30
-        elif hijri_month == 12 and self._is_hijri_leap_year(hijri_year):
+        if hijri_month % 2 == 1 or hijri_month == 12 and self._is_hijri_leap_year(hijri_year):
             return 30
         else:
             return 29

@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 import json
 
 
@@ -102,7 +102,7 @@ class SampleLocation:
     longitude: float
     depth_cm_start: int = 0
     depth_cm_end: int = 30
-    elevation_m: Optional[float] = None
+    elevation_m: float | None = None
     zone_name: str = ""
     zone_name_ar: str = ""
 
@@ -231,7 +231,7 @@ class SoilProperties:
     """
     # Acidity/Alkalinity
     ph: float = 7.0  # درجة الحموضة
-    ph_buffer: Optional[float] = None  # pH buffer for lime requirement
+    ph_buffer: float | None = None  # pH buffer for lime requirement
 
     # Salinity
     ec_ds_m: float = 0.0  # التوصيل الكهربائي dS/m
@@ -393,29 +393,29 @@ class SoilTestResult:
 
     # Timing
     sample_date: datetime
-    analysis_date: Optional[datetime] = None
-    report_date: Optional[datetime] = None
+    analysis_date: datetime | None = None
+    report_date: datetime | None = None
 
     # Sample details
     sample_type: SampleType = SampleType.COMPOSITE
-    sample_location: Optional[SampleLocation] = None
+    sample_location: SampleLocation | None = None
     number_of_subsamples: int = 1
     sampler_name: str = ""
 
     # Lab information
-    lab_info: Optional[LabInfo] = None
+    lab_info: LabInfo | None = None
     lab_status: LabStatus = LabStatus.PENDING
     lab_reference_number: str = ""
 
     # Results
-    macronutrients: Optional[MacronutrientResults] = None
-    micronutrients: Optional[MicronutrientResults] = None
-    soil_properties: Optional[SoilProperties] = None
-    texture: Optional[SoilTexture] = None
-    heavy_metals: Optional[HeavyMetals] = None
+    macronutrients: MacronutrientResults | None = None
+    micronutrients: MicronutrientResults | None = None
+    soil_properties: SoilProperties | None = None
+    texture: SoilTexture | None = None
+    heavy_metals: HeavyMetals | None = None
 
     # Classification
-    soil_type: Optional[SoilType] = None
+    soil_type: SoilType | None = None
     soil_type_ar: str = ""
 
     # Quality indicators
@@ -675,7 +675,7 @@ class AmendmentRecommendation:
 
     # Application details
     application_rate_kg_ha: float = 0.0
-    application_rate_per_tree: Optional[float] = None  # For orchards
+    application_rate_per_tree: float | None = None  # For orchards
     application_method: str = ""
     application_method_ar: str = ""
 
@@ -753,7 +753,7 @@ class AmendmentPlan:
 
     # Plan details
     plan_date: datetime = field(default_factory=datetime.utcnow)
-    valid_until: Optional[datetime] = None
+    valid_until: datetime | None = None
 
     # Recommendations
     recommendations: list[AmendmentRecommendation] = field(default_factory=list)
@@ -779,7 +779,7 @@ class AmendmentPlan:
     # Metadata
     created_by: str = ""
     approved_by: str = ""
-    approved_at: Optional[datetime] = None
+    approved_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -894,17 +894,17 @@ class TrendReport:
     report_date: datetime = field(default_factory=datetime.utcnow)
 
     # Analysis period
-    period_start: Optional[datetime] = None
-    period_end: Optional[datetime] = None
+    period_start: datetime | None = None
+    period_end: datetime | None = None
     number_of_tests: int = 0
 
     # Nutrient trends
     nutrient_trends: list[NutrientTrend] = field(default_factory=list)
 
     # Soil property trends
-    ph_trend: Optional[NutrientTrend] = None
-    ec_trend: Optional[NutrientTrend] = None
-    om_trend: Optional[NutrientTrend] = None
+    ph_trend: NutrientTrend | None = None
+    ec_trend: NutrientTrend | None = None
+    om_trend: NutrientTrend | None = None
 
     # Key findings
     improving_nutrients: list[str] = field(default_factory=list)

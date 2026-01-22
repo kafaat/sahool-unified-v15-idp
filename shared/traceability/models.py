@@ -12,7 +12,6 @@ certifications, and consumer-facing product journey display.
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 from uuid import uuid4
 
 
@@ -95,8 +94,8 @@ class GeoLocation:
     """Geographic location - الموقع الجغرافي"""
     latitude: float
     longitude: float
-    altitude_m: Optional[float] = None
-    accuracy_m: Optional[float] = None
+    altitude_m: float | None = None
+    accuracy_m: float | None = None
 
 
 @dataclass
@@ -109,9 +108,9 @@ class Address:
     region_en: str
     region_ar: str
     country_code: str  # ISO 3166-1 alpha-2
-    postal_code: Optional[str] = None
-    address_line2_en: Optional[str] = None
-    address_line2_ar: Optional[str] = None
+    postal_code: str | None = None
+    address_line2_en: str | None = None
+    address_line2_ar: str | None = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -129,9 +128,9 @@ class Producer:
     farm_name_ar: str
     registration_number: str  # رقم التسجيل
     address: Address
-    location: Optional[GeoLocation] = None
-    contact_phone: Optional[str] = None
-    contact_email: Optional[str] = None
+    location: GeoLocation | None = None
+    contact_phone: str | None = None
+    contact_email: str | None = None
     certifications: list[str] = field(default_factory=list)  # Certification IDs
 
 
@@ -145,7 +144,7 @@ class ProcessingFacility:
     facility_type_ar: str
     registration_number: str
     address: Address
-    location: Optional[GeoLocation] = None
+    location: GeoLocation | None = None
     certifications: list[str] = field(default_factory=list)
 
 
@@ -156,8 +155,8 @@ class Transporter:
     company_name_en: str
     company_name_ar: str
     vehicle_id: str
-    driver_name: Optional[str] = None
-    license_number: Optional[str] = None
+    driver_name: str | None = None
+    license_number: str | None = None
 
 
 @dataclass
@@ -169,7 +168,7 @@ class Retailer:
     store_type_en: str  # e.g., "Supermarket", "Farmers Market"
     store_type_ar: str
     address: Address
-    location: Optional[GeoLocation] = None
+    location: GeoLocation | None = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -204,8 +203,8 @@ class Certification:
     is_valid: bool = True
 
     # Verification
-    verification_url: Optional[str] = None  # URL to verify certificate
-    certificate_document_url: Optional[str] = None
+    verification_url: str | None = None  # URL to verify certificate
+    certificate_document_url: str | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -225,18 +224,18 @@ class ComplianceRecord:
 
     # Results
     is_compliant: bool
-    score: Optional[float] = None  # Percentage or points
+    score: float | None = None  # Percentage or points
 
     # Details
-    findings_en: Optional[str] = None
-    findings_ar: Optional[str] = None
+    findings_en: str | None = None
+    findings_ar: str | None = None
 
     # Corrective actions
     corrective_actions_en: list[str] = field(default_factory=list)
     corrective_actions_ar: list[str] = field(default_factory=list)
 
     # Documents
-    report_url: Optional[str] = None
+    report_url: str | None = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -277,19 +276,19 @@ class ProduceBatch:
     status: BatchStatus = BatchStatus.CREATED
 
     # Dates
-    harvest_date: Optional[datetime] = None
-    pack_date: Optional[datetime] = None
-    expiry_date: Optional[datetime] = None
+    harvest_date: datetime | None = None
+    pack_date: datetime | None = None
+    expiry_date: datetime | None = None
 
     # Producer
-    producer_id: Optional[str] = None
+    producer_id: str | None = None
 
     # Certifications associated with this batch
     certification_ids: list[str] = field(default_factory=list)
 
     # QR code
-    qr_code_url: Optional[str] = None
-    qr_code_data: Optional[str] = None
+    qr_code_url: str | None = None
+    qr_code_data: str | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -344,7 +343,7 @@ class SupplyChainEvent:
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
     # Location
-    location: Optional[GeoLocation] = None
+    location: GeoLocation | None = None
     location_name_en: str = ""
     location_name_ar: str = ""
 
@@ -364,11 +363,11 @@ class SupplyChainEvent:
 
     # Verification
     verified: bool = False
-    verified_by: Optional[str] = None
-    verification_timestamp: Optional[datetime] = None
+    verified_by: str | None = None
+    verification_timestamp: datetime | None = None
 
     # Digital signature (for authenticity)
-    signature: Optional[str] = None
+    signature: str | None = None
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -394,8 +393,8 @@ class HarvestEvent(SupplyChainEvent):
     harvest_method_ar: str = ""
 
     # Weather at harvest
-    temperature_c: Optional[float] = None
-    humidity_percent: Optional[float] = None
+    temperature_c: float | None = None
+    humidity_percent: float | None = None
 
     # Quality at harvest
     quality_notes_en: str = ""
@@ -424,7 +423,7 @@ class ProcessingEvent(SupplyChainEvent):
 
     # Quality control
     quality_check_passed: bool = True
-    quality_grade: Optional[QualityGrade] = None
+    quality_grade: QualityGrade | None = None
     quality_notes_en: str = ""
     quality_notes_ar: str = ""
 
@@ -442,14 +441,14 @@ class StorageEvent(SupplyChainEvent):
 
     # Storage conditions
     storage_condition: StorageCondition = StorageCondition.CHILLED
-    target_temperature_c: Optional[float] = None
-    actual_temperature_c: Optional[float] = None
-    target_humidity_percent: Optional[float] = None
-    actual_humidity_percent: Optional[float] = None
+    target_temperature_c: float | None = None
+    actual_temperature_c: float | None = None
+    target_humidity_percent: float | None = None
+    actual_humidity_percent: float | None = None
 
     # Duration
     storage_start: datetime = field(default_factory=datetime.utcnow)
-    storage_end: Optional[datetime] = None
+    storage_end: datetime | None = None
 
     # Notes
     condition_notes_en: str = ""
@@ -470,25 +469,25 @@ class TransportEvent(SupplyChainEvent):
     # Route
     origin_en: str = ""
     origin_ar: str = ""
-    origin_location: Optional[GeoLocation] = None
+    origin_location: GeoLocation | None = None
     destination_en: str = ""
     destination_ar: str = ""
-    destination_location: Optional[GeoLocation] = None
+    destination_location: GeoLocation | None = None
 
     # Transport mode
     transport_mode: TransportMode = TransportMode.TRUCK_REFRIGERATED
 
     # Temperature control
-    target_temperature_c: Optional[float] = None
-    min_recorded_temperature_c: Optional[float] = None
-    max_recorded_temperature_c: Optional[float] = None
+    target_temperature_c: float | None = None
+    min_recorded_temperature_c: float | None = None
+    max_recorded_temperature_c: float | None = None
 
     # Timing
-    departure_time: Optional[datetime] = None
-    arrival_time: Optional[datetime] = None
+    departure_time: datetime | None = None
+    arrival_time: datetime | None = None
 
     # Distance
-    distance_km: Optional[float] = None
+    distance_km: float | None = None
 
 
 @dataclass
@@ -509,14 +508,14 @@ class RetailEvent(SupplyChainEvent):
 
     # Quality check at receipt
     quality_check_passed: bool = True
-    temperature_at_receipt_c: Optional[float] = None
+    temperature_at_receipt_c: float | None = None
 
     # Display
     display_location_en: str = ""  # e.g., "Produce Aisle", "Cold Section"
     display_location_ar: str = ""
 
     # Pricing
-    unit_price: Optional[float] = None
+    unit_price: float | None = None
     currency: str = "SAR"
 
 
@@ -526,16 +525,16 @@ class ConsumerScanEvent(SupplyChainEvent):
     event_type: EventType = field(default=EventType.CONSUMER_SCAN)
 
     # Scan info
-    scan_location: Optional[GeoLocation] = None
+    scan_location: GeoLocation | None = None
     device_type: str = ""  # "mobile", "tablet", "kiosk"
 
     # Session (anonymous tracking)
     session_id: str = ""
 
     # Consumer feedback (optional)
-    rating: Optional[int] = None  # 1-5
-    feedback_en: Optional[str] = None
-    feedback_ar: Optional[str] = None
+    rating: int | None = None  # 1-5
+    feedback_en: str | None = None
+    feedback_ar: str | None = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -564,7 +563,7 @@ class ProductJourneyStep:
 
     # Icon/image
     icon: str = ""  # Icon name or URL
-    image_url: Optional[str] = None
+    image_url: str | None = None
 
     # Verification badge
     verified: bool = False
@@ -598,8 +597,8 @@ class ProductJourney:
 
     # Dates
     harvest_date: datetime
-    pack_date: Optional[datetime] = None
-    expiry_date: Optional[datetime] = None
+    pack_date: datetime | None = None
+    expiry_date: datetime | None = None
 
     # Journey steps
     steps: list[ProductJourneyStep] = field(default_factory=list)
@@ -613,7 +612,7 @@ class ProductJourney:
 
     # Sustainability metrics
     transport_distance_km: float = 0.0
-    carbon_footprint_kg: Optional[float] = None
+    carbon_footprint_kg: float | None = None
 
     # Total journey time
     journey_duration_hours: float = 0.0
@@ -654,7 +653,7 @@ class BatchTraceReport:
     تقرير شامل لرحلة الدفعة عبر سلسلة التوريد.
     """
     batch: ProduceBatch
-    producer: Optional[Producer] = None
+    producer: Producer | None = None
     events: list[SupplyChainEvent] = field(default_factory=list)
     certifications: list[Certification] = field(default_factory=list)
 
@@ -664,8 +663,8 @@ class BatchTraceReport:
     number_of_handlers: int = 0
 
     # Temperature tracking
-    min_temperature_c: Optional[float] = None
-    max_temperature_c: Optional[float] = None
+    min_temperature_c: float | None = None
+    max_temperature_c: float | None = None
     temperature_excursions: int = 0  # Number of times out of spec
 
     # Quality

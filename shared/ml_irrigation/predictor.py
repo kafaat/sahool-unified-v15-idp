@@ -19,7 +19,6 @@ Updated: January 2026
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any, Protocol
-import math
 import logging
 
 from .models import (
@@ -28,7 +27,6 @@ from .models import (
     IrrigationUrgency,
     PredictionConfidence,
     CropStage,
-    SoilType,
     IrrigationType,
     WeatherFeatures,
     SoilFeatures,

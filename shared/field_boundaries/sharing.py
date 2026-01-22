@@ -15,7 +15,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from .geometry import (
     calculate_overlap_area,
@@ -84,12 +84,12 @@ class SharePermission:
 
     # Validity | الصلاحية
     granted_at: datetime = field(default_factory=datetime.utcnow)
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
     is_active: bool = True
 
     # Restrictions | القيود
     can_reshare: bool = False
-    max_reshare_level: Optional[PermissionLevel] = None
+    max_reshare_level: PermissionLevel | None = None
 
 
 @dataclass
@@ -104,21 +104,21 @@ class ApprovalRequest:
     approver_id: str = ""
 
     # Request details | تفاصيل الطلب
-    message: Optional[str] = None
-    message_ar: Optional[str] = None
+    message: str | None = None
+    message_ar: str | None = None
 
     # Status | الحالة
     status: ApprovalStatus = ApprovalStatus.PENDING
-    response_message: Optional[str] = None
-    response_message_ar: Optional[str] = None
+    response_message: str | None = None
+    response_message_ar: str | None = None
 
     # Requested changes | التغييرات المطلوبة
-    requested_changes: Optional[dict[str, Any]] = None
+    requested_changes: dict[str, Any] | None = None
 
     # Timestamps | الطوابع الزمنية
     created_at: datetime = field(default_factory=datetime.utcnow)
-    responded_at: Optional[datetime] = None
-    expires_at: Optional[datetime] = None
+    responded_at: datetime | None = None
+    expires_at: datetime | None = None
 
 
 @dataclass
@@ -132,24 +132,24 @@ class ConflictResolution:
 
     # Resolution details | تفاصيل الحل
     resolution_type: str = ""  # mediated, agreed, surveyed, legal
-    resolution_description: Optional[str] = None
-    resolution_description_ar: Optional[str] = None
+    resolution_description: str | None = None
+    resolution_description_ar: str | None = None
 
     # New boundary (if applicable) | الحد الجديد
-    agreed_boundary: Optional[Polygon] = None
+    agreed_boundary: Polygon | None = None
 
     # Parties | الأطراف
     party_a_approved: bool = False
     party_b_approved: bool = False
-    mediator_id: Optional[str] = None
+    mediator_id: str | None = None
 
     # Evidence | الأدلة
     evidence_urls: list[str] = field(default_factory=list)
-    survey_reference: Optional[str] = None
+    survey_reference: str | None = None
 
     # Timestamps | الطوابع الزمنية
     created_at: datetime = field(default_factory=datetime.utcnow)
-    finalized_at: Optional[datetime] = None
+    finalized_at: datetime | None = None
 
 
 class BoundarySharingManager:
@@ -179,8 +179,8 @@ class BoundarySharingManager:
         boundary: FieldBoundary,
         recipient_id: str,
         permission_level: PermissionLevel = PermissionLevel.VIEW,
-        message: Optional[str] = None,
-        message_ar: Optional[str] = None,
+        message: str | None = None,
+        message_ar: str | None = None,
         expires_in_days: int = 30
     ) -> BoundaryShareRequest:
         """
@@ -216,9 +216,9 @@ class BoundarySharingManager:
         self,
         request_id: str,
         user_id: str,
-        response_message: Optional[str] = None,
-        response_message_ar: Optional[str] = None
-    ) -> tuple[bool, str, Optional[SharePermission]]:
+        response_message: str | None = None,
+        response_message_ar: str | None = None
+    ) -> tuple[bool, str, SharePermission | None]:
         """
         Accept a share request.
         قبول طلب مشاركة.
@@ -266,8 +266,8 @@ class BoundarySharingManager:
         self,
         request_id: str,
         user_id: str,
-        response_message: Optional[str] = None,
-        response_message_ar: Optional[str] = None
+        response_message: str | None = None,
+        response_message_ar: str | None = None
     ) -> tuple[bool, str]:
         """
         Reject a share request.
@@ -326,7 +326,7 @@ class BoundarySharingManager:
         user_id: str,
         granted_by: str,
         level: PermissionLevel,
-        expires_at: Optional[datetime] = None
+        expires_at: datetime | None = None
     ) -> SharePermission:
         """Grant permission to user."""
         permission = SharePermission(
@@ -348,7 +348,7 @@ class BoundarySharingManager:
         self,
         boundary_id: str,
         user_id: str
-    ) -> Optional[SharePermission]:
+    ) -> SharePermission | None:
         """Get user's permission for a boundary."""
         permissions = self._permissions.get(boundary_id, [])
 
@@ -421,8 +421,8 @@ class BoundarySharingManager:
         self,
         boundary: FieldBoundary,
         neighbor_id: str,
-        message: Optional[str] = None,
-        message_ar: Optional[str] = None,
+        message: str | None = None,
+        message_ar: str | None = None,
         expires_in_days: int = 14
     ) -> ApprovalRequest:
         """
@@ -455,8 +455,8 @@ class BoundarySharingManager:
         self,
         request_id: str,
         user_id: str,
-        response_message: Optional[str] = None,
-        response_message_ar: Optional[str] = None
+        response_message: str | None = None,
+        response_message_ar: str | None = None
     ) -> tuple[bool, str]:
         """
         Approve a boundary.
@@ -483,9 +483,9 @@ class BoundarySharingManager:
         self,
         request_id: str,
         user_id: str,
-        response_message: Optional[str] = None,
-        response_message_ar: Optional[str] = None,
-        requested_changes: Optional[dict[str, Any]] = None
+        response_message: str | None = None,
+        response_message_ar: str | None = None,
+        requested_changes: dict[str, Any] | None = None
     ) -> tuple[bool, str]:
         """
         Reject a boundary with optional change requests.
@@ -628,8 +628,8 @@ class BoundarySharingManager:
 
     def get_conflicts(
         self,
-        boundary_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        boundary_id: str | None = None,
+        user_id: str | None = None,
         include_resolved: bool = False
     ) -> list[BoundaryConflict]:
         """
@@ -663,10 +663,10 @@ class BoundarySharingManager:
         self,
         conflict_id: str,
         resolution_type: str,
-        description: Optional[str] = None,
-        description_ar: Optional[str] = None,
-        agreed_boundary: Optional[Polygon] = None,
-        mediator_id: Optional[str] = None
+        description: str | None = None,
+        description_ar: str | None = None,
+        agreed_boundary: Polygon | None = None,
+        mediator_id: str | None = None
     ) -> ConflictResolution:
         """
         Create a conflict resolution record.
@@ -734,7 +734,7 @@ class BoundarySharingManager:
 
         return (True, "Approval recorded | تم تسجيل الموافقة")
 
-    def get_resolution(self, conflict_id: str) -> Optional[ConflictResolution]:
+    def get_resolution(self, conflict_id: str) -> ConflictResolution | None:
         """Get resolution for a conflict."""
         for resolution in self._resolutions.values():
             if resolution.conflict_id == conflict_id:

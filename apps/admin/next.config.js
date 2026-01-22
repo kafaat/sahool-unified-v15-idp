@@ -100,6 +100,20 @@ const nextConfig = {
       parentNodeModules,
     ];
 
+    // Suppress OpenTelemetry/Sentry dynamic require warnings
+    // These are expected and do not affect functionality
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings || []),
+      {
+        module: /@opentelemetry\/instrumentation/,
+        message: /Critical dependency/,
+      },
+      {
+        module: /@sentry/,
+        message: /Critical dependency/,
+      },
+    ];
+
     return config;
   },
 

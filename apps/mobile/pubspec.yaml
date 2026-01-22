@@ -20,7 +20,7 @@ dependencies:
   drift: ^2.24.0
   sqlcipher_flutter_libs: ^0.6.1  # SQLCipher for encrypted database (includes SQLite)
   path_provider: ^2.1.5
-  path: ^1.9.0
+  path: ^1.9.0  # Must match Flutter SDK version requirement
 
   # Network
   dio: ^5.7.0
@@ -57,11 +57,12 @@ dependencies:
 
   # Maps - Multiple Providers Support
   # دعم متعدد لمزودي الخرائط
-  flutter_map: ^7.0.2
+  flutter_map: ^8.1.1  # Use 8.1.x to avoid http 1.5.0-beta requirement in 8.2.x
+  flutter_map_cache: ^2.0.0  # Lightweight offline map caching (MIT license)
   maplibre_gl: ^0.25.0  # MapLibre GL - Open Source (no API key required)
   latlong2: ^0.9.1
-  vector_map_tiles: ^8.0.0  # Vector tiles support
-  flutter_map_tile_caching: ^9.1.0  # Offline map caching
+  # Note: vector_map_tiles removed - incompatible with flutter_map 8.x
+  # Note: flutter_map_tile_caching removed - heavy dependency (objectbox), GPL licensed
 
   # Environment Configuration
   flutter_dotenv: ^5.2.1
@@ -85,7 +86,7 @@ dependencies:
 
   # Utils
   uuid: ^4.5.1
-  intl: ^0.19.0
+  intl: ^0.20.2
   equatable: ^2.0.7
   freezed_annotation: ^2.4.4  # Compatible with freezed 2.5.8
   json_annotation: ^4.9.0

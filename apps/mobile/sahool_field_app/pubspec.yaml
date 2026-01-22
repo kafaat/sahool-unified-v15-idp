@@ -20,7 +20,7 @@ dependencies:
   drift: ^2.24.0
   sqlite3_flutter_libs: ^0.5.28
   path_provider: ^2.1.5
-  path: ^1.9.0
+  path: ^1.9.0  # Must match Flutter SDK version requirement
 
   # Network
   dio: ^5.7.0
@@ -57,8 +57,8 @@ dependencies:
   # Charts
   fl_chart: ^0.69.2
 
-  # Maps
-  flutter_map: ^7.0.2
+  # Maps - Updated for Flutter 3.27 compatibility
+  flutter_map: ^8.1.1  # Use 8.1.x to avoid http 1.5.0-beta requirement
   latlong2: ^0.9.1
 
   # Environment Configuration
@@ -76,7 +76,7 @@ dependencies:
 
   # Utils
   uuid: ^4.5.1
-  intl: ^0.19.0
+  intl: ^0.20.2
   equatable: ^2.0.7
   freezed_annotation: ^2.4.4  # Compatible with freezed 2.5.8
   json_annotation: ^4.9.0

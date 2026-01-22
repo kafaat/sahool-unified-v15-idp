@@ -58,7 +58,7 @@ dependencies:
   fl_chart: ^0.69.2
 
   # Maps - Updated for Flutter 3.27 compatibility
-  flutter_map: ^8.2.2
+  flutter_map: ^8.1.1  # Use 8.1.x to avoid http 1.5.0-beta requirement
   latlong2: ^0.9.1
 
   # Environment Configuration

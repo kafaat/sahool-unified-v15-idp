@@ -30,9 +30,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirna
 
 from shared.lowcode import (
     LowCodeEngine,
-    MaterialRegistry,
-    DataModelRegistry,
-    PageRegistry,
     ComponentMaterial,
     ComponentCategory,
     DataModel,
@@ -41,7 +38,6 @@ from shared.lowcode import (
     PageDefinition,
     BlockConfig,
     AIComponentSuggester,
-    get_agricultural_components,
 )
 
 # Service configuration
@@ -57,9 +53,9 @@ SERVICE_PORT = 8132
 
 class ComponentResponse(BaseModel):
     """Component material response"""
-    component_name: str
-    title: str
-    title_ar: str | None
+    component_id: str
+    name: str
+    name_ar: str | None
     category: str
     description: str | None
     description_ar: str | None
@@ -67,7 +63,7 @@ class ComponentResponse(BaseModel):
     slots: list[dict[str, Any]]
     events: list[dict[str, Any]]
     is_container: bool
-    is_hidden: bool
+    icon: str | None = None
 
 
 class DataModelCreateRequest(BaseModel):
@@ -149,15 +145,9 @@ class AISuggestionResponse(BaseModel):
 data_models: dict[str, DataModel] = {}
 pages: dict[str, PageDefinition] = {}
 
-# Initialize registries
-material_registry = MaterialRegistry()
-data_model_registry = DataModelRegistry()
-page_registry = PageRegistry()
-ai_suggester = AIComponentSuggester(material_registry)
-
-# Register agricultural components
-for component in get_agricultural_components():
-    material_registry.register(component)
+# Initialize Low-Code Engine (includes built-in components)
+lowcode_engine = LowCodeEngine(tenant_id="sahool")
+ai_suggester = AIComponentSuggester(lowcode_engine)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -206,7 +196,7 @@ async def lifespan(app: FastAPI):
         app.state.db_connected = False
 
     print(f"✅ {SERVICE_NAME} ready on port {SERVICE_PORT}")
-    print(f"📦 Registered {len(material_registry.list_all())} components")
+    print(f"📦 Registered {len(lowcode_engine.list_components())} components")
 
     yield
 
@@ -263,7 +253,7 @@ def readiness():
         "status": "ok",
         "database": getattr(app.state, "db_connected", False),
         "nats": getattr(app.state, "nats_connected", False),
-        "components_loaded": len(material_registry.list_all()) > 0,
+        "components_loaded": len(lowcode_engine.list_components()) > 0,
     }
 
 
@@ -277,7 +267,7 @@ def health_detailed():
         "version": SERVICE_VERSION,
         "database_connected": getattr(app.state, "db_connected", False),
         "nats_connected": getattr(app.state, "nats_connected", False),
-        "components_count": len(material_registry.list_all()),
+        "components_count": len(lowcode_engine.list_components()),
         "data_models_count": len(data_models),
         "pages_count": len(pages),
     }
@@ -292,24 +282,24 @@ def list_components(
     category: str | None = Query(None, description="Filter by category"),
 ):
     """List available components | قائمة المكونات المتاحة"""
-    components = material_registry.list_all()
+    components = lowcode_engine.list_components()
 
     if category:
         components = [c for c in components if c.category.value == category]
 
     return [
         ComponentResponse(
-            component_name=c.component_name,
-            title=c.title,
-            title_ar=c.title_ar,
+            component_id=c.component_id,
+            name=c.name,
+            name_ar=c.name_ar,
             category=c.category.value,
             description=c.description,
             description_ar=c.description_ar,
-            props=[p.model_dump() for p in c.props],
-            slots=[s.model_dump() for s in c.slots],
-            events=[e.model_dump() for e in c.events],
+            props=[{"name": p.name, "type": p.type, "default": p.default} for p in c.props],
+            slots=[{"name": s.name, "title": s.title} for s in c.slots],
+            events=[{"name": e.name, "description": e.description} for e in c.events],
             is_container=c.is_container,
-            is_hidden=c.is_hidden,
+            icon=c.icon,
         )
         for c in components
     ]
@@ -318,22 +308,22 @@ def list_components(
 @app.get("/api/v1/components/{component_name}", response_model=ComponentResponse, tags=["Components"])
 def get_component(component_name: str):
     """Get component by name | الحصول على مكون بالاسم"""
-    component = material_registry.get(component_name)
+    component = lowcode_engine.get_component(component_name)
     if not component:
         raise HTTPException(status_code=404, detail="Component not found")
 
     return ComponentResponse(
-        component_name=component.component_name,
-        title=component.title,
-        title_ar=component.title_ar,
+        component_id=component.component_id,
+        name=component.name,
+        name_ar=component.name_ar,
         category=component.category.value,
         description=component.description,
         description_ar=component.description_ar,
-        props=[p.model_dump() for p in component.props],
-        slots=[s.model_dump() for s in component.slots],
-        events=[e.model_dump() for e in component.events],
+        props=[{"name": p.name, "type": p.type, "default": p.default} for p in component.props],
+        slots=[{"name": s.name, "title": s.title} for s in component.slots],
+        events=[{"name": e.name, "description": e.description} for e in component.events],
         is_container=component.is_container,
-        is_hidden=component.is_hidden,
+        icon=component.icon,
     )
 
 
@@ -595,7 +585,7 @@ def render_page(page_id: str, data: str | None = Query(None)):
     # Render blocks (simplified)
     rendered_blocks = []
     for block in p.blocks:
-        component = material_registry.get(block.component_name)
+        component = lowcode_engine.get_component(block.component_name)
         rendered_blocks.append({
             "id": block.id,
             "component_name": block.component_name,
@@ -625,16 +615,37 @@ async def suggest_components(request: AISuggestionRequest):
 
     اقتراحات مكونات مدعومة بالذكاء الاصطناعي بناءً على وصف الصفحة
     """
-    suggestions = ai_suggester.suggest(
-        description=request.description,
-        context=request.context,
-    )
+    # Simple keyword-based suggestion
+    suggestions = []
+    desc_lower = request.description.lower()
+
+    # Map keywords to components
+    keyword_components = {
+        ("map", "field", "location", "حقل", "موقع"): "field_map",
+        ("crop", "plant", "محصول", "نبات"): "crop_selector",
+        ("irrigation", "water", "ري", "ماء"): "irrigation_scheduler",
+        ("sensor", "reading", "مستشعر", "قراءة"): "sensor_display",
+        ("health", "ndvi", "صحة"): "crop_health_card",
+        ("advisor", "recommendation", "مستشار", "توصية"): "ai_advisor",
+    }
+
+    for keywords, component_id in keyword_components.items():
+        if any(kw in desc_lower or kw in request.description for kw in keywords):
+            component = lowcode_engine.get_component(component_id)
+            if component:
+                suggestions.append({
+                    "component_id": component_id,
+                    "component_name": component.name,
+                    "component_name_ar": component.name_ar,
+                    "confidence": 0.85,
+                    "reason": f"Matches keywords in description",
+                })
 
     return AISuggestionResponse(
         suggestions=suggestions,
         reasoning=f"Based on your description, I recommend these components for building a {request.description[:50]}...",
         reasoning_ar=f"بناءً على وصفك، أوصي بهذه المكونات لبناء {request.description_ar or request.description[:50]}...",
-        confidence=0.85,
+        confidence=0.85 if suggestions else 0.5,
     )
 
 
@@ -753,7 +764,7 @@ def metrics():
     """Prometheus-compatible metrics"""
     return f"""# HELP lowcode_components_total Total number of registered components
 # TYPE lowcode_components_total gauge
-lowcode_components_total {len(material_registry.list_all())}
+lowcode_components_total {len(lowcode_engine.list_components())}
 
 # HELP lowcode_data_models_total Total number of data models
 # TYPE lowcode_data_models_total gauge

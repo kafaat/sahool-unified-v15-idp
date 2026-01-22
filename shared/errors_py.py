@@ -105,19 +105,20 @@ class NotFoundException(SahoolException):
         message_ar: str | None = None,
         resource_type: str | None = None,
         resource_id: str | None = None,
+        details: dict[str, Any] | None = None,
     ):
-        details = {}
+        combined_details = details or {}
         if resource_type:
-            details["resource_type"] = resource_type
+            combined_details["resource_type"] = resource_type
         if resource_id:
-            details["resource_id"] = resource_id
+            combined_details["resource_id"] = resource_id
 
         super().__init__(
             message=message,
             message_ar=message_ar,
             code=ErrorCode.NOT_FOUND,
             status_code=404,
-            details=details,
+            details=combined_details,
         )
 
 

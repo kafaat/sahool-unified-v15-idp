@@ -1260,4 +1260,6 @@ lowcode_pages_published {len([p for p in pages.values() if p.is_published])}
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=SERVICE_PORT)
+    # Use HOST env var for flexibility; 0.0.0.0 for containers, 127.0.0.1 for local dev
+    host = os.getenv("HOST", "0.0.0.0")
+    uvicorn.run(app, host=host, port=SERVICE_PORT)

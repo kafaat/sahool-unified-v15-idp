@@ -23,6 +23,8 @@ Modules:
     - crop_vision: Computer vision for crop disease/pest detection (GenAI Roadmap)
     - huggingface_provider: Arabic & multilingual embeddings via Huggingface
     - vector_store: Persistent vector database for RAG and semantic search
+    - orchestration: Multi-agent orchestration framework (Claude-Flow inspired)
+    - models_registry: Agricultural AI Models Registry (50+ models from global institutions)
 
 Author: SAHOOL Platform Team
 Updated: January 2026
@@ -310,7 +312,7 @@ from .vector_store import (
     search_documents,
 )
 
-__version__ = "1.8.0"
+__version__ = "2.0.0"
 
 __all__ = [
     # Context Engineering - Compression
@@ -549,3 +551,226 @@ if TRAINING_AVAILABLE:
         "create_code_fix_dataset",
         "train_code_fixer",
     ])
+
+# Agent Orchestration Framework (Claude-Flow inspired)
+from .orchestration import (
+    # Enums
+    AgentCapability,
+    ConsensusType,
+    MemoryNamespace,
+    SwarmTopology,
+    TaskPriority,
+    TaskStatus,
+    # Agent Models
+    AgentProfile,
+    AgentScore,
+    AgentState as OrchestrationAgentState,
+    # Task Models
+    Task,
+    TaskResult,
+    # Swarm Models
+    SwarmConfig,
+    SwarmResult,
+    SwarmState,
+    # Consensus Models
+    ConsensusResult,
+    Vote,
+    # Memory Models
+    MemoryEntry as OrchestrationMemoryEntry,
+    MemoryStats,
+    PatternMatch,
+    # Routing Models
+    RoutingDecision,
+    RouterStats,
+    # Router
+    AgentRouter,
+    get_router,
+    reset_router,
+    # Swarm Coordination
+    SwarmCoordinator,
+    AggregationStrategy,
+    MajorityVoteAggregation,
+    WeightedAverageAggregation,
+    ConcatenateAggregation,
+    BestResultAggregation,
+    get_swarm_coordinator,
+    reset_swarm_coordinator,
+    # Consensus Protocols
+    ConsensusProtocol,
+    MajorityVoting,
+    WeightedVoting,
+    RaftConsensus,
+    UnanimousConsensus,
+    QuorumConsensus,
+    ConsensusManager,
+    get_consensus_manager,
+    reach_consensus,
+    # Collective Memory
+    CollectiveMemory,
+    LRUCache,
+    cosine_similarity,
+    jaccard_similarity,
+    text_similarity,
+    get_collective_memory,
+    reset_collective_memory,
+)
+
+__all__.extend([
+    # === Orchestration Enums ===
+    "AgentCapability",
+    "ConsensusType",
+    "MemoryNamespace",
+    "SwarmTopology",
+    "TaskPriority",
+    "TaskStatus",
+    # === Orchestration Agent Models ===
+    "AgentProfile",
+    "AgentScore",
+    "OrchestrationAgentState",
+    # === Orchestration Task Models ===
+    "Task",
+    "TaskResult",
+    # === Orchestration Swarm Models ===
+    "SwarmConfig",
+    "SwarmResult",
+    "SwarmState",
+    # === Orchestration Consensus Models ===
+    "ConsensusResult",
+    "Vote",
+    # === Orchestration Memory Models ===
+    "OrchestrationMemoryEntry",
+    "MemoryStats",
+    "PatternMatch",
+    # === Orchestration Routing Models ===
+    "RoutingDecision",
+    "RouterStats",
+    # === Router ===
+    "AgentRouter",
+    "get_router",
+    "reset_router",
+    # === Swarm Coordination ===
+    "SwarmCoordinator",
+    "AggregationStrategy",
+    "MajorityVoteAggregation",
+    "WeightedAverageAggregation",
+    "ConcatenateAggregation",
+    "BestResultAggregation",
+    "get_swarm_coordinator",
+    "reset_swarm_coordinator",
+    # === Consensus Protocols ===
+    "ConsensusProtocol",
+    "MajorityVoting",
+    "WeightedVoting",
+    "RaftConsensus",
+    "UnanimousConsensus",
+    "QuorumConsensus",
+    "ConsensusManager",
+    "get_consensus_manager",
+    "reach_consensus",
+    # === Collective Memory ===
+    "CollectiveMemory",
+    "LRUCache",
+    "cosine_similarity",
+    "jaccard_similarity",
+    "text_similarity",
+    "get_collective_memory",
+    "reset_collective_memory",
+])
+
+# Agricultural AI Models Registry
+from .models_registry import (
+    # Models & Enums
+    AIModelCategory,
+    ModelCapability,
+    ModelLicense,
+    ModelStatus,
+    ModelArchitecture,
+    LanguageSupport,
+    ModelEndpoint,
+    DeveloperInfo,
+    ModelPerformance,
+    AIModelInfo,
+    ModelComparison,
+    ModelDiscoveryResult,
+    # Registry
+    AgriculturalAIRegistry,
+    get_registry,
+    reset_registry,
+    # Integrator
+    TaskType,
+    ModelIntegrator,
+    ModelCallResult,
+    ModelSelection,
+    get_integrator,
+    reset_integrator,
+    discover_models,
+    get_best_model,
+    call_model as call_agri_model,
+    compare_models as compare_agri_models,
+    TASK_CAPABILITY_MAP,
+    # Connectors
+    BaseConnector,
+    ConnectorResponse,
+    ShengNongConnector,
+    CropWizardConnector,
+    PlantGPTConnector,
+    AgroGPTConnector,
+    GenericRESTConnector,
+    create_connector,
+    get_available_connectors,
+    # Utilities
+    get_philosophy,
+    get_category_info,
+    list_featured_models,
+    list_arabic_supported_models,
+    list_open_source_models,
+)
+
+__all__.extend([
+    # === Agricultural AI Models Registry ===
+    # Models & Enums
+    "AIModelCategory",
+    "ModelCapability",
+    "ModelLicense",
+    "ModelStatus",
+    "ModelArchitecture",
+    "LanguageSupport",
+    "ModelEndpoint",
+    "DeveloperInfo",
+    "ModelPerformance",
+    "AIModelInfo",
+    "ModelComparison",
+    "ModelDiscoveryResult",
+    # Registry
+    "AgriculturalAIRegistry",
+    "get_registry",
+    "reset_registry",
+    # Integrator
+    "TaskType",
+    "ModelIntegrator",
+    "ModelCallResult",
+    "ModelSelection",
+    "get_integrator",
+    "reset_integrator",
+    "discover_models",
+    "get_best_model",
+    "call_agri_model",
+    "compare_agri_models",
+    "TASK_CAPABILITY_MAP",
+    # Connectors
+    "BaseConnector",
+    "ConnectorResponse",
+    "ShengNongConnector",
+    "CropWizardConnector",
+    "PlantGPTConnector",
+    "AgroGPTConnector",
+    "GenericRESTConnector",
+    "create_connector",
+    "get_available_connectors",
+    # Utilities
+    "get_philosophy",
+    "get_category_info",
+    "list_featured_models",
+    "list_arabic_supported_models",
+    "list_open_source_models",
+])

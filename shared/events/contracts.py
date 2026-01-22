@@ -725,6 +725,121 @@ class WorkflowExecutedEvent(BaseEvent):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# WeChat Events - أحداث ويتشات
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class WeChatMessageReceivedEvent(BaseEvent):
+    """
+    Event emitted when a WeChat message is received.
+    حدث يُطلق عند استلام رسالة ويتشات
+    """
+
+    message_id: str = Field(..., description="WeChat message identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    from_user_id: str = Field(..., description="Sender WeChat user ID")
+    from_user_name: str | None = Field(None, description="Sender display name")
+    to_user_id: str = Field(..., description="Recipient WeChat user ID")
+    message_type: str = Field(
+        ...,
+        pattern="^(text|image|voice|video|location|link|event)$",
+        description="Message type",
+    )
+    content: str | None = Field(None, description="Message content (for text messages)")
+    media_id: str | None = Field(None, description="Media ID (for media messages)")
+    location_lat: float | None = Field(None, ge=-90, le=90, description="Location latitude")
+    location_lon: float | None = Field(None, ge=-180, le=180, description="Location longitude")
+    received_at: datetime = Field(default_factory=datetime.utcnow, description="Message received time")
+
+
+class WeChatMessageSentEvent(BaseEvent):
+    """
+    Event emitted when a WeChat message is sent.
+    حدث يُطلق عند إرسال رسالة ويتشات
+    """
+
+    message_id: str = Field(..., description="WeChat message identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    to_user_id: str = Field(..., description="Recipient WeChat user ID")
+    to_user_name: str | None = Field(None, description="Recipient display name")
+    message_type: str = Field(
+        ...,
+        pattern="^(text|image|voice|video|news|template)$",
+        description="Message type",
+    )
+    content: str | None = Field(None, description="Message content")
+    template_id: str | None = Field(None, description="Template ID for template messages")
+    status: str = Field(default="sent", description="Send status (sent, delivered, failed)")
+    sent_at: datetime = Field(default_factory=datetime.utcnow, description="Message sent time")
+    error_message: str | None = Field(None, description="Error message if failed")
+
+
+class WeChatContactAddedEvent(BaseEvent):
+    """
+    Event emitted when a new WeChat contact is added.
+    حدث يُطلق عند إضافة جهة اتصال ويتشات جديدة
+    """
+
+    contact_id: str = Field(..., description="Internal contact identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    wechat_user_id: str = Field(..., description="WeChat user ID")
+    nickname: str | None = Field(None, description="WeChat nickname")
+    avatar_url: str | None = Field(None, description="Profile avatar URL")
+    gender: str | None = Field(None, pattern="^(male|female|unknown)$", description="Gender")
+    city: str | None = Field(None, description="City")
+    province: str | None = Field(None, description="Province")
+    country: str | None = Field(None, description="Country")
+    language: str | None = Field(None, description="Language preference")
+    farmer_id: str | None = Field(None, description="Linked farmer ID in CRM")
+    subscribed_at: datetime = Field(default_factory=datetime.utcnow, description="Subscription time")
+
+
+class WeChatMomentPublishedEvent(BaseEvent):
+    """
+    Event emitted when a WeChat Moment is published.
+    حدث يُطلق عند نشر لحظة ويتشات
+    """
+
+    moment_id: str = Field(..., description="Moment identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    content: str = Field(..., description="Moment text content")
+    content_ar: str | None = Field(None, description="Arabic content")
+    media_urls: list[str] = Field(default_factory=list, description="Attached media URLs")
+    media_type: str | None = Field(None, pattern="^(image|video|link)$", description="Media type")
+    link_url: str | None = Field(None, description="External link URL")
+    link_title: str | None = Field(None, description="Link title")
+    visibility: str = Field(default="public", description="Visibility (public, contacts, private)")
+    published_at: datetime = Field(default_factory=datetime.utcnow, description="Publish time")
+    target_audience: list[str] = Field(default_factory=list, description="Target audience tags")
+
+
+class WeChatChatSummarizedEvent(BaseEvent):
+    """
+    Event emitted when a WeChat chat conversation is summarized.
+    حدث يُطلق عند تلخيص محادثة ويتشات
+    """
+
+    summary_id: str = Field(..., description="Summary identifier")
+    tenant_id: str = Field(..., description="Tenant identifier")
+    contact_id: str = Field(..., description="Contact identifier")
+    farmer_id: str | None = Field(None, description="Linked farmer ID")
+    conversation_start: datetime = Field(..., description="Conversation start time")
+    conversation_end: datetime = Field(..., description="Conversation end time")
+    message_count: int = Field(..., ge=1, description="Number of messages summarized")
+    summary: str = Field(..., description="AI-generated summary in English")
+    summary_ar: str | None = Field(None, description="AI-generated summary in Arabic")
+    key_topics: list[str] = Field(default_factory=list, description="Key topics discussed")
+    sentiment: str | None = Field(
+        None,
+        pattern="^(positive|neutral|negative|mixed)$",
+        description="Overall conversation sentiment",
+    )
+    action_items: list[str] = Field(default_factory=list, description="Extracted action items")
+    follow_up_required: bool = Field(default=False, description="Follow-up needed")
+    follow_up_date: datetime | None = Field(None, description="Suggested follow-up date")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Exports
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -769,4 +884,10 @@ __all__ = [
     "PagePublishedEvent",
     "DataModelCreatedEvent",
     "WorkflowExecutedEvent",
+    # WeChat events
+    "WeChatMessageReceivedEvent",
+    "WeChatMessageSentEvent",
+    "WeChatContactAddedEvent",
+    "WeChatMomentPublishedEvent",
+    "WeChatChatSummarizedEvent",
 ]

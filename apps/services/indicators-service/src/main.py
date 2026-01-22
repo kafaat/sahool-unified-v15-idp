@@ -456,10 +456,24 @@ def get_recommendation_en(indicator_id: str, value: float, threshold: float) -> 
 
 @app.get("/healthz")
 def health():
+    """Health check endpoint (liveness probe)"""
     return {
         "status": "ok",
         "service": "indicators-service",
-        "version": "15.3.0",
+        "version": "16.0.0",
+    }
+
+
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "indicators-service",
+        "version": "16.0.0",
+        "checks": {
+            "indicators": "loaded" if INDICATOR_DEFINITIONS else "not_loaded",
+        },
         "indicators_count": len(INDICATOR_DEFINITIONS),
     }
 

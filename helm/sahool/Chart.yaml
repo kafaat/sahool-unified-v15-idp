@@ -2,8 +2,8 @@ apiVersion: v2
 name: sahool
 description: SAHOOL Agricultural Platform - Complete Field Operations Management
 type: application
-version: 15.3.2
-appVersion: "15.3.2"
+version: 16.0.0
+appVersion: "16.0.0"
 keywords:
   - agriculture
   - fieldops

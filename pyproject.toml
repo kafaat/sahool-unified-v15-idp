@@ -43,7 +43,7 @@ testing = [
 ]
 ml = [
     "Pillow==11.0.0",
-    "numpy>=1.26.0,<2.1.0",  # Pinned for TensorFlow compatibility
+    "numpy>=1.26.0,<2.0.0",  # CRITICAL: Must be <2.0.0 for TensorFlow 2.18 compatibility (NumPy 2.x breaks TF)
     "tensorflow-cpu==2.18.0",
 ]
 dev = [

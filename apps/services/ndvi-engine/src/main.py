@@ -120,6 +120,19 @@ def health():
     return {"status": "ok", "service": "ndvi_engine", "version": "15.3.3"}
 
 
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "ndvi-engine",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
+    }
+
+
 # ============== Request Models ==============
 
 

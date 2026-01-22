@@ -443,9 +443,7 @@ def get_tenant_id(user: User = Depends(get_current_user) if AUTH_AVAILABLE else 
 
 @app.get("/healthz")
 async def health_check(db: Session = Depends(get_db)):
-    """Health check endpoint"""
-    db_healthy = check_db_connection()
-
+    """Health check endpoint (liveness probe)"""
     # Seed demo data if needed
     try:
         seed_demo_data(db)
@@ -453,9 +451,24 @@ async def health_check(db: Session = Depends(get_db)):
         pass  # Ignore seeding errors during health check
 
     return {
-        "status": "healthy" if db_healthy else "unhealthy",
+        "status": "ok",
         "service": SERVICE_NAME,
-        "database": "connected" if db_healthy else "disconnected",
+        "version": "16.0.0",
+    }
+
+
+@app.get("/readyz")
+async def readiness_check():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    db_healthy = check_db_connection()
+
+    return {
+        "status": "ready" if db_healthy else "not_ready",
+        "service": SERVICE_NAME,
+        "version": "16.0.0",
+        "checks": {
+            "database": "connected" if db_healthy else "disconnected",
+        },
     }
 
 

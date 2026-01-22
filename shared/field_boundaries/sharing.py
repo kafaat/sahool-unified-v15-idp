@@ -858,10 +858,20 @@ def generate_postgis_neighbor_notification_query(
     """
     Generate PostGIS query to find neighbors to notify about boundary changes.
     إنشاء استعلام PostGIS للعثور على الجيران لإبلاغهم بتغييرات الحدود.
+
+    Security Note: boundary_id must be a validated UUID from the database,
+    not raw user input. Table and column names are application constants.
     """
+    import re
+    # Validate boundary_id is a UUID format to prevent SQL injection
+    uuid_pattern = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.I)
+    if not uuid_pattern.match(boundary_id):
+        raise ValueError(f"Invalid boundary_id format: must be UUID")
+
     g = geometry_column
     tbl = boundaries_table
     bid = boundary_id
+    # nosec B608 - boundary_id validated as UUID, table/column are constants
     return f"""
     SELECT DISTINCT
         b.owner_id,

@@ -408,9 +408,11 @@ class ProgressStorage:
 
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
+        import tempfile
+        default_path = os.path.join(tempfile.gettempdir(), "sahool_learning_progress")
         self.storage_path = Path(storage_path or os.getenv(
             "LEARNING_PROGRESS_PATH",
-            "/tmp/sahool_learning_progress"
+            default_path
         ))
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()

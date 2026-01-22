@@ -46,9 +46,11 @@ class PriceStorage:
 
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
+        import tempfile
+        default_path = os.path.join(tempfile.gettempdir(), "sahool_market_prices")
         self.storage_path = Path(storage_path or os.getenv(
             "MARKET_PRICES_STORAGE_PATH",
-            "/tmp/sahool_market_prices"
+            default_path
         ))
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()
@@ -146,9 +148,11 @@ class AlertStorage:
 
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
+        import tempfile
+        default_path = os.path.join(tempfile.gettempdir(), "sahool_market_alerts")
         self.storage_path = Path(storage_path or os.getenv(
             "MARKET_ALERTS_STORAGE_PATH",
-            "/tmp/sahool_market_alerts"
+            default_path
         ))
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()

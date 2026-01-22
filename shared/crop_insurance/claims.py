@@ -643,9 +643,11 @@ class ClaimStorage:
 
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
+        import tempfile
+        default_path = os.path.join(tempfile.gettempdir(), "sahool_insurance_claims")
         self.storage_path = Path(storage_path or os.getenv(
             "INSURANCE_CLAIMS_STORAGE_PATH",
-            "/tmp/sahool_insurance_claims"
+            default_path
         ))
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()

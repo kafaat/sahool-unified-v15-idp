@@ -237,9 +237,11 @@ class FeedbackStorage:
 
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
+        import tempfile
+        default_path = os.path.join(tempfile.gettempdir(), "sahool_feedback")
         self.storage_path = Path(storage_path or os.getenv(
             "FEEDBACK_STORAGE_PATH",
-            "/tmp/sahool_feedback"
+            default_path
         ))
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()

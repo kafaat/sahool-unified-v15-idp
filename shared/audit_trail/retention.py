@@ -829,7 +829,9 @@ def get_retention_manager(
     """
     global _global_manager
     if _global_manager is None:
-        storage = storage_path or os.getenv("AUDIT_TRAIL_STORAGE_PATH", "/tmp/sahool_audit_trail")
+        import tempfile
+        default_path = os.path.join(tempfile.gettempdir(), "sahool_audit_trail")
+        storage = storage_path or os.getenv("AUDIT_TRAIL_STORAGE_PATH", default_path)
         archive = archive_path or os.path.join(storage, "archive")
         _global_manager = RetentionManager(
             storage_path=storage,

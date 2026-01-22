@@ -786,6 +786,19 @@ async def health():
     }
 
 
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "satellite-service",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
+    }
+
+
 @app.get("/v1/providers")
 async def get_providers():
     """

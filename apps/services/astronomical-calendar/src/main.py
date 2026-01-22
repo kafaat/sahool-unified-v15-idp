@@ -3206,6 +3206,19 @@ def health_check():
     }
 
 
+@app.get("/readyz", tags=["Health"])
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "astronomical-calendar",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
+    }
+
+
 @app.get("/v1/today", response_model=DailyAstronomicalData, tags=["Calendar"])
 def get_today():
     """

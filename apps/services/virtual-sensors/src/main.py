@@ -1008,6 +1008,19 @@ async def health_check():
     }
 
 
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "virtual-sensors",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
+    }
+
+
 @app.get("/v1/info")
 async def service_info():
     """Get service information"""

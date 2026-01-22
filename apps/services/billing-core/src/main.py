@@ -1482,8 +1482,18 @@ def generate_invoice(subscription: Subscription) -> Invoice:
 
 
 @app.get("/healthz")
-async def health_check(db: AsyncSession = Depends(get_db)):
-    """Health check endpoint with database status"""
+async def health_check():
+    """Health check endpoint (liveness probe)"""
+    return {
+        "status": "ok",
+        "service": "billing-core",
+        "version": "16.0.0",
+    }
+
+
+@app.get("/readyz")
+async def readiness_check(db: AsyncSession = Depends(get_db)):
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
     db_status = await db_health_check()
 
     # Get plans count from database
@@ -1499,11 +1509,13 @@ async def health_check(db: AsyncSession = Depends(get_db)):
     nats_ok = nats_client is not None
 
     return {
-        "status": "healthy" if db_ok else "degraded",
+        "status": "ready" if db_ok else "not_ready",
         "service": "billing-core",
         "version": "16.0.0",
-        "database": db_status,
-        "nats_connected": nats_ok,
+        "checks": {
+            "database": "connected" if db_ok else "disconnected",
+            "nats": "connected" if nats_ok else "disconnected",
+        },
         "plans_count": plans_count,
     }
 

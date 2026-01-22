@@ -1063,19 +1063,29 @@ except Exception as e:
 
 @app.get("/healthz")
 async def health_check():
-    """Health check endpoint with database status"""
+    """Health check endpoint (liveness probe)"""
+    return {
+        "status": "ok",
+        "service": "notification-service",
+        "version": "16.0.0",
+    }
+
+
+@app.get("/readyz")
+async def readiness_check():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
     try:
         db_health = await check_db_health()
         db_stats = await get_db_stats() if db_health.get("connected") else {}
     except Exception as e:
-        logger.warning(f"Health check - database error: {e}")
+        logger.warning(f"Readiness check - database error: {e}")
         db_health = {"status": "unavailable", "connected": False, "error": str(e)}
         db_stats = {}
 
-    # Determine health status based on critical dependencies
+    # Determine readiness based on critical dependencies
     nats_ok = _nats_available and _nats_subscriber is not None
     db_ok = db_health.get("connected", False)
-    is_healthy = nats_ok or db_ok  # At least one critical dependency should work
+    is_ready = nats_ok or db_ok  # At least one critical dependency should work
 
     # Get farmer count from database
     try:
@@ -1084,12 +1094,14 @@ async def health_check():
         farmer_count = 0
 
     return {
-        "status": "healthy" if is_healthy else "degraded",
+        "status": "ready" if is_ready else "not_ready",
         "service": "notification-service",
         "version": "16.0.0",
         "mode": "normal" if db_ok else "degraded",
-        "nats_connected": nats_ok,
-        "database": db_health,
+        "checks": {
+            "nats": "connected" if nats_ok else "disconnected",
+            "database": "connected" if db_ok else "disconnected",
+        },
         "stats": db_stats,
         "registered_farmers": farmer_count,
     }

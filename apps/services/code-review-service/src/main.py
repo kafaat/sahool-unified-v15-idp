@@ -762,6 +762,19 @@ async def health_check():
     )
 
 
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "code-review-service",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
+    }
+
+
 @app.get("/models", response_model=list[ModelInfo])
 async def list_models():
     """List available LLM models"""

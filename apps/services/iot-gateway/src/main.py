@@ -345,6 +345,19 @@ def health():
     return {"status": "ok", "service": "iot-gateway"}
 
 
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "iot-gateway",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
+    }
+
+
 # ============== Request/Response Models ==============
 
 # Sensor value ranges for validation

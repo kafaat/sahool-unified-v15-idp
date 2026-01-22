@@ -482,10 +482,24 @@ def generate_reasoning(
 
 @app.get("/healthz")
 def health():
+    """Health check endpoint (liveness probe)"""
     return {
         "status": "ok",
         "service": "irrigation-smart",
-        "version": "15.3.0",
+        "version": "16.0.0",
+    }
+
+
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "irrigation-smart",
+        "version": "16.0.0",
+        "checks": {
+            "crop_requirements": "loaded" if CROP_WATER_REQUIREMENTS else "not_loaded",
+        },
         "crops_supported": len(CROP_WATER_REQUIREMENTS),
     }
 

@@ -425,6 +425,19 @@ async def health_check():
     }
 
 
+@app.get("/readyz", tags=["Health"])
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "ai-advisor",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
+    }
+
+
 @app.post("/v1/advisor/ask", response_model=EnhancedAgentResponse, tags=["Advisor"])
 async def ask_question(request: QuestionRequest):
     """

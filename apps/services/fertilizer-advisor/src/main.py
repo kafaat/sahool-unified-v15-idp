@@ -621,6 +621,19 @@ def health():
     }
 
 
+@app.get("/readyz")
+def readiness():
+    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    return {
+        "status": "ready",
+        "service": "fertilizer-advisor",
+        "version": "16.0.0",
+        "checks": {
+            "service": "ready",
+        },
+    }
+
+
 @app.get("/v1/crops")
 def list_crops():
     """قائمة المحاصيل المدعومة"""

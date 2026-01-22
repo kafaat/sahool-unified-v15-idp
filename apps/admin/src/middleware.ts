@@ -37,6 +37,10 @@ import { logger } from "@/lib/logger";
 // Idle timeout: 30 minutes in milliseconds
 const IDLE_TIMEOUT = 30 * 60 * 1000;
 
+// Development mode bypass - allows dashboard access without real auth
+const isDevelopment = process.env.NODE_ENV === "development";
+const ENABLE_DEV_BYPASS = isDevelopment && process.env.DISABLE_AUTH_CHECK !== "false";
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -52,6 +56,30 @@ export async function middleware(request: NextRequest) {
   // Allow public routes (login, health check, etc.)
   if (isPublicRoute(pathname)) {
     return NextResponse.next();
+  }
+
+  // Development mode bypass - skip auth for easier local development
+  if (ENABLE_DEV_BYPASS) {
+    // Generate nonce for CSP
+    const nonce = generateNonce();
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("X-Nonce", nonce);
+
+    const response = NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+
+    // Set mock user role for development
+    response.headers.set("X-Nonce", nonce);
+    response.headers.set("X-User-Role", "admin");
+
+    // Add CSP header
+    const cspConfig = getCSPConfig(nonce);
+    const cspHeader = getCSPHeader(nonce);
+    const cspHeaderName = getCSPHeaderName(cspConfig.reportOnly);
+    response.headers.set(cspHeaderName, cspHeader);
+
+    return response;
   }
 
   // ============================================

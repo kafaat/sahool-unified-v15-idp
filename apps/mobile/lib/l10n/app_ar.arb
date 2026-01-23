@@ -2230,5 +2230,31 @@
   "statusRepair": "إصلاح",
 
   "weatherAlert": "تنبيه طقس",
-  "highTemperatureWarning": "ارتفاع درجات الحرارة - ينصح بالري المبكر"
+  "highTemperatureWarning": "ارتفاع درجات الحرارة - ينصح بالري المبكر",
+
+  "updateRequired": "تحديث مطلوب",
+  "updateAvailable": "تحديث متاح",
+  "newUpdateAvailable": "تحديث جديد متاح",
+  "majorUpdateAvailable": "تحديث رئيسي متاح",
+  "minorUpdateAvailable": "تحديث جديد متاح",
+  "patchUpdateAvailable": "تحديث تصحيحي متاح",
+  "appIsUpToDate": "التطبيق محدث",
+  "updateNow": "تحديث الآن",
+  "remindLater": "ذكرني لاحقاً",
+  "skipThisVersion": "تخطي هذا الإصدار",
+  "exitApp": "إغلاق التطبيق",
+  "whatsNew": "ما الجديد:",
+  "updateDescription": "يتوفر إصدار جديد من سهول.",
+  "forceUpdateDescription": "يجب تحديث التطبيق للاستمرار في الاستخدام. يتضمن هذا التحديث تحسينات هامة وإصلاحات أمنية.",
+  "majorUpdateDescription": "يتوفر إصدار جديد رئيسي مع تحسينات كبيرة وميزات جديدة. ننصح بشدة بالتحديث.",
+  "minorUpdateDescription": "يتوفر تحديث جديد مع ميزات وتحسينات إضافية.",
+  "patchUpdateDescription": "يتوفر تحديث تصحيحي مع إصلاحات للأخطاء وتحسينات في الأداء.",
+  "versionLabel": "الإصدار",
+  "currentVersionLabel": "الإصدار الحالي",
+  "latestVersionLabel": "أحدث إصدار",
+  "checkingForUpdates": "جارٍ التحقق من التحديثات...",
+  "updateCheckFailed": "فشل التحقق من التحديثات",
+  "noInternetForUpdate": "لا يوجد اتصال بالإنترنت. لا يمكن التحقق من التحديثات.",
+  "updateSkipped": "تم تخطي التحديث",
+  "updateRemindLaterSet": "سيتم تذكيرك بهذا التحديث لاحقاً"
 }

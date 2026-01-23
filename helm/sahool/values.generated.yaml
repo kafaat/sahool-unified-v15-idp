@@ -1419,6 +1419,550 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8133'
       prometheus.io/path: /metrics
+  agent-registry:
+    enabled: true
+    name: agent-registry
+    image:
+      repository: ghcr.io/kafaat/sahool-agent-registry
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8160
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 200000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8160'
+    serviceAccount:
+      create: true
+      name: sahool-agent-registry
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8160'
+      prometheus.io/path: /metrics
+  ai-advisor:
+    enabled: true
+    name: ai-advisor
+    image:
+      repository: ghcr.io/kafaat/sahool-ai-advisor
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8112
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 500000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8112'
+    serviceAccount:
+      create: true
+      name: sahool-ai-advisor
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8112'
+      prometheus.io/path: /metrics
+  ai-agents-core:
+    enabled: true
+    name: ai-agents-core
+    image:
+      repository: ghcr.io/kafaat/sahool-ai-agents-core
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8122
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 384Mi
+      limits:
+        cpu: 300000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8122'
+    serviceAccount:
+      create: true
+      name: sahool-ai-agents-core
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8122'
+      prometheus.io/path: /metrics
+  chat-service:
+    enabled: true
+    name: chat-service
+    image:
+      repository: ghcr.io/kafaat/sahool-chat-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8000
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 384Mi
+      limits:
+        cpu: 300000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8000'
+    serviceAccount:
+      create: true
+      name: sahool-chat-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8000'
+      prometheus.io/path: /metrics
+  code-fix-agent:
+    enabled: true
+    name: code-fix-agent
+    image:
+      repository: ghcr.io/kafaat/sahool-code-fix-agent
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8161
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 400m
+        memory: 512Mi
+      limits:
+        cpu: 400000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8161'
+    serviceAccount:
+      create: true
+      name: sahool-code-fix-agent
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8161'
+      prometheus.io/path: /metrics
+  code-review-agent:
+    enabled: true
+    name: code-review-agent
+    image:
+      repository: ghcr.io/kafaat/sahool-code-review-agent
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8145
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 400m
+        memory: 512Mi
+      limits:
+        cpu: 400000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8145'
+    serviceAccount:
+      create: true
+      name: sahool-code-review-agent
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8145'
+      prometheus.io/path: /metrics
+  code-review-service:
+    enabled: true
+    name: code-review-service
+    image:
+      repository: ghcr.io/kafaat/sahool-code-review-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8124
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 384Mi
+      limits:
+        cpu: 300000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8124'
+    serviceAccount:
+      create: true
+      name: sahool-code-review-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8124'
+      prometheus.io/path: /metrics
+  crop-health:
+    enabled: true
+    name: crop-health
+    image:
+      repository: ghcr.io/kafaat/sahool-crop-health
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8100
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 400m
+        memory: 384Mi
+      limits:
+        cpu: 400000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8100'
+    serviceAccount:
+      create: true
+      name: sahool-crop-health
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8100'
+      prometheus.io/path: /metrics
+  globalgap-compliance:
+    enabled: true
+    name: globalgap-compliance
+    image:
+      repository: ghcr.io/kafaat/sahool-globalgap-compliance
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8123
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 384Mi
+      limits:
+        cpu: 300000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8123'
+    serviceAccount:
+      create: true
+      name: sahool-globalgap-compliance
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8123'
+      prometheus.io/path: /metrics
+  knowledge-graph:
+    enabled: true
+    name: knowledge-graph
+    image:
+      repository: ghcr.io/kafaat/sahool-knowledge-graph
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8140
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 400m
+        memory: 512Mi
+      limits:
+        cpu: 400000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8140'
+    serviceAccount:
+      create: true
+      name: sahool-knowledge-graph
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8140'
+      prometheus.io/path: /metrics
+  logistics-service:
+    enabled: true
+    name: logistics-service
+    image:
+      repository: ghcr.io/kafaat/sahool-logistics-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8162
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 384Mi
+      limits:
+        cpu: 300000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8162'
+    serviceAccount:
+      create: true
+      name: sahool-logistics-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8162'
+      prometheus.io/path: /metrics
+  ndvi-engine:
+    enabled: true
+    name: ndvi-engine
+    image:
+      repository: ghcr.io/kafaat/sahool-ndvi-engine
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8107
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 500000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8107'
+    serviceAccount:
+      create: true
+      name: sahool-ndvi-engine
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8107'
+      prometheus.io/path: /metrics
+  ussd-gateway:
+    enabled: true
+    name: ussd-gateway
+    image:
+      repository: ghcr.io/kafaat/sahool-ussd-gateway
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8163
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 200000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8163'
+    serviceAccount:
+      create: true
+      name: sahool-ussd-gateway
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8163'
+      prometheus.io/path: /metrics
+  weather-core:
+    enabled: true
+    name: weather-core
+    image:
+      repository: ghcr.io/kafaat/sahool-weather-core
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8108
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 200000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8108'
+    serviceAccount:
+      create: true
+      name: sahool-weather-core
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8108'
+      prometheus.io/path: /metrics
+  field-core:
+    enabled: false
+    name: field-core
+    image:
+      repository: ghcr.io/kafaat/sahool-field-core
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 3005
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 400m
+        memory: 384Mi
+      limits:
+        cpu: 400000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '3005'
+    serviceAccount:
+      create: true
+      name: sahool-field-core
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '3005'
+      prometheus.io/path: /metrics
+  field-ops:
+    enabled: false
+    name: field-ops
+    image:
+      repository: ghcr.io/kafaat/sahool-field-ops
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8155
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 384Mi
+      limits:
+        cpu: 300000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8155'
+    serviceAccount:
+      create: true
+      name: sahool-field-ops
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8155'
+      prometheus.io/path: /metrics
+  field-service:
+    enabled: false
+    name: field-service
+    image:
+      repository: ghcr.io/kafaat/sahool-field-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8156
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 384Mi
+      limits:
+        cpu: 300000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8156'
+    serviceAccount:
+      create: true
+      name: sahool-field-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8156'
+      prometheus.io/path: /metrics
 applications:
   web:
     enabled: true
@@ -1653,6 +2197,74 @@ ingress:
       pathType: Prefix
       service: wechat-service
       port: 8133
+    - path: /api/v1/agent/registry
+      pathType: Prefix
+      service: agent-registry
+      port: 8160
+    - path: /api/v1/ai/advisor
+      pathType: Prefix
+      service: ai-advisor
+      port: 8112
+    - path: /api/v1/ai/agents/core
+      pathType: Prefix
+      service: ai-agents-core
+      port: 8122
+    - path: /api/v1/chat/service
+      pathType: Prefix
+      service: chat-service
+      port: 8000
+    - path: /api/v1/code/fix/agent
+      pathType: Prefix
+      service: code-fix-agent
+      port: 8161
+    - path: /api/v1/code/review/agent
+      pathType: Prefix
+      service: code-review-agent
+      port: 8145
+    - path: /api/v1/code/review/service
+      pathType: Prefix
+      service: code-review-service
+      port: 8124
+    - path: /api/v1/crop/health
+      pathType: Prefix
+      service: crop-health
+      port: 8100
+    - path: /api/v1/globalgap/compliance
+      pathType: Prefix
+      service: globalgap-compliance
+      port: 8123
+    - path: /api/v1/knowledge/graph
+      pathType: Prefix
+      service: knowledge-graph
+      port: 8140
+    - path: /api/v1/logistics/service
+      pathType: Prefix
+      service: logistics-service
+      port: 8162
+    - path: /api/v1/ndvi/engine
+      pathType: Prefix
+      service: ndvi-engine
+      port: 8107
+    - path: /api/v1/ussd/gateway
+      pathType: Prefix
+      service: ussd-gateway
+      port: 8163
+    - path: /api/v1/weather/core
+      pathType: Prefix
+      service: weather-core
+      port: 8108
+    - path: /api/v1/field/core
+      pathType: Prefix
+      service: field-core
+      port: 3005
+    - path: /api/v1/field/ops
+      pathType: Prefix
+      service: field-ops
+      port: 8155
+    - path: /api/v1/field/service
+      pathType: Prefix
+      service: field-service
+      port: 8156
   tls:
   - secretName: sahool-tls
     hosts:

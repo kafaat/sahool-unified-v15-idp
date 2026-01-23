@@ -328,8 +328,8 @@ function showBrowserNotification(alert: Alert): void {
   if (Notification.permission === "granted") {
     const notification = new Notification(alert.title, {
       body: alert.message,
-      icon: "/icons/alert.png",
-      badge: "/icons/badge.png",
+      icon: "/icons/alert.svg",
+      badge: "/icons/badge.svg",
       tag: alert.id,
       requireInteraction: alert.severity === "critical",
       silent: alert.severity === "low",

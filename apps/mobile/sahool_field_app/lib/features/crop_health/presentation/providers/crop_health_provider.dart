@@ -68,47 +68,42 @@ class DiagnosisNotifier extends StateNotifier<DiagnosisState> {
     }
   }
 
-  void clear() {
-    state = const DiagnosisState();
-  }
-
-  /// تعليم إجراء كمكتمل
-  Future<bool> markActionCompleted(
+  /// تحديد الإجراء كمنفذ
+  Future<void> markActionCompleted(
     String fieldId,
     String zoneId,
     String actionType,
   ) async {
-    if (state.diagnosis == null) return false;
-
     try {
-      await _api.markActionCompleted(
-        fieldId,
-        zoneId,
-        actionType: actionType,
-        date: state.diagnosis!.date,
-      );
+      // Call API to mark action as completed
+      await _api.markActionCompleted(fieldId, zoneId, actionType);
 
-      // تحديث الحالة المحلية بإزالة الإجراء المكتمل
-      final updatedActions = state.diagnosis!.actions
-          .where((a) => !(a.zoneId == zoneId && a.type == actionType))
-          .toList();
+      // Update local state by removing the completed action
+      if (state.diagnosis != null) {
+        final updatedActions = state.diagnosis!.actions
+            .where((a) => !(a.zoneId == zoneId && a.type == actionType))
+            .toList();
 
-      final updatedDiagnosis = FieldDiagnosis(
-        fieldId: state.diagnosis!.fieldId,
-        date: state.diagnosis!.date,
-        summary: state.diagnosis!.summary,
-        actions: updatedActions,
-        mapLayers: state.diagnosis!.mapLayers,
-      );
+        final updatedDiagnosis = FieldDiagnosis(
+          fieldId: state.diagnosis!.fieldId,
+          date: state.diagnosis!.date,
+          summary: state.diagnosis!.summary,
+          actions: updatedActions,
+          mapLayers: state.diagnosis!.mapLayers,
+        );
 
-      state = state.copyWith(diagnosis: updatedDiagnosis);
-      return true;
+        state = state.copyWith(diagnosis: updatedDiagnosis);
+      }
     } catch (e) {
       state = state.copyWith(
-        error: 'فشل تعليم الإجراء كمكتمل: ${e.toString()}',
+        error: 'فشل تحديث الإجراء: ${e.toString()}',
       );
-      return false;
+      rethrow;
     }
+  }
+
+  void clear() {
+    state = const DiagnosisState();
   }
 }
 

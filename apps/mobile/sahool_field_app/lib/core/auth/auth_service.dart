@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../di/providers.dart';
 import '../http/api_client.dart';
+import '../config/env_config.dart';
+import '../di/providers.dart';
 import '../utils/app_logger.dart';
 import 'secure_storage_service.dart';
 import 'biometric_service.dart';
@@ -11,38 +12,35 @@ import 'biometric_service.dart';
 /// خدمة المصادقة مع Token Refresh تلقائي
 ///
 /// Features:
-/// - Automatic token refresh with retry mechanism
-/// - Token expiration checking
-/// - Secure token storage using flutter_secure_storage
+/// - Automatic token refresh
+/// - Secure token storage
 /// - Biometric authentication support
 /// - Session management
-/// - Exponential backoff retry strategy
 
 // Providers
 final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService(
-    apiClient: ref.read(apiClientProvider),
-    secureStorage: ref.read(secureStorageProvider),
-    biometricService: ref.read(biometricServiceProvider),
-  );
+  // Import apiClientProvider from core/di/providers.dart
+  // We use read here to avoid circular dependencies
+  try {
+    final apiClient = ref.read(apiClientProvider);
+    return AuthService(
+      secureStorage: ref.read(secureStorageProvider),
+      biometricService: ref.read(biometricServiceProvider),
+      apiClient: apiClient,
+    );
+  } catch (e) {
+    // If apiClientProvider is not available, create AuthService without it
+    // This allows for graceful fallback to mock mode
+    AppLogger.w('ApiClient not available, using mock mode', tag: 'AUTH');
+    return AuthService(
+      secureStorage: ref.read(secureStorageProvider),
+      biometricService: ref.read(biometricServiceProvider),
+    );
+  }
 });
 
 final authStateProvider = StateNotifierProvider<AuthStateNotifier, AuthState>((ref) {
   return AuthStateNotifier(ref.read(authServiceProvider));
-});
-
-/// Alias for backward compatibility
-/// اسم بديل للتوافق مع الكود القديم
-final authProvider = authStateProvider;
-
-/// Provider for login state
-final isLoggedInProvider = Provider<bool>((ref) {
-  return ref.watch(authStateProvider).isAuthenticated;
-});
-
-/// Provider for current user name
-final currentUserNameProvider = Provider<String?>((ref) {
-  return ref.watch(authStateProvider).user?.name;
 });
 
 /// Auth State
@@ -51,22 +49,27 @@ enum AuthStatus { initial, authenticated, unauthenticated, loading }
 class AuthState {
   final AuthStatus status;
   final User? user;
+  final String? accessToken;
   final String? error;
 
   const AuthState({
     this.status = AuthStatus.initial,
     this.user,
+    this.accessToken,
     this.error,
   });
 
   AuthState copyWith({
     AuthStatus? status,
     User? user,
+    String? accessToken,
     String? error,
+    bool clearToken = false,
   }) {
     return AuthState(
       status: status ?? this.status,
       user: user ?? this.user,
+      accessToken: clearToken ? null : (accessToken ?? this.accessToken),
       error: error,
     );
   }
@@ -90,9 +93,11 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
       final isLoggedIn = await _authService.isLoggedIn();
       if (isLoggedIn) {
         final user = await _authService.getCurrentUser();
+        final token = await _authService.getAccessToken();
         state = state.copyWith(
           status: AuthStatus.authenticated,
           user: user,
+          accessToken: token,
         );
       } else {
         state = state.copyWith(status: AuthStatus.unauthenticated);
@@ -111,9 +116,11 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 
     try {
       final user = await _authService.login(email, password);
+      final token = await _authService.getAccessToken();
       state = state.copyWith(
         status: AuthStatus.authenticated,
         user: user,
+        accessToken: token,
       );
       return true;
     } catch (e) {
@@ -133,6 +140,8 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
   Future<bool> refreshSession() async {
     try {
       await _authService.refreshToken();
+      final token = await _authService.getAccessToken();
+      state = state.copyWith(accessToken: token);
       return true;
     } catch (e) {
       await logout();
@@ -143,22 +152,17 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 
 /// Auth Service Implementation
 class AuthService {
-  final ApiClient apiClient;
   final SecureStorageService secureStorage;
   final BiometricService biometricService;
+  final ApiClient? apiClient;
 
   Timer? _refreshTimer;
   static const _tokenRefreshBuffer = Duration(minutes: 5);
 
-  // Retry configuration
-  static const _maxRetries = 3;
-  static const _initialRetryDelay = Duration(seconds: 2);
-  int _retryCount = 0;
-
   AuthService({
-    required this.apiClient,
     required this.secureStorage,
     required this.biometricService,
+    this.apiClient,
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -170,85 +174,221 @@ class AuthService {
     AppLogger.i('Login attempt', tag: 'AUTH', data: {'email': email});
 
     try {
-      TokenPair tokens;
-      User user;
-
-      // Use mock data only in debug mode for development/testing
-      if (kDebugMode) {
-        AppLogger.d('Using mock authentication (debug mode)', tag: 'AUTH');
-        tokens = TokenPair(
-          accessToken: 'access_token_${DateTime.now().millisecondsSinceEpoch}',
-          refreshToken: 'refresh_token_${DateTime.now().millisecondsSinceEpoch}',
-          expiresIn: 3600, // 1 hour
-        );
-
-        user = User(
-          id: 'user_001',
-          email: email,
-          name: 'مستخدم سهول',
-          role: 'farmer',
-          tenantId: 'tenant_1',
-        );
+      // Use real API if available, otherwise fall back to mock in development
+      if (apiClient != null && !_shouldUseMockMode()) {
+        return await _loginWithApi(email, password);
       } else {
-        // Production: Call the actual API
-        final response = await apiClient.post('/auth/login', {
-          'email': email,
-          'password': password,
-        });
+        return await _loginWithMock(email, password);
+      }
+    } catch (e) {
+      AppLogger.e('Login failed', tag: 'AUTH', error: e);
 
-        // Parse response
-        if (response == null) {
-          throw AuthException('فشل تسجيل الدخول: لم يتم استلام استجابة من الخادم', code: 'NO_RESPONSE');
-        }
-
-        final Map<String, dynamic> data = response is Map<String, dynamic>
-            ? response
-            : throw AuthException('فشل تسجيل الدخول: استجابة غير صالحة', code: 'INVALID_RESPONSE');
-
-        // Extract tokens from response
-        final tokenData = data['tokens'] ?? data;
-        tokens = TokenPair(
-          accessToken: tokenData['access_token'] as String? ??
-              (throw AuthException('فشل تسجيل الدخول: لم يتم استلام رمز الوصول', code: 'NO_ACCESS_TOKEN')),
-          refreshToken: tokenData['refresh_token'] as String? ??
-              (throw AuthException('فشل تسجيل الدخول: لم يتم استلام رمز التحديث', code: 'NO_REFRESH_TOKEN')),
-          expiresIn: tokenData['expires_in'] as int? ?? 3600,
-        );
-
-        // Extract user from response
-        final userData = data['user'] as Map<String, dynamic>? ??
-            (throw AuthException('فشل تسجيل الدخول: لم يتم استلام بيانات المستخدم', code: 'NO_USER_DATA'));
-
-        user = User.fromJson(userData);
+      // In development, fallback to mock if API fails
+      if (kDebugMode && e is ApiException && e.isNetworkError) {
+        AppLogger.w('API unavailable, falling back to mock mode', tag: 'AUTH');
+        return await _loginWithMock(email, password);
       }
 
-      // Store tokens securely
+      rethrow;
+    }
+  }
+
+  /// Login using real API
+  Future<User> _loginWithApi(String email, String password) async {
+    AppLogger.i('Logging in via API', tag: 'AUTH');
+
+    try {
+      final response = await apiClient!.post(
+        '/api/v1/auth/login',
+        {
+          'email': email,
+          'password': password,
+        },
+      );
+
+      // Parse API response
+      if (response == null) {
+        throw AuthException('استجابة غير صالحة من الخادم');
+      }
+
+      final data = response is Map<String, dynamic> ? response : response['data'];
+
+      // Extract tokens
+      final accessToken = data['access_token'] ?? data['accessToken'];
+      final refreshToken = data['refresh_token'] ?? data['refreshToken'];
+      final expiresIn = data['expires_in'] ?? data['expiresIn'] ?? 3600;
+
+      if (accessToken == null || refreshToken == null) {
+        throw AuthException('بيانات التوكن مفقودة في الاستجابة');
+      }
+
+      final tokens = TokenPair(
+        accessToken: accessToken as String,
+        refreshToken: refreshToken as String,
+        expiresIn: expiresIn is int ? expiresIn : int.parse(expiresIn.toString()),
+      );
+
+      // Extract user data
+      final userData = data['user'] ?? data;
+      final user = User(
+        id: userData['id'] ?? userData['_id'] ?? 'unknown',
+        email: userData['email'] ?? email,
+        name: userData['name'] ?? userData['username'] ?? 'مستخدم',
+        role: userData['role'] ?? 'farmer',
+        tenantId: userData['tenant_id'] ?? userData['tenantId'] ?? EnvConfig.defaultTenantId,
+        phone: userData['phone'],
+        avatarUrl: userData['avatar_url'] ?? userData['avatarUrl'],
+      );
+
+      // Set auth token in API client for subsequent requests
+      apiClient!.setAuthToken(tokens.accessToken);
+      apiClient!.setTenantId(user.tenantId);
+
+      // Store tokens and user data securely
       await _storeTokens(tokens);
-
-      // Set the auth token on the API client for subsequent requests
-      apiClient.setAuthToken(tokens.accessToken);
-
-      // Store user data securely
-      await secureStorage.setUserData(user.toJson());
-
-      // Store tenant ID
-      await secureStorage.setTenantId(user.tenantId);
+      await _storeUserData(user);
 
       // Schedule token refresh
       _scheduleTokenRefresh(tokens.expiresIn);
 
-      // Reset retry count on successful login
-      _retryCount = 0;
-
-      AppLogger.i('Login successful', tag: 'AUTH');
+      AppLogger.i('API login successful', tag: 'AUTH', data: {'userId': user.id});
       return user;
     } on ApiException catch (e) {
-      AppLogger.e('Login API error', tag: 'AUTH', error: e);
-      throw AuthException(e.message, code: e.code);
+      AppLogger.e('API login failed', tag: 'AUTH', error: e);
+
+      // Convert API exceptions to auth exceptions with Arabic messages
+      if (e.statusCode == 401 || e.statusCode == 403) {
+        throw AuthException('البريد الإلكتروني أو كلمة المرور غير صحيحة', code: 'INVALID_CREDENTIALS');
+      } else if (e.isNetworkError) {
+        throw AuthException('لا يوجد اتصال بالإنترنت', code: 'NETWORK_ERROR');
+      } else {
+        throw AuthException(e.message, code: e.code);
+      }
+    }
+  }
+
+  /// Login using mock data (development only)
+  Future<User> _loginWithMock(String email, String password) async {
+    AppLogger.w('Using MOCK login (development only)', tag: 'AUTH');
+
+    // Simulate network delay
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // Simulated response for development
+    final tokens = TokenPair(
+      accessToken: 'mock_access_token_${DateTime.now().millisecondsSinceEpoch}',
+      refreshToken: 'mock_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
+      expiresIn: 3600, // 1 hour
+    );
+
+    final user = User(
+      id: 'mock_user_001',
+      email: email,
+      name: 'مستخدم تجريبي',
+      role: 'farmer',
+      tenantId: 'mock_tenant',
+    );
+
+    // Store tokens securely
+    await _storeTokens(tokens);
+
+    // Store user data and tenant ID
+    await _storeUserData(user);
+
+    // Schedule token refresh
+    _scheduleTokenRefresh(tokens.expiresIn);
+
+    AppLogger.i('Mock login successful', tag: 'AUTH');
+    return user;
+  }
+
+  /// Check if mock mode should be used
+  bool _shouldUseMockMode() {
+    // Use mock mode only in debug builds when explicitly enabled
+    // In production builds, always use real API
+    return kDebugMode && const bool.fromEnvironment('USE_MOCK_AUTH', defaultValue: false);
+  }
+
+  /// Reset password with token
+  /// إعادة تعيين كلمة المرور باستخدام رمز التحقق
+  Future<void> resetPassword({
+    required String token,
+    required String newPassword,
+  }) async {
+    AppLogger.i('Reset password attempt', tag: 'AUTH');
+
+    try {
+      // Use real API if available, otherwise fall back to mock in development
+      if (apiClient != null && !_shouldUseMockMode()) {
+        await _resetPasswordWithApi(token, newPassword);
+      } else {
+        await _resetPasswordWithMock();
+      }
     } catch (e) {
-      AppLogger.e('Login failed', tag: 'AUTH', error: e);
+      AppLogger.e('Reset password failed', tag: 'AUTH', error: e);
+
+      // In development, fallback to mock if API fails
+      if (kDebugMode && e is ApiException && e.isNetworkError) {
+        AppLogger.w('API unavailable, falling back to mock mode', tag: 'AUTH');
+        await _resetPasswordWithMock();
+        return;
+      }
+
       rethrow;
     }
+  }
+
+  /// Reset password using real API
+  Future<void> _resetPasswordWithApi(String token, String newPassword) async {
+    AppLogger.i('Resetting password via API', tag: 'AUTH');
+
+    try {
+      final response = await apiClient!.post(
+        '/api/v1/auth/reset-password',
+        {
+          'token': token,
+          'newPassword': newPassword,
+        },
+      );
+
+      // Parse API response
+      if (response == null) {
+        throw AuthException('استجابة غير صالحة من الخادم');
+      }
+
+      final data = response is Map<String, dynamic> ? response : response['data'];
+      final success = data['success'] ?? false;
+
+      if (!success) {
+        final message = data['message'] ?? 'فشل تغيير كلمة المرور';
+        throw AuthException(message);
+      }
+
+      AppLogger.i('API password reset successful', tag: 'AUTH');
+    } on ApiException catch (e) {
+      AppLogger.e('API password reset failed', tag: 'AUTH', error: e);
+
+      // Convert API exceptions to auth exceptions with Arabic messages
+      if (e.statusCode == 400) {
+        throw AuthException('رمز التحقق غير صالح أو منتهي الصلاحية', code: 'INVALID_TOKEN');
+      } else if (e.statusCode == 429) {
+        throw AuthException('محاولات كثيرة جداً. يرجى المحاولة لاحقاً', code: 'TOO_MANY_ATTEMPTS');
+      } else if (e.isNetworkError) {
+        throw AuthException('لا يوجد اتصال بالإنترنت', code: 'NETWORK_ERROR');
+      } else {
+        throw AuthException(e.message, code: e.code);
+      }
+    }
+  }
+
+  /// Reset password using mock data (development only)
+  Future<void> _resetPasswordWithMock() async {
+    AppLogger.w('Using MOCK password reset (development only)', tag: 'AUTH');
+
+    // Simulate network delay
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    AppLogger.i('Mock password reset successful', tag: 'AUTH');
   }
 
   /// Login with biometric
@@ -280,7 +420,7 @@ class AuthService {
     }
 
     // Refresh token to get new access token
-    await refreshToken;
+    await refreshToken();
 
     // Get current user
     return getCurrentUser();
@@ -292,26 +432,26 @@ class AuthService {
 
     _cancelTokenRefresh();
 
-    // In production, call logout API to invalidate token on server
-    if (!kDebugMode) {
+    // Call logout API if available (best effort - don't fail if it errors)
+    if (apiClient != null && !_shouldUseMockMode()) {
       try {
-        final refreshToken = await secureStorage.getRefreshToken();
-        if (refreshToken != null) {
-          await apiClient.post('/auth/logout', {
-            'refresh_token': refreshToken,
-          });
-        }
+        await apiClient!.post('/api/v1/auth/logout', {});
+        AppLogger.i('Logout API call successful', tag: 'AUTH');
       } catch (e) {
-        // Log but don't throw - we still want to clear local tokens
-        AppLogger.e('Logout API call failed', tag: 'AUTH', error: e);
+        // Log but don't fail - local logout should always succeed
+        AppLogger.w('Logout API call failed (continuing with local logout)', tag: 'AUTH', error: e);
       }
     }
 
     // Clear auth token from API client
-    apiClient.setAuthToken('');
+    if (apiClient != null) {
+      apiClient!.setAuthToken('');
+    }
 
     // Clear stored tokens
     await secureStorage.clearAll();
+
+    AppLogger.i('Logout complete', tag: 'AUTH');
   }
 
   /// Check if user is logged in
@@ -319,40 +459,21 @@ class AuthService {
     final accessToken = await secureStorage.getAccessToken();
     if (accessToken == null) return false;
 
-    // Check if token is expired or about to expire
-    if (await isTokenExpired()) {
+    // Check if token is expired
+    final expiry = await secureStorage.getTokenExpiry();
+    if (expiry == null) return false;
+
+    if (DateTime.now().isAfter(expiry)) {
       // Token expired, try to refresh
       try {
         await refreshToken();
         return true;
       } catch (e) {
-        AppLogger.e('Token refresh failed during login check', tag: 'AUTH', error: e);
         return false;
       }
     }
 
     return true;
-  }
-
-  /// Check if token is expired or will expire soon
-  Future<bool> isTokenExpired() async {
-    final expiry = await secureStorage.getTokenExpiry();
-    if (expiry == null) return true;
-
-    // Consider token expired if it expires within the buffer time
-    final expiryWithBuffer = expiry.subtract(_tokenRefreshBuffer);
-    return DateTime.now().isAfter(expiryWithBuffer);
-  }
-
-  /// Get token time until expiry
-  Future<Duration?> getTokenTimeUntilExpiry() async {
-    final expiry = await secureStorage.getTokenExpiry();
-    if (expiry == null) return null;
-
-    final now = DateTime.now();
-    if (now.isAfter(expiry)) return Duration.zero;
-
-    return expiry.difference(now);
   }
 
   /// Get current user
@@ -367,116 +488,110 @@ class AuthService {
   // Token Management
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Refresh access token with automatic retry
+  /// Refresh access token
   Future<void> refreshToken() async {
-    return await _refreshTokenWithRetry();
-  }
+    AppLogger.i('Refreshing token', tag: 'AUTH');
 
-  /// Internal method to refresh token with retry logic
-  Future<void> _refreshTokenWithRetry({int attempt = 0}) async {
-    AppLogger.i('Refreshing token (attempt ${attempt + 1}/$_maxRetries)', tag: 'AUTH');
-
-    final storedRefreshToken = await secureStorage.getRefreshToken();
-    if (storedRefreshToken == null) {
+    final refreshToken = await secureStorage.getRefreshToken();
+    if (refreshToken == null) {
       throw AuthException('لا يوجد refresh token');
     }
 
     try {
-      TokenPair tokens;
-
-      // Use mock data only in debug mode for development/testing
-      if (kDebugMode) {
-        AppLogger.d('Using mock token refresh (debug mode)', tag: 'AUTH');
-        tokens = TokenPair(
-          accessToken: 'new_access_token_${DateTime.now().millisecondsSinceEpoch}',
-          refreshToken: 'new_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
-          expiresIn: 3600,
-        );
+      // Use real API if available, otherwise fall back to mock in development
+      if (apiClient != null && !_shouldUseMockMode()) {
+        await _refreshTokenWithApi(refreshToken);
       } else {
-        // Production: Call the actual refresh endpoint
-        final response = await apiClient.post('/auth/refresh', {
-          'refresh_token': storedRefreshToken,
-        });
-
-        // Parse response
-        if (response == null) {
-          throw AuthException('فشل تحديث الجلسة: لم يتم استلام استجابة من الخادم', code: 'NO_RESPONSE');
-        }
-
-        final Map<String, dynamic> data = response is Map<String, dynamic>
-            ? response
-            : throw AuthException('فشل تحديث الجلسة: استجابة غير صالحة', code: 'INVALID_RESPONSE');
-
-        // Extract tokens from response
-        final tokenData = data['tokens'] ?? data;
-        tokens = TokenPair(
-          accessToken: tokenData['access_token'] as String? ??
-              (throw AuthException('فشل تحديث الجلسة: لم يتم استلام رمز الوصول', code: 'NO_ACCESS_TOKEN')),
-          refreshToken: tokenData['refresh_token'] as String? ??
-              (throw AuthException('فشل تحديث الجلسة: لم يتم استلام رمز التحديث', code: 'NO_REFRESH_TOKEN')),
-          expiresIn: tokenData['expires_in'] as int? ?? 3600,
-        );
-      }
-
-      await _storeTokens(tokens);
-
-      // Update the auth token on the API client for subsequent requests
-      apiClient.setAuthToken(tokens.accessToken);
-
-      _scheduleTokenRefresh(tokens.expiresIn);
-
-      // Reset retry count on success
-      _retryCount = 0;
-
-      AppLogger.i('Token refreshed successfully', tag: 'AUTH');
-    } on ApiException catch (e) {
-      AppLogger.e('Token refresh API error (attempt ${attempt + 1})', tag: 'AUTH', error: e);
-
-      // Check if it's a network error (retryable) or auth error (not retryable)
-      if (e.statusCode == 401 || e.statusCode == 403) {
-        // Token is invalid, logout immediately
-        AppLogger.e('Refresh token invalid, logging out', tag: 'AUTH');
-        await logout();
-        throw AuthException('الجلسة منتهية، يرجى تسجيل الدخول مرة أخرى', code: 'INVALID_REFRESH_TOKEN');
-      }
-
-      // Retry with exponential backoff for network errors
-      if (attempt < _maxRetries - 1) {
-        final delay = _calculateRetryDelay(attempt);
-        AppLogger.i('Retrying token refresh in ${delay.inSeconds}s', tag: 'AUTH');
-
-        await Future.delayed(delay);
-        return await _refreshTokenWithRetry(attempt: attempt + 1);
-      } else {
-        // Max retries reached, logout
-        AppLogger.e('Max retry attempts reached, logging out', tag: 'AUTH');
-        await logout();
-        throw AuthException('فشل تحديث الجلسة بعد عدة محاولات', code: 'MAX_RETRY_REACHED');
+        await _refreshTokenWithMock();
       }
     } catch (e) {
-      AppLogger.e('Token refresh failed (attempt ${attempt + 1})', tag: 'AUTH', error: e);
+      AppLogger.e('Token refresh failed', tag: 'AUTH', error: e);
 
-      // Retry with exponential backoff
-      if (attempt < _maxRetries - 1) {
-        final delay = _calculateRetryDelay(attempt);
-        AppLogger.i('Retrying token refresh in ${delay.inSeconds}s', tag: 'AUTH');
+      // In development, fallback to mock if API fails
+      if (kDebugMode && e is ApiException && e.isNetworkError) {
+        AppLogger.w('API unavailable, falling back to mock refresh', tag: 'AUTH');
+        await _refreshTokenWithMock();
+        return;
+      }
 
-        await Future.delayed(delay);
-        return await _refreshTokenWithRetry(attempt: attempt + 1);
+      await logout();
+      rethrow;
+    }
+  }
+
+  /// Refresh token using real API
+  Future<void> _refreshTokenWithApi(String refreshToken) async {
+    AppLogger.i('Refreshing token via API', tag: 'AUTH');
+
+    try {
+      final response = await apiClient!.post(
+        '/api/v1/auth/refresh',
+        {
+          'refresh_token': refreshToken,
+        },
+      );
+
+      // Parse API response
+      if (response == null) {
+        throw AuthException('استجابة غير صالحة من الخادم');
+      }
+
+      final data = response is Map<String, dynamic> ? response : response['data'];
+
+      // Extract new tokens
+      final accessToken = data['access_token'] ?? data['accessToken'];
+      final newRefreshToken = data['refresh_token'] ?? data['refreshToken'] ?? refreshToken;
+      final expiresIn = data['expires_in'] ?? data['expiresIn'] ?? 3600;
+
+      if (accessToken == null) {
+        throw AuthException('بيانات التوكن مفقودة في الاستجابة');
+      }
+
+      final tokens = TokenPair(
+        accessToken: accessToken as String,
+        refreshToken: newRefreshToken as String,
+        expiresIn: expiresIn is int ? expiresIn : int.parse(expiresIn.toString()),
+      );
+
+      // Update auth token in API client
+      apiClient!.setAuthToken(tokens.accessToken);
+
+      await _storeTokens(tokens);
+      _scheduleTokenRefresh(tokens.expiresIn);
+
+      AppLogger.i('API token refresh successful', tag: 'AUTH');
+    } on ApiException catch (e) {
+      AppLogger.e('API token refresh failed', tag: 'AUTH', error: e);
+
+      // Convert API exceptions to auth exceptions
+      if (e.statusCode == 401 || e.statusCode == 403) {
+        throw AuthException('انتهت صلاحية الجلسة', code: 'SESSION_EXPIRED');
+      } else if (e.isNetworkError) {
+        throw AuthException('لا يوجد اتصال بالإنترنت', code: 'NETWORK_ERROR');
       } else {
-        // Max retries reached, logout
-        AppLogger.e('Max retry attempts reached, logging out', tag: 'AUTH');
-        await logout();
-        throw AuthException('فشل تحديث الجلسة بعد عدة محاولات', code: 'MAX_RETRY_REACHED');
+        throw AuthException(e.message, code: e.code);
       }
     }
   }
 
-  /// Calculate retry delay with exponential backoff
-  Duration _calculateRetryDelay(int attempt) {
-    // Exponential backoff: 2s, 4s, 8s, etc.
-    final multiplier = 1 << attempt; // 2^attempt
-    return _initialRetryDelay * multiplier;
+  /// Refresh token using mock data (development only)
+  Future<void> _refreshTokenWithMock() async {
+    AppLogger.w('Using MOCK token refresh (development only)', tag: 'AUTH');
+
+    // Simulate network delay
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    // Simulated response
+    final tokens = TokenPair(
+      accessToken: 'mock_new_access_token_${DateTime.now().millisecondsSinceEpoch}',
+      refreshToken: 'mock_new_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
+      expiresIn: 3600,
+    );
+
+    await _storeTokens(tokens);
+    _scheduleTokenRefresh(tokens.expiresIn);
+
+    AppLogger.i('Mock token refresh successful', tag: 'AUTH');
   }
 
   /// Get current access token
@@ -491,6 +606,12 @@ class AuthService {
 
     final expiry = DateTime.now().add(Duration(seconds: tokens.expiresIn));
     await secureStorage.setTokenExpiry(expiry);
+  }
+
+  /// Store user data securely
+  Future<void> _storeUserData(User user) async {
+    await secureStorage.setUserData(user.toJson());
+    await secureStorage.setTenantId(user.tenantId);
   }
 
   /// Schedule automatic token refresh

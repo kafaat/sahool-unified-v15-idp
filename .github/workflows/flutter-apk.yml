@@ -121,12 +121,20 @@ jobs:
             MAPS_KEY="placeholder_maps_key_for_ci_build"
           fi
 
-          cat > .env << EOF
+          # Create .env file (no leading spaces - flutter_dotenv requires clean format)
+          cat > .env << 'ENVFILE'
           API_BASE_URL=https://api.sahool.app
           WEATHER_API_KEY=$WEATHER_KEY
           MAPS_API_KEY=$MAPS_KEY
           ENV=production
-          EOF
+          ENVFILE
+          # Remove leading whitespace from each line
+          sed -i 's/^[[:space:]]*//' .env
+          # Substitute variables
+          sed -i "s|\$WEATHER_KEY|$WEATHER_KEY|g" .env
+          sed -i "s|\$MAPS_KEY|$MAPS_KEY|g" .env
+          echo "Created .env file:"
+          cat .env
 
       - name: Clean previous build artifacts
         run: |

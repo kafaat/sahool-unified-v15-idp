@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../domain/entities/crop_health_entities.dart';
@@ -10,7 +11,6 @@ import '../providers/crop_health_provider.dart';
 import '../widgets/diagnosis_summary_card.dart';
 import '../widgets/action_list_tile.dart';
 import '../widgets/zone_selector.dart';
-import '../../../maps/presentation/screens/field_map_screen.dart';
 
 /// شاشة لوحة تحكم صحة المحاصيل
 /// NDVI Dashboard with Diagnosis
@@ -676,7 +676,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                         child: OutlinedButton.icon(
                           onPressed: () {
                             Navigator.pop(context);
-                            _navigateToZoneOnMap(action);
+                            _navigateToZoneOnMap(action.zoneId);
                           },
                           icon: const Icon(Icons.map),
                           label: const Text('عرض على الخريطة'),
@@ -720,23 +720,23 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
     }
   }
 
-  /// Navigate to map screen with zone highlighted
-  void _navigateToZoneOnMap(DiagnosisAction action) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FieldMapScreen(
-          fieldId: widget.fieldId,
-          fieldName: widget.fieldName,
-          highlightZoneId: action.zoneId,
-        ),
-      ),
-    );
+  /// Navigate to map screen and focus on the specified zone
+  void _navigateToZoneOnMap(String zoneId) {
+    final zonesState = ref.read(zonesProvider);
+    final zone = zonesState.zones.where((z) => z.zoneId == zoneId).firstOrNull;
+
+    context.push('/map', extra: {
+      'zoneId': zoneId,
+      'zoneName': zone?.nameAr ?? zone?.name ?? zoneId,
+      'geometry': zone?.geometry,
+      'fieldId': widget.fieldId,
+      'fieldName': widget.fieldName,
+    });
   }
 
-  /// تعليم الإجراء كمكتمل
+  /// Mark an action as completed
   Future<void> _markActionAsDone(DiagnosisAction action) async {
-    // عرض مؤشر التحميل
+    // Show loading indicator
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -750,67 +750,66 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
               ),
             ),
             const SizedBox(width: 16),
-            Text('جاري تعليم "${action.title}" كمكتمل...'),
+            Text('جاري تحديث الإجراء: ${action.title}...'),
           ],
         ),
         backgroundColor: const Color(0xFF367C2B),
-        duration: const Duration(seconds: 30),
+        duration: const Duration(seconds: 30), // Long duration, will be dismissed
       ),
     );
 
-    // استدعاء API لتعليم الإجراء كمكتمل
-    final success = await ref.read(diagnosisProvider.notifier).markActionCompleted(
-          widget.fieldId,
-          action.zoneId,
-          action.type,
+    try {
+      // Call the provider to mark the action as completed
+      await ref.read(diagnosisProvider.notifier).markActionCompleted(
+            widget.fieldId,
+            action.zoneId,
+            action.type,
+          );
+
+      if (mounted) {
+        // Hide loading and show success
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('تم تنفيذ: ${action.title}'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
         );
-
-    if (!mounted) return;
-
-    // إخفاء مؤشر التحميل
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-    if (success) {
-      // عرض رسالة نجاح
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text('تم تنفيذ "${action.title}" بنجاح'),
-              ),
-            ],
+      }
+    } catch (e) {
+      if (mounted) {
+        // Hide loading and show error
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('فشل تحديث الإجراء: ${e.toString()}'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'إعادة المحاولة',
+              textColor: Colors.white,
+              onPressed: () => _markActionAsDone(action),
+            ),
           ),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    } else {
-      // عرض رسالة خطأ
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error_outline, color: Colors.white),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text('فشل تعليم "${action.title}" كمكتمل'),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 4),
-          action: SnackBarAction(
-            label: 'إعادة المحاولة',
-            textColor: Colors.white,
-            onPressed: () => _markActionAsDone(action),
-          ),
-        ),
-      );
+        );
+      }
     }
   }
 }

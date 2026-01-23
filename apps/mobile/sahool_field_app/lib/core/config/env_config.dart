@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../utils/app_logger.dart';
 
 /// SAHOOL Environment Configuration
 /// تكوين البيئة - يدعم dart-define و dotenv
@@ -14,102 +15,47 @@ enum AppEnvironment { development, staging, production }
 
 class EnvConfig {
   static bool _initialized = false;
-  static final List<String> _missingCriticalVars = [];
-
-  /// Critical environment variables that MUST be set in production
-  static const List<String> _criticalProductionVars = [
-    'API_URL',
-    'WS_URL',
-    'MAPBOX_ACCESS_TOKEN',
-  ];
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Initialization
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Load environment configuration from .env file
+  /// Load environment configuration from .env file (with .env.example fallback)
   static Future<void> load() async {
     if (_initialized) return;
 
     try {
-      await dotenv.load(fileName: '.env');
-      if (kDebugMode) {
-        debugPrint('EnvConfig: Environment configuration loaded from .env');
+      // Try .env first (local development), then .env.example (CI/default)
+      try {
+        await dotenv.load(fileName: '.env');
+        if (kDebugMode) {
+          AppLogger.i('Environment configuration loaded from .env', tag: 'EnvConfig');
+        }
+      } catch (_) {
+        // Fallback to .env.example for CI builds
+        await dotenv.load(fileName: '.env.example');
+        if (kDebugMode) {
+          AppLogger.i('Environment configuration loaded from .env.example', tag: 'EnvConfig');
+        }
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('EnvConfig: Could not load .env file. Using dart-define/defaults.');
+        AppLogger.w('Could not load .env file. Using dart-define/defaults.', tag: 'EnvConfig');
       }
     }
 
     _initialized = true;
-
-    // Validate critical variables in production mode
-    _validateProductionConfig();
 
     if (kDebugMode) {
       printConfig();
     }
   }
 
-  /// Validate that critical environment variables are set in production
-  static void _validateProductionConfig() {
-    _missingCriticalVars.clear();
-
-    // Only enforce strict validation in production
-    if (!isProduction) return;
-
-    for (final varName in _criticalProductionVars) {
-      final value = _getDartDefine(varName);
-      final dotenvValue = _getDotenvValue(varName);
-
-      if (value.isEmpty && dotenvValue.isEmpty) {
-        _missingCriticalVars.add(varName);
-      }
-    }
-
-    if (_missingCriticalVars.isNotEmpty) {
-      final message =
-          'EnvConfig: CRITICAL - Missing required environment variables in production: '
-          '${_missingCriticalVars.join(", ")}. '
-          'Using default values which may not be suitable for production.';
-
-      // In release mode, we log to a proper logging system
-      // In debug mode, use debugPrint
-      if (kDebugMode) {
-        debugPrint(message);
-      }
-
-      // Throw in production to fail fast if critical vars are missing
-      // This ensures production builds are properly configured
-      assert(
-        false,
-        message,
-      );
-    }
-  }
-
-  /// Get a value directly from dotenv (for validation purposes)
-  static String _getDotenvValue(String key) {
-    try {
-      return dotenv.maybeGet(key) ?? '';
-    } catch (_) {
-      return '';
-    }
-  }
-
-  /// Check if critical configuration is valid for production
-  static bool get isProductionConfigValid => _missingCriticalVars.isEmpty;
-
-  /// Get list of missing critical variables (for diagnostics)
-  static List<String> get missingCriticalVariables =>
-      List.unmodifiable(_missingCriticalVars);
-
   // ═══════════════════════════════════════════════════════════════════════════
   // Helper to get value with priority: dart-define > dotenv > default
   // ═══════════════════════════════════════════════════════════════════════════
 
-  static String _getString(String key, String defaultValue, {bool logWarning = true}) {
+  static String _getString(String key, String defaultValue) {
     // 1. Check dart-define first (using predefined constants)
     final dartDefine = _getDartDefine(key);
     if (dartDefine.isNotEmpty) return dartDefine;
@@ -120,10 +66,7 @@ class EnvConfig {
       if (dotenvValue != null && dotenvValue.isNotEmpty) return dotenvValue;
     } catch (_) {}
 
-    // 3. Log warning and return default
-    if (logWarning && defaultValue.isNotEmpty && kDebugMode) {
-      debugPrint('EnvConfig: Using default value for $key: $defaultValue');
-    }
+    // 3. Return default
     return defaultValue;
   }
 
@@ -142,6 +85,50 @@ class EnvConfig {
         return const String.fromEnvironment('WS_URL');
       case 'WS_GATEWAY_URL':
         return const String.fromEnvironment('WS_GATEWAY_URL');
+      // Host Configuration
+      case 'DEV_HOST':
+        return const String.fromEnvironment('DEV_HOST');
+      case 'PROD_HOST':
+        return const String.fromEnvironment('PROD_HOST');
+      case 'STAGING_HOST':
+        return const String.fromEnvironment('STAGING_HOST');
+      // Service Ports
+      case 'FIELD_CORE_PORT':
+        return const String.fromEnvironment('FIELD_CORE_PORT');
+      case 'MARKETPLACE_PORT':
+        return const String.fromEnvironment('MARKETPLACE_PORT');
+      case 'CHAT_PORT':
+        return const String.fromEnvironment('CHAT_PORT');
+      case 'SATELLITE_PORT':
+        return const String.fromEnvironment('SATELLITE_PORT');
+      case 'INDICATORS_PORT':
+        return const String.fromEnvironment('INDICATORS_PORT');
+      case 'WEATHER_PORT':
+        return const String.fromEnvironment('WEATHER_PORT');
+      case 'FERTILIZER_PORT':
+        return const String.fromEnvironment('FERTILIZER_PORT');
+      case 'IRRIGATION_PORT':
+        return const String.fromEnvironment('IRRIGATION_PORT');
+      case 'CROP_HEALTH_PORT':
+        return const String.fromEnvironment('CROP_HEALTH_PORT');
+      case 'VIRTUAL_SENSORS_PORT':
+        return const String.fromEnvironment('VIRTUAL_SENSORS_PORT');
+      case 'COMMUNITY_CHAT_PORT':
+        return const String.fromEnvironment('COMMUNITY_CHAT_PORT');
+      case 'SPRAY_PORT':
+        return const String.fromEnvironment('SPRAY_PORT');
+      case 'EQUIPMENT_PORT':
+        return const String.fromEnvironment('EQUIPMENT_PORT');
+      case 'INVENTORY_PORT':
+        return const String.fromEnvironment('INVENTORY_PORT');
+      case 'NOTIFICATIONS_PORT':
+        return const String.fromEnvironment('NOTIFICATIONS_PORT');
+      case 'GATEWAY_PORT':
+        return const String.fromEnvironment('GATEWAY_PORT');
+      // Service URL Overrides
+      case 'MARKETPLACE_URL':
+        return const String.fromEnvironment('MARKETPLACE_URL');
+      // Maps Configuration
       case 'MAPBOX_ACCESS_TOKEN':
         return const String.fromEnvironment('MAPBOX_ACCESS_TOKEN');
       case 'MAPBOX_STYLE_URL':
@@ -150,6 +137,7 @@ class EnvConfig {
         return const String.fromEnvironment('MAP_TILE_URL');
       case 'ENABLE_OFFLINE_MAPS':
         return const String.fromEnvironment('ENABLE_OFFLINE_MAPS');
+      // Feature Flags
       case 'ENABLE_OFFLINE_MODE':
         return const String.fromEnvironment('ENABLE_OFFLINE_MODE');
       case 'ENABLE_BACKGROUND_SYNC':
@@ -168,6 +156,7 @@ class EnvConfig {
         return const String.fromEnvironment('ENABLE_VOICE');
       case 'ENABLE_AR':
         return const String.fromEnvironment('ENABLE_AR');
+      // Sync Configuration
       case 'SYNC_INTERVAL_SECONDS':
         return const String.fromEnvironment('SYNC_INTERVAL_SECONDS');
       case 'BG_SYNC_INTERVAL_MINUTES':
@@ -176,6 +165,7 @@ class EnvConfig {
         return const String.fromEnvironment('MAX_RETRY_COUNT');
       case 'OUTBOX_BATCH_SIZE':
         return const String.fromEnvironment('OUTBOX_BATCH_SIZE');
+      // App Info
       case 'APP_NAME':
         return const String.fromEnvironment('APP_NAME');
       case 'APP_VERSION':
@@ -191,32 +181,15 @@ class EnvConfig {
     }
   }
 
-  static int _getInt(String key, int defaultValue, {bool logWarning = true}) {
-    final value = _getString(key, '', logWarning: false);
-    if (value.isEmpty) {
-      if (logWarning && kDebugMode) {
-        debugPrint('EnvConfig: Using default value for $key: $defaultValue');
-      }
-      return defaultValue;
-    }
-    final parsed = int.tryParse(value);
-    if (parsed == null) {
-      if (kDebugMode) {
-        debugPrint('EnvConfig: Invalid integer for $key: "$value", using default: $defaultValue');
-      }
-      return defaultValue;
-    }
-    return parsed;
+  static int _getInt(String key, int defaultValue) {
+    final value = _getString(key, '');
+    if (value.isEmpty) return defaultValue;
+    return int.tryParse(value) ?? defaultValue;
   }
 
-  static bool _getBool(String key, bool defaultValue, {bool logWarning = true}) {
-    final value = _getString(key, '', logWarning: false).toLowerCase();
-    if (value.isEmpty) {
-      if (logWarning && kDebugMode) {
-        debugPrint('EnvConfig: Using default value for $key: $defaultValue');
-      }
-      return defaultValue;
-    }
+  static bool _getBool(String key, bool defaultValue) {
+    final value = _getString(key, '').toLowerCase();
+    if (value.isEmpty) return defaultValue;
     return value == 'true' || value == '1';
   }
 
@@ -225,12 +198,7 @@ class EnvConfig {
   // ═══════════════════════════════════════════════════════════════════════════
 
   static AppEnvironment get environment {
-    // Suppress warnings for environment detection - default to development is expected
-    final env = _getString(
-      'ENV',
-      _getString('ENVIRONMENT', 'development', logWarning: false),
-      logWarning: false,
-    );
+    final env = _getString('ENV', _getString('ENVIRONMENT', 'development'));
     switch (env.toLowerCase()) {
       case 'production':
       case 'prod':
@@ -252,19 +220,44 @@ class EnvConfig {
   // API Configuration
   // ═══════════════════════════════════════════════════════════════════════════
 
-  static String get apiBaseUrl {
-    // Check explicit config first, suppress warnings as we have environment-based fallbacks
-    final url = _getString(
-      'API_URL',
-      _getString('API_BASE_URL', '', logWarning: false),
-      logWarning: false,
-    );
-    if (url.isNotEmpty) return url;
+  /// Development host configuration
+  /// For Android Emulator: 10.0.2.2
+  /// For iOS Simulator: localhost
+  /// For Physical Devices: Set your machine's IP (e.g., 192.168.1.5)
+  static String get developmentHost {
+    return _getString('DEV_HOST', '10.0.2.2');
+  }
 
-    // Log warning when using environment-based default in non-development mode
-    if (!isDevelopment && kDebugMode) {
-      debugPrint('EnvConfig: API_URL not configured, using default for ${environment.name}');
+  /// Production host
+  static String get productionHost {
+    return _getString('PROD_HOST', 'api.sahool.io');
+  }
+
+  /// Staging host
+  static String get stagingHost {
+    return _getString('STAGING_HOST', 'api-staging.sahool.app');
+  }
+
+  /// Get current host based on environment
+  static String get apiHost {
+    switch (environment) {
+      case AppEnvironment.production:
+        return productionHost;
+      case AppEnvironment.staging:
+        return stagingHost;
+      case AppEnvironment.development:
+        return developmentHost;
     }
+  }
+
+  /// Get protocol (https for production/staging, http for development)
+  static String get apiProtocol {
+    return isProduction || isStaging ? 'https' : 'http';
+  }
+
+  static String get apiBaseUrl {
+    final url = _getString('API_URL', _getString('API_BASE_URL', ''));
+    if (url.isNotEmpty) return url;
 
     switch (environment) {
       case AppEnvironment.production:
@@ -272,8 +265,171 @@ class EnvConfig {
       case AppEnvironment.staging:
         return 'https://api-staging.sahool.app/api/v1';
       case AppEnvironment.development:
-        return 'http://10.0.2.2:8000/api/v1';
+        return 'http://$developmentHost:8000/api/v1';
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Service Ports Configuration
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // Core Services - الخدمات الأساسية
+  static int get fieldCorePort => _getInt('FIELD_CORE_PORT', 3000); // field-management-service
+  static int get marketplacePort => _getInt('MARKETPLACE_PORT', 3010); // marketplace-service
+  static int get chatPort => _getInt('CHAT_PORT', 8099); // field-chat (FIXED: was 3011)
+  static int get gatewayPort => _getInt('GATEWAY_PORT', 8000); // kong gateway
+
+  // Intelligence Layer - طبقة الذكاء
+  static int get satellitePort => _getInt('SATELLITE_PORT', 8090); // vegetation-analysis-service
+  static int get indicatorsPort => _getInt('INDICATORS_PORT', 8091); // indicators-service
+  static int get cropHealthPort => _getInt('CROP_HEALTH_PORT', 8095); // crop-intelligence-service
+  static int get virtualSensorsPort => _getInt('VIRTUAL_SENSORS_PORT', 8119); // virtual-sensors (FIXED: was 8096)
+
+  // Decision Layer - طبقة القرار
+  static int get weatherPort => _getInt('WEATHER_PORT', 8092); // weather-service
+  static int get fertilizerPort => _getInt('FERTILIZER_PORT', 8093); // advisory-service
+  static int get irrigationPort => _getInt('IRRIGATION_PORT', 8094); // irrigation-smart
+  static int get sprayPort => _getInt('SPRAY_PORT', 8098); // yield-engine (spray feature)
+
+  // Business Layer - طبقة الأعمال
+  static int get communityChatPort => _getInt('COMMUNITY_CHAT_PORT', 8097); // community-chat
+  static int get equipmentPort => _getInt('EQUIPMENT_PORT', 8101); // equipment-service
+  static int get inventoryPort => _getInt('INVENTORY_PORT', 8116); // inventory-service (FIXED: was 8102)
+  static int get notificationsPort => _getInt('NOTIFICATIONS_PORT', 8110); // notification-service
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Service URLs
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Base URL for field-core service
+  static String get fieldCoreUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$fieldCorePort';
+  }
+
+  /// Gateway URL (Kong API Gateway)
+  static String get gatewayUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$gatewayPort';
+  }
+
+  /// Marketplace service URL
+  static String get marketplaceUrl {
+    final override = _getString('MARKETPLACE_URL', '');
+    if (override.isNotEmpty) return override;
+
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$marketplacePort';
+  }
+
+  /// Chat service URL
+  static String get chatUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$chatPort';
+  }
+
+  /// Satellite service URL
+  static String get satelliteUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$satellitePort';
+  }
+
+  /// Indicators service URL
+  static String get indicatorsUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$indicatorsPort';
+  }
+
+  /// Weather service URL
+  static String get weatherUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$weatherPort';
+  }
+
+  /// Fertilizer service URL
+  static String get fertilizerUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$fertilizerPort';
+  }
+
+  /// Irrigation service URL
+  static String get irrigationUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$irrigationPort';
+  }
+
+  /// Crop health service URL
+  static String get cropHealthUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$cropHealthPort';
+  }
+
+  /// Virtual sensors service URL
+  static String get virtualSensorsUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$virtualSensorsPort';
+  }
+
+  /// Community chat service URL
+  static String get communityChatUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$communityChatPort';
+  }
+
+  /// Spray service URL
+  static String get sprayUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$sprayPort';
+  }
+
+  /// Equipment service URL
+  static String get equipmentUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$equipmentPort';
+  }
+
+  /// Inventory service URL
+  static String get inventoryUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$inventoryPort';
+  }
+
+  /// Notifications service URL
+  static String get notificationsUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$notificationsPort';
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -281,18 +437,8 @@ class EnvConfig {
   // ═══════════════════════════════════════════════════════════════════════════
 
   static String get wsBaseUrl {
-    // Check explicit config first, suppress warnings as we have environment-based fallbacks
-    final url = _getString(
-      'WS_URL',
-      _getString('WS_GATEWAY_URL', '', logWarning: false),
-      logWarning: false,
-    );
+    final url = _getString('WS_URL', _getString('WS_GATEWAY_URL', ''));
     if (url.isNotEmpty) return url;
-
-    // Log warning when using environment-based default in non-development mode
-    if (!isDevelopment && kDebugMode) {
-      debugPrint('EnvConfig: WS_URL not configured, using default for ${environment.name}');
-    }
 
     switch (environment) {
       case AppEnvironment.production:
@@ -303,6 +449,10 @@ class EnvConfig {
         return 'ws://10.0.2.2:8081';
     }
   }
+
+  /// WebSocket Gateway URL (alias for wsBaseUrl)
+  /// عنوان بوابة WebSocket
+  static String get wsGatewayUrl => wsBaseUrl;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Maps Configuration
@@ -417,14 +567,8 @@ class EnvConfig {
   // ═══════════════════════════════════════════════════════════════════════════
 
   static String get aiServiceUrl {
-    // Check explicit config first, suppress warnings as we have environment-based fallbacks
-    final url = _getString('AI_SERVICE_URL', '', logWarning: false);
+    final url = _getString('AI_SERVICE_URL', '');
     if (url.isNotEmpty) return url;
-
-    // Log warning when using environment-based default in non-development mode
-    if (!isDevelopment && kDebugMode) {
-      debugPrint('EnvConfig: AI_SERVICE_URL not configured, using default for ${environment.name}');
-    }
 
     switch (environment) {
       case AppEnvironment.production:
@@ -473,28 +617,24 @@ class EnvConfig {
   static void printConfig() {
     if (!kDebugMode) return;
 
-    debugPrint('');
-    debugPrint('========== SAHOOL Environment Configuration ==========');
-    debugPrint('Environment: ${environment.name}');
-    debugPrint('Version: $fullVersion');
-    debugPrint('------------------------------------------------------');
-    debugPrint('API: $apiBaseUrl');
-    debugPrint('WS: $wsBaseUrl');
-    debugPrint('------------------------------------------------------');
-    debugPrint('Features:');
-    debugPrint('  Offline: ${enableOfflineMode ? "enabled" : "disabled"}');
-    debugPrint('  Push: ${enablePushNotifications ? "enabled" : "disabled"}');
-    debugPrint('  Analytics: ${enableAnalytics ? "enabled" : "disabled"}');
-    debugPrint('======================================================');
+    final configOutput = '''
 
-    // Warn about missing critical variables
-    if (!isProductionConfigValid) {
-      debugPrint('');
-      debugPrint('WARNING: Missing critical environment variables:');
-      for (final varName in missingCriticalVariables) {
-        debugPrint('  - $varName');
-      }
-    }
-    debugPrint('');
+╔════════════════════════════════════════════════════════════╗
+║           SAHOOL Environment Configuration                 ║
+╠════════════════════════════════════════════════════════════╣
+║ Environment: ${environment.name.padRight(45)}║
+║ Version: ${fullVersion.padRight(49)}║
+╠════════════════════════════════════════════════════════════╣
+║ API: ${apiBaseUrl.padRight(52)}║
+║ WS: ${wsBaseUrl.padRight(53)}║
+╠════════════════════════════════════════════════════════════╣
+║ Features:                                                  ║
+║   Offline: ${(enableOfflineMode ? "✓" : "✗").padRight(47)}║
+║   Push: ${(enablePushNotifications ? "✓" : "✗").padRight(50)}║
+║   Analytics: ${(enableAnalytics ? "✓" : "✗").padRight(45)}║
+╚════════════════════════════════════════════════════════════╝
+''';
+
+    AppLogger.d(configOutput, tag: 'EnvConfig');
   }
 }

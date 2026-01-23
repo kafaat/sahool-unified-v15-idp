@@ -220,7 +220,7 @@ services:
 
   - name: chat-service
     host: chat-service
-    port: 8114
+    port: 8000  # FIXED: was 8114, actual Dockerfile port is 8000
     protocol: http
     routes:
       - name: chat-service-route
@@ -590,6 +590,220 @@ services:
         protocols: ["http", "https"]
 
   # -----------------------------
+  # Newly registered services
+  # Added: 2026-01-23
+  # -----------------------------
+
+  # Audit Service - Compliance logging
+  - name: audit-service
+    host: audit-service
+    port: 8114
+    protocol: http
+    routes:
+      - name: audit-service-route
+        paths: ["/api/v1/audit", "/audit"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Crop Health - Basic crop monitoring
+  - name: crop-health
+    host: crop-health
+    port: 8100
+    protocol: http
+    routes:
+      - name: crop-health-route
+        paths: ["/api/v1/crop-health-basic", "/crop-health"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # CRM Service - Farmer relationship management
+  - name: crm-service
+    host: crm-service
+    port: 8131
+    protocol: http
+    routes:
+      - name: crm-service-route
+        paths: ["/api/v1/crm", "/crm"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Low-Code Engine - Application builder
+  - name: lowcode-engine
+    host: lowcode-engine
+    port: 8132
+    protocol: http
+    routes:
+      - name: lowcode-engine-route
+        paths: ["/api/v1/lowcode", "/lowcode"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # WeChat Service - WeChat integration
+  - name: wechat-service
+    host: wechat-service
+    port: 8133
+    protocol: http
+    routes:
+      - name: wechat-service-route
+        paths: ["/api/v1/wechat", "/wechat"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # GlobalGAP Compliance - Certification tracking
+  - name: globalgap-compliance
+    host: globalgap-compliance
+    port: 8123
+    protocol: http
+    routes:
+      - name: globalgap-compliance-route
+        paths: ["/api/v1/globalgap", "/globalgap"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Logistics Service - Farm logistics
+  - name: logistics-service
+    host: logistics-service
+    port: 8162
+    protocol: http
+    routes:
+      - name: logistics-service-route
+        paths: ["/api/v1/logistics", "/logistics"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # USSD Gateway - SMS/USSD for farmers
+  - name: ussd-gateway
+    host: ussd-gateway
+    port: 8163
+    protocol: http
+    routes:
+      - name: ussd-gateway-route
+        paths: ["/api/v1/ussd", "/ussd"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Code Review Service - Code review workflows
+  - name: code-review-service-new
+    host: code-review-service
+    port: 8124
+    protocol: http
+    routes:
+      - name: code-review-service-new-route
+        paths: ["/api/v1/code-review-v2", "/code-review-v2"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Agent Registry - AI agent management
+  - name: agent-registry
+    host: agent-registry
+    port: 8160
+    protocol: http
+    routes:
+      - name: agent-registry-route
+        paths: ["/api/v1/agents", "/agents"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # AI Agents Core - Agent infrastructure
+  - name: ai-agents-core
+    host: ai-agents-core
+    port: 8122
+    protocol: http
+    routes:
+      - name: ai-agents-core-route
+        paths: ["/api/v1/ai-agents", "/ai-agents"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Knowledge Graph - Agricultural knowledge
+  - name: knowledge-graph
+    host: knowledge-graph
+    port: 8140
+    protocol: http
+    routes:
+      - name: knowledge-graph-route
+        paths: ["/api/v1/knowledge", "/knowledge"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Yield Engine - Yield estimation and prediction
+  - name: yield-engine
+    host: yield-engine
+    port: 8098
+    protocol: http
+    routes:
+      - name: yield-engine-route
+        paths: ["/api/v1/yield-engine", "/yield-engine"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # AI Agents Service - Agent orchestration
+  - name: ai-agents-service
+    host: ai-agents-service
+    port: 8130
+    protocol: http
+    routes:
+      - name: ai-agents-service-route
+        paths: ["/api/v1/ai-agents-service", "/ai-agents-service"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Field Core - Legacy field service (NestJS)
+  - name: field-core
+    host: field-core
+    port: 3005
+    protocol: http
+    routes:
+      - name: field-core-route
+        paths: ["/api/v1/field-core", "/field-core"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Satellite Service - Legacy satellite imagery (deprecated, use vegetation-analysis-service)
+  - name: satellite-service
+    host: satellite-service
+    port: 9190
+    protocol: http
+    routes:
+      - name: satellite-service-route
+        paths: ["/api/v1/satellite-legacy", "/satellite-legacy"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Weather Advanced - Advanced weather analytics (deprecated, use weather-service)
+  - name: weather-advanced
+    host: weather-advanced
+    port: 9092
+    protocol: http
+    routes:
+      - name: weather-advanced-route
+        paths: ["/api/v1/weather-advanced", "/weather-advanced"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Crop Health AI - Legacy crop health (deprecated, use crop-intelligence-service)
+  - name: crop-health-ai
+    host: crop-health-ai
+    port: 9095
+    protocol: http
+    routes:
+      - name: crop-health-ai-route
+        paths: ["/api/v1/crop-health-ai", "/crop-health-ai"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Fertilizer Advisor - Legacy fertilizer recommendations (deprecated, use advisory-service)
+  - name: fertilizer-advisor
+    host: fertilizer-advisor
+    port: 9093
+    protocol: http
+    routes:
+      - name: fertilizer-advisor-route
+        paths: ["/api/v1/fertilizer-advisor", "/fertilizer-advisor"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # -----------------------------
   # Platform endpoints
   # -----------------------------
   - name: root-endpoint
@@ -625,8 +839,18 @@ services:
 # Intentionally NOT added to Kong (non-HTTP APIs / internal infra / workers)
 # - postgres, pgbouncer, redis, nats, nats-prometheus-exporter, mqtt, qdrant
 # - etcd, etcd-init, minio, milvus
-# - agro-rules (worker, no HTTP)
-# - demo-data (client, not an API)
-# - ollama / ollama-model-loader (only if you want to expose)
-# - crop-health (check if it has HTTP endpoints)
+# - agro-rules (worker, no HTTP - NATS subscriber only)
+# - demo-data (client/test data, not an API service)
+# - ollama / ollama-model-loader (internal LLM, expose only if needed)
+# - code-fix-agent (autonomous agent, no HTTP endpoint)
+# - code-review-agent (autonomous agent, no HTTP endpoint)
+#
+# Deprecated services (still accessible for migration):
+# - satellite-service → use vegetation-analysis-service
+# - weather-advanced → use weather-service
+# - crop-health-ai → use crop-intelligence-service
+# - fertilizer-advisor → use advisory-service
+#
+# Last updated: 2026-01-23
+# Total services configured: 62 (added yield-engine, ai-agents-service, field-core, + 4 deprecated)
 # ------------------------------------------------------------------------------

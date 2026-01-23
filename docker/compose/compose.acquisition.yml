@@ -183,6 +183,32 @@ services:
     - redis
     - nats
     - mqtt
+  weather-core:
+    build:
+      context: ../../apps/services/weather-core
+      dockerfile: Dockerfile
+    ports:
+    - 8108:8108
+    environment:
+    - PORT=8108
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8108/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
+    depends_on:
+    - redis
 networks:
   sahool-network:
     driver: bridge

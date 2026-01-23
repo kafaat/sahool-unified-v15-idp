@@ -6,6 +6,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../data/models/chat_models.dart';
 import '../../data/repositories/chat_repository.dart';
 
@@ -32,7 +34,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final List<ChatMessage> _messages = [];
-  final ImagePicker _imagePicker = ImagePicker();
 
   StreamSubscription? _messageSubscription;
   StreamSubscription? _typingSubscription;
@@ -41,7 +42,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   bool _isTyping = false;
   String? _typingUser;
   bool _expertJoined = false;
-  File? _selectedImage;
+
+  // Attachment picker state
+  // حالة منتقي المرفقات
+  final ImagePicker _imagePicker = ImagePicker();
+  bool _isCapturingImage = false;
+
+  /// Maximum file size: 10 MB
+  /// الحد الأقصى لحجم الملف: 10 ميجابايت
+  static const int _maxFileSizeBytes = 10 * 1024 * 1024;
 
   @override
   void initState() {
@@ -174,171 +183,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  /// Show attachment options bottom sheet
-  /// عرض خيارات المرفقات
-  void _showAttachmentOptions() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const CircleAvatar(
-                backgroundColor: Color(0xFF16A34A),
-                child: Icon(Icons.camera_alt, color: Colors.white),
-              ),
-              title: const Text('التقاط صورة'),
-              subtitle: const Text('فتح الكاميرا'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: const CircleAvatar(
-                backgroundColor: Color(0xFF2563EB),
-                child: Icon(Icons.photo_library, color: Colors.white),
-              ),
-              title: const Text('اختيار من المعرض'),
-              subtitle: const Text('صورة من الجهاز'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
-              },
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Pick image from camera or gallery
-  /// اختيار صورة من الكاميرا أو المعرض
-  Future<void> _pickImage(ImageSource source) async {
-    try {
-      final XFile? pickedFile = await _imagePicker.pickImage(
-        source: source,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 85,
-      );
-
-      if (pickedFile != null) {
-        setState(() {
-          _selectedImage = File(pickedFile.path);
-        });
-
-        // Show preview and send option
-        if (mounted) {
-          _showImagePreview();
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('خطأ في اختيار الصورة: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  /// Show image preview before sending
-  /// عرض معاينة الصورة قبل الإرسال
-  void _showImagePreview() {
-    if (_selectedImage == null) return;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('معاينة الصورة', textDirection: TextDirection.rtl),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                _selectedImage!,
-                height: 200,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'هل تريد إرسال هذه الصورة؟',
-              textDirection: TextDirection.rtl,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() => _selectedImage = null);
-            },
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _sendImageMessage();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF16A34A),
-            ),
-            child: const Text('إرسال', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Send image message
-  /// إرسال رسالة صورة
-  void _sendImageMessage() {
-    if (_selectedImage == null) return;
-
-    // Add image message to chat
-    final imageMessage = ChatMessage(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      roomId: widget.roomId,
-      author: widget.userName,
-      authorType: 'farmer',
-      message: '📷 صورة مرفقة',
-      timestamp: DateTime.now(),
-      attachmentUrl: _selectedImage!.path,
-      attachmentType: 'image',
-    );
-
-    setState(() {
-      _messages.add(imageMessage);
-      _selectedImage = null;
-    });
-
-    _scrollToBottom();
-
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('تم إرسال الصورة'),
-        backgroundColor: Color(0xFF16A34A),
-        duration: Duration(seconds: 1),
-      ),
-    );
-
-    // Mock expert response for image
-    if (_expertJoined) {
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          _addMockExpertMessage('شكراً على الصورة. دعني أفحصها وأعطيك رأيي خلال لحظات...');
-        }
-      });
-    }
-  }
-
   String _getMockExpertResponse(String userMessage) {
     final lowerMessage = userMessage.toLowerCase();
 
@@ -465,10 +309,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               child: Row(
                 children: [
                   // Attachment button
+                  // زر إرفاق الملفات
                   IconButton(
                     icon: const Icon(Icons.attach_file),
                     color: Colors.grey[600],
-                    onPressed: _showAttachmentOptions,
+                    onPressed: _showAttachmentPicker,
                   ),
 
                   // Text input
@@ -643,5 +488,336 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
       ],
     );
+  }
+
+  // ========== Attachment Picker Methods ==========
+  // ========== طرق منتقي المرفقات ==========
+
+  /// Show attachment picker bottom sheet
+  /// عرض قائمة خيارات المرفقات
+  void _showAttachmentPicker() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+
+            // Title
+            const Text(
+              'إرفاق ملف',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Attachment options grid
+            GridView.count(
+              shrinkWrap: true,
+              crossAxisCount: 3,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              children: [
+                _buildAttachmentOption(
+                  icon: Icons.image,
+                  label: 'صورة من المعرض',
+                  color: Colors.blue,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImageFromGallery();
+                  },
+                ),
+                _buildAttachmentOption(
+                  icon: Icons.camera_alt,
+                  label: 'التقاط صورة',
+                  color: Colors.purple,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _captureFromCamera();
+                  },
+                ),
+                _buildAttachmentOption(
+                  icon: Icons.insert_drive_file,
+                  label: 'ملف مستند',
+                  color: Colors.teal,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickFile();
+                  },
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Build a single attachment option widget
+  /// بناء عنصر خيار مرفق واحد
+  Widget _buildAttachmentOption({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 28,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey[700],
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Pick image from gallery
+  /// اختيار صورة من المعرض
+  Future<void> _pickImageFromGallery() async {
+    if (_isCapturingImage) return;
+
+    setState(() {
+      _isCapturingImage = true;
+    });
+
+    try {
+      // Request photos permission on iOS
+      if (Platform.isIOS) {
+        final status = await Permission.photos.request();
+        if (!status.isGranted && !status.isLimited) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('يرجى السماح بالوصول إلى الصور من الإعدادات'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
+      }
+
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+        maxWidth: 1920,
+        maxHeight: 1080,
+      );
+
+      if (image != null && mounted) {
+        _sendAttachmentMessage(image.path, _getFileNameFromPath(image.path));
+      }
+    } catch (e) {
+      if (mounted) {
+        final errorMessage = e.toString().contains('photo_access_denied') ||
+                e.toString().contains('permission')
+            ? 'يرجى السماح بالوصول إلى الصور من الإعدادات'
+            : 'حدث خطأ أثناء اختيار الصورة';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCapturingImage = false;
+        });
+      }
+    }
+  }
+
+  /// Capture photo from camera
+  /// التقاط صورة من الكاميرا
+  Future<void> _captureFromCamera() async {
+    if (_isCapturingImage) return;
+
+    setState(() {
+      _isCapturingImage = true;
+    });
+
+    try {
+      // Request camera permission
+      final cameraStatus = await Permission.camera.request();
+      if (!cameraStatus.isGranted) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('يرجى السماح بالوصول إلى الكاميرا من الإعدادات'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 85,
+        maxWidth: 1920,
+        maxHeight: 1080,
+      );
+
+      if (image != null && mounted) {
+        _sendAttachmentMessage(image.path, _getFileNameFromPath(image.path));
+      }
+    } catch (e) {
+      if (mounted) {
+        final errorMessage = e.toString().contains('camera_access_denied') ||
+                e.toString().contains('permission')
+            ? 'يرجى السماح بالوصول إلى الكاميرا من الإعدادات'
+            : 'حدث خطأ أثناء التقاط الصورة';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCapturingImage = false;
+        });
+      }
+    }
+  }
+
+  /// Pick document file
+  /// اختيار ملف مستند
+  Future<void> _pickFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv', 'jpg', 'jpeg', 'png'],
+        withData: false,
+        withReadStream: false,
+      );
+
+      if (result != null && result.files.isNotEmpty && mounted) {
+        final file = result.files.first;
+        final filePath = file.path;
+        final fileName = file.name;
+        final fileSize = file.size;
+
+        // Validate file path
+        if (filePath == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('لا يمكن الوصول إلى الملف'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        // Check file size limit
+        if (fileSize > _maxFileSizeBytes) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('حجم الملف يتجاوز الحد الأقصى (10 ميجابايت)'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        _sendAttachmentMessage(filePath, fileName);
+      }
+    } catch (e) {
+      if (mounted) {
+        final errorMessage = e.toString().contains('permission')
+            ? 'يرجى السماح بالوصول إلى الملفات من الإعدادات'
+            : 'حدث خطأ أثناء اختيار الملف';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Extract file name from path
+  /// استخراج اسم الملف من المسار
+  String _getFileNameFromPath(String path) {
+    return path.split('/').last;
+  }
+
+  /// Send message with attachment
+  /// إرسال رسالة مع مرفق
+  void _sendAttachmentMessage(String filePath, String fileName) {
+    final chatRepo = ref.read(chatRepositoryProvider);
+
+    // Send message with attachment
+    chatRepo.sendMessage(
+      roomId: widget.roomId,
+      author: widget.userName,
+      authorType: 'farmer',
+      message: 'مرفق: $fileName',
+      attachments: [filePath],
+    );
+
+    // Mock: Simulate expert response for image attachments
+    if (_expertJoined && _isImageFile(fileName)) {
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          _addMockExpertMessage('شكراً لإرسال الصورة. سأقوم بفحصها وأرد عليك في أقرب وقت.');
+        }
+      });
+    }
+  }
+
+  /// Check if file is an image
+  /// التحقق مما إذا كان الملف صورة
+  bool _isImageFile(String fileName) {
+    final extension = fileName.toLowerCase().split('.').last;
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic'].contains(extension);
   }
 }

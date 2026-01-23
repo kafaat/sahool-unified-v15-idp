@@ -40,24 +40,33 @@ export * from "./errors";
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DEFAULT_PORTS: ServicePorts = {
-  fieldCore: 3000,
-  satellite: 8090,
-  indicators: 8091,
-  weather: 8092,
-  fertilizer: 8093,
-  irrigation: 8094,
-  cropHealth: 8095,
-  virtualSensors: 8096,
-  communityChat: 8097,
-  yieldEngine: 8098,
-  equipment: 8101,
-  community: 8102,
-  task: 8103,
-  providerConfig: 8104,
-  notifications: 8110,
-  wsGateway: 8090,
-  marketplace: 3010,
-  auth: 8001,
+  // Core Services - الخدمات الأساسية
+  fieldCore: 3000, // field-management-service
+  auth: 3025, // user-service (FIXED: was 8001)
+  marketplace: 3010, // marketplace-service
+
+  // Intelligence Layer - طبقة الذكاء
+  satellite: 8090, // vegetation-analysis-service
+  indicators: 8091, // indicators-service
+  cropHealth: 8095, // crop-intelligence-service
+  virtualSensors: 8119, // virtual-sensors (FIXED: was 8096)
+
+  // Decision Layer - طبقة القرار
+  weather: 8092, // weather-service
+  fertilizer: 8093, // advisory-service
+  irrigation: 8094, // irrigation-smart
+  yieldEngine: 8098, // yield-engine
+
+  // Business Layer - طبقة الأعمال
+  communityChat: 8097, // community-chat
+  equipment: 8101, // equipment-service
+  task: 8103, // task-service
+  providerConfig: 8104, // provider-config-service
+  notifications: 8110, // notification-service
+  wsGateway: 8081, // ws-gateway (FIXED: was 8090 - conflict)
+
+  // Deprecated aliases - للتوافق
+  community: 8097, // Same as communityChat (FIXED: was 8102)
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -273,22 +273,29 @@ class EnvConfig {
   // Service Ports Configuration
   // ═══════════════════════════════════════════════════════════════════════════
 
-  static int get fieldCorePort => _getInt('FIELD_CORE_PORT', 3000);
-  static int get marketplacePort => _getInt('MARKETPLACE_PORT', 3010);
-  static int get chatPort => _getInt('CHAT_PORT', 3011);
-  static int get satellitePort => _getInt('SATELLITE_PORT', 8090);
-  static int get indicatorsPort => _getInt('INDICATORS_PORT', 8091);
-  static int get weatherPort => _getInt('WEATHER_PORT', 8092);
-  static int get fertilizerPort => _getInt('FERTILIZER_PORT', 8093);
-  static int get irrigationPort => _getInt('IRRIGATION_PORT', 8094);
-  static int get cropHealthPort => _getInt('CROP_HEALTH_PORT', 8095);
-  static int get virtualSensorsPort => _getInt('VIRTUAL_SENSORS_PORT', 8096);
-  static int get communityChatPort => _getInt('COMMUNITY_CHAT_PORT', 8097);
-  static int get sprayPort => _getInt('SPRAY_PORT', 8098);
-  static int get equipmentPort => _getInt('EQUIPMENT_PORT', 8101);
-  static int get inventoryPort => _getInt('INVENTORY_PORT', 8102);
-  static int get notificationsPort => _getInt('NOTIFICATIONS_PORT', 8110);
-  static int get gatewayPort => _getInt('GATEWAY_PORT', 8000);
+  // Core Services - الخدمات الأساسية
+  static int get fieldCorePort => _getInt('FIELD_CORE_PORT', 3000); // field-management-service
+  static int get marketplacePort => _getInt('MARKETPLACE_PORT', 3010); // marketplace-service
+  static int get chatPort => _getInt('CHAT_PORT', 8099); // field-chat (FIXED: was 3011)
+  static int get gatewayPort => _getInt('GATEWAY_PORT', 8000); // kong gateway
+
+  // Intelligence Layer - طبقة الذكاء
+  static int get satellitePort => _getInt('SATELLITE_PORT', 8090); // vegetation-analysis-service
+  static int get indicatorsPort => _getInt('INDICATORS_PORT', 8091); // indicators-service
+  static int get cropHealthPort => _getInt('CROP_HEALTH_PORT', 8095); // crop-intelligence-service
+  static int get virtualSensorsPort => _getInt('VIRTUAL_SENSORS_PORT', 8119); // virtual-sensors (FIXED: was 8096)
+
+  // Decision Layer - طبقة القرار
+  static int get weatherPort => _getInt('WEATHER_PORT', 8092); // weather-service
+  static int get fertilizerPort => _getInt('FERTILIZER_PORT', 8093); // advisory-service
+  static int get irrigationPort => _getInt('IRRIGATION_PORT', 8094); // irrigation-smart
+  static int get sprayPort => _getInt('SPRAY_PORT', 8098); // yield-engine (spray feature)
+
+  // Business Layer - طبقة الأعمال
+  static int get communityChatPort => _getInt('COMMUNITY_CHAT_PORT', 8097); // community-chat
+  static int get equipmentPort => _getInt('EQUIPMENT_PORT', 8101); // equipment-service
+  static int get inventoryPort => _getInt('INVENTORY_PORT', 8116); // inventory-service (FIXED: was 8102)
+  static int get notificationsPort => _getInt('NOTIFICATIONS_PORT', 8110); // notification-service
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Service URLs

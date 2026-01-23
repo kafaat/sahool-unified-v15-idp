@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../domain/entities/notification_entities.dart';
 import '../providers/notification_provider.dart';
-import '../../../../core/routes/app_router.dart';
 
 /// شاشة الإشعارات
 class NotificationsScreen extends ConsumerStatefulWidget {
@@ -20,6 +19,51 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     Future.microtask(() {
       ref.read(notificationsProvider.notifier).loadNotifications();
     });
+  }
+
+  /// Launch action URL in browser or app
+  /// فتح رابط الإجراء في المتصفح أو التطبيق
+  Future<void> _launchActionUrl(String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('رابط غير صالح'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      // Check if URL can be launched
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('لا يمكن فتح هذا الرابط'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('خطأ في فتح الرابط: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -327,9 +371,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: () {
+                    onPressed: () async {
                       Navigator.pop(context);
-                      _navigateToActionUrl(notification.actionUrl!);
+                      await _launchActionUrl(notification.actionUrl!);
                     },
                     icon: const Icon(Icons.open_in_new),
                     label: const Text('فتح التفاصيل'),
@@ -355,256 +399,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         builder: (context) => const NotificationSettingsScreen(),
       ),
     );
-  }
-
-  /// Navigate to the action URL based on its scheme
-  /// يقوم بالتنقل إلى عنوان الإجراء بناءً على نوعه
-  void _navigateToActionUrl(String actionUrl) {
-    try {
-      final uri = Uri.tryParse(actionUrl);
-
-      if (uri == null || actionUrl.isEmpty) {
-        _showNavigationError('عنوان غير صالح');
-        return;
-      }
-
-      // Handle different URL schemes
-      if (_isInternalRoute(actionUrl)) {
-        // Internal route (e.g., /field/123, /tasks, /weather)
-        _navigateToInternalRoute(actionUrl);
-      } else if (_isExternalUrl(uri)) {
-        // External HTTP/HTTPS URL
-        _handleExternalUrl(uri);
-      } else if (_isSahoolScheme(uri)) {
-        // Custom sahool:// scheme (e.g., sahool://field/123)
-        _navigateToSahoolScheme(uri);
-      } else {
-        // Unknown scheme - try as internal route
-        _navigateToInternalRoute(actionUrl);
-      }
-    } catch (e) {
-      debugPrint('Error navigating to action URL: $e');
-      _showNavigationError('حدث خطأ أثناء التنقل');
-    }
-  }
-
-  /// Check if the URL is an internal route (starts with /)
-  bool _isInternalRoute(String url) {
-    return url.startsWith('/');
-  }
-
-  /// Check if the URI is an external HTTP/HTTPS URL
-  bool _isExternalUrl(Uri uri) {
-    return uri.scheme == 'http' || uri.scheme == 'https';
-  }
-
-  /// Check if the URI uses the custom sahool:// scheme
-  bool _isSahoolScheme(Uri uri) {
-    return uri.scheme == 'sahool';
-  }
-
-  /// Navigate to an internal route using go_router
-  void _navigateToInternalRoute(String route) {
-    try {
-      // Parse the route to extract path and query parameters
-      final uri = Uri.tryParse(route.startsWith('/') ? 'app:/$route' : route);
-
-      if (uri == null) {
-        // Fallback to direct navigation
-        AppRouter.router.go(route);
-        return;
-      }
-
-      final path = uri.path;
-      final queryParams = uri.queryParameters;
-
-      // Map routes to appropriate screens
-      if (path.startsWith('/field/') || path.startsWith('//field/')) {
-        // Field details route: /field/:id
-        final fieldId = _extractFieldId(path);
-        if (fieldId != null) {
-          AppRouter.router.go('/field/$fieldId', extra: queryParams);
-        } else {
-          AppRouter.router.go('/fields');
-        }
-      } else if (path.contains('/tasks') || path.contains('//tasks')) {
-        // Tasks route
-        Navigator.pushNamed(context, '/tasks');
-      } else if (path.contains('/weather') || path.contains('//weather')) {
-        // Weather route
-        final fieldId = queryParams['fieldId'];
-        Navigator.pushNamed(
-          context,
-          '/weather',
-          arguments: fieldId != null ? {'fieldId': fieldId} : null,
-        );
-      } else if (path.contains('/crop-health') || path.contains('//crop-health')) {
-        // Crop health route
-        final fieldId = queryParams['fieldId'] ?? _extractFieldId(path);
-        Navigator.pushNamed(
-          context,
-          '/crop-health',
-          arguments: fieldId != null ? {'fieldId': fieldId} : null,
-        );
-      } else if (path.contains('/map') || path.contains('//map')) {
-        // Map route
-        final fieldId = queryParams['fieldId'];
-        Navigator.pushNamed(
-          context,
-          '/map',
-          arguments: fieldId != null ? {'fieldId': fieldId} : null,
-        );
-      } else if (path.contains('/alerts') || path.contains('//alerts')) {
-        // Alerts route
-        AppRouter.router.go('/alerts');
-      } else if (path.contains('/advisor') || path.contains('//advisor')) {
-        // AI Advisor route
-        AppRouter.router.go('/advisor');
-      } else if (path.contains('/sync') || path.contains('//sync')) {
-        // Sync route
-        AppRouter.router.go('/sync');
-      } else if (path.contains('/profile') || path.contains('//profile')) {
-        // Profile route
-        AppRouter.router.go('/profile');
-      } else if (path.contains('/scanner') || path.contains('//scanner')) {
-        // Scanner route
-        AppRouter.router.go('/scanner');
-      } else if (path.contains('/scouting') || path.contains('//scouting')) {
-        // Scouting route
-        AppRouter.router.go('/scouting');
-      } else {
-        // Default: try to navigate to the route directly
-        AppRouter.router.go(route);
-      }
-    } catch (e) {
-      debugPrint('Error navigating to internal route: $e');
-      _showNavigationError('تعذر فتح الصفحة المطلوبة');
-    }
-  }
-
-  /// Extract field ID from a path like /field/123 or //field/123
-  String? _extractFieldId(String path) {
-    final regex = RegExp(r'/+field/([^/?]+)');
-    final match = regex.firstMatch(path);
-    return match?.group(1);
-  }
-
-  /// Handle external HTTP/HTTPS URLs
-  /// For security, we show a confirmation dialog before opening external links
-  void _handleExternalUrl(Uri uri) {
-    showDialog(
-      context: context,
-      builder: (context) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: AlertDialog(
-          title: const Text('فتح رابط خارجي'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('هل تريد فتح هذا الرابط في المتصفح؟'),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  uri.toString(),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[700],
-                    fontFamily: 'monospace',
-                  ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('إلغاء'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _launchExternalUrl(uri);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF367C2B),
-              ),
-              child: const Text('فتح'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Launch external URL using platform channel
-  /// Since url_launcher may not be available, we use a platform channel approach
-  Future<void> _launchExternalUrl(Uri uri) async {
-    try {
-      // Try to launch using platform-specific method
-      const platform = MethodChannel('sahool/url_launcher');
-      final launched = await platform.invokeMethod<bool>(
-        'launchUrl',
-        {'url': uri.toString()},
-      );
-
-      if (launched != true) {
-        // Fallback: Copy URL to clipboard and show message
-        await Clipboard.setData(ClipboardData(text: uri.toString()));
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('تم نسخ الرابط. الصقه في المتصفح لفتحه'),
-              duration: Duration(seconds: 3),
-            ),
-          );
-        }
-      }
-    } on PlatformException catch (_) {
-      // Platform channel not available - copy URL to clipboard
-      await Clipboard.setData(ClipboardData(text: uri.toString()));
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('تم نسخ الرابط. الصقه في المتصفح لفتحه'),
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint('Error launching external URL: $e');
-      _showNavigationError('تعذر فتح الرابط الخارجي');
-    }
-  }
-
-  /// Navigate based on sahool:// custom scheme
-  /// e.g., sahool://field/123 -> /field/123
-  void _navigateToSahoolScheme(Uri uri) {
-    // Convert sahool:// scheme to internal route
-    // sahool://field/123 -> /field/123
-    // sahool://tasks -> /tasks
-    final path = '/${uri.host}${uri.path}';
-    final queryString = uri.query.isNotEmpty ? '?${uri.query}' : '';
-    _navigateToInternalRoute('$path$queryString');
-  }
-
-  /// Show navigation error message
-  void _showNavigationError(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red[700],
-        ),
-      );
-    }
   }
 }
 

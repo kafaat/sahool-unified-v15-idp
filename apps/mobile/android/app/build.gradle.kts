@@ -11,17 +11,19 @@ plugins {
 android {
     namespace = "io.sahool.sahool_field_app"
     compileSdk = 36
-    ndkVersion = "28.2.13676358"
+    // NDK version for maplibre_gl compatibility
+    ndkVersion = "28.1.13356709"
 
     compileOptions {
         // Required for flutter_local_notifications and other libraries using Java 8+ APIs
         isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        // Updated to Java 21 for maplibre_gl compatibility
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "21"
     }
 
     defaultConfig {

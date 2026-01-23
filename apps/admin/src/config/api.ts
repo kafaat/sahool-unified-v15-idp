@@ -64,7 +64,7 @@ export const SERVICE_PORTS = {
   fieldCore: 3000,
   fieldManagement: 3000,
   auth: 8080,
-  users: 8081,
+  users: 3025,
   wsGateway: 8081,
 
   // Satellite & Remote Sensing
@@ -97,7 +97,7 @@ export const SERVICE_PORTS = {
 
   // Configuration & Misc
   providerConfig: 8104,
-  alerts: 8083,
+  alerts: 8113,
   reports: 8084,
   lab: 8097,
   epidemic: 8098,

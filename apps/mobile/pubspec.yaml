@@ -43,6 +43,12 @@ dependencies:
   shared_preferences: ^2.3.3
   flutter_secure_storage: ^9.2.2
 
+  # Biometric Authentication - المصادقة البيومترية
+  local_auth: ^2.3.0
+
+  # Device Security - أمان الجهاز
+  secure_application: ^4.1.0  # Screenshot prevention (منع لقطات الشاشة)
+
   # UI
   cupertino_icons: ^1.0.8
   # google_fonts removed: using local IBM Plex Sans Arabic fonts instead

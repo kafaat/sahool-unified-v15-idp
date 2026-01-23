@@ -108,11 +108,11 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(
     }, [task.due_date, task.status]);
 
     const priorityInfo = React.useMemo(() => {
-      return priorityConfig[task.priority] || priorityConfig.low;
+      return priorityConfig[task.priority] ?? priorityConfig.low;
     }, [task.priority]);
 
     const statusInfo = React.useMemo(() => {
-      return statusConfig[task.status] || statusConfig.open;
+      return statusConfig[task.status] ?? statusConfig.open;
     }, [task.status]);
 
     const formattedDueDate = React.useMemo(() => {

@@ -43,7 +43,7 @@ from redis.exceptions import ConnectionError, RedisError, TimeoutError
 from redis.sentinel import Sentinel
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator
+    from collections.abc import Callable
 
 # Type variable for generic operations
 T = TypeVar("T")
@@ -54,8 +54,9 @@ logger = logging.getLogger(__name__)
 
 class CircuitBreakerState(str, Enum):
     """States for the circuit breaker pattern."""
-    CLOSED = "CLOSED"      # Normal operation - requests pass through
-    OPEN = "OPEN"          # Service down - requests fail fast
+
+    CLOSED = "CLOSED"  # Normal operation - requests pass through
+    OPEN = "OPEN"  # Service down - requests fail fast
     HALF_OPEN = "HALF_OPEN"  # Testing recovery
 
 
@@ -95,18 +96,14 @@ class RedisSentinelConfig:
     sentinel_ports: list[int] = field(default_factory=lambda: [26379, 26380, 26381])
 
     # Redis configuration
-    password: str = field(
-        default_factory=lambda: os.getenv("REDIS_PASSWORD", "redis_password")
-    )
+    password: str = field(default_factory=lambda: os.getenv("REDIS_PASSWORD", "redis_password"))
     master_name: str = field(
         default_factory=lambda: os.getenv("REDIS_MASTER_NAME", "sahool-master")
     )
     db: int = field(default_factory=lambda: int(os.getenv("REDIS_DB", "0")))
 
     # Connection settings
-    socket_timeout: int = field(
-        default_factory=lambda: int(os.getenv("REDIS_SOCKET_TIMEOUT", "5"))
-    )
+    socket_timeout: int = field(default_factory=lambda: int(os.getenv("REDIS_SOCKET_TIMEOUT", "5")))
     socket_connect_timeout: int = field(
         default_factory=lambda: int(os.getenv("REDIS_SOCKET_CONNECT_TIMEOUT", "5"))
     )
@@ -193,6 +190,7 @@ class CircuitBreakerStats:
     Statistics for circuit breaker monitoring.
     إحصائيات مراقبة قاطع الدائرة
     """
+
     total_calls: int = 0
     successful_calls: int = 0
     failed_calls: int = 0
@@ -216,7 +214,9 @@ class CircuitBreakerStats:
             "rejected_calls": self.rejected_calls,
             "state_changes": self.state_changes,
             "success_rate": round(self.success_rate, 2),
-            "last_state_change": self.last_state_change.isoformat() if self.last_state_change else None,
+            "last_state_change": self.last_state_change.isoformat()
+            if self.last_state_change
+            else None,
         }
 
 
@@ -298,7 +298,10 @@ class CircuitBreaker:
 
         # Check if we should transition from OPEN to HALF_OPEN
         if self._state == CircuitBreakerState.OPEN:
-            if self._last_failure_time and time.time() - self._last_failure_time > self.recovery_timeout:
+            if (
+                self._last_failure_time
+                and time.time() - self._last_failure_time > self.recovery_timeout
+            ):
                 self._transition_to(CircuitBreakerState.HALF_OPEN)
                 logger.info(f"Circuit breaker '{self.name}' entering HALF_OPEN state")
             else:
@@ -307,8 +310,7 @@ class CircuitBreaker:
                 if self._last_failure_time:
                     retry_after = self.recovery_timeout - (time.time() - self._last_failure_time)
                 raise CircuitBreakerOpenError(
-                    f"Circuit breaker '{self.name}' is OPEN",
-                    retry_after=retry_after
+                    f"Circuit breaker '{self.name}' is OPEN", retry_after=retry_after
                 )
 
         try:

@@ -43,18 +43,19 @@ class ErrorCategory(str, Enum):
     Categories for grouping related errors.
     فئات لتجميع الأخطاء ذات الصلة
     """
-    VALIDATION = "validation"          # Input validation errors
+
+    VALIDATION = "validation"  # Input validation errors
     AUTHENTICATION = "authentication"  # Auth-related errors
-    AUTHORIZATION = "authorization"    # Permission errors
-    NOT_FOUND = "not_found"           # Resource not found
-    CONFLICT = "conflict"             # State conflicts
-    RATE_LIMIT = "rate_limit"         # Rate limiting
-    SERVICE = "service"               # External service errors
-    DATABASE = "database"             # Database errors
-    CACHE = "cache"                   # Cache errors
-    MESSAGING = "messaging"           # Message queue errors
-    AI = "ai"                         # AI/ML related errors
-    INTERNAL = "internal"             # Internal server errors
+    AUTHORIZATION = "authorization"  # Permission errors
+    NOT_FOUND = "not_found"  # Resource not found
+    CONFLICT = "conflict"  # State conflicts
+    RATE_LIMIT = "rate_limit"  # Rate limiting
+    SERVICE = "service"  # External service errors
+    DATABASE = "database"  # Database errors
+    CACHE = "cache"  # Cache errors
+    MESSAGING = "messaging"  # Message queue errors
+    AI = "ai"  # AI/ML related errors
+    INTERNAL = "internal"  # Internal server errors
 
 
 class ErrorSeverity(str, Enum):
@@ -62,11 +63,12 @@ class ErrorSeverity(str, Enum):
     Severity levels for error logging and alerting.
     مستويات شدة الأخطاء للتسجيل والتنبيه
     """
-    DEBUG = "debug"       # Development only
-    INFO = "info"         # Informational
-    WARNING = "warning"   # Recoverable issues
-    ERROR = "error"       # Operational errors
-    CRITICAL = "critical" # System failures
+
+    DEBUG = "debug"  # Development only
+    INFO = "info"  # Informational
+    WARNING = "warning"  # Recoverable issues
+    ERROR = "error"  # Operational errors
+    CRITICAL = "critical"  # System failures
 
 
 @dataclass
@@ -75,6 +77,7 @@ class ErrorContext:
     Additional context information for errors.
     معلومات سياق إضافية للأخطاء
     """
+
     request_id: str | None = None
     user_id: str | None = None
     tenant_id: str | None = None

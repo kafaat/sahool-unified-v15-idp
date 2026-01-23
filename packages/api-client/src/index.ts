@@ -70,14 +70,68 @@ import {
 export * from "./types";
 // Re-export all errors
 export * from "./errors";
-// Re-export retry utilities
-export * from "./retry";
+// Re-export retry utilities (excluding duplicates)
+export {
+  RetryConfig,
+  RetryState,
+  DEFAULT_RETRY_CONFIG,
+  calculateDelay,
+  calculateRetryAfterDelay,
+  isTimeoutError,
+  isIdempotentMethod,
+  shouldRetryRequest,
+  sleep,
+  setupRetryInterceptor,
+  withRetry,
+  CircuitState,
+  CircuitBreakerConfig,
+  DEFAULT_CIRCUIT_BREAKER_CONFIG,
+  CircuitBreaker,
+  CircuitOpenError,
+} from "./retry";
 // Re-export cache utilities
 export * from "./cache";
 // Re-export interceptor utilities
 export * from "./interceptors";
-// Re-export validation utilities
-export * from "./validation";
+// Re-export validation utilities (excluding duplicates)
+export {
+  ValidationResult,
+  ValidationError as ValidationFieldError,
+  Schema,
+  FieldSchema,
+  createSchema,
+  ValidationException,
+  TaskSchema,
+  FieldSchema as FieldValidationSchema,
+  FarmSchema,
+  WeatherDataSchema,
+  UserSchema,
+  isTask,
+  isField,
+  isFarm,
+  isWeatherData,
+  isUser,
+  isApiResponse,
+  isPaginatedResponse,
+  validateResponse,
+  safeValidateResponse,
+  validateArrayResponse,
+  Result,
+  success,
+  failure,
+  toResult,
+  mapResult,
+  flatMapResult,
+  AsyncState,
+  idle,
+  loading,
+  successState,
+  errorState,
+  isLoading,
+  isSuccess,
+  isError,
+  getDataOrDefault,
+} from "./validation";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Enhanced Configuration Types

@@ -6,15 +6,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
 import { useEquipment } from "../hooks/useEquipment";
 import { MapPin, Loader2 } from "lucide-react";
 
 export function EquipmentMap() {
   const mapRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mapInstanceRef = useRef<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const markersRef = useRef<any[]>([]);
+  const mapInstanceRef = useRef<LeafletMap | null>(null);
+  const markersRef = useRef<LeafletMarker[]>([]);
   const { data: equipment, isLoading } = useEquipment();
 
   useEffect(() => {
@@ -23,8 +22,7 @@ export function EquipmentMap() {
     // Initialize map
     const initMap = async () => {
       // Access Leaflet from window (loaded via CDN in layout)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const L = (window as typeof window & { L?: any }).L;
+      const L = (window as unknown as { L?: typeof import("leaflet") }).L;
       if (!L) return;
 
       // Create map if it doesn't exist

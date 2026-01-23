@@ -4,7 +4,7 @@
  * Tests validate localization, translations, and bilingual support.
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   // Core
   messages,
@@ -58,7 +58,6 @@ import {
   formatNDVI,
 
   // Types
-  type Locale,
   type ArabicPluralCategory,
 } from "../index";
 

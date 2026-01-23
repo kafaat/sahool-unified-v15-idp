@@ -57,7 +57,15 @@ interface FarmsMapProps<T extends BaseFarmData = BaseFarmData> {
 const YEMEN_CENTER: [number, number] = [15.5527, 48.5164];
 const DEFAULT_ZOOM = 6;
 
-export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
+// Health score color mapping - defined outside component to prevent recreation
+const getMarkerColor = (healthScore: number): string => {
+  if (healthScore >= 80) return "#22c55e"; // green
+  if (healthScore >= 60) return "#eab308"; // yellow
+  if (healthScore >= 40) return "#f97316"; // orange
+  return "#ef4444"; // red
+};
+
+function FarmsMap<T extends BaseFarmData = BaseFarmData>({
   farms,
   onFarmClick,
   selectedFarmId,
@@ -81,13 +89,6 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
       }
     };
   }, []);
-
-  const getMarkerColor = (healthScore: number): string => {
-    if (healthScore >= 80) return "#22c55e"; // green
-    if (healthScore >= 60) return "#eab308"; // yellow
-    if (healthScore >= 40) return "#f97316"; // orange
-    return "#ef4444"; // red
-  };
 
   if (!isMounted) {
     return (
@@ -204,3 +205,7 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
     </div>
   );
 }
+
+// Memoized export to prevent unnecessary re-renders when parent re-renders
+// Using type assertion to maintain generic type support
+export default memo(FarmsMap) as typeof FarmsMap;

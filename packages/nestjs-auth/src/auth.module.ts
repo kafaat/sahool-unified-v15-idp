@@ -26,7 +26,11 @@ import {
   FarmAccessGuard,
   OptionalAuthGuard,
   ActiveAccountGuard,
+  AllRolesGuard,
+  AllPermissionsGuard,
 } from "./guards/jwt.guard";
+
+import { RateLimitGuard } from "./guards/rate-limit.guard";
 
 import {
   TokenRevocationGuard,
@@ -41,6 +45,8 @@ import {
   UserValidationService,
   IUserRepository,
 } from "./services/user-validation.service";
+import { SecurityAuditService } from "./services/security-audit.service";
+import { TokenFingerprintService } from "./services/token-fingerprint.service";
 
 // Import config
 import { JWTConfig } from "./config/jwt.config";
@@ -174,6 +180,13 @@ export class AuthModule {
       FarmAccessGuard,
       OptionalAuthGuard,
       ActiveAccountGuard,
+      AllRolesGuard,
+      AllPermissionsGuard,
+      RateLimitGuard,
+
+      // Security services
+      SecurityAuditService,
+      TokenFingerprintService,
 
       // Strategy
       {
@@ -227,7 +240,12 @@ export class AuthModule {
         FarmAccessGuard,
         OptionalAuthGuard,
         ActiveAccountGuard,
+        AllRolesGuard,
+        AllPermissionsGuard,
+        RateLimitGuard,
         JwtStrategy,
+        SecurityAuditService,
+        TokenFingerprintService,
         ...(enableUserValidation ? [UserValidationService] : []),
         ...(enableTokenRevocation
           ? [TokenRevocationGuard, TokenRevocationInterceptor]
@@ -292,7 +310,12 @@ export class AuthModule {
         FarmAccessGuard,
         OptionalAuthGuard,
         ActiveAccountGuard,
+        AllRolesGuard,
+        AllPermissionsGuard,
+        RateLimitGuard,
         JwtStrategy,
+        SecurityAuditService,
+        TokenFingerprintService,
       ],
       exports: [
         JwtModule,
@@ -303,7 +326,12 @@ export class AuthModule {
         FarmAccessGuard,
         OptionalAuthGuard,
         ActiveAccountGuard,
+        AllRolesGuard,
+        AllPermissionsGuard,
+        RateLimitGuard,
         JwtStrategy,
+        SecurityAuditService,
+        TokenFingerprintService,
       ],
     };
   }

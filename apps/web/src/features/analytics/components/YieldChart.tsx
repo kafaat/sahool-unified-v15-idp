@@ -53,17 +53,14 @@ const YieldChartComponent: React.FC<YieldChartProps> = ({
   showLegend = true,
   showGrid = true,
 }) => {
-  if (!data || data.length === 0) {
-    return (
-      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
-        <p className="text-gray-600">لا توجد بيانات متاحة</p>
-        <p className="text-sm text-gray-500 mt-1">No data available</p>
-      </div>
-    );
-  }
-
   // Memoize chart rendering to prevent expensive recalculations
+  // Must be called unconditionally before any early returns
   const chartElement = useMemo(() => {
+    // Return null if no data - handled in render
+    if (!data || data.length === 0) {
+      return null;
+    }
+
     const commonProps = {
       data,
     };
@@ -143,6 +140,16 @@ const YieldChartComponent: React.FC<YieldChartProps> = ({
         );
     }
   }, [data, chartType, showGrid, showLegend]);
+
+  // Handle no data case
+  if (!chartElement) {
+    return (
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
+        <p className="text-gray-600">لا توجد بيانات متاحة</p>
+        <p className="text-sm text-gray-500 mt-1">No data available</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">

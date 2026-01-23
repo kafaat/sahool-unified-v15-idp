@@ -28,6 +28,15 @@ const getWeatherIcon = (condition?: string) => {
 const WeatherWidgetComponent: React.FC = () => {
   const { data, isLoading } = useDashboardData();
 
+  const weather = data?.weather;
+
+  // Memoize weather icon to prevent recreation on every render
+  // Must be called unconditionally before any early returns
+  const weatherIcon = useMemo(
+    () => getWeatherIcon(weather?.condition),
+    [weather?.condition]
+  );
+
   if (isLoading) {
     return (
       <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 p-6">
@@ -37,14 +46,6 @@ const WeatherWidgetComponent: React.FC = () => {
       </div>
     );
   }
-
-  const weather = data?.weather;
-
-  // Memoize weather icon to prevent recreation on every render
-  const weatherIcon = useMemo(
-    () => getWeatherIcon(weather?.condition),
-    [weather?.condition]
-  );
 
   if (!weather) {
     return (

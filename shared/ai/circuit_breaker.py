@@ -37,7 +37,7 @@ from __future__ import annotations
 
 import asyncio
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any, TypeVar
@@ -88,8 +88,12 @@ class CircuitBreakerStats:
             "failed_calls": self.failed_calls,
             "rejected_calls": self.rejected_calls,
             "state_changes": self.state_changes,
-            "last_failure_time": self.last_failure_time.isoformat() if self.last_failure_time else None,
-            "last_success_time": self.last_success_time.isoformat() if self.last_success_time else None,
+            "last_failure_time": self.last_failure_time.isoformat()
+            if self.last_failure_time
+            else None,
+            "last_success_time": self.last_success_time.isoformat()
+            if self.last_success_time
+            else None,
             "consecutive_failures": self.consecutive_failures,
             "consecutive_successes": self.consecutive_successes,
             "success_rate": self.success_rate,

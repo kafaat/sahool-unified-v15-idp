@@ -40,12 +40,8 @@ export default getRequestConfig(async ({ locale }) => {
           year: "numeric",
           weekday: "long",
         },
-        hijri: {
-          calendar: "islamic-umalqura" as const,
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        },
+        // Note: For Hijri calendar formatting, use the formatHijriDate utility
+        // from @sahool/i18n instead of this format preset
       },
       number: {
         precise: {

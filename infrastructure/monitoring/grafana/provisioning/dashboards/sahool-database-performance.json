@@ -4,401 +4,348 @@
       "list": [
         {
           "builtIn": 1,
-          "datasource": {
-            "type": "grafana",
-            "uid": "-- Grafana --"
-          },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "enable": true,
           "hide": true,
           "iconColor": "rgba(0, 211, 255, 1)",
           "name": "Annotations & Alerts",
           "type": "dashboard"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "enable": true,
+          "expr": "ALERTS{alertstate=\"firing\", category=\"database\"}",
+          "iconColor": "red",
+          "name": "Database Alerts",
+          "tagKeys": "alertname,severity",
+          "titleFormat": "{{ alertname }}"
         }
       ]
     },
+    "description": "SAHOOL PostgreSQL Database Performance Monitoring | مراقبة أداء قاعدة بيانات PostgreSQL",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 1,
     "id": null,
-    "links": [],
+    "links": [
+      {
+        "asDropdown": true,
+        "icon": "external link",
+        "includeVars": true,
+        "keepTime": true,
+        "tags": ["sahool"],
+        "targetBlank": true,
+        "title": "SAHOOL Dashboards",
+        "type": "dashboards"
+      }
+    ],
     "liveNow": false,
     "panels": [
       {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
+        "collapsed": false,
+        "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+        "id": 100,
+        "panels": [],
+        "title": "Overview | نظرة عامة",
+        "type": "row"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Database connection pool utilization | استخدام مجموعة الاتصالات",
         "fieldConfig": {
           "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
+            "color": { "mode": "thresholds" },
             "mappings": [],
+            "max": 100,
+            "min": 0,
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "yellow",
-                  "value": 70
-                },
-                {
-                  "color": "red",
-                  "value": 85
-                }
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 70 },
+                { "color": "red", "value": 85 }
               ]
             },
             "unit": "percent"
           },
           "overrides": []
         },
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 0,
-          "y": 0
-        },
+        "gridPos": { "h": 5, "w": 4, "x": 0, "y": 1 },
         "id": 1,
         "options": {
           "orientation": "auto",
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"],
-            "fields": ""
-          },
+          "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
           "showThresholdLabels": false,
           "showThresholdMarkers": true
         },
         "pluginVersion": "10.2.0",
         "targets": [
           {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
             "editorMode": "code",
-            "expr": "(pg_stat_database_numbackends{datname=\"sahool\"} / pg_settings_max_connections) * 100",
+            "expr": "(pg_stat_database_numbackends{datname=~\"$database\"} / on() pg_settings_max_connections) * 100",
             "legendFormat": "Connection Pool Usage",
             "range": true,
             "refId": "A"
           }
         ],
-        "title": "Database Connection Pool Usage",
+        "title": "Connection Pool | مجموعة الاتصالات",
         "type": "gauge"
       },
       {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Buffer cache hit ratio (target >95%) | نسبة إصابة الذاكرة المؤقتة",
         "fieldConfig": {
           "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
+            "color": { "mode": "thresholds" },
             "mappings": [],
+            "max": 1,
+            "min": 0,
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {
-                  "color": "red",
-                  "value": null
-                },
-                {
-                  "color": "yellow",
-                  "value": 0.85
-                },
-                {
-                  "color": "green",
-                  "value": 0.95
-                }
+                { "color": "red", "value": null },
+                { "color": "yellow", "value": 0.85 },
+                { "color": "green", "value": 0.95 }
               ]
             },
             "unit": "percentunit"
           },
           "overrides": []
         },
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 6,
-          "y": 0
-        },
+        "gridPos": { "h": 5, "w": 4, "x": 4, "y": 1 },
         "id": 2,
         "options": {
           "orientation": "auto",
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"],
-            "fields": ""
-          },
+          "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
           "showThresholdLabels": false,
           "showThresholdMarkers": true
         },
         "pluginVersion": "10.2.0",
         "targets": [
           {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
             "editorMode": "code",
-            "expr": "pg_buffer_cache_hit_ratio_cache_hit_ratio{datname=\"sahool\"}",
+            "expr": "pg_stat_database_blks_hit{datname=~\"$database\"} / (pg_stat_database_blks_hit{datname=~\"$database\"} + pg_stat_database_blks_read{datname=~\"$database\"} + 1)",
             "legendFormat": "Cache Hit Ratio",
             "range": true,
             "refId": "A"
           }
         ],
-        "title": "Buffer Cache Hit Ratio",
+        "title": "Cache Hit Ratio | نسبة الإصابة",
         "type": "gauge"
       },
       {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Transactions per second | المعاملات في الثانية",
         "fieldConfig": {
           "defaults": {
-            "color": {
-              "mode": "palette-classic"
+            "color": { "mode": "thresholds" },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [{ "color": "blue", "value": null }]
             },
-            "custom": {
-              "axisCenteredZero": false,
-              "axisColorMode": "text",
-              "axisLabel": "",
-              "axisPlacement": "auto",
-              "barAlignment": 0,
-              "drawStyle": "line",
-              "fillOpacity": 10,
-              "gradientMode": "none",
-              "hideFrom": {
-                "tooltip": false,
-                "viz": false,
-                "legend": false
-              },
-              "lineInterpolation": "linear",
-              "lineWidth": 1,
-              "pointSize": 5,
-              "scaleDistribution": {
-                "type": "linear"
-              },
-              "showPoints": "never",
-              "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "none"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
+            "unit": "ops"
+          },
+          "overrides": []
+        },
+        "gridPos": { "h": 5, "w": 4, "x": 8, "y": 1 },
+        "id": 14,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+          "textMode": "auto"
+        },
+        "pluginVersion": "10.2.0",
+        "targets": [
+          {
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "editorMode": "code",
+            "expr": "sum(rate(pg_stat_database_xact_commit{datname=~\"$database\"}[5m]) + rate(pg_stat_database_xact_rollback{datname=~\"$database\"}[5m]))",
+            "legendFormat": "TPS",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "TPS | معاملات/ثانية",
+        "type": "stat"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Index vs sequential scan ratio | نسبة المسح الفهرسي مقابل التسلسلي",
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "mappings": [],
+            "max": 1,
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": null },
+                { "color": "yellow", "value": 0.8 },
+                { "color": "green", "value": 0.95 }
+              ]
             },
+            "unit": "percentunit"
+          },
+          "overrides": []
+        },
+        "gridPos": { "h": 5, "w": 4, "x": 12, "y": 1 },
+        "id": 15,
+        "options": {
+          "orientation": "auto",
+          "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        },
+        "pluginVersion": "10.2.0",
+        "targets": [
+          {
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "editorMode": "code",
+            "expr": "sum(pg_stat_user_tables_idx_scan) / (sum(pg_stat_user_tables_idx_scan) + sum(pg_stat_user_tables_seq_scan) + 1)",
+            "legendFormat": "Index Scan Ratio",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Index Scan Ratio | نسبة الفهرسة",
+        "type": "gauge"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Active database connections | الاتصالات النشطة",
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
             "mappings": [],
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 100 },
+                { "color": "red", "value": 200 }
               ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": { "h": 5, "w": 4, "x": 16, "y": 1 },
+        "id": 16,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+          "textMode": "auto"
+        },
+        "pluginVersion": "10.2.0",
+        "targets": [
+          {
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "editorMode": "code",
+            "expr": "pg_stat_database_numbackends{datname=~\"$database\"}",
+            "legendFormat": "Active Connections",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Active Connections | اتصالات نشطة",
+        "type": "stat"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Database size | حجم قاعدة البيانات",
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [{ "color": "blue", "value": null }]
             },
             "unit": "bytes"
           },
           "overrides": []
         },
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 12,
-          "y": 0
-        },
-        "id": 3,
+        "gridPos": { "h": 5, "w": 4, "x": 20, "y": 1 },
+        "id": 17,
         "options": {
-          "legend": {
-            "calcs": ["lastNotNull"],
-            "displayMode": "list",
-            "placement": "bottom",
-            "showLegend": true
-          },
-          "tooltip": {
-            "mode": "multi",
-            "sort": "none"
-          }
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+          "textMode": "auto"
         },
         "pluginVersion": "10.2.0",
         "targets": [
           {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
             "editorMode": "code",
-            "expr": "pg_wal_size_bytes",
-            "legendFormat": "WAL Size",
+            "expr": "pg_database_size_bytes{datname=~\"$database\"}",
+            "legendFormat": "Size",
             "range": true,
             "refId": "A"
           }
         ],
-        "title": "WAL Size",
-        "type": "timeseries"
+        "title": "Database Size | حجم القاعدة",
+        "type": "stat"
       },
       {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
+        "collapsed": false,
+        "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 },
+        "id": 101,
+        "panels": [],
+        "title": "Query Performance | أداء الاستعلامات",
+        "type": "row"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Top slow queries by mean execution time | أبطأ الاستعلامات حسب متوسط وقت التنفيذ",
         "fieldConfig": {
           "defaults": {
-            "color": {
-              "mode": "palette-classic"
-            },
+            "color": { "mode": "palette-classic" },
             "custom": {
               "axisCenteredZero": false,
               "axisColorMode": "text",
-              "axisLabel": "",
+              "axisLabel": "Execution Time",
               "axisPlacement": "auto",
               "barAlignment": 0,
               "drawStyle": "line",
               "fillOpacity": 10,
-              "gradientMode": "none",
-              "hideFrom": {
-                "tooltip": false,
-                "viz": false,
-                "legend": false
-              },
-              "lineInterpolation": "linear",
-              "lineWidth": 1,
+              "gradientMode": "opacity",
+              "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
               "pointSize": 5,
-              "scaleDistribution": {
-                "type": "linear"
-              },
+              "scaleDistribution": { "type": "linear" },
               "showPoints": "never",
               "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "none"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
+              "stacking": { "group": "A", "mode": "none" },
+              "thresholdsStyle": { "mode": "line" }
             },
             "mappings": [],
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            },
-            "unit": "bytes"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 18,
-          "y": 0
-        },
-        "id": 4,
-        "options": {
-          "legend": {
-            "calcs": ["lastNotNull"],
-            "displayMode": "list",
-            "placement": "bottom",
-            "showLegend": true
-          },
-          "tooltip": {
-            "mode": "multi",
-            "sort": "none"
-          }
-        },
-        "pluginVersion": "10.2.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
-            "editorMode": "code",
-            "expr": "pg_database_size_size_bytes{datname=\"sahool\"}",
-            "legendFormat": "Database Size",
-            "range": true,
-            "refId": "A"
-          }
-        ],
-        "title": "Database Size",
-        "type": "timeseries"
-      },
-      {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "palette-classic"
-            },
-            "custom": {
-              "axisCenteredZero": false,
-              "axisColorMode": "text",
-              "axisLabel": "",
-              "axisPlacement": "auto",
-              "barAlignment": 0,
-              "drawStyle": "line",
-              "fillOpacity": 10,
-              "gradientMode": "none",
-              "hideFrom": {
-                "tooltip": false,
-                "viz": false,
-                "legend": false
-              },
-              "lineInterpolation": "linear",
-              "lineWidth": 1,
-              "pointSize": 5,
-              "scaleDistribution": {
-                "type": "linear"
-              },
-              "showPoints": "never",
-              "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "none"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 80
-                }
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 50 },
+                { "color": "red", "value": 100 }
               ]
             },
             "unit": "ms"
           },
           "overrides": []
         },
-        "gridPos": {
-          "h": 9,
-          "w": 12,
-          "x": 0,
-          "y": 8
-        },
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 7 },
         "id": 5,
         "options": {
           "legend": {
@@ -407,290 +354,203 @@
             "placement": "right",
             "showLegend": true
           },
-          "tooltip": {
-            "mode": "multi",
-            "sort": "desc"
-          }
+          "tooltip": { "mode": "multi", "sort": "desc" }
         },
         "pluginVersion": "10.2.0",
         "targets": [
           {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
             "editorMode": "code",
-            "expr": "topk(10, pg_stat_statements_top_queries_mean_exec_time)",
-            "legendFormat": "{{query_short}}",
+            "expr": "topk(10, pg_stat_statements_mean_time_seconds * 1000)",
+            "legendFormat": "{{query}}",
             "range": true,
             "refId": "A"
           }
         ],
-        "title": "Top 10 Slow Queries (Mean Execution Time)",
+        "title": "Top 10 Slow Queries | أبطأ 10 استعلامات",
         "type": "timeseries"
       },
       {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Transaction rate over time | معدل المعاملات عبر الوقت",
         "fieldConfig": {
           "defaults": {
-            "color": {
-              "mode": "palette-classic"
-            },
+            "color": { "mode": "palette-classic" },
             "custom": {
               "axisCenteredZero": false,
               "axisColorMode": "text",
-              "axisLabel": "",
+              "axisLabel": "Transactions/sec",
               "axisPlacement": "auto",
               "barAlignment": 0,
               "drawStyle": "line",
-              "fillOpacity": 10,
-              "gradientMode": "none",
-              "hideFrom": {
-                "tooltip": false,
-                "viz": false,
-                "legend": false
-              },
-              "lineInterpolation": "linear",
-              "lineWidth": 1,
+              "fillOpacity": 20,
+              "gradientMode": "opacity",
+              "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
               "pointSize": 5,
-              "scaleDistribution": {
-                "type": "linear"
-              },
+              "scaleDistribution": { "type": "linear" },
               "showPoints": "never",
               "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "none"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
+              "stacking": { "group": "A", "mode": "none" },
+              "thresholdsStyle": { "mode": "off" }
             },
             "mappings": [],
             "thresholds": {
               "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
+              "steps": [{ "color": "green", "value": null }]
+            },
+            "unit": "ops"
+          },
+          "overrides": [
+            {
+              "matcher": { "id": "byRegexp", "options": ".*Rollback.*" },
+              "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+            }
+          ]
+        },
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 7 },
+        "id": 18,
+        "options": {
+          "legend": {
+            "calcs": ["mean", "sum"],
+            "displayMode": "table",
+            "placement": "right",
+            "showLegend": true
+          },
+          "tooltip": { "mode": "multi", "sort": "desc" }
+        },
+        "pluginVersion": "10.2.0",
+        "targets": [
+          {
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "editorMode": "code",
+            "expr": "rate(pg_stat_database_xact_commit{datname=~\"$database\"}[5m])",
+            "legendFormat": "Commits",
+            "range": true,
+            "refId": "A"
+          },
+          {
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "editorMode": "code",
+            "expr": "rate(pg_stat_database_xact_rollback{datname=~\"$database\"}[5m])",
+            "legendFormat": "Rollbacks",
+            "range": true,
+            "refId": "B"
+          }
+        ],
+        "title": "Transaction Rate | معدل المعاملات",
+        "type": "timeseries"
+      },
+      {
+        "collapsed": false,
+        "gridPos": { "h": 1, "w": 24, "x": 0, "y": 15 },
+        "id": 102,
+        "panels": [],
+        "title": "Table & Index Health | صحة الجداول والفهارس",
+        "type": "row"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Dead tuples by table (needs vacuum) | الصفوف الميتة حسب الجدول",
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "palette-classic" },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "Dead Tuples",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "opacity",
+              "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+              "lineInterpolation": "smooth",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": { "type": "linear" },
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": { "group": "A", "mode": "none" },
+              "thresholdsStyle": { "mode": "off" }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [{ "color": "green", "value": null }]
             },
             "unit": "short"
           },
           "overrides": []
         },
-        "gridPos": {
-          "h": 9,
-          "w": 12,
-          "x": 12,
-          "y": 8
-        },
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
         "id": 6,
         "options": {
           "legend": {
-            "calcs": ["lastNotNull"],
+            "calcs": ["lastNotNull", "max"],
             "displayMode": "table",
             "placement": "right",
             "showLegend": true
           },
-          "tooltip": {
-            "mode": "multi",
-            "sort": "desc"
-          }
+          "tooltip": { "mode": "multi", "sort": "desc" }
         },
         "pluginVersion": "10.2.0",
         "targets": [
           {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
             "editorMode": "code",
-            "expr": "pg_autovacuum_activity_n_dead_tup",
+            "expr": "topk(10, pg_stat_user_tables_n_dead_tup)",
             "legendFormat": "{{schemaname}}.{{relname}}",
             "range": true,
             "refId": "A"
           }
         ],
-        "title": "Dead Tuples by Table",
+        "title": "Dead Tuples by Table | الصفوف الميتة",
         "type": "timeseries"
       },
       {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Dead tuple ratio by table | نسبة الصفوف الميتة",
         "fieldConfig": {
           "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "custom": {
-              "align": "auto",
-              "cellOptions": {
-                "type": "auto"
-              },
-              "inspect": false
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "yellow",
-                  "value": 10
-                },
-                {
-                  "color": "red",
-                  "value": 100
-                }
-              ]
-            }
-          },
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Index Size"
-              },
-              "properties": [
-                {
-                  "id": "unit",
-                  "value": "bytes"
-                }
-              ]
-            }
-          ]
-        },
-        "gridPos": {
-          "h": 9,
-          "w": 12,
-          "x": 0,
-          "y": 17
-        },
-        "id": 7,
-        "options": {
-          "cellHeight": "sm",
-          "footer": {
-            "countRows": false,
-            "fields": "",
-            "reducer": ["sum"],
-            "show": false
-          },
-          "showHeader": true
-        },
-        "pluginVersion": "10.2.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
-            "editorMode": "code",
-            "expr": "pg_index_usage_idx_scan < 10 and pg_index_usage_index_size_bytes > 10485760",
-            "format": "table",
-            "legendFormat": "__auto",
-            "range": true,
-            "refId": "A"
-          }
-        ],
-        "title": "Potentially Unused Indexes",
-        "transformations": [
-          {
-            "id": "organize",
-            "options": {
-              "excludeByName": {
-                "Time": true,
-                "__name__": true,
-                "instance": true,
-                "job": true
-              },
-              "indexByName": {},
-              "renameByName": {
-                "indexname": "Index Name",
-                "idx_scan": "Scan Count",
-                "index_size_bytes": "Index Size",
-                "schemaname": "Schema",
-                "tablename": "Table"
-              }
-            }
-          }
-        ],
-        "type": "table"
-      },
-      {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "palette-classic"
-            },
+            "color": { "mode": "palette-classic" },
             "custom": {
               "axisCenteredZero": false,
               "axisColorMode": "text",
-              "axisLabel": "",
+              "axisLabel": "Ratio",
               "axisPlacement": "auto",
               "barAlignment": 0,
               "drawStyle": "line",
               "fillOpacity": 10,
-              "gradientMode": "none",
-              "hideFrom": {
-                "tooltip": false,
-                "viz": false,
-                "legend": false
-              },
-              "lineInterpolation": "linear",
+              "gradientMode": "opacity",
+              "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+              "lineInterpolation": "smooth",
               "lineWidth": 1,
               "pointSize": 5,
-              "scaleDistribution": {
-                "type": "linear"
-              },
+              "scaleDistribution": { "type": "linear" },
               "showPoints": "never",
               "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "none"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
+              "stacking": { "group": "A", "mode": "none" },
+              "thresholdsStyle": { "mode": "line" }
             },
             "mappings": [],
+            "max": 1,
+            "min": 0,
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 10
-                }
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 0.1 },
+                { "color": "red", "value": 0.2 }
               ]
             },
-            "unit": "s"
+            "unit": "percentunit"
           },
           "overrides": []
         },
-        "gridPos": {
-          "h": 9,
-          "w": 12,
-          "x": 12,
-          "y": 17
-        },
-        "id": 8,
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+        "id": 13,
         "options": {
           "legend": {
             "calcs": ["mean", "max"],
@@ -698,435 +558,650 @@
             "placement": "right",
             "showLegend": true
           },
-          "tooltip": {
-            "mode": "multi",
-            "sort": "desc"
-          }
+          "tooltip": { "mode": "multi", "sort": "desc" }
         },
         "pluginVersion": "10.2.0",
         "targets": [
           {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
             "editorMode": "code",
-            "expr": "pg_replication_lag_lag_seconds",
-            "legendFormat": "{{application_name}}",
+            "expr": "topk(10, pg_stat_user_tables_n_dead_tup / (pg_stat_user_tables_n_live_tup + pg_stat_user_tables_n_dead_tup + 1))",
+            "legendFormat": "{{schemaname}}.{{relname}}",
             "range": true,
             "refId": "A"
           }
         ],
-        "title": "Replication Lag",
+        "title": "Dead Tuple Ratio | نسبة الصفوف الميتة",
         "type": "timeseries"
       },
       {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Potentially unused indexes (< 10 scans, > 10MB) | فهارس غير مستخدمة محتملة",
         "fieldConfig": {
           "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
+            "color": { "mode": "thresholds" },
             "custom": {
-              "axisCenteredZero": false,
-              "axisColorMode": "text",
-              "axisLabel": "",
-              "axisPlacement": "auto",
-              "fillOpacity": 80,
-              "gradientMode": "none",
-              "hideFrom": {
-                "tooltip": false,
-                "viz": false,
-                "legend": false
-              },
-              "lineWidth": 1,
-              "scaleDistribution": {
-                "type": "linear"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
+              "align": "auto",
+              "cellOptions": { "type": "auto" },
+              "inspect": false
             },
             "mappings": [],
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 80
-                }
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 10 },
+                { "color": "red", "value": 100 }
               ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": { "id": "byName", "options": "Index Size" },
+              "properties": [{ "id": "unit", "value": "bytes" }]
             },
-            "unit": "short"
-          },
-          "overrides": []
+            {
+              "matcher": { "id": "byName", "options": "Scan Count" },
+              "properties": [
+                { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "color-background" } }
+              ]
+            }
+          ]
         },
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 0,
-          "y": 26
-        },
-        "id": 9,
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+        "id": 7,
         "options": {
-          "barRadius": 0,
-          "barWidth": 0.97,
-          "fullHighlight": false,
-          "groupWidth": 0.7,
-          "legend": {
-            "calcs": [],
-            "displayMode": "list",
-            "placement": "bottom",
-            "showLegend": true
-          },
-          "orientation": "auto",
-          "showValue": "auto",
-          "stacking": "none",
-          "tooltip": {
-            "mode": "single",
-            "sort": "none"
-          },
-          "xTickLabelRotation": 0,
-          "xTickLabelSpacing": 0
+          "cellHeight": "sm",
+          "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+          "showHeader": true,
+          "sortBy": [{ "desc": false, "displayName": "Scan Count" }]
         },
         "pluginVersion": "10.2.0",
         "targets": [
           {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
             "editorMode": "code",
-            "expr": "rate(pg_checkpoint_stats_checkpoints_timed[5m])",
-            "legendFormat": "Timed Checkpoints",
+            "expr": "pg_stat_user_indexes_idx_scan < 10 and pg_stat_user_indexes_idx_size > 10485760",
+            "format": "table",
             "range": true,
             "refId": "A"
-          },
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
-            "editorMode": "code",
-            "expr": "rate(pg_checkpoint_stats_checkpoints_req[5m])",
-            "hide": false,
-            "legendFormat": "Requested Checkpoints",
-            "range": true,
-            "refId": "B"
           }
         ],
-        "title": "Checkpoint Frequency",
-        "type": "barchart"
+        "title": "Potentially Unused Indexes | فهارس غير مستخدمة",
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": { "Time": true, "__name__": true, "instance": true, "job": true },
+              "renameByName": {
+                "indexrelname": "Index Name",
+                "idx_scan": "Scan Count",
+                "idx_size": "Index Size",
+                "schemaname": "Schema",
+                "relname": "Table"
+              }
+            }
+          }
+        ],
+        "type": "table"
       },
       {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Long-running queries (> 1 minute) | استعلامات طويلة التشغيل",
         "fieldConfig": {
           "defaults": {
-            "color": {
-              "mode": "palette-classic"
+            "color": { "mode": "thresholds" },
+            "custom": {
+              "align": "auto",
+              "cellOptions": { "type": "auto" },
+              "inspect": false
             },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 60 },
+                { "color": "red", "value": 300 }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": { "id": "byName", "options": "Duration" },
+              "properties": [
+                { "id": "unit", "value": "s" },
+                { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "color-background" } }
+              ]
+            }
+          ]
+        },
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+        "id": 19,
+        "options": {
+          "cellHeight": "sm",
+          "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+          "showHeader": true,
+          "sortBy": [{ "desc": true, "displayName": "Duration" }]
+        },
+        "pluginVersion": "10.2.0",
+        "targets": [
+          {
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "editorMode": "code",
+            "expr": "pg_stat_activity_max_tx_duration > 60",
+            "format": "table",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Long Running Queries | استعلامات طويلة",
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": { "Time": true, "__name__": true, "instance": true, "job": true },
+              "renameByName": {
+                "datname": "Database",
+                "state": "State",
+                "Value": "Duration"
+              }
+            }
+          }
+        ],
+        "type": "table"
+      },
+      {
+        "collapsed": false,
+        "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+        "id": 103,
+        "panels": [],
+        "title": "Storage & WAL | التخزين و WAL",
+        "type": "row"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "WAL size over time | حجم WAL عبر الوقت",
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "palette-classic" },
             "custom": {
               "axisCenteredZero": false,
               "axisColorMode": "text",
-              "axisLabel": "",
+              "axisLabel": "Size",
               "axisPlacement": "auto",
               "barAlignment": 0,
               "drawStyle": "line",
               "fillOpacity": 10,
-              "gradientMode": "none",
-              "hideFrom": {
-                "tooltip": false,
-                "viz": false,
-                "legend": false
-              },
-              "lineInterpolation": "linear",
-              "lineWidth": 1,
+              "gradientMode": "opacity",
+              "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
               "pointSize": 5,
-              "scaleDistribution": {
-                "type": "linear"
-              },
+              "scaleDistribution": { "type": "linear" },
               "showPoints": "never",
               "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "normal"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
+              "stacking": { "group": "A", "mode": "none" },
+              "thresholdsStyle": { "mode": "line" }
             },
             "mappings": [],
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            },
-            "unit": "short"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
-          "y": 26
-        },
-        "id": 10,
-        "options": {
-          "legend": {
-            "calcs": ["lastNotNull"],
-            "displayMode": "list",
-            "placement": "bottom",
-            "showLegend": true
-          },
-          "tooltip": {
-            "mode": "multi",
-            "sort": "none"
-          }
-        },
-        "pluginVersion": "10.2.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
-            "editorMode": "code",
-            "expr": "pg_lock_stats_lock_count",
-            "legendFormat": "{{mode}}",
-            "range": true,
-            "refId": "A"
-          }
-        ],
-        "title": "Database Locks by Mode",
-        "type": "timeseries"
-      },
-      {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "#EAB839",
-                  "value": 86400
-                },
-                {
-                  "color": "red",
-                  "value": 172800
-                }
-              ]
-            },
-            "unit": "s"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 0,
-          "y": 34
-        },
-        "id": 11,
-        "options": {
-          "orientation": "auto",
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"],
-            "fields": ""
-          },
-          "showThresholdLabels": false,
-          "showThresholdMarkers": true
-        },
-        "pluginVersion": "10.2.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
-            "editorMode": "code",
-            "expr": "postgres_backup_age_seconds",
-            "legendFormat": "Backup Age",
-            "range": true,
-            "refId": "A"
-          }
-        ],
-        "title": "Last Backup Age",
-        "type": "gauge"
-      },
-      {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 1073741824 },
+                { "color": "red", "value": 5368709120 }
               ]
             },
             "unit": "bytes"
           },
           "overrides": []
         },
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 6,
-          "y": 34
-        },
-        "id": 12,
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 33 },
+        "id": 3,
         "options": {
-          "orientation": "auto",
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"],
-            "fields": ""
+          "legend": {
+            "calcs": ["lastNotNull", "max"],
+            "displayMode": "table",
+            "placement": "right",
+            "showLegend": true
           },
-          "showThresholdLabels": false,
-          "showThresholdMarkers": true
+          "tooltip": { "mode": "multi", "sort": "none" }
         },
         "pluginVersion": "10.2.0",
         "targets": [
           {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
             "editorMode": "code",
-            "expr": "postgres_backup_size_bytes",
-            "legendFormat": "Backup Size",
+            "expr": "pg_wal_size_bytes",
+            "legendFormat": "WAL Size",
             "range": true,
             "refId": "A"
           }
         ],
-        "title": "Last Backup Size",
-        "type": "gauge"
+        "title": "WAL Size | حجم WAL",
+        "type": "timeseries"
       },
       {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Database and table sizes | أحجام قاعدة البيانات والجداول",
         "fieldConfig": {
           "defaults": {
-            "color": {
-              "mode": "palette-classic"
-            },
+            "color": { "mode": "palette-classic" },
             "custom": {
               "axisCenteredZero": false,
               "axisColorMode": "text",
-              "axisLabel": "",
+              "axisLabel": "Size",
               "axisPlacement": "auto",
               "barAlignment": 0,
               "drawStyle": "line",
               "fillOpacity": 10,
-              "gradientMode": "none",
-              "hideFrom": {
-                "tooltip": false,
-                "viz": false,
-                "legend": false
-              },
-              "lineInterpolation": "linear",
-              "lineWidth": 1,
+              "gradientMode": "opacity",
+              "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
               "pointSize": 5,
-              "scaleDistribution": {
-                "type": "linear"
-              },
+              "scaleDistribution": { "type": "linear" },
               "showPoints": "never",
               "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "none"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
+              "stacking": { "group": "A", "mode": "none" },
+              "thresholdsStyle": { "mode": "off" }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [{ "color": "green", "value": null }]
+            },
+            "unit": "bytes"
+          },
+          "overrides": []
+        },
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 33 },
+        "id": 4,
+        "options": {
+          "legend": {
+            "calcs": ["lastNotNull"],
+            "displayMode": "table",
+            "placement": "right",
+            "showLegend": true
+          },
+          "tooltip": { "mode": "multi", "sort": "desc" }
+        },
+        "pluginVersion": "10.2.0",
+        "targets": [
+          {
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "editorMode": "code",
+            "expr": "pg_database_size_bytes{datname=~\"$database\"}",
+            "legendFormat": "Database: {{ datname }}",
+            "range": true,
+            "refId": "A"
+          },
+          {
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "editorMode": "code",
+            "expr": "topk(5, pg_total_relation_size_bytes)",
+            "legendFormat": "Table: {{ relname }}",
+            "range": true,
+            "refId": "B"
+          }
+        ],
+        "title": "Database & Table Sizes | الأحجام",
+        "type": "timeseries"
+      },
+      {
+        "collapsed": false,
+        "gridPos": { "h": 1, "w": 24, "x": 0, "y": 41 },
+        "id": 104,
+        "panels": [],
+        "title": "Replication & Locks | النسخ المتماثل والأقفال",
+        "type": "row"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Replication lag in seconds | تأخر النسخ المتماثل",
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "palette-classic" },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "Lag",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "opacity",
+              "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "pointSize": 5,
+              "scaleDistribution": { "type": "linear" },
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": { "group": "A", "mode": "none" },
+              "thresholdsStyle": { "mode": "line" }
             },
             "mappings": [],
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 10 },
+                { "color": "red", "value": 60 }
               ]
             },
-            "unit": "percentunit"
+            "unit": "s"
           },
           "overrides": []
         },
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
-          "y": 34
-        },
-        "id": 13,
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 42 },
+        "id": 8,
         "options": {
           "legend": {
-            "calcs": ["mean", "min"],
+            "calcs": ["mean", "max", "lastNotNull"],
             "displayMode": "table",
             "placement": "right",
             "showLegend": true
           },
-          "tooltip": {
-            "mode": "multi",
-            "sort": "desc"
-          }
+          "tooltip": { "mode": "multi", "sort": "desc" }
         },
         "pluginVersion": "10.2.0",
         "targets": [
           {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "prometheus"
-            },
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
             "editorMode": "code",
-            "expr": "pg_autovacuum_activity_dead_tuple_ratio",
-            "legendFormat": "{{schemaname}}.{{relname}}",
+            "expr": "pg_replication_lag_seconds",
+            "legendFormat": "{{ application_name }}",
             "range": true,
             "refId": "A"
           }
         ],
-        "title": "Dead Tuple Ratio by Table",
+        "title": "Replication Lag | تأخر النسخ المتماثل",
+        "type": "timeseries"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Database locks by mode | أقفال قاعدة البيانات حسب النوع",
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "palette-classic" },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "Locks",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 20,
+              "gradientMode": "none",
+              "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+              "lineInterpolation": "smooth",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": { "type": "linear" },
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": { "group": "A", "mode": "normal" },
+              "thresholdsStyle": { "mode": "off" }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [{ "color": "green", "value": null }]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 42 },
+        "id": 10,
+        "options": {
+          "legend": {
+            "calcs": ["lastNotNull"],
+            "displayMode": "table",
+            "placement": "right",
+            "showLegend": true
+          },
+          "tooltip": { "mode": "multi", "sort": "none" }
+        },
+        "pluginVersion": "10.2.0",
+        "targets": [
+          {
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "editorMode": "code",
+            "expr": "pg_locks_count",
+            "legendFormat": "{{ mode }}",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Database Locks | أقفال القاعدة",
+        "type": "timeseries"
+      },
+      {
+        "collapsed": false,
+        "gridPos": { "h": 1, "w": 24, "x": 0, "y": 50 },
+        "id": 105,
+        "panels": [],
+        "title": "Checkpoint & Backup | نقاط التفتيش والنسخ الاحتياطي",
+        "type": "row"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Checkpoint frequency and types | تكرار نقاط التفتيش",
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "palette-classic" },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "Checkpoints/sec",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "bars",
+              "fillOpacity": 80,
+              "gradientMode": "none",
+              "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": { "type": "linear" },
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": { "group": "A", "mode": "normal" },
+              "thresholdsStyle": { "mode": "off" }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [{ "color": "green", "value": null }]
+            },
+            "unit": "short"
+          },
+          "overrides": [
+            {
+              "matcher": { "id": "byRegexp", "options": ".*Requested.*" },
+              "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
+            },
+            {
+              "matcher": { "id": "byRegexp", "options": ".*Timed.*" },
+              "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
+            }
+          ]
+        },
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 51 },
+        "id": 9,
+        "options": {
+          "legend": {
+            "calcs": ["sum"],
+            "displayMode": "table",
+            "placement": "right",
+            "showLegend": true
+          },
+          "tooltip": { "mode": "multi", "sort": "none" }
+        },
+        "pluginVersion": "10.2.0",
+        "targets": [
+          {
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "editorMode": "code",
+            "expr": "rate(pg_stat_bgwriter_checkpoints_timed[5m])",
+            "legendFormat": "Timed Checkpoints",
+            "range": true,
+            "refId": "A"
+          },
+          {
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "editorMode": "code",
+            "expr": "rate(pg_stat_bgwriter_checkpoints_req[5m])",
+            "legendFormat": "Requested Checkpoints",
+            "range": true,
+            "refId": "B"
+          }
+        ],
+        "title": "Checkpoint Frequency | تكرار نقاط التفتيش",
+        "type": "timeseries"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Backup age | عمر النسخ الاحتياطي",
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 86400 },
+                { "color": "red", "value": 172800 }
+              ]
+            },
+            "unit": "s"
+          },
+          "overrides": []
+        },
+        "gridPos": { "h": 4, "w": 6, "x": 12, "y": 51 },
+        "id": 11,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+          "textMode": "auto"
+        },
+        "pluginVersion": "10.2.0",
+        "targets": [
+          {
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "editorMode": "code",
+            "expr": "postgres_backup_age_seconds or time() - sahool_backup_last_success_timestamp{service=\"postgresql\"} or vector(0)",
+            "legendFormat": "Backup Age",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Backup Age | عمر النسخة",
+        "type": "stat"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Last backup size | حجم النسخة الاحتياطية",
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [{ "color": "blue", "value": null }]
+            },
+            "unit": "bytes"
+          },
+          "overrides": []
+        },
+        "gridPos": { "h": 4, "w": 6, "x": 18, "y": 51 },
+        "id": 12,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+          "textMode": "auto"
+        },
+        "pluginVersion": "10.2.0",
+        "targets": [
+          {
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "editorMode": "code",
+            "expr": "postgres_backup_size_bytes or sahool_backup_size_bytes{service=\"postgresql\"} or vector(0)",
+            "legendFormat": "Backup Size",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Backup Size | حجم النسخة",
+        "type": "stat"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "description": "Temporary file usage | استخدام الملفات المؤقتة",
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "palette-classic" },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "Size",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "opacity",
+              "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "pointSize": 5,
+              "scaleDistribution": { "type": "linear" },
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": { "group": "A", "mode": "none" },
+              "thresholdsStyle": { "mode": "off" }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [{ "color": "green", "value": null }]
+            },
+            "unit": "bytes"
+          },
+          "overrides": []
+        },
+        "gridPos": { "h": 4, "w": 12, "x": 12, "y": 55 },
+        "id": 20,
+        "options": {
+          "legend": {
+            "calcs": ["lastNotNull"],
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": { "mode": "multi", "sort": "none" }
+        },
+        "pluginVersion": "10.2.0",
+        "targets": [
+          {
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "editorMode": "code",
+            "expr": "rate(pg_stat_database_temp_bytes{datname=~\"$database\"}[5m])",
+            "legendFormat": "Temp File Usage Rate",
+            "range": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Temp File Usage | الملفات المؤقتة",
         "type": "timeseries"
       }
     ],
@@ -1135,18 +1210,37 @@
     "style": "dark",
     "tags": ["database", "postgresql", "performance", "sahool"],
     "templating": {
-      "list": []
+      "list": [
+        {
+          "allValue": ".*",
+          "current": { "selected": true, "text": "sahool", "value": "sahool" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "definition": "label_values(pg_stat_database_numbackends, datname)",
+          "description": "Database name filter",
+          "hide": 0,
+          "includeAll": true,
+          "label": "Database",
+          "multi": false,
+          "name": "database",
+          "options": [],
+          "query": { "query": "label_values(pg_stat_database_numbackends, datname)", "refId": "StandardVariableQuery" },
+          "refresh": 2,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 1,
+          "type": "query"
+        }
+      ]
     },
-    "time": {
-      "from": "now-6h",
-      "to": "now"
+    "time": { "from": "now-6h", "to": "now" },
+    "timepicker": {
+      "refresh_intervals": ["10s", "30s", "1m", "5m", "15m", "30m", "1h"]
     },
-    "timepicker": {},
     "timezone": "Asia/Riyadh",
-    "title": "SAHOOL Database Performance",
+    "title": "SAHOOL Database Performance | أداء قاعدة البيانات",
     "uid": "sahool-db-performance",
-    "version": 1,
-    "weekStart": ""
+    "version": 2,
+    "weekStart": "saturday"
   },
   "overwrite": true
 }

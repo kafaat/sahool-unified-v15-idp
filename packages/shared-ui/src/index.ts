@@ -5,10 +5,17 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Components
-export { StatusBadge, type StatusBadgeProps } from "./components/StatusBadge";
+export {
+  StatusBadge,
+  type StatusBadgeProps,
+  type BadgeSize,
+  type Locale,
+} from "./components/StatusBadge";
 export {
   SeverityBadge,
   type SeverityBadgeProps,
+  type SeverityLevel,
+  type SeverityBadgeSize,
 } from "./components/SeverityBadge";
 export {
   Card,
@@ -19,29 +26,50 @@ export {
   type CardHeaderProps,
   type CardContentProps,
   type CardFooterProps,
+  type CardPadding,
 } from "./components/Card";
-export { StatCard, type StatCardProps } from "./components/StatCard";
-export { Button, type ButtonProps } from "./components/Button";
+export {
+  StatCard,
+  type StatCardProps,
+  type StatCardColor,
+} from "./components/StatCard";
+export {
+  Button,
+  type ButtonProps,
+  type ButtonVariant,
+  type ButtonSize,
+} from "./components/Button";
 export {
   Skeleton,
   SkeletonCard,
   SkeletonTable,
   type SkeletonProps,
+  type SkeletonVariant,
+  type SkeletonCardProps,
+  type SkeletonTableProps,
 } from "./components/Skeleton";
-export { Alert, type AlertProps } from "./components/Alert";
+export {
+  Alert,
+  type AlertProps,
+  type AlertType,
+} from "./components/Alert";
 export {
   ErrorBoundary,
   withErrorBoundary,
   AsyncErrorBoundary,
   type ErrorBoundaryProps,
+  type AsyncErrorBoundaryProps,
 } from "./components/ErrorBoundary";
 export {
   LanguageSwitcher,
   type LanguageSwitcherProps,
+  type SupportedLocale,
 } from "./components/LanguageSwitcher";
 export {
   LoadingSpinner,
   type LoadingSpinnerProps,
+  type SpinnerSize,
+  type SpinnerColor,
 } from "./components/LoadingSpinner";
 export {
   LoadingOverlay,
@@ -51,6 +79,7 @@ export { SkipLink, type SkipLinkProps } from "./components/SkipLink";
 export {
   VisuallyHidden,
   type VisuallyHiddenProps,
+  type VisuallyHiddenElement,
 } from "./components/VisuallyHidden";
 export { FocusTrap, type FocusTrapProps } from "./components/FocusTrap";
 
@@ -60,6 +89,7 @@ export {
   Select,
   type SelectProps,
   type SelectOption,
+  type SelectSize,
 } from "./components/Select";
 
 // Layout Components

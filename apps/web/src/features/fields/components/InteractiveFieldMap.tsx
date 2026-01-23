@@ -617,12 +617,11 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
               <Marker
                 key={task.id}
                 position={position}
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                icon={icon as any}
+                icon={icon as L.Icon}
                 eventHandlers={{
                   click: () => handleTaskClick(task),
                 }}
-                {...({} as any)}
+                {...({} as React.ComponentProps<typeof Marker>)}
               >
                 <Popup>
                   <div className="p-2 min-w-[200px]">

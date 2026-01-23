@@ -1,0 +1,158 @@
+# ===============================================================================
+# SAHOOL Platform - Deprecated Service Alerts
+# ===============================================================================
+# Version: 1.0.0
+# Date: 2026-01-23
+# Purpose: Alerts for deprecated services that need migration
+# ===============================================================================
+
+groups:
+  # =============================================================================
+  # Deprecated Service Usage Alerts
+  # =============================================================================
+  - name: sahool_deprecated_service_alerts
+    interval: 1h
+    rules:
+      - alert: DeprecatedServiceStillActive
+        expr: |
+          up{status="deprecated"} == 1
+        for: 1h
+        labels:
+          severity: warning
+          category: deprecation
+          platform: sahool
+        annotations:
+          summary: "Deprecated service {{ $labels.service }} is still active"
+          summary_ar: "الخدمة المهملة {{ $labels.service }} لا تزال نشطة"
+          description: |
+            Service {{ $labels.service }} is deprecated and should be migrated to {{ $labels.replaced_by }}.
+            Deprecation is part of the v16 consolidation effort.
+          description_ar: |
+            الخدمة {{ $labels.service }} مهملة ويجب ترحيلها إلى {{ $labels.replaced_by }}.
+          impact: "Deprecated services may be removed in future releases"
+          impact_ar: "قد تُزال الخدمات المهملة في الإصدارات المستقبلية"
+          action: "Plan migration from {{ $labels.service }} to {{ $labels.replaced_by }}"
+          action_ar: "خطط للترحيل من {{ $labels.service }} إلى {{ $labels.replaced_by }}"
+          migration_guide: "https://docs.sahool.io/migration/v16-service-consolidation"
+
+      - alert: DeprecatedServiceReceivingTraffic
+        expr: |
+          rate(http_requests_total{service=~"satellite-service|weather-advanced|crop-health-ai|fertilizer-advisor|field-core|field-ops"}[1h]) > 0
+        for: 1h
+        labels:
+          severity: warning
+          category: deprecation
+          platform: sahool
+        annotations:
+          summary: "Deprecated service {{ $labels.service }} is receiving traffic"
+          summary_ar: "الخدمة المهملة {{ $labels.service }} تستقبل حركة مرور"
+          description: |
+            Deprecated service {{ $labels.service }} is still receiving {{ $value | printf "%.1f" }} requests/sec.
+            Traffic should be migrated to the replacement service.
+          description_ar: |
+            الخدمة المهملة {{ $labels.service }} لا تزال تستقبل {{ $value | printf "%.1f" }} طلب/ثانية.
+          impact: "Dependencies on deprecated services delay platform modernization"
+          impact_ar: "الاعتماد على الخدمات المهملة يؤخر تحديث المنصة"
+          action: "Update clients to use replacement service"
+          action_ar: "حدّث العملاء لاستخدام الخدمة البديلة"
+
+      - alert: DeprecatedServiceHighErrors
+        expr: |
+          (
+            rate(http_requests_total{status="deprecated",code=~"5.."}[5m])
+            /
+            rate(http_requests_total{status="deprecated"}[5m])
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: info
+          category: deprecation
+          platform: sahool
+        annotations:
+          summary: "Deprecated service {{ $labels.service }} has high error rate"
+          summary_ar: "الخدمة المهملة {{ $labels.service }} لديها معدل أخطاء عالي"
+          description: |
+            Error rate: {{ $value | humanizePercentage }}
+            Consider prioritizing migration to {{ $labels.replaced_by }} which is actively maintained.
+          description_ar: |
+            معدل الأخطاء: {{ $value | humanizePercentage }}
+            فكر في إعطاء الأولوية للترحيل إلى {{ $labels.replaced_by }}.
+          impact: "Deprecated services may not receive bug fixes"
+          impact_ar: "الخدمات المهملة قد لا تحصل على إصلاحات للأخطاء"
+          action: "Migrate to {{ $labels.replaced_by }}"
+          action_ar: "رحّل إلى {{ $labels.replaced_by }}"
+
+  # =============================================================================
+  # Migration Progress Tracking
+  # =============================================================================
+  - name: sahool_migration_tracking
+    interval: 24h
+    rules:
+      # Track the ratio of new vs deprecated service usage
+      - record: sahool:migration:progress_ratio
+        expr: |
+          (
+            sum(rate(http_requests_total{service=~"vegetation-analysis-service|advisory-service|field-management-service|crop-intelligence-service|weather-service"}[24h]))
+          )
+          /
+          (
+            sum(rate(http_requests_total{service=~"vegetation-analysis-service|advisory-service|field-management-service|crop-intelligence-service|weather-service|satellite-service|weather-advanced|crop-health-ai|fertilizer-advisor|field-core|field-ops"}[24h]))
+          )
+
+      - alert: MigrationProgressSlow
+        expr: |
+          sahool:migration:progress_ratio < 0.9
+        for: 7d
+        labels:
+          severity: info
+          category: deprecation
+          platform: sahool
+        annotations:
+          summary: "Service migration progress is below 90%"
+          summary_ar: "تقدم ترحيل الخدمات أقل من 90%"
+          description: |
+            Only {{ $value | humanizePercentage }} of traffic is on new services.
+            Target: 90%+ traffic on consolidated services.
+          description_ar: |
+            فقط {{ $value | humanizePercentage }} من حركة المرور على الخدمات الجديدة.
+          action: "Review migration timeline and prioritize remaining migrations"
+          action_ar: "راجع الجدول الزمني للترحيل وحدد أولويات الترحيلات المتبقية"
+
+  # =============================================================================
+  # Service Deprecation Timeline Alerts
+  # =============================================================================
+  - name: sahool_deprecation_timeline
+    interval: 24h
+    rules:
+      # These alerts remind about upcoming deprecation deadlines
+      # Adjust timestamps based on actual deprecation dates
+
+      - alert: DeprecationDeadlineApproaching
+        expr: |
+          vector(1) and on() (time() > 1736553600)  # Jan 11, 2026 + 90 days = Apr 11, 2026
+        for: 1d
+        labels:
+          severity: warning
+          category: deprecation
+          platform: sahool
+        annotations:
+          summary: "Service deprecation deadline approaching"
+          summary_ar: "موعد إهمال الخدمات يقترب"
+          description: |
+            The following services were deprecated on 2026-01-11:
+            - satellite-service (use vegetation-analysis-service)
+            - weather-advanced (use weather-service)
+            - crop-health-ai (use crop-intelligence-service)
+            - fertilizer-advisor (use advisory-service)
+
+            End of support date: 2026-04-11 (90 days from deprecation)
+          description_ar: |
+            تم إهمال الخدمات التالية في 2026-01-11:
+            - satellite-service (استخدم vegetation-analysis-service)
+            - weather-advanced (استخدم weather-service)
+            - crop-health-ai (استخدم crop-intelligence-service)
+            - fertilizer-advisor (استخدم advisory-service)
+
+            تاريخ انتهاء الدعم: 2026-04-11
+          action: "Complete migration before end of support date"
+          action_ar: "أكمل الترحيل قبل تاريخ انتهاء الدعم"

@@ -15,6 +15,7 @@ import {
   Package,
   Calendar,
   FileBarChart,
+  Droplets,
 } from "lucide-react";
 
 interface NavItem {
@@ -53,6 +54,11 @@ const navItems: NavItem[] = [
     labelKey: "seasons",
     href: "/dashboard/seasons",
     icon: Calendar,
+  },
+  {
+    labelKey: "pivotIrrigation",
+    href: "/dashboard/pivot-irrigation",
+    icon: Droplets,
   },
   {
     labelKey: "reports",

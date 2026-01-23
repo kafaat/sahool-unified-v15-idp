@@ -9,6 +9,9 @@ import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
 import '../utils/app_logger.dart';
 import 'converters/geo_converter.dart';
 import 'database_encryption.dart';
+import '../database/schema_version.dart';
+import '../database/migration_strategy.dart';
+import '../database/migrations/migration_verification.dart';
 
 part 'database.g.dart';
 
@@ -140,36 +143,50 @@ class SyncEvents extends Table {
 
 @DriftDatabase(tables: [Tasks, Outbox, Fields, SyncLogs, SyncEvents])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+  /// Callback for migration completion events
+  void Function(MigrationResult)? onMigrationComplete;
+
+  AppDatabase({this.onMigrationComplete}) : super(_openConnection());
+
+  /// Constructor for testing with custom executor
+  AppDatabase.forTesting(super.executor, {this.onMigrationComplete});
 
   @override
-  int get schemaVersion => 4; // v4: Unified Outbox schema
+  int get schemaVersion => currentSchemaVersion; // v5: Migration tracking + metadata
 
   @override
-  MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (Migrator m) async {
-          await m.createAll();
-        },
-        onUpgrade: (Migrator m, int from, int to) async {
-          if (from < 2) {
-            // Migration from v1 to v2: recreate fields table with GIS columns
-            await m.deleteTable('fields');
-            await m.createTable(fields);
-          }
-          if (from < 3) {
-            // Migration to v3: Add ETag support + SyncEvents
-            await m.addColumn(this.fields, this.fields.etag);
-            await m.addColumn(this.fields, this.fields.serverUpdatedAt);
-            await m.createTable(this.syncEvents);
-          }
-          if (from < 4) {
-            // Migration to v4: Unified Outbox schema with ETag support
-            // Recreate outbox table with new structure
-            await m.deleteTable('outbox');
-            await m.createTable(outbox);
-          }
-        },
+  MigrationStrategy get migration => SahoolMigrationStrategy.create(
+        database: this,
+        createBackup: true,
+        verifyMigrations: true,
+        onMigrationComplete: onMigrationComplete,
       );
+
+  /// Get a verifier for this database
+  MigrationVerifier get verifier => MigrationVerifier(this);
+
+  /// Run verification on this database
+  Future<DatabaseVerificationReport> verifyDatabase() async {
+    return verifier.runFullVerification();
+  }
+
+  /// Get database statistics
+  Future<DatabaseStats> getStats() async {
+    return verifier.getStats();
+  }
+
+  /// Get migration history
+  Future<List<Map<String, dynamic>>> getMigrationHistory() async {
+    try {
+      final result = await customSelect(
+        'SELECT * FROM migration_history ORDER BY id DESC',
+      ).get();
+      return result.map((row) => row.data).toList();
+    } catch (e) {
+      // Table might not exist in older versions
+      return [];
+    }
+  }
 
   // ============================================================
   // Tasks Operations

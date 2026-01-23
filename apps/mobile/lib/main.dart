@@ -17,6 +17,9 @@ import 'core/error/error.dart';
 import 'core/crash/crash_reporter.dart';
 import 'core/crash/crash_config.dart';
 import 'core/crash/breadcrumb_service.dart';
+import 'core/persistence/app_state_manager.dart';
+import 'core/persistence/preferences_manager.dart';
+import 'core/persistence/draft_manager.dart';
 
 // Global crash reporting instance (legacy - kept for compatibility)
 final crashReporting = CrashReportingService();
@@ -338,6 +341,43 @@ void main() async {
       );
     }
 
+    // Initialize persistence managers (non-critical)
+    // تهيئة مديري الحفظ (غير حرج)
+    final appStateManager = AppStateManager();
+    final preferencesManager = PreferencesManager();
+    final draftManager = DraftManager();
+
+    try {
+      crashReporting.recordBreadcrumb(
+        message: 'Initializing persistence managers',
+        category: 'lifecycle',
+        level: BreadcrumbLevel.info,
+      );
+
+      await Future.wait([
+        appStateManager.initialize(),
+        preferencesManager.initialize(),
+        draftManager.initialize(),
+      ]);
+
+      AppLogger.i('Persistence managers initialized', tag: 'Main');
+      crashReporting.recordBreadcrumb(
+        message: 'Persistence managers initialized successfully',
+        category: 'lifecycle',
+        level: BreadcrumbLevel.info,
+      );
+    } catch (e, stackTrace) {
+      // Non-critical - app can work without persistence
+      AppLogger.w('Persistence managers init failed (non-critical): $e', tag: 'Main');
+      crashReporting.reportError(
+        e,
+        stackTrace,
+        severity: ErrorSeverity.warning,
+        reason: 'Persistence managers initialization failed (non-critical)',
+        fatal: false,
+      );
+    }
+
     // Run the app
     crashReporting.recordBreadcrumb(
       message: 'Starting Flutter app',
@@ -350,8 +390,15 @@ void main() async {
         overrides: [
           databaseProvider.overrideWithValue(database),
           syncEngineProvider.overrideWithValue(syncEngine),
+          appStateManagerProvider.overrideWithValue(appStateManager),
+          preferencesManagerProvider.overrideWithValue(preferencesManager),
+          draftManagerProvider.overrideWithValue(draftManager),
         ],
-        child: const SahoolFieldApp(),
+        child: SahoolAppWithLifecycle(
+          appStateManager: appStateManager,
+          draftManager: draftManager,
+          child: const SahoolFieldApp(),
+        ),
       ),
     );
 
@@ -431,3 +478,131 @@ final newCrashReporterProvider = Provider<CrashReporter>((ref) {
 final breadcrumbServiceProvider = Provider<BreadcrumbService>((ref) {
   return breadcrumbService;
 });
+
+// ============================================================
+// App Lifecycle Widget
+// ============================================================
+
+/// Widget that wraps the app with lifecycle observation
+/// ويدجت يغلف التطبيق بمراقبة دورة الحياة
+class SahoolAppWithLifecycle extends StatefulWidget {
+  final AppStateManager appStateManager;
+  final DraftManager draftManager;
+  final Widget child;
+
+  const SahoolAppWithLifecycle({
+    super.key,
+    required this.appStateManager,
+    required this.draftManager,
+    required this.child,
+  });
+
+  @override
+  State<SahoolAppWithLifecycle> createState() => _SahoolAppWithLifecycleState();
+}
+
+class _SahoolAppWithLifecycleState extends State<SahoolAppWithLifecycle>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    AppLogger.d('App lifecycle observer registered', tag: 'Lifecycle');
+
+    // Record app start
+    breadcrumbService.recordLifecycle('app_lifecycle_observer_registered');
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    widget.draftManager.dispose();
+    AppLogger.d('App lifecycle observer unregistered', tag: 'Lifecycle');
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    AppLogger.d('App lifecycle state changed: $state', tag: 'Lifecycle');
+
+    switch (state) {
+      case AppLifecycleState.paused:
+        _handleAppPaused();
+        break;
+      case AppLifecycleState.inactive:
+        _handleAppInactive();
+        break;
+      case AppLifecycleState.resumed:
+        _handleAppResumed();
+        break;
+      case AppLifecycleState.detached:
+        _handleAppDetached();
+        break;
+      case AppLifecycleState.hidden:
+        _handleAppHidden();
+        break;
+    }
+  }
+
+  /// Handle app going to background (paused)
+  /// معالجة انتقال التطبيق إلى الخلفية
+  void _handleAppPaused() {
+    AppLogger.i('App paused - saving state', tag: 'Lifecycle');
+    breadcrumbService.recordLifecycle('app_paused');
+    crashReporting.recordBreadcrumb(
+      message: 'App paused',
+      category: 'lifecycle',
+      level: BreadcrumbLevel.info,
+    );
+
+    // Save app state when going to background
+    widget.appStateManager.onAppBackgrounded();
+  }
+
+  /// Handle app becoming inactive (e.g., phone call)
+  /// معالجة عدم نشاط التطبيق
+  void _handleAppInactive() {
+    AppLogger.d('App inactive', tag: 'Lifecycle');
+    breadcrumbService.recordLifecycle('app_inactive');
+  }
+
+  /// Handle app coming to foreground (resumed)
+  /// معالجة عودة التطبيق إلى المقدمة
+  void _handleAppResumed() {
+    AppLogger.i('App resumed', tag: 'Lifecycle');
+    breadcrumbService.recordLifecycle('app_resumed');
+    crashReporting.recordBreadcrumb(
+      message: 'App resumed',
+      category: 'lifecycle',
+      level: BreadcrumbLevel.info,
+    );
+
+    // Restore app state when coming to foreground
+    widget.appStateManager.onAppResumed();
+
+    // Check if session expired (optional - for security)
+    if (widget.appStateManager.isSessionExpired(timeout: const Duration(hours: 24))) {
+      AppLogger.w('Session may be expired - consider re-authentication', tag: 'Lifecycle');
+      breadcrumbService.recordSystem('session_expired_warning');
+    }
+  }
+
+  /// Handle app being detached
+  /// معالجة فصل التطبيق
+  void _handleAppDetached() {
+    AppLogger.d('App detached', tag: 'Lifecycle');
+    breadcrumbService.recordLifecycle('app_detached');
+  }
+
+  /// Handle app being hidden (iOS only)
+  /// معالجة إخفاء التطبيق
+  void _handleAppHidden() {
+    AppLogger.d('App hidden', tag: 'Lifecycle');
+    breadcrumbService.recordLifecycle('app_hidden');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+}

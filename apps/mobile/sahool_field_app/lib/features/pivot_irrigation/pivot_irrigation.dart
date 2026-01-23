@@ -9,35 +9,6 @@
 /// - Sector drawing tool for custom sector shapes
 /// - VRI zone grid editor at span/tower level
 /// - Real-time status monitoring
-/// - Scheduling and automation
-/// - Performance statistics
-///
-/// Usage:
-/// ```dart
-/// import 'package:sahool_field_app/features/pivot_irrigation/pivot_irrigation.dart';
-///
-/// // Navigate to pivot dashboard
-/// Navigator.push(
-///   context,
-///   MaterialPageRoute(
-///     builder: (context) => PivotDashboardScreen(
-///       pivotId: 'pivot_001',
-///       fieldId: 'field_001',
-///     ),
-///   ),
-/// );
-///
-/// // Setup new pivot with sector drawing
-/// Navigator.push(
-///   context,
-///   MaterialPageRoute(
-///     builder: (context) => PivotSetupScreen(
-///       fieldId: 'field_001',
-///       onSave: (config) => print('Saved: ${config.name}'),
-///     ),
-///   ),
-/// );
-/// ```
 library pivot_irrigation;
 
 // Domain Models

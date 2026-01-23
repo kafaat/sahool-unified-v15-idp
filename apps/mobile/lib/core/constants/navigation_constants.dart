@@ -67,6 +67,13 @@ class NavigationConstants {
   static const String fieldDashboard = '/field/:id/dashboard';
   static const String fieldMap = '/map';
 
+  // Pivot Irrigation - الري المحوري
+  static const String pivotIrrigation = '/pivot-irrigation';
+  static const String pivotDashboard = '/pivot-irrigation/:pivotId';
+  static const String pivotSetup = '/pivot-irrigation/setup';
+  static const String pivotSectors = '/pivot-irrigation/:pivotId/sectors';
+  static const String pivotVriZones = '/pivot-irrigation/:pivotId/vri-zones';
+
   // Other Features
   static const String alerts = '/alerts';
   static const String weather = '/weather';
@@ -137,6 +144,14 @@ class NavigationConstants {
     'ai_tools': 'أدوات الذكاء الاصطناعي',
     'utilities': 'أدوات مساعدة',
 
+    // Pivot Irrigation
+    'pivot_irrigation': 'الري المحوري',
+    'pivot_irrigation_short': 'المحوري',
+    'pivot_dashboard': 'لوحة التحكم',
+    'pivot_sectors': 'القطاعات',
+    'pivot_vri_zones': 'مناطق VRI',
+    'pivot_setup': 'إعداد محوري جديد',
+
     // Feature Descriptions
     'vra_desc': 'تطبيق متغير للأسمدة حسب احتياج كل منطقة',
     'gdd_desc': 'تتبع درجات النمو الحرارية للمحاصيل',
@@ -146,6 +161,7 @@ class NavigationConstants {
     'inventory_desc': 'إدارة المخزون والمدخلات',
     'chat_desc': 'استشارة ذكية فورية',
     'satellite_desc': 'صور الأقمار الصناعية والتحليل',
+    'pivot_irrigation_desc': 'إدارة الري المحوري على طراز Valley',
 
     // Common Actions
     'create': 'إنشاء',
@@ -186,6 +202,9 @@ class NavigationConstants {
     'tasks': Icons.checklist_rounded,
     'crop_health': Icons.eco_rounded,
 
+    // Pivot Irrigation
+    'pivot_irrigation': Icons.water_drop_rounded,
+
     // Utilities
     'alerts': Icons.notifications_active_rounded,
     'notifications': Icons.notifications_rounded,
@@ -218,6 +237,7 @@ class NavigationConstants {
     'tasks': Color(0xFFE91E63), // Pink
     'crop_health': Color(0xFF8BC34A), // Light Green
     'astronomical': Color(0xFF5C6BC0), // Indigo (Moon/Stars)
+    'pivot_irrigation': Color(0xFF00BCD4), // Cyan (Water)
   };
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -228,7 +248,7 @@ class NavigationConstants {
     FeatureGroup(
       title: 'precision_agriculture',
       icon: Icons.agriculture_rounded,
-      features: ['vra', 'gdd', 'spray', 'rotation', 'profitability'],
+      features: ['vra', 'gdd', 'spray', 'rotation', 'profitability', 'pivot_irrigation'],
     ),
     FeatureGroup(
       title: 'field_management',

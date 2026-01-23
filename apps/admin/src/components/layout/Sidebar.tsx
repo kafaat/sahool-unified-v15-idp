@@ -26,6 +26,7 @@ import {
   Satellite,
   ChevronDown,
   ChevronRight,
+  CircleDot,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/stores/auth.store";
@@ -55,6 +56,7 @@ const precisionAgricultureNav = [
     icon: Thermometer,
   },
   { name: "إدارة الرش", href: "/precision-agriculture/spray", icon: Droplets },
+  { name: "الري المحوري", href: "/precision-agriculture/pivot", icon: CircleDot },
 ];
 
 const analyticsNav = [

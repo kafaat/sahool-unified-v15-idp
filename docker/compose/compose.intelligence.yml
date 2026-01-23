@@ -292,6 +292,165 @@ services:
     depends_on:
     - redis
     - nats
+  ai-agents-core:
+    build:
+      context: ../../apps/services/ai-agents-core
+      dockerfile: Dockerfile
+    ports:
+    - 8122:8122
+    environment:
+    - PORT=8122
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8122/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 384Mi
+    depends_on:
+    - redis
+  code-fix-agent:
+    build:
+      context: ../../apps/services/code-fix-agent
+      dockerfile: Dockerfile
+    ports:
+    - 8161:8161
+    environment:
+    - PORT=8161
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8161/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 512Mi
+    depends_on:
+    - redis
+  code-review-agent:
+    build:
+      context: ../../apps/services/code-review-agent
+      dockerfile: Dockerfile
+    ports:
+    - 8145:8145
+    environment:
+    - PORT=8145
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8145/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 512Mi
+    depends_on:
+    - redis
+    - nats
+  crop-health:
+    build:
+      context: ../../apps/services/crop-health
+      dockerfile: Dockerfile
+    ports:
+    - 8100:8100
+    environment:
+    - PORT=8100
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8100/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - postgres
+    - redis
+  knowledge-graph:
+    build:
+      context: ../../apps/services/knowledge-graph
+      dockerfile: Dockerfile
+    ports:
+    - 8140:8140
+    environment:
+    - PORT=8140
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8140/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 512Mi
+    depends_on:
+    - postgres
+    - redis
+  ndvi-engine:
+    build:
+      context: ../../apps/services/ndvi-engine
+      dockerfile: Dockerfile
+    ports:
+    - 8107:8107
+    environment:
+    - PORT=8107
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8107/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - redis
 networks:
   sahool-network:
     driver: bridge

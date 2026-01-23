@@ -18,6 +18,9 @@ import '../../features/scanner/ui/scanner_screen.dart';
 import '../../features/scouting/ui/scouting_screen.dart';
 import '../../features/sync/ui/sync_screen.dart';
 
+// Pivot Irrigation Feature - الري المحوري
+import 'package:sahool_field_app/features/pivot_irrigation/pivot_irrigation.dart';
+
 /// SAHOOL App Router Configuration
 /// تكوين مسارات التطبيق باستخدام go_router
 class AppRouter {
@@ -157,6 +160,58 @@ class AppRouter {
         path: '/sync',
         name: 'sync',
         builder: (context, state) => const SyncScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Pivot Irrigation Routes - مسارات الري المحوري
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/pivot-irrigation',
+        name: 'pivot-irrigation',
+        builder: (context, state) => const PivotDashboardScreen(
+          pivotId: 'default',
+          fieldId: 'default',
+        ),
+      ),
+
+      GoRoute(
+        path: '/pivot-irrigation/:pivotId',
+        name: 'pivot-dashboard',
+        builder: (context, state) {
+          final pivotId = state.pathParameters['pivotId']!;
+          final fieldId = state.uri.queryParameters['fieldId'] ?? 'default';
+          return PivotDashboardScreen(pivotId: pivotId, fieldId: fieldId);
+        },
+      ),
+
+      GoRoute(
+        path: '/pivot-irrigation/setup/:fieldId',
+        name: 'pivot-setup',
+        builder: (context, state) {
+          final fieldId = state.pathParameters['fieldId']!;
+          return PivotSetupScreen(
+            fieldId: fieldId,
+            onSave: (config) {
+              // Handle save and navigate back
+              context.pop();
+            },
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/pivot-irrigation/:pivotId/sectors',
+        name: 'pivot-sectors',
+        builder: (context, state) {
+          final pivotId = state.pathParameters['pivotId']!;
+          // Return sector management screen
+          return SectorManagementScreen(
+            pivotId: pivotId,
+            sectors: const [],
+            onSectorsChanged: (_) {},
+          );
+        },
       ),
     ],
 

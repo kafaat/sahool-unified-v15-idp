@@ -70,6 +70,9 @@ import '../../features/marketplace/marketplace_screen.dart';
 // Features - Astronomical Calendar
 import '../../features/astronomical/presentation/screens/astronomical_screen.dart';
 
+// Features - Pivot Irrigation - الري المحوري
+import '../../features/pivot_irrigation/pivot_irrigation.dart';
+
 /// SAHOOL App Router Configuration
 /// تكوين مسارات التطبيق باستخدام go_router
 class AppRouter {
@@ -489,6 +492,69 @@ class AppRouter {
         path: '/astronomical',
         name: 'astronomical',
         builder: (context, state) => const AstronomicalScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Pivot Irrigation Routes - مسارات الري المحوري
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: NavigationConstants.pivotIrrigation,
+        name: 'pivot-irrigation',
+        builder: (context, state) => const PivotDashboardScreen(
+          pivotId: 'default',
+          fieldId: 'default',
+        ),
+      ),
+
+      GoRoute(
+        path: '/pivot-irrigation/:pivotId',
+        name: 'pivot-dashboard',
+        builder: (context, state) {
+          final pivotId = state.pathParameters['pivotId']!;
+          final fieldId = state.uri.queryParameters['fieldId'] ?? 'default';
+          return PivotDashboardScreen(pivotId: pivotId, fieldId: fieldId);
+        },
+      ),
+
+      GoRoute(
+        path: '/pivot-irrigation/setup/:fieldId',
+        name: 'pivot-setup',
+        builder: (context, state) {
+          final fieldId = state.pathParameters['fieldId']!;
+          return PivotSetupScreen(
+            fieldId: fieldId,
+            onSave: (config) {
+              context.pop();
+            },
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/pivot-irrigation/:pivotId/sectors',
+        name: 'pivot-sectors',
+        builder: (context, state) {
+          final pivotId = state.pathParameters['pivotId']!;
+          // Create a default configuration for direct navigation
+          final defaultConfig = PivotConfiguration(
+            id: pivotId,
+            fieldId: 'default',
+            name: 'Pivot $pivotId',
+            centerLat: 0,
+            centerLng: 0,
+            lengthMeters: 400,
+            spansCount: 7,
+            areaHectares: 50.0,
+            flowRateLph: 450000,
+          );
+          return SectorManagementScreen(
+            pivotConfig: defaultConfig,
+            onConfigUpdate: (_) {
+              context.pop();
+            },
+          );
+        },
       ),
     ],
 

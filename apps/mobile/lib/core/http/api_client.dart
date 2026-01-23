@@ -10,6 +10,7 @@ import '../security/signing_key_service.dart';
 import '../utils/app_logger.dart';
 import '../auth/token_manager.dart';
 import '../auth/secure_storage_service.dart';
+import '../network/network.dart';
 import 'rate_limiter.dart';
 import 'request_signing_interceptor.dart';
 import 'security_headers_interceptor.dart';
@@ -23,6 +24,9 @@ class ApiClient {
   CertificatePinningService? _certificatePinningService;
   late final RateLimiter _rateLimiter;
 
+  /// Robust retry interceptor with circuit breaker support
+  late final RobustRetryInterceptor _robustRetryInterceptor;
+
   /// Token interceptor for advanced token management
   _TokenInterceptorWrapper? _tokenInterceptorWrapper;
 
@@ -35,6 +39,11 @@ class ApiClient {
     bool enableRequestSigning = true,
     SecurityHeaderConfig? securityHeaderConfig,
     bool enableSecurityHeaderValidation = true,
+    RobustRetryInterceptor? robustRetryInterceptor,
+    bool enableRobustRetry = true,
+    RetryPolicy? defaultRetryPolicy,
+    OnRetryCallback? onRetry,
+    bool enableOfflineQueue = true,
   }) {
     // Use security config based on environment or build mode
     final config = securityConfig ?? SecurityConfig.fromBuildMode();
@@ -88,11 +97,34 @@ class ApiClient {
       queueExceededRequests: true,
     ));
 
-    // Add retry interceptor for automatic retry on network errors
-    _dio.interceptors.add(RetryInterceptor(
-      maxRetries: 3,
-      initialDelay: const Duration(seconds: 1),
-    ));
+    // Initialize and add robust retry interceptor with circuit breaker
+    if (enableRobustRetry) {
+      _robustRetryInterceptor = robustRetryInterceptor ?? RobustRetryInterceptor(
+        defaultPolicy: defaultRetryPolicy ?? RetryPolicies.standard,
+        onRetry: onRetry,
+        enableOfflineQueue: enableOfflineQueue,
+        onCircuitStateChange: (endpoint, state) {
+          if (kDebugMode) {
+            AppLogger.i(
+              'Circuit breaker state changed',
+              tag: 'ApiClient',
+              data: {'endpoint': endpoint, 'state': state.name},
+            );
+          }
+        },
+      );
+      _dio.interceptors.add(_robustRetryInterceptor);
+    } else {
+      // Fallback to basic retry interceptor
+      _robustRetryInterceptor = RobustRetryInterceptor(
+        defaultPolicy: RetryPolicies.none,
+        enableOfflineQueue: false,
+      );
+      _dio.interceptors.add(RetryInterceptor(
+        maxRetries: 3,
+        initialDelay: const Duration(seconds: 1),
+      ));
+    }
 
     _dio.interceptors.add(_AuthInterceptor(this));
 
@@ -143,6 +175,42 @@ class ApiClient {
   String get tenantId => _tenantId;
   CertificatePinningService? get certificatePinningService => _certificatePinningService;
   RateLimiter get rateLimiter => _rateLimiter;
+  RobustRetryInterceptor get retryInterceptor => _robustRetryInterceptor;
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Network Quality & Circuit Breaker Methods
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /// Get current network quality (good, slow, offline)
+  NetworkQuality get networkQuality => _robustRetryInterceptor.getNetworkQuality();
+
+  /// Check if network is offline
+  bool get isOffline => networkQuality == NetworkQuality.offline;
+
+  /// Get circuit breaker status for a specific endpoint
+  CircuitBreakerStatus? getCircuitBreakerStatus(String endpoint) {
+    return _robustRetryInterceptor.getCircuitBreakerStatus(endpoint);
+  }
+
+  /// Get health summary for all circuit breakers
+  CircuitBreakerHealthSummary get circuitBreakerHealth {
+    return _robustRetryInterceptor.getCircuitBreakerHealth();
+  }
+
+  /// Get retry interceptor statistics
+  RetryInterceptorStats get retryStats => _robustRetryInterceptor.getStats();
+
+  /// Get number of requests queued for offline retry
+  int get queuedRequestCount => _robustRetryInterceptor.queuedRequestCount;
+
+  /// Process offline queue manually
+  Future<void> processOfflineQueue() => _robustRetryInterceptor.processQueue();
+
+  /// Reset all circuit breakers
+  void resetCircuitBreakers() => _robustRetryInterceptor.resetCircuitBreakers();
+
+  /// Reset retry statistics
+  void resetRetryStats() => _robustRetryInterceptor.resetStats();
 
   /// Get the underlying Dio instance (for advanced configuration)
   Dio get dio => _dio;

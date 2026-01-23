@@ -1,18 +1,18 @@
-# Notification Sounds
+# Alert Sounds
 
-Place notification sound files here:
+This directory contains audio files for notification sounds.
 
-- `alert.mp3` - Alert notification sound (recommended: short, attention-grabbing tone)
+## Required Files
 
-## Recommended specifications:
-- Format: MP3
-- Duration: 0.5-2 seconds
-- Sample rate: 44.1kHz
-- Bit rate: 128kbps or higher
+- `alert.mp3` - Alert notification sound (recommended: short, non-intrusive sound)
 
-## Free sound resources:
-- https://freesound.org/
-- https://mixkit.co/free-sound-effects/
-- https://soundbible.com/
+## How to Add
 
-Search for: "notification", "alert", "chime", "bell"
+1. Add a short (1-2 second) MP3 file named `alert.mp3`
+2. Keep file size under 50KB for fast loading
+3. Ensure the sound is professional and non-intrusive
+
+## Note
+
+If `alert.mp3` is missing, the application will silently fall back to no sound.
+The code handles missing audio files gracefully.

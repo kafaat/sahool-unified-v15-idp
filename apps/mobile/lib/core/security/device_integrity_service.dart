@@ -141,9 +141,15 @@ class DeviceIntegrityService {
           AppLogger.w('Android emulator detected', tag: 'Security');
         }
 
-        // Check for root access
+        // Check for root access (with timeout to prevent hanging on emulators)
         try {
-          isRooted = await SafeDevice.isJailBroken;
+          isRooted = await SafeDevice.isJailBroken.timeout(
+            const Duration(seconds: 5),
+            onTimeout: () {
+              AppLogger.w('Root detection timed out', tag: 'Security');
+              return false;
+            },
+          );
           if (isRooted) {
             threats.add('Android device is rooted');
             AppLogger.w('Root access detected', tag: 'Security');
@@ -152,9 +158,15 @@ class DeviceIntegrityService {
           AppLogger.w('Root detection failed: $e', tag: 'Security');
         }
 
-        // Check for developer options
+        // Check for developer options (with timeout)
         try {
-          isDeveloperModeEnabled = await SafeDevice.isDevelopmentModeEnable;
+          isDeveloperModeEnabled = await SafeDevice.isDevelopmentModeEnable.timeout(
+            const Duration(seconds: 5),
+            onTimeout: () {
+              AppLogger.w('Developer mode check timed out', tag: 'Security');
+              return false;
+            },
+          );
           if (isDeveloperModeEnabled) {
             threats.add('Developer options enabled');
             AppLogger.w('Developer mode enabled', tag: 'Security');
@@ -184,9 +196,15 @@ class DeviceIntegrityService {
           AppLogger.w('iOS simulator detected', tag: 'Security');
         }
 
-        // Check for jailbreak
+        // Check for jailbreak (with timeout to prevent hanging)
         try {
-          isJailbroken = await SafeDevice.isJailBroken;
+          isJailbroken = await SafeDevice.isJailBroken.timeout(
+            const Duration(seconds: 5),
+            onTimeout: () {
+              AppLogger.w('Jailbreak detection timed out', tag: 'Security');
+              return false;
+            },
+          );
           if (isJailbroken) {
             threats.add('iOS device is jailbroken');
             AppLogger.w('Jailbreak detected', tag: 'Security');

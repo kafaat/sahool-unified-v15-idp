@@ -227,14 +227,16 @@ describe("Retry Logic", () => {
       expect(operation).toHaveBeenCalledTimes(3); // Initial + 2 retries
     });
 
-    it("should call onRetry callback", async () => {
+    it("should call onRetry callback for Axios errors", async () => {
       let attempts = 0;
       const onRetry = vi.fn();
 
       const operation = vi.fn(async () => {
         attempts += 1;
         if (attempts < 2) {
-          throw new Error("Failure");
+          // Create a mock Axios error
+          const error = createMockAxiosError("ECONNABORTED");
+          throw error;
         }
         return "success";
       });

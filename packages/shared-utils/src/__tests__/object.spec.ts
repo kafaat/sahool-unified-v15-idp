@@ -58,23 +58,27 @@ describe("Object Utilities", () => {
 
   describe("deepMerge", () => {
     it("should deep merge objects", () => {
-      const target = { a: 1, b: { c: 2 } };
-      const source = { b: { d: 3 }, e: 4 };
+      const target = { a: 1, b: { c: 2 } } as Record<string, unknown>;
+      const source = { b: { d: 3 }, e: 4 } as Record<string, unknown>;
       const result = deepMerge(target, source);
 
       expect(result).toEqual({ a: 1, b: { c: 2, d: 3 }, e: 4 });
     });
 
     it("should not mutate original objects", () => {
-      const target = { a: 1 };
-      const source = { b: 2 };
+      const target = { a: 1 } as Record<string, unknown>;
+      const source = { b: 2 } as Record<string, unknown>;
       deepMerge(target, source);
 
       expect(target).toEqual({ a: 1 });
     });
 
     it("should handle multiple sources", () => {
-      const result = deepMerge({ a: 1 }, { b: 2 }, { c: 3 });
+      const result = deepMerge(
+        { a: 1 } as Record<string, unknown>,
+        { b: 2 } as Record<string, unknown>,
+        { c: 3 } as Record<string, unknown>,
+      );
       expect(result).toEqual({ a: 1, b: 2, c: 3 });
     });
   });

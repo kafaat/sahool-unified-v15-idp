@@ -79,7 +79,7 @@ describe("Safe Parse Utilities", () => {
       const failure = err<Error>(new Error("test"));
 
       const mappedSuccess = mapResult(success, (v) => v * 2);
-      const mappedFailure = mapResult(failure, (v) => v * 2);
+      const mappedFailure = mapResult(failure, (v: number) => v * 2);
 
       expect(isOk(mappedSuccess) && mappedSuccess.value).toBe(42);
       expect(isErr(mappedFailure)).toBe(true);

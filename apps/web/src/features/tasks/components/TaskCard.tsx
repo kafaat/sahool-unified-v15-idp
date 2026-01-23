@@ -58,16 +58,25 @@ const priorityConfig: Record<
   },
 };
 
-const statusConfig: Record<
-  string,
-  { colors: string; label: string; labelAr: string; icon: React.ReactNode }
-> = {
-  open: {
-    colors: "border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700",
-    label: "Open",
-    labelAr: "مفتوحة",
-    icon: <Circle className="w-4 h-4 text-gray-400" aria-hidden="true" />,
-  },
+type ConfigInfo = { colors: string; label: string; labelAr: string; icon: React.ReactNode };
+
+const DEFAULT_STATUS_INFO: ConfigInfo = {
+  colors: "border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700",
+  label: "Open",
+  labelAr: "مفتوحة",
+  icon: <Circle className="w-4 h-4 text-gray-400" aria-hidden="true" />,
+};
+
+const DEFAULT_PRIORITY_INFO: ConfigInfo = {
+  colors:
+    "bg-green-100 text-green-700 border-green-200 dark:bg-green-800 dark:text-green-100",
+  label: "Low",
+  labelAr: "منخفضة",
+  icon: <Flag className="w-3 h-3" aria-hidden="true" />,
+};
+
+const statusConfig: Record<string, ConfigInfo> = {
+  open: DEFAULT_STATUS_INFO,
   pending: {
     colors: "border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700",
     label: "Pending",
@@ -108,11 +117,11 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(
     }, [task.due_date, task.status]);
 
     const priorityInfo = React.useMemo(() => {
-      return priorityConfig[task.priority] ?? priorityConfig.low;
+      return priorityConfig[task.priority] ?? DEFAULT_PRIORITY_INFO;
     }, [task.priority]);
 
     const statusInfo = React.useMemo(() => {
-      return statusConfig[task.status] ?? statusConfig.open;
+      return statusConfig[task.status] ?? DEFAULT_STATUS_INFO;
     }, [task.status]);
 
     const formattedDueDate = React.useMemo(() => {

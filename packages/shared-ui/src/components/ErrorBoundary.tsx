@@ -144,13 +144,13 @@ export class ErrorBoundary extends Component<
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={this.handleRetry}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  className="px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors focus:outline-none focus:ring-2 focus:ring-sahool-500 focus:ring-offset-2"
                 >
                   إعادة المحاولة
                 </button>
                 <button
                   onClick={() => window.location.reload()}
-                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                 >
                   تحديث الصفحة
                 </button>
@@ -193,22 +193,42 @@ export function withErrorBoundary<P extends object>(
  *
  * Combines ErrorBoundary with React Suspense for async components
  */
+export interface AsyncErrorBoundaryProps {
+  /** Content to render */
+  children: ReactNode;
+  /** Fallback UI for loading and error states */
+  fallback?: ReactNode;
+  /** Additional error boundary props */
+  errorBoundaryProps?: Omit<ErrorBoundaryProps, "children">;
+}
+
+/**
+ * Async Error Boundary for Suspense
+ * حدود خطأ غير متزامن لـ Suspense
+ *
+ * Combines ErrorBoundary with React Suspense for async components.
+ *
+ * @example
+ * <AsyncErrorBoundary>
+ *   <LazyComponent />
+ * </AsyncErrorBoundary>
+ */
 export function AsyncErrorBoundary({
   children,
   fallback,
   errorBoundaryProps,
-}: {
-  children: ReactNode;
-  fallback?: ReactNode;
-  errorBoundaryProps?: Omit<ErrorBoundaryProps, "children">;
-}): React.ReactElement {
+}: AsyncErrorBoundaryProps): React.ReactElement {
   return (
     <ErrorBoundary fallback={fallback} {...errorBoundaryProps}>
       <React.Suspense
         fallback={
           fallback || (
-            <div className="flex items-center justify-center p-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
+            <div
+              className="flex items-center justify-center p-8"
+              role="status"
+              aria-label="جاري التحميل..."
+            >
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sahool-600" />
             </div>
           )
         }

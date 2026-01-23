@@ -16,10 +16,16 @@ import { cn } from "@sahool/shared-utils";
 // ═══════════════════════════════════════════════════════════════════════════
 
 export interface SelectOption {
+  /** Option value for form submission */
   value: string;
+  /** Display label */
   label: string;
+  /** Whether this option is disabled */
   disabled?: boolean;
 }
+
+/** Select size variants */
+export type SelectSize = "sm" | "md" | "lg";
 
 export interface SelectProps {
   /** Options to display */
@@ -43,19 +49,35 @@ export interface SelectProps {
   /** Whether to enable search */
   searchable?: boolean;
   /** Input size */
-  size?: "sm" | "md" | "lg";
+  size?: SelectSize;
   /** Full width */
   fullWidth?: boolean;
   /** Additional class name */
   className?: string;
   /** Name for form submission */
   name?: string;
+  /** Text shown when no options match search */
+  noOptionsText?: string;
+  /** Search input placeholder */
+  searchPlaceholder?: string;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Component
 // ═══════════════════════════════════════════════════════════════════════════
 
+/**
+ * Select Component
+ * مكون القائمة المنسدلة
+ *
+ * @example
+ * <Select
+ *   options={[{ value: "1", label: "Option 1" }]}
+ *   value={selected}
+ *   onChange={setSelected}
+ *   label="Choose option"
+ * />
+ */
 export function Select({
   options,
   value,
@@ -71,11 +93,16 @@ export function Select({
   fullWidth = true,
   className,
   name,
+  noOptionsText = "No options found",
+  searchPlaceholder = "Search...",
 }: SelectProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [highlightedIndex, setHighlightedIndex] = React.useState(-1);
   const selectRef = React.useRef<HTMLDivElement>(null);
+  const listRef = React.useRef<HTMLUListElement>(null);
   const inputId = React.useId();
+  const listboxId = `${inputId}-listbox`;
   const errorId = `${inputId}-error`;
   const hintId = `${inputId}-hint`;
 
@@ -112,20 +139,109 @@ export function Select({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Reset highlighted index when options change
+  React.useEffect(() => {
+    setHighlightedIndex(-1);
+  }, [filteredOptions.length]);
+
   // Handle keyboard navigation
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (disabled) return;
 
+    const enabledOptions = filteredOptions.filter((opt) => !opt.disabled);
+
     switch (event.key) {
       case "Enter":
-      case " ":
         event.preventDefault();
-        setIsOpen(!isOpen);
+        if (isOpen && highlightedIndex >= 0) {
+          const option = filteredOptions[highlightedIndex];
+          if (option && !option.disabled) {
+            handleSelect(option.value);
+          }
+        } else {
+          setIsOpen(!isOpen);
+        }
+        break;
+      case " ":
+        if (!isOpen) {
+          event.preventDefault();
+          setIsOpen(true);
+        }
         break;
       case "Escape":
+        event.preventDefault();
         setIsOpen(false);
         setSearchTerm("");
+        setHighlightedIndex(-1);
         break;
+      case "ArrowDown":
+        event.preventDefault();
+        if (!isOpen) {
+          setIsOpen(true);
+        } else {
+          const nextIndex = highlightedIndex + 1;
+          if (nextIndex < filteredOptions.length) {
+            // Skip disabled options
+            let newIndex = nextIndex;
+            while (newIndex < filteredOptions.length && filteredOptions[newIndex].disabled) {
+              newIndex++;
+            }
+            if (newIndex < filteredOptions.length) {
+              setHighlightedIndex(newIndex);
+              scrollToOption(newIndex);
+            }
+          }
+        }
+        break;
+      case "ArrowUp":
+        event.preventDefault();
+        if (isOpen) {
+          const prevIndex = highlightedIndex - 1;
+          if (prevIndex >= 0) {
+            // Skip disabled options
+            let newIndex = prevIndex;
+            while (newIndex >= 0 && filteredOptions[newIndex].disabled) {
+              newIndex--;
+            }
+            if (newIndex >= 0) {
+              setHighlightedIndex(newIndex);
+              scrollToOption(newIndex);
+            }
+          }
+        }
+        break;
+      case "Home":
+        if (isOpen) {
+          event.preventDefault();
+          const firstEnabled = filteredOptions.findIndex((opt) => !opt.disabled);
+          if (firstEnabled >= 0) {
+            setHighlightedIndex(firstEnabled);
+            scrollToOption(firstEnabled);
+          }
+        }
+        break;
+      case "End":
+        if (isOpen) {
+          event.preventDefault();
+          for (let i = filteredOptions.length - 1; i >= 0; i--) {
+            if (!filteredOptions[i].disabled) {
+              setHighlightedIndex(i);
+              scrollToOption(i);
+              break;
+            }
+          }
+        }
+        break;
+    }
+  };
+
+  // Scroll highlighted option into view
+  const scrollToOption = (index: number) => {
+    if (listRef.current) {
+      const option = listRef.current.children[index] as HTMLElement;
+      if (option) {
+        option.scrollIntoView({ block: "nearest" });
+      }
     }
   };
 

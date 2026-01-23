@@ -245,24 +245,144 @@ export function isValidYemenPhone(phone: string): boolean {
 
 /**
  * Truncate string to specified length
+ * قص النص إلى طول محدد
+ *
+ * @param str - النص - String to truncate
+ * @param length - الطول - Maximum length
+ * @param suffix - اللاحقة - Suffix to add (default: "...")
+ * @returns النص المقصوص - Truncated string
  */
-export function truncate(str: string, length: number): string {
+export function truncate(str: string, length: number, suffix: string = "..."): string {
   if (str.length <= length) return str;
-  return str.slice(0, length) + "...";
+  return str.slice(0, length - suffix.length) + suffix;
 }
 
 /**
  * Capitalize first letter
+ * جعل الحرف الأول كبيراً
  */
 export function capitalize(str: string): string {
+  if (!str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 /**
- * Generate random ID
+ * Capitalize all words (title case)
+ * جعل أول حرف من كل كلمة كبيراً
+ */
+export function titleCase(str: string): string {
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => capitalize(word))
+    .join(" ");
+}
+
+/**
+ * Convert string to kebab-case
+ * تحويل النص إلى kebab-case
+ */
+export function kebabCase(str: string): string {
+  return str
+    .replace(/([a-z])([A-Z])/g, "$1-$2")
+    .replace(/[\s_]+/g, "-")
+    .toLowerCase();
+}
+
+/**
+ * Convert string to camelCase
+ * تحويل النص إلى camelCase
+ */
+export function camelCase(str: string): string {
+  return str
+    .replace(/[-_\s]+(.)?/g, (_, c) => (c ? c.toUpperCase() : ""))
+    .replace(/^./, (c) => c.toLowerCase());
+}
+
+/**
+ * Convert string to snake_case
+ * تحويل النص إلى snake_case
+ */
+export function snakeCase(str: string): string {
+  return str
+    .replace(/([a-z])([A-Z])/g, "$1_$2")
+    .replace(/[\s-]+/g, "_")
+    .toLowerCase();
+}
+
+/**
+ * Generate random ID with crypto (if available) or fallback
+ * توليد معرف عشوائي آمن
  */
 export function generateId(prefix: string = "id"): string {
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  let randomPart: string;
+
+  // Use crypto if available for better randomness
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    randomPart = crypto.randomUUID().slice(0, 12);
+  } else {
+    randomPart = `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 11)}`;
+  }
+
+  return `${prefix}_${randomPart}`;
+}
+
+/**
+ * Generate UUID v4
+ * توليد UUID v4
+ */
+export function generateUUID(): string {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+
+  // Fallback implementation
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+/**
+ * Slugify a string (URL-safe)
+ * تحويل النص إلى slug آمن للروابط
+ */
+export function slugify(str: string): string {
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/[\u0600-\u06FF]/g, "") // Remove Arabic characters
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Escape HTML special characters
+ * تهريب أحرف HTML الخاصة
+ */
+export function escapeHtml(str: string): string {
+  const htmlEntities: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  };
+  return str.replace(/[&<>"']/g, (char) => htmlEntities[char]);
+}
+
+/**
+ * Pad string to specified length
+ * إضافة حشو للنص
+ */
+export function padStart(str: string, length: number, char: string = " "): string {
+  return str.padStart(length, char);
+}
+
+export function padEnd(str: string, length: number, char: string = " "): string {
+  return str.padEnd(length, char);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

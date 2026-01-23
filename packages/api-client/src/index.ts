@@ -3,7 +3,7 @@
 // عميل API الموحد لمنصة سهول
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosError, AxiosResponse } from "axios";
 import type {
   ApiClientConfig,
   ServicePorts,
@@ -27,13 +27,99 @@ import type {
   Severity,
   DiagnosisStatus,
   LogLevel,
+  PaginatedResponse,
 } from "./types";
 import { ApiError, parseAxiosError } from "./errors";
+import {
+  RetryConfig,
+  DEFAULT_RETRY_CONFIG,
+  setupRetryInterceptor,
+  CircuitBreaker,
+  CircuitBreakerConfig,
+  withRetry,
+} from "./retry";
+import {
+  CacheConfig,
+  DEFAULT_CACHE_CONFIG,
+  MemoryCache,
+  createCache,
+  shouldCacheRequest,
+  getRequestTTL,
+  getCacheKey,
+  getCachePolicy,
+  shouldForceRefresh,
+  CacheTTL,
+} from "./cache";
+import {
+  InterceptorConfig,
+  DEFAULT_INTERCEPTOR_CONFIG,
+  setupEnhancedInterceptors,
+  InterceptorManager,
+  PerformanceStats,
+} from "./interceptors";
+import {
+  Result,
+  AsyncState,
+  success,
+  failure,
+  toResult,
+  ValidationResult,
+} from "./validation";
 
 // Re-export all types
 export * from "./types";
 // Re-export all errors
 export * from "./errors";
+// Re-export retry utilities
+export * from "./retry";
+// Re-export cache utilities
+export * from "./cache";
+// Re-export interceptor utilities
+export * from "./interceptors";
+// Re-export validation utilities
+export * from "./validation";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Enhanced Configuration Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface EnhancedApiClientConfig extends ApiClientConfig {
+  /**
+   * Retry configuration
+   */
+  retry?: Partial<RetryConfig> | boolean;
+
+  /**
+   * Cache configuration
+   */
+  cache?: Partial<CacheConfig> | boolean | "aggressive" | "conservative" | "offline";
+
+  /**
+   * Interceptor configuration
+   */
+  interceptors?: Partial<InterceptorConfig>;
+
+  /**
+   * Circuit breaker configuration
+   */
+  circuitBreaker?: Partial<CircuitBreakerConfig> | boolean;
+
+  /**
+   * Whether to validate responses at runtime
+   * @default false
+   */
+  validateResponses?: boolean;
+
+  /**
+   * Tenant ID for multi-tenancy
+   */
+  tenantId?: string;
+
+  /**
+   * Get tenant ID dynamically
+   */
+  getTenantId?: () => string | null;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Default Configuration
@@ -66,19 +152,28 @@ const DEFAULT_PORTS: ServicePorts = {
 
 export class SahoolApiClient {
   private client: AxiosInstance;
-  private config: ApiClientConfig;
+  private config: EnhancedApiClientConfig;
   private ports: ServicePorts;
   private isProduction: boolean;
   private logLevel: LogLevel;
   private errorHandling: "throw" | "silent";
 
-  constructor(config: ApiClientConfig, ports: Partial<ServicePorts> = {}) {
+  // Enhanced features
+  private cache?: MemoryCache;
+  private circuitBreakers: Map<string, CircuitBreaker> = new Map();
+  private interceptorManager?: InterceptorManager;
+
+  constructor(
+    config: EnhancedApiClientConfig,
+    ports: Partial<ServicePorts> = {},
+  ) {
     this.config = {
       timeout: 30000,
       locale: "ar",
       enableMockData: false,
       errorHandling: "throw",
       logLevel: "error",
+      validateResponses: false,
       ...config,
     };
     this.ports = { ...DEFAULT_PORTS, ...ports };
@@ -96,9 +191,16 @@ export class SahoolApiClient {
       },
     });
 
-    // Setup interceptors
+    // Setup features
     this.setupInterceptors();
+    this.setupCache();
+    this.setupRetry();
+    this.setupCircuitBreakers();
   }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Setup Methods
+  // ─────────────────────────────────────────────────────────────────────────
 
   private setupInterceptors(): void {
     // Request interceptor - add auth token
@@ -107,6 +209,13 @@ export class SahoolApiClient {
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+
+      // Add tenant ID if available
+      const tenantId = this.config.tenantId || this.config.getTenantId?.();
+      if (tenantId) {
+        config.headers["X-Tenant-ID"] = tenantId;
+      }
+
       return config;
     });
 
@@ -120,6 +229,103 @@ export class SahoolApiClient {
         return Promise.reject(error);
       },
     );
+
+    // Setup enhanced interceptors if configured
+    if (this.config.interceptors) {
+      this.interceptorManager = setupEnhancedInterceptors(
+        this.client,
+        this.config.interceptors,
+      );
+    }
+  }
+
+  private setupCache(): void {
+    const cacheConfig = this.config.cache;
+
+    if (cacheConfig === false) {
+      return;
+    }
+
+    if (typeof cacheConfig === "string") {
+      // Preset name
+      this.cache = createCache(cacheConfig);
+    } else if (cacheConfig === true || cacheConfig === undefined) {
+      // Default cache
+      this.cache = new MemoryCache();
+    } else {
+      // Custom config
+      this.cache = new MemoryCache(cacheConfig);
+    }
+  }
+
+  private setupRetry(): void {
+    const retryConfig = this.config.retry;
+
+    if (retryConfig === false) {
+      return;
+    }
+
+    const config: Partial<RetryConfig> =
+      retryConfig === true ? {} : retryConfig || {};
+
+    // Add retry callbacks for logging
+    const enhancedConfig: Partial<RetryConfig> = {
+      ...config,
+      onRetry: (error, attempt, delay) => {
+        this.log("warn", `Retry attempt ${attempt} after ${delay}ms`, {
+          url: error.config?.url,
+          method: error.config?.method,
+          error: error.message,
+        });
+        config.onRetry?.(error, attempt, delay);
+      },
+      onExhausted: (error, attempts) => {
+        this.log("error", `All ${attempts} retry attempts exhausted`, {
+          url: error.config?.url,
+          method: error.config?.method,
+          error: error.message,
+        });
+        config.onExhausted?.(error, attempts);
+      },
+    };
+
+    setupRetryInterceptor(this.client, enhancedConfig);
+  }
+
+  private setupCircuitBreakers(): void {
+    const cbConfig = this.config.circuitBreaker;
+
+    if (cbConfig === false) {
+      return;
+    }
+
+    // Create circuit breaker for each service
+    const serviceNames = Object.keys(this.ports);
+    const config: Partial<CircuitBreakerConfig> =
+      cbConfig === true ? {} : cbConfig || {};
+
+    for (const service of serviceNames) {
+      this.circuitBreakers.set(
+        service,
+        new CircuitBreaker({
+          ...config,
+          onOpen: (failures) => {
+            this.log("warn", `Circuit breaker opened for ${service}`, {
+              failures,
+            });
+            config.onOpen?.(failures);
+          },
+          onClose: () => {
+            this.log("info", `Circuit breaker closed for ${service}`);
+            config.onClose?.();
+          },
+          onHalfOpen: () => {
+            this.log("info", `Circuit breaker half-open for ${service}`);
+            config.onHalfOpen?.();
+          },
+        }),
+      );
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -283,29 +489,154 @@ export class SahoolApiClient {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Generic Request Method
+  // Generic Request Method with Caching
   // ─────────────────────────────────────────────────────────────────────────
 
   private async request<T>(
     url: string,
     options: AxiosRequestConfig = {},
   ): Promise<T> {
+    const cacheConfig = this.cache
+      ? { ...DEFAULT_CACHE_CONFIG, ...(this.config.cache as Partial<CacheConfig>) }
+      : null;
+
+    // Check cache for GET requests
+    if (cacheConfig && this.cache && shouldCacheRequest(options, cacheConfig)) {
+      const cacheKey = getCacheKey({ url, ...options }, cacheConfig);
+      const policy = getCachePolicy(options, cacheConfig);
+      const forceRefresh = shouldForceRefresh(options);
+
+      // Try to get from cache first (unless force refresh)
+      if (!forceRefresh && (policy === "cache-first" || policy === "cache-only")) {
+        const cached = this.cache.get<T>(cacheKey);
+        if (cached) {
+          this.log("debug", `Cache hit for ${url}`, { cacheKey });
+          return cached.data;
+        }
+
+        if (policy === "cache-only") {
+          throw new ApiError("Resource not found in cache", {
+            code: "CACHE_MISS",
+            endpoint: url,
+            method: options.method,
+          });
+        }
+      }
+
+      // Handle stale-while-revalidate
+      if (policy === "stale-while-revalidate" && !forceRefresh) {
+        const cached = this.cache.get<T>(cacheKey);
+        if (cached) {
+          const isFresh = this.cache.isFresh(cacheKey);
+
+          if (!isFresh && !this.cache.isRevalidating(cacheKey)) {
+            // Serve stale and revalidate in background
+            this.log("debug", `Serving stale data for ${url}, revalidating`, {
+              cacheKey,
+            });
+            this.cache.markRevalidating(cacheKey);
+
+            // Background revalidation
+            this.fetchAndCache<T>(url, options, cacheKey, cacheConfig)
+              .catch((error) => {
+                this.log("warn", `Background revalidation failed for ${url}`, {
+                  error: error.message,
+                });
+              })
+              .finally(() => {
+                this.cache?.clearRevalidating(cacheKey);
+              });
+
+            return cached.data;
+          }
+
+          return cached.data;
+        }
+      }
+
+      // Fetch from network and cache
+      return this.fetchAndCache<T>(url, options, cacheKey, cacheConfig);
+    }
+
+    // Non-cached request
+    return this.fetchFromNetwork<T>(url, options);
+  }
+
+  private async fetchAndCache<T>(
+    url: string,
+    options: AxiosRequestConfig,
+    cacheKey: string,
+    cacheConfig: CacheConfig,
+  ): Promise<T> {
+    const response = await this.fetchFromNetwork<T>(url, options, true);
+    const ttl = getRequestTTL(options, cacheConfig);
+
+    if (this.cache) {
+      this.cache.set(cacheKey, {
+        data: response,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: options as never,
+      } as AxiosResponse<T>, ttl);
+      this.log("debug", `Cached response for ${url}`, { cacheKey, ttl });
+    }
+
+    return response;
+  }
+
+  private async fetchFromNetwork<T>(
+    url: string,
+    options: AxiosRequestConfig,
+    skipLog = false,
+  ): Promise<T> {
     try {
-      this.log("debug", `Request: ${options.method || "GET"} ${url}`, {
-        params: options.params,
-        data: options.data,
-      });
+      if (!skipLog) {
+        this.log("debug", `Request: ${options.method || "GET"} ${url}`, {
+          params: options.params,
+          data: options.data,
+        });
+      }
 
       const response = await this.client.request<T>({ url, ...options });
 
-      this.log("debug", `Response: ${options.method || "GET"} ${url}`, {
-        status: response.status,
-        statusText: response.statusText,
-      });
+      if (!skipLog) {
+        this.log("debug", `Response: ${options.method || "GET"} ${url}`, {
+          status: response.status,
+          statusText: response.statusText,
+        });
+      }
 
       return response.data;
     } catch (error) {
       this.handleError(error, url, options.method?.toUpperCase() || "GET");
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Result-based Request Method
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Make a request and return Result type instead of throwing
+   */
+  async requestSafe<T>(
+    url: string,
+    options: AxiosRequestConfig = {},
+  ): Promise<Result<T, ApiError>> {
+    try {
+      const data = await this.request<T>(url, options);
+      return success(data);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return failure(error);
+      }
+      return failure(
+        new ApiError(
+          error instanceof Error ? error.message : "Unknown error",
+          { endpoint: url, method: options.method },
+        ),
+      );
     }
   }
 
@@ -315,6 +646,88 @@ export class SahoolApiClient {
 
   setToken(token: string): void {
     this.config.setToken?.(token);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Cache Management
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Clear all cached data
+   */
+  clearCache(): void {
+    this.cache?.clear();
+    this.log("info", "Cache cleared");
+  }
+
+  /**
+   * Invalidate cache entries by URL pattern
+   */
+  invalidateCache(urlPattern: string | RegExp): number {
+    if (!this.cache) return 0;
+
+    const pattern =
+      typeof urlPattern === "string" ? new RegExp(urlPattern) : urlPattern;
+    const count = this.cache.invalidatePattern(pattern);
+    this.log("info", `Invalidated ${count} cache entries`, { pattern: String(pattern) });
+    return count;
+  }
+
+  /**
+   * Get cache statistics
+   */
+  getCacheStats() {
+    return this.cache?.getStats() ?? null;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Performance Management
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Get performance statistics
+   */
+  getPerformanceStats(): PerformanceStats | null {
+    return this.interceptorManager?.getStats() ?? null;
+  }
+
+  /**
+   * Cancel all pending requests
+   */
+  cancelAllRequests(reason?: string): void {
+    this.interceptorManager?.cancelAll(reason);
+    this.log("info", "All pending requests cancelled", { reason });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Circuit Breaker Management
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Get circuit breaker status for a service
+   */
+  getCircuitBreakerStatus(service: string) {
+    const cb = this.circuitBreakers.get(service);
+    if (!cb) return null;
+
+    return {
+      state: cb.currentState,
+      isOpen: cb.isOpen,
+      isClosed: cb.isClosed,
+      isHalfOpen: cb.isHalfOpen,
+      timeUntilReset: cb.getTimeUntilReset(),
+    };
+  }
+
+  /**
+   * Reset circuit breaker for a service
+   */
+  resetCircuitBreaker(service: string): void {
+    const cb = this.circuitBreakers.get(service);
+    if (cb) {
+      cb.reset();
+      this.log("info", `Circuit breaker reset for ${service}`);
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -330,31 +743,50 @@ export class SahoolApiClient {
   }): Promise<Task[]> {
     const endpoint = `${this.urls.task}/api/v1/tasks`;
     return this.safeExecute(
-      () => this.request<Task[]>(endpoint, { params }),
+      () =>
+        this.request<Task[]>(endpoint, {
+          params,
+          cache: { ttl: CacheTTL.SHORT },
+        }),
       [],
       { endpoint, method: "GET" },
     );
   }
 
   async getTask(taskId: string): Promise<Task> {
-    return this.request<Task>(`${this.urls.task}/api/v1/tasks/${taskId}`);
+    return this.request<Task>(`${this.urls.task}/api/v1/tasks/${taskId}`, {
+      cache: { ttl: CacheTTL.SHORT },
+    });
   }
 
   async createTask(task: CreateTaskRequest): Promise<Task> {
-    return this.request<Task>(`${this.urls.task}/api/v1/tasks`, {
+    const result = await this.request<Task>(`${this.urls.task}/api/v1/tasks`, {
       method: "POST",
       data: task,
     });
+
+    // Invalidate tasks cache
+    this.invalidateCache(/\/api\/v1\/tasks/);
+
+    return result;
   }
 
   async updateTask(
     taskId: string,
     data: Partial<CreateTaskRequest>,
   ): Promise<Task> {
-    return this.request<Task>(`${this.urls.task}/api/v1/tasks/${taskId}`, {
-      method: "PUT",
-      data,
-    });
+    const result = await this.request<Task>(
+      `${this.urls.task}/api/v1/tasks/${taskId}`,
+      {
+        method: "PUT",
+        data,
+      },
+    );
+
+    // Invalidate tasks cache
+    this.invalidateCache(/\/api\/v1\/tasks/);
+
+    return result;
   }
 
   async updateTaskStatus(taskId: string, status: string): Promise<boolean> {
@@ -365,6 +797,8 @@ export class SahoolApiClient {
           method: "PATCH",
           data: { status },
         });
+        // Invalidate tasks cache
+        this.invalidateCache(/\/api\/v1\/tasks/);
         return true;
       },
       false,
@@ -376,16 +810,21 @@ export class SahoolApiClient {
     await this.request<void>(`${this.urls.task}/api/v1/tasks/${taskId}`, {
       method: "DELETE",
     });
+    // Invalidate tasks cache
+    this.invalidateCache(/\/api\/v1\/tasks/);
   }
 
   async completeTask(taskId: string, evidence?: TaskEvidence): Promise<Task> {
-    return this.request<Task>(
+    const result = await this.request<Task>(
       `${this.urls.task}/api/v1/tasks/${taskId}/complete`,
       {
         method: "POST",
         data: evidence || {},
       },
     );
+    // Invalidate tasks cache
+    this.invalidateCache(/\/api\/v1\/tasks/);
+    return result;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -395,7 +834,11 @@ export class SahoolApiClient {
   async getFields(params?: { farm_id?: string }): Promise<Field[]> {
     const endpoint = `${this.urls.fieldCore}/api/v1/fields`;
     return this.safeExecute(
-      () => this.request<Field[]>(endpoint, { params }),
+      () =>
+        this.request<Field[]>(endpoint, {
+          params,
+          cache: { ttl: CacheTTL.MEDIUM },
+        }),
       [],
       { endpoint, method: "GET" },
     );
@@ -404,6 +847,7 @@ export class SahoolApiClient {
   async getField(fieldId: string): Promise<Field> {
     return this.request<Field>(
       `${this.urls.fieldCore}/api/v1/fields/${fieldId}`,
+      { cache: { ttl: CacheTTL.MEDIUM } },
     );
   }
 
@@ -415,7 +859,9 @@ export class SahoolApiClient {
     const endpoint = `${this.urls.fieldCore}/api/v1/fields`;
     return this.safeExecute(
       async () => {
-        const response = await this.request<Field[]>(endpoint);
+        const response = await this.request<Field[]>(endpoint, {
+          cache: { ttl: CacheTTL.MEDIUM },
+        });
         // Map fields to farms format
         return response.map(
           (f): Farm => ({
@@ -470,10 +916,14 @@ export class SahoolApiClient {
 
   async getWeather(locationId: string): Promise<WeatherData | null> {
     const endpoint = `${this.urls.weather}/api/v1/weather/current/${locationId}`;
-    return this.safeExecute(() => this.request<WeatherData>(endpoint), null, {
-      endpoint,
-      method: "GET",
-    });
+    return this.safeExecute(
+      () =>
+        this.request<WeatherData>(endpoint, {
+          cache: { ttl: CacheTTL.SHORT }, // Weather changes frequently
+        }),
+      null,
+      { endpoint, method: "GET" },
+    );
   }
 
   async getWeatherForecast(
@@ -482,7 +932,11 @@ export class SahoolApiClient {
   ): Promise<WeatherForecast | null> {
     const endpoint = `${this.urls.weather}/api/v1/weather/forecast/${locationId}`;
     return this.safeExecute(
-      () => this.request<WeatherForecast>(endpoint, { params: { days } }),
+      () =>
+        this.request<WeatherForecast>(endpoint, {
+          params: { days },
+          cache: { ttl: CacheTTL.MEDIUM }, // Forecast less volatile
+        }),
       null,
       { endpoint, method: "GET" },
     );
@@ -490,10 +944,14 @@ export class SahoolApiClient {
 
   async getWeatherAlerts(): Promise<WeatherAlert[]> {
     const endpoint = `${this.urls.weather}/v1/alerts`;
-    return this.safeExecute(() => this.request<WeatherAlert[]>(endpoint), [], {
-      endpoint,
-      method: "GET",
-    });
+    return this.safeExecute(
+      () =>
+        this.request<WeatherAlert[]>(endpoint, {
+          cache: { ttl: CacheTTL.VERY_SHORT }, // Alerts need to be fresh
+        }),
+      [],
+      { endpoint, method: "GET" },
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -521,6 +979,7 @@ export class SahoolApiClient {
               limit: params?.limit || 50,
               offset: params?.offset || 0,
             },
+            cache: { ttl: CacheTTL.SHORT },
           },
         );
 
@@ -567,7 +1026,9 @@ export class SahoolApiClient {
     const endpoint = `${this.urls.cropHealth}/v1/diagnoses/stats`;
     return this.safeExecute(
       async () => {
-        const response = await this.request<Record<string, unknown>>(endpoint);
+        const response = await this.request<Record<string, unknown>>(endpoint, {
+          cache: { ttl: CacheTTL.SHORT },
+        });
         return {
           total: response.total as number,
           pending: response.pending as number,
@@ -599,7 +1060,7 @@ export class SahoolApiClient {
     notes?: string,
   ): Promise<{ success: boolean; diagnosis_id: string; status: string }> {
     const endpoint = `${this.urls.cropHealth}/v1/diagnoses/${id}`;
-    return this.safeExecute(
+    const result = await this.safeExecute(
       () =>
         this.request(endpoint, {
           method: "PATCH",
@@ -608,6 +1069,11 @@ export class SahoolApiClient {
       { success: true, diagnosis_id: id, status },
       { endpoint, method: "PATCH" },
     );
+
+    // Invalidate diagnoses cache
+    this.invalidateCache(/\/v1\/diagnoses/);
+
+    return result;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -638,7 +1104,10 @@ export class SahoolApiClient {
     };
 
     return this.safeExecute(
-      () => this.request<DashboardStats>(endpoint),
+      () =>
+        this.request<DashboardStats>(endpoint, {
+          cache: { ttl: CacheTTL.SHORT },
+        }),
       this.config.enableMockData ? mockData : emptyData,
       { endpoint, method: "GET" },
     );
@@ -646,16 +1115,23 @@ export class SahoolApiClient {
 
   async getDashboard(tenantId: string): Promise<DashboardData | null> {
     const endpoint = `${this.urls.indicators}/api/v1/indicators/dashboard/${tenantId}`;
-    return this.safeExecute(() => this.request<DashboardData>(endpoint), null, {
-      endpoint,
-      method: "GET",
-    });
+    return this.safeExecute(
+      () =>
+        this.request<DashboardData>(endpoint, {
+          cache: { ttl: CacheTTL.SHORT },
+        }),
+      null,
+      { endpoint, method: "GET" },
+    );
   }
 
   async getFieldIndicators(fieldId: string): Promise<FieldIndicators | null> {
     const endpoint = `${this.urls.indicators}/api/v1/indicators/field/${fieldId}`;
     return this.safeExecute(
-      () => this.request<FieldIndicators>(endpoint),
+      () =>
+        this.request<FieldIndicators>(endpoint, {
+          cache: { ttl: CacheTTL.SHORT },
+        }),
       null,
       { endpoint, method: "GET" },
     );
@@ -667,10 +1143,14 @@ export class SahoolApiClient {
 
   async getSensorReadings(farmId: string): Promise<SensorReading[]> {
     const endpoint = `${this.urls.virtualSensors}/v1/readings/${farmId}`;
-    return this.safeExecute(() => this.request<SensorReading[]>(endpoint), [], {
-      endpoint,
-      method: "GET",
-    });
+    return this.safeExecute(
+      () =>
+        this.request<SensorReading[]>(endpoint, {
+          cache: { ttl: CacheTTL.VERY_SHORT }, // Sensor data is real-time
+        }),
+      [],
+      { endpoint, method: "GET" },
+    );
   }
 
   async getEquipment(params?: {
@@ -679,7 +1159,11 @@ export class SahoolApiClient {
   }): Promise<Equipment[]> {
     const endpoint = `${this.urls.equipment}/api/v1/equipment`;
     return this.safeExecute(
-      () => this.request<Equipment[]>(endpoint, { params }),
+      () =>
+        this.request<Equipment[]>(endpoint, {
+          params,
+          cache: { ttl: CacheTTL.MEDIUM },
+        }),
       [],
       { endpoint, method: "GET" },
     );
@@ -696,7 +1180,11 @@ export class SahoolApiClient {
   }): Promise<Notification[]> {
     const endpoint = `${this.urls.notifications}/v1/notifications`;
     return this.safeExecute(
-      () => this.request<Notification[]>(endpoint, { params }),
+      () =>
+        this.request<Notification[]>(endpoint, {
+          params,
+          cache: { ttl: CacheTTL.VERY_SHORT }, // Notifications should be fresh
+        }),
       [],
       { endpoint, method: "GET" },
     );
@@ -704,7 +1192,7 @@ export class SahoolApiClient {
 
   async markNotificationRead(id: string): Promise<boolean> {
     const endpoint = `${this.urls.notifications}/v1/notifications/${id}/read`;
-    return this.safeExecute(
+    const result = await this.safeExecute(
       async () => {
         await this.request(endpoint, { method: "PATCH" });
         return true;
@@ -712,6 +1200,11 @@ export class SahoolApiClient {
       false,
       { endpoint, method: "PATCH" },
     );
+
+    // Invalidate notifications cache
+    this.invalidateCache(/\/v1\/notifications/);
+
+    return result;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -724,7 +1217,11 @@ export class SahoolApiClient {
   }): Promise<CommunityPost[]> {
     const endpoint = `${this.urls.community}/api/v1/posts`;
     return this.safeExecute(
-      () => this.request<CommunityPost[]>(endpoint, { params }),
+      () =>
+        this.request<CommunityPost[]>(endpoint, {
+          params,
+          cache: { ttl: CacheTTL.SHORT },
+        }),
       [],
       { endpoint, method: "GET" },
     );
@@ -735,7 +1232,9 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   async health(): Promise<{ status: string }> {
-    return this.request<{ status: string }>(`${this.urls.fieldCore}/healthz`);
+    return this.request<{ status: string }>(`${this.urls.fieldCore}/healthz`, {
+      cache: false, // Never cache health checks
+    });
   }
 
   async checkServicesHealth(): Promise<Record<string, boolean>> {
@@ -745,7 +1244,10 @@ export class SahoolApiClient {
     await Promise.all(
       services.map(async ([name, url]) => {
         try {
-          await this.client.get(`${url}/healthz`, { timeout: 5000 });
+          await this.client.get(`${url}/healthz`, {
+            timeout: 5000,
+            cache: false,
+          } as AxiosRequestConfig);
           results[name] = true;
           this.log("debug", `Service health check passed: ${name}`, { url });
         } catch (error) {
@@ -759,6 +1261,49 @@ export class SahoolApiClient {
     );
 
     return results;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Paginated Requests Helper
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Fetch all pages of a paginated endpoint
+   */
+  async fetchAllPages<T>(
+    endpoint: string,
+    params: Record<string, unknown> = {},
+    options?: {
+      pageSize?: number;
+      maxPages?: number;
+      onProgress?: (loaded: number, total: number) => void;
+    },
+  ): Promise<T[]> {
+    const pageSize = options?.pageSize || 50;
+    const maxPages = options?.maxPages || 100;
+    const allItems: T[] = [];
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore && page <= maxPages) {
+      const response = await this.request<PaginatedResponse<T>>(endpoint, {
+        params: {
+          ...params,
+          page,
+          limit: pageSize,
+        },
+      });
+
+      allItems.push(...response.data);
+      hasMore = response.hasMore;
+      page += 1;
+
+      if (options?.onProgress) {
+        options.onProgress(allItems.length, response.total);
+      }
+    }
+
+    return allItems;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -875,8 +1420,56 @@ export class SahoolApiClient {
 // Factory Function
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function createApiClient(config: ApiClientConfig): SahoolApiClient {
+export function createApiClient(
+  config: EnhancedApiClientConfig,
+): SahoolApiClient {
   return new SahoolApiClient(config);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Convenience Factory Functions
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Create API client with aggressive caching (good for offline-first)
+ */
+export function createOfflineFirstClient(
+  config: ApiClientConfig,
+): SahoolApiClient {
+  return new SahoolApiClient({
+    ...config,
+    cache: "offline",
+    retry: {
+      maxRetries: 5,
+      initialDelay: 2000,
+    },
+  });
+}
+
+/**
+ * Create API client optimized for real-time data
+ */
+export function createRealtimeClient(config: ApiClientConfig): SahoolApiClient {
+  return new SahoolApiClient({
+    ...config,
+    cache: "conservative",
+    retry: {
+      maxRetries: 2,
+      initialDelay: 500,
+    },
+  });
+}
+
+/**
+ * Create minimal API client without advanced features
+ */
+export function createMinimalClient(config: ApiClientConfig): SahoolApiClient {
+  return new SahoolApiClient({
+    ...config,
+    cache: false,
+    retry: false,
+    circuitBreaker: false,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

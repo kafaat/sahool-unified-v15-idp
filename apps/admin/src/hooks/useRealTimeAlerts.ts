@@ -7,7 +7,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useWebSocketEvent } from "./useWebSocket";
 import type { AlertMessage } from "./useWebSocket";
 import { logger } from "../lib/logger";
@@ -205,11 +205,17 @@ export function useRealTimeAlerts(
     }
   }, [enableNotifications]);
 
-  // Computed values
-  const unreadAlerts = alerts.filter((alert) => !alert.read);
-  const unreadCount = unreadAlerts.length;
-  const criticalAlerts = alerts.filter(
-    (alert) => alert.severity === "critical",
+  // Memoized computed values to prevent recalculation on every render
+  const unreadAlerts = useMemo(
+    () => alerts.filter((alert) => !alert.read),
+    [alerts]
+  );
+
+  const unreadCount = useMemo(() => unreadAlerts.length, [unreadAlerts]);
+
+  const criticalAlerts = useMemo(
+    () => alerts.filter((alert) => alert.severity === "critical"),
+    [alerts]
   );
 
   return {

@@ -32,6 +32,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Loading } from "@/components/ui/loading";
+import { sanitizeUrl } from "@/lib/security/security";
 import {
   useScoutingHistory,
   useScoutingStatistics,
@@ -144,9 +145,14 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
         },
       });
 
-      // Open download in new tab
+      // Open download in new tab with URL validation
       if (result.downloadUrl) {
-        window.open(result.downloadUrl, "_blank");
+        const safeUrl = sanitizeUrl(result.downloadUrl);
+        if (safeUrl) {
+          window.open(safeUrl, "_blank", "noopener,noreferrer");
+        } else {
+          console.error("Invalid download URL received");
+        }
       }
     } catch (error) {
       console.error("Failed to generate report:", error);

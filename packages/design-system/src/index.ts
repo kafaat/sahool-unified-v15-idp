@@ -1,13 +1,28 @@
 /**
  * SAHOOL Design System
- * Unified design tokens, components, and utilities
+ * Unified design tokens, components, themes, and utilities
+ *
+ * A comprehensive design system for the SAHOOL Agricultural Intelligence Platform
+ * supporting:
+ * - Light and dark themes
+ * - RTL/LTR layouts (Arabic/English)
+ * - Agricultural domain-specific colors and components
+ * - WCAG 2.1 AA accessibility compliance
+ *
+ * @packageDocumentation
  */
 
-// Re-export tokens
+// ═══════════════════════════════════════════════════════════════════════════════
+// Tokens
+// ═══════════════════════════════════════════════════════════════════════════════
+
 export { tokens } from "../tokens/tokens";
 export type { TokenColors, TokenSpacing } from "../tokens/tokens";
 
-// Re-export themes
+// ═══════════════════════════════════════════════════════════════════════════════
+// Themes
+// ═══════════════════════════════════════════════════════════════════════════════
+
 export * from "./themes";
 export {
   lightTheme,
@@ -23,19 +38,193 @@ export {
   getCropHealthColor,
   themeClass,
   directionClass,
+  getThemeCSSVariables,
+  generateCSSVariableString,
+  generateThemeCSS,
+  generateAllThemesCSS,
+  ltrLayout,
+  rtlLayout,
+  getLayout,
+  generateLayoutCSS,
+  resolveThemeMode,
+  getThemeColor,
+  getAgriculturalColor,
+  getNDVIGradient,
+  getMoistureGradient,
+  getCropHealthGradient,
+  THEME_STORAGE_KEY,
+  DIRECTION_STORAGE_KEY,
+  saveThemePreference,
+  loadThemePreference,
+  saveDirectionPreference,
+  loadDirectionPreference,
+  watchSystemTheme,
+  baseThemeStyles,
 } from "./themes";
 
-// Import tokens for internal use
-import { tokens } from "../tokens/tokens";
+// ═══════════════════════════════════════════════════════════════════════════════
+// Component Variants
+// ═══════════════════════════════════════════════════════════════════════════════
 
-// Utility functions
+export {
+  buttonVariants,
+  inputVariants,
+  cardVariants,
+  alertVariants,
+  badgeVariants,
+  modalVariants,
+  selectVariants,
+  tabsVariants,
+  tableVariants,
+  tooltipVariants,
+  agriculturalVariants,
+  skeletonVariants,
+} from "./components/variants";
+
+export type {
+  ButtonVariant,
+  ButtonSize,
+  InputState,
+  InputSize,
+  CardVariant,
+  CardPadding,
+  AlertVariant,
+  BadgeVariant,
+  BadgeSize,
+  ModalSize,
+  NDVILevel,
+  MoistureLevel,
+  CropHealthLevel,
+  WeatherCondition,
+  AdvisoryPriority,
+} from "./components/variants";
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// RTL Utilities
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export {
+  arabicConfig,
+  englishConfig,
+  logicalSpacing,
+  textAlignment,
+  arabicTypography,
+  bidirectionalContent,
+  rtlFlex,
+  mirroredIcons,
+  directionalIcons,
+  rtlNavigation,
+  rtlForm,
+  rtlList,
+  getRTLConfig,
+  isRTLLanguage,
+  getDirectionFromLanguage,
+  directionClass as rtlDirectionClass,
+  rtlOnly,
+  ltrOnly,
+  swapForRTL,
+  generateRTLCSS,
+  arabicIndic,
+  toArabicNumerals,
+  formatArabicNumber,
+  formatArabicCurrency,
+  formatArabicDate,
+  tailwindRTLConfig,
+  rtlUtils,
+} from "./rtl";
+
+export type { Direction, Language, RTLConfig } from "./rtl";
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Accessibility Utilities
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export {
+  defaultA11yConfig,
+  focusRing,
+  srOnly,
+  srOnlyFocusable,
+  srAnnouncement,
+  motionSafe,
+  motionReduce,
+  highContrast,
+  touchTarget,
+  skipLink,
+  keyboardOnly,
+  ariaAttributes,
+  getRelativeLuminance,
+  getContrastRatio,
+  hexToRgb,
+  meetsContrastRequirement,
+  getAccessibleTextColor,
+  focusableSelector,
+  getFocusableElements,
+  getFirstFocusableElement,
+  getLastFocusableElement,
+  prefersReducedMotion,
+  prefersHighContrast,
+  prefersDarkMode,
+  watchMotionPreference,
+  generateAccessibilityCSS,
+  a11yUtils,
+} from "./accessibility";
+
+export type {
+  FocusRingVariant,
+  MotionPreference,
+  ContrastPreference,
+  A11yConfig,
+} from "./accessibility";
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// React Hooks
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export {
+  useTheme,
+  useDirection,
+  useMediaQuery,
+  useReducedMotion,
+  useHighContrast,
+  usePrefersDark,
+  useIsTouchDevice,
+  useBreakpoints,
+  useBreakpoint,
+  useFocusTrap,
+  useInView,
+  useLocalStorage,
+  useDebounce,
+  breakpoints,
+  designSystemHooks,
+} from "./hooks";
+
+export type {
+  UseThemeReturn,
+  UseDirectionReturn,
+  UseFocusTrapOptions,
+  UseInViewOptions,
+  Breakpoint,
+} from "./hooks";
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Utility Functions
+// ═══════════════════════════════════════════════════════════════════════════════
+
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { tokens } from "../tokens/tokens";
 
 /**
  * Merge Tailwind CSS classes with clsx
+ * Handles class conflicts intelligently
+ *
+ * @example
+ * ```tsx
+ * cn('px-2 py-1', 'px-4'); // => 'py-1 px-4'
+ * cn('text-red-500', condition && 'text-blue-500');
+ * ```
  */
-export function cn(...inputs: ClassValue[]) {
+export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
 
@@ -53,7 +242,7 @@ export function getColor(
     | "info"
     | "neutral"
     | "domain",
-  shade: string,
+  shade: string
 ): string {
   return (tokens.colors[category] as Record<string, string>)?.[shade] || "";
 }
@@ -65,7 +254,27 @@ export function getSpacing(size: string): string {
   return (tokens.spacing as Record<string, string>)[size] || "0";
 }
 
-// Component utilities
+/**
+ * Get typography value from tokens
+ */
+export function getFontSize(size: keyof typeof tokens.typography.sizes): string {
+  return tokens.typography.sizes[size];
+}
+
+/**
+ * Get font family from tokens
+ */
+export function getFontFamily(type: keyof typeof tokens.typography.fonts): string {
+  return tokens.typography.fonts[type];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Component Style Utilities (Legacy - for backward compatibility)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * @deprecated Use buttonVariants from ./components/variants instead
+ */
 export const componentStyles = {
   button: {
     base: "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -97,3 +306,38 @@ export const componentStyles = {
     error: "text-sm text-error-main mt-1",
   },
 } as const;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CSS Generation Utilities
+// ═══════════════════════════════════════════════════════════════════════════════
+
+import { generateAllThemesCSS, baseThemeStyles } from "./themes";
+import { generateRTLCSS } from "./rtl";
+import { generateAccessibilityCSS } from "./accessibility";
+
+/**
+ * Generate complete design system CSS
+ * Includes themes, RTL support, and accessibility styles
+ */
+export function generateDesignSystemCSS(): string {
+  return `
+/* ═══════════════════════════════════════════════════════════════════════════════ */
+/* SAHOOL Design System - Complete CSS                                              */
+/* Version: 16.0.0                                                                  */
+/* Generated: ${new Date().toISOString()}                                           */
+/* ═══════════════════════════════════════════════════════════════════════════════ */
+
+${baseThemeStyles}
+
+${generateRTLCSS()}
+
+${generateAccessibilityCSS()}
+`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Version Information
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const VERSION = "16.0.0";
+export const PACKAGE_NAME = "@sahool/design-system";

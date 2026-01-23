@@ -1,20 +1,71 @@
 /**
  * i18n Configuration for Next.js App Router
+ *
+ * This configuration integrates with next-intl for server-side rendering
+ * and provides locale-aware settings for the SAHOOL platform.
  */
 
 import { getRequestConfig } from "next-intl/server";
-import { locales, defaultLocale, type Locale } from "./index";
+import { locales, defaultLocale, getRegionalConfig, type Locale } from "./index";
 
 export default getRequestConfig(async ({ locale }) => {
   // Validate that the incoming `locale` parameter is valid
   const validLocale = locales.includes(locale as Locale)
-    ? locale
+    ? (locale as Locale)
     : defaultLocale;
+
+  // Get regional configuration for the default region (Yemen)
+  const regionalConfig = getRegionalConfig();
 
   return {
     messages: (await import(`./locales/${validLocale}.json`)).default,
-    timeZone: "Asia/Aden",
+    timeZone: regionalConfig.timeZone,
     now: new Date(),
+    // Additional formatting options
+    formats: {
+      dateTime: {
+        short: {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        },
+        medium: {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        },
+        long: {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+          weekday: "long",
+        },
+        hijri: {
+          calendar: "islamic-umalqura" as const,
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        },
+      },
+      number: {
+        precise: {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        },
+        compact: {
+          notation: "compact" as const,
+        },
+        percentage: {
+          style: "percent" as const,
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        },
+        currency: {
+          style: "currency" as const,
+          currency: regionalConfig.currency,
+        },
+      },
+    },
   };
 });
 

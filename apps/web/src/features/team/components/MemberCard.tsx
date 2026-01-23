@@ -6,6 +6,7 @@
  */
 
 import React from "react";
+import Image from "next/image";
 import { Mail, Phone, Clock, MoreVertical, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { TeamMember, ROLE_CONFIGS } from "../types/team";
@@ -89,12 +90,14 @@ export const MemberCard: React.FC<MemberCardProps> = ({
 
       {/* Avatar */}
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
+        <div className="relative w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold overflow-hidden">
           {member.avatarUrl ? (
-            <img
+            <Image
               src={member.avatarUrl}
               alt={`${member.firstName} ${member.lastName}`}
-              className="w-full h-full rounded-full object-cover"
+              fill
+              sizes="64px"
+              className="object-cover"
             />
           ) : (
             <span>

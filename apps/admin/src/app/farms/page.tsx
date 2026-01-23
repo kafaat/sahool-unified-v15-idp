@@ -113,12 +113,21 @@ export default function FarmsPage() {
     return stats;
   }, [farms]);
 
-  const handleFarmClick = (farm: BaseFarmData) => {
+  // Memoized callback for farm click
+  const handleFarmClick = useCallback((farm: BaseFarmData) => {
     setSelectedFarm(farm as Farm);
-  };
+  }, []);
 
-  // Table columns
-  const columns = [
+  // Memoized callback for closing selected farm panel
+  const handleCloseSelectedFarm = useCallback(() => {
+    setSelectedFarm(null);
+  }, []);
+
+  // Memoized key extractor
+  const keyExtractor = useCallback((farm: Farm) => farm.id, []);
+
+  // Memoized table columns - prevents recreation on every render
+  const columns = useMemo(() => [
     {
       key: "nameAr",
       header: "اسم المزرعة",
@@ -182,7 +191,7 @@ export default function FarmsPage() {
       ),
       className: "w-12",
     },
-  ];
+  ], []);
 
   return (
     <div className="p-6">
@@ -328,7 +337,7 @@ export default function FarmsPage() {
           <DataTable
             columns={columns}
             data={filteredFarms}
-            keyExtractor={(farm) => farm.id}
+            keyExtractor={keyExtractor}
             onRowClick={handleFarmClick}
             emptyMessage="لا توجد مزارع مطابقة للبحث"
           />
@@ -348,7 +357,7 @@ export default function FarmsPage() {
               </p>
             </div>
             <button
-              onClick={() => setSelectedFarm(null)}
+              onClick={handleCloseSelectedFarm}
               className="text-gray-400 hover:text-gray-600"
             >
               ✕

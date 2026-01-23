@@ -149,9 +149,11 @@ scrape_configs:
     scrape_interval: 15s
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Core Geospatial Service - خدمة الحقول الجغرافية
+  # LEGACY FIELD SERVICES - خدمات الحقول القديمة
+  # DEPRECATED: These services are replaced by field-management-service
   # ─────────────────────────────────────────────────────────────────────────────
 
+  # Field Core - DEPRECATED (replaced by field-management-service)
   - job_name: 'field-core'
     static_configs:
       - targets: ['field_core:3000']
@@ -160,15 +162,18 @@ scrape_configs:
           component: 'geospatial'
           service: 'field-core'
           language: 'nodejs'
-          description: 'Field Core Geospatial Service'
-          description_ar: 'خدمة الحقول الجغرافية الأساسية'
+          status: 'deprecated'
+          replaced_by: 'field-management-service'
+          description: 'DEPRECATED: Field Core Geospatial Service'
+          description_ar: 'مهملة: خدمة الحقول الجغرافية الأساسية'
     metrics_path: /metrics
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Application Services (Python/FastAPI) - خدمات التطبيق
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Field Operations - عمليات الحقول
+  # Field Operations - DEPRECATED (replaced by field-management-service)
+  # عمليات الحقول - مهملة
   - job_name: 'field-ops'
     static_configs:
       - targets: ['field_ops:8080']
@@ -177,8 +182,10 @@ scrape_configs:
           component: 'field-management'
           service: 'field-ops'
           language: 'python'
-          description: 'Field Operations Service'
-          description_ar: 'خدمة عمليات الحقول'
+          status: 'deprecated'
+          replaced_by: 'field-management-service'
+          description: 'DEPRECATED: Field Operations Service'
+          description_ar: 'مهملة: خدمة عمليات الحقول'
     metrics_path: /metrics
 
   # NDVI Engine - محرك NDVI
@@ -328,17 +335,35 @@ scrape_configs:
   # AI & ML Services - خدمات الذكاء الاصطناعي والتعلم الآلي
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Crop Health AI - الذكاء الاصطناعي لصحة المحاصيل
+  # Crop Health AI - DEPRECATED (replaced by crop-intelligence-service)
+  # الذكاء الاصطناعي لصحة المحاصيل - مهملة
   - job_name: 'crop-health-ai'
     static_configs:
-      - targets: ['crop_health_ai:8095']
+      - targets: ['crop_health_ai:9095']
         labels:
           tier: 'ai-ml'
           component: 'computer-vision'
           service: 'crop-health-ai'
           language: 'python'
-          description: 'AI-Powered Crop Disease Detection'
-          description_ar: 'كشف أمراض المحاصيل بالذكاء الاصطناعي'
+          status: 'deprecated'
+          replaced_by: 'crop-intelligence-service'
+          description: 'DEPRECATED: AI-Powered Crop Disease Detection'
+          description_ar: 'مهملة: كشف أمراض المحاصيل بالذكاء الاصطناعي'
+    metrics_path: /metrics
+
+  # Crop Intelligence Service - خدمة ذكاء المحاصيل
+  # Replaces: crop-health-ai
+  - job_name: 'crop-intelligence-service'
+    static_configs:
+      - targets: ['crop-intelligence-service:8095']
+        labels:
+          tier: 'intelligence'
+          component: 'crop-intelligence'
+          service: 'crop-intelligence-service'
+          language: 'python'
+          layer: 'intelligence'
+          description: 'Crop Intelligence Service (replaces crop-health-ai)'
+          description_ar: 'خدمة ذكاء المحاصيل'
     metrics_path: /metrics
 
   # Virtual Sensors - المستشعرات الافتراضية
@@ -397,17 +422,20 @@ scrape_configs:
           description_ar: 'إدارة الري الذكي (FAO-56)'
     metrics_path: /metrics
 
-  # Fertilizer Advisor - مستشار التسميد
+  # Fertilizer Advisor - DEPRECATED (replaced by advisory-service)
+  # مستشار التسميد - مهملة
   - job_name: 'fertilizer-advisor'
     static_configs:
-      - targets: ['fertilizer_advisor:8093']
+      - targets: ['fertilizer_advisor:9093']
         labels:
           tier: 'smart-agriculture'
           component: 'fertilization'
           service: 'fertilizer-advisor'
           language: 'python'
-          description: 'Smart Fertilization Recommendations'
-          description_ar: 'توصيات التسميد الذكية'
+          status: 'deprecated'
+          replaced_by: 'advisory-service'
+          description: 'DEPRECATED: Smart Fertilization Recommendations'
+          description_ar: 'مهملة: توصيات التسميد الذكية'
     metrics_path: /metrics
 
   # Indicators Service - خدمة المؤشرات
@@ -664,3 +692,297 @@ scrape_configs:
           description: 'Prometheus Pushgateway'
           description_ar: 'بوابة دفع المقاييس'
     metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NEW SERVICES (v16) - الخدمات الجديدة
+  # Added in v16 per governance/services.yaml
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Vegetation Analysis Service - خدمة تحليل الغطاء النباتي
+  # Replaces: satellite-service
+  - job_name: 'vegetation-analysis-service'
+    static_configs:
+      - targets: ['vegetation-analysis-service:8090']
+        labels:
+          tier: 'intelligence'
+          component: 'vegetation-analysis'
+          service: 'vegetation-analysis-service'
+          language: 'python'
+          layer: 'intelligence'
+          description: 'Vegetation Analysis Service (replaces satellite-service)'
+          description_ar: 'خدمة تحليل الغطاء النباتي'
+    metrics_path: /metrics
+
+  # Advisory Service - خدمة الاستشارات
+  # Replaces: fertilizer-advisor
+  - job_name: 'advisory-service'
+    static_configs:
+      - targets: ['advisory-service:8093']
+        labels:
+          tier: 'decision'
+          component: 'advisory'
+          service: 'advisory-service'
+          language: 'python'
+          layer: 'decision'
+          description: 'Advisory Service (replaces fertilizer-advisor)'
+          description_ar: 'خدمة الاستشارات'
+    metrics_path: /metrics
+
+  # Field Management Service - خدمة إدارة الحقول
+  # Consolidates: field-core, field-service, field-ops
+  - job_name: 'field-management-service'
+    static_configs:
+      - targets: ['field-management-service:3000']
+        labels:
+          tier: 'business'
+          component: 'field-management'
+          service: 'field-management-service'
+          language: 'nodejs'
+          layer: 'business'
+          description: 'Field Management Service (consolidates field services)'
+          description_ar: 'خدمة إدارة الحقول الموحدة'
+    metrics_path: /metrics
+
+  # User Service - خدمة المستخدمين
+  - job_name: 'user-service'
+    static_configs:
+      - targets: ['user-service:3025']
+        labels:
+          tier: 'business'
+          component: 'authentication'
+          service: 'user-service'
+          language: 'nodejs'
+          layer: 'business'
+          description: 'User Authentication & Management Service'
+          description_ar: 'خدمة المستخدمين والمصادقة'
+    metrics_path: /api/v1/metrics
+
+  # Alert Service - خدمة التنبيهات
+  - job_name: 'alert-service'
+    static_configs:
+      - targets: ['alert-service:8113']
+        labels:
+          tier: 'business'
+          component: 'alerting'
+          service: 'alert-service'
+          language: 'python'
+          layer: 'business'
+          description: 'Alert Management Service'
+          description_ar: 'خدمة إدارة التنبيهات'
+    metrics_path: /metrics
+
+  # Audit Service - خدمة التدقيق
+  - job_name: 'audit-service'
+    static_configs:
+      - targets: ['audit-service:8114']
+        labels:
+          tier: 'business'
+          component: 'audit'
+          service: 'audit-service'
+          language: 'python'
+          layer: 'business'
+          description: 'Audit Logging & Compliance Service'
+          description_ar: 'خدمة التدقيق والامتثال'
+    metrics_path: /metrics
+
+  # Inventory Service - خدمة المخزون
+  - job_name: 'inventory-service'
+    static_configs:
+      - targets: ['inventory-service:8116']
+        labels:
+          tier: 'business'
+          component: 'inventory'
+          service: 'inventory-service'
+          language: 'python'
+          layer: 'business'
+          description: 'Inventory Management Service'
+          description_ar: 'خدمة إدارة المخزون'
+    metrics_path: /metrics
+
+  # Skills Service - خدمة المهارات
+  - job_name: 'skills-service'
+    static_configs:
+      - targets: ['skills-service:8121']
+        labels:
+          tier: 'intelligence'
+          component: 'skills'
+          service: 'skills-service'
+          language: 'python'
+          layer: 'intelligence'
+          description: 'Farmer Skills Assessment Service'
+          description_ar: 'خدمة تقييم مهارات المزارعين'
+    metrics_path: /metrics
+
+  # AI Agents Service - خدمة الوكلاء الذكية
+  - job_name: 'ai-agents-service'
+    static_configs:
+      - targets: ['ai-agents-service:8130']
+        labels:
+          tier: 'intelligence'
+          component: 'ai-agents'
+          service: 'ai-agents-service'
+          language: 'python'
+          layer: 'intelligence'
+          description: 'Autonomous AI Agents Service'
+          description_ar: 'خدمة الوكلاء الذكية المستقلة'
+    metrics_path: /metrics
+
+  # CRM Service - خدمة إدارة علاقات المزارعين
+  - job_name: 'crm-service'
+    static_configs:
+      - targets: ['crm-service:8131']
+        labels:
+          tier: 'business'
+          component: 'crm'
+          service: 'crm-service'
+          language: 'python'
+          layer: 'business'
+          description: 'Farmer CRM Service'
+          description_ar: 'خدمة إدارة علاقات المزارعين'
+    metrics_path: /metrics
+
+  # Low-Code Engine - محرك التطوير منخفض الكود
+  - job_name: 'lowcode-engine'
+    static_configs:
+      - targets: ['lowcode-engine:8132']
+        labels:
+          tier: 'business'
+          component: 'lowcode'
+          service: 'lowcode-engine'
+          language: 'python'
+          layer: 'business'
+          description: 'Low-Code Application Development Engine'
+          description_ar: 'محرك التطوير منخفض الكود'
+    metrics_path: /metrics
+
+  # WeChat Service - خدمة ويتشات
+  - job_name: 'wechat-service'
+    static_configs:
+      - targets: ['wechat-service:8133']
+        labels:
+          tier: 'business'
+          component: 'wechat'
+          service: 'wechat-service'
+          language: 'python'
+          layer: 'business'
+          description: 'WeChat Integration Service'
+          description_ar: 'خدمة تكامل ويتشات'
+    metrics_path: /metrics
+
+  # NDVI Processor - معالج NDVI
+  - job_name: 'ndvi-processor'
+    static_configs:
+      - targets: ['ndvi-processor:8118']
+        labels:
+          tier: 'intelligence'
+          component: 'ndvi'
+          service: 'ndvi-processor'
+          language: 'python'
+          layer: 'intelligence'
+          description: 'NDVI Processor Service'
+          description_ar: 'خدمة معالجة NDVI'
+    metrics_path: /metrics
+
+  # Field Intelligence - ذكاء الحقول
+  - job_name: 'field-intelligence'
+    static_configs:
+      - targets: ['field-intelligence:8120']
+        labels:
+          tier: 'intelligence'
+          component: 'field-analytics'
+          service: 'field-intelligence'
+          language: 'python'
+          layer: 'intelligence'
+          description: 'Field Intelligence Analytics Service'
+          description_ar: 'خدمة تحليلات ذكاء الحقول'
+    metrics_path: /metrics
+
+  # Agro Rules - قواعد الزراعة
+  - job_name: 'agro-rules'
+    static_configs:
+      - targets: ['agro-rules:8151']
+        labels:
+          tier: 'intelligence'
+          component: 'rules-engine'
+          service: 'agro-rules'
+          language: 'python'
+          layer: 'intelligence'
+          description: 'Agricultural Rules Engine'
+          description_ar: 'محرك القواعد الزراعية'
+    metrics_path: /metrics
+
+  # MCP Server - خادم بروتوكول سياق النموذج
+  - job_name: 'mcp-server'
+    static_configs:
+      - targets: ['mcp-server:8200']
+        labels:
+          tier: 'business'
+          component: 'mcp'
+          service: 'mcp-server'
+          language: 'python'
+          layer: 'business'
+          description: 'Model Context Protocol Server'
+          description_ar: 'خادم بروتوكول سياق النموذج'
+    metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # File-Based Service Discovery - اكتشاف الخدمات من ملفات
+  # For dynamic service registration in Kubernetes/Docker environments
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Dynamic services from file (for Kubernetes/Docker Compose)
+  - job_name: 'sahool-services-dynamic'
+    file_sd_configs:
+      - files:
+          - '/etc/prometheus/sd/services/*.json'
+          - '/etc/prometheus/sd/services/*.yml'
+        refresh_interval: 30s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - source_labels: [service]
+        target_label: job
+        replacement: '${1}'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Blackbox Exporter - مصدر الصندوق الأسود
+  # For endpoint probing and certificate monitoring
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # HTTP endpoint probing
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - 'https://api.sahool.io/health'
+          - 'https://admin.sahool.io/health'
+        labels:
+          probe_type: 'http'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 'blackbox-exporter:9115'
+
+  # TLS certificate monitoring
+  - job_name: 'blackbox-tls'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect_tls]
+    static_configs:
+      - targets:
+          - 'api.sahool.io:443'
+          - 'admin.sahool.io:443'
+        labels:
+          probe_type: 'tls'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 'blackbox-exporter:9115'

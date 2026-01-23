@@ -53,6 +53,16 @@ export {
 } from "./services/security-audit.service";
 export type { SecurityAuditEvent } from "./services/security-audit.service";
 
+export {
+  TokenFingerprintService,
+  createDefaultFingerprintService,
+} from "./services/token-fingerprint.service";
+export type {
+  FingerprintComponents,
+  FingerprintValidationResult,
+  FingerprintConfig,
+} from "./services/token-fingerprint.service";
+
 // Export decorators
 export {
   Public,

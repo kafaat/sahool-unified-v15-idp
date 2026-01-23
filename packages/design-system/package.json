@@ -1,10 +1,11 @@
 {
   "name": "@sahool/design-system",
   "version": "16.0.0",
-  "description": "SAHOOL Design System - Unified design tokens, components, and themes",
+  "description": "SAHOOL Design System - Unified design tokens, components, themes, RTL support, and accessibility utilities",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -32,7 +33,27 @@
       "require": "./tokens/tokens.ts"
     },
     "./tokens/css": "./tokens/tokens.css",
-    "./tokens/tailwind": "./tokens/tailwind.tokens.js"
+    "./tokens/tailwind": "./tokens/tailwind.tokens.js",
+    "./components": {
+      "types": "./src/components/variants.ts",
+      "import": "./src/components/variants.ts",
+      "require": "./src/components/variants.ts"
+    },
+    "./rtl": {
+      "types": "./src/rtl/index.ts",
+      "import": "./src/rtl/index.ts",
+      "require": "./src/rtl/index.ts"
+    },
+    "./accessibility": {
+      "types": "./src/accessibility/index.ts",
+      "import": "./src/accessibility/index.ts",
+      "require": "./src/accessibility/index.ts"
+    },
+    "./hooks": {
+      "types": "./src/hooks/index.ts",
+      "import": "./src/hooks/index.ts",
+      "require": "./src/hooks/index.ts"
+    }
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts",

@@ -1,54 +1,66 @@
 /**
  * SAHOOL Quick Actions Component
  * إجراءات سريعة
+ *
+ * Performance optimizations:
+ * - React.memo prevents re-renders when props don't change
+ * - useMemo memoizes actions array to prevent recreation on every render
+ * - useCallback memoizes action handlers
  */
 
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 
 interface QuickAction {
   id: string;
   label: string;
   icon: string;
   color: string;
-  onClick: () => void;
 }
 
 interface QuickActionsProps {
   onAction?: (actionId: string) => void;
 }
 
+// Static action definitions (defined outside component to prevent recreation)
+const ACTION_DEFINITIONS: Omit<QuickAction, "onClick">[] = [
+  {
+    id: "new-field",
+    label: "حقل جديد",
+    icon: "➕",
+    color: "bg-green-500 hover:bg-green-600",
+  },
+  {
+    id: "ndvi",
+    label: "تحليل NDVI",
+    icon: "📊",
+    color: "bg-blue-500 hover:bg-blue-600",
+  },
+  {
+    id: "irrigation",
+    label: "جدولة الري",
+    icon: "💧",
+    color: "bg-cyan-500 hover:bg-cyan-600",
+  },
+  {
+    id: "tasks",
+    label: "المهام",
+    icon: "📋",
+    color: "bg-orange-500 hover:bg-orange-600",
+  },
+];
+
 export const QuickActions = React.memo<QuickActionsProps>(
   function QuickActions({ onAction }) {
-    const actions: QuickAction[] = [
-      {
-        id: "new-field",
-        label: "حقل جديد",
-        icon: "➕",
-        color: "bg-green-500 hover:bg-green-600",
-        onClick: () => onAction?.("new-field"),
+    // Memoized action handler
+    const handleAction = useCallback(
+      (actionId: string) => {
+        onAction?.(actionId);
       },
-      {
-        id: "ndvi",
-        label: "تحليل NDVI",
-        icon: "📊",
-        color: "bg-blue-500 hover:bg-blue-600",
-        onClick: () => onAction?.("ndvi"),
-      },
-      {
-        id: "irrigation",
-        label: "جدولة الري",
-        icon: "💧",
-        color: "bg-cyan-500 hover:bg-cyan-600",
-        onClick: () => onAction?.("irrigation"),
-      },
-      {
-        id: "tasks",
-        label: "المهام",
-        icon: "📋",
-        color: "bg-orange-500 hover:bg-orange-600",
-        onClick: () => onAction?.("tasks"),
-      },
-    ];
+      [onAction]
+    );
+
+    // Memoize actions array
+    const actions = useMemo(() => ACTION_DEFINITIONS, []);
 
     return (
       <div
@@ -61,7 +73,7 @@ export const QuickActions = React.memo<QuickActionsProps>(
           {actions.map((action) => (
             <button
               key={action.id}
-              onClick={action.onClick}
+              onClick={() => handleAction(action.id)}
               aria-label={action.label}
               className={`
               ${action.color}

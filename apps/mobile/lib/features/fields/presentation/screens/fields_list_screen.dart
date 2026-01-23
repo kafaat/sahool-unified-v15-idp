@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/field_entity.dart';
 import '../widgets/enhanced_field_card.dart';
 import 'field_details_screen.dart';
+import '../../../../core/widgets/loading_states.dart';
+import '../../../../core/widgets/empty_states.dart';
 
 /// شاشة قائمة الحقول
 /// Fields List Screen
@@ -238,7 +240,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
 
             // Fields list/grid
             Expanded(
-              child: RefreshIndicator(
+              child: SahoolRefreshIndicator(
                 onRefresh: _refreshFields,
                 child: _isGridView ? _buildGridView() : _buildListView(),
               ),
@@ -462,28 +464,20 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.landscape, size: 80, color: Colors.grey[300]),
-          const SizedBox(height: 16),
-          Text(
-            _searchQuery.isNotEmpty || _selectedCrop != null
-                ? 'لا توجد نتائج'
-                : 'لا توجد حقول',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'أضف حقلاً جديداً للبدء',
-            style: TextStyle(color: Colors.grey[500]),
-          ),
-        ],
-      ),
+    // Show search results empty state if searching
+    if (_searchQuery.isNotEmpty || _selectedCrop != null) {
+      return NoSearchResultsEmptyState(
+        searchQuery: _searchQuery.isNotEmpty ? _searchQuery : _selectedCrop,
+        onClear: () => setState(() {
+          _searchQuery = '';
+          _selectedCrop = null;
+        }),
+      );
+    }
+
+    // Show no fields empty state
+    return NoFieldsEmptyState(
+      onAddField: _addField,
     );
   }
 

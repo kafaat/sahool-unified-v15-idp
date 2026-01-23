@@ -3,7 +3,7 @@
 // Sahool Farms Map Component - Fixed for React re-renders
 // خريطة المزارع التفاعلية
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo, memo } from "react";
 import dynamic from "next/dynamic";
 import { getHealthScoreColor } from "@/lib/utils";
 

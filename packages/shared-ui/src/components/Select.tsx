@@ -399,45 +399,66 @@ export function Select({
             {/* Search input */}
             <div className="p-2 border-b border-gray-200">
               <div className="relative">
-                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" aria-hidden="true" />
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search..."
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setHighlightedIndex(-1);
+                  }}
+                  onKeyDown={handleKeyDown}
+                  placeholder={searchPlaceholder}
                   className="w-full ps-9 pe-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-sahool-200"
                   autoFocus
+                  aria-label={searchPlaceholder}
+                  aria-controls={listboxId}
+                  aria-activedescendant={
+                    highlightedIndex >= 0
+                      ? `${inputId}-option-${highlightedIndex}`
+                      : undefined
+                  }
                 />
               </div>
             </div>
 
             {/* Options list */}
-            <ul role="listbox" className="max-h-60 overflow-y-auto py-1">
+            <ul
+              ref={listRef}
+              id={listboxId}
+              role="listbox"
+              className="max-h-60 overflow-y-auto py-1"
+              aria-label={label || "Options"}
+            >
               {filteredOptions.length === 0 ? (
-                <li className="px-3 py-2 text-sm text-gray-500">
-                  No options found
+                <li className="px-3 py-2 text-sm text-gray-500" role="option" aria-disabled="true">
+                  {noOptionsText}
                 </li>
               ) : (
-                filteredOptions.map((option) => (
+                filteredOptions.map((option, index) => (
                   <li
                     key={option.value}
+                    id={`${inputId}-option-${index}`}
                     role="option"
                     aria-selected={option.value === value}
                     aria-disabled={option.disabled}
                     onClick={() =>
                       !option.disabled && handleSelect(option.value)
                     }
+                    onMouseEnter={() => !option.disabled && setHighlightedIndex(index)}
                     className={cn(
                       "flex items-center justify-between px-3 py-2 text-sm cursor-pointer",
                       option.value === value
                         ? "bg-sahool-50 text-sahool-700"
-                        : "text-gray-900 hover:bg-gray-50",
+                        : "text-gray-900",
+                      index === highlightedIndex && !option.disabled && "bg-gray-100",
                       option.disabled && "opacity-50 cursor-not-allowed",
+                      !option.disabled && index !== highlightedIndex && "hover:bg-gray-50",
                     )}
                   >
                     {option.label}
                     {option.value === value && (
-                      <Check className="w-4 h-4 text-sahool-600" />
+                      <Check className="w-4 h-4 text-sahool-600" aria-hidden="true" />
                     )}
                   </li>
                 ))

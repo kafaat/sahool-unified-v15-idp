@@ -298,7 +298,8 @@ export function useCriticalAlerts(
 export function useAlertStats() {
   const { alerts } = useRealTimeAlerts();
 
-  const stats = {
+  // Memoize all stats calculations to prevent recalculation on every render
+  const stats = useMemo(() => ({
     total: alerts.length,
     unread: alerts.filter((a) => !a.read).length,
     bySeverity: {
@@ -314,7 +315,7 @@ export function useAlertStats() {
       },
       {} as Record<string, number>,
     ),
-  };
+  }), [alerts]);
 
   return stats;
 }

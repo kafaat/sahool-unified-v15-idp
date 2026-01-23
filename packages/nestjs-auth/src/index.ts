@@ -28,6 +28,16 @@ export {
   SKIP_REVOCATION_CHECK_KEY,
 } from "./guards/token-revocation.guard";
 
+export {
+  RateLimitGuard,
+  RateLimit,
+  SkipRateLimit,
+  RedisRateLimitStore,
+  RATE_LIMIT_TIERS,
+  RATE_LIMIT_KEY,
+} from "./guards/rate-limit.guard";
+export type { RateLimitConfig } from "./guards/rate-limit.guard";
+
 // Export strategy
 export { JwtStrategy, TokenType } from "./strategies/jwt.strategy";
 export type { JwtPayload, AuthenticatedUser } from "./strategies/jwt.strategy";

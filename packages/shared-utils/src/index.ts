@@ -412,7 +412,223 @@ export {
   cancelIdleCallback,
   measureTime,
   createLRUCache,
+  type DebouncedFunction,
+  type ThrottledFunction,
+  type MemoizeOptions,
+  type MemoizedFunction,
 } from "./performance";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Array Utilities
+// ─────────────────────────────────────────────────────────────────────────────
+
+export {
+  unique,
+  chunk,
+  shuffle,
+  groupBy,
+  flatten,
+  findFirst,
+  findLast,
+  partition,
+  intersection,
+  difference,
+  sum,
+  average,
+  minMax,
+  sortBy,
+  take,
+  skip,
+  range,
+} from "./array";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Object Utilities
+// ─────────────────────────────────────────────────────────────────────────────
+
+export {
+  deepClone,
+  deepMerge,
+  pick,
+  omit,
+  flattenObject,
+  unflattenObject,
+  isEmptyObject,
+  get,
+  set,
+  has,
+  deepEqual,
+  mapValues,
+  mapKeys,
+  filterObject,
+  fromEntries,
+  invert,
+} from "./object";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Async Utilities
+// ─────────────────────────────────────────────────────────────────────────────
+
+export {
+  sleep,
+  retry,
+  timeout,
+  TimeoutError,
+  rateLimit,
+  AsyncQueue,
+  parallelLimit,
+  sequential,
+  poll,
+  createDeferred,
+  debounceAsync,
+  AsyncLock,
+  type RetryOptions,
+  type TimeoutOptions,
+  type RateLimitOptions,
+  type Deferred,
+} from "./async";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Type Guards
+// ─────────────────────────────────────────────────────────────────────────────
+
+export {
+  // Primitive guards
+  isString,
+  isNumber,
+  isFiniteNumber,
+  isInteger,
+  isBoolean,
+  isNull,
+  isUndefined,
+  isNullish,
+  isDefined,
+  isSymbol,
+  isBigInt,
+  // Object guards
+  isObject,
+  isPlainObject,
+  isArray,
+  isArrayOf,
+  isNonEmptyArray,
+  isFunction,
+  isDate,
+  isValidDate,
+  isRegExp,
+  isError,
+  isMap,
+  isSet,
+  isPromise,
+  // String guards
+  isNonEmptyString,
+  isUUID,
+  isURL,
+  isISODateString,
+  isJSONString,
+  // Number guards
+  isPositive,
+  isNegative,
+  isInRange,
+  isPercentage,
+  // Object property guards
+  hasProperty,
+  hasProperties,
+  hasPropertyOfType,
+  // Utility functions
+  isLiteral,
+  isOneOf,
+  and,
+  or,
+  not,
+  // Assertions
+  assert,
+  assertDefined,
+  assertType,
+  assertNever,
+  type TypeGuard,
+  type GuardedType,
+} from "./type-guards";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Safe Parsing Utilities
+// ─────────────────────────────────────────────────────────────────────────────
+
+export {
+  // Result type
+  ok,
+  err,
+  isOk,
+  isErr,
+  unwrap,
+  unwrapOr,
+  mapResult,
+  type Result,
+  type Success,
+  type Failure,
+  // Safe parsing
+  safeJsonParse,
+  safeJsonStringify,
+  safeParseInt,
+  safeParseFloat,
+  safeParseNumber,
+  safeParseDate,
+  safeParseISODate,
+  safeParseURL,
+  safeParseBoolean,
+  ParseNumberError,
+  ParseDateError,
+  // Try-catch wrappers
+  tryCatch,
+  tryCatchAsync,
+  // Validation
+  validate,
+  createValidator,
+  required,
+  notEmpty,
+  minLength,
+  maxLength,
+  minValue,
+  maxValue,
+  pattern,
+  type Validator,
+} from "./safe-parse";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Agricultural Utilities
+// ─────────────────────────────────────────────────────────────────────────────
+
+export {
+  // Coordinates
+  isValidCoordinate,
+  isMiddleEastCoordinate,
+  isYemenCoordinate,
+  calculateDistance,
+  // Area
+  convertArea,
+  calculatePolygonArea,
+  // NDVI
+  classifyNDVI,
+  ndviToHealthScore,
+  NDVI_CLASSIFICATIONS,
+  // Soil moisture
+  classifySoilMoisture,
+  // Weather
+  calculateET0,
+  calculateGDD,
+  assessFrostRisk,
+  // Crop stages
+  getWheatGrowthStage,
+  // Validation
+  isValidMiddleEastPhone,
+  isValidFieldId,
+  isValidFarmId,
+  type Coordinate,
+  type AreaUnit,
+  type NDVIClassification,
+  type SoilMoistureStatus,
+  type FrostRisk,
+  type WheatGrowthStage,
+} from "./agricultural";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AI Context Engineering

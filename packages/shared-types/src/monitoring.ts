@@ -11,6 +11,11 @@
  * 6. Crop Yield Estimation
  */
 
+import type { GeoCoordinates, BoundingBox } from "./geo";
+
+// Re-export for backwards compatibility
+export type { GeoCoordinates, BoundingBox };
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Common Types
 // ═══════════════════════════════════════════════════════════════════════════
@@ -18,18 +23,6 @@
 export type DataSource = "sentinel-2" | "landsat-8" | "modis" | "gee" | "copernicus" | "mock";
 
 export type Resolution = "high" | "medium" | "low"; // 1-3m, 10-16m, 30m
-
-export interface GeoCoordinates {
-  latitude: number;
-  longitude: number;
-}
-
-export interface BoundingBox {
-  minLat: number;
-  minLon: number;
-  maxLat: number;
-  maxLon: number;
-}
 
 export interface MonitoringMetadata {
   dataSource: DataSource;

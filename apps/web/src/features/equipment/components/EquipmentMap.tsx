@@ -107,6 +107,8 @@ export function EquipmentMap() {
           statusP.appendChild(statusValue);
           popupContent.appendChild(statusP);
 
+          if (!mapInstanceRef.current) return;
+
           const marker = L.marker(
             [item.location.latitude, item.location.longitude],
             {

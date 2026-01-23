@@ -24,10 +24,7 @@ interface TaskCardProps {
   draggable?: boolean;
 }
 
-const priorityConfig: Record<
-  string,
-  { colors: string; label: string; labelAr: string; icon: React.ReactNode }
-> = {
+const priorityConfig: Record<string, ConfigInfo> = {
   urgent: {
     colors:
       "bg-red-200 text-red-800 border-red-300 dark:bg-red-900 dark:text-red-100",
@@ -49,13 +46,7 @@ const priorityConfig: Record<
     labelAr: "متوسطة",
     icon: <Flag className="w-3 h-3" aria-hidden="true" />,
   },
-  low: {
-    colors:
-      "bg-green-100 text-green-700 border-green-200 dark:bg-green-800 dark:text-green-100",
-    label: "Low",
-    labelAr: "منخفضة",
-    icon: <Flag className="w-3 h-3" aria-hidden="true" />,
-  },
+  low: DEFAULT_PRIORITY_INFO,
 };
 
 type ConfigInfo = { colors: string; label: string; labelAr: string; icon: React.ReactNode };

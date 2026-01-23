@@ -1756,6 +1756,7 @@ services:
 
   # ═══════════════════════════════════════════════════════════════════════════
   # AGENT REGISTRY - سجل الوكلاء
+  # NOTE: Port conflict with skills-service - requires deployment coordination
   # ═══════════════════════════════════════════════════════════════════════════
   agent-registry:
     name: "Agent Registry"
@@ -1766,7 +1767,7 @@ services:
     category: core
     layer: business
     path: "apps/services/agent-registry"
-    port: 8140
+    port: 8160  # Changed from 8121 (conflict with skills-service) to 8160
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -1796,7 +1797,7 @@ services:
     category: analytics
     layer: decision
     path: "apps/services/ai-advisor"
-    port: 8141
+    port: 8112  # Matches Dockerfile and Kong configuration
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -1832,7 +1833,7 @@ services:
     category: core
     layer: intelligence
     path: "apps/services/ai-agents-core"
-    port: 8142
+    port: 8122  # Matches Dockerfile EXPOSE
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -1859,10 +1860,11 @@ services:
     category: community
     layer: business
     path: "apps/services/chat-service"
-    port: 8143
+    port: 8000  # Matches Dockerfile EXPOSE (Kong config at 8114 is WRONG)
     protocol: http
     health_endpoint: "/health"
     status: active
+    kong_note: "Kong config has wrong port 8114, should be 8000"
     ui_connections:
       - web
       - admin
@@ -1888,6 +1890,8 @@ services:
 
   # ═══════════════════════════════════════════════════════════════════════════
   # CODE FIX AGENT - وكيل إصلاح الكود
+  # NOTE: Dockerfile uses 8090 which conflicts with vegetation-analysis-service
+  # Reassigned to 8161 to avoid conflict
   # ═══════════════════════════════════════════════════════════════════════════
   code-fix-agent:
     name: "Code Fix Agent"
@@ -1898,7 +1902,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/code-fix-agent"
-    port: 8144
+    port: 8161  # Changed from 8090 (conflict with vegetation-analysis-service)
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -1955,7 +1959,7 @@ services:
     category: core
     layer: business
     path: "apps/services/code-review-service"
-    port: 8146
+    port: 8124  # Matches Dockerfile EXPOSE
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -1986,7 +1990,7 @@ services:
     category: crop
     layer: intelligence
     path: "apps/services/crop-health"
-    port: 8147
+    port: 8100  # Matches Dockerfile EXPOSE
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2021,7 +2025,7 @@ services:
     category: core
     layer: business
     path: "apps/services/globalgap-compliance"
-    port: 8148
+    port: 8123  # Matches Dockerfile ENV PORT
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2052,7 +2056,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/knowledge-graph"
-    port: 8149
+    port: 8140  # Matches Dockerfile PORT
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2077,6 +2081,7 @@ services:
 
   # ═══════════════════════════════════════════════════════════════════════════
   # LOGISTICS SERVICE - خدمة اللوجستيات
+  # NOTE: Dockerfile has 8131 which conflicts with crm-service
   # ═══════════════════════════════════════════════════════════════════════════
   logistics-service:
     name: "Logistics Service"
@@ -2087,7 +2092,7 @@ services:
     category: core
     layer: business
     path: "apps/services/logistics-service"
-    port: 8150
+    port: 8162  # Changed from 8131 (conflict with crm-service) to 8162
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2122,7 +2127,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/ndvi-engine"
-    port: 8152
+    port: 8107  # Matches Dockerfile and Kong configuration
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2140,6 +2145,7 @@ services:
 
   # ═══════════════════════════════════════════════════════════════════════════
   # USSD GATEWAY - بوابة USSD
+  # NOTE: Dockerfile has 8130 which conflicts with ai-agents-service
   # ═══════════════════════════════════════════════════════════════════════════
   ussd-gateway:
     name: "USSD Gateway"
@@ -2150,7 +2156,7 @@ services:
     category: integration
     layer: business
     path: "apps/services/ussd-gateway"
-    port: 8153
+    port: 8163  # Changed from 8130 (conflict with ai-agents-service) to 8163
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2182,7 +2188,7 @@ services:
     category: integration
     layer: acquisition
     path: "apps/services/weather-core"
-    port: 8154
+    port: 8108  # Matches Dockerfile and Kong configuration
     protocol: http
     health_endpoint: "/healthz"
     status: active

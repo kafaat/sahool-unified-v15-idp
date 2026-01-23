@@ -70,10 +70,10 @@ import {
 export * from "./types";
 // Re-export all errors
 export * from "./errors";
+// Re-export retry types
+export type { RetryConfig, RetryState, CircuitState, CircuitBreakerConfig } from "./retry";
 // Re-export retry utilities (excluding duplicates)
 export {
-  RetryConfig,
-  RetryState,
   DEFAULT_RETRY_CONFIG,
   calculateDelay,
   calculateRetryAfterDelay,
@@ -83,8 +83,6 @@ export {
   sleep,
   setupRetryInterceptor,
   withRetry,
-  CircuitState,
-  CircuitBreakerConfig,
   DEFAULT_CIRCUIT_BREAKER_CONFIG,
   CircuitBreaker,
   CircuitOpenError,
@@ -93,16 +91,21 @@ export {
 export * from "./cache";
 // Re-export interceptor utilities
 export * from "./interceptors";
-// Re-export validation utilities (excluding duplicates)
-export {
+// Re-export validation types (excluding duplicates)
+export type {
   ValidationResult,
   ValidationError as ValidationFieldError,
   Schema,
-  FieldSchema,
+  FieldSchema as ValidationFieldSchema,
+  Result,
+  AsyncState,
+} from "./validation";
+// Re-export validation utilities (excluding duplicates)
+export {
   createSchema,
   ValidationException,
   TaskSchema,
-  FieldSchema as FieldValidationSchema,
+  FieldSchema as FieldEntitySchema,
   FarmSchema,
   WeatherDataSchema,
   UserSchema,
@@ -116,13 +119,11 @@ export {
   validateResponse,
   safeValidateResponse,
   validateArrayResponse,
-  Result,
   success,
   failure,
   toResult,
   mapResult,
   flatMapResult,
-  AsyncState,
   idle,
   loading,
   successState,
@@ -1115,11 +1116,13 @@ export class SahoolApiClient {
   ): Promise<{ success: boolean; diagnosis_id: string; status: string }> {
     const endpoint = `${this.urls.cropHealth}/v1/diagnoses/${id}`;
     const result = await this.safeExecute(
-      () =>
-        this.request(endpoint, {
+      async () => {
+        await this.request(endpoint, {
           method: "PATCH",
           params: { status, expert_notes: notes },
-        }),
+        });
+        return { success: true, diagnosis_id: id, status };
+      },
       { success: true, diagnosis_id: id, status },
       { endpoint, method: "PATCH" },
     );

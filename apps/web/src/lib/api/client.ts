@@ -577,8 +577,7 @@ class SahoolApiClient {
   }
 
   async getAgriculturalRisks(lat: number, lng: number, fieldId: string = "default") {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return this.request<any>("/api/v1/weather-core/weather/agricultural-report", {
+    return this.request<unknown>("/api/v1/weather-core/weather/agricultural-report", {
       method: "POST",
       body: JSON.stringify({
         tenant_id: "default",
@@ -599,8 +598,7 @@ class SahoolApiClient {
     return this.request<WeatherForecast>(`/api/v1/weather/v1/forecast/${locationId}?days=${days}`);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async getWeatherLocations(): Promise<ApiResponse<any>> {
+  async getWeatherLocations(): Promise<ApiResponse<unknown>> {
     return this.request("/api/v1/weather/v1/locations");
   }
 

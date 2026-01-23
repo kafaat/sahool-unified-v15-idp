@@ -536,10 +536,23 @@ class AppRouter {
         name: 'pivot-sectors',
         builder: (context, state) {
           final pivotId = state.pathParameters['pivotId']!;
+          // Create a default configuration for direct navigation
+          final defaultConfig = PivotConfiguration(
+            id: pivotId,
+            fieldId: 'default',
+            name: 'Pivot $pivotId',
+            centerLat: 0,
+            centerLng: 0,
+            lengthMeters: 400,
+            spansCount: 7,
+            areaHectares: 50.0,
+            flowRateLph: 450000,
+          );
           return SectorManagementScreen(
-            pivotId: pivotId,
-            sectors: const [],
-            onSectorsChanged: (_) {},
+            pivotConfig: defaultConfig,
+            onConfigUpdate: (_) {
+              context.pop();
+            },
           );
         },
       ),

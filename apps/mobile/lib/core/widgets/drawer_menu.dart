@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/navigation_constants.dart';
 import '../config/theme.dart';
+import '../haptics/haptic_service.dart';
 
 /// Navigation Drawer for SAHOOL App
 /// القائمة الجانبية للتنقل في تطبيق سهول
@@ -103,6 +104,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.edit_rounded, color: Colors.white),
                 onPressed: () {
+                  HapticService.instance.lightTap();
                   Navigator.pop(context);
                   context.push(NavigationConstants.profile);
                 },
@@ -245,6 +247,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
         style: const TextStyle(fontSize: 14),
       ),
       onTap: () {
+        HapticService.instance.navigationTap();
         Navigator.pop(context);
         if (route != null) {
           context.push(route);
@@ -307,6 +310,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
               color: Colors.grey[400],
             ),
       onTap: () {
+        HapticService.instance.navigationTap();
         Navigator.pop(context);
         context.go(route);
       },
@@ -400,6 +404,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
               color: Colors.grey[400],
             ),
       onTap: () {
+        HapticService.instance.navigationTap();
         Navigator.pop(context);
         context.push(route);
       },
@@ -436,6 +441,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
           ),
         ),
         onTap: () {
+          HapticService.instance.buttonTap(isDestructive: true);
           _showLogoutDialog(context);
         },
       ),
@@ -452,11 +458,15 @@ class SahoolDrawerMenu extends ConsumerWidget {
           content: const Text('هل أنت متأكد من تسجيل الخروج؟'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                HapticService.instance.lightTap();
+                Navigator.pop(context);
+              },
               child: const Text('إلغاء'),
             ),
             TextButton(
               onPressed: () {
+                HapticService.instance.buttonTap(isDestructive: true);
                 Navigator.pop(context);
                 Navigator.pop(context);
                 context.go(NavigationConstants.login);

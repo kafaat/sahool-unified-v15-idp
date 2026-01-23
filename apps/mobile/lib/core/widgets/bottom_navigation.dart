@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/navigation_constants.dart';
 import '../config/theme.dart';
+import '../haptics/haptic_service.dart';
 
 /// Bottom Navigation Bar for SAHOOL App
 /// شريط التنقل السفلي لتطبيق سهول
@@ -112,6 +113,9 @@ class SahoolBottomNavigation extends ConsumerWidget {
   }
 
   void _onItemTapped(BuildContext context, int index) {
+    // Trigger haptic feedback for navigation
+    HapticService.instance.navigationTap();
+
     switch (index) {
       case 0:
         context.go(NavigationConstants.home);

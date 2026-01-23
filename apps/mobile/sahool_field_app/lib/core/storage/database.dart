@@ -1,14 +1,18 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:latlong2/latlong.dart';
+import 'package:sqlite3/sqlite3.dart';
+import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
+import '../utils/app_logger.dart';
 import 'converters/geo_converter.dart';
+import 'database_encryption.dart';
 
 part 'database.g.dart';
 
-/// Tasks Table
+/// Tasks Table with performance indexes
 @TableIndex(name: 'tasks_tenant_idx', columns: {#tenantId})
 @TableIndex(name: 'tasks_field_idx', columns: {#fieldId})
 @TableIndex(name: 'tasks_status_idx', columns: {#status})
@@ -67,7 +71,7 @@ class Outbox extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-/// Fields Cache Table (GIS-enabled)
+/// Fields Cache Table (GIS-enabled) with performance indexes
 @TableIndex(name: 'fields_tenant_idx', columns: {#tenantId})
 @TableIndex(name: 'fields_farm_idx', columns: {#farmId})
 @TableIndex(name: 'fields_synced_idx', columns: {#synced})
@@ -123,7 +127,6 @@ class SyncLogs extends Table {
 @TableIndex(name: 'sync_events_read_idx', columns: {#isRead})
 @TableIndex(name: 'sync_events_tenant_read_idx', columns: {#tenantId, #isRead})
 @TableIndex(name: 'sync_events_created_idx', columns: {#createdAt})
-@TableIndex(name: 'sync_events_entity_idx', columns: {#entityType, #entityId})
 class SyncEvents extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get tenantId => text()();
@@ -140,7 +143,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5; // v5: Added performance indexes
+  int get schemaVersion => 4; // v4: Unified Outbox schema
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -164,37 +167,6 @@ class AppDatabase extends _$AppDatabase {
             // Recreate outbox table with new structure
             await m.deleteTable('outbox');
             await m.createTable(outbox);
-          }
-          if (from < 5) {
-            // Migration to v5: Add performance indexes
-            // Indexes are automatically created by Drift when tables are created
-            // For existing databases, recreate indexes
-            await customStatement('CREATE INDEX IF NOT EXISTS tasks_tenant_idx ON tasks (tenant_id)');
-            await customStatement('CREATE INDEX IF NOT EXISTS tasks_field_idx ON tasks (field_id)');
-            await customStatement('CREATE INDEX IF NOT EXISTS tasks_status_idx ON tasks (status)');
-            await customStatement('CREATE INDEX IF NOT EXISTS tasks_synced_idx ON tasks (synced)');
-            await customStatement('CREATE INDEX IF NOT EXISTS tasks_tenant_status_idx ON tasks (tenant_id, status)');
-            await customStatement('CREATE INDEX IF NOT EXISTS tasks_created_idx ON tasks (created_at)');
-
-            await customStatement('CREATE INDEX IF NOT EXISTS outbox_tenant_idx ON outbox (tenant_id)');
-            await customStatement('CREATE INDEX IF NOT EXISTS outbox_synced_idx ON outbox (is_synced)');
-            await customStatement('CREATE INDEX IF NOT EXISTS outbox_entity_idx ON outbox (entity_type, entity_id)');
-            await customStatement('CREATE INDEX IF NOT EXISTS outbox_created_idx ON outbox (created_at)');
-            await customStatement('CREATE INDEX IF NOT EXISTS outbox_tenant_synced_idx ON outbox (tenant_id, is_synced)');
-
-            await customStatement('CREATE INDEX IF NOT EXISTS fields_tenant_idx ON fields (tenant_id)');
-            await customStatement('CREATE INDEX IF NOT EXISTS fields_farm_idx ON fields (farm_id)');
-            await customStatement('CREATE INDEX IF NOT EXISTS fields_synced_idx ON fields (synced)');
-            await customStatement('CREATE INDEX IF NOT EXISTS fields_deleted_idx ON fields (is_deleted)');
-            await customStatement('CREATE INDEX IF NOT EXISTS fields_tenant_deleted_idx ON fields (tenant_id, is_deleted)');
-            await customStatement('CREATE INDEX IF NOT EXISTS fields_updated_idx ON fields (updated_at)');
-            await customStatement('CREATE INDEX IF NOT EXISTS fields_remote_idx ON fields (remote_id)');
-
-            await customStatement('CREATE INDEX IF NOT EXISTS sync_events_tenant_idx ON sync_events (tenant_id)');
-            await customStatement('CREATE INDEX IF NOT EXISTS sync_events_read_idx ON sync_events (is_read)');
-            await customStatement('CREATE INDEX IF NOT EXISTS sync_events_tenant_read_idx ON sync_events (tenant_id, is_read)');
-            await customStatement('CREATE INDEX IF NOT EXISTS sync_events_created_idx ON sync_events (created_at)');
-            await customStatement('CREATE INDEX IF NOT EXISTS sync_events_entity_idx ON sync_events (entity_type, entity_id)');
           }
         },
       );
@@ -638,11 +610,214 @@ class AppDatabase extends _$AppDatabase {
   }
 }
 
-/// Open database connection
+/// Open encrypted database connection with SQLCipher
+///
+/// Features:
+/// - 256-bit AES encryption using SQLCipher
+/// - Secure key storage in platform keychain/keystore
+/// - Automatic migration from unencrypted to encrypted database
+/// - Backward compatibility support
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
+    // Ensure SQLCipher native library is loaded
+    await applyWorkaroundToOpenSqlCipherOnOldAndroidVersions();
+
     final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'sahool_field.db'));
-    return NativeDatabase.createInBackground(file);
+    final dbPath = p.join(dbFolder.path, 'sahool_field.db');
+    final dbFile = File(dbPath);
+    final oldDbPath = p.join(dbFolder.path, 'sahool_field_unencrypted.db');
+    final oldDbFile = File(oldDbPath);
+
+    // Initialize encryption key manager
+    final encryption = DatabaseEncryption();
+
+    // Check if we need to migrate from unencrypted database
+    if (!await encryption.hasKey() && dbFile.existsSync()) {
+      AppLogger.i('Migrating from unencrypted to encrypted database', tag: 'Database');
+
+      // Backup unencrypted database
+      await dbFile.copy(oldDbPath);
+      AppLogger.i('Backup created', tag: 'Database', data: {'path': oldDbPath});
+
+      // Generate new encryption key
+      final encryptionKey = await encryption.getOrCreateKey();
+
+      // Migrate to encrypted database
+      await _migrateToEncryptedDatabase(
+        dbPath,
+        oldDbPath,
+        encryptionKey,
+        encryption,
+      );
+
+      AppLogger.i('Migration to encrypted database completed', tag: 'Database');
+    } else if (!await encryption.hasKey()) {
+      // First time setup - generate encryption key
+      await encryption.getOrCreateKey();
+      AppLogger.i('New encryption key generated', tag: 'Database');
+    }
+
+    // Get encryption key for opening database
+    final encryptionKey = await encryption.getOrCreateKey();
+
+    // Open database with encryption
+    return NativeDatabase.createInBackground(
+      dbFile,
+      setup: (database) {
+        // Set SQLCipher encryption key
+        final pragma = encryption.getSqlCipherPragma(encryptionKey);
+        database.execute(pragma);
+
+        // Configure SQLCipher for better performance and security
+        // Use SQLCipher 4.x compatibility
+        database.execute('PRAGMA cipher_compatibility = 4;');
+
+        // Optimize for mobile devices
+        database.execute('PRAGMA cipher_page_size = 4096;');
+        database.execute('PRAGMA kdf_iter = 64000;');
+        database.execute('PRAGMA cipher_hmac_algorithm = HMAC_SHA512;');
+        database.execute('PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA512;');
+
+        // Standard SQLite optimizations
+        database.execute('PRAGMA foreign_keys = ON;');
+        database.execute('PRAGMA journal_mode = WAL;');
+        database.execute('PRAGMA synchronous = NORMAL;');
+        database.execute('PRAGMA temp_store = MEMORY;');
+        database.execute('PRAGMA mmap_size = 30000000000;');
+      },
+    );
   });
+}
+
+/// Migrate unencrypted database to encrypted database
+///
+/// This function:
+/// 1. Opens the old unencrypted database
+/// 2. Creates a new encrypted database
+/// 3. Copies all data using ATTACH DATABASE
+/// 4. Verifies the migration
+/// 5. Removes the old database file
+Future<void> _migrateToEncryptedDatabase(
+  String newDbPath,
+  String oldDbPath,
+  String encryptionKey,
+  DatabaseEncryption encryption,
+) async {
+  final tempNewPath = '$newDbPath.encrypted';
+  final tempNewFile = File(tempNewPath);
+
+  // Remove temporary file if it exists
+  if (tempNewFile.existsSync()) {
+    await tempNewFile.delete();
+  }
+
+  try {
+    // Open the old unencrypted database
+    final oldDb = sqlite3.open(oldDbPath);
+
+    try {
+      // Attach new encrypted database
+      final pragma = encryption.getSqlCipherPragma(encryptionKey);
+      oldDb.execute("ATTACH DATABASE '$tempNewPath' AS encrypted KEY \"${pragma.split('\"')[1]}\";");
+
+      // Configure SQLCipher settings for the attached database
+      oldDb.execute('PRAGMA encrypted.cipher_compatibility = 4;');
+      oldDb.execute('PRAGMA encrypted.cipher_page_size = 4096;');
+      oldDb.execute('PRAGMA encrypted.kdf_iter = 64000;');
+
+      // Export all data to encrypted database
+      // Use sqlcipher_export() if available, otherwise use table-by-table copy
+      try {
+        oldDb.execute('SELECT sqlcipher_export("encrypted");');
+      } catch (e) {
+        // Fallback: Copy schema and data manually
+        AppLogger.i('Using manual migration (sqlcipher_export not available)', tag: 'Database');
+
+        // Get all tables
+        final tables = oldDb.select(
+          "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'",
+        );
+
+        for (final table in tables) {
+          final tableName = table['name'] as String;
+
+          // Copy schema
+          final schema = oldDb.select(
+            "SELECT sql FROM sqlite_master WHERE type='table' AND name=?",
+            [tableName],
+          );
+
+          if (schema.isNotEmpty) {
+            final createSql = schema.first['sql'] as String;
+            oldDb.execute('$createSql'.replaceFirst('CREATE TABLE', 'CREATE TABLE encrypted.'));
+          }
+
+          // Copy data
+          oldDb.execute('INSERT INTO encrypted.$tableName SELECT * FROM main.$tableName;');
+        }
+
+        // Copy indices
+        final indices = oldDb.select(
+          "SELECT sql FROM sqlite_master WHERE type='index' AND sql IS NOT NULL",
+        );
+
+        for (final index in indices) {
+          final createSql = index['sql'] as String;
+          try {
+            oldDb.execute(createSql.replaceFirst('CREATE INDEX', 'CREATE INDEX encrypted.'));
+          } catch (e) {
+            // Index might already exist, ignore
+            AppLogger.w(
+              'Could not create index',
+              tag: 'Database',
+              data: {'error': e.toString()},
+            );}
+        }
+      }
+
+      // Detach encrypted database
+      oldDb.execute('DETACH DATABASE encrypted;');
+
+      AppLogger.i('Data migration completed successfully', tag: 'Database');
+    } finally {
+      oldDb.dispose();
+    }
+
+    // Verify the encrypted database can be opened
+    final verifyDb = sqlite3.open(tempNewPath);
+    try {
+      final pragma = encryption.getSqlCipherPragma(encryptionKey);
+      verifyDb.execute(pragma);
+      verifyDb.execute('PRAGMA cipher_compatibility = 4;');
+
+      // Test query to verify encryption worked
+      final result = verifyDb.select('SELECT COUNT(*) as count FROM sqlite_master;');
+      AppLogger.d('Verification: Found schema objects', tag: 'Database', data: {'count': result.first['count']});
+    } finally {
+      verifyDb.dispose();
+    }
+
+    // Replace old database with encrypted one
+    final oldFile = File(newDbPath);
+    if (oldFile.existsSync()) {
+      await oldFile.delete();
+    }
+    await tempNewFile.rename(newDbPath);
+
+    AppLogger.i('Encrypted database is now active', tag: 'Database');
+
+    // Keep backup for safety (can be deleted manually later)
+    AppLogger.i('Unencrypted backup kept', tag: 'Database', data: {'path': oldDbPath});
+    AppLogger.i('You can delete the backup manually after verifying the app works correctly', tag: 'Database');
+
+  } catch (e) {
+    AppLogger.e('Error during migration', tag: 'Database', error: e);
+
+    // Clean up temporary file on error
+    if (tempNewFile.existsSync()) {
+      await tempNewFile.delete();
+    }
+
+    rethrow;
+  }
 }

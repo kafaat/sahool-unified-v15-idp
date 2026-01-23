@@ -31,9 +31,6 @@ export 'auth/auth_service.dart';
 export 'auth/secure_storage_service.dart';
 export 'auth/biometric_service.dart';
 
-// Domain Models
-export 'domain/models/credit_tier.dart';
-
 // Performance
 export 'performance/performance.dart';
 
@@ -49,5 +46,5 @@ export 'offline/offline.dart';
 // Voice Commands
 export 'voice/voice.dart';
 
-// AI Skills Integration
-export 'ai/ai.dart';
+// Deep Linking
+export 'deeplink/deeplink_handler.dart';

@@ -145,23 +145,8 @@ class SahoolTheme {
 
       // الخط العربي: IBM Plex Sans Arabic (محلي - أسرع تحميل)
       fontFamily: 'IBMPlexSansArabic',
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w400),
-        displayMedium: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w400),
-        displaySmall: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w400),
-        headlineLarge: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w600),
-        headlineMedium: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w600),
-        headlineSmall: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w600),
-        titleLarge: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w600),
-        titleMedium: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w500),
-        titleSmall: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w500),
-        bodyLarge: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w400),
-        bodyMedium: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w400),
-        bodySmall: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w400),
-        labelLarge: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w500),
-        labelMedium: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w500),
-        labelSmall: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w500),
-      ).apply(
+      textTheme: const TextTheme().apply(
+        fontFamily: 'IBMPlexSansArabic',
         bodyColor: SahoolColors.textDark,
         displayColor: SahoolColors.textDark,
       ),
@@ -213,12 +198,12 @@ class SahoolTheme {
       ),
 
       // تحسين شريط التطبيق
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: SahoolColors.primary, size: 28),
-        titleTextStyle: const TextStyle(
+        iconTheme: IconThemeData(color: SahoolColors.primary, size: 28),
+        titleTextStyle: TextStyle(
           fontFamily: 'IBMPlexSansArabic',
           color: SahoolColors.textDark,
           fontSize: 20,

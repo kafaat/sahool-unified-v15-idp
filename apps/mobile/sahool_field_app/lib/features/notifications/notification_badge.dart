@@ -10,8 +10,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'presentation/providers/notification_provider.dart';
-import 'domain/entities/notification_entities.dart';
+import 'notification_provider.dart';
 
 /// شارة الإشعارات
 class NotificationBadge extends ConsumerWidget {
@@ -85,7 +84,6 @@ class NotificationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    final isAlert = notification.type == 'alert';
 
     return Dismissible(
       key: Key(notification.id),
@@ -119,7 +117,7 @@ class NotificationCard extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      notification.typeIcon,
+                      notification.icon,
                       style: const TextStyle(fontSize: 24),
                     ),
                   ),
@@ -147,7 +145,7 @@ class NotificationCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (isAlert)
+                          if (notification.isUrgent)
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -158,7 +156,9 @@ class NotificationCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                'عاجل',
+                                notification.priorityAr.isNotEmpty
+                                    ? notification.priorityAr
+                                    : 'عاجل',
                                 style: TextStyle(
                                   color: Colors.red[800],
                                   fontSize: 10,
@@ -190,7 +190,7 @@ class NotificationCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            notification.timeAgo,
+                            _formatTime(notification.createdAt),
                             style: TextStyle(
                               color: Colors.grey[400],
                               fontSize: 11,
@@ -198,7 +198,9 @@ class NotificationCard extends StatelessWidget {
                           ),
                           const Spacer(),
                           Text(
-                            notification.typeLabel,
+                            notification.typeAr.isNotEmpty
+                                ? notification.typeAr
+                                : _getTypeLabel(notification.type),
                             style: TextStyle(
                               color: _getTypeColor(notification.type),
                               fontSize: 11,
@@ -229,20 +231,58 @@ class NotificationCard extends StatelessWidget {
     );
   }
 
-  Color _getTypeColor(String type) {
+  Color _getTypeColor(NotificationType type) {
     switch (type) {
-      case 'weather':
+      case NotificationType.weatherAlert:
         return Colors.orange;
-      case 'alert':
+      case NotificationType.pestOutbreak:
         return Colors.red;
-      case 'action':
+      case NotificationType.irrigationReminder:
         return Colors.blue;
-      case 'crop_health':
+      case NotificationType.cropHealth:
         return Colors.green;
-      case 'system':
-        return Colors.grey;
-      default:
+      case NotificationType.marketPrice:
+        return Colors.purple;
+      case NotificationType.taskReminder:
         return Colors.teal;
+      case NotificationType.system:
+        return Colors.grey;
+    }
+  }
+
+  String _getTypeLabel(NotificationType type) {
+    switch (type) {
+      case NotificationType.weatherAlert:
+        return 'تنبيه طقس';
+      case NotificationType.pestOutbreak:
+        return 'انتشار آفات';
+      case NotificationType.irrigationReminder:
+        return 'تذكير ري';
+      case NotificationType.cropHealth:
+        return 'صحة المحصول';
+      case NotificationType.marketPrice:
+        return 'أسعار السوق';
+      case NotificationType.taskReminder:
+        return 'تذكير مهمة';
+      case NotificationType.system:
+        return 'نظام';
+    }
+  }
+
+  String _formatTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final diff = now.difference(dateTime);
+
+    if (diff.inMinutes < 1) {
+      return 'الآن';
+    } else if (diff.inMinutes < 60) {
+      return 'منذ ${diff.inMinutes} دقيقة';
+    } else if (diff.inHours < 24) {
+      return 'منذ ${diff.inHours} ساعة';
+    } else if (diff.inDays < 7) {
+      return 'منذ ${diff.inDays} يوم';
+    } else {
+      return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
     }
   }
 }

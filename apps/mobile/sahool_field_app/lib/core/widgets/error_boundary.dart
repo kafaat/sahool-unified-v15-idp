@@ -129,88 +129,114 @@ class SahoolErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Error Icon
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: SahoolColors.danger.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.error_outline_rounded,
-                size: 64,
-                color: SahoolColors.danger,
-              ),
-            ),
+    final locale = Localizations.localeOf(context);
+    final isArabic = locale.languageCode == 'ar';
 
-            const SizedBox(height: 24),
-
-            // Error Title
-            Text(
-              'حدث خطأ غير متوقع',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: SahoolColors.textDark,
+    return Semantics(
+      container: true,
+      label: isArabic ? 'شاشة خطأ' : 'Error screen',
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Error Icon
+              Semantics(
+                label: isArabic ? 'رمز الخطأ' : 'Error icon',
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: SahoolColors.danger.withOpacity(0.1),
+                    shape: BoxShape.circle,
                   ),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 12),
-
-            // Error Message
-            Text(
-              customMessage ?? _getErrorMessage(error),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: SahoolColors.textSecondary,
+                  child: const Icon(
+                    Icons.error_outline_rounded,
+                    size: 64,
+                    color: SahoolColors.danger,
+                    semanticLabel: null, // Handled by parent Semantics
                   ),
-              textAlign: TextAlign.center,
-            ),
-
-            // Error Details (debug only)
-            if (showDetails) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
                 ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Error Title
+              Semantics(
+                header: true,
                 child: Text(
-                  error.toString(),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontFamily: 'monospace',
-                    color: Colors.grey,
-                  ),
-                  textAlign: TextAlign.start,
+                  isArabic ? 'حدث خطأ غير متوقع' : 'An unexpected error occurred',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: SahoolColors.textDark,
+                      ),
+                  textAlign: TextAlign.center,
                 ),
               ),
+
+              const SizedBox(height: 12),
+
+              // Error Message
+              Semantics(
+                liveRegion: true,
+                child: Text(
+                  customMessage ?? _getErrorMessage(error),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: SahoolColors.textSecondary,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+
+              // Error Details (debug only)
+              if (showDetails) ...[
+                const SizedBox(height: 16),
+                Semantics(
+                  label: isArabic ? 'تفاصيل الخطأ الفنية' : 'Technical error details',
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      error.toString(),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'monospace',
+                        color: Colors.grey,
+                      ),
+                      textAlign: TextAlign.start,
+                    ),
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 32),
+
+              // Retry Button
+              if (onRetry != null)
+                Semantics(
+                  button: true,
+                  hint: isArabic
+                      ? 'اضغط لإعادة المحاولة'
+                      : 'Tap to retry the operation',
+                  child: ElevatedButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: Text(isArabic ? 'إعادة المحاولة' : 'Retry'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: SahoolColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
+                    ),
+                  ),
+                ),
             ],
-
-            const SizedBox(height: 32),
-
-            // Retry Button
-            if (onRetry != null)
-              ElevatedButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('إعادة المحاولة'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: SahoolColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 16,
-                  ),
-                ),
-              ),
-          ],
+          ),
         ),
       ),
     );
@@ -314,277 +340,66 @@ class SahoolNetworkError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.wifi_off_rounded,
-              size: 80,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'لا يوجد اتصال بالإنترنت',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'تحقق من اتصالك بالإنترنت وحاول مرة أخرى',
-              style: TextStyle(color: Colors.grey[600]),
-              textAlign: TextAlign.center,
-            ),
-            if (onRetry != null) ...[
-              const SizedBox(height: 32),
-              OutlinedButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('إعادة المحاولة'),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
+    final locale = Localizations.localeOf(context);
+    final isArabic = locale.languageCode == 'ar';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Error Type Enums & Utilities
-// ═══════════════════════════════════════════════════════════════════════════
-
-/// Error types for better categorization
-enum SahoolErrorType {
-  network,
-  server,
-  authentication,
-  permission,
-  validation,
-  notFound,
-  timeout,
-  unknown,
-}
-
-/// Error utility class for mapping errors to types and messages
-class SahoolErrorUtil {
-  /// Determine error type from exception
-  static SahoolErrorType getErrorType(Object error) {
-    final message = error.toString().toLowerCase();
-
-    if (message.contains('network') ||
-        message.contains('connection') ||
-        message.contains('socket')) {
-      return SahoolErrorType.network;
-    }
-
-    if (message.contains('timeout')) {
-      return SahoolErrorType.timeout;
-    }
-
-    if (message.contains('unauthorized') ||
-        message.contains('401') ||
-        message.contains('authentication')) {
-      return SahoolErrorType.authentication;
-    }
-
-    if (message.contains('forbidden') ||
-        message.contains('403') ||
-        message.contains('permission')) {
-      return SahoolErrorType.permission;
-    }
-
-    if (message.contains('not found') || message.contains('404')) {
-      return SahoolErrorType.notFound;
-    }
-
-    if (message.contains('server') ||
-        message.contains('500') ||
-        message.contains('502') ||
-        message.contains('503')) {
-      return SahoolErrorType.server;
-    }
-
-    if (message.contains('validation') || message.contains('invalid')) {
-      return SahoolErrorType.validation;
-    }
-
-    return SahoolErrorType.unknown;
-  }
-
-  /// Get localized error message in Arabic
-  static String getLocalizedMessage(SahoolErrorType type) {
-    switch (type) {
-      case SahoolErrorType.network:
-        return 'تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت.';
-      case SahoolErrorType.timeout:
-        return 'انتهت مهلة الاتصال. حاول مرة أخرى.';
-      case SahoolErrorType.authentication:
-        return 'جلستك منتهية. يرجى تسجيل الدخول مرة أخرى.';
-      case SahoolErrorType.permission:
-        return 'ليس لديك صلاحية للوصول لهذا المحتوى.';
-      case SahoolErrorType.notFound:
-        return 'المحتوى المطلوب غير موجود.';
-      case SahoolErrorType.server:
-        return 'حدث خطأ في الخادم. حاول لاحقاً.';
-      case SahoolErrorType.validation:
-        return 'البيانات المدخلة غير صحيحة. تحقق من المعلومات.';
-      case SahoolErrorType.unknown:
-        return 'حدث خطأ غير متوقع. حاول مرة أخرى.';
-    }
-  }
-
-  /// Get error icon based on type
-  static IconData getErrorIcon(SahoolErrorType type) {
-    switch (type) {
-      case SahoolErrorType.network:
-        return Icons.wifi_off_rounded;
-      case SahoolErrorType.timeout:
-        return Icons.access_time_rounded;
-      case SahoolErrorType.authentication:
-        return Icons.lock_outline_rounded;
-      case SahoolErrorType.permission:
-        return Icons.block_rounded;
-      case SahoolErrorType.notFound:
-        return Icons.search_off_rounded;
-      case SahoolErrorType.server:
-        return Icons.dns_rounded;
-      case SahoolErrorType.validation:
-        return Icons.warning_amber_rounded;
-      case SahoolErrorType.unknown:
-        return Icons.error_outline_rounded;
-    }
-  }
-}
-
-/// Typed Error View Widget with automatic error classification
-class SahoolTypedErrorView extends StatelessWidget {
-  final Object error;
-  final VoidCallback? onRetry;
-  final bool showDetails;
-
-  const SahoolTypedErrorView({
-    super.key,
-    required this.error,
-    this.onRetry,
-    this.showDetails = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final errorType = SahoolErrorUtil.getErrorType(error);
-    final message = SahoolErrorUtil.getLocalizedMessage(errorType);
-    final icon = SahoolErrorUtil.getErrorIcon(errorType);
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Error Icon
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: SahoolColors.danger.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 64,
-                color: SahoolColors.danger,
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Error Title
-            Text(
-              _getErrorTitle(errorType),
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: SahoolColors.textDark,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 12),
-
-            // Error Message
-            Text(
-              message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: SahoolColors.textSecondary,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-
-            // Error Details (debug only)
-            if (showDetails) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
+    return Semantics(
+      container: true,
+      label: isArabic ? 'شاشة عدم الاتصال' : 'No connection screen',
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Semantics(
+                label: isArabic ? 'لا يوجد اتصال واي فاي' : 'No WiFi connection',
+                child: Icon(
+                  Icons.wifi_off_rounded,
+                  size: 80,
+                  color: Colors.grey[400],
                 ),
+              ),
+              const SizedBox(height: 24),
+              Semantics(
+                header: true,
                 child: Text(
-                  error.toString(),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontFamily: 'monospace',
-                    color: Colors.grey,
-                  ),
-                  textAlign: TextAlign.start,
+                  isArabic ? 'لا يوجد اتصال بالإنترنت' : 'No internet connection',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                  textAlign: TextAlign.center,
                 ),
               ),
+              const SizedBox(height: 12),
+              Semantics(
+                liveRegion: true,
+                child: Text(
+                  isArabic
+                      ? 'تحقق من اتصالك بالإنترنت وحاول مرة أخرى'
+                      : 'Check your internet connection and try again',
+                  style: TextStyle(color: Colors.grey[600]),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              if (onRetry != null) ...[
+                const SizedBox(height: 32),
+                Semantics(
+                  button: true,
+                  hint: isArabic
+                      ? 'اضغط لإعادة المحاولة'
+                      : 'Tap to retry the connection',
+                  child: OutlinedButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: Text(isArabic ? 'إعادة المحاولة' : 'Retry'),
+                  ),
+                ),
+              ],
             ],
-
-            const SizedBox(height: 32),
-
-            // Retry Button
-            if (onRetry != null)
-              ElevatedButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('إعادة المحاولة'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: SahoolColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 16,
-                  ),
-                ),
-              ),
-          ],
+          ),
         ),
       ),
     );
-  }
-
-  String _getErrorTitle(SahoolErrorType type) {
-    switch (type) {
-      case SahoolErrorType.network:
-        return 'مشكلة في الاتصال';
-      case SahoolErrorType.timeout:
-        return 'انتهت المهلة';
-      case SahoolErrorType.authentication:
-        return 'جلسة منتهية';
-      case SahoolErrorType.permission:
-        return 'غير مصرح';
-      case SahoolErrorType.notFound:
-        return 'غير موجود';
-      case SahoolErrorType.server:
-        return 'خطأ في الخادم';
-      case SahoolErrorType.validation:
-        return 'بيانات غير صحيحة';
-      case SahoolErrorType.unknown:
-        return 'حدث خطأ';
-    }
   }
 }

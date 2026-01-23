@@ -1,9 +1,7 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
-import 'package:latlong2/latlong.dart' hide Path;
+import 'package:latlong2/latlong.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/ui/field_status_mapper.dart';
 import '../../../core/ui/sync_indicator.dart';
@@ -42,71 +40,59 @@ class _MapScreenState extends State<MapScreen> {
 
   // بيانات وهمية للحقول (Mock Data)
   final List<Field> _mockFields = [
-    Field(
+    const Field(
       id: '1',
-      tenantId: 'tenant-1',
       name: 'القطعة الشمالية',
       cropType: 'قمح',
-      areaHectares: 2.4,
-      ndviCurrent: 0.78,
+      areaHa: 2.4,
+      ndvi: 0.78,
+      status: FieldStatus.healthy,
       pendingTasks: 1,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
     ),
-    Field(
+    const Field(
       id: '2',
-      tenantId: 'tenant-1',
       name: 'حقل الذرة',
       cropType: 'ذرة',
-      areaHectares: 3.1,
-      ndviCurrent: 0.65,
+      areaHa: 3.1,
+      ndvi: 0.65,
+      status: FieldStatus.healthy,
       pendingTasks: 0,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
     ),
-    Field(
+    const Field(
       id: '3',
-      tenantId: 'tenant-1',
       name: 'البستان الغربي',
       cropType: 'عنب',
-      areaHectares: 1.8,
-      ndviCurrent: 0.52,
+      areaHa: 1.8,
+      ndvi: 0.52,
+      status: FieldStatus.stressed,
       pendingTasks: 2,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
     ),
-    Field(
+    const Field(
       id: '4',
-      tenantId: 'tenant-1',
       name: 'حقل الطماطم',
       cropType: 'طماطم',
-      areaHectares: 0.9,
-      ndviCurrent: 0.35,
+      areaHa: 0.9,
+      ndvi: 0.35,
+      status: FieldStatus.critical,
       pendingTasks: 4,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
     ),
-    Field(
+    const Field(
       id: '5',
-      tenantId: 'tenant-1',
       name: 'المنطقة الجنوبية',
       cropType: 'برسيم',
-      areaHectares: 4.2,
-      ndviCurrent: 0.71,
+      areaHa: 4.2,
+      ndvi: 0.71,
+      status: FieldStatus.healthy,
       pendingTasks: 0,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
     ),
-    Field(
+    const Field(
       id: '6',
-      tenantId: 'tenant-1',
       name: 'حقل البطاطا',
       cropType: 'بطاطا',
-      areaHectares: 1.5,
-      ndviCurrent: 0.48,
+      areaHa: 1.5,
+      ndvi: 0.48,
+      status: FieldStatus.stressed,
       pendingTasks: 1,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
     ),
   ];
 

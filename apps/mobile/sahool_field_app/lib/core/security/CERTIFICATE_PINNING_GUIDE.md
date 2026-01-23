@@ -1,170 +1,105 @@
-# SSL Certificate Pinning Implementation Guide
-
-## دليل تطبيق تثبيت شهادات SSL
-
-This guide explains how to use and configure SSL certificate pinning in the SAHOOL Field App.
-
----
-
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Quick Start](#quick-start)
-3. [Getting Certificate Fingerprints](#getting-certificate-fingerprints)
-4. [Configuration](#configuration)
-5. [Certificate Rotation](#certificate-rotation)
-6. [Testing](#testing)
-7. [Troubleshooting](#troubleshooting)
-
----
+# Certificate Pinning Implementation Guide
 
 ## Overview
 
-SSL Certificate Pinning is a security mechanism that ensures your app only trusts specific SSL certificates, preventing man-in-the-middle attacks even if a Certificate Authority is compromised.
+This mobile app implements SSL certificate pinning for enhanced security. Certificate pinning helps prevent man-in-the-middle attacks by validating that the server's SSL certificate matches a known fingerprint.
 
-### Features
+## How It Works
 
-- ✅ SHA-256 fingerprint pinning
-- ✅ Public key pinning support
-- ✅ Multiple pins per domain (for rotation)
-- ✅ Pin expiry tracking
-- ✅ Debug mode bypass
-- ✅ Automatic validation
-- ✅ Wildcard domain support
-- ✅ Certificate rotation helpers
+1. **Development Mode**: Certificate pinning is DISABLED by default to allow testing with local servers
+2. **Staging Mode**: Certificate pinning is ENABLED but not strict (allows bypass in debug mode)
+3. **Production Mode**: Certificate pinning is ENABLED and STRICT (no bypass allowed)
 
-### Security Levels
+The security configuration is automatically selected based on the build mode:
 
-Certificate pinning is enabled based on security level:
+- Debug builds → Development config (pinning disabled)
+- Release builds → Production config (pinning enabled and strict)
 
-- **Low/Medium**: Disabled (development friendly)
-- **High**: Enabled with debug bypass allowed
-- **Maximum**: Strict mode, no bypasses
+## Configuration Files
 
----
+### 1. `certificate_pinning_service.dart`
 
-## Quick Start
+Core service that handles certificate validation and pinning logic.
 
-### 1. Install Dependencies
+### 2. `certificate_config.dart`
 
-The required dependency is already added to `pubspec.yaml`:
+Contains the actual certificate fingerprints for all domains (production, staging, development).
 
-```yaml
-dependencies:
-  dio_certificate_pinning: ^1.0.0
-```
+**IMPORTANT**: You MUST replace the placeholder fingerprints with actual values before deploying to production!
 
-Run:
+### 3. `security_config.dart`
 
-```bash
-flutter pub get
-```
-
-### 2. Basic Usage
-
-The certificate pinning is automatically configured when you create an `ApiClient` with a security config:
-
-```dart
-import 'package:sahool_field_app/core/http/api_client.dart';
-import 'package:sahool_field_app/core/security/security_config.dart';
-
-// Enable certificate pinning with high security
-final apiClient = ApiClient(
-  securityConfig: SecurityConfig(level: SecurityLevel.high),
-);
-```
-
-That's it! Certificate pinning is now active.
-
----
+Controls when certificate pinning is enabled based on environment.
 
 ## Getting Certificate Fingerprints
 
-**IMPORTANT**: Replace placeholder fingerprints in `certificate_config.dart` with actual values!
+Before deploying to production, you need to obtain the actual SHA-256 fingerprints of your SSL certificates.
 
-### Method 1: Using the Built-in Helper (Recommended)
-
-Add this debug code to your app:
-
-```dart
-import 'package:sahool_field_app/core/security/certificate_tools.dart';
-import 'package:flutter/foundation.dart';
-
-void _debugExtractCertificates() async {
-  if (!kDebugMode) return;
-
-  // Single certificate
-  final info = await getCertificateInfo('https://api.sahool.app');
-  if (info != null) {
-    print(info);
-    printCertificateConfigCode(info);
-  }
-
-  // Multiple certificates
-  final urls = [
-    'https://api.sahool.app',
-    'https://api-staging.sahool.app',
-    'https://ws.sahool.app',
-  ];
-  final results = await getCertificateInfoBatch(urls);
-  generateBulkConfiguration(results);
-}
-```
-
-Run this in your app, and it will print the configuration code you can copy directly into `certificate_config.dart`.
-
-### Method 2: Using OpenSSL Command Line
+### Method 1: Using OpenSSL (Recommended)
 
 ```bash
-# Get certificate fingerprint
+# For production API
 openssl s_client -connect api.sahool.app:443 < /dev/null 2>/dev/null | \
   openssl x509 -fingerprint -sha256 -noout -in /dev/stdin
 
-# Or get full certificate info
-openssl s_client -connect api.sahool.app:443 -showcerts < /dev/null 2>/dev/null | \
-  openssl x509 -text -noout
+# For staging API
+openssl s_client -connect api-staging.sahool.app:443 < /dev/null 2>/dev/null | \
+  openssl x509 -fingerprint -sha256 -noout -in /dev/stdin
+
+# For WebSocket server
+openssl s_client -connect ws.sahool.app:443 < /dev/null 2>/dev/null | \
+  openssl x509 -fingerprint -sha256 -noout -in /dev/stdin
+```
+
+### Method 2: Using the App (Debug Mode)
+
+Add this code to your app during development:
+
+```dart
+import 'package:sahool_field_app/core/security/certificate_pinning_service.dart';
+
+void checkCertificateFingerprint() async {
+  final fingerprint = await getCertificateFingerprintFromUrl('https://api.sahool.app');
+  print('Production API Fingerprint: $fingerprint');
+
+  final stagingFingerprint = await getCertificateFingerprintFromUrl('https://api-staging.sahool.app');
+  print('Staging API Fingerprint: $stagingFingerprint');
+}
 ```
 
 ### Method 3: Using Browser
 
-1. Navigate to `https://api.sahool.app` in Chrome/Firefox
-2. Click the lock icon 🔒 in address bar
-3. Click "Certificate" → "Details"
-4. Find "SHA-256 Fingerprint"
-5. Copy the fingerprint
+1. Navigate to your API URL in Chrome/Firefox
+2. Click the lock icon in the address bar
+3. Click "Certificate" or "Certificate (Valid)"
+4. Go to "Details" tab
+5. Look for "SHA-256 Fingerprint" or "Thumbprint"
+6. Copy the value
 
-### Method 4: Using Online Tools
+## Updating Certificate Pins
 
-```bash
-# Using curl and openssl
-curl --insecure -v https://api.sahool.app 2>&1 | \
-  awk 'BEGIN { cert=0 } /BEGIN CERT/{ cert=1 } /END CERT/{ cert=0 } { if (cert) print }' | \
-  openssl x509 -fingerprint -sha256 -noout
-```
+### Step 1: Get the Fingerprints
 
----
+Use one of the methods above to get your certificate fingerprints.
 
-## Configuration
+### Step 2: Update `certificate_config.dart`
 
-### Update Certificate Configuration
-
-Edit `/lib/core/security/certificate_config.dart`:
+Replace the placeholder values:
 
 ```dart
 static Map<String, List<CertificatePin>> getProductionPins() {
   return {
     'api.sahool.app': [
-      // Primary certificate
       CertificatePin(
         type: PinType.sha256,
-        value: 'YOUR_ACTUAL_SHA256_FINGERPRINT_HERE',
+        value: 'YOUR_ACTUAL_FINGERPRINT_HERE',  // Replace this!
         expiryDate: DateTime(2026, 12, 31),
         description: 'Primary production certificate',
       ),
-      // Backup certificate for rotation
+      // Always keep a backup pin for rotation
       CertificatePin(
         type: PinType.sha256,
-        value: 'YOUR_BACKUP_SHA256_FINGERPRINT_HERE',
+        value: 'YOUR_BACKUP_FINGERPRINT_HERE',  // Replace this!
         expiryDate: DateTime(2027, 6, 30),
         description: 'Backup production certificate',
       ),
@@ -173,262 +108,170 @@ static Map<String, List<CertificatePin>> getProductionPins() {
 }
 ```
 
-### Add Custom Pins at Runtime
+### Step 3: Verify Configuration
+
+Build the app and check the console logs:
+
+```
+🔒 SSL Certificate Pinning enabled
+   Environment: production
+   Strict mode: true
+   Debug bypass: false
+   Configured domains: [api.sahool.app, ws.sahool.app, *.sahool.io]
+```
+
+## Certificate Rotation
+
+When rotating SSL certificates:
+
+1. **Get new certificate fingerprint** using one of the methods above
+2. **Add new fingerprint** to the configuration BEFORE deploying
+3. **Keep old fingerprint** in the list during transition
+4. **Deploy app update** with both old and new fingerprints
+5. **Update server certificate**
+6. **Remove old fingerprint** after transition period (e.g., 30 days)
+
+Example:
 
 ```dart
-final apiClient = ApiClient(
-  securityConfig: SecurityConfig(level: SecurityLevel.high),
-);
-
-// Add/update pins for a domain
-apiClient.updateCertificatePins('api.sahool.app', [
+'api.sahool.app': [
+  // Old certificate (to be removed after rotation)
+  CertificatePin(
+    type: PinType.sha256,
+    value: 'old_fingerprint_here',
+    expiryDate: DateTime(2025, 12, 31),
+    description: 'Old certificate - remove after rotation',
+  ),
+  // New certificate
   CertificatePin(
     type: PinType.sha256,
     value: 'new_fingerprint_here',
-    expiryDate: DateTime(2027, 1, 1),
-  ),
-]);
-```
-
-### Wildcard Domains
-
-Support multiple subdomains with a single wildcard:
-
-```dart
-'*.sahool.io': [
-  CertificatePin(
-    type: PinType.sha256,
-    value: 'fingerprint_for_wildcard_cert',
-    expiryDate: DateTime(2026, 12, 31),
+    expiryDate: DateTime(2027, 12, 31),
+    description: 'New certificate',
   ),
 ],
 ```
 
-This will match: `api.sahool.io`, `cdn.sahool.io`, `static.sahool.io`, etc.
+## Production Deployment Checklist
 
----
+Before deploying to production:
 
-## Certificate Rotation
-
-### Why Multiple Pins?
-
-Having 2+ pins per domain allows you to rotate certificates without app downtime:
-
-1. Deploy new certificate to server (both old and new certs valid)
-2. App validates against either pin (old or new)
-3. Release app update with only new pin
-4. Remove old certificate from server
-
-### Rotation Steps
-
-1. **Before Certificate Expires**: Generate new certificate
-2. **Install Both Certificates**: On your server
-3. **Add New Pin to App**:
-   ```dart
-   'api.sahool.app': [
-     // Keep old pin
-     CertificatePin(
-       type: PinType.sha256,
-       value: 'old_fingerprint',
-       expiryDate: DateTime(2026, 6, 30),
-     ),
-     // Add new pin
-     CertificatePin(
-       type: PinType.sha256,
-       value: 'new_fingerprint',
-       expiryDate: DateTime(2027, 6, 30),
-     ),
-   ],
-   ```
-4. **Release App Update**
-5. **Wait for User Adoption** (2-4 weeks)
-6. **Remove Old Pin** from app config
-7. **Remove Old Certificate** from server
-
-### Monitor Expiring Pins
-
-```dart
-final expiringPins = apiClient.getExpiringPins(daysThreshold: 60);
-if (expiringPins.isNotEmpty) {
-  print('⚠️ Certificates expiring soon:');
-  for (final pin in expiringPins) {
-    print('  ${pin.domain}: ${pin.daysUntilExpiry} days left');
-  }
-}
-```
-
-### Validation Helper
-
-```dart
-import 'package:sahool_field_app/core/security/certificate_config.dart';
-
-final pins = CertificateConfig.getProductionPins();
-final issues = CertificateRotationHelper.validatePinConfiguration(pins);
-
-if (issues.isNotEmpty) {
-  print('⚠️ Configuration Issues:');
-  for (final issue in issues) {
-    print('  - $issue');
-  }
-}
-```
-
----
+- [ ] Replace ALL placeholder fingerprints with actual values
+- [ ] Verify fingerprints match your production servers
+- [ ] Add backup pins for certificate rotation
+- [ ] Set appropriate expiry dates
+- [ ] Test in staging environment first
+- [ ] Verify app can connect to production API
+- [ ] Monitor for certificate validation errors
 
 ## Testing
 
-### Test in Debug Mode
+### Development Testing
 
-By default, certificate pinning is bypassed in debug mode for development:
+Certificate pinning is disabled in debug mode by default, so you can test with local servers.
 
-```dart
-// Debug mode - pinning bypassed (if allowPinningDebugBypass = true)
-flutter run --debug
+### Staging Testing
 
-// Release mode - pinning enforced
-flutter run --release
-```
+1. Build in release mode with staging environment:
 
-### Force Enable in Debug
+   ```bash
+   flutter build apk --dart-define=ENV=staging
+   ```
 
-```dart
-final apiClient = ApiClient(
-  securityConfig: SecurityConfig(level: SecurityLevel.maximum), // No bypass
-);
-```
+2. Install and test:
 
-### Test Certificate Validation
+   ```bash
+   adb install build/app/outputs/flutter-apk/app-release.apk
+   adb logcat | grep "Certificate"
+   ```
 
-```dart
-if (kDebugMode) {
-  // Verify actual certificate matches expected
-  await verifyCertificateFingerprint(
-    url: 'https://api.sahool.app',
-    expectedFingerprint: 'your_fingerprint_here',
-  );
-}
-```
+3. Verify logs show certificate pinning is working
 
-### Test Different Scenarios
+### Production Testing
 
-1. **Valid Certificate**: Should connect successfully
-2. **Wrong Certificate**: Should fail with certificate error
-3. **Expired Pin**: Should fail or fallback (depending on config)
-4. **No Pins Configured**: Behavior depends on `enforceStrict` setting
+1. Build production release:
 
----
+   ```bash
+   flutter build apk --dart-define=ENV=production --release
+   ```
+
+2. Test on a real device (not emulator)
+
+3. Verify app connects successfully and logs show:
+   ```
+   ✅ Certificate pin matched for host: api.sahool.app
+   ```
 
 ## Troubleshooting
 
-### Issue: "Certificate validation failed"
+### App Cannot Connect in Production
 
-**Cause**: Certificate fingerprint doesn't match configured pins.
+**Symptom**: App shows network errors in production but works in development
 
-**Solutions**:
+**Possible Causes**:
 
-1. Extract actual fingerprint and update config
-2. Check if certificate was recently rotated
-3. Verify domain name matches exactly
-4. Check if using wildcard cert incorrectly
+1. Certificate fingerprints don't match actual server certificates
+2. Certificate has expired
+3. Using wrong environment configuration
 
-### Issue: "No certificate pins configured"
+**Solution**:
 
-**Cause**: Domain not in configuration.
+1. Get current certificate fingerprint from server
+2. Update `certificate_config.dart` with correct value
+3. Rebuild and redeploy app
 
-**Solutions**:
+### Certificate Validation Failed
 
-1. Add domain to `certificate_config.dart`
-2. Check for typos in domain name
-3. Use wildcard if appropriate
+**Symptom**: Logs show "Certificate validation failed for host: api.sahool.app"
 
-### Issue: "All pins expired"
+**Solution**:
 
-**Cause**: All configured pins have passed their expiry date.
+1. Check that the fingerprint in the logs matches your configuration
+2. Verify the domain name matches exactly
+3. Ensure certificate hasn't expired
 
-**Solutions**:
+### Certificate Pinning Bypassed in Production
 
-1. Update certificate configuration with new pins
-2. Check actual certificate on server
-3. Implement monitoring for expiring pins
+**Symptom**: Logs show "Certificate pinning bypassed in debug mode" in production
 
-### Issue: App works in debug but fails in release
+**Solution**:
 
-**Cause**: Debug bypass is enabled, release enforces pinning.
+1. Ensure you're building with `--release` flag
+2. Check that `SecurityConfig.fromBuildMode()` returns production config
+3. Verify `kReleaseMode` is true in production builds
 
-**Solutions**:
+## Security Best Practices
 
-1. This is expected behavior for security
-2. Update pins to match actual certificates
-3. Temporarily use Medium security level if needed
+1. **Always use at least 2 pins** per domain for safe rotation
+2. **Monitor expiry dates** - plan rotation 30+ days before expiry
+3. **Never commit real fingerprints** to public repositories (use environment variables or secure CI/CD)
+4. **Test thoroughly** in staging before production deployment
+5. **Have a rollback plan** in case of certificate issues
+6. **Monitor production logs** for certificate validation errors
 
-### Issue: Certificate works in browser but not in app
+## Environment Variables
 
-**Cause**: Certificate chain or pinning mismatch.
+You can override certificate pinning behavior using environment variables:
 
-**Solutions**:
+```bash
+# Disable certificate pinning (for development only!)
+flutter run --dart-define=DISABLE_CERT_PINNING=true
 
-1. Verify you're pinning the correct certificate in chain
-2. Check if intermediate certificates are involved
-3. Use `getCertificateInfo()` tool to inspect
-
-### Debug Certificate Issues
-
-Add this to see detailed certificate info:
-
-```dart
-import 'package:sahool_field_app/core/security/certificate_config.dart';
-
-void debugCertificateConfig() {
-  final pins = CertificateConfig.getProductionPins();
-  final status = CertificateRotationHelper.getConfigurationStatus(pins);
-  print(status);
-}
+# Force production security config
+flutter build apk --dart-define=ENV=production --release
 ```
-
----
-
-## Best Practices
-
-1. **Always Have 2+ Pins Per Domain**: For safe rotation
-2. **Set Expiry Dates**: Track certificate lifetimes
-3. **Monitor Expiring Pins**: Check monthly
-4. **Test Before Release**: Verify pins in staging first
-5. **Document Rotation Dates**: Keep a schedule
-6. **Backup Pins**: Keep old pins during transition
-7. **Use Environment-Specific Configs**: Different pins for prod/staging
-8. **Regular Audits**: Review pins quarterly
-
----
-
-## Security Levels Summary
-
-| Level   | Pinning | Strict | Debug Bypass | Use Case      |
-| ------- | ------- | ------ | ------------ | ------------- |
-| Low     | ❌      | ❌     | ✅           | Development   |
-| Medium  | ❌      | ❌     | ✅           | Testing       |
-| High    | ✅      | ❌     | ✅           | Production    |
-| Maximum | ✅      | ✅     | ❌           | High Security |
-
----
-
-## Additional Resources
-
-- [OWASP Certificate Pinning](https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning)
-- [Flutter Security Best Practices](https://docs.flutter.dev/security)
-- [Dio Documentation](https://pub.dev/packages/dio)
-
----
 
 ## Support
 
-For issues or questions about certificate pinning:
+For questions or issues with certificate pinning:
 
-1. Check this guide first
-2. Review `/lib/core/security/certificate_tools.dart` for debugging
-3. Contact the security team
-4. Check server certificate configuration
+1. Check logs for specific error messages
+2. Verify certificate fingerprints match
+3. Review this guide's troubleshooting section
+4. Contact the security team for assistance
 
----
+## References
 
-**Last Updated**: 2025-01-01
-**Version**: 1.0.0
+- [OWASP Certificate Pinning Guide](https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning)
+- [Dio SSL Pinning Documentation](https://pub.dev/packages/dio#https-certificate-verification)
+- [Flutter Security Best Practices](https://flutter.dev/docs/deployment/security)

@@ -5,6 +5,7 @@ library;
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../../core/config/api_config.dart';
+import '../../../../core/config/env_config.dart';
 import '../models/virtual_sensor_models.dart';
 
 /// Exception for virtual sensors API errors
@@ -26,9 +27,9 @@ class VirtualSensorsRepository {
   final http.Client _client;
   final String? _authToken;
 
-  /// Base URL for virtual sensors service (port 8119 - Kong route)
+  /// Base URL for virtual sensors service (port 8096)
   static String get _baseUrl => ApiConfig.useDirectServices
-      ? ApiConfig.virtualSensorsServiceUrl
+      ? EnvConfig.virtualSensorsUrl
       : ApiConfig.effectiveBaseUrl;
 
   VirtualSensorsRepository({

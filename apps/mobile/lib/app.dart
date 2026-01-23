@@ -15,6 +15,7 @@ import 'features/marketplace/marketplace_screen.dart';
 import 'features/wallet/wallet_screen.dart';
 import 'features/community/ui/community_screen.dart';
 import 'features/market/ui/sell_harvest_dialog.dart';
+import 'features/onboarding/onboarding.dart';
 
 /// SAHOOL Field App
 /// تطبيق سهول الميداني
@@ -55,7 +56,7 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
       themeMode: ThemeMode.system,
 
       // Routes
-      home: const MainAppShell(),
+      home: const _AppStartupWrapper(),
       onGenerateRoute: _generateRoute,
     );
   }
@@ -65,6 +66,11 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
       case '/':
         return _buildRoute(
           const MainAppShell().withScreenErrorBoundary(screenName: 'MainAppShell'),
+          settings,
+        );
+      case '/onboarding':
+        return _buildRoute(
+          const OnboardingScreen().withScreenErrorBoundary(screenName: 'OnboardingScreen'),
           settings,
         );
       case '/tasks':
@@ -110,6 +116,81 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
     return MaterialPageRoute(
       builder: (_) => page,
       settings: settings,
+    );
+  }
+}
+
+/// App Startup Wrapper
+/// يتحقق من حالة الإعداد الأولي عند بدء التطبيق
+class _AppStartupWrapper extends ConsumerWidget {
+  const _AppStartupWrapper();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final onboardingCompleted = ref.watch(onboardingCompletedProvider);
+
+    return onboardingCompleted.when(
+      data: (completed) {
+        if (completed) {
+          return const MainAppShell().withScreenErrorBoundary(screenName: 'MainAppShell');
+        }
+        return const OnboardingScreen().withScreenErrorBoundary(screenName: 'OnboardingScreen');
+      },
+      loading: () => const _SplashScreen(),
+      error: (_, __) => const MainAppShell().withScreenErrorBoundary(screenName: 'MainAppShell'),
+    );
+  }
+}
+
+/// Splash Screen while checking onboarding status
+/// شاشة البداية أثناء التحقق من حالة الإعداد
+class _SplashScreen extends StatelessWidget {
+  const _SplashScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                SahoolTheme.primary,
+                Color(0xFF1B4D1B),
+              ],
+            ),
+          ),
+          child: const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.eco_rounded,
+                  size: 80,
+                  color: Colors.white,
+                ),
+                SizedBox(height: 24),
+                Text(
+                  'ساهول',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 48),
+                CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

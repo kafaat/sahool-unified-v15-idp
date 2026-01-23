@@ -5,22 +5,24 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/atmosphere_theme.dart';
 import '../widgets/holographic_field_card.dart';
 import '../widgets/voice_control_button.dart';
 import '../widgets/stats_panel.dart';
 import '../widgets/weather_widget.dart';
+import '../providers/theme_provider.dart';
 import 'fields_list_screen.dart';
 import 'field_map_screen.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   int _currentIndex = 0;
 
   void _navigateToTab(int index) {
@@ -38,17 +40,148 @@ class _DashboardScreenState extends State<DashboardScreen> {
           MaterialPageRoute(builder: (_) => const FieldsListScreen()),
         );
         break;
+      case 3: // More - Show theme options
+        _showThemeOptions();
+        break;
       default:
         setState(() => _currentIndex = index);
     }
   }
 
+  /// Show theme selection bottom sheet
+  /// عرض خيارات الثيم
+  void _showThemeOptions() {
+    final currentTheme = ref.read(themeModeProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AtmosphereRadius.xl),
+          ),
+        ),
+        padding: const EdgeInsets.all(AtmosphereSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AtmosphereColors.textMuted
+                    : AtmosphereLightColors.textMuted,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: AtmosphereSpacing.lg),
+
+            // Title
+            Text(
+              'الوضع | Theme',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: AtmosphereSpacing.lg),
+
+            // Theme options
+            _buildThemeOption(
+              icon: Icons.brightness_auto_rounded,
+              titleAr: 'تلقائي (حسب النظام)',
+              titleEn: 'System Default',
+              isSelected: currentTheme == ThemeMode.system,
+              onTap: () {
+                ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.system);
+                Navigator.pop(context);
+              },
+            ),
+            _buildThemeOption(
+              icon: Icons.light_mode_rounded,
+              titleAr: 'الوضع النهاري',
+              titleEn: 'Light Mode',
+              isSelected: currentTheme == ThemeMode.light,
+              onTap: () {
+                ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light);
+                Navigator.pop(context);
+              },
+            ),
+            _buildThemeOption(
+              icon: Icons.dark_mode_rounded,
+              titleAr: 'الوضع الليلي',
+              titleEn: 'Dark Mode',
+              isSelected: currentTheme == ThemeMode.dark,
+              onTap: () {
+                ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark);
+                Navigator.pop(context);
+              },
+            ),
+
+            const SizedBox(height: AtmosphereSpacing.lg),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeOption({
+    required IconData icon,
+    required String titleAr,
+    required String titleEn,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AtmosphereColors.success : AtmosphereLightColors.success;
+    final textColor = isDark ? AtmosphereColors.textPrimary : AtmosphereLightColors.textPrimary;
+    final mutedColor = isDark ? AtmosphereColors.textMuted : AtmosphereLightColors.textMuted;
+
+    return ListTile(
+      onTap: onTap,
+      leading: Icon(
+        icon,
+        color: isSelected ? primaryColor : mutedColor,
+      ),
+      title: Text(
+        titleAr,
+        style: TextStyle(
+          color: isSelected ? primaryColor : textColor,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      subtitle: Text(
+        titleEn,
+        style: TextStyle(
+          color: mutedColor,
+          fontSize: 12,
+        ),
+      ),
+      trailing: isSelected
+          ? Icon(Icons.check_circle, color: primaryColor)
+          : null,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AtmosphereColors.bgGradient,
+        decoration: BoxDecoration(
+          gradient: isDark
+              ? AtmosphereColors.bgGradient
+              : const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AtmosphereLightColors.bgPrimary,
+                    AtmosphereLightColors.bgSecondary,
+                  ],
+                ),
         ),
         child: SafeArea(
           child: Stack(
@@ -81,16 +214,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                     actions: [
+                      // Theme Toggle Button
+                      IconButton(
+                        icon: Icon(
+                          isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                        ),
+                        color: isDark
+                            ? AtmosphereColors.textSecondary
+                            : AtmosphereLightColors.textSecondary,
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          ref.read(themeModeProvider.notifier).toggleTheme();
+                        },
+                        tooltip: isDark ? 'الوضع النهاري' : 'الوضع الليلي',
+                      ),
                       IconButton(
                         icon: const Icon(Icons.notifications_outlined),
-                        color: AtmosphereColors.textSecondary,
+                        color: isDark
+                            ? AtmosphereColors.textSecondary
+                            : AtmosphereLightColors.textSecondary,
                         onPressed: () {
                           HapticFeedback.lightImpact();
                         },
                       ),
                       IconButton(
                         icon: const Icon(Icons.person_outline),
-                        color: AtmosphereColors.textSecondary,
+                        color: isDark
+                            ? AtmosphereColors.textSecondary
+                            : AtmosphereLightColors.textSecondary,
                         onPressed: () {
                           HapticFeedback.lightImpact();
                         },
@@ -250,15 +401,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildBottomNav() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: AtmosphereColors.bgSecondary,
+        color: isDark
+            ? AtmosphereColors.bgSecondary
+            : AtmosphereLightColors.bgSecondary,
         border: Border(
           top: BorderSide(
-            color: AtmosphereColors.glassBorder,
+            color: isDark
+                ? AtmosphereColors.glassBorder
+                : AtmosphereLightColors.border,
             width: 1,
           ),
         ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                ),
+              ],
       ),
       child: SafeArea(
         child: Padding(
@@ -280,6 +446,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildNavItem(IconData icon, String label, int index) {
     final isActive = _currentIndex == index;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final activeColor = isDark ? AtmosphereColors.success : AtmosphereLightColors.success;
+    final inactiveColor = isDark ? AtmosphereColors.textMuted : AtmosphereLightColors.textMuted;
+
     return GestureDetector(
       onTap: () => _navigateToTab(index),
       child: Column(
@@ -287,14 +458,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Icon(
             icon,
-            color: isActive ? AtmosphereColors.success : AtmosphereColors.textMuted,
+            color: isActive ? activeColor : inactiveColor,
             size: 24,
           ),
           const SizedBox(height: AtmosphereSpacing.xs),
           Text(
             label,
-            style: AtmosphereTypography.bodySmall.copyWith(
-              color: isActive ? AtmosphereColors.success : AtmosphereColors.textMuted,
+            style: TextStyle(
+              fontSize: 12,
+              color: isActive ? activeColor : inactiveColor,
             ),
           ),
         ],

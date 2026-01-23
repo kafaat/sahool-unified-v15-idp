@@ -24,6 +24,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme/atmosphere_theme.dart';
 import 'screens/dashboard_screen.dart';
 import 'core/security/device_security.dart';
+import 'providers/theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -77,14 +78,19 @@ class SahoolAtmosphereApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the theme mode provider
+    // مراقبة مزود وضع الثيم
+    final themeMode = ref.watch(themeModeProvider);
+
     return MaterialApp(
       title: 'ساهول أتموسفير',
       debugShowCheckedModeBanner: false,
 
-      // Theme Configuration
-      theme: AtmosphereTheme.darkTheme,
+      // Theme Configuration - supports light/dark/system
+      // تكوين الثيم - يدعم النهاري/الليلي/النظام
+      theme: AtmosphereTheme.lightTheme,
       darkTheme: AtmosphereTheme.darkTheme,
-      themeMode: ThemeMode.dark, // Always dark for battery saving in sunlight
+      themeMode: themeMode, // Follows user preference or system setting
 
       // Localization
       locale: const Locale('ar', 'SA'),

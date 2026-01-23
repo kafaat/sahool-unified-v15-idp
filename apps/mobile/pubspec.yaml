@@ -110,6 +110,10 @@ dependencies:
   record: ^6.1.2
   permission_handler: ^12.0.1
 
+  # Voice Commands - الأوامر الصوتية
+  speech_to_text: ^7.0.0  # Speech recognition (التعرف على الصوت)
+  flutter_tts: ^4.2.0  # Text-to-speech (تحويل النص إلى كلام)
+
   # Sharing & URLs
   share_plus: ^12.0.1
   url_launcher: ^6.2.2
@@ -125,6 +129,10 @@ dependencies:
   # Crash Reporting & Error Monitoring
   # تقارير الأعطال ومراقبة الأخطاء
   sentry_flutter: ^8.11.0
+
+  # Motion Sensors - مستشعرات الحركة
+  # Used for gyroscope-based parallax effects and tilt detection
+  sensors_plus: ^7.0.0
 
 dev_dependencies:
   flutter_test:

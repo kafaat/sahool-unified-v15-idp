@@ -122,6 +122,10 @@ dependencies:
   device_info_plus: ^12.3.0
   package_info_plus: ^9.0.0
 
+  # Crash Reporting & Error Monitoring
+  # تقارير الأعطال ومراقبة الأخطاء
+  sentry_flutter: ^8.11.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

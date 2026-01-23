@@ -14,8 +14,11 @@ import 'core/security/device_security_screen.dart';
 import 'core/security/security_config.dart';
 import 'core/utils/app_logger.dart';
 import 'core/error/error.dart';
+import 'core/crash/crash_reporter.dart';
+import 'core/crash/crash_config.dart';
+import 'core/crash/breadcrumb_service.dart';
 
-// Global crash reporting instance
+// Global crash reporting instance (legacy - kept for compatibility)
 final crashReporting = CrashReportingService();
 
 void main() async {
@@ -27,7 +30,20 @@ void main() async {
     // Log to console in debug mode
     FlutterError.presentError(details);
 
-    // Report to crash reporting service
+    // Report to new CrashReporter (with Sentry integration)
+    crashReporter.reportError(
+      details.exception,
+      details.stack,
+      severity: CrashSeverity.error,
+      reason: details.context?.toString(),
+      context: {
+        'library': details.library ?? 'unknown',
+        'silent': details.silent,
+      },
+      fatal: false,
+    );
+
+    // Report to legacy crash reporting service
     crashReporting.reportError(
       details.exception,
       details.stack,
@@ -59,7 +75,16 @@ void main() async {
   PlatformDispatcher.instance.onError = (error, stack) {
     AppLogger.critical('Platform Dispatcher Error: $error', tag: 'Main', error: error, stackTrace: stack);
 
-    // Report to crash reporting service
+    // Report to new CrashReporter (with Sentry integration)
+    crashReporter.reportError(
+      error,
+      stack,
+      severity: CrashSeverity.fatal,
+      reason: 'Platform Dispatcher Error',
+      fatal: true,
+    );
+
+    // Report to legacy crash reporting service
     crashReporting.reportError(
       error,
       stack,
@@ -92,7 +117,25 @@ void main() async {
       // Continue anyway - defaults will be used
     }
 
-    // Initialize crash reporting service early
+    // Initialize new CrashReporter with Sentry integration
+    try {
+      final crashConfig = CrashConfig.fromEnvironment();
+      await crashReporter.initialize(crashConfig);
+
+      // Record app start breadcrumb
+      breadcrumbService.recordLifecycle('app_started');
+      breadcrumbService.recordSystem('environment', data: {
+        'env': EnvConfig.environment.name,
+        'version': EnvConfig.fullVersion,
+        'platform': defaultTargetPlatform.name,
+      });
+
+      AppLogger.i('New CrashReporter initialized (Sentry: ${crashConfig.hasSentryDsn})', tag: 'Main');
+    } catch (e) {
+      AppLogger.w('CrashReporter init failed (non-critical): $e', tag: 'Main');
+    }
+
+    // Initialize legacy crash reporting service (for compatibility)
     try {
       await crashReporting.initialize(
         samplingRate: 1.0, // 100% in production, can be adjusted
@@ -106,13 +149,13 @@ void main() async {
         level: BreadcrumbLevel.info,
       );
 
-      AppLogger.i('Crash reporting initialized', tag: 'Main');
+      AppLogger.i('Legacy crash reporting initialized', tag: 'Main');
 
       // Initialize ErrorReporter (integrates with crash reporting)
       await errorReporter.initialize();
       AppLogger.i('ErrorReporter initialized', tag: 'Main');
     } catch (e) {
-      AppLogger.w('Crash reporting init failed (non-critical): $e', tag: 'Main');
+      AppLogger.w('Legacy crash reporting init failed (non-critical): $e', tag: 'Main');
     }
 
     // Device Integrity Check - Security Feature
@@ -123,6 +166,8 @@ void main() async {
     // Perform device integrity check if enabled
     if (securityConfig.deviceIntegrityPolicy != DeviceIntegrityPolicy.disabled) {
       try {
+        // Record breadcrumbs in both systems
+        breadcrumbService.recordSystem('device_integrity_check_starting');
         crashReporting.recordBreadcrumb(
           message: 'Starting device integrity check',
           category: 'security',
@@ -312,6 +357,7 @@ void main() async {
 
     // Start foreground sync when app is active (non-blocking)
     try {
+      breadcrumbService.recordSync('foreground', success: true);
       crashReporting.recordBreadcrumb(
         message: 'Starting foreground sync',
         category: 'lifecycle',
@@ -320,6 +366,14 @@ void main() async {
       syncEngine.startPeriodic();
     } catch (e, stackTrace) {
       AppLogger.w('Foreground sync start failed: $e', tag: 'Main');
+      breadcrumbService.recordSync('foreground', success: false);
+      crashReporter.reportError(
+        e,
+        stackTrace,
+        severity: CrashSeverity.warning,
+        reason: 'Foreground sync start failed (non-critical)',
+        fatal: false,
+      );
       crashReporting.reportError(
         e,
         stackTrace,
@@ -332,7 +386,16 @@ void main() async {
     // Global zone error handler - catches all uncaught async errors
     AppLogger.critical('Uncaught error: $error', tag: 'Main', error: error, stackTrace: stackTrace);
 
-    // Report to crash reporting service
+    // Report to new CrashReporter (with Sentry integration)
+    crashReporter.reportError(
+      error,
+      stackTrace,
+      severity: CrashSeverity.fatal,
+      reason: 'Uncaught zone error',
+      fatal: true,
+    );
+
+    // Report to legacy crash reporting service
     crashReporting.reportError(
       error,
       stackTrace,
@@ -357,4 +420,14 @@ final syncEngineProvider = Provider<SyncEngine>((ref) {
 
 final crashReportingProvider = Provider<CrashReportingService>((ref) {
   return CrashReportingService();
+});
+
+// New Crash Reporter provider (with Sentry integration)
+final newCrashReporterProvider = Provider<CrashReporter>((ref) {
+  return CrashReporter.instance;
+});
+
+// Breadcrumb service provider
+final breadcrumbServiceProvider = Provider<BreadcrumbService>((ref) {
+  return breadcrumbService;
 });

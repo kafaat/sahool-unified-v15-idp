@@ -26,6 +26,16 @@ import {
 import { NatsClient } from "../nats-client";
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Test Constants
+// ─────────────────────────────────────────────────────────────────────────────
+
+const TEST_UUID_1 = "550e8400-e29b-41d4-a716-446655440000";
+const TEST_UUID_2 = "550e8400-e29b-41d4-a716-446655440001";
+const TEST_UUID_3 = "550e8400-e29b-41d4-a716-446655440002";
+const TEST_UUID_4 = "550e8400-e29b-41d4-a716-446655440003";
+const TEST_UUID_5 = "550e8400-e29b-41d4-a716-446655440004";
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Mocks
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -150,8 +160,9 @@ describe("Event Publisher", () => {
   describe("Field Events", () => {
     it("should publish field.created event", async () => {
       await publishFieldCreated({
-        fieldId: "field-123",
-        userId: "user-456",
+        fieldId: TEST_UUID_1,
+        farmId: TEST_UUID_2,
+        tenantId: TEST_UUID_3,
         name: "Test Field",
         area: 10.5,
         location: {
@@ -170,38 +181,37 @@ describe("Event Publisher", () => {
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe("field.created");
+      expect(subject).toBe("sahool.field.created");
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
-      expect(decoded.payload.fieldId).toBe("field-123");
+      expect(decoded.payload.fieldId).toBe(TEST_UUID_1);
       expect(decoded.payload.name).toBe("Test Field");
       expect(decoded.payload.area).toBe(10.5);
     });
 
     it("should publish field.updated event", async () => {
       await publishFieldUpdated({
-        fieldId: "field-123",
-        userId: "user-456",
+        fieldId: TEST_UUID_1,
         changes: { name: "Updated Name", area: 15.0 },
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe("field.updated");
+      expect(subject).toBe("sahool.field.updated");
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.changes.name).toBe("Updated Name");
     });
 
     it("should publish field.deleted event", async () => {
-      const deletedAt = new Date();
       await publishFieldDeleted({
-        fieldId: "field-123",
-        userId: "user-456",
-        deletedAt,
+        fieldId: TEST_UUID_1,
+        tenantId: TEST_UUID_2,
+        deletedBy: TEST_UUID_3,
+        deletedAt: new Date().toISOString(),
       });
 
       const [subject] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe("field.deleted");
+      expect(subject).toBe("sahool.field.deleted");
     });
   });
 
@@ -212,44 +222,40 @@ describe("Event Publisher", () => {
   describe("Order Events", () => {
     it("should publish order.placed event", async () => {
       await publishOrderPlaced({
-        orderId: "order-123",
-        userId: "user-456",
-        items: [{ productId: "prod-1", quantity: 2, price: 100 }],
+        orderId: TEST_UUID_1,
+        userId: TEST_UUID_2,
+        items: [{ productId: TEST_UUID_3, quantity: 2, price: 100 }],
         totalAmount: 200,
-        currency: "YER",
+        currency: "SAR",
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe("order.placed");
+      expect(subject).toBe("sahool.order.placed");
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
-      expect(decoded.payload.orderId).toBe("order-123");
+      expect(decoded.payload.orderId).toBe(TEST_UUID_1);
       expect(decoded.payload.totalAmount).toBe(200);
     });
 
     it("should publish order.completed event", async () => {
       await publishOrderCompleted({
-        orderId: "order-123",
-        userId: "user-456",
-        completedAt: new Date(),
-        totalAmount: 200,
-        currency: "YER",
+        orderId: TEST_UUID_1,
+        completedAt: new Date().toISOString(),
       });
 
       const [subject] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe("order.completed");
+      expect(subject).toBe("sahool.order.completed");
     });
 
     it("should publish order.cancelled event", async () => {
       await publishOrderCancelled({
-        orderId: "order-123",
-        userId: "user-456",
-        cancelledAt: new Date(),
+        orderId: TEST_UUID_1,
+        cancelledAt: new Date().toISOString(),
         reason: "Customer request",
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe("order.cancelled");
+      expect(subject).toBe("sahool.order.cancelled");
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.reason).toBe("Customer request");
@@ -264,15 +270,15 @@ describe("Event Publisher", () => {
     it("should publish sensor.reading event", async () => {
       await publishSensorReading({
         deviceId: "device-123",
-        fieldId: "field-456",
         sensorType: "soil_moisture",
         value: 45.5,
         unit: "%",
-        readingTime: new Date(),
+        readingTime: new Date().toISOString(),
+        fieldId: TEST_UUID_1,
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe("sensor.reading");
+      expect(subject).toBe("sahool.iot.sensor.reading");
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.sensorType).toBe("soil_moisture");
@@ -283,23 +289,23 @@ describe("Event Publisher", () => {
       await publishDeviceConnected({
         deviceId: "device-123",
         deviceType: "soil_sensor",
-        connectedAt: new Date(),
+        connectedAt: new Date().toISOString(),
       });
 
       const [subject] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe("device.connected");
+      expect(subject).toBe("sahool.iot.sensor.connected");
     });
 
     it("should publish device.disconnected event", async () => {
       await publishDeviceDisconnected({
         deviceId: "device-123",
         deviceType: "soil_sensor",
-        disconnectedAt: new Date(),
+        disconnectedAt: new Date().toISOString(),
         reason: "timeout",
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe("device.disconnected");
+      expect(subject).toBe("sahool.iot.sensor.disconnected");
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.reason).toBe("timeout");
@@ -313,16 +319,14 @@ describe("Event Publisher", () => {
   describe("User Events", () => {
     it("should publish user.created event", async () => {
       await publishUserCreated({
-        userId: "user-123",
+        userId: TEST_UUID_1,
+        tenantId: TEST_UUID_2,
         email: "test@example.com",
-        firstName: "John",
-        lastName: "Doe",
         role: "farmer",
-        createdAt: new Date(),
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe("user.created");
+      expect(subject).toBe("sahool.user.created");
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.email).toBe("test@example.com");
@@ -331,13 +335,12 @@ describe("Event Publisher", () => {
 
     it("should publish user.updated event", async () => {
       await publishUserUpdated({
-        userId: "user-123",
+        userId: TEST_UUID_1,
         changes: { email: "new@example.com" },
-        updatedAt: new Date(),
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe("user.updated");
+      expect(subject).toBe("sahool.user.updated");
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.changes.email).toBe("new@example.com");
@@ -351,32 +354,35 @@ describe("Event Publisher", () => {
   describe("Inventory Events", () => {
     it("should publish inventory.low_stock event", async () => {
       await publishInventoryLowStock({
-        productId: "prod-123",
+        productId: TEST_UUID_1,
+        tenantId: TEST_UUID_2,
         productName: "Fertilizer",
-        currentStock: 5,
-        threshold: 10,
-        unit: "kg",
+        currentQuantity: 5,
+        thresholdQuantity: 10,
+        unitOfMeasure: "kg",
+        severity: "medium",
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe("inventory.low_stock");
+      expect(subject).toBe("sahool.inventory.low_stock");
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
-      expect(decoded.payload.currentStock).toBe(5);
-      expect(decoded.payload.threshold).toBe(10);
+      expect(decoded.payload.currentQuantity).toBe(5);
+      expect(decoded.payload.thresholdQuantity).toBe(10);
     });
 
     it("should publish inventory.movement event", async () => {
       await publishInventoryMovement({
-        movementId: "mov-123",
-        productId: "prod-456",
+        movementId: TEST_UUID_1,
+        productId: TEST_UUID_2,
+        tenantId: TEST_UUID_3,
         quantity: 100,
         movementType: "in",
-        movedAt: new Date(),
+        movedAt: new Date().toISOString(),
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe("inventory.movement");
+      expect(subject).toBe("sahool.inventory.movement");
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.movementType).toBe("in");
@@ -390,17 +396,18 @@ describe("Event Publisher", () => {
   describe("Notification Events", () => {
     it("should publish notification.send event", async () => {
       await publishNotificationSend({
-        notificationId: "notif-123",
-        recipientId: "user-456",
+        notificationId: TEST_UUID_1,
+        tenantId: TEST_UUID_2,
+        recipientId: TEST_UUID_3,
         recipientType: "user",
         channel: "push",
         priority: "high",
-        subject: "Alert",
+        title: "Alert",
         message: "Low soil moisture detected",
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe("notification.send");
+      expect(subject).toBe("sahool.notification.send");
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.channel).toBe("push");

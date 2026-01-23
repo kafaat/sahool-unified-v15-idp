@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/theme.dart';
+import '../../../../core/logging/logging.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
 import '../widgets/quick_stats_card.dart';
 import '../widgets/weather_widget.dart';
@@ -21,12 +22,20 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
   @override
   void initState() {
     super.initState();
+    // Log screen navigation
+    Logger.navigation('/home', routeNameAr: 'الرئيسية');
     _loadInitialData();
   }
 
   void _loadInitialData() {
+    Logger.debug('Loading home dashboard data', tag: 'HOME');
     Future.microtask(() {
       ref.read(notificationsProvider.notifier).loadNotifications();
+      Logger.info(
+        'Home data loaded',
+        messageAr: 'تم تحميل بيانات الرئيسية',
+        tag: 'HOME',
+      );
     });
   }
 
@@ -39,7 +48,10 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
       child: Scaffold(
         appBar: _buildAppBar(unreadCount),
         body: RefreshIndicator(
-          onRefresh: () async => _loadInitialData(),
+          onRefresh: () async {
+            Logger.user('Pull to refresh', actionAr: 'سحب للتحديث', screen: 'home');
+            _loadInitialData();
+          },
           color: SahoolTheme.primary,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -255,6 +267,19 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
   }
 
   void _navigateToField(String fieldId) {
+    Logger.field(
+      'Opening field details',
+      messageAr: 'فتح تفاصيل الحقل',
+      fieldId: fieldId,
+      action: 'view',
+      actionAr: 'عرض',
+    );
+    Logger.user(
+      'Field card tap',
+      actionAr: 'الضغط على بطاقة الحقل',
+      screen: 'home',
+      targetId: fieldId,
+    );
     Navigator.pushNamed(
       context,
       '/crop-health',

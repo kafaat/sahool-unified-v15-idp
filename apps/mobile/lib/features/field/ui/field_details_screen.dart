@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
+import '../../../core/logging/logging.dart';
 
 /// شاشة تفاصيل الحقل - The Field Hub
 /// تعرض كل شيء عن الحقل في مكان واحد
@@ -14,8 +15,26 @@ class FieldDetailsScreen extends StatelessWidget {
     required this.fieldName,
   });
 
+  void _logScreenView() {
+    Logger.navigation(
+      '/field-details',
+      routeNameAr: 'تفاصيل الحقل',
+      params: {'field_id': fieldId, 'field_name': fieldName},
+    );
+    Logger.field(
+      'Viewing field details',
+      messageAr: 'عرض تفاصيل الحقل',
+      fieldId: fieldId,
+      action: 'view_details',
+      actionAr: 'عرض التفاصيل',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Log screen view on build (would be better in initState for StatefulWidget)
+    _logScreenView();
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -74,6 +93,12 @@ class FieldDetailsScreen extends StatelessWidget {
   }
 
   void _showOptionsMenu(BuildContext context) {
+    Logger.user(
+      'Options menu opened',
+      actionAr: 'فتح قائمة الخيارات',
+      screen: 'field_details',
+      targetId: fieldId,
+    );
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -87,17 +112,45 @@ class FieldDetailsScreen extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.share, color: SahoolColors.forestGreen),
               title: const Text("مشاركة التقرير"),
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Logger.field(
+                  'Share report tapped',
+                  messageAr: 'الضغط على مشاركة التقرير',
+                  fieldId: fieldId,
+                  action: 'share_report',
+                  actionAr: 'مشاركة التقرير',
+                );
+                Navigator.pop(context);
+              },
             ),
             ListTile(
               leading: const Icon(Icons.download, color: SahoolColors.forestGreen),
               title: const Text("تصدير البيانات"),
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Logger.field(
+                  'Export data tapped',
+                  messageAr: 'الضغط على تصدير البيانات',
+                  fieldId: fieldId,
+                  action: 'export_data',
+                  actionAr: 'تصدير البيانات',
+                );
+                Navigator.pop(context);
+              },
             ),
             ListTile(
               leading: const Icon(Icons.delete_outline, color: SahoolColors.danger),
               title: const Text("حذف الحقل", style: TextStyle(color: SahoolColors.danger)),
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Logger.field(
+                  'Delete field tapped',
+                  messageAr: 'الضغط على حذف الحقل',
+                  fieldId: fieldId,
+                  action: 'delete_field',
+                  actionAr: 'حذف الحقل',
+                  level: LogLevel.warning,
+                );
+                Navigator.pop(context);
+              },
             ),
           ],
         ),

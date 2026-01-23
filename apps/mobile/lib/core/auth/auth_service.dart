@@ -7,15 +7,18 @@ import '../di/providers.dart';
 import '../utils/app_logger.dart';
 import 'secure_storage_service.dart';
 import 'biometric_service.dart';
+import 'token_manager.dart';
 
 /// SAHOOL Authentication Service
 /// خدمة المصادقة مع Token Refresh تلقائي
 ///
 /// Features:
-/// - Automatic token refresh
-/// - Secure token storage
+/// - Automatic token refresh with proactive refresh before expiration
+/// - Secure token storage using flutter_secure_storage
 /// - Biometric authentication support
-/// - Session management
+/// - Session management with TokenManager integration
+/// - Background refresh support
+/// - Refresh token rotation
 
 // Providers
 final authServiceProvider = Provider<AuthService>((ref) {
@@ -23,18 +26,22 @@ final authServiceProvider = Provider<AuthService>((ref) {
   // We use read here to avoid circular dependencies
   try {
     final apiClient = ref.read(apiClientProvider);
+    final tokenManager = ref.read(tokenManagerProvider);
     return AuthService(
       secureStorage: ref.read(secureStorageProvider),
       biometricService: ref.read(biometricServiceProvider),
+      tokenManager: tokenManager,
       apiClient: apiClient,
     );
   } catch (e) {
     // If apiClientProvider is not available, create AuthService without it
     // This allows for graceful fallback to mock mode
     AppLogger.w('ApiClient not available, using mock mode', tag: 'AUTH');
+    final tokenManager = ref.read(tokenManagerProvider);
     return AuthService(
       secureStorage: ref.read(secureStorageProvider),
       biometricService: ref.read(biometricServiceProvider),
+      tokenManager: tokenManager,
     );
   }
 });
@@ -154,16 +161,33 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 class AuthService {
   final SecureStorageService secureStorage;
   final BiometricService biometricService;
+  final TokenManager tokenManager;
   final ApiClient? apiClient;
 
   Timer? _refreshTimer;
   static const _tokenRefreshBuffer = Duration(minutes: 5);
 
+  /// Stream subscription for auth state changes
+  StreamSubscription<bool>? _authStateSubscription;
+
   AuthService({
     required this.secureStorage,
     required this.biometricService,
+    required this.tokenManager,
     this.apiClient,
-  });
+  }) {
+    // Initialize TokenManager with API client
+    if (apiClient != null) {
+      tokenManager.setApiClient(apiClient!);
+    }
+
+    // Listen to auth state changes from TokenManager
+    _authStateSubscription = tokenManager.authStateStream.listen((isAuthenticated) {
+      if (!isAuthenticated) {
+        AppLogger.i('Auth state changed to unauthenticated via TokenManager', tag: 'AUTH');
+      }
+    });
+  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Authentication Methods
@@ -244,12 +268,15 @@ class AuthService {
       apiClient!.setAuthToken(tokens.accessToken);
       apiClient!.setTenantId(user.tenantId);
 
-      // Store tokens and user data securely
-      await _storeTokens(tokens);
-      await _storeUserData(user);
+      // Store tokens using TokenManager for centralized management
+      await tokenManager.storeTokens(
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        expiresIn: tokens.expiresIn,
+      );
 
-      // Schedule token refresh
-      _scheduleTokenRefresh(tokens.expiresIn);
+      // Store user data securely
+      await _storeUserData(user);
 
       AppLogger.i('API login successful', tag: 'AUTH', data: {'userId': user.id});
       return user;
@@ -289,14 +316,15 @@ class AuthService {
       tenantId: 'mock_tenant',
     );
 
-    // Store tokens securely
-    await _storeTokens(tokens);
+    // Store tokens using TokenManager for centralized management
+    await tokenManager.storeTokens(
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      expiresIn: tokens.expiresIn,
+    );
 
     // Store user data and tenant ID
     await _storeUserData(user);
-
-    // Schedule token refresh
-    _scheduleTokenRefresh(tokens.expiresIn);
 
     AppLogger.i('Mock login successful', tag: 'AUTH');
     return user;
@@ -443,13 +471,9 @@ class AuthService {
       }
     }
 
-    // Clear auth token from API client
-    if (apiClient != null) {
-      apiClient!.setAuthToken('');
-    }
-
-    // Clear stored tokens
-    await secureStorage.clearAll();
+    // Use TokenManager for centralized logout
+    // This handles clearing tokens, API client state, and notifying listeners
+    await tokenManager.logout();
 
     AppLogger.i('Logout complete', tag: 'AUTH');
   }
@@ -489,45 +513,51 @@ class AuthService {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Refresh access token
+  /// Uses TokenManager for centralized token refresh with retry logic
   Future<void> refreshToken() async {
-    AppLogger.i('Refreshing token', tag: 'AUTH');
-
-    final refreshToken = await secureStorage.getRefreshToken();
-    if (refreshToken == null) {
-      throw AuthException('لا يوجد refresh token');
-    }
+    AppLogger.i('Refreshing token via TokenManager', tag: 'AUTH');
 
     try {
-      // Use real API if available, otherwise fall back to mock in development
-      if (apiClient != null && !_shouldUseMockMode()) {
-        await _refreshTokenWithApi(refreshToken);
-      } else {
-        await _refreshTokenWithMock();
-      }
-    } catch (e) {
+      // Delegate to TokenManager which handles:
+      // - Exponential backoff retries
+      // - Token rotation
+      // - Background refresh scheduling
+      await tokenManager.refreshToken();
+      AppLogger.i('Token refresh successful', tag: 'AUTH');
+    } on TokenRefreshException catch (e) {
       AppLogger.e('Token refresh failed', tag: 'AUTH', error: e);
 
-      // In development, fallback to mock if API fails
-      if (kDebugMode && e is ApiException && e.isNetworkError) {
-        AppLogger.w('API unavailable, falling back to mock refresh', tag: 'AUTH');
-        await _refreshTokenWithMock();
-        return;
+      // Convert to AuthException for backwards compatibility
+      if (e.code == 'NO_REFRESH_TOKEN') {
+        throw AuthException('لا يوجد refresh token', code: e.code);
+      } else if (e.code == 'SESSION_EXPIRED') {
+        throw AuthException('انتهت صلاحية الجلسة', code: e.code);
+      } else {
+        throw AuthException(e.message, code: e.code);
+      }
+    } catch (e) {
+      AppLogger.e('Token refresh failed with unexpected error', tag: 'AUTH', error: e);
+
+      // In development, log additional details
+      if (kDebugMode) {
+        AppLogger.d('Token refresh error details: $e', tag: 'AUTH');
       }
 
-      await logout();
-      rethrow;
+      throw AuthException('فشل تحديث التوكن', code: 'REFRESH_FAILED');
     }
   }
 
-  /// Refresh token using real API
-  Future<void> _refreshTokenWithApi(String refreshToken) async {
-    AppLogger.i('Refreshing token via API', tag: 'AUTH');
+  /// Refresh token using real API (kept for backwards compatibility)
+  /// Note: This is now delegated to TokenManager
+  @Deprecated('Use tokenManager.refreshToken() instead')
+  Future<void> _refreshTokenWithApi(String refreshTokenValue) async {
+    AppLogger.i('Refreshing token via API (legacy method)', tag: 'AUTH');
 
     try {
       final response = await apiClient!.post(
         '/api/v1/auth/refresh',
         {
-          'refresh_token': refreshToken,
+          'refresh_token': refreshTokenValue,
         },
       );
 
@@ -540,7 +570,7 @@ class AuthService {
 
       // Extract new tokens
       final accessToken = data['access_token'] ?? data['accessToken'];
-      final newRefreshToken = data['refresh_token'] ?? data['refreshToken'] ?? refreshToken;
+      final newRefreshToken = data['refresh_token'] ?? data['refreshToken'] ?? refreshTokenValue;
       final expiresIn = data['expires_in'] ?? data['expiresIn'] ?? 3600;
 
       if (accessToken == null) {
@@ -575,6 +605,7 @@ class AuthService {
   }
 
   /// Refresh token using mock data (development only)
+  @Deprecated('Use tokenManager.refreshToken() instead')
   Future<void> _refreshTokenWithMock() async {
     AppLogger.w('Using MOCK token refresh (development only)', tag: 'AUTH');
 
@@ -645,6 +676,9 @@ class AuthService {
   /// Dispose resources
   void dispose() {
     _cancelTokenRefresh();
+    _authStateSubscription?.cancel();
+    _authStateSubscription = null;
+    tokenManager.dispose();
   }
 }
 

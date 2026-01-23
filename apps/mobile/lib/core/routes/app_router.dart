@@ -57,6 +57,9 @@ import '../../features/satellite/presentation/screens/ndvi_detail_screen.dart';
 import '../../features/satellite/presentation/screens/phenology_screen.dart';
 import '../../features/satellite/presentation/screens/weather_screen.dart' as sat_weather;
 
+// Features - Tasks
+import '../../features/tasks/presentation/task_details_screen.dart';
+
 // Features - Other
 import '../../features/alerts/ui/alerts_screen.dart';
 import '../../features/profile/ui/profile_screen.dart';
@@ -444,7 +447,19 @@ class AppRouter {
       GoRoute(
         path: '/tasks',
         name: 'tasks',
-        builder: (context, state) => const TasksListScreen(),
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>?;
+          return TasksListScreen(fieldId: args?['fieldId']);
+        },
+      ),
+
+      GoRoute(
+        path: '/task/:id',
+        name: 'task-details',
+        builder: (context, state) {
+          final taskId = state.pathParameters['id']!;
+          return TaskDetailsScreen(taskId: taskId);
+        },
       ),
 
       GoRoute(
@@ -459,7 +474,24 @@ class AppRouter {
       GoRoute(
         path: '/alerts',
         name: 'alerts',
-        builder: (context, state) => const AlertsScreen(),
+        builder: (context, state) {
+          // Extract alertId from extra data for deep linking
+          final args = state.extra as Map<String, dynamic>?;
+          final alertId = args?['alertId'] as String?;
+          // AlertsScreen can be enhanced to scroll to/highlight specific alert
+          return const AlertsScreen();
+        },
+      ),
+
+      GoRoute(
+        path: '/alert/:id',
+        name: 'alert-details',
+        builder: (context, state) {
+          final alertId = state.pathParameters['id']!;
+          // Navigate to alerts screen with the specific alertId
+          // AlertsScreen can be enhanced to show details for this alert
+          return const AlertsScreen();
+        },
       ),
 
       GoRoute(

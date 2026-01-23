@@ -53,7 +53,20 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
-            <!-- Deep Link: Custom scheme sahool:// -->
+            <!-- ═══════════════════════════════════════════════════════════════════════
+                 Deep Links Configuration - تكوين الروابط العميقة
+
+                 Supported Deep Links:
+                 - sahool://field/{fieldId} - Open specific field
+                 - sahool://weather - Open weather screen
+                 - sahool://ndvi/{fieldId} - Open NDVI for field
+                 - sahool://task/{taskId} - Open specific task
+                 - sahool://alert/{alertId} - Open alert details
+                 - sahool://reset-password?token=xxx - Password reset
+                 - sahool://verify-otp?identifier=xxx&purpose=xxx - OTP verification
+                 ═══════════════════════════════════════════════════════════════════════ -->
+
+            <!-- Deep Link: Custom scheme sahool:// (all paths) -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -61,12 +74,156 @@
                 <data android:scheme="sahool"/>
             </intent-filter>
 
-            <!-- App Links: https://sahool.app/ with auto-verify -->
+            <!-- Deep Link: Field details - sahool://field/{fieldId} -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="sahool" android:host="field" android:pathPattern="/.*"/>
+            </intent-filter>
+
+            <!-- Deep Link: Weather - sahool://weather -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="sahool" android:host="weather"/>
+            </intent-filter>
+
+            <!-- Deep Link: NDVI - sahool://ndvi/{fieldId} -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="sahool" android:host="ndvi" android:pathPattern="/.*"/>
+            </intent-filter>
+
+            <!-- Deep Link: Task details - sahool://task/{taskId} -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="sahool" android:host="task" android:pathPattern="/.*"/>
+            </intent-filter>
+
+            <!-- Deep Link: Tasks list - sahool://tasks -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="sahool" android:host="tasks"/>
+            </intent-filter>
+
+            <!-- Deep Link: Alert details - sahool://alert/{alertId} -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="sahool" android:host="alert" android:pathPattern="/.*"/>
+            </intent-filter>
+
+            <!-- Deep Link: Alerts list - sahool://alerts -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="sahool" android:host="alerts"/>
+            </intent-filter>
+
+            <!-- Deep Link: Password reset - sahool://reset-password -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="sahool" android:host="reset-password"/>
+            </intent-filter>
+
+            <!-- Deep Link: OTP verification - sahool://verify-otp -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="sahool" android:host="verify-otp"/>
+            </intent-filter>
+
+            <!-- App Links: https://sahool.app/ with auto-verify (all paths) -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="https" android:host="sahool.app"/>
+            </intent-filter>
+
+            <!-- App Links: https://sahool.app/field/{fieldId} -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="sahool.app" android:pathPrefix="/field"/>
+            </intent-filter>
+
+            <!-- App Links: https://sahool.app/weather -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="sahool.app" android:pathPrefix="/weather"/>
+            </intent-filter>
+
+            <!-- App Links: https://sahool.app/ndvi/{fieldId} -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="sahool.app" android:pathPrefix="/ndvi"/>
+            </intent-filter>
+
+            <!-- App Links: https://sahool.app/task/{taskId} -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="sahool.app" android:pathPrefix="/task"/>
+            </intent-filter>
+
+            <!-- App Links: https://sahool.app/alert/{alertId} -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="sahool.app" android:pathPrefix="/alert"/>
+            </intent-filter>
+
+            <!-- App Links: https://sahool.app/reset-password -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="sahool.app" android:pathPrefix="/reset-password"/>
+            </intent-filter>
+
+            <!-- App Links: https://sahool.app/verify-otp -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="sahool.app" android:pathPrefix="/verify-otp"/>
+            </intent-filter>
+
+            <!-- App Links: www.sahool.app subdomain -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="www.sahool.app"/>
+            </intent-filter>
+
+            <!-- App Links: app.sahool.app subdomain -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="app.sahool.app"/>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/accessibility/semantics_helper.dart';
 import '../../domain/entities/field_entity.dart';
 import '../widgets/enhanced_field_card.dart';
 import 'field_details_screen.dart';
@@ -7,7 +9,13 @@ import '../../../../core/widgets/loading_states.dart';
 import '../../../../core/widgets/empty_states.dart';
 
 /// شاشة قائمة الحقول
-/// Fields List Screen
+/// Fields List Screen with Accessibility Support
+///
+/// Accessibility Features:
+/// - Semantic labels for all interactive elements
+/// - Screen reader announcements for list updates
+/// - Proper heading hierarchy
+/// - Focus management for keyboard navigation
 class FieldsListScreen extends ConsumerStatefulWidget {
   const FieldsListScreen({super.key});
 
@@ -177,56 +185,92 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('الحقول'),
+          title: Semantics(
+            header: true,
+            child: const Text('الحقول'),
+          ),
           backgroundColor: const Color(0xFF367C2B),
           foregroundColor: Colors.white,
           actions: [
-            // Toggle view
-            IconButton(
-              icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
-              onPressed: () => setState(() => _isGridView = !_isGridView),
-              tooltip: _isGridView ? 'عرض قائمة' : 'عرض شبكة',
+            // Toggle view with accessibility
+            Semantics(
+              label: _isGridView ? SahoolSemantics.listViewButton : SahoolSemantics.gridViewButton,
+              button: true,
+              child: IconButton(
+                icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
+                onPressed: () {
+                  setState(() => _isGridView = !_isGridView);
+                  // Announce view change to screen readers
+                  AnnouncementHelper.announce(
+                    context,
+                    _isGridView ? 'تم التبديل إلى عرض الشبكة' : 'تم التبديل إلى عرض القائمة',
+                  );
+                },
+                tooltip: _isGridView ? 'عرض قائمة' : 'عرض شبكة',
+              ),
             ),
-            // Sort
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.sort),
-              tooltip: 'ترتيب',
-              onSelected: (value) => setState(() => _sortBy = value),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'name',
-                  child: Row(
-                    children: [
-                      Icon(Icons.sort_by_alpha,
-                          color: _sortBy == 'name' ? const Color(0xFF367C2B) : null),
-                      const SizedBox(width: 8),
-                      const Text('الاسم'),
-                    ],
+            // Sort with accessibility
+            Semantics(
+              label: SahoolSemantics.sortButton,
+              button: true,
+              child: PopupMenuButton<String>(
+                icon: const Icon(Icons.sort),
+                tooltip: 'ترتيب',
+                onSelected: (value) {
+                  setState(() => _sortBy = value);
+                  // Announce sort change
+                  String sortLabel;
+                  switch (value) {
+                    case 'name':
+                      sortLabel = 'الاسم';
+                      break;
+                    case 'area':
+                      sortLabel = 'المساحة';
+                      break;
+                    case 'health':
+                      sortLabel = 'الصحة';
+                      break;
+                    default:
+                      sortLabel = value;
+                  }
+                  AnnouncementHelper.announce(context, 'تم الترتيب حسب $sortLabel');
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'name',
+                    child: Row(
+                      children: [
+                        Icon(Icons.sort_by_alpha,
+                            color: _sortBy == 'name' ? const Color(0xFF367C2B) : null),
+                        const SizedBox(width: 8),
+                        const Text('الاسم'),
+                      ],
+                    ),
                   ),
-                ),
-                PopupMenuItem(
-                  value: 'area',
-                  child: Row(
-                    children: [
-                      Icon(Icons.square_foot,
-                          color: _sortBy == 'area' ? const Color(0xFF367C2B) : null),
-                      const SizedBox(width: 8),
-                      const Text('المساحة'),
-                    ],
+                  PopupMenuItem(
+                    value: 'area',
+                    child: Row(
+                      children: [
+                        Icon(Icons.square_foot,
+                            color: _sortBy == 'area' ? const Color(0xFF367C2B) : null),
+                        const SizedBox(width: 8),
+                        const Text('المساحة'),
+                      ],
+                    ),
                   ),
-                ),
-                PopupMenuItem(
-                  value: 'health',
-                  child: Row(
-                    children: [
-                      Icon(Icons.favorite,
-                          color: _sortBy == 'health' ? const Color(0xFF367C2B) : null),
-                      const SizedBox(width: 8),
-                      const Text('الصحة'),
-                    ],
+                  PopupMenuItem(
+                    value: 'health',
+                    child: Row(
+                      children: [
+                        Icon(Icons.favorite,
+                            color: _sortBy == 'health' ? const Color(0xFF367C2B) : null),
+                        const SizedBox(width: 8),
+                        const Text('الصحة'),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -235,8 +279,11 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
             // Search and filters
             _buildSearchAndFilters(),
 
-            // Stats bar
-            _buildStatsBar(),
+            // Stats bar with live region for dynamic updates
+            Semantics(
+              liveRegion: true,
+              child: _buildStatsBar(),
+            ),
 
             // Fields list/grid
             Expanded(
@@ -247,11 +294,15 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: _addField,
-          backgroundColor: const Color(0xFF367C2B),
-          icon: const Icon(Icons.add),
-          label: const Text('حقل جديد'),
+        floatingActionButton: Semantics(
+          label: SahoolSemantics.addFieldButton,
+          button: true,
+          child: FloatingActionButton.extended(
+            onPressed: _addField,
+            backgroundColor: const Color(0xFF367C2B),
+            icon: const Icon(Icons.add),
+            label: const Text('حقل جديد'),
+          ),
         ),
       ),
     );
@@ -272,64 +323,109 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
       ),
       child: Column(
         children: [
-          // Search
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'ابحث عن حقل...',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _searchQuery.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () => setState(() => _searchQuery = ''),
-                    )
-                  : null,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+          // Search with accessibility
+          Semantics(
+            label: SahoolSemantics.searchField,
+            textField: true,
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'ابحث عن حقل...',
+                prefixIcon: ExcludeSemantics(child: const Icon(Icons.search)),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? Semantics(
+                        label: SahoolSemantics.clearFilter,
+                        button: true,
+                        child: IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            setState(() => _searchQuery = '');
+                            AnnouncementHelper.announce(context, 'تم مسح البحث');
+                          },
+                          tooltip: 'مسح البحث',
+                        ),
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
               ),
-              filled: true,
-              fillColor: Colors.grey[100],
+              onChanged: (value) {
+                setState(() => _searchQuery = value);
+                // Announce search results count after debounce
+                if (value.length > 2) {
+                  AnnouncementHelper.announceListUpdate(
+                    context,
+                    _filteredFields.length,
+                    'حقل',
+                  );
+                }
+              },
             ),
-            onChanged: (value) => setState(() => _searchQuery = value),
           ),
 
           const SizedBox(height: 12),
 
-          // Filter chips
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildFilterChip(
-                  label: 'الكل',
-                  selected: _selectedCrop == null,
-                  onSelected: (_) => setState(() => _selectedCrop = null),
-                ),
-                const SizedBox(width: 8),
-                _buildFilterChip(
-                  label: '🌾 قمح',
-                  selected: _selectedCrop == 'قمح',
-                  onSelected: (_) => setState(() => _selectedCrop = 'قمح'),
-                ),
-                const SizedBox(width: 8),
-                _buildFilterChip(
-                  label: '🌽 ذرة',
-                  selected: _selectedCrop == 'ذرة',
-                  onSelected: (_) => setState(() => _selectedCrop = 'ذرة'),
-                ),
-                const SizedBox(width: 8),
-                _buildFilterChip(
-                  label: '🌿 برسيم',
-                  selected: _selectedCrop == 'برسيم',
-                  onSelected: (_) => setState(() => _selectedCrop = 'برسيم'),
-                ),
-                const SizedBox(width: 8),
-                _buildFilterChip(
-                  label: '🌴 نخيل',
-                  selected: _selectedCrop == 'نخيل',
-                  onSelected: (_) => setState(() => _selectedCrop = 'نخيل'),
-                ),
-              ],
+          // Filter chips with accessibility
+          Semantics(
+            label: 'فلترة حسب نوع المحصول',
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildFilterChip(
+                    label: 'الكل',
+                    semanticLabel: 'عرض كل الحقول',
+                    selected: _selectedCrop == null,
+                    onSelected: (_) {
+                      setState(() => _selectedCrop = null);
+                      AnnouncementHelper.announce(context, 'عرض كل الحقول');
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                    label: 'قمح',
+                    semanticLabel: 'فلترة حسب القمح',
+                    selected: _selectedCrop == 'قمح',
+                    onSelected: (_) {
+                      setState(() => _selectedCrop = 'قمح');
+                      AnnouncementHelper.announce(context, 'فلترة حسب القمح');
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                    label: 'ذرة',
+                    semanticLabel: 'فلترة حسب الذرة',
+                    selected: _selectedCrop == 'ذرة',
+                    onSelected: (_) {
+                      setState(() => _selectedCrop = 'ذرة');
+                      AnnouncementHelper.announce(context, 'فلترة حسب الذرة');
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                    label: 'برسيم',
+                    semanticLabel: 'فلترة حسب البرسيم',
+                    selected: _selectedCrop == 'برسيم',
+                    onSelected: (_) {
+                      setState(() => _selectedCrop = 'برسيم');
+                      AnnouncementHelper.announce(context, 'فلترة حسب البرسيم');
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                    label: 'نخيل',
+                    semanticLabel: 'فلترة حسب النخيل',
+                    selected: _selectedCrop == 'نخيل',
+                    onSelected: (_) {
+                      setState(() => _selectedCrop = 'نخيل');
+                      AnnouncementHelper.announce(context, 'فلترة حسب النخيل');
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -341,13 +437,19 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     required String label,
     required bool selected,
     required ValueChanged<bool> onSelected,
+    String? semanticLabel,
   }) {
-    return FilterChip(
-      label: Text(label),
+    return Semantics(
+      label: semanticLabel ?? label,
       selected: selected,
-      onSelected: onSelected,
-      selectedColor: const Color(0xFF367C2B).withOpacity(0.2),
-      checkmarkColor: const Color(0xFF367C2B),
+      button: true,
+      child: FilterChip(
+        label: Text(label),
+        selected: selected,
+        onSelected: onSelected,
+        selectedColor: const Color(0xFF367C2B).withOpacity(0.2),
+        checkmarkColor: const Color(0xFF367C2B),
+      ),
     );
   }
 
@@ -361,29 +463,36 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
         : _filteredFields.fold<double>(0, (sum, f) => sum + f.healthScore) /
             _filteredFields.length;
 
+    final healthLabel = SahoolSemantics.getHealthLabel(avgHealth);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       color: Colors.grey[50],
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildStatItem(
-            icon: Icons.landscape,
-            label: 'الحقول',
-            value: '${_filteredFields.length}',
-          ),
-          _buildStatItem(
-            icon: Icons.square_foot,
-            label: 'المساحة',
-            value: '${totalArea.toStringAsFixed(0)} هـ',
-          ),
-          _buildStatItem(
-            icon: Icons.favorite,
-            label: 'متوسط الصحة',
-            value: '${(avgHealth * 100).round()}%',
-            valueColor: _getHealthColor(avgHealth),
-          ),
-        ],
+      child: MergeSemantics(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildStatItem(
+              icon: Icons.landscape,
+              label: 'الحقول',
+              value: '${_filteredFields.length}',
+              semanticLabel: '${_filteredFields.length} حقل معروض',
+            ),
+            _buildStatItem(
+              icon: Icons.square_foot,
+              label: 'المساحة',
+              value: '${totalArea.toStringAsFixed(0)} هـ',
+              semanticLabel: 'إجمالي المساحة ${totalArea.toStringAsFixed(0)} هكتار',
+            ),
+            _buildStatItem(
+              icon: Icons.favorite,
+              label: 'متوسط الصحة',
+              value: '${(avgHealth * 100).round()}%',
+              valueColor: _getHealthColor(avgHealth),
+              semanticLabel: 'متوسط صحة الحقول ${(avgHealth * 100).round()}%، $healthLabel',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -393,27 +502,33 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     required String label,
     required String value,
     Color? valueColor,
+    String? semanticLabel,
   }) {
-    return Column(
-      children: [
-        Icon(icon, color: const Color(0xFF367C2B), size: 20),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: valueColor ?? Colors.black,
+    return Semantics(
+      label: semanticLabel ?? '$label: $value',
+      child: Column(
+        children: [
+          ExcludeSemantics(
+            child: Icon(icon, color: const Color(0xFF367C2B), size: 20),
           ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: Colors.grey[600],
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: valueColor ?? Colors.black,
+            ),
           ),
-        ),
-      ],
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -422,19 +537,28 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
       return _buildEmptyState();
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _filteredFields.length,
-      itemBuilder: (context, index) {
-        final field = _filteredFields[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: EnhancedFieldCard(
-            field: field,
-            onTap: () => _openFieldDetails(field),
-          ),
-        );
-      },
+    return Semantics(
+      label: 'قائمة الحقول، ${_filteredFields.length} حقل',
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _filteredFields.length,
+        itemBuilder: (context, index) {
+          final field = _filteredFields[index];
+          final healthLabel = SahoolSemantics.getHealthLabel(field.healthScore);
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Semantics(
+              label: '${field.name}، ${field.cropType}، ${field.areaHectares.toStringAsFixed(1)} هكتار، $healthLabel',
+              hint: 'اضغط لعرض تفاصيل الحقل',
+              button: true,
+              child: EnhancedFieldCard(
+                field: field,
+                onTap: () => _openFieldDetails(field),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -443,23 +567,32 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
       return _buildEmptyState();
     }
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 0.85,
+    return Semantics(
+      label: 'شبكة الحقول، ${_filteredFields.length} حقل',
+      child: GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 0.85,
+        ),
+        itemCount: _filteredFields.length,
+        itemBuilder: (context, index) {
+          final field = _filteredFields[index];
+          final healthLabel = SahoolSemantics.getHealthLabel(field.healthScore);
+          return Semantics(
+            label: '${field.name}، ${field.cropType}، $healthLabel',
+            hint: 'اضغط لعرض تفاصيل الحقل',
+            button: true,
+            child: EnhancedFieldCard(
+              field: field,
+              isCompact: true,
+              onTap: () => _openFieldDetails(field),
+            ),
+          );
+        },
       ),
-      itemCount: _filteredFields.length,
-      itemBuilder: (context, index) {
-        final field = _filteredFields[index];
-        return EnhancedFieldCard(
-          field: field,
-          isCompact: true,
-          onTap: () => _openFieldDetails(field),
-        );
-      },
     );
   }
 

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- SAHOOL Brand Colors -->
+    <!-- Primary green color used for notifications and branding -->
+    <color name="notification_color">#2E7D32</color>
+    <color name="primary_green">#2E7D32</color>
+    <color name="primary_green_dark">#1B5E20</color>
+</resources>

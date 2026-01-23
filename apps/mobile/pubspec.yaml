@@ -35,6 +35,12 @@ dependencies:
   # Notifications
   flutter_local_notifications: ^19.5.0
 
+  # Firebase Cloud Messaging (FCM)
+  # Note: Requires google-services.json for Android and GoogleService-Info.plist for iOS
+  # The app will use local notifications as fallback when Firebase is not configured
+  firebase_core: ^3.8.1
+  firebase_messaging: ^15.1.6
+
   # OTP & SMS
   pinput: ^6.0.1
   sms_autofill: ^2.4.0
@@ -127,6 +133,8 @@ dev_dependencies:
   freezed: ^3.2.4  # Last 2.x version compatible with Dart 3.6.0
   json_serializable: ^6.9.0
   # mockito removed: 5.4.5 incompatible with analyzer 7.x, 5.4.6+ requires Dart 3.7.0
+  mocktail: ^1.0.4  # Mock library for unit testing (simpler API than mockito)
+  fake_async: ^1.3.2  # For testing time-based code
 
   # App Branding
   flutter_launcher_icons: ^0.14.2

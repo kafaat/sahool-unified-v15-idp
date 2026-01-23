@@ -1,0 +1,659 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Mobile Release Pipeline - Signed Release Builds
+# خط أنابيب إصدار تطبيق سهول الجوال - بناء موقّع للإصدار
+# ═══════════════════════════════════════════════════════════════════════════════
+# This workflow builds signed release APK and AAB for Play Store deployment
+# يبني هذا الخط ملفات APK و AAB موقّعة للنشر على متجر Play
+
+name: Mobile Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - 'mobile-v*'
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+          - none
+      build_type:
+        description: 'Build artifacts to generate'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - apk
+          - aab
+          - both
+      deploy_to_play_store:
+        description: 'Deploy to Play Store (internal track)'
+        required: false
+        default: 'false'
+        type: boolean
+
+# Prevent concurrent release builds
+concurrency:
+  group: mobile-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: '3.27.1'
+  JAVA_VERSION: '17'
+  ANDROID_COMPILE_SDK: '34'
+  ANDROID_BUILD_TOOLS: '34.0.0'
+  ANDROID_MIN_SDK: '23'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Version Bump Job (Optional)
+  # ─────────────────────────────────────────────────────────────────────────────
+  version:
+    name: Version Management
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      build_number: ${{ steps.version.outputs.build_number }}
+      version_code: ${{ steps.version.outputs.version_code }}
+    defaults:
+      run:
+        working-directory: apps/mobile
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract current version
+        id: version
+        run: |
+          # Extract version from pubspec.yaml
+          CURRENT_VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //' | tr -d ' ')
+          VERSION_NAME=$(echo $CURRENT_VERSION | cut -d'+' -f1)
+          BUILD_NUMBER=$(echo $CURRENT_VERSION | cut -d'+' -f2)
+
+          echo "Current version: $VERSION_NAME+$BUILD_NUMBER"
+
+          # Version bumping logic
+          BUMP_TYPE="${{ github.event.inputs.version_bump || 'none' }}"
+
+          if [ "$BUMP_TYPE" != "none" ]; then
+            MAJOR=$(echo $VERSION_NAME | cut -d'.' -f1)
+            MINOR=$(echo $VERSION_NAME | cut -d'.' -f2)
+            PATCH=$(echo $VERSION_NAME | cut -d'.' -f3)
+
+            case $BUMP_TYPE in
+              major)
+                MAJOR=$((MAJOR + 1))
+                MINOR=0
+                PATCH=0
+                ;;
+              minor)
+                MINOR=$((MINOR + 1))
+                PATCH=0
+                ;;
+              patch)
+                PATCH=$((PATCH + 1))
+                ;;
+            esac
+
+            VERSION_NAME="${MAJOR}.${MINOR}.${PATCH}"
+          fi
+
+          # Increment build number
+          BUILD_NUMBER=$((BUILD_NUMBER + 1))
+
+          # Generate version code (for Android)
+          VERSION_CODE=$((MAJOR * 10000 + MINOR * 100 + PATCH))
+
+          echo "New version: $VERSION_NAME+$BUILD_NUMBER"
+          echo "Version code: $VERSION_CODE"
+
+          echo "version=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Build Release APK Job
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-release-apk:
+    name: Build Release APK
+    runs-on: ubuntu-latest
+    needs: version
+    if: ${{ github.event.inputs.build_type == 'apk' || github.event.inputs.build_type == 'both' || github.event.inputs.build_type == '' }}
+    defaults:
+      run:
+        working-directory: apps/mobile
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+          cache-key: flutter-${{ env.FLUTTER_VERSION }}-${{ runner.os }}
+          cache-path: ${{ runner.tool_cache }}/flutter
+
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            apps/mobile/.dart_tool
+          key: pub-cache-${{ runner.os }}-${{ hashFiles('apps/mobile/pubspec.lock') }}
+          restore-keys: |
+            pub-cache-${{ runner.os }}-
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('apps/mobile/android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Accept Android licenses
+        run: yes | flutter doctor --android-licenses || true
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Setup Python for icon generation
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate app icons
+        run: |
+          pip install Pillow
+          mkdir -p assets/icon assets/images assets/icons
+          python3 scripts/generate_icons.py || echo "Icon generation skipped"
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          API_BASE_URL=https://api.sahool.app
+          WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
+          MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}
+          ENV=production
+          EOF
+
+      - name: Update version in pubspec.yaml
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+          BUILD="${{ needs.version.outputs.build_number }}"
+          sed -i "s/^version:.*/version: ${VERSION}+${BUILD}/" pubspec.yaml
+          echo "Updated version to: ${VERSION}+${BUILD}"
+          grep "^version:" pubspec.yaml
+
+      - name: Generate code
+        run: |
+          flutter clean
+          flutter pub get
+          dart run build_runner build --delete-conflicting-outputs
+
+      - name: Generate launcher icons
+        run: dart run flutter_launcher_icons || echo "Launcher icons skipped"
+
+      - name: Generate native splash
+        run: dart run flutter_native_splash:create || echo "Splash generation skipped"
+
+      - name: Decode Keystore
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-keystore.jks
+          echo "Keystore decoded successfully"
+
+      - name: Create key.properties
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        run: |
+          cat > android/key.properties << EOF
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storeFile=release-keystore.jks
+          EOF
+          echo "key.properties created"
+
+      - name: Build Release APK (Signed)
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        run: |
+          echo "Building signed Release APK..."
+          flutter build apk --release \
+            --build-name=${{ needs.version.outputs.version }} \
+            --build-number=${{ needs.version.outputs.build_number }} \
+            --verbose 2>&1 | tee build.log
+          echo "Signed APK build completed!"
+
+      - name: Build Release APK (Unsigned)
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 == '' }}
+        run: |
+          echo "::warning::Building unsigned APK - No keystore configured"
+          echo "Building unsigned Release APK..."
+          flutter build apk --release \
+            --build-name=${{ needs.version.outputs.version }} \
+            --build-number=${{ needs.version.outputs.build_number }} \
+            --verbose 2>&1 | tee build.log
+          echo "Unsigned APK build completed!"
+
+      - name: Get APK info
+        id: apk_info
+        run: |
+          APK_PATH=$(find build/app/outputs/flutter-apk -name "*.apk" | head -1)
+          if [ -n "$APK_PATH" ]; then
+            APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+            APK_NAME="sahool-v${{ needs.version.outputs.version }}-release.apk"
+            cp "$APK_PATH" "build/app/outputs/$APK_NAME"
+            echo "apk_path=build/app/outputs/$APK_NAME" >> $GITHUB_OUTPUT
+            echo "apk_size=$APK_SIZE" >> $GITHUB_OUTPUT
+            echo "apk_name=$APK_NAME" >> $GITHUB_OUTPUT
+
+            # Calculate SHA256
+            sha256sum "build/app/outputs/$APK_NAME" > "build/app/outputs/${APK_NAME}.sha256"
+          fi
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: sahool-release-apk-v${{ needs.version.outputs.version }}
+          path: |
+            apps/mobile/build/app/outputs/*.apk
+            apps/mobile/build/app/outputs/*.sha256
+          retention-days: 90
+
+      - name: Upload mapping file (ProGuard)
+        uses: actions/upload-artifact@v4
+        with:
+          name: proguard-mapping-v${{ needs.version.outputs.version }}
+          path: apps/mobile/build/app/outputs/mapping/release/
+          retention-days: 180
+        continue-on-error: true
+
+      - name: Upload debug symbols
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-symbols-apk-v${{ needs.version.outputs.version }}
+          path: apps/mobile/build/app/outputs/symbols/
+          retention-days: 180
+        continue-on-error: true
+
+      - name: Cleanup sensitive files
+        if: always()
+        run: |
+          rm -f android/app/release-keystore.jks
+          rm -f android/key.properties
+
+      - name: APK Build Summary
+        run: |
+          echo "## Release APK Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | ${{ needs.version.outputs.version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Number | ${{ needs.version.outputs.build_number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| APK Size | ${{ steps.apk_info.outputs.apk_size || 'N/A' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Signed | ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && 'Yes' || 'No' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Flutter Version | ${{ env.FLUTTER_VERSION }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Build Release AAB Job (Android App Bundle for Play Store)
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-release-aab:
+    name: Build Release AAB
+    runs-on: ubuntu-latest
+    needs: version
+    if: ${{ github.event.inputs.build_type == 'aab' || github.event.inputs.build_type == 'both' || github.event.inputs.build_type == '' }}
+    defaults:
+      run:
+        working-directory: apps/mobile
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+          cache-key: flutter-${{ env.FLUTTER_VERSION }}-${{ runner.os }}
+          cache-path: ${{ runner.tool_cache }}/flutter
+
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            apps/mobile/.dart_tool
+          key: pub-cache-${{ runner.os }}-${{ hashFiles('apps/mobile/pubspec.lock') }}
+          restore-keys: |
+            pub-cache-${{ runner.os }}-
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('apps/mobile/android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Accept Android licenses
+        run: yes | flutter doctor --android-licenses || true
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Setup Python for icon generation
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate app icons
+        run: |
+          pip install Pillow
+          mkdir -p assets/icon assets/images assets/icons
+          python3 scripts/generate_icons.py || echo "Icon generation skipped"
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          API_BASE_URL=https://api.sahool.app
+          WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
+          MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}
+          ENV=production
+          EOF
+
+      - name: Update version in pubspec.yaml
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+          BUILD="${{ needs.version.outputs.build_number }}"
+          sed -i "s/^version:.*/version: ${VERSION}+${BUILD}/" pubspec.yaml
+
+      - name: Generate code
+        run: |
+          flutter clean
+          flutter pub get
+          dart run build_runner build --delete-conflicting-outputs
+
+      - name: Generate launcher icons
+        run: dart run flutter_launcher_icons || echo "Launcher icons skipped"
+
+      - name: Generate native splash
+        run: dart run flutter_native_splash:create || echo "Splash generation skipped"
+
+      - name: Decode Keystore
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-keystore.jks
+
+      - name: Create key.properties
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        run: |
+          cat > android/key.properties << EOF
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storeFile=release-keystore.jks
+          EOF
+
+      - name: Build Release AAB (Signed)
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        run: |
+          echo "Building signed Release AAB for Play Store..."
+          flutter build appbundle --release \
+            --build-name=${{ needs.version.outputs.version }} \
+            --build-number=${{ needs.version.outputs.build_number }} \
+            --verbose 2>&1 | tee build.log
+          echo "Signed AAB build completed!"
+
+      - name: Build Release AAB (Unsigned)
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 == '' }}
+        run: |
+          echo "::warning::Building unsigned AAB - No keystore configured"
+          echo "Building unsigned Release AAB..."
+          flutter build appbundle --release \
+            --build-name=${{ needs.version.outputs.version }} \
+            --build-number=${{ needs.version.outputs.build_number }} \
+            --verbose 2>&1 | tee build.log
+          echo "Unsigned AAB build completed!"
+
+      - name: Get AAB info
+        id: aab_info
+        run: |
+          AAB_PATH=$(find build/app/outputs/bundle -name "*.aab" | head -1)
+          if [ -n "$AAB_PATH" ]; then
+            AAB_SIZE=$(du -h "$AAB_PATH" | cut -f1)
+            AAB_NAME="sahool-v${{ needs.version.outputs.version }}-release.aab"
+            cp "$AAB_PATH" "build/app/outputs/$AAB_NAME"
+            echo "aab_path=build/app/outputs/$AAB_NAME" >> $GITHUB_OUTPUT
+            echo "aab_size=$AAB_SIZE" >> $GITHUB_OUTPUT
+            echo "aab_name=$AAB_NAME" >> $GITHUB_OUTPUT
+
+            # Calculate SHA256
+            sha256sum "build/app/outputs/$AAB_NAME" > "build/app/outputs/${AAB_NAME}.sha256"
+          fi
+
+      - name: Upload Release AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: sahool-release-aab-v${{ needs.version.outputs.version }}
+          path: |
+            apps/mobile/build/app/outputs/*.aab
+            apps/mobile/build/app/outputs/*.sha256
+          retention-days: 90
+
+      - name: Upload debug symbols for AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-symbols-aab-v${{ needs.version.outputs.version }}
+          path: apps/mobile/build/app/outputs/symbols/
+          retention-days: 180
+        continue-on-error: true
+
+      - name: Cleanup sensitive files
+        if: always()
+        run: |
+          rm -f android/app/release-keystore.jks
+          rm -f android/key.properties
+
+      - name: AAB Build Summary
+        run: |
+          echo "## Release AAB Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | ${{ needs.version.outputs.version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Number | ${{ needs.version.outputs.build_number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| AAB Size | ${{ steps.aab_info.outputs.aab_size || 'N/A' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Signed | ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && 'Yes' || 'No' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Flutter Version | ${{ env.FLUTTER_VERSION }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Deploy to Play Store (Internal Track)
+  # ─────────────────────────────────────────────────────────────────────────────
+  deploy-play-store:
+    name: Deploy to Play Store
+    runs-on: ubuntu-latest
+    needs: [version, build-release-aab]
+    if: ${{ github.event.inputs.deploy_to_play_store == 'true' && secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON != '' }}
+    environment: production
+
+    steps:
+      - name: Download AAB artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sahool-release-aab-v${{ needs.version.outputs.version }}
+          path: ./release
+
+      - name: Setup Ruby for Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: false
+
+      - name: Install Fastlane
+        run: gem install fastlane
+
+      - name: Create service account JSON
+        run: |
+          echo '${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}' > service_account.json
+
+      - name: Upload to Play Store (Internal Track)
+        run: |
+          AAB_FILE=$(find ./release -name "*.aab" | head -1)
+          echo "Uploading $AAB_FILE to Play Store internal track..."
+
+          fastlane supply \
+            --aab "$AAB_FILE" \
+            --track internal \
+            --package_name "app.sahool.field" \
+            --json_key service_account.json \
+            --skip_upload_metadata \
+            --skip_upload_images \
+            --skip_upload_screenshots
+
+      - name: Cleanup
+        if: always()
+        run: rm -f service_account.json
+
+      - name: Deployment Summary
+        run: |
+          echo "## Play Store Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | ${{ needs.version.outputs.version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Track | Internal |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | Uploaded |" >> $GITHUB_STEP_SUMMARY
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Create GitHub Release
+  # ─────────────────────────────────────────────────────────────────────────────
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [version, build-release-apk, build-release-aab]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sahool-release-apk-v${{ needs.version.outputs.version }}
+          path: ./release-apk
+        continue-on-error: true
+
+      - name: Download AAB artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sahool-release-aab-v${{ needs.version.outputs.version }}
+          path: ./release-aab
+        continue-on-error: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "SAHOOL Mobile v${{ needs.version.outputs.version }}"
+          body: |
+            ## SAHOOL Field App v${{ needs.version.outputs.version }}
+
+            ### What's New
+            - See [CHANGELOG.md](apps/mobile/CHANGELOG.md) for details
+
+            ### Downloads
+            - **APK**: Direct installation for Android devices
+            - **AAB**: For Play Store deployment
+
+            ### Installation
+            1. Download the APK file
+            2. Enable "Install from unknown sources" if prompted
+            3. Open the APK to install
+
+            ### Checksums
+            SHA256 checksums are provided for verification.
+
+            ---
+            *Built with Flutter ${{ env.FLUTTER_VERSION }}*
+          files: |
+            ./release-apk/*.apk
+            ./release-apk/*.sha256
+            ./release-aab/*.aab
+            ./release-aab/*.sha256
+          draft: false
+          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Release Status Summary
+  # ─────────────────────────────────────────────────────────────────────────────
+  release-status:
+    name: Release Status
+    runs-on: ubuntu-latest
+    needs: [version, build-release-apk, build-release-aab]
+    if: always()
+
+    steps:
+      - name: Release Summary
+        run: |
+          echo "## Mobile Release Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Version Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ needs.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Number**: ${{ needs.version.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Artifact | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Release APK | ${{ needs.build-release-apk.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Release AAB | ${{ needs.build-release-aab.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download artifacts from the workflow run" >> $GITHUB_STEP_SUMMARY
+          echo "2. Test the APK on physical devices" >> $GITHUB_STEP_SUMMARY
+          echo "3. Upload AAB to Play Store Console" >> $GITHUB_STEP_SUMMARY

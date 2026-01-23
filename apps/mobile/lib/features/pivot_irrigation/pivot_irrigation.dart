@@ -1,0 +1,39 @@
+/// Pivot Irrigation Feature - Valley Style
+/// ميزة الري المحوري - بأسلوب فالي
+///
+/// This module provides comprehensive center pivot irrigation management
+/// similar to Valley Irrigation systems, including:
+/// - Pivot visualization with sectors and VRI zones
+/// - Control panel for pivot operation
+/// - Sector management and configuration
+/// - Real-time status monitoring
+/// - Scheduling and automation
+/// - Performance statistics
+///
+/// Usage:
+/// ```dart
+/// import 'package:sahool_field_app/features/pivot_irrigation/pivot_irrigation.dart';
+///
+/// // Navigate to pivot dashboard
+/// Navigator.push(
+///   context,
+///   MaterialPageRoute(
+///     builder: (context) => PivotDashboardScreen(
+///       pivotId: 'pivot_001',
+///       fieldId: 'field_001',
+///     ),
+///   ),
+/// );
+/// ```
+library pivot_irrigation;
+
+// Domain Models
+export 'domain/models/pivot_models.dart';
+
+// Presentation Widgets
+export 'presentation/widgets/pivot_visualization.dart';
+export 'presentation/widgets/pivot_control_panel.dart';
+
+// Presentation Screens
+export 'presentation/screens/pivot_dashboard_screen.dart';
+export 'presentation/screens/sector_management_screen.dart';

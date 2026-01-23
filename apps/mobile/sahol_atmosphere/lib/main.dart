@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════════════════
-// SAHOL ATMOSPHERE - Mobile Application
+// SAHOOL ATMOSPHERE - Mobile Application
 // تطبيق ساهول أتموسفير للموبايل
 // ═══════════════════════════════════════════════════════════════════════════════════════
 //
@@ -11,15 +11,22 @@
 // - Voice-First Interface (Arabic Support)
 // - Bio-Luminescent Design Language
 // - Haptic Feedback for Actions
+// - Device Security Checks
 //
+// Version: 16.0.0
 // ═══════════════════════════════════════════════════════════════════════════════════════
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme/atmosphere_theme.dart';
 import 'screens/dashboard_screen.dart';
+import 'core/security/device_security.dart';
+import 'providers/theme_provider.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Set system UI overlay style for immersive experience
@@ -33,34 +40,69 @@ void main() {
   );
 
   // Force portrait mode for optimal UX
-  SystemChrome.setPreferredOrientations([
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(const SaholAtmosphereApp());
+  // Perform security check (non-blocking)
+  // فحص الأمان (غير معطل)
+  try {
+    final securityService = DeviceSecurityService();
+    final securityResult = await securityService.checkSecurity();
+
+    if (kDebugMode) {
+      debugPrint('🔒 Security Check: $securityResult');
+    }
+
+    // In production, you might want to handle compromised devices
+    if (securityResult.isCompromised && !kDebugMode) {
+      debugPrint('⚠️ Warning: Running on compromised device');
+      // Optionally show warning or restrict features
+    }
+  } catch (e) {
+    debugPrint('Security check failed: $e');
+  }
+
+  runApp(
+    const ProviderScope(
+      child: SahoolAtmosphereApp(),
+    ),
+  );
 }
 
 /// Main Application Widget
-class SaholAtmosphereApp extends StatelessWidget {
-  const SaholAtmosphereApp({super.key});
+/// التطبيق الرئيسي
+class SahoolAtmosphereApp extends ConsumerWidget {
+  const SahoolAtmosphereApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the theme mode provider
+    // مراقبة مزود وضع الثيم
+    final themeMode = ref.watch(themeModeProvider);
+
     return MaterialApp(
       title: 'ساهول أتموسفير',
       debugShowCheckedModeBanner: false,
 
-      // Theme Configuration
-      theme: AtmosphereTheme.darkTheme,
+      // Theme Configuration - supports light/dark/system
+      // تكوين الثيم - يدعم النهاري/الليلي/النظام
+      theme: AtmosphereTheme.lightTheme,
       darkTheme: AtmosphereTheme.darkTheme,
-      themeMode: ThemeMode.dark, // Always dark for battery saving in sunlight
+      themeMode: themeMode, // Follows user preference or system setting
 
       // Localization
       locale: const Locale('ar', 'SA'),
       supportedLocales: const [
         Locale('ar', 'SA'),
+        Locale('ar', 'YE'),
         Locale('en', 'US'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
 
       // Home Screen

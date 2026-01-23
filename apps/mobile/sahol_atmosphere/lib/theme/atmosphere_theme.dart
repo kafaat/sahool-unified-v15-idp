@@ -231,10 +231,118 @@ class AtmosphereShadows {
   ];
 }
 
+/// Light Mode Colors - ألوان الوضع النهاري
+class AtmosphereLightColors {
+  AtmosphereLightColors._();
+
+  // Background Colors - Light Mode
+  static const Color bgPrimary = Color(0xFFF8FAFC);
+  static const Color bgSecondary = Color(0xFFFFFFFF);
+  static const Color bgTertiary = Color(0xFFF1F5F9);
+  static const Color bgCard = Color(0xFFFFFFFF);
+
+  // Status Colors - Light Mode (slightly adjusted for contrast)
+  static const Color success = Color(0xFF22C55E);      // Vibrant Green
+  static const Color successGlow = Color(0x3322C55E);
+  static const Color successLight = Color(0xFFDCFCE7);
+
+  static const Color warning = Color(0xFFEAB308);      // Amber
+  static const Color warningGlow = Color(0x33EAB308);
+  static const Color warningLight = Color(0xFFFEF3C7);
+
+  static const Color alert = Color(0xFFEF4444);        // Red
+  static const Color alertGlow = Color(0x33EF4444);
+  static const Color alertLight = Color(0xFFFEE2E2);
+
+  static const Color info = Color(0xFF3B82F6);         // Blue
+  static const Color infoGlow = Color(0x333B82F6);
+  static const Color infoLight = Color(0xFFDBEAFE);
+
+  // Text Colors - Light Mode
+  static const Color textPrimary = Color(0xFF0F172A);
+  static const Color textSecondary = Color(0xFF475569);
+  static const Color textMuted = Color(0xFF94A3B8);
+  static const Color textDisabled = Color(0xFFCBD5E1);
+
+  // UI Elements
+  static const Color border = Color(0xFFE2E8F0);
+  static const Color divider = Color(0xFFF1F5F9);
+}
+
+/// Light Mode Typography
+class AtmosphereLightTypography {
+  AtmosphereLightTypography._();
+
+  static const TextStyle displayLarge = TextStyle(
+    fontSize: 32,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.5,
+    color: AtmosphereLightColors.textPrimary,
+  );
+
+  static const TextStyle displayMedium = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.w600,
+    letterSpacing: -0.25,
+    color: AtmosphereLightColors.textPrimary,
+  );
+
+  static const TextStyle displaySmall = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+    color: AtmosphereLightColors.textPrimary,
+  );
+
+  static const TextStyle headlineLarge = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    color: AtmosphereLightColors.textPrimary,
+  );
+
+  static const TextStyle headlineMedium = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AtmosphereLightColors.textPrimary,
+  );
+
+  static const TextStyle bodyLarge = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AtmosphereLightColors.textPrimary,
+  );
+
+  static const TextStyle bodyMedium = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AtmosphereLightColors.textSecondary,
+  );
+
+  static const TextStyle bodySmall = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: AtmosphereLightColors.textMuted,
+  );
+
+  static const TextStyle labelLarge = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.5,
+    color: AtmosphereLightColors.textPrimary,
+  );
+
+  static const TextStyle labelSmall = TextStyle(
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 1.5,
+    color: AtmosphereLightColors.textMuted,
+  );
+}
+
 /// Main Theme Class
 class AtmosphereTheme {
   AtmosphereTheme._();
 
+  /// Dark Theme - الوضع الليلي
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
@@ -355,6 +463,133 @@ class AtmosphereTheme {
         unselectedItemColor: AtmosphereColors.textMuted,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
+      ),
+    );
+  }
+
+  /// Light Theme - الوضع النهاري
+  static ThemeData get lightTheme {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+
+      // Colors
+      colorScheme: const ColorScheme.light(
+        primary: AtmosphereLightColors.success,
+        secondary: AtmosphereLightColors.info,
+        surface: AtmosphereLightColors.bgSecondary,
+        error: AtmosphereLightColors.alert,
+        onPrimary: Colors.white,
+        onSecondary: AtmosphereLightColors.textPrimary,
+        onSurface: AtmosphereLightColors.textPrimary,
+        onError: Colors.white,
+      ),
+
+      // Scaffold
+      scaffoldBackgroundColor: AtmosphereLightColors.bgPrimary,
+
+      // AppBar
+      appBarTheme: AppBarTheme(
+        backgroundColor: AtmosphereLightColors.bgSecondary,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: AtmosphereLightTypography.displaySmall,
+        iconTheme: const IconThemeData(color: AtmosphereLightColors.textPrimary),
+        surfaceTintColor: Colors.transparent,
+      ),
+
+      // Cards
+      cardTheme: CardTheme(
+        color: AtmosphereLightColors.bgCard,
+        elevation: 2,
+        shadowColor: Colors.black.withOpacity(0.05),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AtmosphereRadius.lg),
+          side: const BorderSide(color: AtmosphereLightColors.border),
+        ),
+      ),
+
+      // Buttons
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AtmosphereLightColors.success,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AtmosphereSpacing.lg,
+            vertical: AtmosphereSpacing.md,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AtmosphereRadius.md),
+          ),
+          textStyle: AtmosphereLightTypography.labelLarge.copyWith(color: Colors.white),
+        ),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AtmosphereLightColors.success,
+          side: const BorderSide(color: AtmosphereLightColors.success),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AtmosphereSpacing.lg,
+            vertical: AtmosphereSpacing.md,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AtmosphereRadius.md),
+          ),
+          textStyle: AtmosphereLightTypography.labelLarge,
+        ),
+      ),
+
+      // Text
+      textTheme: const TextTheme(
+        displayLarge: AtmosphereLightTypography.displayLarge,
+        displayMedium: AtmosphereLightTypography.displayMedium,
+        displaySmall: AtmosphereLightTypography.displaySmall,
+        headlineLarge: AtmosphereLightTypography.headlineLarge,
+        headlineMedium: AtmosphereLightTypography.headlineMedium,
+        bodyLarge: AtmosphereLightTypography.bodyLarge,
+        bodyMedium: AtmosphereLightTypography.bodyMedium,
+        bodySmall: AtmosphereLightTypography.bodySmall,
+        labelLarge: AtmosphereLightTypography.labelLarge,
+        labelSmall: AtmosphereLightTypography.labelSmall,
+      ),
+
+      // Input Decoration
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AtmosphereLightColors.bgTertiary,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AtmosphereRadius.md),
+          borderSide: const BorderSide(color: AtmosphereLightColors.border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AtmosphereRadius.md),
+          borderSide: const BorderSide(color: AtmosphereLightColors.border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AtmosphereRadius.md),
+          borderSide: const BorderSide(color: AtmosphereLightColors.success, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AtmosphereSpacing.md,
+          vertical: AtmosphereSpacing.md,
+        ),
+        hintStyle: AtmosphereLightTypography.bodyMedium,
+      ),
+
+      // Divider
+      dividerTheme: const DividerThemeData(
+        color: AtmosphereLightColors.divider,
+        thickness: 1,
+      ),
+
+      // Bottom Navigation
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AtmosphereLightColors.bgSecondary,
+        selectedItemColor: AtmosphereLightColors.success,
+        unselectedItemColor: AtmosphereLightColors.textMuted,
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
       ),
     );
   }

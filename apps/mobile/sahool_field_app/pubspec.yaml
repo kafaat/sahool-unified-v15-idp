@@ -62,8 +62,8 @@ dependencies:
   # Maps - Updated for Flutter 3.27 compatibility
   flutter_map: ^8.1.1  # Use 8.1.x to avoid http 1.5.0-beta requirement
   flutter_map_cache: ^2.0.0  # Lightweight offline map caching
-  maplibre_gl: ^0.25.0  # MapLibre GL - Open Source
   latlong2: ^0.9.1
+  # Note: maplibre_gl removed - requires Java 21 and NDK 28, flutter_map is sufficient
 
   # Location
   geolocator: ^13.0.2

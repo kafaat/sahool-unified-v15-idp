@@ -57,7 +57,7 @@ check_flutter() {
     print_success "Flutter is installed"
 }
 
-# Check for connected devices
+# Check for connected devices and auto-select if needed
 check_devices() {
     print_header "Checking Connected Devices"
 
@@ -72,6 +72,23 @@ check_devices() {
     fi
 
     print_success "$DEVICE_COUNT device(s) found"
+
+    # Auto-select device if not specified and multiple devices available
+    if [ -z "$DEVICE_ID" ] && [ "$DEVICE_COUNT" -gt 1 ]; then
+        # Prefer Chrome for integration tests (web-javascript)
+        if flutter devices | grep -q "chrome"; then
+            DEVICE_ID="chrome"
+            print_info "Auto-selected device: chrome (web)"
+        # Fallback to Linux desktop
+        elif flutter devices | grep -q "linux"; then
+            DEVICE_ID="linux"
+            print_info "Auto-selected device: linux (desktop)"
+        else
+            # Use first available device
+            DEVICE_ID=$(flutter devices | grep "•" | head -1 | awk '{print $2}')
+            print_info "Auto-selected first available device: $DEVICE_ID"
+        fi
+    fi
 }
 
 # Start emulator if needed

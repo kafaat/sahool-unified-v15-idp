@@ -22,7 +22,6 @@ import {
   getCSPConfig,
 } from "@/lib/security/csp-config";
 import { locales, defaultLocale } from "@sahool/i18n";
-import { randomBytes } from "crypto";
 import { validateJwtToken } from "@/lib/security/jwt-middleware";
 import { validateCsrfRequest } from "@/lib/security/csrf-server";
 import { logger } from "@/lib/logger";
@@ -174,7 +173,13 @@ export async function middleware(request: NextRequest) {
   // Generate CSRF token if not present
   let csrfToken = request.cookies.get("csrf_token")?.value;
   if (!csrfToken) {
-    csrfToken = randomBytes(32).toString("base64url");
+    // Use Web Crypto API for Edge Runtime compatibility
+    const randomValues = new Uint8Array(32);
+    crypto.getRandomValues(randomValues);
+    csrfToken = btoa(String.fromCharCode(...randomValues))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=/g, "");
     response.cookies.set("csrf_token", csrfToken, {
       httpOnly: false, // Must be readable by client JavaScript for AJAX requests
       secure: process.env.NODE_ENV === "production",

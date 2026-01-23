@@ -395,6 +395,9 @@ class VRIZoneGridBuilder {
 /// Statistics for VRI zone grid
 @freezed
 class VRIZoneStatistics with _$VRIZoneStatistics {
+  // Private constructor required for custom factory constructors in freezed
+  const VRIZoneStatistics._();
+
   const factory VRIZoneStatistics({
     required int totalZones,
     required int activeZones,
@@ -412,10 +415,10 @@ class VRIZoneStatistics with _$VRIZoneStatistics {
   /// Calculate statistics from a grid
   factory VRIZoneStatistics.fromGrid(VRIZoneGrid grid) {
     final allZones = grid.grid.expand((zones) => zones).toList();
-    final activeZones = allZones.where((z) => z.isEnabled && z.applicationRatePercent > 0);
-    final offZones = allZones.where((z) => !z.isEnabled || z.applicationRatePercent == 0);
+    final activeZonesList = allZones.where((z) => z.isEnabled && z.applicationRatePercent > 0).toList();
+    final offZonesList = allZones.where((z) => !z.isEnabled || z.applicationRatePercent == 0).toList();
 
-    final rates = activeZones.map((z) => z.applicationRatePercent).toList();
+    final rates = activeZonesList.map((z) => z.applicationRatePercent).toList();
     final avgRate = rates.isEmpty ? 0.0 : rates.reduce((a, b) => a + b) / rates.length;
     final minRate = rates.isEmpty ? 0.0 : rates.reduce((a, b) => a < b ? a : b);
     final maxRate = rates.isEmpty ? 0.0 : rates.reduce((a, b) => a > b ? a : b);
@@ -446,8 +449,8 @@ class VRIZoneStatistics with _$VRIZoneStatistics {
 
     return VRIZoneStatistics(
       totalZones: allZones.length,
-      activeZones: activeZones.length,
-      offZones: offZones.length,
+      activeZones: activeZonesList.length,
+      offZones: offZonesList.length,
       avgApplicationRate: avgRate,
       minApplicationRate: minRate,
       maxApplicationRate: maxRate,

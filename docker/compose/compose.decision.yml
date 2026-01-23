@@ -189,6 +189,34 @@ services:
     - postgres
     - redis
     - nats
+  ai-advisor:
+    build:
+      context: ../../apps/services/ai-advisor
+      dockerfile: Dockerfile
+    ports:
+    - 8112:8112
+    environment:
+    - PORT=8112
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8112/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
 networks:
   sahool-network:
     driver: bridge

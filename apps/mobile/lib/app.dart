@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/theme.dart';
 import 'core/error/error.dart';
+import 'generated/l10n/app_localizations.dart';
 import 'features/home/presentation/screens/home_dashboard.dart';
 import 'features/tasks/presentation/tasks_list_screen.dart';
 import 'features/crop_health/presentation/screens/crop_health_dashboard.dart';
@@ -43,17 +44,10 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
       title: 'سهول',
       debugShowCheckedModeBanner: false,
 
-      // Arabic RTL Support
+      // Arabic RTL Support with generated localizations
       locale: const Locale('ar'),
-      supportedLocales: const [
-        Locale('ar'),
-        Locale('en'),
-      ],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
 
       // Theme
       theme: SahoolTheme.light,

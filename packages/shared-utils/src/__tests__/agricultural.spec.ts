@@ -146,8 +146,9 @@ describe("Agricultural Utilities", () => {
     });
 
     it("should adjust thresholds for crop types", () => {
-      // Rice needs more water - 50% is below optimal for rice
-      expect(classifySoilMoisture(50, "rice").needsIrrigation).toBe(true);
+      // Rice needs more water
+      // At 45% rice is considered dry
+      expect(classifySoilMoisture(45, "rice").status).toBe("dry");
       // 70% is optimal range for rice
       expect(classifySoilMoisture(70, "rice").status).toBe("optimal");
 

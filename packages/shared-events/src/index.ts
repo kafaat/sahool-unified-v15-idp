@@ -377,15 +377,32 @@ export {
   subscribeAll,
   unsubscribe,
 
-  // Convenience subscribers
+  // Domain-specific subscribers
   subscribeToFieldEvents,
-  subscribeToOrderEvents,
+  subscribeToFarmEvents,
+  subscribeToWeatherEvents,
+  subscribeToSatelliteEvents,
+  subscribeToHealthEvents,
+  subscribeToInventoryEvents,
+  subscribeToBillingEvents,
+  subscribeToTaskEvents,
+  subscribeToAlertEvents,
+  subscribeToIoTEvents,
   subscribeToSensorEvents,
   subscribeToDeviceEvents,
-  subscribeToUserEvents,
-  subscribeToInventoryEvents,
   subscribeToNotificationEvents,
+  subscribeToUserEvents,
+  subscribeToOrderEvents,
+  subscribeToAgentEvents,
+  subscribeToRecommendationEvents,
+  subscribeToSystemEvents,
+
+  // Tenant-scoped subscribers
+  subscribeToTenantEvents,
+  subscribeToTenantDomain,
 
   // Utilities
   createLoggingHandler,
+  createFilteringHandler,
+  createValidatingHandler,
 } from "./subscriber";

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../../../../core/di/providers.dart';
 import '../../../../core/geo/geojson.dart';
-import '../../../crop_health/presentation/screens/crop_health_dashboard.dart';
 
 /// شاشة خريطة الحقل مع طبقات NDVI
 /// Field Map Screen with NDVI Layers
@@ -13,14 +12,12 @@ class FieldMapScreen extends ConsumerStatefulWidget {
   final String fieldId;
   final String? fieldName;
   final Map<String, dynamic>? initialCenter;
-  final String? highlightZoneId;
 
   const FieldMapScreen({
     super.key,
     required this.fieldId,
     this.fieldName,
     this.initialCenter,
-    this.highlightZoneId,
   });
 
   @override
@@ -37,58 +34,57 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   String? _selectedZoneId;
   double _currentZoom = 15.0;
 
-  /// Field boundary for map bounds calculation
-  List<LatLng>? _fieldBoundary;
+  /// Map controller for programmatic camera control
+  late final MapController _mapController;
 
-  /// Calculated field bounds
-  LatLngBounds? _fieldBounds;
-
-  /// Center point of the field
-  LatLng? _fieldCenter;
+  /// Field boundary coordinates (loaded from field data)
+  List<LatLng> _fieldBoundary = [];
 
   @override
   void initState() {
     super.initState();
-    // Set initial zone selection from highlightZoneId parameter
-    if (widget.highlightZoneId != null) {
-      _selectedZoneId = widget.highlightZoneId;
-    }
-    // Load field data to get bounds
-    _loadFieldData();
+    _mapController = MapController();
+    _loadFieldBoundary();
   }
 
-  /// Load field data to calculate bounds for map centering
-  Future<void> _loadFieldData() async {
-    try {
-      // Try to get field data from initial center if provided
-      if (widget.initialCenter != null) {
-        final lat = widget.initialCenter!['latitude'] as double?;
-        final lng = widget.initialCenter!['longitude'] as double?;
-        if (lat != null && lng != null) {
-          setState(() {
-            _fieldCenter = LatLng(lat, lng);
-          });
-          return;
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  /// Load field boundary from initial center data or fetch from repository
+  void _loadFieldBoundary() {
+    // Try to extract boundary from initialCenter if provided as GeoJSON
+    if (widget.initialCenter != null) {
+      final geometry = widget.initialCenter!['geometry'];
+      if (geometry != null && geometry['type'] == 'Polygon') {
+        try {
+          _fieldBoundary = GeoJson.parsePolygon(geometry as Map<String, dynamic>);
+        } catch (_) {
+          // Fallback: use center point to create a small bounding area
+          _createBoundaryFromCenter();
         }
+      } else if (widget.initialCenter!['lat'] != null &&
+          widget.initialCenter!['lng'] != null) {
+        _createBoundaryFromCenter();
       }
+    }
+  }
 
-      // Load field from repository
-      final fieldsRepo = ref.read(fieldsRepoProvider);
-      final fields = await fieldsRepo.getAllFields('');
-
-      // Find the field matching our fieldId
-      final matchingField = fields.where((f) => f.id == widget.fieldId).firstOrNull;
-
-      if (matchingField != null && matchingField.boundary.isNotEmpty) {
-        setState(() {
-          _fieldBoundary = matchingField.boundary;
-          _fieldBounds = GeoJson.calculateBounds(matchingField.boundary);
-          _fieldCenter = matchingField.centroid ?? GeoJson.calculateCentroid(matchingField.boundary);
-        });
-      }
-    } catch (e) {
-      // Field data not available, use default behavior
-      debugPrint('Could not load field data: $e');
+  /// Create a small bounding area from center point (fallback)
+  void _createBoundaryFromCenter() {
+    final lat = (widget.initialCenter!['lat'] as num?)?.toDouble();
+    final lng = (widget.initialCenter!['lng'] as num?)?.toDouble();
+    if (lat != null && lng != null) {
+      // Create a small polygon around the center (approximately 100m x 100m)
+      const offset = 0.001; // ~100m at equator
+      _fieldBoundary = [
+        LatLng(lat - offset, lng - offset),
+        LatLng(lat - offset, lng + offset),
+        LatLng(lat + offset, lng + offset),
+        LatLng(lat + offset, lng - offset),
+      ];
     }
   }
 
@@ -616,111 +612,86 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     );
   }
 
-  /// Center the map camera on the field's geographic bounds
-  /// When actual MapLibre map is integrated, this will animate the camera
-  /// to fit the field bounds within the viewport with appropriate padding
+  /// Center map on field bounds with padding and smooth animation
+  ///
+  /// Calculates the bounding box of the field geometry and uses
+  /// the map controller to fit the bounds with appropriate padding.
   void _centerOnField() {
-    if (_fieldBounds != null) {
-      // When MapLibre is integrated, use:
-      // mapController.fitBounds(
-      //   _fieldBounds!,
-      //   options: FitBoundsOptions(
-      //     padding: EdgeInsets.all(50),
-      //     maxZoom: 18,
-      //   ),
-      // );
-
-      // Calculate optimal zoom level based on bounds span
-      final latSpan = _fieldBounds!.north - _fieldBounds!.south;
-      final lngSpan = _fieldBounds!.east - _fieldBounds!.west;
-      final maxSpan = latSpan > lngSpan ? latSpan : lngSpan;
-
-      // Approximate zoom level calculation
-      // Higher span = lower zoom, smaller span = higher zoom
-      double calculatedZoom = 15.0;
-      if (maxSpan > 0.01) {
-        calculatedZoom = 13.0;
-      } else if (maxSpan > 0.005) {
-        calculatedZoom = 14.0;
-      } else if (maxSpan > 0.001) {
-        calculatedZoom = 16.0;
-      } else {
-        calculatedZoom = 17.0;
+    // Check if we have field boundary data
+    if (_fieldBoundary.isEmpty) {
+      // Try to use initialCenter as fallback
+      if (widget.initialCenter != null) {
+        final lat = (widget.initialCenter!['lat'] as num?)?.toDouble();
+        final lng = (widget.initialCenter!['lng'] as num?)?.toDouble();
+        if (lat != null && lng != null) {
+          // Animate to center point with default zoom
+          _mapController.move(
+            LatLng(lat, lng),
+            16.0, // Default zoom for single point
+          );
+          setState(() => _currentZoom = 16.0);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('تم التوسيط على موقع الحقل'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          return;
+        }
       }
 
-      setState(() {
-        _currentZoom = calculatedZoom;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.center_focus_strong, color: Colors.white),
-              const SizedBox(width: 8),
-              Text(
-                'تم توسيط الخريطة على ${widget.fieldName ?? "الحقل"} (تكبير: ${calculatedZoom.toStringAsFixed(1)}x)',
-              ),
-            ],
-          ),
-          backgroundColor: const Color(0xFF367C2B),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    } else if (_fieldCenter != null) {
-      // If we only have center point, use it
-      // When MapLibre is integrated, use:
-      // mapController.move(_fieldCenter!, _currentZoom);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.center_focus_strong, color: Colors.white),
-              const SizedBox(width: 8),
-              Text(
-                'تم توسيط الخريطة على ${widget.fieldName ?? "الحقل"}',
-              ),
-            ],
-          ),
-          backgroundColor: const Color(0xFF367C2B),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    } else {
-      // No field data available yet
+      // No boundary or center data available
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.info_outline, color: Colors.white),
-              SizedBox(width: 8),
-              Text('جاري تحميل بيانات الحقل...'),
-            ],
-          ),
+          content: Text('لا تتوفر بيانات حدود الحقل'),
           backgroundColor: Colors.orange,
-          duration: Duration(seconds: 2),
         ),
       );
-      // Retry loading field data
-      _loadFieldData();
+      return;
     }
-  }
 
-  /// Navigate to the crop health diagnosis dashboard
-  /// This opens the NDVI-based crop health analysis screen
-  /// where farmers can view diagnosis results, zone health status,
-  /// and recommended actions for their field
-  void _openDiagnosis() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CropHealthDashboard(
-          fieldId: widget.fieldId,
-          fieldName: widget.fieldName,
-        ),
+    // Calculate the bounding box of the field geometry
+    final bounds = GeoJson.calculateBounds(_fieldBoundary);
+
+    // Add padding around the field (in screen pixels)
+    // This ensures the field boundary is not flush against the screen edges
+    const EdgeInsets padding = EdgeInsets.all(50.0);
+
+    // Use fitCamera to fit the bounds with padding and animation
+    // CameraFit.bounds calculates the optimal center and zoom level
+    _mapController.fitCamera(
+      CameraFit.bounds(
+        bounds: bounds,
+        padding: padding,
+        // Maximum zoom level to prevent over-zooming on small fields
+        maxZoom: 18.0,
       ),
     );
+
+    // Update the current zoom state to reflect the new camera position
+    // Note: The actual zoom is calculated by fitCamera based on bounds
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _currentZoom = _mapController.camera.zoom;
+        });
+      }
+    });
+
+    // Show feedback to user
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('تم التوسيط على حدود الحقل'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _openDiagnosis() {
+    context.push('/crop-health', extra: {
+      'fieldId': widget.fieldId,
+      'fieldName': widget.fieldName,
+    });
   }
 }
 

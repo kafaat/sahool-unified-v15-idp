@@ -3,6 +3,10 @@
 ///
 /// تصدير جميع الـ widgets المشتركة في مكان واحد
 
+// Accessibility Utilities
+// أدوات إمكانية الوصول للمستخدمين ضعاف البصر
+export '../accessibility/accessibility_utils.dart';
+
 // Error Handling
 export 'error_boundary.dart';
 
@@ -12,9 +16,8 @@ export 'loading_states.dart';
 // Empty States
 export 'empty_states.dart';
 
-// Connectivity
+// Connectivity (existing)
 export 'connectivity_widget.dart';
 
-// Performance-Optimized Widgets
-export 'optimized_list.dart';
-export 'cached_image.dart';
+// Permission Gates
+export 'permission_gate.dart';

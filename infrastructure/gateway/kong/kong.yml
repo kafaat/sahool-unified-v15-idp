@@ -726,6 +726,83 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
+  # Yield Engine - Yield estimation and prediction
+  - name: yield-engine
+    host: yield-engine
+    port: 8098
+    protocol: http
+    routes:
+      - name: yield-engine-route
+        paths: ["/api/v1/yield-engine", "/yield-engine"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # AI Agents Service - Agent orchestration
+  - name: ai-agents-service
+    host: ai-agents-service
+    port: 8130
+    protocol: http
+    routes:
+      - name: ai-agents-service-route
+        paths: ["/api/v1/ai-agents-service", "/ai-agents-service"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Field Core - Legacy field service (NestJS)
+  - name: field-core
+    host: field-core
+    port: 3005
+    protocol: http
+    routes:
+      - name: field-core-route
+        paths: ["/api/v1/field-core", "/field-core"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Satellite Service - Legacy satellite imagery (deprecated, use vegetation-analysis-service)
+  - name: satellite-service
+    host: satellite-service
+    port: 9190
+    protocol: http
+    routes:
+      - name: satellite-service-route
+        paths: ["/api/v1/satellite-legacy", "/satellite-legacy"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Weather Advanced - Advanced weather analytics (deprecated, use weather-service)
+  - name: weather-advanced
+    host: weather-advanced
+    port: 9092
+    protocol: http
+    routes:
+      - name: weather-advanced-route
+        paths: ["/api/v1/weather-advanced", "/weather-advanced"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Crop Health AI - Legacy crop health (deprecated, use crop-intelligence-service)
+  - name: crop-health-ai
+    host: crop-health-ai
+    port: 9095
+    protocol: http
+    routes:
+      - name: crop-health-ai-route
+        paths: ["/api/v1/crop-health-ai", "/crop-health-ai"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Fertilizer Advisor - Legacy fertilizer recommendations (deprecated, use advisory-service)
+  - name: fertilizer-advisor
+    host: fertilizer-advisor
+    port: 9093
+    protocol: http
+    routes:
+      - name: fertilizer-advisor-route
+        paths: ["/api/v1/fertilizer-advisor", "/fertilizer-advisor"]
+        strip_path: true
+        protocols: ["http", "https"]
+
   # -----------------------------
   # Platform endpoints
   # -----------------------------
@@ -765,9 +842,15 @@ services:
 # - agro-rules (worker, no HTTP - NATS subscriber only)
 # - demo-data (client/test data, not an API service)
 # - ollama / ollama-model-loader (internal LLM, expose only if needed)
-# - code-fix-agent (autonomous agent, may not need HTTP)
-# - code-review-agent (autonomous agent, may not need HTTP)
+# - code-fix-agent (autonomous agent, no HTTP endpoint)
+# - code-review-agent (autonomous agent, no HTTP endpoint)
+#
+# Deprecated services (still accessible for migration):
+# - satellite-service → use vegetation-analysis-service
+# - weather-advanced → use weather-service
+# - crop-health-ai → use crop-intelligence-service
+# - fertilizer-advisor → use advisory-service
 #
 # Last updated: 2026-01-23
-# Total services configured: 54 (was 41)
+# Total services configured: 62 (added yield-engine, ai-agents-service, field-core, + 4 deprecated)
 # ------------------------------------------------------------------------------

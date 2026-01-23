@@ -1,22 +1,22 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
-import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../core/storage/database.dart' as db;
+import '../../../../core/storage/database.dart';
 import '../../../../core/sync/network_status.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../domain/entities/task.dart';
 import '../remote/tasks_api.dart';
 
 /// Tasks Repository - Offline-first data access
 class TasksRepo {
-  final db.AppDatabase _db;
+  final AppDatabase _db;
   final TasksApi _api;
   final NetworkStatus _networkStatus;
   final _uuid = const Uuid();
 
   TasksRepo({
-    required db.AppDatabase database,
+    required AppDatabase database,
     required TasksApi api,
     NetworkStatus? networkStatus,
   })  : _db = database,
@@ -26,19 +26,19 @@ class TasksRepo {
   /// Get all tasks (from local DB)
   Future<List<FieldTask>> getAllTasks(String tenantId) async {
     final dbTasks = await _db.getAllTasks(tenantId);
-    return dbTasks.map<FieldTask>(_mapDbToEntity).toList();
+    return dbTasks.map(_mapDbToEntity).toList();
   }
 
   /// Get tasks for a specific field
   Future<List<FieldTask>> getTasksForField(String fieldId) async {
     final dbTasks = await _db.getTasksForField(fieldId);
-    return dbTasks.map<FieldTask>(_mapDbToEntity).toList();
+    return dbTasks.map(_mapDbToEntity).toList();
   }
 
   /// Get pending tasks (open or in_progress)
   Future<List<FieldTask>> getPendingTasks(String tenantId) async {
     final dbTasks = await _db.getPendingTasks(tenantId);
-    return dbTasks.map<FieldTask>(_mapDbToEntity).toList();
+    return dbTasks.map(_mapDbToEntity).toList();
   }
 
   /// Get single task by ID
@@ -63,7 +63,7 @@ class TasksRepo {
 
       return tasks.length;
     } catch (e) {
-      debugPrint('❌ Failed to refresh tasks: $e');
+      AppLogger.e('Failed to refresh tasks', tag: 'TasksRepo', error: e);
       rethrow;
     }
   }
@@ -100,7 +100,7 @@ class TasksRepo {
       }),
     );
 
-    debugPrint('✅ Task $taskId marked done locally + queued for sync');
+    AppLogger.i('Task marked done locally and queued for sync', tag: 'TasksRepo', data: {'taskId': taskId});
   }
 
   /// Update task status with offline-first pattern
@@ -110,7 +110,7 @@ class TasksRepo {
   }) async {
     // 1. Update local DB
     await _db.upsertTask(
-      db.TasksCompanion(
+      TasksCompanion(
         id: Value(taskId),
         status: Value(status.value),
         updatedAt: Value(DateTime.now()),
@@ -167,7 +167,7 @@ class TasksRepo {
 
     // 1. Save to local DB
     await _db.upsertTask(
-      db.TasksCompanion.insert(
+      TasksCompanion.insert(
         id: taskId,
         tenantId: tenantId,
         fieldId: fieldId,
@@ -195,7 +195,7 @@ class TasksRepo {
   }
 
   /// Map database entity to domain entity
-  FieldTask _mapDbToEntity(db.Task dbTask) {
+  FieldTask _mapDbToEntity(Task dbTask) {
     return FieldTask(
       id: dbTask.id,
       tenantId: dbTask.tenantId,

@@ -1,348 +1,481 @@
 /// SAHOOL Notification Handler
 /// معالج الإشعارات
 ///
-/// Features:
-/// - Handle notification tap actions
-/// - Deep link to specific screens based on notification data
-/// - Parse notification payload
-/// - Route to appropriate screens using go_router
+/// Handles notification taps and routes to appropriate screens
+/// Manages notification badge counts and read status
 
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
 
-/// Notification action types
-enum NotificationAction {
-  openField,
-  openTask,
-  openAlert,
-  openWeather,
-  openIrrigation,
-  openNdvi,
-  openSync,
-  openProfile,
-  openAdvisor,
-  none,
+import '../../features/notifications/data/remote/notification_api.dart';
+import 'firebase_messaging_service.dart';
+
+/// Navigation action for notifications
+class NotificationAction {
+  final String route;
+  final Map<String, dynamic>? arguments;
+
+  const NotificationAction({
+    required this.route,
+    this.arguments,
+  });
 }
 
-/// Notification Handler for managing notification tap actions and deep linking
+/// Notification Handler
+/// Routes notifications to appropriate screens and manages state
 class NotificationHandler {
-  static final NotificationHandler _instance = NotificationHandler._internal();
-  factory NotificationHandler() => _instance;
-  NotificationHandler._internal();
-
-  GoRouter? _router;
-
-  /// تهيئة معالج الإشعارات مع الموجه
-  void initialize(GoRouter router) {
-    _router = router;
-    if (kDebugMode) {
-      debugPrint('✅ NotificationHandler initialized');
-    }
+  static NotificationHandler? _instance;
+  static NotificationHandler get instance {
+    _instance ??= NotificationHandler._();
+    return _instance!;
   }
 
-  /// معالجة النقر على الإشعار
-  Future<void> handleNotificationTap(Map<String, dynamic>? payload) async {
-    if (payload == null) {
-      if (kDebugMode) {
-        debugPrint('⚠️ Notification payload is null');
+  NotificationHandler._();
+
+  /// Global navigator key for routing
+  GlobalKey<NavigatorState>? _navigatorKey;
+
+  /// Notification API client for server communication
+  NotificationApi? _notificationApi;
+
+  /// Unread notification count
+  int _unreadCount = 0;
+  int get unreadCount => _unreadCount;
+
+  /// Notification count stream
+  final _countController = Stream<int>.empty();
+  Stream<int> get onCountChanged => _countController;
+
+  /// Initialize with navigator key
+  void initialize(GlobalKey<NavigatorState> navigatorKey) {
+    _navigatorKey = navigatorKey;
+    _listenToNotifications();
+  }
+
+  /// Configure the notification API client
+  /// Must be called with authentication token after user login
+  void setNotificationApi(NotificationApi api) {
+    _notificationApi = api;
+  }
+
+  /// Listen to notification stream
+  void _listenToNotifications() {
+    FirebaseMessagingService.instance.onNotification.listen((payload) {
+      // Increment unread count for background notifications
+      if (!payload.tapped) {
+        _incrementUnreadCount();
       }
+
+      // Handle notification tap
+      if (payload.tapped) {
+        handleNotificationTap(payload);
+      }
+    });
+  }
+
+  /// Handle notification tap
+  Future<void> handleNotificationTap(SAHOOLNotificationPayload payload) async {
+    final action = _getActionForNotification(payload);
+
+    if (action == null) {
+      debugPrint('⚠️ No action defined for notification type: ${payload.type}');
       return;
     }
 
-    if (_router == null) {
-      if (kDebugMode) {
-        debugPrint('⚠️ Router not initialized in NotificationHandler');
-      }
+    // Navigate to appropriate screen
+    await navigateToScreen(action.route, arguments: action.arguments);
+
+    // Mark as read
+    _decrementUnreadCount();
+  }
+
+  /// Get navigation action for notification type
+  NotificationAction? _getActionForNotification(SAHOOLNotificationPayload payload) {
+    // Check for custom action URL
+    if (payload.actionUrl != null) {
+      return _parseActionUrl(payload.actionUrl!);
+    }
+
+    // Default routes based on notification type
+    switch (payload.type) {
+      // Weather alerts
+      case SAHOOLNotificationType.weatherAlert:
+        return const NotificationAction(
+          route: '/weather',
+          arguments: {'tab': 'alerts'},
+        );
+
+      // Field-related notifications
+      case SAHOOLNotificationType.fieldUpdate:
+      case SAHOOLNotificationType.cropHealth:
+      case SAHOOLNotificationType.satelliteReady:
+        if (payload.fieldId != null) {
+          return NotificationAction(
+            route: '/field/details',
+            arguments: {
+              'fieldId': payload.fieldId,
+              'tab': _getFieldTab(payload.type),
+            },
+          );
+        }
+        return const NotificationAction(route: '/fields');
+
+      // Disease detection
+      case SAHOOLNotificationType.diseaseDetected:
+        if (payload.fieldId != null) {
+          return NotificationAction(
+            route: '/field/details',
+            arguments: {
+              'fieldId': payload.fieldId,
+              'tab': 'health',
+            },
+          );
+        }
+        return const NotificationAction(route: '/fields');
+
+      // Pest outbreak
+      case SAHOOLNotificationType.pestOutbreak:
+        return NotificationAction(
+          route: '/alerts',
+          arguments: {
+            'type': 'pest',
+            'data': payload.data,
+          },
+        );
+
+      // Spray window
+      case SAHOOLNotificationType.sprayWindow:
+        if (payload.fieldId != null) {
+          return NotificationAction(
+            route: '/field/spray',
+            arguments: {
+              'fieldId': payload.fieldId,
+              'data': payload.data,
+            },
+          );
+        }
+        return const NotificationAction(route: '/tasks');
+
+      // Harvest reminder
+      case SAHOOLNotificationType.harvestReminder:
+        if (payload.fieldId != null) {
+          return NotificationAction(
+            route: '/field/harvest',
+            arguments: {
+              'fieldId': payload.fieldId,
+              'data': payload.data,
+            },
+          );
+        }
+        return const NotificationAction(route: '/tasks');
+
+      // Irrigation reminder
+      case SAHOOLNotificationType.irrigationReminder:
+        if (payload.fieldId != null) {
+          return NotificationAction(
+            route: '/field/irrigation',
+            arguments: {
+              'fieldId': payload.fieldId,
+            },
+          );
+        }
+        return const NotificationAction(route: '/irrigation');
+
+      // Task reminder
+      case SAHOOLNotificationType.taskReminder:
+        final taskId = payload.data['task_id'] as String?;
+        if (taskId != null) {
+          return NotificationAction(
+            route: '/task/details',
+            arguments: {'taskId': taskId},
+          );
+        }
+        return const NotificationAction(route: '/tasks');
+
+      // Market price
+      case SAHOOLNotificationType.marketPrice:
+        return NotificationAction(
+          route: '/market',
+          arguments: {
+            'crop': payload.cropType,
+            'data': payload.data,
+          },
+        );
+
+      // Payment due
+      case SAHOOLNotificationType.paymentDue:
+        return NotificationAction(
+          route: '/payments',
+          arguments: {'data': payload.data},
+        );
+
+      // Low stock
+      case SAHOOLNotificationType.lowStock:
+        final itemId = payload.data['item_id'] as String?;
+        if (itemId != null) {
+          return NotificationAction(
+            route: '/inventory/item',
+            arguments: {'itemId': itemId},
+          );
+        }
+        return const NotificationAction(route: '/inventory');
+
+      // System notifications
+      case SAHOOLNotificationType.system:
+        return const NotificationAction(route: '/notifications');
+    }
+  }
+
+  /// Get field tab based on notification type
+  String _getFieldTab(SAHOOLNotificationType type) {
+    switch (type) {
+      case SAHOOLNotificationType.satelliteReady:
+        return 'satellite';
+      case SAHOOLNotificationType.cropHealth:
+        return 'health';
+      case SAHOOLNotificationType.fieldUpdate:
+        return 'overview';
+      default:
+        return 'overview';
+    }
+  }
+
+  /// Parse action URL
+  /// Format: /route?param1=value1&param2=value2
+  NotificationAction? _parseActionUrl(String url) {
+    try {
+      final uri = Uri.parse(url);
+      return NotificationAction(
+        route: uri.path,
+        arguments: uri.queryParameters,
+      );
+    } catch (e) {
+      debugPrint('❌ Failed to parse action URL: $url');
+      return null;
+    }
+  }
+
+  /// Navigate to screen
+  Future<void> navigateToScreen(
+    String route, {
+    Map<String, dynamic>? arguments,
+  }) async {
+    if (_navigatorKey?.currentState == null) {
+      debugPrint('⚠️ Navigator not available');
       return;
     }
 
-    if (kDebugMode) {
-      debugPrint('📱 Handling notification tap: $payload');
-    }
-
     try {
-      final action = _parseAction(payload);
-      final route = _getRouteForAction(action, payload);
-
-      if (route != null) {
-        if (kDebugMode) {
-          debugPrint('🔗 Navigating to: $route');
-        }
-        _router!.go(route);
-      } else {
-        if (kDebugMode) {
-          debugPrint('⚠️ No route found for action: $action');
-        }
-      }
+      await _navigatorKey!.currentState!.pushNamed(
+        route,
+        arguments: arguments,
+      );
+      debugPrint('📱 Navigated to: $route');
     } catch (e) {
-      if (kDebugMode) {
-        debugPrint('❌ Error handling notification tap: $e');
+      debugPrint('❌ Navigation failed: $e');
+      // Fallback to home
+      _navigatorKey!.currentState!.pushNamed('/');
+    }
+  }
+
+  /// Increment unread count
+  void _incrementUnreadCount() {
+    _unreadCount++;
+    _updateBadge();
+  }
+
+  /// Decrement unread count
+  void _decrementUnreadCount() {
+    if (_unreadCount > 0) {
+      _unreadCount--;
+      _updateBadge();
+    }
+  }
+
+  /// Reset unread count
+  void resetUnreadCount() {
+    _unreadCount = 0;
+    _updateBadge();
+  }
+
+  /// Update app badge
+  void _updateBadge() {
+    // Update platform badge
+    // This requires flutter_local_notifications or similar
+    debugPrint('📛 Badge count: $_unreadCount');
+  }
+
+  /// Mark notification as read
+  Future<void> markAsRead(String notificationId) async {
+    // Call API to mark notification as read
+    if (_notificationApi != null) {
+      try {
+        await _notificationApi!.markAsRead(notificationId);
+      } catch (e) {
+        debugPrint('Failed to mark notification as read: $e');
+        // Continue with local state update even if API call fails
       }
     }
+    _decrementUnreadCount();
   }
 
-  /// تحليل نوع الإجراء من البيانات
-  NotificationAction _parseAction(Map<String, dynamic> payload) {
-    final type = payload['type'] as String?;
-    final action = payload['action'] as String?;
-
-    // Check explicit action first
-    if (action != null) {
-      switch (action.toLowerCase()) {
-        case 'open_field':
-          return NotificationAction.openField;
-        case 'open_task':
-          return NotificationAction.openTask;
-        case 'open_alert':
-          return NotificationAction.openAlert;
-        case 'open_weather':
-          return NotificationAction.openWeather;
-        case 'open_irrigation':
-          return NotificationAction.openIrrigation;
-        case 'open_ndvi':
-          return NotificationAction.openNdvi;
-        case 'open_sync':
-          return NotificationAction.openSync;
-        case 'open_profile':
-          return NotificationAction.openProfile;
-        case 'open_advisor':
-          return NotificationAction.openAdvisor;
+  /// Mark all as read
+  Future<void> markAllAsRead() async {
+    // Call API to mark all notifications as read
+    if (_notificationApi != null) {
+      try {
+        await _notificationApi!.markAllAsRead();
+      } catch (e) {
+        debugPrint('Failed to mark all notifications as read: $e');
+        // Continue with local state update even if API call fails
       }
     }
+    resetUnreadCount();
+  }
+}
 
-    // Fallback to type-based routing
-    if (type != null) {
-      switch (type.toLowerCase()) {
-        case 'field':
-        case 'field_alert':
-          return NotificationAction.openField;
-        case 'task':
-        case 'task_reminder':
-          return NotificationAction.openTask;
-        case 'alert':
-        case 'high_alert':
-        case 'medium_alert':
-        case 'low_alert':
-          return NotificationAction.openAlert;
-        case 'weather':
-        case 'weather_alert':
-          return NotificationAction.openWeather;
-        case 'irrigation':
-        case 'irrigation_due':
-          return NotificationAction.openIrrigation;
-        case 'ndvi':
-        case 'ndvi_change':
-          return NotificationAction.openNdvi;
-        case 'sync':
-        case 'sync_complete':
-          return NotificationAction.openSync;
-      }
-    }
-
-    return NotificationAction.none;
+/// Extension for easy notification handling in widgets
+extension NotificationHandlerExtension on BuildContext {
+  /// Handle notification tap from any widget
+  Future<void> handleNotification(SAHOOLNotificationPayload payload) async {
+    await NotificationHandler.instance.handleNotificationTap(payload);
   }
 
-  /// الحصول على المسار المناسب للإجراء
-  String? _getRouteForAction(NotificationAction action, Map<String, dynamic> payload) {
-    final targetId = payload['targetId'] as String?;
-    final fieldId = payload['fieldId'] as String?;
-    final taskId = payload['taskId'] as String?;
-
-    switch (action) {
-      case NotificationAction.openField:
-        // Navigate to field details if fieldId is provided
-        if (fieldId != null) {
-          return '/field/$fieldId';
-        } else if (targetId != null) {
-          return '/field/$targetId';
-        }
-        // Otherwise, go to fields list
-        return '/fields';
-
-      case NotificationAction.openTask:
-        // Navigate to field with task if both IDs are provided
-        if (fieldId != null && taskId != null) {
-          return '/field/$fieldId?taskId=$taskId';
-        } else if (fieldId != null) {
-          return '/field/$fieldId';
-        }
-        // Otherwise, go to map (tasks are shown there)
-        return '/map';
-
-      case NotificationAction.openAlert:
-        // Navigate to alerts screen
-        return '/alerts';
-
-      case NotificationAction.openWeather:
-        // Navigate to field with weather info if fieldId is provided
-        if (fieldId != null) {
-          return '/field/$fieldId?tab=weather';
-        }
-        // Otherwise, go to map
-        return '/map';
-
-      case NotificationAction.openIrrigation:
-        // Navigate to field irrigation tab if fieldId is provided
-        if (fieldId != null) {
-          return '/field/$fieldId?tab=irrigation';
-        }
-        // Otherwise, go to fields list
-        return '/fields';
-
-      case NotificationAction.openNdvi:
-        // Navigate to field NDVI/analytics tab if fieldId is provided
-        if (fieldId != null) {
-          return '/field/$fieldId?tab=analytics';
-        }
-        // Otherwise, go to map
-        return '/map';
-
-      case NotificationAction.openSync:
-        // Navigate to sync screen
-        return '/sync';
-
-      case NotificationAction.openProfile:
-        // Navigate to profile screen
-        return '/profile';
-
-      case NotificationAction.openAdvisor:
-        // Navigate to AI advisor
-        return '/advisor';
-
-      case NotificationAction.none:
-        // Default to map screen
-        return '/map';
-    }
+  /// Navigate to notification screen
+  Future<void> goToNotificationScreen(String route, {Map<String, dynamic>? args}) async {
+    await NotificationHandler.instance.navigateToScreen(route, arguments: args);
   }
+}
 
-  /// تحليل payload من نص JSON
-  Map<String, dynamic>? parsePayload(String? payloadString) {
-    if (payloadString == null || payloadString.isEmpty) {
-      return null;
-    }
+/// Notification list item widget
+class NotificationListItem extends StatelessWidget {
+  final SAHOOLNotificationPayload notification;
+  final bool isRead;
+  final VoidCallback? onTap;
+  final VoidCallback? onDismiss;
 
-    try {
-      return jsonDecode(payloadString) as Map<String, dynamic>;
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('Error parsing payload JSON: $e');
-      }
-      return null;
-    }
-  }
+  const NotificationListItem({
+    super.key,
+    required this.notification,
+    this.isRead = false,
+    this.onTap,
+    this.onDismiss,
+  });
 
-  /// بناء payload للإشعار
-  String buildPayload({
-    required String type,
-    String? action,
-    String? targetId,
-    String? fieldId,
-    String? taskId,
-    Map<String, dynamic>? additionalData,
-  }) {
-    final payload = <String, dynamic>{
-      'type': type,
-      'timestamp': DateTime.now().toIso8601String(),
-    };
-
-    if (action != null) payload['action'] = action;
-    if (targetId != null) payload['targetId'] = targetId;
-    if (fieldId != null) payload['fieldId'] = fieldId;
-    if (taskId != null) payload['taskId'] = taskId;
-
-    if (additionalData != null) {
-      payload.addAll(additionalData);
-    }
-
-    return jsonEncode(payload);
-  }
-
-  /// إنشاء payload لإشعار حقل
-  String createFieldNotificationPayload({
-    required String fieldId,
-    String? action,
-    Map<String, dynamic>? additionalData,
-  }) {
-    return buildPayload(
-      type: 'field',
-      action: action ?? 'open_field',
-      fieldId: fieldId,
-      additionalData: additionalData,
+  @override
+  Widget build(BuildContext context) {
+    return Dismissible(
+      key: Key(notification.id),
+      direction: DismissDirection.endToStart,
+      onDismissed: (direction) => onDismiss?.call(),
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        color: Colors.red,
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      child: ListTile(
+        leading: CircleAvatar(
+          child: Text(notification.type.icon),
+        ),
+        title: Text(
+          notification.title,
+          style: TextStyle(
+            fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
+          ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              notification.body,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _formatTime(notification.receivedAt),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+        trailing: !isRead
+            ? Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Colors.blue,
+                  shape: BoxShape.circle,
+                ),
+              )
+            : null,
+        onTap: () {
+          onTap?.call();
+          context.handleNotification(notification);
+        },
+      ),
     );
   }
 
-  /// إنشاء payload لإشعار مهمة
-  String createTaskNotificationPayload({
-    required String taskId,
-    String? fieldId,
-    String? action,
-    Map<String, dynamic>? additionalData,
-  }) {
-    return buildPayload(
-      type: 'task',
-      action: action ?? 'open_task',
-      targetId: taskId,
-      fieldId: fieldId,
-      additionalData: additionalData,
-    );
-  }
+  String _formatTime(DateTime time) {
+    final now = DateTime.now();
+    final diff = now.difference(time);
 
-  /// إنشاء payload لإشعار تنبيه
-  String createAlertNotificationPayload({
-    required String alertId,
-    String? fieldId,
-    String? action,
-    Map<String, dynamic>? additionalData,
-  }) {
-    return buildPayload(
-      type: 'alert',
-      action: action ?? 'open_alert',
-      targetId: alertId,
-      fieldId: fieldId,
-      additionalData: additionalData,
-    );
+    if (diff.inMinutes < 1) {
+      return 'الآن';
+    } else if (diff.inHours < 1) {
+      return 'منذ ${diff.inMinutes} دقيقة';
+    } else if (diff.inDays < 1) {
+      return 'منذ ${diff.inHours} ساعة';
+    } else if (diff.inDays < 7) {
+      return 'منذ ${diff.inDays} يوم';
+    } else {
+      return '${time.day}/${time.month}/${time.year}';
+    }
   }
+}
 
-  /// إنشاء payload لإشعار الطقس
-  String createWeatherNotificationPayload({
-    String? fieldId,
-    String? action,
-    Map<String, dynamic>? additionalData,
-  }) {
-    return buildPayload(
-      type: 'weather',
-      action: action ?? 'open_weather',
-      fieldId: fieldId,
-      additionalData: additionalData,
-    );
-  }
+/// Notification badge widget
+class NotificationBadge extends StatelessWidget {
+  final int count;
+  final Widget child;
 
-  /// إنشاء payload لإشعار الري
-  String createIrrigationNotificationPayload({
-    required String fieldId,
-    String? action,
-    Map<String, dynamic>? additionalData,
-  }) {
-    return buildPayload(
-      type: 'irrigation',
-      action: action ?? 'open_irrigation',
-      fieldId: fieldId,
-      additionalData: additionalData,
-    );
-  }
+  const NotificationBadge({
+    super.key,
+    required this.count,
+    required this.child,
+  });
 
-  /// إنشاء payload لإشعار NDVI
-  String createNdviNotificationPayload({
-    required String fieldId,
-    String? action,
-    Map<String, dynamic>? additionalData,
-  }) {
-    return buildPayload(
-      type: 'ndvi',
-      action: action ?? 'open_ndvi',
-      fieldId: fieldId,
-      additionalData: additionalData,
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        child,
+        if (count > 0)
+          Positioned(
+            right: 0,
+            top: 0,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              constraints: const BoxConstraints(
+                minWidth: 20,
+                minHeight: 20,
+              ),
+              child: Text(
+                count > 99 ? '99+' : count.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

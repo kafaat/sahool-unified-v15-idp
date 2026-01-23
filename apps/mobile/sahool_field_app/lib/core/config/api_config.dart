@@ -1,399 +1,464 @@
 /// API Configuration for SAHOOL Field App
-/// إعدادات الاتصال بالخادم - توحيد جميع المسارات عبر Kong Gateway
+/// إعدادات الاتصال بالخادم
 library;
 
-import 'dart:io';
+import 'env_config.dart';
 
-/// Service ports for local development (direct access, bypass Kong)
-/// منافذ الخدمات للتطوير المحلي (الوصول المباشر)
+/// Service ports for local development
+/// منافذ الخدمات للتطوير المحلي
+/// @deprecated Use EnvConfig.{serviceName}Port instead
 class ServicePorts {
-  static const int fieldCore = 3000;
-  static const int marketplace = 3010;
-  static const int satellite = 8090;
-  static const int indicators = 8091;
-  static const int weather = 8092;
-  static const int fertilizer = 8093;
-  static const int irrigation = 8094;
-  static const int cropHealth = 8095;
-  static const int virtualSensors = 8119;
-  static const int communityChat = 8097;
-  static const int equipment = 8101;
-  static const int notifications = 8110;
-  static const int astronomicalCalendar = 8111;
-  static const int gateway = 8000; // Kong API Gateway
+  static int get fieldCore => EnvConfig.fieldCorePort;
+  static int get marketplace => EnvConfig.marketplacePort;
+  static int get chat => EnvConfig.chatPort;
+  static int get satellite => EnvConfig.satellitePort;
+  static int get indicators => EnvConfig.indicatorsPort;
+  static int get weather => EnvConfig.weatherPort;
+  static int get fertilizer => EnvConfig.fertilizerPort;
+  static int get irrigation => EnvConfig.irrigationPort;
+  static int get cropHealth => EnvConfig.cropHealthPort;
+  static int get virtualSensors => EnvConfig.virtualSensorsPort;
+  static int get communityChat => EnvConfig.communityChatPort;
+  static int get equipment => EnvConfig.equipmentPort;
+  static int get inventory => EnvConfig.inventoryPort;
+  static int get notifications => EnvConfig.notificationsPort;
+  static int get spray => EnvConfig.sprayPort;
+  static int get gateway => EnvConfig.gatewayPort;
 }
 
-/// API configuration class - Unified Kong Gateway routing
-/// جميع الطلبات تمر عبر Kong Gateway للتوحيد والأمان
-///
-/// Kong strip_path convention:
-///   Client sends: /api/v1/{service}/*
-///   Kong strips:  /api/v1/{service}
-///   Service gets: /*
-///
-/// 10.0.2.2 للمحاكي الأندرويد، localhost للـ iOS Simulator
-/// لأجهزة Android الحقيقية: استخدم IP الكمبيوتر (192.168.x.x)
+/// API configuration class
+/// Uses EnvConfig for all environment-specific values
 class ApiConfig {
   ApiConfig._();
 
-  /// ⚠️ للتجربة على جهاز حقيقي:
-  /// 1. اكتب `ipconfig` (Windows) أو `ifconfig` (Mac/Linux)
-  /// 2. انسخ عنوان IPv4 (مثل 192.168.1.5)
-  /// 3. ضعه في المتغير أدناه
-  static const String? _customHost = null; // مثال: '192.168.1.5'
-
-  /// Production API URL
-  static const String _productionHost = 'api.sahool.io';
-
   /// Check if running in release mode
-  static bool get isProduction => const bool.fromEnvironment('dart.vm.product');
-
-  /// Get host based on platform and environment
-  static String get _host {
-    if (isProduction && _customHost == null) {
-      return _productionHost;
-    }
-    if (_customHost != null && _customHost!.isNotEmpty) {
-      return _customHost!;
-    }
-    if (Platform.isAndroid) {
-      return '10.0.2.2';
-    }
-    return 'localhost';
-  }
+  static bool get isProduction => EnvConfig.isProduction;
 
   /// Get protocol (https for production, http for development)
-  static String get _protocol => isProduction ? 'https' : 'http';
+  static String get _protocol => EnvConfig.apiProtocol;
 
-  /// Kong Gateway URL - ALL requests go through this
-  /// عنوان Kong Gateway - جميع الطلبات تمر من هنا
-  static String get gatewayUrl => '$_protocol://$_host:${ServicePorts.gateway}';
+  /// Get host based on environment
+  static String get _host => EnvConfig.apiHost;
 
-  /// Production base URL
-  static const String productionBaseUrl = 'https://api.sahool.io';
+  /// Base URL for field-core service (legacy)
+  static String get baseUrl => EnvConfig.fieldCoreUrl;
 
-  /// Effective base URL (Kong Gateway)
-  static String get baseUrl {
-    return isProduction ? productionBaseUrl : gatewayUrl;
-  }
+  /// Gateway URL (production-like routing)
+  static String get gatewayUrl => EnvConfig.gatewayUrl;
 
-  /// Legacy base URL for field-core (direct access in dev only)
-  static String get fieldCoreUrl => '$_protocol://$_host:${ServicePorts.fieldCore}';
+  /// Service-specific URLs for direct access
+  static String get satelliteServiceUrl => EnvConfig.satelliteUrl;
+  static String get indicatorsServiceUrl => EnvConfig.indicatorsUrl;
+  static String get weatherServiceUrl => EnvConfig.weatherUrl;
+  static String get fertilizerServiceUrl => EnvConfig.fertilizerUrl;
+  static String get irrigationServiceUrl => EnvConfig.irrigationUrl;
+  static String get cropHealthServiceUrl => EnvConfig.cropHealthUrl;
+  static String get virtualSensorsServiceUrl => EnvConfig.virtualSensorsUrl;
+  static String get communityChatServiceUrl => EnvConfig.communityChatUrl;
+  static String get chatServiceUrl => EnvConfig.chatUrl;
+  static String get equipmentServiceUrl => EnvConfig.equipmentUrl;
+  static String get inventoryServiceUrl => EnvConfig.inventoryUrl;
+  static String get notificationsServiceUrl => EnvConfig.notificationsUrl;
+  static String get sprayServiceUrl => EnvConfig.sprayUrl;
+  static String get marketplaceServiceUrl => EnvConfig.marketplaceUrl;
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // KONG GATEWAY ROUTES - All services accessed via /api/v1/{service}/*
-  // جميع الخدمات عبر Kong Gateway
-  // ═══════════════════════════════════════════════════════════════════════════
+  /// Production base URL (Kong Gateway)
+  /// @deprecated Use EnvConfig.gatewayUrl instead
+  static String get productionBaseUrl => 'https://${EnvConfig.productionHost}';
+
+  /// Use production URL in release mode
+  static String get effectiveBaseUrl => gatewayUrl;
+
+  /// Use direct service URLs in development (bypass gateway)
+  /// Set to false to use the unified gateway (mock-server on port 8000)
+  static const bool useDirectServices = false;
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Field Core Service
-  // خدمة الحقول الأساسية
-  // Kong route: /api/v1/fields → field-management-service
+  // Field Core Endpoints (port 3000)
   // ─────────────────────────────────────────────────────────────────────────────
 
+  /// Fields endpoints
   static String get fields => '$baseUrl/api/v1/fields';
   static String fieldById(String id) => '$baseUrl/api/v1/fields/$id';
   static String get fieldsSync => '$baseUrl/api/v1/fields/sync';
   static String get fieldsBatch => '$baseUrl/api/v1/fields/batch';
   static String get fieldsNearby => '$baseUrl/api/v1/fields/nearby';
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Tasks Service
-  // خدمة المهام
-  // ─────────────────────────────────────────────────────────────────────────────
-
+  /// Tasks endpoints
   static String get tasks => '$baseUrl/api/v1/tasks';
   static String taskById(String id) => '$baseUrl/api/v1/tasks/$id';
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Auth Service
-  // خدمة المصادقة
-  // Kong route: /api/v1/auth → auth-service
-  // ─────────────────────────────────────────────────────────────────────────────
+  /// Community endpoints
+  static String get posts => '$baseUrl/api/v1/posts';
+  static String get stories => '$baseUrl/api/v1/stories';
+  static String get experts => '$baseUrl/api/v1/experts';
 
+  /// Provider config endpoints
+  static String get providers => '$baseUrl/api/v1/providers';
+  static String get providerConfig => '$baseUrl/api/v1/config';
+
+  /// Auth endpoints
   static String get login => '$baseUrl/api/v1/auth/login';
-  static String get authRegister => '$baseUrl/api/v1/auth/register';
+  static String get register => '$baseUrl/api/v1/auth/register';
   static String get refreshToken => '$baseUrl/api/v1/auth/refresh';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Satellite Service (vegetation-analysis-service)
+  // Satellite Service Endpoints (port 8090)
   // خدمة الأقمار الصناعية
-  // Kong route: /api/v1/satellite → strips to / → service receives /*
+  // Kong route: /api/v1/satellite
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get ndvi => '$baseUrl/api/v1/satellite/analyze';
-  static String ndviByFieldId(String fieldId) => '$baseUrl/api/v1/satellite/analyze/$fieldId';
-  static String get ndviTimeseries => '$baseUrl/api/v1/satellite/timeseries';
-  static String get satellites => '$baseUrl/api/v1/satellite/satellites';
-  static String get regions => '$baseUrl/api/v1/satellite/regions';
-  static String get imagery => '$baseUrl/api/v1/satellite/imagery';
+  static String get _satelliteBase => useDirectServices ? satelliteServiceUrl : '$effectiveBaseUrl/api/v1/satellite';
+
+  /// NDVI analysis endpoints
+  static String get ndvi => '$_satelliteBase/analyze';
+  static String ndviByFieldId(String fieldId) => '$_satelliteBase/analyze/$fieldId';
+  static String get ndviTimeseries => '$_satelliteBase/timeseries';
+  static String ndviTimeseriesByFieldId(String fieldId) => '$_satelliteBase/timeseries/$fieldId';
+  static String get satellites => '$_satelliteBase/satellites';
+  static String get regions => '$_satelliteBase/regions';
+  static String get imagery => '$_satelliteBase/imagery';
+  static String imageryByFieldId(String fieldId) => '$_satelliteBase/imagery/$fieldId';
+
+  /// Vegetation indices endpoints
+  static String get indices => '$_satelliteBase/indices';
+  static String indicesByFieldId(String fieldId) => '$_satelliteBase/indices/$fieldId';
+
+  /// Field health endpoints
+  static String get fieldHealth => '$_satelliteBase/health';
+  static String fieldHealthByFieldId(String fieldId) => '$_satelliteBase/health/$fieldId';
+
+  /// Phenology endpoints
+  static String get phenology => '$_satelliteBase/phenology';
+  static String phenologyByFieldId(String fieldId) => '$_satelliteBase/phenology/$fieldId';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Weather Service (weather-core)
+  // Weather Service Endpoints (port 8092)
   // خدمة الطقس
-  // Kong route: /api/v1/weather-core → strips to / → service receives /*
+  // Kong route: /api/v1/weather
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _weatherBase => '$baseUrl/api/v1/weather';
+  static String get _weatherBase => useDirectServices ? weatherServiceUrl : '$effectiveBaseUrl/api/v1/weather';
 
+  /// Weather endpoints
   static String get weather => '$_weatherBase/current';
-  static String weatherByCoordinates(double lat, double lng) =>
-      '$_weatherBase/current?lat=$lat&lon=$lng';
-  /// Weather by location name (governorate) - path-based
   static String weatherByLocation(String location) => '$_weatherBase/current/$location';
   static String get forecast => '$_weatherBase/forecast';
-  static String forecastByCoordinates(double lat, double lng, {int days = 7}) =>
-      '$_weatherBase/forecast?lat=$lat&lon=$lng&days=$days';
-  /// Forecast by location name (governorate) - path-based
   static String forecastByLocation(String location) => '$_weatherBase/forecast/$location';
+  static String forecastByFieldId(String fieldId) => '$_weatherBase/forecast/field/$fieldId';
   static String get weatherAlerts => '$_weatherBase/alerts';
-  /// Weather alerts by location name - path-based
   static String weatherAlertsByLocation(String location) => '$_weatherBase/alerts/$location';
-  /// Available weather locations (governorates)
+  static String weatherAlertsByFieldId(String fieldId) => '$_weatherBase/alerts/field/$fieldId';
   static String get weatherLocations => '$_weatherBase/locations';
   static String get agriculturalCalendar => '$_weatherBase/agricultural-calendar';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Indicators Service
+  // Indicators Service Endpoints (port 8091)
   // خدمة المؤشرات
-  // Kong route: /api/v1/indicators → strips to / → service receives /*
+  // Kong route: /api/v1/indicators
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get indicatorDefinitions => '$baseUrl/api/v1/indicators/definitions';
-  static String indicatorsByField(String fieldId) => '$baseUrl/api/v1/indicators/field/$fieldId';
-  static String get dashboard => '$baseUrl/api/v1/indicators/dashboard';
-  static String dashboardByTenant(String tenantId) => '$baseUrl/api/v1/indicators/dashboard/$tenantId';
-  static String get indicatorAlerts => '$baseUrl/api/v1/indicators/alerts';
-  static String get indicatorTrends => '$baseUrl/api/v1/indicators/trends';
+  static String get _indicatorsBase => useDirectServices ? indicatorsServiceUrl : '$effectiveBaseUrl/api/v1/indicators';
+
+  /// Indicators endpoints
+  static String get indicatorDefinitions => '$_indicatorsBase/definitions';
+  static String indicatorsByField(String fieldId) => '$_indicatorsBase/field/$fieldId';
+  static String get dashboard => '$_indicatorsBase/dashboard';
+  static String dashboardByTenant(String tenantId) => '$_indicatorsBase/dashboard/$tenantId';
+  static String get indicatorAlerts => '$_indicatorsBase/alerts';
+  static String get indicatorTrends => '$_indicatorsBase/trends';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Fertilizer Advisor Service
+  // Fertilizer Advisor Endpoints (port 8093)
   // مستشار التسميد
-  // Kong route: /api/v1/fertilizer → strips to / → service receives /*
+  // Kong route: /api/v1/fertilizer
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get fertilizerCrops => '$baseUrl/api/v1/fertilizer/crops';
-  static String get fertilizerTypes => '$baseUrl/api/v1/fertilizer/fertilizers';
-  static String get fertilizerRecommendation => '$baseUrl/api/v1/fertilizer/recommend';
-  static String get soilInterpretation => '$baseUrl/api/v1/fertilizer/soil/interpret';
-  static String get deficiencySymptoms => '$baseUrl/api/v1/fertilizer/deficiency/symptoms';
-  static String get applicationSchedule => '$baseUrl/api/v1/fertilizer/schedule';
+  static String get _fertilizerBase => useDirectServices ? fertilizerServiceUrl : '$effectiveBaseUrl/api/v1/fertilizer';
+
+  /// Fertilizer recommendation endpoints
+  static String get fertilizerCrops => '$_fertilizerBase/crops';
+  static String get fertilizerTypes => '$_fertilizerBase/fertilizers';
+  static String get fertilizerRecommendation => '$_fertilizerBase/recommend';
+  static String get soilInterpretation => '$_fertilizerBase/soil/interpret';
+  static String get deficiencySymptoms => '$_fertilizerBase/deficiency/symptoms';
+  static String get applicationSchedule => '$_fertilizerBase/schedule';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Irrigation Smart Service
+  // Irrigation Smart Endpoints (port 8094)
   // الري الذكي
-  // Kong route: /api/v1/irrigation → strips to / → service receives /*
+  // Kong route: /api/v1/irrigation
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get irrigationCrops => '$baseUrl/api/v1/irrigation/crops';
-  static String get irrigationMethods => '$baseUrl/api/v1/irrigation/methods';
-  static String get irrigationCalculate => '$baseUrl/api/v1/irrigation/calculate';
-  static String get waterBalance => '$baseUrl/api/v1/irrigation/water-balance';
-  static String get sensorReading => '$baseUrl/api/v1/irrigation/sensor-reading';
-  static String get irrigationEfficiency => '$baseUrl/api/v1/irrigation/efficiency';
-  static String get irrigationSchedule => '$baseUrl/api/v1/irrigation/schedule';
+  static String get _irrigationBase => useDirectServices ? irrigationServiceUrl : '$effectiveBaseUrl/api/v1/irrigation';
+
+  /// Irrigation planning endpoints
+  static String get irrigationCrops => '$_irrigationBase/crops';
+  static String get irrigationMethods => '$_irrigationBase/methods';
+  static String get irrigationCalculate => '$_irrigationBase/calculate';
+  static String get waterBalance => '$_irrigationBase/water-balance';
+  static String get sensorReading => '$_irrigationBase/sensor-reading';
+  static String get irrigationEfficiency => '$_irrigationBase/efficiency';
+  static String get irrigationSchedule => '$_irrigationBase/schedule';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Crop Health AI Service (crop-health-ai)
+  // Crop Health AI Service Endpoints (port 8095)
   // سهول فيجن - الذكاء الاصطناعي لصحة المحاصيل
-  // Kong route: /api/v1/crop-health → strips to / → service receives /*
+  // Kong route: /api/v1/crop-health
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get diagnose => '$baseUrl/api/v1/crop-health/diagnose';
-  static String get diagnoseBatch => '$baseUrl/api/v1/crop-health/diagnose/batch';
-  static String get supportedCrops => '$baseUrl/api/v1/crop-health/crops';
-  static String get diseases => '$baseUrl/api/v1/crop-health/diseases';
-  static String treatmentDetails(String diseaseId) => '$baseUrl/api/v1/crop-health/treatment/$diseaseId';
-  static String get expertReview => '$baseUrl/api/v1/crop-health/expert-review';
+  static String get _cropHealthBase => useDirectServices ? cropHealthServiceUrl : '$effectiveBaseUrl/api/v1/crop-health';
+
+  /// Crop health AI diagnosis endpoints
+  static String get diagnose => '$_cropHealthBase/diagnose';
+  static String get diagnoseBatch => '$_cropHealthBase/diagnose/batch';
+  static String get supportedCrops => '$_cropHealthBase/crops';
+  static String get diseases => '$_cropHealthBase/diseases';
+  static String treatmentDetails(String diseaseId) => '$_cropHealthBase/treatment/$diseaseId';
+  static String get expertReview => '$_cropHealthBase/expert-review';
+  static String get cropHealthHealthz => '$_cropHealthBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Virtual Sensors Engine
+  // Virtual Sensors Engine Endpoints (port 8096)
   // محرك المستشعرات الافتراضية
-  // Kong route: /api/v1/virtual-sensors → strips to / → service receives /*
+  // Kong route: /api/v1/sensors/virtual
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get et0Calculate => '$baseUrl/api/v1/virtual-sensors/et0/calculate';
-  static String get virtualSensorsCrops => '$baseUrl/api/v1/virtual-sensors/crops';
-  static String cropKc(String cropType) => '$baseUrl/api/v1/virtual-sensors/crops/$cropType/kc';
-  static String get etcCalculate => '$baseUrl/api/v1/virtual-sensors/etc/calculate';
-  static String get virtualSensorsSoils => '$baseUrl/api/v1/virtual-sensors/soils';
-  static String get soilMoistureEstimate => '$baseUrl/api/v1/virtual-sensors/soil-moisture/estimate';
-  static String get irrigationMethodsInfo => '$baseUrl/api/v1/virtual-sensors/irrigation-methods';
-  static String get irrigationRecommend => '$baseUrl/api/v1/virtual-sensors/irrigation/recommend';
-  static String get irrigationQuickCheck => '$baseUrl/api/v1/virtual-sensors/irrigation/quick-check';
+  static String get _virtualSensorsBase => useDirectServices ? virtualSensorsServiceUrl : '$effectiveBaseUrl/api/v1/virtual-sensors';
+
+  /// Virtual sensors endpoints
+  static String get et0Calculate => '$_virtualSensorsBase/et0/calculate';
+  static String get virtualSensorsCrops => '$_virtualSensorsBase/crops';
+  static String cropKc(String cropType) => '$_virtualSensorsBase/crops/$cropType/kc';
+  static String get etcCalculate => '$_virtualSensorsBase/etc/calculate';
+  static String get virtualSensorsSoils => '$_virtualSensorsBase/soils';
+  static String get soilMoistureEstimate => '$_virtualSensorsBase/soil-moisture/estimate';
+  static String get irrigationMethodsInfo => '$_virtualSensorsBase/irrigation-methods';
+  static String get irrigationRecommend => '$_virtualSensorsBase/irrigation/recommend';
+  static String get irrigationQuickCheck => '$_virtualSensorsBase/irrigation/quick-check';
+  static String get virtualSensorsHealthz => '$_virtualSensorsBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Equipment Service
+  // Equipment Service Endpoints (port 8101)
   // خدمة المعدات
-  // Kong route: /api/v1/equipment → strips to / → service receives /*
+  // Kong route: /api/v1/equipment
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get equipment => '$baseUrl/api/v1/equipment';
-  static String equipmentById(String id) => '$baseUrl/api/v1/equipment/$id';
-  static String equipmentByQr(String qrCode) => '$baseUrl/api/v1/equipment/qr/$qrCode';
-  static String get equipmentStats => '$baseUrl/api/v1/equipment/stats';
-  static String get maintenanceAlerts => '$baseUrl/api/v1/equipment/maintenance/alerts';
-  static String maintenanceByEquipment(String id) => '$baseUrl/api/v1/equipment/maintenance/$id';
+  static String get _equipmentBase => useDirectServices ? equipmentServiceUrl : '$effectiveBaseUrl/api/v1/equipment';
+
+  /// Equipment endpoints
+  static String get equipment => _equipmentBase;
+  static String equipmentById(String id) => '$_equipmentBase/$id';
+  static String equipmentByQr(String qrCode) => '$_equipmentBase/qr/$qrCode';
+  static String get equipmentStats => '$_equipmentBase/stats';
+  static String get maintenanceAlerts => '$_equipmentBase/maintenance/alerts';
+  static String maintenanceByEquipment(String id) => '$_equipmentBase/maintenance/$id';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Community Chat Service
-  // خدمة الدردشة المجتمعية
-  // Kong route: /api/v1/community → strips to / → service receives /*
+  // IoT Gateway Endpoints (port 8106)
+  // بوابة إنترنت الأشياء
+  // Kong route: /api/v1/iot
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get chatUrl => '$_protocol://$_host:${ServicePorts.communityChat}'; // Socket.io direct
-  static String get chatRequests => '$baseUrl/api/v1/community/requests';
-  static String chatRoomMessages(String roomId) => '$baseUrl/api/v1/community/rooms/$roomId/messages';
-  static String get chatOnlineExperts => '$baseUrl/api/v1/community/experts/online';
-  static String get chatStats => '$baseUrl/api/v1/community/stats';
+  static String get _iotBase => '$effectiveBaseUrl/api/v1/iot';
+
+  /// IoT Gateway endpoints
+  static String get iotDevices => '$_iotBase/devices';
+  static String iotDeviceById(String id) => '$_iotBase/devices/$id';
+  static String iotDevicesByField(String fieldId) => '$_iotBase/devices/field/$fieldId';
+  static String iotSensorReadings(String deviceId) => '$_iotBase/sensors/$deviceId/readings';
+  static String iotDeviceCommand(String deviceId) => '$_iotBase/devices/$deviceId/command';
+  static String get iotDeviceTypes => '$_iotBase/device-types';
+  static String get iotHealthz => '$_iotBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Notification Service
-  // خدمة الإشعارات
-  // Kong routes (all strip_path: true, service has NO /v1 prefix):
-  //   /api/v1/notifications → service receives /*, /farmer/{id}, /broadcast, etc.
-  //   /api/v1/alerts        → service receives /weather, /pest
-  //   /api/v1/reminders     → service receives /irrigation
-  //   /api/v1/farmers       → service receives /register, /{id}/preferences
-  //   /api/v1/channels      → service receives /add, /list, etc.
-  //   /api/v1/preferences   → service receives /, /update, etc.
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  /// Create notification: POST /api/v1/notifications
-  static String get notifications => '$baseUrl/api/v1/notifications';
-  /// Get farmer notifications: GET /api/v1/notifications/farmer/{farmerId}
-  static String notificationForFarmer(String farmerId) => '$baseUrl/api/v1/notifications/farmer/$farmerId';
-  /// Mark as read: PATCH /api/v1/notifications/{id}/read
-  static String notificationMarkAsRead(String id) => '$baseUrl/api/v1/notifications/$id/read';
-  /// Get broadcast: GET /api/v1/notifications/broadcast
-  static String get notificationBroadcast => '$baseUrl/api/v1/notifications/broadcast';
-  /// Weather alert: POST /api/v1/alerts/weather
-  static String get weatherAlert => '$baseUrl/api/v1/alerts/weather';
-  /// Pest alert: POST /api/v1/alerts/pest
-  static String get pestAlert => '$baseUrl/api/v1/alerts/pest';
-  /// Irrigation reminder: POST /api/v1/reminders/irrigation
-  static String get irrigationReminder => '$baseUrl/api/v1/reminders/irrigation';
-  /// Register farmer: POST /api/v1/farmers/register
-  static String get farmerRegister => '$baseUrl/api/v1/farmers/register';
-  /// Update preferences: PUT /api/v1/farmers/{id}/preferences
-  static String farmerPreferences(String farmerId) => '$baseUrl/api/v1/farmers/$farmerId/preferences';
-  /// Notification channels: /api/v1/channels/*
-  static String get notificationChannels => '$baseUrl/api/v1/channels';
-  static String get addChannel => '$baseUrl/api/v1/channels/add';
-  static String get listChannels => '$baseUrl/api/v1/channels/list';
-  /// Notification preferences: /api/v1/preferences/*
-  static String get notificationPreferences => '$baseUrl/api/v1/preferences';
-  static String get updatePreference => '$baseUrl/api/v1/preferences/update';
-  /// Stats: GET /api/v1/notification-stats/stats
-  static String get notificationStats => '$baseUrl/api/v1/notification-stats/stats';
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Marketplace & FinTech Service
-  // خدمة السوق والمحفظة المالية
-  // Kong route: /api/v1/marketplace → strips to / → service receives /*
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  /// Wallet endpoints
-  static String wallet(String userId) => '$baseUrl/api/v1/marketplace/fintech/wallet/$userId';
-  static String walletDeposit(String walletId) => '$baseUrl/api/v1/marketplace/fintech/wallet/$walletId/deposit';
-  static String walletWithdraw(String walletId) => '$baseUrl/api/v1/marketplace/fintech/wallet/$walletId/withdraw';
-  static String walletTransactions(String walletId) => '$baseUrl/api/v1/marketplace/fintech/wallet/$walletId/transactions';
-
-  /// Credit & Loans
-  static String get calculateCreditScore => '$baseUrl/api/v1/marketplace/fintech/calculate-score';
-  static String get loans => '$baseUrl/api/v1/marketplace/fintech/loans';
-  static String userLoans(String walletId) => '$baseUrl/api/v1/marketplace/fintech/loans/$walletId';
-  static String repayLoan(String loanId) => '$baseUrl/api/v1/marketplace/fintech/loans/$loanId/repay';
-
-  /// Market products
-  static String get marketProducts => '$baseUrl/api/v1/marketplace/market/products';
-  static String marketProductById(String productId) => '$baseUrl/api/v1/marketplace/market/products/$productId';
-  static String get listHarvest => '$baseUrl/api/v1/marketplace/market/harvest';
-  static String get marketOrders => '$baseUrl/api/v1/marketplace/market/orders';
-  static String userMarketOrders(String userId) => '$baseUrl/api/v1/marketplace/market/orders/user/$userId';
-  static String get marketStats => '$baseUrl/api/v1/marketplace/market/stats';
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Astronomical Calendar Service
-  // خدمة التقويم الفلكي
-  // Kong route: /api/v1/astronomy → strips to / → service receives /*
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  static String get astronomyCalendar => '$baseUrl/api/v1/astronomy/calendar';
-  static String get moonPhases => '$baseUrl/api/v1/astronomy/moon-phases';
-  static String get prayerTimes => '$baseUrl/api/v1/astronomy/prayer-times';
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Field Intelligence Service
-  // خدمة ذكاء الحقول
-  // Kong route: /api/v1/field-intelligence → strips to / → service receives /*
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  static String get fieldIntelligence => '$baseUrl/api/v1/field-intelligence';
-  static String get fieldRules => '$baseUrl/api/v1/field-intelligence/rules';
-  static String fieldRuleById(String ruleId) => '$baseUrl/api/v1/field-intelligence/rules/$ruleId';
-  static String get fieldEvents => '$baseUrl/api/v1/field-intelligence/events';
-  static String get fieldAutomation => '$baseUrl/api/v1/field-intelligence/automation';
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Skills Service
-  // خدمة المهارات
-  // Kong route: /api/v1/skills → strips to / → service receives /*
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  static String get skills => '$baseUrl/api/v1/skills';
-  static String skillById(String skillId) => '$baseUrl/api/v1/skills/$skillId';
-  static String get skillMemory => '$baseUrl/api/v1/skills/memory';
-  static String get skillEvaluate => '$baseUrl/api/v1/skills/evaluate';
-
-  // ═══════════════════════════════════════════════════════════════════════════
   // Timeouts Configuration
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ─────────────────────────────────────────────────────────────────────────────
 
+  /// Connection timeout for areas with poor connectivity
   static const Duration connectTimeout = Duration(seconds: 30);
+
+  /// Send timeout
   static const Duration sendTimeout = Duration(seconds: 15);
+
+  /// Receive timeout
   static const Duration receiveTimeout = Duration(seconds: 15);
+
+  /// Long operation timeout (for satellite imagery, large uploads)
   static const Duration longOperationTimeout = Duration(seconds: 60);
 
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ─────────────────────────────────────────────────────────────────────────────
   // Headers
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ─────────────────────────────────────────────────────────────────────────────
 
+  /// Default headers for API requests
   static Map<String, String> get defaultHeaders => {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'Accept-Language': 'ar,en',
   };
 
+  /// Get headers with authorization token
   static Map<String, String> authHeaders(String token) => {
     ...defaultHeaders,
     'Authorization': 'Bearer $token',
   };
 
+  /// Get headers with tenant ID for multi-tenancy
   static Map<String, String> tenantHeaders(String token, String tenantId) => {
     ...authHeaders(token),
     'X-Tenant-Id': tenantId,
   };
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Health Check Endpoints (via Kong)
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  static String healthCheck(String service) => '$baseUrl/api/v1/$service/healthz';
-
-  static Map<String, String> get allHealthChecks => {
-    'satellite': healthCheck('satellite'),
-    'indicators': healthCheck('indicators'),
-    'weather': healthCheck('weather-core'),
-    'fertilizer': healthCheck('fertilizer'),
-    'irrigation': healthCheck('irrigation'),
-    'cropHealth': healthCheck('crop-health'),
-    'virtualSensors': healthCheck('virtual-sensors'),
-    'community': healthCheck('community'),
-    'equipment': healthCheck('equipment'),
-    'notifications': healthCheck('notifications'),
-    'marketplace': healthCheck('marketplace'),
-    'fieldIntelligence': healthCheck('field-intelligence'),
-    'skills': healthCheck('skills'),
+  /// Get headers with ETag for optimistic locking
+  static Map<String, String> etagHeaders(String token, String etag) => {
+    ...authHeaders(token),
+    'If-Match': etag,
   };
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Health Check Endpoints
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /// Get health check URL for a service
+  static String healthCheck(String serviceUrl) => '$serviceUrl/healthz';
+
+  /// Check all services health
+  static Map<String, String> get allHealthChecks => {
+    'satellite': healthCheck(satelliteServiceUrl),
+    'indicators': healthCheck(indicatorsServiceUrl),
+    'weather': healthCheck(weatherServiceUrl),
+    'fertilizer': healthCheck(fertilizerServiceUrl),
+    'irrigation': healthCheck(irrigationServiceUrl),
+    'cropHealth': healthCheck(cropHealthServiceUrl),
+    'virtualSensors': healthCheck(virtualSensorsServiceUrl),
+    'communityChat': healthCheck(communityChatServiceUrl),
+    'chat': healthCheck(chatServiceUrl),
+    'equipment': healthCheck(equipmentServiceUrl),
+    'inventory': healthCheck(inventoryServiceUrl),
+    'notifications': healthCheck(notificationsServiceUrl),
+    'spray': healthCheck(sprayServiceUrl),
+    'marketplace': healthCheck(marketplaceServiceUrl),
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Community Chat Service Endpoints (port 8097)
+  // خدمة الدردشة المجتمعية
+  // Kong route: /api/v1/community/chat
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _communityChatBase => useDirectServices ? communityChatServiceUrl : '$effectiveBaseUrl/api/v1/community';
+
+  /// Community chat endpoints
+  static String get communityChatUrl => communityChatServiceUrl; // Socket.io URL
+  static String get communityChatRequests => '$_communityChatBase/requests';
+  static String communityChatRoomMessages(String roomId) => '$_communityChatBase/rooms/$roomId/messages';
+  static String get communityChatOnlineExperts => '$_communityChatBase/experts/online';
+  static String get communityChatStats => '$_communityChatBase/stats';
+  static String get communityChatHealthz => '$_communityChatBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Notification Service Endpoints (port 8110)
+  // خدمة الإشعارات
+  // Kong route: /api/v1/notifications
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _notificationsBase => useDirectServices ? notificationsServiceUrl : '$effectiveBaseUrl/api/v1/notifications';
+
+  /// Notification service endpoints
+  static String get notifications => _notificationsBase;
+  static String notificationById(String id) => '$_notificationsBase/$id';
+  static String get notificationPreferences => '$_notificationsBase/preferences';
+  static String get notificationSubscribe => '$_notificationsBase/subscribe';
+  static String get notificationUnsubscribe => '$_notificationsBase/unsubscribe';
+  static String get notificationMarkRead => '$_notificationsBase/mark-read';
+  static String get notificationsHealthz => '$_notificationsBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Marketplace & FinTech Service Endpoints (port 3010)
+  // خدمة السوق والمحفظة المالية
+  // Kong route: /api/v1/marketplace
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _marketplaceBase => useDirectServices ? marketplaceServiceUrl : '$effectiveBaseUrl/api/v1/marketplace';
+
+  /// Wallet endpoints - نقاط المحفظة
+  static String wallet(String userId) => '$_marketplaceBase/fintech/wallet/$userId';
+  static String walletDeposit(String walletId) => '$_marketplaceBase/fintech/wallet/$walletId/deposit';
+  static String walletWithdraw(String walletId) => '$_marketplaceBase/fintech/wallet/$walletId/withdraw';
+  static String walletTransactions(String walletId) => '$_marketplaceBase/fintech/wallet/$walletId/transactions';
+
+  /// Credit & Loans endpoints - نقاط الائتمان والقروض
+  static String get calculateCreditScore => '$_marketplaceBase/fintech/calculate-score';
+  static String get loans => '$_marketplaceBase/fintech/loans';
+  static String userLoans(String walletId) => '$_marketplaceBase/fintech/loans/$walletId';
+  static String repayLoan(String loanId) => '$_marketplaceBase/fintech/loans/$loanId/repay';
+
+  /// Market endpoints - نقاط السوق
+  static String get marketProducts => '$_marketplaceBase/products';
+  static String marketProductById(String productId) => '$_marketplaceBase/products/$productId';
+  static String get listHarvest => '$_marketplaceBase/harvest';
+  static String get marketOrders => '$_marketplaceBase/orders';
+  static String userMarketOrders(String userId) => '$_marketplaceBase/orders/user/$userId';
+  static String get marketStats => '$_marketplaceBase/stats';
+  static String get marketplaceHealthz => '$_marketplaceBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Chat/Messaging Service Endpoints (port 3011)
+  // خدمة المحادثات والرسائل
+  // Kong route: /api/v1/chat
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _chatMessagingBase => useDirectServices ? chatServiceUrl : '$effectiveBaseUrl/api/v1/chat';
+
+  /// Chat REST endpoints
+  static String get chatConversations => '$_chatMessagingBase/conversations';
+  static String chatConversationById(String id) => '$_chatMessagingBase/conversations/$id';
+  static String chatMessages(String conversationId) => '$_chatMessagingBase/conversations/$conversationId/messages';
+  static String chatSendMessage(String conversationId) => '$_chatMessagingBase/conversations/$conversationId/messages';
+  static String chatMarkRead(String conversationId) => '$_chatMessagingBase/conversations/$conversationId/read';
+  static String get chatCreateConversation => '$_chatMessagingBase/conversations';
+  static String get chatUnreadCount => '$_chatMessagingBase/conversations/unread-count';
+  static String get chatHealthz => '$_chatMessagingBase/healthz';
+
+  /// Chat Socket.io URL
+  static String get chatSocketUrl => chatServiceUrl;
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // AI Advisor Service Endpoints (port 8112)
+  // المستشار الذكي
+  // Kong route: /api/v1/ai-advisor
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _aiAdvisorBase => '$effectiveBaseUrl/api/v1/ai-advisor';
+
+  /// AI Advisor endpoints
+  static String get aiAdvisorQuery => '$_aiAdvisorBase/query';
+  static String get aiAdvisorChat => '$_aiAdvisorBase/chat';
+  static String get aiAdvisorDiagnose => '$_aiAdvisorBase/diagnose';
+  static String aiAdvisorRecommendations(String fieldId) => '$_aiAdvisorBase/recommendations/$fieldId';
+  static String aiAdvisorAnalyzeField(String fieldId) => '$_aiAdvisorBase/analyze/$fieldId';
+  static String get aiAdvisorHistory => '$_aiAdvisorBase/history';
+  static String get aiAdvisorHealthz => '$_aiAdvisorBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Billing Service Endpoints (port 8089)
+  // خدمة الفوترة
+  // Kong route: /api/v1/billing
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _billingBase => '$effectiveBaseUrl/api/v1/billing';
+
+  /// Billing endpoints
+  static String get billingWallet => '$_billingBase/wallet';
+  static String get billingDeposit => '$_billingBase/wallet/deposit';
+  static String get billingWithdraw => '$_billingBase/wallet/withdraw';
+  static String get billingTransfer => '$_billingBase/wallet/transfer';
+  static String get billingTransactions => '$_billingBase/transactions';
+  static String get billingSubscription => '$_billingBase/subscription';
+  static String get billingPlans => '$_billingBase/plans';
+  static String get billingInvoices => '$_billingBase/invoices';
+  static String billingPayInvoice(String invoiceId) => '$_billingBase/invoices/$invoiceId/pay';
+  static String get billingUsage => '$_billingBase/usage';
+  static String get billingHealthz => '$_billingBase/healthz';
 }

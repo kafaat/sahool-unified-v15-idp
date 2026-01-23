@@ -1,16 +1,14 @@
 /// SAHOOL Field App Configuration
-/// تكوين تطبيق سهول الميداني
-///
-/// For physical device development, set DEV_HOST via dart-define:
-/// flutter run --dart-define=DEV_HOST=192.168.1.5
+/// @deprecated Use EnvConfig instead for environment-specific configuration
 class AppConfig {
-  // Development host - defaults to Android emulator localhost
-  // للأجهزة الحقيقية: استخدم dart-define لتعيين DEV_HOST
-  static const String _devHost = String.fromEnvironment('DEV_HOST', defaultValue: '10.0.2.2');
-
-  // API Configuration (via Kong API Gateway)
-  static const String apiBaseUrl = 'http://$_devHost:8000/api/v1';
-  static const String wsBaseUrl = 'ws://$_devHost:8081'; // WebSocket Gateway port
+  // API Configuration (via Kong API Gateway on port 8000)
+  // For development with Android Emulator, use 10.0.2.2 (host machine)
+  // For iOS Simulator, use localhost
+  // For real devices, set your machine's IP address
+  /// @deprecated Use EnvConfig.apiBaseUrl instead
+  static const String apiBaseUrl = 'http://192.168.8.205:8000/api/v1';
+  /// @deprecated Use EnvConfig.wsBaseUrl instead
+  static const String wsBaseUrl = 'ws://192.168.8.205:8081';
 
   // Sync Configuration
   static const Duration syncInterval = Duration(seconds: 20);
@@ -21,7 +19,7 @@ class AppConfig {
   static const Duration cacheExpiry = Duration(hours: 24);
 
   // App Info
-  static const String appVersion = '15.5.0';
+  static const String appVersion = '15.3.0';
   static const String appName = 'SAHOOL Field';
 
   // Feature Flags
@@ -42,8 +40,10 @@ class AppConfig {
 }
 
 /// Environment Configuration
+/// @deprecated Use core/config/env_config.dart instead
 enum Environment { development, staging, production }
 
+/// @deprecated Use core/config/env_config.dart EnvConfig instead
 class EnvConfig {
   final Environment env;
   final String apiUrl;
@@ -55,18 +55,21 @@ class EnvConfig {
     required this.wsUrl,
   });
 
+  /// @deprecated Use core/config/env_config.dart instead
   static const development = EnvConfig(
     env: Environment.development,
-    apiUrl: 'http://10.0.2.2:8000/api/v1', // Android emulator via Kong
-    wsUrl: 'ws://10.0.2.2:8081', // WebSocket Gateway port
+    apiUrl: 'http://10.0.2.2:8000/api/v1', // Android emulator via Kong Gateway
+    wsUrl: 'ws://10.0.2.2:8081', // WebSocket Gateway (ws-gateway)
   );
 
+  /// @deprecated Use core/config/env_config.dart instead
   static const staging = EnvConfig(
     env: Environment.staging,
     apiUrl: 'https://api-staging.sahool.app/api/v1',
     wsUrl: 'wss://ws-staging.sahool.app',
   );
 
+  /// @deprecated Use core/config/env_config.dart instead
   static const production = EnvConfig(
     env: Environment.production,
     apiUrl: 'https://api.sahool.app/api/v1',

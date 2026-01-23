@@ -1,11 +1,12 @@
+﻿import 'dart:io';
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import '../utils/app_logger.dart';
 
 /// SAHOOL Retry Interceptor
-/// معترض إعادة المحاولة
+/// Ù…Ø¹ØªØ±Ø¶ Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø©
 ///
 /// Features:
 /// - Automatic retry on network errors
@@ -39,11 +40,16 @@ class RetryInterceptor extends Interceptor {
       final delay = initialDelay * pow(2, retryCount);
 
       if (kDebugMode) {
-        debugPrint('🔄 Retrying request (attempt $nextRetryCount/$maxRetries)');
-        debugPrint('   Path: ${err.requestOptions.path}');
-        debugPrint('   Method: ${err.requestOptions.method}');
-        debugPrint('   Error: ${err.type}');
-        debugPrint('   Delay: ${delay.inSeconds}s');
+        AppLogger.w(
+          'Retrying request (attempt $nextRetryCount/$maxRetries)',
+          tag: 'RetryInterceptor',
+          data: {
+            'path': err.requestOptions.path,
+            'method': err.requestOptions.method,
+            'errorType': err.type.toString(),
+            'delay': '${delay.inSeconds}s',
+          },
+        );
       }
 
       // Wait before retrying
@@ -73,7 +79,8 @@ class RetryInterceptor extends Interceptor {
             responseType: requestOptions.responseType,
             contentType: requestOptions.contentType,
             validateStatus: requestOptions.validateStatus,
-            receiveDataWhenStatusError: requestOptions.receiveDataWhenStatusError,
+            receiveDataWhenStatusError:
+                requestOptions.receiveDataWhenStatusError,
             followRedirects: requestOptions.followRedirects,
             maxRedirects: requestOptions.maxRedirects,
             extra: requestOptions.extra,
@@ -81,10 +88,16 @@ class RetryInterceptor extends Interceptor {
         );
 
         if (kDebugMode) {
-          debugPrint('✅ Retry successful');
-          debugPrint('   Path: ${requestOptions.path}');
-          debugPrint('   Attempt: $nextRetryCount');
-          debugPrint('   Status: ${response.statusCode}');
+          AppLogger.i(
+            'Retry successful',
+            tag: 'RetryInterceptor',
+            data: {
+              'path': requestOptions.path,
+              'method': requestOptions.method,
+              'attempt': nextRetryCount,
+              'statusCode': response.statusCode,
+            },
+          );
         }
 
         return handler.resolve(response);
@@ -96,10 +109,16 @@ class RetryInterceptor extends Interceptor {
     } else {
       // Max retries exceeded or shouldn't retry
       if (retryCount >= maxRetries && kDebugMode) {
-        debugPrint('❌ Max retries exceeded');
-        debugPrint('   Path: ${err.requestOptions.path}');
-        debugPrint('   Attempts: $retryCount');
-        debugPrint('   Error: ${err.type}');
+        AppLogger.e(
+          'Max retries exceeded',
+          tag: 'RetryInterceptor',
+          data: {
+            'path': err.requestOptions.path,
+            'method': err.requestOptions.method,
+            'attempts': retryCount,
+            'errorType': err.type.toString(),
+          },
+        );
       }
 
       return super.onError(err, handler);
@@ -113,7 +132,14 @@ class RetryInterceptor extends Interceptor {
       final statusCode = error.response!.statusCode ?? 0;
       if (statusCode >= 400 && statusCode < 500) {
         if (kDebugMode) {
-          debugPrint('⏭️  Skipping retry for client error (${statusCode})');
+          AppLogger.d(
+            'Skipping retry for client error',
+            tag: 'RetryInterceptor',
+            data: {
+              'statusCode': statusCode,
+              'path': error.requestOptions.path,
+            },
+          );
         }
         return false;
       }
@@ -125,7 +151,14 @@ class RetryInterceptor extends Interceptor {
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
         if (kDebugMode) {
-          debugPrint('⏱️  Timeout error - will retry');
+          AppLogger.d(
+            'Timeout error - will retry',
+            tag: 'RetryInterceptor',
+            data: {
+              'errorType': error.type.toString(),
+              'path': error.requestOptions.path,
+            },
+          );
         }
         return true;
 
@@ -133,14 +166,28 @@ class RetryInterceptor extends Interceptor {
         // Check if it's a network error (SocketException)
         if (error.error is SocketException) {
           if (kDebugMode) {
-            debugPrint('🔌 Socket error - will retry');
+            AppLogger.d(
+              'Socket error - will retry',
+              tag: 'RetryInterceptor',
+              data: {
+                'error': error.error.toString(),
+                'path': error.requestOptions.path,
+              },
+            );
           }
           return true;
         }
         // Check for timeout exceptions
         if (error.error is TimeoutException) {
           if (kDebugMode) {
-            debugPrint('⏱️  Timeout exception - will retry');
+            AppLogger.d(
+              'Timeout exception - will retry',
+              tag: 'RetryInterceptor',
+              data: {
+                'error': error.error.toString(),
+                'path': error.requestOptions.path,
+              },
+            );
           }
           return true;
         }
@@ -151,24 +198,42 @@ class RetryInterceptor extends Interceptor {
         final statusCode = error.response?.statusCode ?? 0;
         final shouldRetry = statusCode >= 500;
         if (kDebugMode) {
-          if (shouldRetry) {
-            debugPrint('🔧 Server error (${statusCode}) - will retry');
-          } else {
-            debugPrint('⏭️  Bad response (${statusCode}) - will not retry');
-          }
+          AppLogger.d(
+            shouldRetry
+                ? 'Server error - will retry'
+                : 'Bad response - will not retry',
+            tag: 'RetryInterceptor',
+            data: {
+              'statusCode': statusCode,
+              'path': error.requestOptions.path,
+            },
+          );
         }
         return shouldRetry;
 
       case DioExceptionType.cancel:
         // Don't retry cancelled requests
         if (kDebugMode) {
-          debugPrint('🚫 Request cancelled - will not retry');
+          AppLogger.d(
+            'Request cancelled - will not retry',
+            tag: 'RetryInterceptor',
+            data: {
+              'path': error.requestOptions.path,
+            },
+          );
         }
         return false;
 
       default:
         if (kDebugMode) {
-          debugPrint('❓ Unknown error type - will not retry');
+          AppLogger.d(
+            'Unknown error type - will not retry',
+            tag: 'RetryInterceptor',
+            data: {
+              'errorType': error.type.toString(),
+              'path': error.requestOptions.path,
+            },
+          );
         }
         return false;
     }

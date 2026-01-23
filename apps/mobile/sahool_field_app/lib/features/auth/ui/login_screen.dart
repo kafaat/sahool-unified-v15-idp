@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/auth/biometric_service.dart';
 import '../../../core/theme/sahool_theme.dart';
-import '../../../core/security/screen_security_service.dart';
-import '../../../core/security/security_config.dart';
+import '../../../core/utils/input_validator.dart';
+import 'biometric_login_widget.dart';
 
 /// OTP Login Screen - تسجيل الدخول برقم الهاتف
 /// تصميم بسيط للمزارعين الذين لا يحفظون كلمات المرور
+/// يدعم تسجيل الدخول بالبصمة إذا كانت مفعّلة
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -26,6 +28,59 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _isOtpSent = false;
   bool _isLoading = false;
   int _resendTimer = 0;
+  String? _phoneErrorMessage;
+  String? _otpErrorMessage;
+
+  // Biometric state
+  bool _isBiometricAvailable = false;
+  bool _isBiometricEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBiometricStatus();
+  }
+
+  Future<void> _checkBiometricStatus() async {
+    final biometricService = ref.read(biometricServiceProvider);
+    final available = await biometricService.isAvailable();
+    final enabled = await biometricService.isEnabled();
+
+    if (mounted) {
+      setState(() {
+        _isBiometricAvailable = available;
+        _isBiometricEnabled = enabled;
+      });
+
+      // Auto-trigger biometric if available and enabled
+      if (available && enabled) {
+        _authenticateWithBiometric();
+      }
+    }
+  }
+
+  Future<void> _authenticateWithBiometric() async {
+    try {
+      final biometricService = ref.read(biometricServiceProvider);
+      final authenticated = await biometricService.authenticate(
+        reason: 'قم بالتحقق لتسجيل الدخول إلى سهول',
+      );
+
+      if (authenticated && mounted) {
+        context.go('/map');
+      }
+    } on BiometricException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      // Silent fail - user can use phone/OTP
+    }
+  }
 
   @override
   void dispose() {
@@ -40,9 +95,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _sendOtp() async {
-    if (_phoneController.text.length < 9) return;
+    // Validate phone number
+    final validation = InputValidator.validateYemenPhone(_phoneController.text);
 
-    setState(() => _isLoading = true);
+    if (!validation.isValid) {
+      setState(() {
+        _phoneErrorMessage = validation.errorMessageAr;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _phoneErrorMessage = null;
+    });
 
     // Simulate API call
     await Future.delayed(const Duration(seconds: 1));
@@ -73,9 +139,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _verifyOtp() async {
     final otp = _otpControllers.map((c) => c.text).join();
-    if (otp.length != 4) return;
 
-    setState(() => _isLoading = true);
+    // Validate OTP
+    final validation = InputValidator.validateOtp(otp, length: 4);
+
+    if (!validation.isValid) {
+      setState(() {
+        _otpErrorMessage = validation.errorMessageAr;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _otpErrorMessage = null;
+    });
 
     // Simulate verification
     await Future.delayed(const Duration(seconds: 1));
@@ -86,6 +164,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _onOtpChanged(int index, String value) {
+    // Clear error message when user types
+    if (_otpErrorMessage != null) {
+      setState(() {
+        _otpErrorMessage = null;
+      });
+    }
+
     if (value.isNotEmpty && index < 3) {
       _otpFocusNodes[index + 1].requestFocus();
     }
@@ -102,14 +187,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SecureScreen(
-      screenType: SecuredScreenType.authentication,
-      showWarning: ref.watch(securityConfigProvider).showScreenSecurityWarning,
-      warningMessageAr: 'لا يمكن أخذ لقطات شاشة في شاشة تسجيل الدخول لحماية بياناتك',
-      warningMessageEn: 'Screenshots are disabled on login screen to protect your credentials',
-      child: Scaffold(
-        body: SafeArea(
-          child: SingleChildScrollView(
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,25 +307,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
               const SizedBox(height: 32),
 
-              // Register link
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'ليس لديك حساب؟',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                    TextButton(
-                      onPressed: () => context.go('/register'),
-                      child: const Text(
-                        'إنشاء حساب',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
+              // Biometric login option
+              if (_isBiometricAvailable && _isBiometricEnabled && !_isOtpSent)
+                BiometricLoginWidget(
+                  onAuthenticated: () {
+                    if (mounted) {
+                      context.go('/map');
+                    }
+                  },
                 ),
-              ),
 
               const SizedBox(height: 24),
 
@@ -261,111 +331,156 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
       ),
-    ),
     );
   }
 
   Widget _buildPhoneInput() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Row(
-        children: [
-          // Country code
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            decoration: BoxDecoration(
-              border: Border(
-                left: BorderSide(color: Colors.grey[300]!),
-              ),
-            ),
-            child: Row(
-              children: [
-                const Text(
-                  '🇾🇪',
-                  style: TextStyle(fontSize: 24),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '+967',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[700],
-                  ),
-                ),
-                Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
-              ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _phoneErrorMessage != null
+                  ? Colors.red
+                  : Colors.grey[300]!,
             ),
           ),
-          // Phone input
-          Expanded(
-            child: TextField(
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2,
+          child: Row(
+            children: [
+              // Country code
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                decoration: BoxDecoration(
+                  border: Border(
+                    left: BorderSide(color: Colors.grey[300]!),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Text(
+                      '🇾🇪',
+                      style: TextStyle(fontSize: 24),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '+967',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
+                  ],
+                ),
               ),
-              decoration: const InputDecoration(
-                hintText: '7XX XXX XXX',
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              // Phone input
+              Expanded(
+                child: TextField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
+                  ),
+                  decoration: const InputDecoration(
+                    hintText: '7XX XXX XXX',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  ),
+                  inputFormatters: InputValidator.phoneFormatters(maxLength: 9),
+                  onChanged: (_) => setState(() {
+                    // Clear error message when user types
+                    _phoneErrorMessage = null;
+                  }),
+                ),
               ),
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(9),
-              ],
-              onChanged: (_) => setState(() {}),
+            ],
+          ),
+        ),
+        // Error message
+        if (_phoneErrorMessage != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            _phoneErrorMessage!,
+            style: const TextStyle(
+              color: Colors.red,
+              fontSize: 14,
             ),
           ),
         ],
-      ),
+      ],
     );
   }
 
   Widget _buildOtpInput() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(4, (index) {
-        return Container(
-          width: 64,
-          height: 72,
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          child: TextField(
-            controller: _otpControllers[index],
-            focusNode: _otpFocusNodes[index],
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.center,
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(4, (index) {
+            return Container(
+              width: 64,
+              height: 72,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              child: TextField(
+                controller: _otpControllers[index],
+                focusNode: _otpFocusNodes[index],
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(
+                      color: _otpErrorMessage != null
+                          ? Colors.red
+                          : Colors.grey[300]!,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(
+                      color: _otpErrorMessage != null
+                          ? Colors.red
+                          : SahoolColors.primary,
+                      width: 2,
+                    ),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Colors.red, width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                ),
+                inputFormatters: InputValidator.otpFormatters(length: 1),
+                onChanged: (value) => _onOtpChanged(index, value),
+              ),
+            );
+          }),
+        ),
+        // Error message
+        if (_otpErrorMessage != null) ...[
+          const SizedBox(height: 16),
+          Text(
+            _otpErrorMessage!,
             style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
+              color: Colors.red,
+              fontSize: 14,
             ),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.grey[100],
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(color: Colors.grey[300]!),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: SahoolColors.primary, width: 2),
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 20),
-            ),
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(1),
-            ],
-            onChanged: (value) => _onOtpChanged(index, value),
+            textAlign: TextAlign.center,
           ),
-        );
-      }),
+        ],
+      ],
     );
   }
 }

@@ -89,6 +89,15 @@ dependencies:
   json_annotation: ^4.9.0
   crypto: ^3.0.6  # For hashing and cryptography
 
+  # Device & Package Info
+  # معلومات الجهاز والتطبيق
+  device_info_plus: ^10.1.2
+  package_info_plus: ^8.1.0
+
+  # URL Launcher & App Links
+  # فتح الروابط الخارجية
+  url_launcher: ^6.2.2
+
   # Date/Time
   jiffy: ^6.3.1
 

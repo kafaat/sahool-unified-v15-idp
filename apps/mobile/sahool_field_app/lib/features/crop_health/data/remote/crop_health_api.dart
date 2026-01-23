@@ -157,29 +157,6 @@ class CropHealthApi {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // Actions
-  // ═══════════════════════════════════════════════════════════════
-
-  /// تعليم إجراء كمكتمل
-  Future<void> markActionCompleted(
-    String fieldId,
-    String zoneId, {
-    required String actionType,
-    required String date,
-    String? notes,
-  }) async {
-    await _client.post(
-      '$_baseUrl/fields/$fieldId/zones/$zoneId/actions/complete',
-      {
-        'action_type': actionType,
-        'date': date,
-        'completed_at': DateTime.now().toIso8601String(),
-        'notes': notes,
-      },
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════
   // VRT Export
   // ═══════════════════════════════════════════════════════════════
 
@@ -200,6 +177,27 @@ class CropHealthApi {
     return await _client.get(
       '$_baseUrl/fields/$fieldId/vrt',
       queryParameters: params,
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Actions
+  // ═══════════════════════════════════════════════════════════════
+
+  /// تحديد الإجراء كمنفذ
+  Future<void> markActionCompleted(
+    String fieldId,
+    String zoneId,
+    String actionType, {
+    String? notes,
+  }) async {
+    await _client.post(
+      '$_baseUrl/fields/$fieldId/zones/$zoneId/actions/complete',
+      {
+        'action_type': actionType,
+        'completed_at': DateTime.now().toIso8601String(),
+        'notes': notes,
+      },
     );
   }
 }

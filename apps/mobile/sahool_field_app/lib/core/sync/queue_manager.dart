@@ -1,6 +1,5 @@
 import 'dart:async';
 import '../storage/database.dart';
-import 'sync_metrics_service.dart';
 
 /// Queue Priority Levels
 enum QueuePriority {
@@ -74,7 +73,6 @@ class QueueStats {
 /// Queue Manager - Manages offline sync queue with priorities
 class QueueManager {
   final AppDatabase _database;
-  final SyncMetricsService? _metricsService;
   final _statsController = StreamController<QueueStats>.broadcast();
 
   QueueStats _currentStats = const QueueStats(
@@ -84,15 +82,8 @@ class QueueManager {
     processedToday: 0,
   );
 
-  Timer? _queueMonitorTimer;
-
-  QueueManager({
-    required AppDatabase database,
-    SyncMetricsService? metricsService,
-  }) : _database = database,
-       _metricsService = metricsService {
+  QueueManager({required AppDatabase database}) : _database = database {
     _refreshStats();
-    _startQueueMonitoring();
   }
 
   /// Stream of queue statistics
@@ -270,20 +261,7 @@ class QueueManager {
     await _refreshStats();
   }
 
-  /// Start monitoring queue depth for metrics
-  void _startQueueMonitoring() {
-    _queueMonitorTimer?.cancel();
-    _queueMonitorTimer = Timer.periodic(
-      const Duration(seconds: 30),
-      (_) async {
-        final pending = await _database.getPendingOutbox();
-        await _metricsService?.updateQueueDepth(pending.length);
-      },
-    );
-  }
-
   void dispose() {
-    _queueMonitorTimer?.cancel();
     _statsController.close();
   }
 }

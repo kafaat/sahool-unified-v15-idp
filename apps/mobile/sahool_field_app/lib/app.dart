@@ -1,12 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/theme.dart';
-import 'core/security/screen_security_service.dart';
-import 'core/security/device_security_service.dart';
-import 'core/security/security_warning_dialog.dart';
 import 'features/home/presentation/screens/home_dashboard.dart';
 import 'features/tasks/presentation/tasks_list_screen.dart';
 import 'features/crop_health/presentation/screens/crop_health_dashboard.dart';
@@ -42,33 +38,30 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
 
   @override
   Widget build(BuildContext context) {
-    return SecureApp(
-      autoEnable: true,
-      child: MaterialApp(
-        title: 'سهول',
-        debugShowCheckedModeBanner: false,
+    return MaterialApp(
+      title: 'سهول',
+      debugShowCheckedModeBanner: false,
 
-        // Arabic RTL Support
-        locale: const Locale('ar'),
-        supportedLocales: const [
-          Locale('ar'),
-          Locale('en'),
-        ],
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
+      // Arabic RTL Support
+      locale: const Locale('ar'),
+      supportedLocales: const [
+        Locale('ar'),
+        Locale('en'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
 
-        // Theme
-        theme: SahoolTheme.light,
-        darkTheme: SahoolTheme.dark,
-        themeMode: ThemeMode.system,
+      // Theme
+      theme: SahoolTheme.light,
+      darkTheme: SahoolTheme.dark,
+      themeMode: ThemeMode.system,
 
-        // Routes
-        home: const MainAppShell(),
-        onGenerateRoute: _generateRoute,
-      ),
+      // Routes
+      home: const MainAppShell(),
+      onGenerateRoute: _generateRoute,
     );
   }
 
@@ -122,7 +115,6 @@ class MainAppShell extends ConsumerStatefulWidget {
 
 class _MainAppShellState extends ConsumerState<MainAppShell> {
   int _currentIndex = 0;
-  bool _hasShownSecurityWarning = false;
 
   final List<Widget> _screens = [
     const HomeDashboard(),
@@ -131,52 +123,6 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
     const CommunityScreen(),
     const _MoreScreen(),
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    // Check and show security warning if needed
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkAndShowSecurityWarning();
-    });
-  }
-
-  /// Check device security and show warning if needed
-  Future<void> _checkAndShowSecurityWarning() async {
-    if (_hasShownSecurityWarning) return;
-
-    try {
-      final securityResult = await ref.read(deviceSecurityCheckProvider.future);
-
-      // Only show warning dialog if there are warnings
-      if (securityResult.recommendedAction == SecurityAction.warn &&
-          mounted &&
-          !_hasShownSecurityWarning) {
-        _hasShownSecurityWarning = true;
-
-        // Show warning dialog
-        if (mounted) {
-          await showSecurityWarningDialog(
-            context: context,
-            result: securityResult,
-            isArabic: true,
-            onContinue: () {
-              // User chose to continue despite warning
-              debugPrint('⚠️ User continued despite security warning');
-            },
-            onExit: () {
-              // User chose to exit
-              debugPrint('🔒 User exited due to security warning');
-              // Close the app
-              SystemNavigator.pop();
-            },
-          );
-        }
-      }
-    } catch (e) {
-      debugPrint('⚠️ Failed to check security warning: $e');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

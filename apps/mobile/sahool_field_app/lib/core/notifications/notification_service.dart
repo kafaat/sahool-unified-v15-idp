@@ -104,9 +104,7 @@ class NotificationServiceImpl implements NotificationService {
       requestSoundPermission: false,
       onDidReceiveLocalNotification: (id, title, body, payload) async {
         // Handle iOS foreground notification (older iOS versions)
-        if (kDebugMode) {
-          debugPrint('iOS Notification: $title - $body');
-        }
+        debugPrint('iOS Notification: $title - $body');
       },
     );
 
@@ -138,9 +136,7 @@ class NotificationServiceImpl implements NotificationService {
     }
 
     _initialized = true;
-    if (kDebugMode) {
-      debugPrint('✅ NotificationService initialized');
-    }
+    debugPrint('✅ NotificationService initialized');
   }
 
   void _handleNotificationTap(NotificationResponse response) {
@@ -149,9 +145,7 @@ class NotificationServiceImpl implements NotificationService {
         final data = jsonDecode(response.payload!) as Map<String, dynamic>;
         _onTapCallback!(data);
       } catch (e) {
-        if (kDebugMode) {
-          debugPrint('Error parsing notification payload: $e');
-        }
+        debugPrint('Error parsing notification payload: $e');
         _onTapCallback!(null);
       }
     }
@@ -160,9 +154,7 @@ class NotificationServiceImpl implements NotificationService {
   @pragma('vm:entry-point')
   static void _handleBackgroundNotificationTap(NotificationResponse response) {
     // Handle background notification tap
-    if (kDebugMode) {
-      debugPrint('Background notification tapped: ${response.payload}');
-    }
+    debugPrint('Background notification tapped: ${response.payload}');
   }
 
   @override
@@ -207,9 +199,7 @@ class NotificationServiceImpl implements NotificationService {
     Map<String, dynamic>? data,
   }) async {
     if (!_initialized) {
-      if (kDebugMode) {
-        debugPrint('⚠️ NotificationService not initialized');
-      }
+      debugPrint('⚠️ NotificationService not initialized');
       return;
     }
 
@@ -244,9 +234,7 @@ class NotificationServiceImpl implements NotificationService {
       payload: data != null ? jsonEncode(data) : null,
     );
 
-    if (kDebugMode) {
-      debugPrint('📬 Notification shown: $title');
-    }
+    debugPrint('📬 Notification shown: $title');
   }
 
   @override
@@ -258,9 +246,7 @@ class NotificationServiceImpl implements NotificationService {
     Map<String, dynamic>? data,
   }) async {
     if (!_initialized) {
-      if (kDebugMode) {
-        debugPrint('⚠️ NotificationService not initialized');
-      }
+      debugPrint('⚠️ NotificationService not initialized');
       return;
     }
 
@@ -297,9 +283,7 @@ class NotificationServiceImpl implements NotificationService {
       payload: data != null ? jsonEncode(data) : null,
     );
 
-    if (kDebugMode) {
-      debugPrint('⏰ Scheduled notification: $title at $scheduledTime');
-    }
+    debugPrint('⏰ Scheduled notification: $title at $scheduledTime');
   }
 
   TZDateTime _convertToTZDateTime(DateTime dateTime) {
@@ -310,33 +294,25 @@ class NotificationServiceImpl implements NotificationService {
   @override
   Future<void> cancelAll() async {
     await _localNotifications.cancelAll();
-    if (kDebugMode) {
-      debugPrint('🗑️ All notifications cancelled');
-    }
+    debugPrint('🗑️ All notifications cancelled');
   }
 
   @override
   Future<void> cancelById(int id) async {
     await _localNotifications.cancel(id);
-    if (kDebugMode) {
-      debugPrint('🗑️ Notification $id cancelled');
-    }
+    debugPrint('🗑️ Notification $id cancelled');
   }
 
   @override
   Future<void> subscribeToTopic(String topic) async {
     // Would be implemented with Firebase Cloud Messaging
-    if (kDebugMode) {
-      debugPrint('📢 Subscribed to topic: $topic');
-    }
+    debugPrint('📢 Subscribed to topic: $topic');
   }
 
   @override
   Future<void> unsubscribeFromTopic(String topic) async {
     // Would be implemented with Firebase Cloud Messaging
-    if (kDebugMode) {
-      debugPrint('🔕 Unsubscribed from topic: $topic');
-    }
+    debugPrint('🔕 Unsubscribed from topic: $topic');
   }
 
   @override

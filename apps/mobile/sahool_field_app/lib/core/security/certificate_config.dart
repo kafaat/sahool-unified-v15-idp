@@ -30,65 +30,146 @@ import 'certificate_pinning_service.dart';
 
 class CertificateConfig {
   /// Get production certificate pins
+  ///
+  /// ============================================
+  /// CRITICAL WARNING - PLACEHOLDER VALUES
+  /// ============================================
+  /// The SHA-256 fingerprints below are PLACEHOLDER EXAMPLES only.
+  /// You MUST replace these with actual production certificate fingerprints
+  /// before deploying to production.
+  ///
+  /// ⚠️  DO NOT DEPLOY TO PRODUCTION WITHOUT UPDATING THESE VALUES  ⚠️
+  ///
+  /// To generate actual certificate pins:
+  /// 1. Run the script: ./scripts/generate_cert_pins.sh api.sahool.app
+  /// 2. Copy the SHA256 fingerprint from the script output
+  /// 3. Replace the placeholder values below
+  ///
+  /// Use the getCertificateFingerprintFromUrl() helper function or OpenSSL
+  /// to obtain the real fingerprints from your production servers.
   static Map<String, List<CertificatePin>> getProductionPins() {
     return {
       // Main Production API
       'api.sahool.app': [
-        // Primary certificate (replace with actual fingerprint)
+        // Primary certificate
+        // TODO: CRITICAL - Replace with actual production certificate fingerprint
+        // Generate using: ./scripts/generate_cert_pins.sh api.sahool.app
         CertificatePin(
           type: PinType.sha256,
-          value: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          value: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', // PLACEHOLDER - MUST REPLACE
           expiryDate: DateTime(2026, 12, 31),
           description: 'Primary production certificate',
         ),
-        // Backup certificate for rotation (replace with actual fingerprint)
+        // Backup certificate for rotation
+        // TODO: CRITICAL - Replace with actual backup certificate fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+          value: '2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae', // PLACEHOLDER - MUST REPLACE
           expiryDate: DateTime(2027, 6, 30),
           description: 'Backup production certificate',
+        ),
+        // Additional backup for seamless rotation
+        // TODO: CRITICAL - Replace with actual tertiary certificate fingerprint
+        CertificatePin(
+          type: PinType.sha256,
+          value: '3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d', // PLACEHOLDER - MUST REPLACE
+          expiryDate: DateTime(2027, 12, 31),
+          description: 'Tertiary production certificate',
         ),
       ],
 
       // WebSocket production
       'ws.sahool.app': [
+        // TODO: CRITICAL - Replace with actual WebSocket certificate fingerprint
+        // Generate using: ./scripts/generate_cert_pins.sh ws.sahool.app
         CertificatePin(
           type: PinType.sha256,
-          value: 'CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC',
+          value: 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', // PLACEHOLDER - MUST REPLACE
           expiryDate: DateTime(2026, 12, 31),
           description: 'WebSocket production certificate',
+        ),
+        // Backup for WebSocket
+        // TODO: CRITICAL - Replace with actual backup WebSocket fingerprint
+        CertificatePin(
+          type: PinType.sha256,
+          value: 'fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9', // PLACEHOLDER - MUST REPLACE
+          expiryDate: DateTime(2027, 6, 30),
+          description: 'WebSocket backup certificate',
         ),
       ],
 
       // Wildcard for *.sahool.io domains
       '*.sahool.io': [
+        // TODO: CRITICAL - Replace with actual wildcard certificate fingerprint
+        // Generate using: ./scripts/generate_cert_pins.sh api.sahool.io
         CertificatePin(
           type: PinType.sha256,
-          value: 'DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD',
+          value: '6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090', // PLACEHOLDER - MUST REPLACE
           expiryDate: DateTime(2026, 12, 31),
           description: 'Wildcard sahool.io certificate',
+        ),
+        // Backup for wildcard
+        // TODO: CRITICAL - Replace with actual backup wildcard fingerprint
+        CertificatePin(
+          type: PinType.sha256,
+          value: '8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61', // PLACEHOLDER - MUST REPLACE
+          expiryDate: DateTime(2027, 6, 30),
+          description: 'Wildcard backup certificate',
         ),
       ],
     };
   }
 
   /// Get staging certificate pins
+  ///
+  /// ============================================
+  /// CRITICAL WARNING - PLACEHOLDER VALUES
+  /// ============================================
+  /// The SHA-256 fingerprints below are PLACEHOLDER EXAMPLES only.
+  /// Replace these with actual staging certificate fingerprints.
+  ///
+  /// ⚠️  DO NOT DEPLOY TO STAGING WITHOUT UPDATING THESE VALUES  ⚠️
+  ///
+  /// To generate actual certificate pins:
+  /// 1. Run the script: ./scripts/generate_cert_pins.sh api-staging.sahool.app
+  /// 2. Copy the SHA256 fingerprint from the script output
+  /// 3. Replace the placeholder values below
   static Map<String, List<CertificatePin>> getStagingPins() {
     return {
       'api-staging.sahool.app': [
+        // TODO: CRITICAL - Replace with actual staging API certificate fingerprint
+        // Generate using: ./scripts/generate_cert_pins.sh api-staging.sahool.app
         CertificatePin(
           type: PinType.sha256,
-          value: 'EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE',
+          value: '88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589', // PLACEHOLDER - MUST REPLACE
           expiryDate: DateTime(2026, 6, 30),
           description: 'Staging API certificate',
         ),
-      ],
-      'ws-staging.sahool.app': [
+        // Staging backup
+        // TODO: CRITICAL - Replace with actual staging backup fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
+          value: 'cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50', // PLACEHOLDER - MUST REPLACE
+          expiryDate: DateTime(2027, 3, 31),
+          description: 'Staging API backup certificate',
+        ),
+      ],
+      'ws-staging.sahool.app': [
+        // TODO: CRITICAL - Replace with actual staging WebSocket certificate fingerprint
+        // Generate using: ./scripts/generate_cert_pins.sh ws-staging.sahool.app
+        CertificatePin(
+          type: PinType.sha256,
+          value: '9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca7', // PLACEHOLDER - MUST REPLACE
           expiryDate: DateTime(2026, 6, 30),
           description: 'Staging WebSocket certificate',
+        ),
+        // Staging WebSocket backup
+        // TODO: CRITICAL - Replace with actual staging WebSocket backup fingerprint
+        CertificatePin(
+          type: PinType.sha256,
+          value: '785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09', // PLACEHOLDER - MUST REPLACE
+          expiryDate: DateTime(2027, 3, 31),
+          description: 'Staging WebSocket backup certificate',
         ),
       ],
     };
@@ -231,12 +312,29 @@ class CertificateRotationHelper {
       }
 
       // Check for pins with placeholder values
+      // These are known placeholder SHA-256 hashes that MUST be replaced
+      const placeholderHashes = {
+        'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', // Empty string SHA-256
+        '2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae', // "foo" SHA-256
+        '3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d', // "bar" SHA-256
+        'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', // "abc" SHA-256
+        'fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9', // "baz" SHA-256
+        '6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090', // "test" SHA-256
+        '8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61', // Common test hash
+        '88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589', // "staging" placeholder
+        'cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50', // "backup" placeholder
+        '9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca7', // "websocket" placeholder
+        '785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09', // "ws-backup" placeholder
+      };
+
       for (final pin in domainPins) {
-        if (pin.value.contains('AAAA') ||
+        if (placeholderHashes.contains(pin.value) ||
+            pin.value.contains('AAAA') ||
             pin.value.contains('BBBB') ||
             pin.value.contains('REPLACE')) {
           issues.add(
-            'Domain $domain has placeholder certificate fingerprints - replace with actual values',
+            'CRITICAL: Domain $domain has placeholder certificate fingerprints - '
+            'replace with actual values before production deployment',
           );
           break;
         }

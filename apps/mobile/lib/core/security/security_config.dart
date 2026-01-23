@@ -98,14 +98,14 @@ class SecurityConfig {
   );
 
   /// Development security configuration
-  /// Disables certificate pinning for local development
-  /// تكوين الأمان للتطوير
+  /// Disables certificate pinning and security checks for local development
+  /// تكوين الأمان للتطوير - معطل للسماح بالتطوير على المحاكيات
   static const development = SecurityConfig(
     enableCertificatePinning: false,
     strictCertificatePinning: false,
     allowPinningDebugBypass: true,
     requestTimeout: Duration(seconds: 30),
-    deviceIntegrityPolicy: DeviceIntegrityPolicy.log,
+    deviceIntegrityPolicy: DeviceIntegrityPolicy.disabled, // Disabled to prevent crash on emulators
     enforceSecurityInDebug: false,
     allowEmulators: true,
     logSecurityEvents: false,

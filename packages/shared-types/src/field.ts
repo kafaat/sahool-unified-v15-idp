@@ -490,9 +490,10 @@ export interface NDVISummary {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Paginated response
+ * Field-specific paginated response with hasMore indicator
+ * Use this for field/farm list endpoints that need hasMore functionality
  */
-export interface PaginatedResponse<T> {
+export interface FieldPaginatedResponse<T> {
   data: T[];
   pagination: {
     page: number;
@@ -506,12 +507,12 @@ export interface PaginatedResponse<T> {
 /**
  * Field list response
  */
-export type FieldListResponse = PaginatedResponse<Field>;
+export type FieldListResponse = FieldPaginatedResponse<Field>;
 
 /**
  * Farm list response
  */
-export type FarmListResponse = PaginatedResponse<Farm>;
+export type FarmListResponse = FieldPaginatedResponse<Farm>;
 
 /**
  * Field with relations

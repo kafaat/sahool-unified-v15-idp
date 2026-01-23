@@ -8,6 +8,7 @@ import { sanitizers, validators, validationErrors } from "../validation";
 import { logger } from "../logger";
 import { getCsrfHeaders } from "../security/security";
 import type {
+  AgriculturalRisk,
   ApiResponse,
   Field,
   FieldCreateRequest,
@@ -577,7 +578,7 @@ class SahoolApiClient {
   }
 
   async getAgriculturalRisks(lat: number, lng: number, fieldId: string = "default") {
-    return this.request<unknown>("/api/v1/weather-core/weather/agricultural-report", {
+    return this.request<AgriculturalRisk[]>("/api/v1/weather-core/weather/agricultural-report", {
       method: "POST",
       body: JSON.stringify({
         tenant_id: "default",

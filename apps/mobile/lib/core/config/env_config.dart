@@ -5,43 +5,84 @@ import '../utils/app_logger.dart';
 /// SAHOOL Environment Configuration
 /// تكوين البيئة - يدعم dart-define و dotenv
 ///
-/// Priority: dart-define > .env file > default values
+/// Priority: dart-define > .env.{environment} > .env > .env.example > defaults
 ///
 /// Usage in build:
+/// ```bash
+/// # Development (default)
+/// flutter run
+///
+/// # Staging build
+/// flutter build apk --dart-define=ENV=staging
+///
+/// # Production build
+/// flutter build apk --release --dart-define=ENV=production
+///
+/// # With explicit API URL
 /// flutter build apk --dart-define=API_URL=https://api.sahool.app
-/// flutter build apk --dart-define=ENV=production
+/// ```
+///
+/// Environment files (in order of precedence):
+/// 1. .env                  - Local overrides (not committed)
+/// 2. .env.{environment}    - Environment-specific (.env.development, .env.staging, .env.production)
+/// 3. .env.example          - Default template (committed)
 
 enum AppEnvironment { development, staging, production }
 
 class EnvConfig {
   static bool _initialized = false;
+  static String _loadedFrom = 'defaults';
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Initialization
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Load environment configuration from .env file (with .env.example fallback)
-  static Future<void> load() async {
+  /// Load environment configuration from .env files
+  ///
+  /// Loading priority:
+  /// 1. .env (local overrides, not committed to git)
+  /// 2. .env.{environment} (environment-specific: .env.development, .env.staging, .env.production)
+  /// 3. .env.example (default template, committed to git)
+  ///
+  /// You can also specify the environment via dart-define:
+  /// ```bash
+  /// flutter run --dart-define=ENV=staging
+  /// ```
+  static Future<void> load({String? forceEnvironment}) async {
     if (_initialized) return;
 
-    try {
-      // Try .env first (local development), then .env.example (CI/default)
+    // Determine target environment from dart-define or parameter
+    final targetEnv = forceEnvironment ??
+        const String.fromEnvironment('ENV', defaultValue: '') ??
+        const String.fromEnvironment('ENVIRONMENT', defaultValue: '');
+
+    // Try loading files in order of precedence
+    final filesToTry = <String>[
+      '.env', // Local overrides first
+      if (targetEnv.isNotEmpty) '.env.$targetEnv', // Environment-specific
+      '.env.development', // Default to development
+      '.env.example', // Fallback template
+    ];
+
+    bool loaded = false;
+    for (final fileName in filesToTry) {
       try {
-        await dotenv.load(fileName: '.env');
+        await dotenv.load(fileName: fileName);
+        _loadedFrom = fileName;
+        loaded = true;
         if (kDebugMode) {
-          AppLogger.i('Environment configuration loaded from .env', tag: 'EnvConfig');
+          AppLogger.i('Environment loaded from: $fileName', tag: 'EnvConfig');
         }
+        break;
       } catch (_) {
-        // Fallback to .env.example for CI builds
-        await dotenv.load(fileName: '.env.example');
-        if (kDebugMode) {
-          AppLogger.i('Environment configuration loaded from .env.example', tag: 'EnvConfig');
-        }
+        // Try next file
+        continue;
       }
-    } catch (e) {
-      if (kDebugMode) {
-        AppLogger.w('Could not load .env file. Using dart-define/defaults.', tag: 'EnvConfig');
-      }
+    }
+
+    if (!loaded && kDebugMode) {
+      AppLogger.w('No .env file found. Using dart-define/defaults.', tag: 'EnvConfig');
+      _loadedFrom = 'defaults (no .env file)';
     }
 
     _initialized = true;
@@ -50,6 +91,9 @@ class EnvConfig {
       printConfig();
     }
   }
+
+  /// Get the source file from which configuration was loaded
+  static String get loadedFrom => _loadedFrom;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Helper to get value with priority: dart-define > dotenv > default
@@ -92,6 +136,9 @@ class EnvConfig {
         return const String.fromEnvironment('PROD_HOST');
       case 'STAGING_HOST':
         return const String.fromEnvironment('STAGING_HOST');
+      // NATS Message Queue
+      case 'NATS_URL':
+        return const String.fromEnvironment('NATS_URL');
       // Service Ports
       case 'FIELD_CORE_PORT':
         return const String.fromEnvironment('FIELD_CORE_PORT');
@@ -128,15 +175,33 @@ class EnvConfig {
       // Service URL Overrides
       case 'MARKETPLACE_URL':
         return const String.fromEnvironment('MARKETPLACE_URL');
+      // Weather API Configuration
+      case 'WEATHER_PROVIDER':
+        return const String.fromEnvironment('WEATHER_PROVIDER');
+      case 'WEATHER_API_KEY':
+        return const String.fromEnvironment('WEATHER_API_KEY');
+      case 'WEATHERAPI_KEY':
+        return const String.fromEnvironment('WEATHERAPI_KEY');
+      case 'VISUALCROSSING_API_KEY':
+        return const String.fromEnvironment('VISUALCROSSING_API_KEY');
       // Maps Configuration
+      case 'MAP_PROVIDER':
+        return const String.fromEnvironment('MAP_PROVIDER');
       case 'MAPBOX_ACCESS_TOKEN':
         return const String.fromEnvironment('MAPBOX_ACCESS_TOKEN');
       case 'MAPBOX_STYLE_URL':
         return const String.fromEnvironment('MAPBOX_STYLE_URL');
+      case 'GOOGLE_MAPS_API_KEY':
+        return const String.fromEnvironment('GOOGLE_MAPS_API_KEY');
       case 'MAP_TILE_URL':
         return const String.fromEnvironment('MAP_TILE_URL');
       case 'ENABLE_OFFLINE_MAPS':
         return const String.fromEnvironment('ENABLE_OFFLINE_MAPS');
+      // Error Reporting & Monitoring
+      case 'SENTRY_DSN':
+        return const String.fromEnvironment('SENTRY_DSN');
+      case 'SENTRY_ENVIRONMENT':
+        return const String.fromEnvironment('SENTRY_ENVIRONMENT');
       // Feature Flags
       case 'ENABLE_OFFLINE_MODE':
         return const String.fromEnvironment('ENABLE_OFFLINE_MODE');
@@ -146,6 +211,8 @@ class EnvConfig {
         return const String.fromEnvironment('ENABLE_CAMERA');
       case 'ENABLE_PUSH':
         return const String.fromEnvironment('ENABLE_PUSH');
+      case 'ENABLE_PUSH_NOTIFICATIONS':
+        return const String.fromEnvironment('ENABLE_PUSH_NOTIFICATIONS');
       case 'ENABLE_ANALYTICS':
         return const String.fromEnvironment('ENABLE_ANALYTICS');
       case 'ENABLE_CRASH_REPORTING':
@@ -165,6 +232,16 @@ class EnvConfig {
         return const String.fromEnvironment('MAX_RETRY_COUNT');
       case 'OUTBOX_BATCH_SIZE':
         return const String.fromEnvironment('OUTBOX_BATCH_SIZE');
+      // Cache Configuration
+      case 'CACHE_EXPIRY_HOURS':
+        return const String.fromEnvironment('CACHE_EXPIRY_HOURS');
+      case 'IMAGE_CACHE_DAYS':
+        return const String.fromEnvironment('IMAGE_CACHE_DAYS');
+      // Timeout Configuration
+      case 'CONNECT_TIMEOUT_SECONDS':
+        return const String.fromEnvironment('CONNECT_TIMEOUT_SECONDS');
+      case 'RECEIVE_TIMEOUT_SECONDS':
+        return const String.fromEnvironment('RECEIVE_TIMEOUT_SECONDS');
       // App Info
       case 'APP_NAME':
         return const String.fromEnvironment('APP_NAME');
@@ -176,6 +253,11 @@ class EnvConfig {
         return const String.fromEnvironment('DEFAULT_TENANT_ID');
       case 'AI_SERVICE_URL':
         return const String.fromEnvironment('AI_SERVICE_URL');
+      // Debug Settings
+      case 'DEBUG_MODE':
+        return const String.fromEnvironment('DEBUG_MODE');
+      case 'LOG_LEVEL':
+        return const String.fromEnvironment('LOG_LEVEL');
       default:
         return '';
     }
@@ -455,11 +537,95 @@ class EnvConfig {
   static String get wsGatewayUrl => wsBaseUrl;
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Maps Configuration
+  // NATS Message Queue Configuration
+  // تكوين قائمة الانتظار NATS
   // ═══════════════════════════════════════════════════════════════════════════
 
+  /// NATS URL for event-driven messaging
+  /// عنوان NATS للرسائل المبنية على الأحداث
+  static String get natsUrl {
+    final url = _getString('NATS_URL', '');
+    if (url.isNotEmpty) return url;
+
+    switch (environment) {
+      case AppEnvironment.production:
+        return 'nats://nats.sahool.app:4222';
+      case AppEnvironment.staging:
+        return 'nats://nats-staging.sahool.app:4222';
+      case AppEnvironment.development:
+        return 'nats://10.0.2.2:4222';
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Weather API Configuration
+  // تكوين API الطقس
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Weather provider (open-meteo, openweathermap, weatherapi, visualcrossing)
+  /// مزود الطقس
+  static String get weatherProvider =>
+      _getString('WEATHER_PROVIDER', 'open-meteo');
+
+  /// OpenWeatherMap API key (also used as generic WEATHER_API_KEY)
+  /// مفتاح OpenWeatherMap API
+  static String get weatherApiKey =>
+      _getString('WEATHER_API_KEY', '');
+
+  /// WeatherAPI.com key
+  /// مفتاح WeatherAPI.com
+  static String get weatherApiComKey =>
+      _getString('WEATHERAPI_KEY', '');
+
+  /// Visual Crossing API key
+  /// مفتاح Visual Crossing API
+  static String get visualCrossingApiKey =>
+      _getString('VISUALCROSSING_API_KEY', '');
+
+  /// Check if weather API key is configured
+  static bool get hasWeatherApiKey => weatherApiKey.isNotEmpty;
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Error Reporting & Monitoring (Sentry)
+  // تقارير الأخطاء والمراقبة
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Sentry DSN for crash reporting
+  /// معرف Sentry لتقارير الأعطال
+  static String get sentryDsn => _getString('SENTRY_DSN', '');
+
+  /// Sentry environment (defaults to current environment)
+  /// بيئة Sentry
+  static String get sentryEnvironment {
+    final env = _getString('SENTRY_ENVIRONMENT', '');
+    if (env.isNotEmpty) return env;
+    return environment.name;
+  }
+
+  /// Check if Sentry is configured
+  static bool get hasSentryDsn => sentryDsn.isNotEmpty;
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Maps Configuration
+  // تكوين الخرائط
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Map provider (osm, mapbox, google, esri)
+  /// مزود الخرائط
+  static String get mapProvider => _getString('MAP_PROVIDER', 'osm');
+
+  /// Mapbox access token
+  /// رمز الوصول لـ Mapbox
   static String get mapboxAccessToken =>
       _getString('MAPBOX_ACCESS_TOKEN', '');
+
+  /// Check if Mapbox is configured
+  static bool get hasMapboxToken => mapboxAccessToken.isNotEmpty;
+
+  /// Google Maps API key
+  /// مفتاح Google Maps API
+  static String get googleMapsApiKey =>
+      _getString('GOOGLE_MAPS_API_KEY', '');
 
   static String get mapboxStyleUrl => _getString(
         'MAPBOX_STYLE_URL',
@@ -549,7 +715,7 @@ class EnvConfig {
 
   static String get appName => _getString('APP_NAME', 'SAHOOL Field');
 
-  static String get appVersion => _getString('APP_VERSION', '15.4.0');
+  static String get appVersion => _getString('APP_VERSION', '16.0.0');
 
   static String get buildNumber => _getString('BUILD_NUMBER', '1');
 
@@ -587,9 +753,25 @@ class EnvConfig {
   static Map<String, dynamic> toDebugMap() {
     return {
       'environment': environment.name,
+      'loadedFrom': loadedFrom,
       'apiBaseUrl': apiBaseUrl,
       'wsBaseUrl': wsBaseUrl,
+      'natsUrl': natsUrl,
       'appVersion': fullVersion,
+      'services': {
+        'weather': {
+          'provider': weatherProvider,
+          'hasApiKey': hasWeatherApiKey,
+        },
+        'maps': {
+          'provider': mapProvider,
+          'hasMapboxToken': hasMapboxToken,
+        },
+        'sentry': {
+          'hasDsn': hasSentryDsn,
+          'environment': sentryEnvironment,
+        },
+      },
       'features': {
         'offlineMode': enableOfflineMode,
         'backgroundSync': enableBackgroundSync,
@@ -624,14 +806,22 @@ class EnvConfig {
 ╠════════════════════════════════════════════════════════════╣
 ║ Environment: ${environment.name.padRight(45)}║
 ║ Version: ${fullVersion.padRight(49)}║
+║ Loaded from: ${loadedFrom.padRight(44)}║
 ╠════════════════════════════════════════════════════════════╣
 ║ API: ${apiBaseUrl.padRight(52)}║
 ║ WS: ${wsBaseUrl.padRight(53)}║
+║ NATS: ${natsUrl.padRight(51)}║
+╠════════════════════════════════════════════════════════════╣
+║ Services:                                                  ║
+║   Weather: ${weatherProvider.padRight(47)}║
+║   Maps: ${mapProvider.padRight(50)}║
+║   Sentry: ${(hasSentryDsn ? "Configured" : "Not configured").padRight(47)}║
 ╠════════════════════════════════════════════════════════════╣
 ║ Features:                                                  ║
-║   Offline: ${(enableOfflineMode ? "✓" : "✗").padRight(47)}║
-║   Push: ${(enablePushNotifications ? "✓" : "✗").padRight(50)}║
-║   Analytics: ${(enableAnalytics ? "✓" : "✗").padRight(45)}║
+║   Offline: ${(enableOfflineMode ? "Enabled" : "Disabled").padRight(47)}║
+║   Push: ${(enablePushNotifications ? "Enabled" : "Disabled").padRight(50)}║
+║   Analytics: ${(enableAnalytics ? "Enabled" : "Disabled").padRight(45)}║
+║   Crash Reporting: ${(enableCrashReporting ? "Enabled" : "Disabled").padRight(38)}║
 ╚════════════════════════════════════════════════════════════╝
 ''';
 

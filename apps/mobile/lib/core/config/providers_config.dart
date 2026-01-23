@@ -3,6 +3,8 @@
 // خدمات متعددة مع إعدادات الأولوية
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'env_config.dart';
+
 /// Provider priority levels
 enum ProviderPriority {
   primary,   // الأساسي - يُستخدم أولاً
@@ -440,7 +442,8 @@ class ProvidersConfig {
   final String? googleMapsApiKey;
   final String? mapboxApiKey;
   final String? openWeatherMapApiKey;
-  final String? weatherApiKey;
+  final String? weatherApiKey;         // WeatherAPI.com key
+  final String? visualCrossingApiKey;  // Visual Crossing key
   final String? sentinelHubApiKey;
   final String? planetLabsApiKey;
 
@@ -454,6 +457,7 @@ class ProvidersConfig {
     this.mapboxApiKey,
     this.openWeatherMapApiKey,
     this.weatherApiKey,
+    this.visualCrossingApiKey,
     this.sentinelHubApiKey,
     this.planetLabsApiKey,
     this.mapProviderPriority = const [
@@ -507,6 +511,7 @@ class ProvidersConfig {
       WeatherProviders.openMeteo,
       if (openWeatherMapApiKey != null) WeatherProviders.openWeatherMap(apiKey: openWeatherMapApiKey),
       if (weatherApiKey != null) WeatherProviders.weatherApi(apiKey: weatherApiKey),
+      if (visualCrossingApiKey != null) WeatherProviders.visualCrossing(apiKey: visualCrossingApiKey),
     ];
 
     providers.sort((a, b) {
@@ -557,4 +562,42 @@ ProvidersConfig developmentProvidersConfig({
     mapboxApiKey: mapboxApiKey,
     openWeatherMapApiKey: openWeatherMapApiKey,
   );
+}
+
+/// Create ProvidersConfig from environment variables
+/// تكوين المزودين من متغيرات البيئة
+///
+/// Reads API keys from EnvConfig which loads from:
+/// - dart-define flags (highest priority)
+/// - .env files (.env, .env.{environment}, .env.example)
+/// - Default values (lowest priority)
+///
+/// Usage:
+/// ```dart
+/// final config = ProvidersConfig.fromEnv();
+/// final weatherService = WeatherProviderService(config: config);
+/// ```
+ProvidersConfig providersConfigFromEnv() {
+  // Get API keys from environment
+  final googleMapsKey = EnvConfig.googleMapsApiKey;
+  final mapboxKey = EnvConfig.mapboxAccessToken;
+  final weatherApiKey = EnvConfig.weatherApiKey;
+  final weatherApiComKey = EnvConfig.weatherApiComKey;
+  final visualCrossingKey = EnvConfig.visualCrossingApiKey;
+
+  return ProvidersConfig(
+    googleMapsApiKey: googleMapsKey.isNotEmpty ? googleMapsKey : null,
+    mapboxApiKey: mapboxKey.isNotEmpty ? mapboxKey : null,
+    // Use WEATHER_API_KEY for OpenWeatherMap (most common)
+    openWeatherMapApiKey: weatherApiKey.isNotEmpty ? weatherApiKey : null,
+    // Use WEATHERAPI_KEY for WeatherAPI.com
+    weatherApiKey: weatherApiComKey.isNotEmpty ? weatherApiComKey : null,
+    // Additional keys can be added to ProvidersConfig constructor as needed
+  );
+}
+
+/// Extension on ProvidersConfig for environment-based creation
+extension ProvidersConfigFactory on ProvidersConfig {
+  /// Create from environment variables
+  static ProvidersConfig fromEnv() => providersConfigFromEnv();
 }

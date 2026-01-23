@@ -10,9 +10,38 @@ import '../widgets/holographic_field_card.dart';
 import '../widgets/voice_control_button.dart';
 import '../widgets/stats_panel.dart';
 import '../widgets/weather_widget.dart';
+import 'fields_list_screen.dart';
+import 'field_map_screen.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  int _currentIndex = 0;
+
+  void _navigateToTab(int index) {
+    HapticFeedback.lightImpact();
+    if (index == _currentIndex) return;
+
+    switch (index) {
+      case 1: // Map
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const FieldMapScreen()),
+        );
+        break;
+      case 2: // Fields
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const FieldsListScreen()),
+        );
+        break;
+      default:
+        setState(() => _currentIndex = index);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +232,12 @@ class DashboardScreen extends StatelessWidget {
           ],
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const FieldsListScreen()),
+            );
+          },
           child: Text(
             'عرض الكل',
             style: AtmosphereTypography.bodyMedium.copyWith(
@@ -232,11 +266,11 @@ class DashboardScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(Icons.home_outlined, 'الرئيسية', true),
-              _buildNavItem(Icons.map_outlined, 'الخريطة', false),
+              _buildNavItem(Icons.home_outlined, 'الرئيسية', 0),
+              _buildNavItem(Icons.map_outlined, 'الخريطة', 1),
               const SizedBox(width: 56), // Space for voice button
-              _buildNavItem(Icons.agriculture_outlined, 'المحاصيل', false),
-              _buildNavItem(Icons.menu, 'المزيد', false),
+              _buildNavItem(Icons.agriculture_outlined, 'الحقول', 2),
+              _buildNavItem(Icons.menu, 'المزيد', 3),
             ],
           ),
         ),
@@ -244,23 +278,27 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(IconData icon, String label, bool isActive) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          icon,
-          color: isActive ? AtmosphereColors.success : AtmosphereColors.textMuted,
-          size: 24,
-        ),
-        const SizedBox(height: AtmosphereSpacing.xs),
-        Text(
-          label,
-          style: AtmosphereTypography.bodySmall.copyWith(
+  Widget _buildNavItem(IconData icon, String label, int index) {
+    final isActive = _currentIndex == index;
+    return GestureDetector(
+      onTap: () => _navigateToTab(index),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
             color: isActive ? AtmosphereColors.success : AtmosphereColors.textMuted,
+            size: 24,
           ),
-        ),
-      ],
+          const SizedBox(height: AtmosphereSpacing.xs),
+          Text(
+            label,
+            style: AtmosphereTypography.bodySmall.copyWith(
+              color: isActive ? AtmosphereColors.success : AtmosphereColors.textMuted,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

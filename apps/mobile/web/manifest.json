@@ -1,13 +1,15 @@
 {
-  "name": "sahool_field_app",
-  "short_name": "sahool_field_app",
+  "name": "SAHOOL Field Operations",
+  "short_name": "SAHOOL",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#0175C2",
-  "theme_color": "#0175C2",
-  "description": "A new Flutter project.",
+  "background_color": "#2E7D32",
+  "theme_color": "#1B5E20",
+  "description": "SAHOOL - منصة ذكاء زراعي وطنية | National Agricultural Intelligence Platform",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
+  "lang": "ar",
+  "dir": "rtl",
   "icons": [
     {
       "src": "icons/Icon-192.png",

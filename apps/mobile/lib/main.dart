@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,7 @@ import 'core/security/device_integrity_service.dart';
 import 'core/security/device_security_screen.dart';
 import 'core/security/security_config.dart';
 import 'core/utils/app_logger.dart';
+import 'core/error/error.dart';
 
 // Global crash reporting instance
 final crashReporting = CrashReportingService();
@@ -37,6 +39,47 @@ void main() async {
       },
       fatal: false,
     );
+
+    // Also report via ErrorReporter for unified error handling
+    errorReporter.reportFlutterError(
+      details,
+      context: ErrorContext.current(
+        widget: details.context?.toString(),
+        metadata: {
+          'library': details.library ?? 'unknown',
+          'silent': details.silent,
+        },
+      ),
+    );
+  };
+
+  // Set up Platform Dispatcher error handler for async errors
+  // This catches errors that occur outside the Flutter framework
+  // مُعالج أخطاء منصة التشغيل للأخطاء غير المتزامنة
+  PlatformDispatcher.instance.onError = (error, stack) {
+    AppLogger.critical('Platform Dispatcher Error: $error', tag: 'Main', error: error, stackTrace: stack);
+
+    // Report to crash reporting service
+    crashReporting.reportError(
+      error,
+      stack,
+      severity: ErrorSeverity.fatal,
+      reason: 'Platform Dispatcher Error',
+      fatal: true,
+    );
+
+    // Report via ErrorReporter
+    errorReporter.reportPlatformError(
+      error,
+      stack,
+      context: ErrorContext.current(
+        recoverable: false,
+        metadata: {'source': 'PlatformDispatcher'},
+      ),
+    );
+
+    // Return true to prevent the error from propagating
+    return true;
   };
 
   // Catch all async errors in the zone
@@ -64,6 +107,10 @@ void main() async {
       );
 
       AppLogger.i('Crash reporting initialized', tag: 'Main');
+
+      // Initialize ErrorReporter (integrates with crash reporting)
+      await errorReporter.initialize();
+      AppLogger.i('ErrorReporter initialized', tag: 'Main');
     } catch (e) {
       AppLogger.w('Crash reporting init failed (non-critical): $e', tag: 'Main');
     }

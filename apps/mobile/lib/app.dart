@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/theme.dart';
+import 'core/error/error.dart';
 import 'features/home/presentation/screens/home_dashboard.dart';
 import 'features/tasks/presentation/tasks_list_screen.dart';
 import 'features/crop_health/presentation/screens/crop_health_dashboard.dart';
@@ -68,31 +69,46 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
   Route<dynamic>? _generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case '/':
-        return _buildRoute(const MainAppShell(), settings);
+        return _buildRoute(
+          const MainAppShell().withScreenErrorBoundary(screenName: 'MainAppShell'),
+          settings,
+        );
       case '/tasks':
-        return _buildRoute(const TasksListScreen(), settings);
+        return _buildRoute(
+          const TasksListScreen().withScreenErrorBoundary(screenName: 'TasksList'),
+          settings,
+        );
       case '/crop-health':
         final args = settings.arguments as Map<String, dynamic>?;
         return _buildRoute(
-          CropHealthDashboard(fieldId: args?['fieldId'] ?? ''),
+          CropHealthDashboard(fieldId: args?['fieldId'] ?? '')
+              .withScreenErrorBoundary(screenName: 'CropHealthDashboard'),
           settings,
         );
       case '/weather':
         final args = settings.arguments as Map<String, dynamic>?;
         return _buildRoute(
-          WeatherScreen(fieldId: args?['fieldId'] ?? ''),
+          WeatherScreen(fieldId: args?['fieldId'] ?? '')
+              .withScreenErrorBoundary(screenName: 'WeatherScreen'),
           settings,
         );
       case '/map':
         final args = settings.arguments as Map<String, dynamic>?;
         return _buildRoute(
-          FieldMapScreen(fieldId: args?['fieldId'] ?? ''),
+          FieldMapScreen(fieldId: args?['fieldId'] ?? '')
+              .withScreenErrorBoundary(screenName: 'FieldMapScreen'),
           settings,
         );
       case '/notifications':
-        return _buildRoute(const NotificationsScreen(), settings);
+        return _buildRoute(
+          const NotificationsScreen().withScreenErrorBoundary(screenName: 'NotificationsScreen'),
+          settings,
+        );
       default:
-        return _buildRoute(const MainAppShell(), settings);
+        return _buildRoute(
+          const MainAppShell().withScreenErrorBoundary(screenName: 'MainAppShell'),
+          settings,
+        );
     }
   }
 
@@ -117,11 +133,11 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    const HomeDashboard(),
-    const MarketplaceScreen(),
-    const WalletScreen(),
-    const CommunityScreen(),
-    const _MoreScreen(),
+    const HomeDashboard().withScreenErrorBoundary(screenName: 'HomeDashboard'),
+    const MarketplaceScreen().withScreenErrorBoundary(screenName: 'MarketplaceScreen'),
+    const WalletScreen().withScreenErrorBoundary(screenName: 'WalletScreen'),
+    const CommunityScreen().withScreenErrorBoundary(screenName: 'CommunityScreen'),
+    const _MoreScreen().withScreenErrorBoundary(screenName: 'MoreScreen'),
   ];
 
   @override

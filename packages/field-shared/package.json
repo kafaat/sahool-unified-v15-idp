@@ -1,6 +1,6 @@
 {
   "name": "@sahool/field-shared",
-  "version": "1.0.0",
+  "version": "16.0.0",
   "description": "Shared field management functionality for SAHOOL services",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

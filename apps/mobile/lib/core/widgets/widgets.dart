@@ -3,6 +3,10 @@
 ///
 /// تصدير جميع الـ widgets المشتركة في مكان واحد
 
+// Accessibility Utilities
+// أدوات إمكانية الوصول للمستخدمين ضعاف البصر
+export '../accessibility/accessibility_utils.dart';
+
 // Error Handling
 export 'error_boundary.dart';
 

@@ -1,6 +1,6 @@
 {
   "name": "@sahool/shared-audit",
-  "version": "1.0.0",
+  "version": "16.0.0",
   "description": "Enhanced audit trail system for SAHOOL platform with field-level tracking and hash chain integrity",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

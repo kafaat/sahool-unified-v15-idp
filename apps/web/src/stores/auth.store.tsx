@@ -7,18 +7,78 @@ import { logger } from "@/lib/logger";
 /**
  * Fetch CSRF token from the server
  * جلب رمز CSRF من الخادم
+ *
+ * SECURITY: CSRF tokens are required for all state-changing requests.
+ * If token fetch fails, subsequent requests may fail with 403.
  */
-async function fetchCsrfToken(): Promise<void> {
+async function fetchCsrfToken(): Promise<boolean> {
   try {
     const response = await fetch("/api/csrf-token");
     if (response.ok) {
       // Token is automatically set in cookie by the API route
-      // No need to manually set it here
+      return true;
     }
+    logger.error("CSRF token fetch failed with status:", response.status);
+    return false;
   } catch (error) {
-    logger.warn("Failed to fetch CSRF token:", error);
-    // Non-fatal error - continue without CSRF token
-    // The middleware will generate one on next authenticated request
+    logger.error("Failed to fetch CSRF token:", error);
+    // SECURITY: Treat CSRF failure as critical - log for monitoring
+    return false;
+  }
+}
+
+/**
+ * Check if E2E test mode is explicitly enabled
+ * تحقق من تمكين وضع اختبار E2E صراحةً
+ *
+ * SECURITY: This function ONLY returns true when:
+ * 1. NODE_ENV is explicitly "development" (never in production)
+ * 2. NEXT_PUBLIC_E2E_TEST environment variable is explicitly "true"
+ *
+ * The localhost check has been REMOVED as it could be bypassed.
+ */
+function isE2ETestModeEnabled(): boolean {
+  // CRITICAL: Production builds MUST have NODE_ENV=production
+  if (process.env.NODE_ENV !== "development") {
+    return false;
+  }
+
+  // SECURITY: Require explicit E2E flag - no implicit localhost detection
+  return process.env.NEXT_PUBLIC_E2E_TEST === "true";
+}
+
+/**
+ * Attempt to load mock user session for E2E testing
+ * محاولة تحميل جلسة مستخدم وهمية لاختبار E2E
+ *
+ * SECURITY: This function should ONLY be called after isE2ETestModeEnabled() returns true
+ */
+function tryLoadMockSession(): User | null {
+  if (!isE2ETestModeEnabled()) {
+    return null;
+  }
+
+  const mockSession = Cookies.get("user_session");
+  if (!mockSession) {
+    return null;
+  }
+
+  try {
+    const mockUser = JSON.parse(mockSession);
+    logger.warn(
+      "[SECURITY WARNING] Using mock authentication - E2E test mode only. " +
+        "This should NEVER appear in production logs."
+    );
+    return {
+      id: mockUser.id || "test-user",
+      email: mockUser.email || "test@sahool.com",
+      name: mockUser.name || "Test User",
+      name_ar: mockUser.nameAr || "مستخدم اختباري",
+      role: mockUser.role || "user",
+    };
+  } catch {
+    logger.warn("Invalid mock session format");
+    return null;
   }
 }
 
@@ -109,6 +169,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const sessionData = await sessionCheck.json();
 
       if (!sessionData.hasSession) {
+        // SECURITY: Try E2E mock session only in explicit test mode
+        const mockUser = tryLoadMockSession();
+        if (mockUser) {
+          setUser(mockUser);
+        }
         setIsLoading(false);
         return;
       }
@@ -119,66 +184,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // User type from API matches our User interface
         setUser(response.data);
       } else {
-        // SECURITY: Mock authentication bypass for E2E tests ONLY
-        // This MUST only be enabled in development with explicit E2E flag
-        // WARNING: Allowing mock sessions in production is a critical security vulnerability
-        const isE2ETestMode =
-          process.env.NODE_ENV === "development" &&
-          (process.env.NEXT_PUBLIC_E2E_TEST === "true" ||
-           (typeof window !== "undefined" && window.location.hostname === "localhost"));
-
-        if (isE2ETestMode) {
-          const mockSession = Cookies.get("user_session");
-          if (mockSession) {
-            try {
-              const mockUser = JSON.parse(mockSession);
-              logger.warn("Using mock authentication - E2E test mode only");
-              setUser({
-                id: mockUser.id || "test-user",
-                email: mockUser.email || "test@sahool.com",
-                name: mockUser.name || "Test User",
-                name_ar: mockUser.nameAr || "مستخدم اختباري",
-                role: mockUser.role || "user",
-              });
-              return;
-            } catch {
-              // Invalid mock session
-            }
-          }
+        // SECURITY: Try E2E mock session only in explicit test mode
+        const mockUser = tryLoadMockSession();
+        if (mockUser) {
+          setUser(mockUser);
+          return;
         }
+
         setUser(null);
         apiClient.clearToken();
         // Clear session via API
         await fetch("/api/auth/session", { method: "DELETE" });
       }
-    } catch {
-      // SECURITY: Mock authentication bypass for E2E tests ONLY
-      // This MUST only be enabled in development with explicit E2E flag
-      // WARNING: Allowing mock sessions in production is a critical security vulnerability
-      const isE2ETestMode =
-        process.env.NODE_ENV === "development" &&
-        (process.env.NEXT_PUBLIC_E2E_TEST === "true" ||
-         (typeof window !== "undefined" && window.location.hostname === "localhost"));
+    } catch (error) {
+      logger.error("Auth check failed:", error);
 
-      if (isE2ETestMode) {
-        const mockSession = Cookies.get("user_session");
-        if (mockSession) {
-          try {
-            const mockUser = JSON.parse(mockSession);
-            logger.warn("Using mock authentication - E2E test mode only");
-            setUser({
-              id: mockUser.id || "test-user",
-              email: mockUser.email || "test@sahool.com",
-              name: mockUser.name || "Test User",
-              name_ar: mockUser.nameAr || "مستخدم اختباري",
-              role: mockUser.role || "user",
-            });
-            return;
-          } catch {
-            // Invalid mock session
-          }
-        }
+      // SECURITY: Try E2E mock session only in explicit test mode
+      const mockUser = tryLoadMockSession();
+      if (mockUser) {
+        setUser(mockUser);
+        return;
       }
+
       setUser(null);
       apiClient.clearToken();
       // Clear session via API

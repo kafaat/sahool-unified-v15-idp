@@ -1,6 +1,6 @@
 {
   "name": "@sahool/shared-types",
-  "version": "1.0.0",
+  "version": "16.0.0",
   "description": "Shared TypeScript types for SAHOOL platform",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -29,6 +29,16 @@
       "import": "./dist/websocket.js",
       "require": "./dist/websocket.js",
       "types": "./dist/websocket.d.ts"
+    },
+    "./monitoring": {
+      "import": "./dist/monitoring.js",
+      "require": "./dist/monitoring.js",
+      "types": "./dist/monitoring.d.ts"
+    },
+    "./field": {
+      "import": "./dist/field.js",
+      "require": "./dist/field.js",
+      "types": "./dist/field.d.ts"
     }
   },
   "scripts": {

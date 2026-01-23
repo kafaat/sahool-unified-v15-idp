@@ -602,6 +602,212 @@ scrape_configs:
     metrics_path: /api/metrics
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # User & Identity Services - خدمات المستخدمين والهوية
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # User Service - خدمة المستخدمين
+  - job_name: 'user-service'
+    static_configs:
+      - targets: ['user-service:3025']
+        labels:
+          tier: 'core'
+          component: 'identity'
+          service: 'user-service'
+          language: 'nodejs'
+          description: 'User Authentication & Management Service'
+          description_ar: 'خدمة مصادقة وإدارة المستخدمين'
+    metrics_path: /api/v1/metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Operations Services - خدمات العمليات
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Inventory Service - خدمة المخزون
+  - job_name: 'inventory-service'
+    static_configs:
+      - targets: ['inventory_service:8116']
+        labels:
+          tier: 'application'
+          component: 'inventory'
+          service: 'inventory-service'
+          language: 'python'
+          description: 'Agricultural Inventory Management'
+          description_ar: 'إدارة المخزون الزراعي'
+    metrics_path: /metrics
+
+  # Alert Service - خدمة التنبيهات
+  - job_name: 'alert-service'
+    static_configs:
+      - targets: ['alert_service:8113']
+        labels:
+          tier: 'application'
+          component: 'alerting'
+          service: 'alert-service'
+          language: 'python'
+          description: 'Agricultural Alert Management'
+          description_ar: 'إدارة التنبيهات الزراعية'
+    metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # AI Infrastructure Services - خدمات البنية التحتية للذكاء الاصطناعي
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # MCP Server - خادم بروتوكول سياق النموذج
+  - job_name: 'mcp-server'
+    static_configs:
+      - targets: ['mcp_server:8200']
+        labels:
+          tier: 'ai-ml'
+          component: 'model-context'
+          service: 'mcp-server'
+          language: 'python'
+          description: 'Model Context Protocol Server for AI'
+          description_ar: 'خادم بروتوكول سياق النموذج للذكاء الاصطناعي'
+    metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # IoT & Sensor Services - خدمات إنترنت الأشياء والمستشعرات
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # IoT Service - خدمة إنترنت الأشياء
+  - job_name: 'iot-service'
+    static_configs:
+      - targets: ['iot_service:8117']
+        labels:
+          tier: 'iot'
+          component: 'device-management'
+          service: 'iot-service'
+          language: 'nodejs'
+          description: 'IoT Device Management Service'
+          description_ar: 'خدمة إدارة أجهزة إنترنت الأشياء'
+    metrics_path: /metrics
+
+  # Virtual Sensors Enhanced - المستشعرات الافتراضية المحسنة
+  - job_name: 'virtual-sensors-enhanced'
+    static_configs:
+      - targets: ['virtual_sensors:8119']
+        labels:
+          tier: 'iot'
+          component: 'virtual-sensing'
+          service: 'virtual-sensors-enhanced'
+          language: 'python'
+          description: 'Enhanced Virtual Sensor Computation'
+          description_ar: 'حوسبة المستشعرات الافتراضية المحسنة'
+    metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Advanced Analytics Services - خدمات التحليلات المتقدمة
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # NDVI Processor - معالج NDVI
+  - job_name: 'ndvi-processor'
+    static_configs:
+      - targets: ['ndvi_processor:8118']
+        labels:
+          tier: 'analytics'
+          component: 'vegetation-index'
+          service: 'ndvi-processor'
+          language: 'python'
+          description: 'NDVI Processing Pipeline'
+          description_ar: 'خط معالجة مؤشر NDVI'
+    metrics_path: /metrics
+
+  # Field Intelligence - ذكاء الحقول
+  - job_name: 'field-intelligence'
+    static_configs:
+      - targets: ['field_intelligence:8120']
+        labels:
+          tier: 'analytics'
+          component: 'field-analytics'
+          service: 'field-intelligence'
+          language: 'python'
+          description: 'Field Intelligence & Analytics'
+          description_ar: 'ذكاء الحقول والتحليلات'
+    metrics_path: /metrics
+
+  # Skills Service - خدمة المهارات
+  - job_name: 'skills-service'
+    static_configs:
+      - targets: ['skills_service:8121']
+        labels:
+          tier: 'analytics'
+          component: 'farmer-skills'
+          service: 'skills-service'
+          language: 'python'
+          description: 'Farmer Skills Assessment Service'
+          description_ar: 'خدمة تقييم مهارات المزارعين'
+    metrics_path: /metrics
+
+  # Vegetation Analysis Service - خدمة تحليل الغطاء النباتي
+  - job_name: 'vegetation-analysis-service'
+    static_configs:
+      - targets: ['vegetation_analysis_service:8090']
+        labels:
+          tier: 'analytics'
+          component: 'vegetation-analysis'
+          service: 'vegetation-analysis-service'
+          language: 'python'
+          description: 'Vegetation Analysis Service (Satellite Replacement)'
+          description_ar: 'خدمة تحليل الغطاء النباتي'
+    metrics_path: /metrics
+
+  # Crop Intelligence Service - خدمة ذكاء المحاصيل
+  - job_name: 'crop-intelligence-service'
+    static_configs:
+      - targets: ['crop_intelligence_service:8095']
+        labels:
+          tier: 'ai-ml'
+          component: 'crop-intelligence'
+          service: 'crop-intelligence-service'
+          language: 'python'
+          description: 'Crop Intelligence Service (AI Replacement)'
+          description_ar: 'خدمة ذكاء المحاصيل'
+    metrics_path: /metrics
+
+  # Advisory Service - خدمة الاستشارات
+  - job_name: 'advisory-service'
+    static_configs:
+      - targets: ['advisory_service:8093']
+        labels:
+          tier: 'smart-agriculture'
+          component: 'advisory'
+          service: 'advisory-service'
+          language: 'python'
+          description: 'Advisory & Recommendations Service'
+          description_ar: 'خدمة الاستشارات والتوصيات'
+    metrics_path: /metrics
+
+  # Agro Rules Service - خدمة القواعد الزراعية
+  - job_name: 'agro-rules-service'
+    static_configs:
+      - targets: ['agro_rules:8151']
+        labels:
+          tier: 'smart-agriculture'
+          component: 'rules-engine'
+          service: 'agro-rules-service'
+          language: 'python'
+          description: 'Agronomic Rules Engine'
+          description_ar: 'محرك القواعد الزراعية'
+    metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Field Management Service (Consolidated) - خدمة إدارة الحقول الموحدة
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Field Management Service - خدمة إدارة الحقول
+  - job_name: 'field-management-service'
+    static_configs:
+      - targets: ['field_management_service:3000']
+        labels:
+          tier: 'core'
+          component: 'field-management'
+          service: 'field-management-service'
+          language: 'nodejs'
+          description: 'Consolidated Field Management Service'
+          description_ar: 'خدمة إدارة الحقول الموحدة'
+    metrics_path: /api/v1/metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Monitoring & Observability - المراقبة والرصد
   # ─────────────────────────────────────────────────────────────────────────────
 

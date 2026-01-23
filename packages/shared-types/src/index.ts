@@ -1,19 +1,27 @@
 /**
  * SAHOOL Shared Types Package
  * Centralized type definitions for the SAHOOL platform
+ *
+ * @packageDocumentation
+ * @module @sahool/shared-types
+ * @version 16.0.0
  */
 
-// Auth types
+// Auth types - أنواع المصادقة
 export * from "./auth";
 
-// API types
+// API types - أنواع واجهة برمجة التطبيقات
 export * from "./api";
 
-// Express types
+// Express types - أنواع Express
 export * from "./express";
 
-// WebSocket types
+// WebSocket types - أنواع WebSocket
 export * from "./websocket";
 
 // Agricultural Monitoring types (Remote Sensing + AI)
+// أنواع الرصد الزراعي (الاستشعار عن بعد + الذكاء الاصطناعي)
 export * from "./monitoring";
+
+// Field & Farm types - أنواع الحقول والمزارع
+export * from "./field";

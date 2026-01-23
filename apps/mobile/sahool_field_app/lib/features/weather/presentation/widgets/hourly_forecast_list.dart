@@ -27,6 +27,7 @@ class HourlyForecastList extends StatelessWidget {
           final isNow = index == 0;
 
           return Container(
+            key: ValueKey('hourly_${forecast.hour}_$index'),
             width: 72,
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
             decoration: BoxDecoration(

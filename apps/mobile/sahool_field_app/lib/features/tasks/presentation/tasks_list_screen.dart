@@ -154,6 +154,7 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
               itemBuilder: (context, index) {
                 final task = filteredTasks[index];
                 return TaskCard(
+                  key: ValueKey('task_${task.id}'),
                   task: task,
                   onTap: () => _openTaskDetails(task),
                   onStatusChanged: (status) => _updateStatus(task, status),

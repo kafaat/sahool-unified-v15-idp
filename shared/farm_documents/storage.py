@@ -117,8 +117,42 @@ class LocalStorageProvider(StorageProvider):
     """
 
     def __init__(self, base_path: str):
-        self.base_path = Path(base_path)
+        self.base_path = Path(base_path).resolve()
         self.base_path.mkdir(parents=True, exist_ok=True)
+
+    def _validate_path(self, storage_path: str) -> Path:
+        """
+        Validate that storage_path resolves to a location within base_path.
+        Prevents path traversal attacks.
+        التحقق من أن مسار التخزين يبقى داخل المجلد الأساسي.
+        يمنع هجمات اجتياز المسار.
+
+        Args:
+            storage_path: Relative storage path
+
+        Returns:
+            Resolved absolute path
+
+        Raises:
+            ValueError: If path traversal is detected
+        """
+        # Resolve the full path
+        full_path = (self.base_path / storage_path).resolve()
+
+        # Security check: ensure path is within base_path
+        try:
+            full_path.relative_to(self.base_path)
+        except ValueError:
+            logger.warning(
+                "path_traversal_blocked",
+                storage_path=storage_path,
+                attempted_path=str(full_path),
+            )
+            raise ValueError(
+                f"Path traversal detected: {storage_path} / تم اكتشاف محاولة اجتياز المسار"
+            )
+
+        return full_path
 
     async def store(
         self,
@@ -126,7 +160,7 @@ class LocalStorageProvider(StorageProvider):
         storage_path: str,
     ) -> str:
         """Store file on local filesystem"""
-        full_path = self.base_path / storage_path
+        full_path = self._validate_path(storage_path)
         full_path.parent.mkdir(parents=True, exist_ok=True)
 
         with open(full_path, "wb") as f:
@@ -142,7 +176,7 @@ class LocalStorageProvider(StorageProvider):
 
     async def retrieve(self, storage_path: str) -> bytes:
         """Retrieve file from local filesystem"""
-        full_path = self.base_path / storage_path
+        full_path = self._validate_path(storage_path)
 
         if not full_path.exists():
             raise FileNotFoundError(f"Document not found: {storage_path}")
@@ -152,7 +186,7 @@ class LocalStorageProvider(StorageProvider):
 
     async def delete(self, storage_path: str) -> bool:
         """Delete file from local filesystem"""
-        full_path = self.base_path / storage_path
+        full_path = self._validate_path(storage_path)
 
         if full_path.exists():
             full_path.unlink()
@@ -163,12 +197,12 @@ class LocalStorageProvider(StorageProvider):
 
     async def exists(self, storage_path: str) -> bool:
         """Check if file exists on local filesystem"""
-        full_path = self.base_path / storage_path
+        full_path = self._validate_path(storage_path)
         return full_path.exists()
 
     async def get_url(self, storage_path: str, expires_in: int = 3600) -> str:
         """Get local file path as URL"""
-        full_path = self.base_path / storage_path
+        full_path = self._validate_path(storage_path)
         return f"file://{full_path}"
 
 
@@ -446,6 +480,12 @@ class DocumentStorageService:
         Raises:
             StorageError: If upload fails
         """
+        # Security: Validate tenant_id and farm_id to prevent path traversal
+        self._validate_path_component(tenant_id, "tenant_id")
+        self._validate_path_component(farm_id, "farm_id")
+        if field_id:
+            self._validate_path_component(field_id, "field_id")
+
         # Validate file size
         if len(file_content) > self.config.max_file_size:
             max_mb = self.config.max_file_size / (1024 * 1024)
@@ -825,6 +865,39 @@ class DocumentStorageService:
     # ─────────────────────────────────────────────────────────────────────────
     # Utility Methods - الدوال المساعدة
     # ─────────────────────────────────────────────────────────────────────────
+
+    def _validate_path_component(self, value: str, field_name: str) -> None:
+        """
+        Validate a path component to prevent path traversal attacks.
+        التحقق من مكون المسار لمنع هجمات اجتياز المسار.
+
+        Args:
+            value: Value to validate
+            field_name: Name of the field for error messages
+
+        Raises:
+            StorageError: If path traversal is detected
+        """
+        if not value:
+            raise StorageError(
+                f"{field_name} cannot be empty / لا يمكن أن يكون {field_name} فارغًا",
+                error_code="INVALID_PATH_COMPONENT",
+            )
+
+        # Check for path traversal patterns
+        dangerous_patterns = ["..", "/", "\\", "\x00"]
+        for pattern in dangerous_patterns:
+            if pattern in value:
+                logger.warning(
+                    "path_traversal_attempt_blocked",
+                    field_name=field_name,
+                    value=value[:50],  # Truncate for logging
+                )
+                raise StorageError(
+                    f"Invalid {field_name}: contains forbidden characters / "
+                    f"قيمة {field_name} غير صالحة: تحتوي على أحرف ممنوعة",
+                    error_code="PATH_TRAVERSAL_DETECTED",
+                )
 
     def _sanitize_filename(self, filename: str) -> str:
         """

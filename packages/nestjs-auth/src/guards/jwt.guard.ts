@@ -331,3 +331,127 @@ export class ActiveAccountGuard implements CanActivate {
     return true;
   }
 }
+
+/**
+ * All Roles Guard (AND logic)
+ *
+ * Checks if the authenticated user has ALL required roles
+ * Use this when you need the user to have multiple roles simultaneously
+ *
+ * @example
+ * ```typescript
+ * @Controller('admin')
+ * @UseGuards(JwtAuthGuard, AllRolesGuard)
+ * export class AdminController {
+ *   @Get('sensitive')
+ *   @RequireAllRoles('admin', 'verified')
+ *   getSensitiveData() {
+ *     return this.adminService.getSensitiveData();
+ *   }
+ * }
+ * ```
+ */
+@Injectable()
+export class AllRolesGuard implements CanActivate {
+  private readonly logger = new Logger(AllRolesGuard.name);
+
+  constructor(private reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(
+      "requiredAllRoles",
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (!requiredRoles || requiredRoles.length === 0) {
+      return true;
+    }
+
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+
+    if (!user || !user.roles || !Array.isArray(user.roles)) {
+      this.logger.warn(
+        `Access denied: User lacks roles. Required: [${requiredRoles.join(", ")}]`,
+      );
+      throw new ForbiddenException(AuthErrors.INSUFFICIENT_PERMISSIONS.en);
+    }
+
+    // AND logic: user must have ALL required roles
+    const hasAllRoles = requiredRoles.every((role) => user.roles.includes(role));
+
+    if (!hasAllRoles) {
+      const missingRoles = requiredRoles.filter((r) => !user.roles.includes(r));
+      this.logger.warn(
+        `Access denied for user ${user.id}: Missing roles [${missingRoles.join(", ")}]`,
+      );
+      throw new ForbiddenException(AuthErrors.INSUFFICIENT_PERMISSIONS.en);
+    }
+
+    return true;
+  }
+}
+
+/**
+ * All Permissions Guard (AND logic)
+ *
+ * Checks if the authenticated user has ALL required permissions
+ * Use this when you need the user to have multiple permissions simultaneously
+ *
+ * @example
+ * ```typescript
+ * @Controller('farms')
+ * @UseGuards(JwtAuthGuard, AllPermissionsGuard)
+ * export class FarmsController {
+ *   @Put(':id')
+ *   @RequireAllPermissions('farm:read', 'farm:write')
+ *   updateFarm(@Param('id') id: string) {
+ *     return this.farmsService.update(id);
+ *   }
+ * }
+ * ```
+ */
+@Injectable()
+export class AllPermissionsGuard implements CanActivate {
+  private readonly logger = new Logger(AllPermissionsGuard.name);
+
+  constructor(private reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
+      "requiredAllPermissions",
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (!requiredPermissions || requiredPermissions.length === 0) {
+      return true;
+    }
+
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+
+    if (!user || !user.permissions || !Array.isArray(user.permissions)) {
+      this.logger.warn(
+        `Access denied: User lacks permissions. Required: [${requiredPermissions.join(", ")}]`,
+      );
+      throw new ForbiddenException(AuthErrors.INSUFFICIENT_PERMISSIONS.en);
+    }
+
+    // AND logic: user must have ALL required permissions
+    const hasAllPermissions = requiredPermissions.every((perm) =>
+      user.permissions.includes(perm),
+    );
+
+    if (!hasAllPermissions) {
+      const missingPerms = requiredPermissions.filter(
+        (p) => !user.permissions.includes(p),
+      );
+      this.logger.warn(
+        `Access denied for user ${user.id}: Missing permissions [${missingPerms.join(", ")}]`,
+      );
+      throw new ForbiddenException(AuthErrors.INSUFFICIENT_PERMISSIONS.en);
+    }
+
+    return true;
+  }
+}

@@ -588,7 +588,7 @@ export function DebouncedDateValidationForm() {
 // Export all examples
 // ═══════════════════════════════════════════════════════════════════════════
 
-export default {
+const fieldIntelligenceExamples = {
   FieldZonesExample,
   FieldAlertsExample,
   BestDaysExample,
@@ -597,3 +597,5 @@ export default {
   FieldIntelligenceDashboard,
   DebouncedDateValidationForm,
 };
+
+export default fieldIntelligenceExamples;

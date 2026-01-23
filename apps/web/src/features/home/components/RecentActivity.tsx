@@ -3,9 +3,13 @@
 /**
  * SAHOOL Recent Activity Component
  * مكون النشاط الأخير
+ *
+ * Performance optimizations:
+ * - React.memo prevents re-renders when props don't change
+ * - useMemo memoizes computed values
  */
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Activity, Clock } from "lucide-react";
 import { useDashboardData } from "../hooks/useDashboardData";
 
@@ -39,32 +43,52 @@ const activityIcons: Record<string, { icon: React.ReactNode; color: string }> =
     },
   };
 
-const ActivityItemComponent: React.FC<{ activity: ActivityItem }> = ({
-  activity,
-}) => {
-  const iconConfig = activityIcons[activity.type] || activityIcons.task;
+// Memoized activity item component to prevent unnecessary re-renders in lists
+const ActivityItemComponent = React.memo<{ activity: ActivityItem }>(
+  function ActivityItemComponent({ activity }) {
+    const iconConfig = activityIcons[activity.type] || activityIcons.task;
 
-  return (
-    <div className="flex items-start gap-4 p-4 hover:bg-gray-50 rounded-lg transition-colors">
-      <div className={`p-2 rounded-lg ${iconConfig!.color} flex-shrink-0`}>
-        {iconConfig!.icon}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-gray-900">{activity.titleAr}</p>
-        <p className="text-sm text-gray-500 truncate">
-          {activity.descriptionAr}
-        </p>
-        <div className="flex items-center gap-1 mt-1 text-xs text-gray-400">
-          <Clock className="w-3 h-3" />
-          <span>{new Date(activity.timestamp).toLocaleString("ar-EG")}</span>
+    // Memoize formatted date to prevent recalculation
+    const formattedDate = useMemo(
+      () => new Date(activity.timestamp).toLocaleString("ar-EG"),
+      [activity.timestamp]
+    );
+
+    return (
+      <div className="flex items-start gap-4 p-4 hover:bg-gray-50 rounded-lg transition-colors">
+        <div className={`p-2 rounded-lg ${iconConfig!.color} flex-shrink-0`}>
+          {iconConfig!.icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-gray-900">{activity.titleAr}</p>
+          <p className="text-sm text-gray-500 truncate">
+            {activity.descriptionAr}
+          </p>
+          <div className="flex items-center gap-1 mt-1 text-xs text-gray-400">
+            <Clock className="w-3 h-3" />
+            <span>{formattedDate}</span>
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
 
-export const RecentActivity: React.FC = () => {
+// Memoized RecentActivity component
+export const RecentActivity = React.memo(function RecentActivity() {
   const { data, isLoading } = useDashboardData();
+
+  // Memoize activities list
+  const activities: ActivityItem[] = useMemo(
+    () => data?.recentActivity || [],
+    [data?.recentActivity]
+  );
+
+  // Memoize visible activities (limit to 10)
+  const visibleActivities = useMemo(
+    () => activities.slice(0, 10),
+    [activities]
+  );
 
   if (isLoading) {
     return (
@@ -82,8 +106,6 @@ export const RecentActivity: React.FC = () => {
     );
   }
 
-  const activities: ActivityItem[] = data?.recentActivity || [];
-
   return (
     <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
       <div className="flex items-center justify-between mb-4">
@@ -99,13 +121,15 @@ export const RecentActivity: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-2 max-h-96 overflow-y-auto">
-          {activities.slice(0, 10).map((activity) => (
+          {visibleActivities.map((activity) => (
             <ActivityItemComponent key={activity.id} activity={activity} />
           ))}
         </div>
       )}
     </div>
   );
-};
+});
+
+RecentActivity.displayName = "RecentActivity";
 
 export default RecentActivity;

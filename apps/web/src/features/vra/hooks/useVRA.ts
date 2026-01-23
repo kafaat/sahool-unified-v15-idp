@@ -387,7 +387,7 @@ export function useVRA(fieldId: string, options?: HistoryOptions) {
 // Export all hooks as default
 // ═══════════════════════════════════════════════════════════════════════════
 
-export default {
+const vraHooks = {
   usePrescriptionHistory,
   usePrescriptionDetails,
   useGeneratePrescription,
@@ -395,3 +395,5 @@ export default {
   useDeletePrescription,
   useVRA,
 };
+
+export default vraHooks;

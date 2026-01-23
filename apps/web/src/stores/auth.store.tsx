@@ -122,10 +122,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // SECURITY: Mock authentication bypass for E2E tests ONLY
         // This MUST only be enabled in development with explicit E2E flag
         // WARNING: Allowing mock sessions in production is a critical security vulnerability
+        // SECURITY: E2E test mode requires EXPLICIT env flag only
+        // DO NOT use localhost check - it's too permissive and can be exploited
         const isE2ETestMode =
           process.env.NODE_ENV === "development" &&
-          (process.env.NEXT_PUBLIC_E2E_TEST === "true" ||
-           (typeof window !== "undefined" && window.location.hostname === "localhost"));
+          process.env.NEXT_PUBLIC_E2E_TEST === "true";
 
         if (isE2ETestMode) {
           const mockSession = Cookies.get("user_session");

@@ -7,6 +7,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { logger } from "@/lib/logger";
+import { sanitizeUrl } from "@/lib/security/security";
 import {
   reportsApi,
   type Report,
@@ -250,8 +251,14 @@ export function useDownloadReport() {
     mutationFn: async (reportId: string) => {
       const response = await fieldReportsApi.downloadReport(reportId);
       if (response.url) {
-        // Trigger download
-        window.open(response.url, "_blank");
+        // Validate URL before opening to prevent open redirect attacks
+        const safeUrl = sanitizeUrl(response.url);
+        if (safeUrl) {
+          window.open(safeUrl, "_blank", "noopener,noreferrer");
+        } else {
+          logger.warn("Invalid download URL received from API:", response.url);
+          throw new Error("Invalid download URL");
+        }
       }
       return response;
     },

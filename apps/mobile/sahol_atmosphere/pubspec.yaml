@@ -14,7 +14,7 @@ dependencies:
   sensors_plus: ^4.0.2
 
   # State management
-  flutter_riverpod: ^2.4.9
+  flutter_riverpod: ^2.6.1
 
   # Animations
   flutter_animate: ^4.3.0
@@ -39,7 +39,7 @@ dependencies:
   # arkit_plugin: ^1.0.7
 
   # HTTP client
-  dio: ^5.4.0
+  dio: ^5.7.0
 
   # Environment config
   flutter_dotenv: ^5.1.0

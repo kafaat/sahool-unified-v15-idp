@@ -67,22 +67,22 @@ class FieldCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.straighten, size: 14, color: Colors.grey[600]),
+                        const Icon(Icons.straighten, size: 14, color: Colors.grey),
                         const SizedBox(width: 4),
                         Text(
                           '${areaHectares.toStringAsFixed(1)} هكتار',
-                          style: TextStyle(
-                            color: Colors.grey[600],
+                          style: const TextStyle(
+                            color: Colors.grey,
                             fontSize: 13,
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Icon(Icons.eco, size: 14, color: Colors.grey[600]),
+                        const Icon(Icons.eco, size: 14, color: Colors.grey),
                         const SizedBox(width: 4),
                         Text(
                           cropType,
-                          style: TextStyle(
-                            color: Colors.grey[600],
+                          style: const TextStyle(
+                            color: Colors.grey,
                             fontSize: 13,
                           ),
                         ),
@@ -141,7 +141,7 @@ class FieldCard extends StatelessWidget {
               ),
 
               const SizedBox(width: 8),
-              Icon(Icons.chevron_left, color: Colors.grey[400]),
+              const Icon(Icons.chevron_left, color: Colors.grey),
             ],
           ),
         ),

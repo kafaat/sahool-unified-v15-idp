@@ -3,9 +3,13 @@
 /**
  * SAHOOL Weather Widget Component
  * مكون عنصر الطقس
+ *
+ * Performance optimizations:
+ * - React.memo prevents re-renders when props don't change
+ * - useMemo memoizes computed values
  */
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Cloud, CloudRain, Sun, Wind, Droplets } from "lucide-react";
 import { useDashboardData } from "../hooks/useDashboardData";
 
@@ -20,7 +24,8 @@ const getWeatherIcon = (condition?: string) => {
   return <Cloud className="w-8 h-8 text-gray-400" />;
 };
 
-export const WeatherWidget: React.FC = () => {
+// Memoized WeatherWidget component
+const WeatherWidgetComponent: React.FC = () => {
   const { data, isLoading } = useDashboardData();
 
   if (isLoading) {
@@ -34,6 +39,12 @@ export const WeatherWidget: React.FC = () => {
   }
 
   const weather = data?.weather;
+
+  // Memoize weather icon to prevent recreation on every render
+  const weatherIcon = useMemo(
+    () => getWeatherIcon(weather?.condition),
+    [weather?.condition]
+  );
 
   if (!weather) {
     return (
@@ -55,7 +66,7 @@ export const WeatherWidget: React.FC = () => {
 
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          {getWeatherIcon(weather.condition)}
+          {weatherIcon}
           <div>
             <p className="text-4xl font-bold text-gray-900">
               {weather.temperature}°C
@@ -96,5 +107,9 @@ export const WeatherWidget: React.FC = () => {
     </div>
   );
 };
+
+// Memoize component for performance optimization
+export const WeatherWidget = React.memo(WeatherWidgetComponent);
+WeatherWidget.displayName = "WeatherWidget";
 
 export default WeatherWidget;

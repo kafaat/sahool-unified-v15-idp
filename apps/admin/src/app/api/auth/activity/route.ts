@@ -1,11 +1,15 @@
 /**
  * Server-side activity tracking API route
  * Updates last activity timestamp for idle timeout
+ *
+ * SECURITY: This endpoint verifies JWT token validity before updating activity
+ * to prevent malicious actors from keeping invalid sessions alive.
  */
 
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { logger } from "@/lib/logger";
+import { verifyToken, isTokenExpired } from "@/lib/auth/jwt-verify";
 
 export async function POST() {
   try {
@@ -14,6 +18,19 @@ export async function POST() {
 
     if (!token) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    // SECURITY: Verify token is valid and not expired before updating activity
+    // This prevents malicious actors from keeping invalid sessions alive
+    if (isTokenExpired(token)) {
+      return NextResponse.json({ error: "Token expired" }, { status: 401 });
+    }
+
+    try {
+      // Verify the token signature is valid
+      await verifyToken(token);
+    } catch {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     // Update last activity timestamp

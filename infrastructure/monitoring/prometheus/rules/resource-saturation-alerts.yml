@@ -1,0 +1,388 @@
+# ===============================================================================
+# SAHOOL Platform - Resource Saturation Alerts
+# ===============================================================================
+# Version: 1.0.0
+# Date: 2026-01-23
+# Purpose: Alerts for CPU, memory, disk, and network resource saturation
+# ===============================================================================
+
+groups:
+  # =============================================================================
+  # Container Resource Alerts
+  # =============================================================================
+  - name: sahool_container_resource_alerts
+    interval: 30s
+    rules:
+      - alert: ContainerCPUHigh
+        expr: |
+          (
+            sum by (container, pod, namespace) (rate(container_cpu_usage_seconds_total[5m]))
+            /
+            sum by (container, pod, namespace) (container_spec_cpu_quota / container_spec_cpu_period)
+          ) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+          platform: sahool
+        annotations:
+          summary: "High CPU usage for container {{ $labels.container }}"
+          summary_ar: "استخدام CPU عالي للحاوية {{ $labels.container }}"
+          description: |
+            Container {{ $labels.container }} in pod {{ $labels.pod }} is using {{ $value | humanizePercentage }} CPU
+          description_ar: |
+            الحاوية {{ $labels.container }} في {{ $labels.pod }} تستخدم {{ $value | humanizePercentage }} من CPU
+          impact: "Container may be throttled, affecting performance"
+          impact_ar: "قد يتم تقييد الحاوية، مما يؤثر على الأداء"
+          action: "Consider increasing CPU limits or scaling horizontally"
+          action_ar: "فكر في زيادة حدود CPU أو التوسع الأفقي"
+
+      - alert: ContainerCPUCritical
+        expr: |
+          (
+            sum by (container, pod, namespace) (rate(container_cpu_usage_seconds_total[5m]))
+            /
+            sum by (container, pod, namespace) (container_spec_cpu_quota / container_spec_cpu_period)
+          ) > 0.95
+        for: 3m
+        labels:
+          severity: critical
+          category: resources
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: CPU saturation for {{ $labels.container }}"
+          summary_ar: "حرج: تشبع CPU للحاوية {{ $labels.container }}"
+          description: "Container {{ $labels.container }} is at {{ $value | humanizePercentage }} CPU usage"
+          description_ar: "الحاوية {{ $labels.container }} عند {{ $value | humanizePercentage }} استخدام CPU"
+          impact: "Container is being heavily throttled, severe performance impact"
+          impact_ar: "الحاوية مقيدة بشدة، تأثير شديد على الأداء"
+          action: "URGENT: Scale service or increase CPU allocation"
+          action_ar: "عاجل: وسّع الخدمة أو زد تخصيص CPU"
+
+      - alert: ContainerMemoryHigh
+        expr: |
+          (
+            container_memory_usage_bytes
+            /
+            container_spec_memory_limit_bytes
+          ) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+          platform: sahool
+        annotations:
+          summary: "High memory usage for container {{ $labels.container }}"
+          summary_ar: "استخدام ذاكرة عالي للحاوية {{ $labels.container }}"
+          description: |
+            Container {{ $labels.container }} is using {{ $value | humanizePercentage }} of memory limit
+          description_ar: |
+            الحاوية {{ $labels.container }} تستخدم {{ $value | humanizePercentage }} من حد الذاكرة
+          impact: "Container approaching OOM, risk of restart"
+          impact_ar: "الحاوية تقترب من نفاد الذاكرة، خطر إعادة التشغيل"
+          action: "Investigate memory usage patterns, consider increasing limits"
+          action_ar: "تحقق من أنماط استخدام الذاكرة، فكر في زيادة الحدود"
+
+      - alert: ContainerMemoryCritical
+        expr: |
+          (
+            container_memory_usage_bytes
+            /
+            container_spec_memory_limit_bytes
+          ) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          category: resources
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: Memory saturation for {{ $labels.container }}"
+          summary_ar: "حرج: تشبع الذاكرة للحاوية {{ $labels.container }}"
+          description: "Container {{ $labels.container }} at {{ $value | humanizePercentage }} memory usage"
+          description_ar: "الحاوية {{ $labels.container }} عند {{ $value | humanizePercentage }} استخدام ذاكرة"
+          impact: "OOM kill imminent, container will restart"
+          impact_ar: "إيقاف نفاد الذاكرة وشيك، ستتم إعادة تشغيل الحاوية"
+          action: "URGENT: Increase memory limits or investigate memory leak"
+          action_ar: "عاجل: زيادة حدود الذاكرة أو التحقق من تسرب الذاكرة"
+
+      - alert: ContainerRestartingFrequently
+        expr: |
+          increase(kube_pod_container_status_restarts_total[1h]) > 3
+        for: 5m
+        labels:
+          severity: warning
+          category: stability
+          platform: sahool
+        annotations:
+          summary: "Container {{ $labels.container }} restarting frequently"
+          summary_ar: "الحاوية {{ $labels.container }} تُعاد تشغيلها باستمرار"
+          description: "{{ $value }} restarts in the last hour"
+          description_ar: "{{ $value }} إعادة تشغيل في الساعة الأخيرة"
+          impact: "Service instability, possible availability issues"
+          impact_ar: "عدم استقرار الخدمة، مشاكل توفر محتملة"
+          action: "Check container logs for crash reasons"
+          action_ar: "تحقق من سجلات الحاوية لأسباب الانهيار"
+
+      - alert: ContainerOOMKilled
+        expr: |
+          kube_pod_container_status_last_terminated_reason{reason="OOMKilled"} == 1
+        for: 0m
+        labels:
+          severity: critical
+          category: resources
+          platform: sahool
+        annotations:
+          summary: "Container {{ $labels.container }} was OOM killed"
+          summary_ar: "الحاوية {{ $labels.container }} تم إيقافها بسبب نفاد الذاكرة"
+          description: "Container terminated due to Out of Memory"
+          description_ar: "الحاوية أُنهيت بسبب نفاد الذاكرة"
+          impact: "Service experienced downtime due to memory exhaustion"
+          impact_ar: "الخدمة توقفت بسبب استنفاد الذاكرة"
+          action: "Increase memory limits and investigate memory usage"
+          action_ar: "زيادة حدود الذاكرة والتحقق من استخدام الذاكرة"
+
+  # =============================================================================
+  # Node Resource Alerts
+  # =============================================================================
+  - name: sahool_node_resource_alerts
+    interval: 60s
+    rules:
+      - alert: NodeCPUHigh
+        expr: |
+          (1 - avg by (node) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          category: infrastructure
+          platform: sahool
+        annotations:
+          summary: "High CPU usage on node {{ $labels.node }}"
+          summary_ar: "استخدام CPU عالي على العقدة {{ $labels.node }}"
+          description: "Node CPU usage is {{ $value | humanizePercentage }}"
+          description_ar: "استخدام CPU للعقدة {{ $value | humanizePercentage }}"
+          impact: "Pods on this node may experience CPU throttling"
+          impact_ar: "الحاويات على هذه العقدة قد تعاني من تقييد CPU"
+          action: "Consider draining node or scaling cluster"
+          action_ar: "فكر في تفريغ العقدة أو توسيع المجموعة"
+
+      - alert: NodeMemoryHigh
+        expr: |
+          (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          category: infrastructure
+          platform: sahool
+        annotations:
+          summary: "High memory usage on node {{ $labels.node }}"
+          summary_ar: "استخدام ذاكرة عالي على العقدة {{ $labels.node }}"
+          description: "Node memory usage is {{ $value | humanizePercentage }}"
+          description_ar: "استخدام ذاكرة العقدة {{ $value | humanizePercentage }}"
+          impact: "Node may start evicting pods"
+          impact_ar: "قد تبدأ العقدة في طرد الحاويات"
+          action: "Consider draining node or adding more memory"
+          action_ar: "فكر في تفريغ العقدة أو إضافة المزيد من الذاكرة"
+
+      - alert: NodeDiskSpaceLow
+        expr: |
+          (
+            node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"}
+            /
+            node_filesystem_size_bytes{fstype!~"tmpfs|overlay"}
+          ) < 0.15
+        for: 10m
+        labels:
+          severity: warning
+          category: infrastructure
+          platform: sahool
+        annotations:
+          summary: "Low disk space on node {{ $labels.node }}"
+          summary_ar: "مساحة قرص منخفضة على العقدة {{ $labels.node }}"
+          description: "Only {{ $value | humanizePercentage }} disk space remaining on {{ $labels.mountpoint }}"
+          description_ar: "فقط {{ $value | humanizePercentage }} من مساحة القرص متبقية على {{ $labels.mountpoint }}"
+          impact: "Applications may fail to write data"
+          impact_ar: "قد تفشل التطبيقات في كتابة البيانات"
+          action: "Clean up disk space or expand volume"
+          action_ar: "نظف مساحة القرص أو وسّع المجلد"
+
+      - alert: NodeDiskSpaceCritical
+        expr: |
+          (
+            node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"}
+            /
+            node_filesystem_size_bytes{fstype!~"tmpfs|overlay"}
+          ) < 0.05
+        for: 5m
+        labels:
+          severity: critical
+          category: infrastructure
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: Disk space nearly exhausted on {{ $labels.node }}"
+          summary_ar: "حرج: مساحة القرص شبه مستنفدة على {{ $labels.node }}"
+          description: "Only {{ $value | humanizePercentage }} disk space remaining!"
+          description_ar: "فقط {{ $value | humanizePercentage }} من مساحة القرص متبقية!"
+          impact: "URGENT: System stability at risk"
+          impact_ar: "عاجل: استقرار النظام في خطر"
+          action: "URGENT: Free up disk space immediately"
+          action_ar: "عاجل: حرر مساحة القرص فوراً"
+
+      - alert: NodeDiskIOHigh
+        expr: |
+          (
+            rate(node_disk_io_time_seconds_total[5m])
+          ) > 0.9
+        for: 10m
+        labels:
+          severity: warning
+          category: infrastructure
+          platform: sahool
+        annotations:
+          summary: "High disk I/O on node {{ $labels.node }}"
+          summary_ar: "I/O قرص عالي على العقدة {{ $labels.node }}"
+          description: "Disk utilization is {{ $value | humanizePercentage }}"
+          description_ar: "استخدام القرص {{ $value | humanizePercentage }}"
+          impact: "Applications may experience I/O latency"
+          impact_ar: "قد تعاني التطبيقات من تأخر I/O"
+          action: "Investigate I/O patterns and consider faster storage"
+          action_ar: "تحقق من أنماط I/O وفكر في تخزين أسرع"
+
+      - alert: NodeNetworkErrors
+        expr: |
+          rate(node_network_receive_errs_total[5m]) > 10
+          or
+          rate(node_network_transmit_errs_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: infrastructure
+          platform: sahool
+        annotations:
+          summary: "Network errors on node {{ $labels.node }}"
+          summary_ar: "أخطاء شبكة على العقدة {{ $labels.node }}"
+          description: "{{ $value }} network errors/sec on {{ $labels.device }}"
+          description_ar: "{{ $value }} خطأ شبكة/ثانية على {{ $labels.device }}"
+          impact: "Network connectivity may be degraded"
+          impact_ar: "قد يتدهور اتصال الشبكة"
+          action: "Check network hardware and cabling"
+          action_ar: "تحقق من أجهزة الشبكة والكابلات"
+
+      - alert: NodeNotReady
+        expr: |
+          kube_node_status_condition{condition="Ready",status="true"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          category: infrastructure
+          platform: sahool
+        annotations:
+          summary: "Node {{ $labels.node }} is not ready"
+          summary_ar: "العقدة {{ $labels.node }} غير جاهزة"
+          description: "Node has been in NotReady state for more than 5 minutes"
+          description_ar: "العقدة في حالة غير جاهزة لأكثر من 5 دقائق"
+          impact: "Pods cannot be scheduled on this node"
+          impact_ar: "لا يمكن جدولة الحاويات على هذه العقدة"
+          action: "Investigate node health and kubelet status"
+          action_ar: "تحقق من صحة العقدة وحالة kubelet"
+
+  # =============================================================================
+  # Python Service Specific Alerts
+  # =============================================================================
+  - name: sahool_python_service_alerts
+    interval: 30s
+    rules:
+      - alert: PythonHighThreadCount
+        expr: |
+          python_threads > 100
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+          platform: sahool
+        annotations:
+          summary: "High thread count in {{ $labels.service }}"
+          summary_ar: "عدد خيوط عالي في {{ $labels.service }}"
+          description: "{{ $value }} threads active in Python service"
+          description_ar: "{{ $value }} خيط نشط في خدمة Python"
+          impact: "May indicate thread leak or high concurrency"
+          impact_ar: "قد يشير إلى تسرب خيوط أو تزامن عالي"
+          action: "Review async patterns and connection pooling"
+          action_ar: "راجع أنماط التزامن وتجميع الاتصالات"
+
+      - alert: PythonGCPauses
+        expr: |
+          rate(python_gc_collections_total{generation="2"}[5m]) > 1
+        for: 10m
+        labels:
+          severity: warning
+          category: performance
+          platform: sahool
+        annotations:
+          summary: "Frequent Python GC in {{ $labels.service }}"
+          summary_ar: "جمع قمامة Python متكرر في {{ $labels.service }}"
+          description: "{{ $value }} gen2 GC collections/sec"
+          description_ar: "{{ $value }} جمع قمامة الجيل الثاني/ثانية"
+          impact: "GC pauses may affect response latency"
+          impact_ar: "توقفات جمع القمامة قد تؤثر على تأخر الاستجابة"
+          action: "Review memory allocation patterns"
+          action_ar: "راجع أنماط تخصيص الذاكرة"
+
+  # =============================================================================
+  # Node.js Service Specific Alerts
+  # =============================================================================
+  - name: sahool_nodejs_service_alerts
+    interval: 30s
+    rules:
+      - alert: NodeJSEventLoopLag
+        expr: |
+          nodejs_eventloop_lag_seconds > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+          platform: sahool
+        annotations:
+          summary: "High event loop lag in {{ $labels.service }}"
+          summary_ar: "تأخر حلقة الأحداث عالي في {{ $labels.service }}"
+          description: "Event loop lag is {{ $value }}s (threshold: 100ms)"
+          description_ar: "تأخر حلقة الأحداث {{ $value }} ثانية (الحد: 100 مللي ثانية)"
+          impact: "Request processing may be delayed"
+          impact_ar: "قد تتأخر معالجة الطلبات"
+          action: "Review CPU-intensive operations and async patterns"
+          action_ar: "راجع العمليات المكثفة لـ CPU وأنماط التزامن"
+
+      - alert: NodeJSHeapSizeHigh
+        expr: |
+          (nodejs_heap_size_used_bytes / nodejs_heap_size_total_bytes) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          category: resources
+          platform: sahool
+        annotations:
+          summary: "High heap usage in {{ $labels.service }}"
+          summary_ar: "استخدام heap عالي في {{ $labels.service }}"
+          description: "Heap usage is {{ $value | humanizePercentage }}"
+          description_ar: "استخدام heap {{ $value | humanizePercentage }}"
+          impact: "Service may experience GC pauses or OOM"
+          impact_ar: "قد تعاني الخدمة من توقفات GC أو نفاد الذاكرة"
+          action: "Review memory usage and consider increasing heap size"
+          action_ar: "راجع استخدام الذاكرة وفكر في زيادة حجم heap"
+
+      - alert: NodeJSActiveHandlesHigh
+        expr: |
+          nodejs_active_handles > 1000
+        for: 10m
+        labels:
+          severity: warning
+          category: resources
+          platform: sahool
+        annotations:
+          summary: "High active handles in {{ $labels.service }}"
+          summary_ar: "عدد handles نشطة عالي في {{ $labels.service }}"
+          description: "{{ $value }} active handles (may indicate resource leak)"
+          description_ar: "{{ $value }} handle نشط (قد يشير إلى تسرب موارد)"
+          impact: "Resource leak may cause service degradation"
+          impact_ar: "تسرب الموارد قد يسبب تدهور الخدمة"
+          action: "Review connection handling and cleanup"
+          action_ar: "راجع معالجة الاتصالات والتنظيف"

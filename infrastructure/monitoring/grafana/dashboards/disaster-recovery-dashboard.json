@@ -1,270 +1,887 @@
 {
-  "dashboard": {
-    "title": "SAHOOL Platform - Disaster Recovery Monitoring",
-    "tags": ["disaster-recovery", "dr", "backup", "rto", "rpo"],
-    "timezone": "browser",
-    "schemaVersion": 16,
-    "version": 1,
-    "refresh": "30s",
-    "panels": [
+  "annotations": {
+    "list": [
       {
-        "id": 1,
-        "title": "RTO/RPO Status Overview",
-        "type": "stat",
-        "gridPos": { "x": 0, "y": 0, "w": 24, "h": 4 },
-        "targets": [
-          {
-            "expr": "sahool_rto_compliance_status",
-            "legendFormat": "RTO Compliance",
-            "refId": "A"
-          },
-          {
-            "expr": "sahool_rpo_compliance_status",
-            "legendFormat": "RPO Compliance",
-            "refId": "B"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": 0, "color": "red" },
-                { "value": 1, "color": "green" }
-              ]
-            },
-            "mappings": [
-              { "value": 0, "text": "NON-COMPLIANT" },
-              { "value": 1, "text": "COMPLIANT" }
-            ]
-          }
-        }
+        "builtIn": 1,
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
       },
       {
-        "id": 2,
-        "title": "PostgreSQL Replication Status",
-        "type": "graph",
-        "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
-        "targets": [
-          {
-            "expr": "pg_stat_replication_count",
-            "legendFormat": "Active Replicas",
-            "refId": "A"
-          },
-          {
-            "expr": "pg_replication_lag_bytes",
-            "legendFormat": "Replication Lag (bytes) - {{ $labels.instance }}",
-            "refId": "B"
-          }
-        ],
-        "yaxes": [{ "label": "Count / Bytes", "format": "short" }],
-        "alert": {
-          "conditions": [
-            {
-              "evaluator": { "params": [0], "type": "lt" },
-              "operator": { "type": "and" },
-              "query": { "params": ["A", "5m", "now"] },
-              "reducer": { "params": [], "type": "last" },
-              "type": "query"
-            }
-          ],
-          "name": "No PostgreSQL Replicas"
-        }
-      },
-      {
-        "id": 3,
-        "title": "Backup Freshness",
-        "type": "graph",
-        "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
-        "targets": [
-          {
-            "expr": "time() - sahool_backup_last_success_timestamp{service=\"postgresql\"}",
-            "legendFormat": "PostgreSQL Backup Age (seconds)",
-            "refId": "A"
-          },
-          {
-            "expr": "time() - sahool_backup_last_success_timestamp{service=\"redis\"}",
-            "legendFormat": "Redis Backup Age (seconds)",
-            "refId": "B"
-          },
-          {
-            "expr": "time() - sahool_backup_last_success_timestamp{service=\"minio\"}",
-            "legendFormat": "MinIO Backup Age (seconds)",
-            "refId": "C"
-          }
-        ],
-        "yaxes": [{ "label": "Age (seconds)", "format": "s" }],
-        "thresholds": [{ "value": 86400, "colorMode": "critical" }]
-      },
-      {
-        "id": 4,
-        "title": "Failover Events (Last 24h)",
-        "type": "table",
-        "gridPos": { "x": 0, "y": 12, "w": 12, "h": 6 },
-        "targets": [
-          {
-            "expr": "increase(patroni_failover_total[24h])",
-            "legendFormat": "PostgreSQL Failovers",
-            "refId": "A",
-            "format": "table"
-          },
-          {
-            "expr": "increase(redis_sentinel_failover_total[24h])",
-            "legendFormat": "Redis Failovers",
-            "refId": "B",
-            "format": "table"
-          }
-        ]
-      },
-      {
-        "id": 5,
-        "title": "Cross-Region Replication Status",
-        "type": "stat",
-        "gridPos": { "x": 12, "y": 12, "w": 12, "h": 6 },
-        "targets": [
-          {
-            "expr": "sahool_s3_replication_status",
-            "legendFormat": "S3 Replication",
-            "refId": "A"
-          },
-          {
-            "expr": "sahool_db_cross_region_lag_seconds",
-            "legendFormat": "DB Cross-Region Lag (seconds)",
-            "refId": "B"
-          }
-        ]
-      },
-      {
-        "id": 6,
-        "title": "WAL Archive Status",
-        "type": "graph",
-        "gridPos": { "x": 0, "y": 18, "w": 12, "h": 6 },
-        "targets": [
-          {
-            "expr": "rate(sahool_wal_archived_total[5m])",
-            "legendFormat": "WAL Archive Rate (files/sec)",
-            "refId": "A"
-          },
-          {
-            "expr": "sahool_wal_archive_size_bytes",
-            "legendFormat": "WAL Archive Size (bytes)",
-            "refId": "B"
-          }
-        ]
-      },
-      {
-        "id": 7,
-        "title": "DR Test Results",
-        "type": "table",
-        "gridPos": { "x": 12, "y": 18, "w": 12, "h": 6 },
-        "targets": [
-          {
-            "expr": "sahool_dr_test_last_result",
-            "format": "table",
-            "refId": "A"
-          }
-        ],
-        "transformations": [
-          {
-            "id": "organize",
-            "options": {
-              "excludeByName": {},
-              "indexByName": {
-                "test_name": 0,
-                "status": 1,
-                "timestamp": 2,
-                "duration": 3
-              }
-            }
-          }
-        ]
-      },
-      {
-        "id": 8,
-        "title": "Backup Storage Utilization",
-        "type": "gauge",
-        "gridPos": { "x": 0, "y": 24, "w": 8, "h": 6 },
-        "targets": [
-          {
-            "expr": "(sahool_backup_storage_used_bytes / sahool_backup_storage_total_bytes) * 100",
-            "legendFormat": "Storage Used %",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": 0, "color": "green" },
-                { "value": 70, "color": "yellow" },
-                { "value": 85, "color": "red" }
-              ]
-            },
-            "unit": "percent"
-          }
-        }
-      },
-      {
-        "id": 9,
-        "title": "Current RPO (Worst Case)",
-        "type": "stat",
-        "gridPos": { "x": 8, "y": 24, "w": 8, "h": 6 },
-        "targets": [
-          {
-            "expr": "max(time() - sahool_backup_last_success_timestamp)",
-            "legendFormat": "Current RPO",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "s",
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": 0, "color": "green" },
-                { "value": 3600, "color": "yellow" },
-                { "value": 86400, "color": "red" }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "id": 10,
-        "title": "Last DR Drill",
-        "type": "stat",
-        "gridPos": { "x": 16, "y": 24, "w": 8, "h": 6 },
-        "targets": [
-          {
-            "expr": "time() - sahool_dr_drill_last_success_timestamp",
-            "legendFormat": "Days Since Last Drill",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "s",
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "value": 0, "color": "green" },
-                { "value": 5184000, "color": "yellow" },
-                { "value": 7776000, "color": "red" }
-              ]
-            },
-            "mappings": [
-              {
-                "type": "value",
-                "options": {
-                  "0": { "text": "Never" }
-                }
-              }
-            ]
-          }
-        }
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "enable": true,
+        "expr": "ALERTS{alertstate=\"firing\", category=~\"backup|database\"}",
+        "iconColor": "red",
+        "name": "DR Alerts",
+        "tagKeys": "alertname,severity",
+        "titleFormat": "{{ alertname }}"
       }
     ]
-  }
+  },
+  "description": "SAHOOL Platform Disaster Recovery Monitoring - RTO/RPO Compliance, Backup Status & Replication Health | مراقبة التعافي من الكوارث",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": true,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": ["sahool"],
+      "targetBlank": true,
+      "title": "SAHOOL Dashboards",
+      "type": "dashboards"
+    }
+  ],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "panels": [],
+      "title": "RTO/RPO Compliance Status | حالة الامتثال لـ RTO/RPO",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Recovery Time Objective compliance status | حالة امتثال RTO",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "options": { "0": { "color": "red", "index": 0, "text": "NON-COMPLIANT" } }, "type": "value" },
+            { "options": { "1": { "color": "green", "index": 1, "text": "COMPLIANT" } }, "type": "value" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "id": 1,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sahool_rto_compliance_status or vector(1)",
+          "legendFormat": "RTO Compliance",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "RTO Status | حالة RTO",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Recovery Point Objective compliance status | حالة امتثال RPO",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "options": { "0": { "color": "red", "index": 0, "text": "NON-COMPLIANT" } }, "type": "value" },
+            { "options": { "1": { "color": "green", "index": 1, "text": "COMPLIANT" } }, "type": "value" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sahool_rpo_compliance_status or vector(1)",
+          "legendFormat": "RPO Compliance",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "RPO Status | حالة RPO",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Current RPO based on latest backup age | RPO الحالي",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 3600 },
+              { "color": "orange", "value": 43200 },
+              { "color": "red", "value": 86400 }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "id": 9,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "max(time() - sahool_backup_last_success_timestamp) or vector(0)",
+          "legendFormat": "Current RPO",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Current RPO (Worst Case) | RPO الحالي",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Days since last DR drill | أيام منذ آخر تدريب",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "options": { "from": 0, "to": 0, "result": { "color": "orange", "text": "Never" } }, "type": "range" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5184000 },
+              { "color": "red", "value": 7776000 }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "id": 10,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "time() - sahool_dr_drill_last_success_timestamp or vector(0)",
+          "legendFormat": "Days Since Last Drill",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Last DR Drill | آخر تدريب DR",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 101,
+      "panels": [],
+      "title": "Database Replication | النسخ المتماثل لقاعدة البيانات",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "PostgreSQL replication status and lag | حالة النسخ المتماثل والتأخر",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "line" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 10 },
+              { "color": "red", "value": 60 }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": ".*Replicas.*" },
+            "properties": [
+              { "id": "custom.axisPlacement", "value": "right" },
+              { "id": "unit", "value": "short" }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max", "lastNotNull"],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "pg_replication_lag_lag_seconds",
+          "legendFormat": "Lag - {{ application_name }}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "pg_stat_replication_count or vector(0)",
+          "legendFormat": "Active Replicas",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "PostgreSQL Replication Status | حالة النسخ المتماثل",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Backup freshness for all services | حداثة النسخ الاحتياطية",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Age",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "line" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 43200 },
+              { "color": "red", "value": 86400 }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": ["lastNotNull"],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "time() - sahool_backup_last_success_timestamp{service=\"postgresql\"}",
+          "legendFormat": "PostgreSQL Backup Age",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "time() - sahool_backup_last_success_timestamp{service=\"redis\"}",
+          "legendFormat": "Redis Backup Age",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "time() - sahool_backup_last_success_timestamp{service=\"minio\"}",
+          "legendFormat": "MinIO Backup Age",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Backup Freshness | حداثة النسخ الاحتياطية",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 102,
+      "panels": [],
+      "title": "Failover & Cross-Region | تجاوز الفشل وعبر المناطق",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Failover events in the last 24 hours | أحداث تجاوز الفشل",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 3 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Count" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "color-background" } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 15 },
+      "id": 5,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "increase(patroni_failover_total[24h])",
+          "format": "table",
+          "legendFormat": "PostgreSQL Failovers",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "increase(redis_sentinel_failover_total[24h])",
+          "format": "table",
+          "legendFormat": "Redis Failovers",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Failover Events (Last 24h) | أحداث تجاوز الفشل",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true, "__name__": true, "job": true },
+            "renameByName": {
+              "instance": "Instance",
+              "Value": "Count"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Cross-region replication status | حالة النسخ المتماثل عبر المناطق",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "options": { "0": { "color": "red", "index": 0, "text": "Failed" } }, "type": "value" },
+            { "options": { "1": { "color": "green", "index": 1, "text": "Active" } }, "type": "value" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 15 },
+      "id": 6,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sahool_s3_replication_status or vector(1)",
+          "legendFormat": "S3 Replication",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "S3 Cross-Region Replication | النسخ عبر المناطق",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Cross-region database lag | تأخر قاعدة البيانات عبر المناطق",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 30 },
+              { "color": "red", "value": 60 }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 15 },
+      "id": 11,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sahool_db_cross_region_lag_seconds or vector(0)",
+          "legendFormat": "Cross-Region Lag",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "DB Cross-Region Lag | تأخر عبر المناطق",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 21 },
+      "id": 103,
+      "panels": [],
+      "title": "WAL & Archive Status | حالة WAL والأرشفة",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "WAL archive rate and size | معدل وحجم أرشفة WAL",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": ".*Size.*" },
+            "properties": [
+              { "id": "custom.axisPlacement", "value": "right" },
+              { "id": "unit", "value": "bytes" }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 22 },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "lastNotNull"],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "rate(sahool_wal_archived_total[5m])",
+          "legendFormat": "WAL Archive Rate (files/sec)",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sahool_wal_archive_size_bytes",
+          "legendFormat": "WAL Archive Size",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "WAL Archive Status | حالة أرشفة WAL",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "DR test results and history | نتائج اختبارات DR",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          },
+          "mappings": [
+            { "options": { "0": { "color": "red", "index": 0, "text": "Failed" } }, "type": "value" },
+            { "options": { "1": { "color": "green", "index": 1, "text": "Passed" } }, "type": "value" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Status" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "color-background" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Duration" },
+            "properties": [{ "id": "unit", "value": "s" }]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 22 },
+      "id": 8,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Timestamp" }]
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sahool_dr_test_last_result",
+          "format": "table",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "DR Test Results | نتائج اختبارات DR",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "__name__": true, "instance": true, "job": true },
+            "indexByName": { "test_name": 0, "status": 1, "timestamp": 2, "duration": 3 },
+            "renameByName": {
+              "test_name": "Test Name",
+              "status": "Status",
+              "timestamp": "Timestamp",
+              "duration": "Duration"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 30 },
+      "id": 104,
+      "panels": [],
+      "title": "Storage & Capacity | التخزين والسعة",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Backup storage utilization | استخدام تخزين النسخ الاحتياطية",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 70 },
+              { "color": "red", "value": 85 }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 31 },
+      "id": 12,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "(sahool_backup_storage_used_bytes / sahool_backup_storage_total_bytes) * 100 or vector(0)",
+          "legendFormat": "Storage Used %",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Backup Storage Utilization | استخدام التخزين",
+      "type": "gauge"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Total backup storage used | إجمالي التخزين المستخدم",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "blue", "value": null }]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 31 },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sahool_backup_storage_used_bytes or vector(0)",
+          "legendFormat": "Storage Used",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Backup Storage Used | التخزين المستخدم",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Backup count by type | عدد النسخ الاحتياطية حسب النوع",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 31 },
+      "id": 14,
+      "options": {
+        "displayLabels": ["name", "value"],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": ["value"]
+        },
+        "pieType": "donut",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sahool_backup_count_by_type or vector(0)",
+          "legendFormat": "{{ type }}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Backup Count by Type | عدد النسخ حسب النوع",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 37 },
+      "id": 105,
+      "panels": [],
+      "title": "DR Configuration Reference | مرجع تكوين DR",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "",
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 38 },
+      "id": 15,
+      "options": {
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
+        "content": "## SAHOOL Platform DR Configuration | تكوين التعافي من الكوارث\n\n| Metric | Target | Monitoring | Description |\n|--------|--------|------------|-------------|\n| **RTO (Recovery Time Objective)** | < 4 hours | Continuous | Maximum acceptable downtime |\n| **RPO (Recovery Point Objective)** | < 1 hour | Backup age tracking | Maximum acceptable data loss |\n| **Backup Frequency** | Every 6 hours | Backup freshness panel | Full PostgreSQL backup schedule |\n| **WAL Archiving** | Continuous | WAL archive rate | Point-in-time recovery capability |\n| **Cross-Region Replication** | Real-time | Replication lag | Geographic redundancy |\n| **DR Drill Frequency** | Quarterly | Last DR drill panel | Minimum drill schedule |\n\n### Alert Thresholds | حدود التنبيهات\n- **Backup Age Critical**: > 24 hours\n- **Replication Lag Warning**: > 10 seconds\n- **Replication Lag Critical**: > 60 seconds\n- **Storage Warning**: > 70% utilization\n- **Storage Critical**: > 85% utilization",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.2.0",
+      "title": "DR Reference | مرجع DR",
+      "type": "text"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["disaster-recovery", "dr", "backup", "rto", "rpo", "sahool", "replication"],
+  "templating": { "list": [] },
+  "time": { "from": "now-24h", "to": "now" },
+  "timepicker": {
+    "refresh_intervals": ["10s", "30s", "1m", "5m", "15m", "30m", "1h"]
+  },
+  "timezone": "Asia/Riyadh",
+  "title": "SAHOOL Platform - Disaster Recovery Monitoring | مراقبة التعافي من الكوارث",
+  "uid": "sahool-disaster-recovery",
+  "version": 2,
+  "weekStart": "saturday"
 }

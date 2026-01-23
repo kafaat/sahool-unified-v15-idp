@@ -18,14 +18,26 @@ export interface JWTConfigInterface {
 export class JWTConfig {
   /**
    * JWT Secret Key (required)
+   * SECURITY: Must be at least 32 characters for HS256
    */
   static readonly SECRET: string =
     process.env.JWT_SECRET_KEY || process.env.JWT_SECRET || "";
 
   /**
    * JWT Algorithm - HS256 only (RS256 deprecated)
+   * SECURITY: Only HS256 is allowed - other algorithms are rejected
    */
-  static readonly ALGORITHM: string = "HS256";
+  static readonly ALGORITHM: "HS256" = "HS256";
+
+  /**
+   * Minimum secret key length for security
+   */
+  static readonly MIN_SECRET_LENGTH = 32;
+
+  /**
+   * Allowed algorithms whitelist
+   */
+  static readonly ALLOWED_ALGORITHMS: readonly string[] = ["HS256"] as const;
 
   /**
    * Access token expiration time in minutes
@@ -93,18 +105,99 @@ export class JWTConfig {
 
   /**
    * Validate JWT configuration
+   * SECURITY: Validates secret strength, algorithm, and configuration integrity
    * @throws Error if configuration is invalid
    */
   static validate(): void {
     const env = process.env.NODE_ENV || "development";
+    const errors: string[] = [];
 
-    if (env === "production" || env === "staging") {
-      if (!this.SECRET || this.SECRET.length < 32) {
-        throw new Error(
-          "JWT_SECRET must be at least 32 characters in production",
+    // SECURITY: Always validate secret existence
+    if (!this.SECRET) {
+      errors.push("JWT_SECRET_KEY or JWT_SECRET environment variable is required");
+    }
+
+    // SECURITY: Validate secret length in all environments
+    if (this.SECRET && this.SECRET.length < this.MIN_SECRET_LENGTH) {
+      if (env === "production" || env === "staging") {
+        errors.push(
+          `JWT_SECRET must be at least ${this.MIN_SECRET_LENGTH} characters in ${env}`,
+        );
+      } else {
+        // Warn in development but don't fail
+        console.warn(
+          `[SECURITY WARNING] JWT_SECRET is less than ${this.MIN_SECRET_LENGTH} characters. ` +
+            "This is acceptable for development but must be fixed before production.",
         );
       }
     }
+
+    // SECURITY: Check for common weak secrets
+    const weakSecrets = [
+      "secret",
+      "password",
+      "jwt-secret",
+      "changeme",
+      "test",
+      "development",
+    ];
+    if (this.SECRET && weakSecrets.some((weak) => this.SECRET.toLowerCase().includes(weak))) {
+      if (env === "production" || env === "staging") {
+        errors.push("JWT_SECRET contains common weak patterns");
+      } else {
+        console.warn(
+          "[SECURITY WARNING] JWT_SECRET contains weak patterns. " +
+            "Use a cryptographically random secret in production.",
+        );
+      }
+    }
+
+    // SECURITY: Validate algorithm is in allowlist
+    if (!this.ALLOWED_ALGORITHMS.includes(this.ALGORITHM)) {
+      errors.push(
+        `Algorithm ${this.ALGORITHM} is not allowed. Allowed: ${this.ALLOWED_ALGORITHMS.join(", ")}`,
+      );
+    }
+
+    // SECURITY: Validate token expiration is reasonable
+    if (this.ACCESS_TOKEN_EXPIRE_MINUTES > 60) {
+      console.warn(
+        "[SECURITY WARNING] Access token expiration is longer than 60 minutes. " +
+          "Consider shorter expiration times for better security.",
+      );
+    }
+
+    if (this.REFRESH_TOKEN_EXPIRE_DAYS > 30) {
+      console.warn(
+        "[SECURITY WARNING] Refresh token expiration is longer than 30 days. " +
+          "Consider shorter expiration times for better security.",
+      );
+    }
+
+    if (errors.length > 0) {
+      throw new Error(`JWT Configuration Error:\n${errors.join("\n")}`);
+    }
+  }
+
+  /**
+   * Get the secret key for JWT verification
+   * SECURITY: Returns the secret key for HS256 algorithm
+   * @returns The JWT secret key
+   */
+  static getVerificationKey(): string {
+    if (!this.SECRET) {
+      throw new Error("JWT_SECRET is not configured");
+    }
+    return this.SECRET;
+  }
+
+  /**
+   * Get the secret key for JWT signing
+   * SECURITY: Same as verification key for symmetric algorithms (HS256)
+   * @returns The JWT secret key
+   */
+  static getSigningKey(): string {
+    return this.getVerificationKey();
   }
 
   /**

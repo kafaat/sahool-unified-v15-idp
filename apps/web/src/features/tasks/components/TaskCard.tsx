@@ -132,12 +132,16 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(
       [onClick],
     );
 
+    // Extract stable values for dependency arrays
+    const statusLabelAr = statusInfo.labelAr;
+    const priorityLabelAr = priorityInfo.labelAr;
+
     // Generate accessible label
     const ariaLabel = React.useMemo(() => {
       const parts = [
         `Task: ${task.title}`,
-        `Status: ${statusInfo!.labelAr}`,
-        `Priority: ${priorityInfo!.labelAr}`,
+        `Status: ${statusLabelAr}`,
+        `Priority: ${priorityLabelAr}`,
       ];
 
       if (task.due_date) {
@@ -156,8 +160,8 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(
       task.title,
       task.due_date,
       task.field_id,
-      statusInfo!.labelAr,
-      priorityInfo!.labelAr,
+      statusLabelAr,
+      priorityLabelAr,
       formattedDueDate,
       isOverdue,
     ]);
@@ -174,7 +178,7 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(
         aria-live="polite"
         className={`
         rounded-lg border-2 p-4 transition-all duration-200
-        ${statusInfo!.colors}
+        ${statusInfo.colors}
         ${onClick ? "cursor-pointer" : ""}
         ${draggable ? "cursor-move" : ""}
         ${onClick ? "hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]" : ""}
@@ -190,12 +194,12 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(
             </h4>
           </div>
           <div
-            className={`px-2 py-1 rounded-full text-xs border flex items-center gap-1 shrink-0 ${priorityInfo!.colors}`}
-            aria-label={`Priority: ${priorityInfo!.labelAr}`}
+            className={`px-2 py-1 rounded-full text-xs border flex items-center gap-1 shrink-0 ${priorityInfo.colors}`}
+            aria-label={`Priority: ${priorityInfo.labelAr}`}
             role="status"
           >
-            {priorityInfo!.icon}
-            <span>{priorityInfo!.labelAr}</span>
+            {priorityInfo.icon}
+            <span>{priorityInfo.labelAr}</span>
           </div>
         </div>
 
@@ -203,12 +207,12 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(
         <div className="flex items-center gap-2 mb-3">
           <div
             className="flex items-center gap-1.5 text-xs font-medium"
-            aria-label={`Status: ${statusInfo!.labelAr}`}
+            aria-label={`Status: ${statusInfo.labelAr}`}
             role="status"
           >
-            {statusInfo!.icon}
+            {statusInfo.icon}
             <span className="text-gray-700 dark:text-gray-300">
-              {statusInfo!.labelAr}
+              {statusInfo.labelAr}
             </span>
           </div>
         </div>

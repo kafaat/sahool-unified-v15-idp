@@ -3,7 +3,7 @@
 // Alerts Panel Component
 // لوحة التنبيهات
 
-import { useState, useEffect } from "react";
+import { useState, useMemo, useCallback, memo } from "react";
 import { AlertTriangle, Bell, X, Eye, CheckCircle } from "lucide-react";
 import AlertBadge from "@/components/ui/AlertBadge";
 import { formatDate } from "@/lib/utils";
@@ -33,7 +33,17 @@ interface AlertsPanelProps {
   className?: string;
 }
 
-export default function AlertsPanel({
+// Static label map - defined outside component to prevent recreation
+const ALERT_TYPE_LABELS: Record<string, string> = {
+  disease: "مرض",
+  weather: "طقس",
+  sensor: "مستشعر",
+  irrigation: "ري",
+  pest: "آفة",
+  general: "عام",
+};
+
+function AlertsPanel({
   alerts,
   maxItems = 10,
   showFilters = true,
@@ -42,38 +52,35 @@ export default function AlertsPanel({
   className = "",
 }: AlertsPanelProps) {
   const [filter, setFilter] = useState<"all" | "critical" | "unread">("all");
-  const [filteredAlerts, setFilteredAlerts] = useState<Alert[]>(alerts);
 
-  useEffect(() => {
-    let filtered = [...alerts];
+  // Memoized filtered alerts - replaces useState + useEffect pattern
+  const filteredAlerts = useMemo(() => {
+    let filtered = alerts;
 
     if (filter === "critical") {
-      filtered = filtered.filter((a) => a.severity === "critical");
+      filtered = alerts.filter((a) => a.severity === "critical");
     } else if (filter === "unread") {
-      filtered = filtered.filter((a) => !a.read);
+      filtered = alerts.filter((a) => !a.read);
     }
 
-    setFilteredAlerts(filtered.slice(0, maxItems));
+    return filtered.slice(0, maxItems);
   }, [alerts, filter, maxItems]);
 
-  const getAlertIcon = (type: string) => {
+  // Memoized icon getter
+  const getAlertIcon = useCallback((_type: string) => {
+    // Currently returns AlertTriangle for all types
+    // Can be extended to return different icons based on type
     return AlertTriangle;
-  };
+  }, []);
 
-  const getAlertTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      disease: "مرض",
-      weather: "طقس",
-      sensor: "مستشعر",
-      irrigation: "ري",
-      pest: "آفة",
-      general: "عام",
-    };
-    return labels[type] || type;
-  };
+  // Memoized label getter
+  const getAlertTypeLabel = useCallback((type: string) => {
+    return ALERT_TYPE_LABELS[type] || type;
+  }, []);
 
-  const unreadCount = alerts.filter((a) => !a.read).length;
-  const criticalCount = alerts.filter((a) => a.severity === "critical").length;
+  // Memoized counts to prevent recalculation on every render
+  const unreadCount = useMemo(() => alerts.filter((a) => !a.read).length, [alerts]);
+  const criticalCount = useMemo(() => alerts.filter((a) => a.severity === "critical").length, [alerts]);
 
   return (
     <div
@@ -263,3 +270,6 @@ export default function AlertsPanel({
     </div>
   );
 }
+
+// Memoized export to prevent unnecessary re-renders when parent re-renders
+export default memo(AlertsPanel);

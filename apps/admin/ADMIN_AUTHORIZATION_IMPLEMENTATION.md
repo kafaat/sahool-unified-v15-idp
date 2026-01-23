@@ -355,12 +355,12 @@ Required in `.env.local`:
 
 ```bash
 # JWT Secret - must match backend
+# SECURITY WARNING: NEVER use NEXT_PUBLIC_ prefix for secrets!
+# The NEXT_PUBLIC_ prefix exposes variables to the browser, which would
+# completely compromise your JWT authentication security.
 JWT_SECRET=your-secret-key-here
 
-# Or alternatively
-NEXT_PUBLIC_JWT_SECRET=your-secret-key-here
-
-# Backend API URL
+# Backend API URL (safe to expose as it's just the API endpoint)
 NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
 

@@ -138,11 +138,19 @@ export class TokenRevocationGuard implements CanActivate {
         throw error;
       }
 
-      // Log error but allow access (fail open)
+      // SECURITY: Fail closed on Redis errors - do not allow potentially revoked tokens
+      // This is a security-critical decision: we prioritize security over availability
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      this.logger.error(`Error checking token revocation: ${errorMessage}`);
-      return true;
+      this.logger.error(
+        `Token revocation check failed - denying access for security: ${errorMessage}`,
+      );
+
+      throw new UnauthorizedException({
+        error: "revocation_check_failed",
+        message: "Unable to verify token status. Please try again.",
+        messageAr: "تعذر التحقق من حالة الرمز. يرجى المحاولة مرة أخرى.",
+      });
     }
   }
 
@@ -243,10 +251,18 @@ export class TokenRevocationInterceptor implements NestInterceptor {
           throw error;
         }
 
-        // Log error but continue (fail open)
+        // SECURITY: Fail closed on Redis errors - do not allow potentially revoked tokens
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error";
-        this.logger.error(`Error checking token revocation: ${errorMessage}`);
+        this.logger.error(
+          `Token revocation check failed - denying access for security: ${errorMessage}`,
+        );
+
+        throw new UnauthorizedException({
+          error: "revocation_check_failed",
+          message: "Unable to verify token status. Please try again.",
+          messageAr: "تعذر التحقق من حالة الرمز. يرجى المحاولة مرة أخرى.",
+        });
       }
     }
 

@@ -74,6 +74,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                               final notification = filteredNotifications[index];
                               return _buildNotificationCard(notification);
                             },
+                            // Keys are handled by Dismissible widget with Key(notification.id)
                           ),
                         ),
             ),

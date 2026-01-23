@@ -7,20 +7,43 @@ Implements the circuit breaker pattern to prevent cascading failures
 when external services (LLM providers, Ollama, etc.) are unavailable.
 
 States:
-    - CLOSED: Normal operation, requests pass through
-    - OPEN: Service is down, requests fail immediately
-    - HALF_OPEN: Testing if service recovered
+    - CLOSED: Normal operation, requests pass through (عمل عادي)
+    - OPEN: Service is down, requests fail immediately (الخدمة معطلة)
+    - HALF_OPEN: Testing if service has recovered (اختبار استعادة الخدمة)
+
+Features:
+    - Async-first design for AI service calls
+    - Configurable thresholds and timeouts
+    - State change callbacks for monitoring
+    - Pre-configured breakers for common AI services
+    - Detailed statistics and monitoring
 
 Author: SAHOOL Platform Team
 Updated: January 2026
+
+Example:
+    >>> breaker = CircuitBreaker(
+    ...     name="ollama",
+    ...     config=CircuitBreakerConfig(failure_threshold=3, timeout_seconds=30)
+    ... )
+    >>> try:
+    ...     result = await breaker.call(async_llm_function, prompt)
+    ... except CircuitBreakerError as e:
+    ...     # Circuit is open, use fallback
+    ...     result = await fallback_function(prompt)
 """
+
+from __future__ import annotations
 
 import asyncio
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
 
 T = TypeVar("T")
 
@@ -88,47 +111,69 @@ class CircuitBreakerError(Exception):
         self.retry_after = retry_after
 
 
+# Type alias for state change callback
+StateChangeCallback = Callable[[str, "CircuitState", "CircuitState"], None]
+
+
 class CircuitBreaker:
     """
-    Circuit breaker for protecting against cascading failures.
+    Async circuit breaker for protecting against cascading failures in AI services.
+    قاطع الدائرة غير المتزامن للحماية من الفشل المتتالي في خدمات الذكاء الاصطناعي
 
-    قاطع الدائرة للحماية من الفشل المتتالي
+    This implementation is designed specifically for async AI service calls,
+    providing protection against:
+    - Slow or unresponsive LLM providers
+    - Network failures to AI endpoints
+    - Service overload conditions
+
+    The circuit breaker has three states:
+    1. CLOSED: Normal operation - all requests pass through
+    2. OPEN: Failures exceeded threshold - requests fail fast
+    3. HALF_OPEN: Testing recovery - limited requests allowed
+
+    Attributes:
+        name: Identifier for this circuit breaker
+        config: Configuration settings
+        on_state_change: Optional callback for state transitions
 
     Example:
-        breaker = CircuitBreaker(
-            name="ollama",
-            config=CircuitBreakerConfig(failure_threshold=3, timeout_seconds=30)
-        )
+        >>> breaker = CircuitBreaker(
+        ...     name="ollama",
+        ...     config=CircuitBreakerConfig(failure_threshold=3, timeout_seconds=30)
+        ... )
+        >>> try:
+        ...     result = await breaker.call(async_function, arg1, arg2)
+        ... except CircuitBreakerError as e:
+        ...     # Circuit is open, use fallback
+        ...     result = await fallback_function()
 
-        try:
-            result = await breaker.call(async_function, arg1, arg2)
-        except CircuitBreakerError as e:
-            # Circuit is open, use fallback
-            result = await fallback_function()
+    Thread Safety:
+        This implementation uses asyncio.Lock for thread-safe state transitions.
     """
 
     def __init__(
         self,
         name: str,
         config: CircuitBreakerConfig | None = None,
-        on_state_change: Callable[[str, CircuitState, CircuitState], None] | None = None,
-    ):
+        on_state_change: StateChangeCallback | None = None,
+    ) -> None:
         """
         Initialize CircuitBreaker.
 
         Args:
-            name: Name for this circuit breaker
-            config: Configuration
-            on_state_change: Callback for state changes (name, old_state, new_state)
+            name: Unique name for this circuit breaker (used in logs and metrics)
+            config: Configuration settings (uses defaults if None)
+            on_state_change: Optional callback invoked on state changes
+                           Signature: (name, old_state, new_state) -> None
         """
         self.name = name
         self.config = config or CircuitBreakerConfig()
         self.on_state_change = on_state_change
 
-        self._state = CircuitState.CLOSED
-        self._stats = CircuitBreakerStats()
-        self._lock = asyncio.Lock()
-        self._last_failure_time: float = 0
+        self._state: CircuitState = CircuitState.CLOSED
+        self._stats: CircuitBreakerStats = CircuitBreakerStats()
+        self._lock: asyncio.Lock = asyncio.Lock()
+        self._last_failure_time: float = 0.0
         self._half_open_calls: int = 0
 
     @property
@@ -204,25 +249,36 @@ class CircuitBreaker:
 
     async def call(
         self,
-        func: Callable[..., Any],
-        *args,
-        **kwargs,
-    ) -> Any:
+        func: Callable[..., Awaitable[T]],
+        *args: Any,
+        **kwargs: Any,
+    ) -> T:
         """
-        Execute a function through the circuit breaker.
+        Execute an async function through the circuit breaker.
+        تنفيذ دالة غير متزامنة من خلال قاطع الدائرة
 
-        تنفيذ دالة من خلال قاطع الدائرة
+        This method wraps async function calls with circuit breaker logic:
+        1. Checks if circuit is open (fails fast if so)
+        2. Executes the function if circuit is closed or half-open
+        3. Records success/failure and updates state accordingly
 
         Args:
-            func: Async function to execute
-            *args: Arguments for the function
-            **kwargs: Keyword arguments for the function
+            func: Async function to execute (must return Awaitable)
+            *args: Positional arguments passed to the function
+            **kwargs: Keyword arguments passed to the function
 
         Returns:
-            Result of the function
+            Result of the function call (type T)
 
         Raises:
-            CircuitBreakerError: If circuit is open
+            CircuitBreakerError: If circuit is open and requests are blocked
+            Exception: Any exception raised by the wrapped function
+
+        Example:
+            >>> async def call_llm(prompt: str) -> str:
+            ...     # Call to LLM provider
+            ...     return response
+            >>> result = await breaker.call(call_llm, "Hello, world!")
         """
         async with self._lock:
             # Check if we should try to reset

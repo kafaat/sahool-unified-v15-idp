@@ -1,0 +1,326 @@
+# ===============================================================================
+# SAHOOL Platform - Scrape and Target Health Alerts
+# ===============================================================================
+# Version: 1.0.0
+# Date: 2026-01-23
+# Purpose: Alerts for Prometheus scrape failures, target health, and certificates
+# ===============================================================================
+
+groups:
+  # =============================================================================
+  # Scrape Failure Alerts
+  # =============================================================================
+  - name: sahool_scrape_alerts
+    interval: 30s
+    rules:
+      - alert: PrometheusTargetDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: monitoring
+          platform: sahool
+        annotations:
+          summary: "Prometheus target {{ $labels.job }} is down"
+          summary_ar: "هدف Prometheus {{ $labels.job }} متوقف"
+          description: |
+            Target {{ $labels.instance }} in job {{ $labels.job }} has been down for more than 2 minutes.
+            Service: {{ $labels.service }}
+            Tier: {{ $labels.tier }}
+          description_ar: |
+            الهدف {{ $labels.instance }} في الوظيفة {{ $labels.job }} متوقف منذ أكثر من دقيقتين.
+          impact: "Service metrics are not being collected, alerts may be stale"
+          impact_ar: "لا يتم جمع مقاييس الخدمة، قد تكون التنبيهات قديمة"
+          action: "Check if the service is running and accessible on {{ $labels.instance }}"
+          action_ar: "تحقق مما إذا كانت الخدمة تعمل ويمكن الوصول إليها"
+
+      - alert: PrometheusTargetFlapping
+        expr: |
+          changes(up[1h]) > 5
+        for: 5m
+        labels:
+          severity: warning
+          category: monitoring
+          platform: sahool
+        annotations:
+          summary: "Target {{ $labels.job }} is flapping"
+          summary_ar: "الهدف {{ $labels.job }} غير مستقر"
+          description: "Target {{ $labels.instance }} has changed state {{ $value }} times in the last hour"
+          description_ar: "الهدف {{ $labels.instance }} تغير حالته {{ $value }} مرة في الساعة الأخيرة"
+          impact: "Service instability affecting monitoring reliability"
+          impact_ar: "عدم استقرار الخدمة يؤثر على موثوقية المراقبة"
+          action: "Investigate service stability, check logs and resources"
+          action_ar: "تحقق من استقرار الخدمة، افحص السجلات والموارد"
+
+      - alert: PrometheusScrapeTimeout
+        expr: |
+          scrape_duration_seconds > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: monitoring
+          platform: sahool
+        annotations:
+          summary: "Scrape timeout for {{ $labels.job }}"
+          summary_ar: "انتهت مهلة جمع البيانات لـ {{ $labels.job }}"
+          description: "Scrape for {{ $labels.instance }} is taking {{ $value }}s (timeout: 10s)"
+          description_ar: "جمع البيانات لـ {{ $labels.instance }} يستغرق {{ $value }} ثانية"
+          impact: "Slow metrics collection may cause data gaps"
+          impact_ar: "بطء جمع المقاييس قد يسبب فجوات في البيانات"
+          action: "Check service health and reduce metrics cardinality if needed"
+          action_ar: "تحقق من صحة الخدمة وقلل من عدد المقاييس إذا لزم الأمر"
+
+      - alert: PrometheusScrapeSampleLimit
+        expr: |
+          scrape_samples_post_metric_relabeling > 10000
+        for: 10m
+        labels:
+          severity: warning
+          category: monitoring
+          platform: sahool
+        annotations:
+          summary: "High sample count for {{ $labels.job }}"
+          summary_ar: "عدد عينات عالي لـ {{ $labels.job }}"
+          description: "Job {{ $labels.job }} is producing {{ $value }} samples"
+          description_ar: "الوظيفة {{ $labels.job }} تنتج {{ $value }} عينة"
+          impact: "High cardinality may impact Prometheus performance"
+          impact_ar: "الكثافة العالية قد تؤثر على أداء Prometheus"
+          action: "Review metrics labels and apply relabeling rules"
+          action_ar: "راجع تسميات المقاييس وطبق قواعد إعادة التسمية"
+
+      - alert: PrometheusConfigReloadFailed
+        expr: |
+          prometheus_config_last_reload_successful == 0
+        for: 5m
+        labels:
+          severity: critical
+          category: monitoring
+          platform: sahool
+        annotations:
+          summary: "Prometheus configuration reload failed"
+          summary_ar: "فشل إعادة تحميل إعدادات Prometheus"
+          description: "Prometheus failed to reload its configuration"
+          description_ar: "فشل Prometheus في إعادة تحميل إعداداته"
+          impact: "Configuration changes are not applied"
+          impact_ar: "تغييرات الإعدادات لم تُطبق"
+          action: "Check prometheus.yml for syntax errors"
+          action_ar: "تحقق من prometheus.yml لأخطاء الصياغة"
+
+      - alert: PrometheusRuleEvaluationFailures
+        expr: |
+          rate(prometheus_rule_evaluation_failures_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          category: monitoring
+          platform: sahool
+        annotations:
+          summary: "Prometheus rule evaluation failures"
+          summary_ar: "فشل تقييم قواعد Prometheus"
+          description: "Prometheus rule group {{ $labels.rule_group }} is failing evaluation"
+          description_ar: "مجموعة قواعد Prometheus {{ $labels.rule_group }} تفشل في التقييم"
+          impact: "Alerts or recording rules may not be working correctly"
+          impact_ar: "التنبيهات أو قواعد التسجيل قد لا تعمل بشكل صحيح"
+          action: "Check rule syntax and referenced metrics"
+          action_ar: "تحقق من صياغة القاعدة والمقاييس المرجعية"
+
+      - alert: PrometheusRuleEvaluationSlow
+        expr: |
+          prometheus_rule_group_last_duration_seconds > 30
+        for: 5m
+        labels:
+          severity: warning
+          category: monitoring
+          platform: sahool
+        annotations:
+          summary: "Slow rule evaluation in {{ $labels.rule_group }}"
+          summary_ar: "تقييم قاعدة بطيء في {{ $labels.rule_group }}"
+          description: "Rule group {{ $labels.rule_group }} took {{ $value }}s to evaluate"
+          description_ar: "مجموعة القواعد {{ $labels.rule_group }} استغرقت {{ $value }} ثانية للتقييم"
+          impact: "Alert delays and increased Prometheus load"
+          impact_ar: "تأخر التنبيهات وزيادة الحمل على Prometheus"
+          action: "Optimize rule expressions or reduce evaluation frequency"
+          action_ar: "حسّن تعبيرات القواعد أو قلل من تكرار التقييم"
+
+  # =============================================================================
+  # Alertmanager Health Alerts
+  # =============================================================================
+  - name: sahool_alertmanager_alerts
+    interval: 30s
+    rules:
+      - alert: AlertmanagerDown
+        expr: up{job="alertmanager"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: monitoring
+          platform: sahool
+        annotations:
+          summary: "Alertmanager is down"
+          summary_ar: "مدير التنبيهات متوقف"
+          description: "Alertmanager has been down for more than 2 minutes"
+          description_ar: "مدير التنبيهات متوقف منذ أكثر من دقيقتين"
+          impact: "CRITICAL: No alert notifications will be sent!"
+          impact_ar: "حرج: لن يتم إرسال أي إشعارات تنبيه!"
+          action: "URGENT: Restart Alertmanager immediately"
+          action_ar: "عاجل: أعد تشغيل مدير التنبيهات فوراً"
+
+      - alert: AlertmanagerNotificationFailures
+        expr: |
+          rate(alertmanager_notifications_failed_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          category: monitoring
+          platform: sahool
+        annotations:
+          summary: "Alertmanager notification failures"
+          summary_ar: "فشل إشعارات مدير التنبيهات"
+          description: "Alertmanager is failing to send notifications to {{ $labels.receiver }}"
+          description_ar: "مدير التنبيهات يفشل في إرسال الإشعارات إلى {{ $labels.receiver }}"
+          impact: "Alert notifications may be delayed or lost"
+          impact_ar: "قد تتأخر إشعارات التنبيه أو تُفقد"
+          action: "Check receiver configuration and network connectivity"
+          action_ar: "تحقق من إعدادات المستقبل واتصال الشبكة"
+
+      - alert: AlertmanagerClusterFailure
+        expr: |
+          alertmanager_cluster_members < 2
+        for: 5m
+        labels:
+          severity: warning
+          category: monitoring
+          platform: sahool
+        annotations:
+          summary: "Alertmanager cluster member down"
+          summary_ar: "عضو مجموعة مدير التنبيهات متوقف"
+          description: "Only {{ $value }} Alertmanager cluster members are up"
+          description_ar: "فقط {{ $value }} من أعضاء مجموعة مدير التنبيهات يعملون"
+          impact: "Reduced Alertmanager high availability"
+          impact_ar: "انخفاض توفر مدير التنبيهات العالي"
+          action: "Investigate and restore cluster members"
+          action_ar: "تحقق واستعد أعضاء المجموعة"
+
+  # =============================================================================
+  # TLS Certificate Alerts
+  # =============================================================================
+  - name: sahool_certificate_alerts
+    interval: 1h
+    rules:
+      - alert: CertificateExpiringSoon
+        expr: |
+          (probe_ssl_earliest_cert_expiry - time()) / 86400 < 30
+        for: 1h
+        labels:
+          severity: warning
+          category: security
+          platform: sahool
+        annotations:
+          summary: "TLS certificate expiring soon for {{ $labels.instance }}"
+          summary_ar: "شهادة TLS ستنتهي قريباً لـ {{ $labels.instance }}"
+          description: |
+            Certificate for {{ $labels.instance }} expires in {{ $value | printf "%.0f" }} days
+          description_ar: |
+            شهادة {{ $labels.instance }} تنتهي خلال {{ $value | printf "%.0f" }} يوم
+          impact: "Service will become unreachable via HTTPS when certificate expires"
+          impact_ar: "الخدمة ستصبح غير قابلة للوصول عبر HTTPS عند انتهاء الشهادة"
+          action: "Renew TLS certificate before expiration"
+          action_ar: "جدد شهادة TLS قبل انتهائها"
+
+      - alert: CertificateExpiringCritical
+        expr: |
+          (probe_ssl_earliest_cert_expiry - time()) / 86400 < 7
+        for: 1h
+        labels:
+          severity: critical
+          category: security
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: TLS certificate expiring very soon for {{ $labels.instance }}"
+          summary_ar: "حرج: شهادة TLS ستنتهي قريباً جداً لـ {{ $labels.instance }}"
+          description: |
+            Certificate for {{ $labels.instance }} expires in {{ $value | printf "%.0f" }} days!
+          description_ar: |
+            شهادة {{ $labels.instance }} تنتهي خلال {{ $value | printf "%.0f" }} يوم!
+          impact: "URGENT: Service outage imminent"
+          impact_ar: "عاجل: انقطاع الخدمة وشيك"
+          action: "URGENT: Renew TLS certificate immediately"
+          action_ar: "عاجل: جدد شهادة TLS فوراً"
+
+      - alert: CertificateExpired
+        expr: |
+          probe_ssl_earliest_cert_expiry < time()
+        for: 0m
+        labels:
+          severity: critical
+          category: security
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: TLS certificate has expired for {{ $labels.instance }}"
+          summary_ar: "حرج: شهادة TLS انتهت لـ {{ $labels.instance }}"
+          description: "Certificate for {{ $labels.instance }} has expired!"
+          description_ar: "شهادة {{ $labels.instance }} انتهت!"
+          impact: "Service is unreachable via HTTPS"
+          impact_ar: "الخدمة غير قابلة للوصول عبر HTTPS"
+          action: "URGENT: Issue new certificate immediately"
+          action_ar: "عاجل: أصدر شهادة جديدة فوراً"
+
+  # =============================================================================
+  # Prometheus Storage Alerts
+  # =============================================================================
+  - name: sahool_prometheus_storage_alerts
+    interval: 5m
+    rules:
+      - alert: PrometheusStorageSpaceLow
+        expr: |
+          (prometheus_tsdb_storage_blocks_bytes / prometheus_tsdb_retention_limit_bytes) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          category: monitoring
+          platform: sahool
+        annotations:
+          summary: "Prometheus storage space is running low"
+          summary_ar: "مساحة تخزين Prometheus تنفد"
+          description: "Prometheus is using {{ $value | humanizePercentage }} of storage"
+          description_ar: "Prometheus يستخدم {{ $value | humanizePercentage }} من التخزين"
+          impact: "Old data may be dropped earlier than expected"
+          impact_ar: "قد تُحذف البيانات القديمة أبكر مما هو متوقع"
+          action: "Increase storage or reduce retention period"
+          action_ar: "زيادة التخزين أو تقليل فترة الاحتفاظ"
+
+      - alert: PrometheusTSDBCompactionsFailing
+        expr: |
+          rate(prometheus_tsdb_compactions_failed_total[5m]) > 0
+        for: 10m
+        labels:
+          severity: warning
+          category: monitoring
+          platform: sahool
+        annotations:
+          summary: "Prometheus TSDB compactions are failing"
+          summary_ar: "فشل ضغط TSDB في Prometheus"
+          description: "TSDB compactions are failing, storage may become inefficient"
+          description_ar: "ضغط TSDB يفشل، قد يصبح التخزين غير فعال"
+          impact: "Increased storage usage and query latency"
+          impact_ar: "زيادة استخدام التخزين وتأخر الاستعلامات"
+          action: "Check Prometheus logs for compaction errors"
+          action_ar: "تحقق من سجلات Prometheus لأخطاء الضغط"
+
+      - alert: PrometheusWALCorruption
+        expr: |
+          rate(prometheus_tsdb_wal_corruptions_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          category: monitoring
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: Prometheus WAL corruption detected"
+          summary_ar: "حرج: تم اكتشاف تلف في WAL لـ Prometheus"
+          description: "Prometheus Write-Ahead Log corruption detected"
+          description_ar: "تم اكتشاف تلف في سجل الكتابة المسبقة لـ Prometheus"
+          impact: "Data loss possible, metrics may be unreliable"
+          impact_ar: "احتمال فقدان البيانات، المقاييس قد تكون غير موثوقة"
+          action: "URGENT: Investigate storage health and backup Prometheus data"
+          action_ar: "عاجل: تحقق من صحة التخزين واحتفظ بنسخة احتياطية من بيانات Prometheus"

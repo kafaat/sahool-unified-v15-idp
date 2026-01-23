@@ -3,7 +3,7 @@
 // خطاف التوثيق الموحد
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Cookies from "js-cookie";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -87,6 +87,12 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Use refs for callbacks to avoid stale closures
+  const callbacksRef = useRef({ onLogout, onUnauthorized });
+  useEffect(() => {
+    callbacksRef.current = { onLogout, onUnauthorized };
+  }, [onLogout, onUnauthorized]);
+
   // Initialize user from storage
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -132,6 +138,22 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
     [userKey],
   );
 
+  /**
+   * Handle unauthorized response (401/403)
+   * Called when API returns unauthorized status
+   */
+  const handleUnauthorized = useCallback((): void => {
+    // Clear auth state
+    Cookies.remove(tokenKey);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(userKey);
+    }
+    setUser(null);
+
+    // Call the onUnauthorized callback if provided
+    callbacksRef.current.onUnauthorized?.();
+  }, [tokenKey, userKey]);
+
   const login = useCallback(
     async (credentials: LoginCredentials): Promise<AuthResponse> => {
       setIsLoading(true);
@@ -147,6 +169,11 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
         });
 
         if (!response.ok) {
+          // Handle unauthorized responses
+          if (response.status === 401 || response.status === 403) {
+            handleUnauthorized();
+          }
+
           const errorData = await response
             .json()
             .catch(() => ({ message: "فشل تسجيل الدخول" }));
@@ -169,7 +196,7 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
         setIsLoading(false);
       }
     },
-    [apiUrl, setToken, setUserData],
+    [apiUrl, setToken, setUserData, handleUnauthorized],
   );
 
   const logout = useCallback((): void => {
@@ -178,8 +205,8 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
       localStorage.removeItem(userKey);
     }
     setUser(null);
-    onLogout?.();
-  }, [tokenKey, userKey, onLogout]);
+    callbacksRef.current.onLogout?.();
+  }, [tokenKey, userKey]);
 
   const hasRole = useCallback(
     (requiredRole: UserRole): boolean => {

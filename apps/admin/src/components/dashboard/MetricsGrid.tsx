@@ -3,6 +3,7 @@
 // Metrics Grid Component
 // شبكة المقاييس
 
+import { memo } from "react";
 import StatCard from "@/components/ui/StatCard";
 import { LucideIcon } from "lucide-react";
 
@@ -25,21 +26,22 @@ interface MetricsGridProps {
   className?: string;
 }
 
-export default function MetricsGrid({
+// Static grid column classes - defined outside component to prevent recreation
+const GRID_COLS: Record<number, string> = {
+  2: "grid-cols-1 md:grid-cols-2",
+  3: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
+  4: "grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
+  5: "grid-cols-1 md:grid-cols-2 lg:grid-cols-5",
+  6: "grid-cols-1 md:grid-cols-3 lg:grid-cols-6",
+};
+
+function MetricsGrid({
   metrics,
   columns = 4,
   className = "",
 }: MetricsGridProps) {
-  const gridCols = {
-    2: "grid-cols-1 md:grid-cols-2",
-    3: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
-    4: "grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
-    5: "grid-cols-1 md:grid-cols-2 lg:grid-cols-5",
-    6: "grid-cols-1 md:grid-cols-3 lg:grid-cols-6",
-  };
-
   return (
-    <div className={`grid ${gridCols[columns]} gap-6 ${className}`}>
+    <div className={`grid ${GRID_COLS[columns]} gap-6 ${className}`}>
       {metrics.map((metric) => (
         <StatCard
           key={metric.id || metric.title}
@@ -54,3 +56,6 @@ export default function MetricsGrid({
     </div>
   );
 }
+
+// Memoized export to prevent unnecessary re-renders
+export default memo(MetricsGrid);

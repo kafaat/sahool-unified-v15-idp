@@ -84,10 +84,10 @@ class QuickStatsCard extends StatelessWidget {
   }
 
   Widget _buildDivider() {
-    return Container(
+    return const SizedBox(
       height: 50,
       width: 1,
-      color: Colors.grey[300],
+      child: ColoredBox(color: Colors.grey),
     );
   }
 }

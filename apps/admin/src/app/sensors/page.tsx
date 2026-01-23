@@ -3,10 +3,11 @@
 // Virtual Sensors Dashboard - المستشعرات الافتراضية
 // AI-powered sensor predictions for Yemen farms
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import StatCard from "@/components/ui/StatCard";
 import DataTable from "@/components/ui/DataTable";
+import ErrorState, { getErrorType } from "@/components/ui/ErrorState";
 import { API_URLS, apiClient } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { logger } from "../../lib/logger";
@@ -138,14 +139,12 @@ function generateMockSensors(): FarmSensors[] {
 export default function SensorsPage() {
   const [farmsData, setFarmsData] = useState<FarmSensors[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<{ type: "network" | "server" | "not-found" | "generic"; message?: string } | null>(null);
   const [selectedFarm, setSelectedFarm] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadSensorData();
-  }, []);
-
-  async function loadSensorData() {
+  const loadSensorData = useCallback(async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
       // Try to fetch from API
       const response = await apiClient.get(
@@ -153,13 +152,19 @@ export default function SensorsPage() {
       );
       setFarmsData(response.data);
     } catch (error) {
-      // Fallback to mock data
+      // Fallback to mock data when API is unavailable
       logger.log("Using mock sensor data");
       setFarmsData(generateMockSensors());
+      // Note: We don't set loadError here because we have fallback mock data
+      // Only set error if mock data generation also fails (unlikely)
     } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadSensorData();
+  }, [loadSensorData]);
 
   // Calculate overall stats
   const stats = {

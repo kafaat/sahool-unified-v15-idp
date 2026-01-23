@@ -506,7 +506,7 @@ export function generateEmailShareContent(
   };
 }
 
-export default {
+const pdfGenerator = {
   DEFAULT_PDF_OPTIONS,
   containsArabic,
   formatRTLText,
@@ -525,3 +525,5 @@ export default {
   generateShareLink,
   generateEmailShareContent,
 };
+
+export default pdfGenerator;

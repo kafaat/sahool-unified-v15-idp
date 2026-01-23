@@ -1,29 +1,58 @@
 {
   "name": "@sahool/shared-events",
-  "version": "1.0.0",
-  "description": "Shared NATS event bus for SAHOOL microservices",
+  "version": "2.0.0",
+  "description": "Shared NATS event bus for SAHOOL microservices with validated payloads",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./schemas": {
+      "types": "./dist/schemas/index.d.ts",
+      "import": "./dist/schemas/index.js",
+      "require": "./dist/schemas/index.js"
+    },
+    "./subjects": {
+      "types": "./dist/subjects.d.ts",
+      "import": "./dist/subjects.js",
+      "require": "./dist/subjects.js"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
     "prepublish": "npm run build"
   },
   "keywords": [
     "nats",
     "events",
     "microservices",
-    "sahool"
+    "sahool",
+    "validation",
+    "zod"
   ],
   "author": "SAHOOL Platform",
   "license": "MIT",
   "dependencies": {
     "nats": "^2.28.2",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "@types/uuid": "^10.0.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.0"
+  },
+  "peerDependencies": {
+    "zod": "^3.20.0"
   }
 }

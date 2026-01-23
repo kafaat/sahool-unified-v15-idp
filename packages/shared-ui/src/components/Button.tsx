@@ -9,12 +9,26 @@ import { cn } from "@sahool/shared-utils";
 import { ButtonHTMLAttributes, forwardRef, ReactNode } from "react";
 import { Loader2, LucideIcon } from "lucide-react";
 
+/** Button visual variants */
+export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
+
+/** Button size options */
+export type ButtonSize = "sm" | "md" | "lg";
+
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
-  size?: "sm" | "md" | "lg";
+  /** Visual style variant of the button */
+  variant?: ButtonVariant;
+  /** Size of the button */
+  size?: ButtonSize;
+  /** Shows loading spinner and disables the button */
   loading?: boolean;
+  /** Loading text announced to screen readers */
+  loadingText?: string;
+  /** Icon component from lucide-react */
   icon?: LucideIcon;
+  /** Position of the icon relative to children */
   iconPosition?: "left" | "right";
+  /** Button content */
   children: ReactNode;
 }
 
@@ -45,11 +59,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       variant = "primary",
       size = "md",
       loading = false,
+      loadingText = "جاري التحميل...",
       icon: Icon,
       iconPosition = "left",
       className = "",
       disabled,
       children,
+      "aria-label": ariaLabel,
       ...props
     },
     ref,
@@ -68,15 +84,24 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           className,
         )}
         disabled={isDisabled}
+        aria-disabled={isDisabled}
+        aria-busy={loading}
+        aria-label={loading ? loadingText : ariaLabel}
         {...props}
       >
-        {loading && <Loader2 className="animate-spin" size={iconSizes[size]} />}
-        {!loading && Icon && iconPosition === "left" && (
-          <Icon size={iconSizes[size]} />
+        {loading && (
+          <Loader2
+            className="animate-spin"
+            size={iconSizes[size]}
+            aria-hidden="true"
+          />
         )}
-        {children}
+        {!loading && Icon && iconPosition === "left" && (
+          <Icon size={iconSizes[size]} aria-hidden="true" />
+        )}
+        <span>{children}</span>
         {!loading && Icon && iconPosition === "right" && (
-          <Icon size={iconSizes[size]} />
+          <Icon size={iconSizes[size]} aria-hidden="true" />
         )}
       </button>
     );

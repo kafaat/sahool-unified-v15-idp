@@ -1,0 +1,340 @@
+# ===============================================================================
+# SAHOOL Platform - Kong API Gateway Alerts
+# ===============================================================================
+# Version: 1.0.0
+# Date: 2026-01-23
+# Purpose: Alerts for Kong API Gateway health, rate limiting, and authentication
+# ===============================================================================
+
+groups:
+  # =============================================================================
+  # Kong Gateway Health Alerts
+  # =============================================================================
+  - name: sahool_kong_health_alerts
+    interval: 30s
+    rules:
+      - alert: KongGatewayDown
+        expr: up{job="kong"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: infrastructure
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: Kong API Gateway is down"
+          summary_ar: "حرج: بوابة Kong API متوقفة"
+          description: "Kong API Gateway has been down for more than 1 minute"
+          description_ar: "بوابة Kong API متوقفة منذ أكثر من دقيقة"
+          impact: "ALL API traffic is blocked - platform unavailable"
+          impact_ar: "جميع حركة مرور API محظورة - المنصة غير متاحة"
+          action: "URGENT: Check Kong container logs and restart service"
+          action_ar: "عاجل: تحقق من سجلات حاوية Kong وأعد تشغيل الخدمة"
+
+      - alert: KongHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le, service) (
+              rate(kong_latency_bucket[5m])
+            )
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "High latency through Kong for {{ $labels.service }}"
+          summary_ar: "تأخير عالي عبر Kong لخدمة {{ $labels.service }}"
+          description: "P95 latency is {{ $value | printf \"%.2f\" }}s (threshold: 1s)"
+          description_ar: "زمن الاستجابة P95 هو {{ $value | printf \"%.2f\" }} ثانية (الحد: 1 ثانية)"
+          impact: "API consumers experiencing slow response times"
+          impact_ar: "مستهلكو API يعانون من أوقات استجابة بطيئة"
+          action: "Check upstream service health and Kong plugins"
+          action_ar: "تحقق من صحة الخدمة الخلفية وإضافات Kong"
+
+      - alert: KongUpstreamUnhealthy
+        expr: |
+          kong_upstream_target_health{state="unhealthy"} > 0
+        for: 2m
+        labels:
+          severity: warning
+          category: availability
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "Kong upstream {{ $labels.upstream }} has unhealthy targets"
+          summary_ar: "الخدمة الخلفية {{ $labels.upstream }} لديها أهداف غير صحية"
+          description: "{{ $value }} unhealthy targets in upstream {{ $labels.upstream }}"
+          description_ar: "{{ $value }} هدف غير صحي في الخدمة الخلفية {{ $labels.upstream }}"
+          impact: "Reduced capacity for service, increased load on healthy targets"
+          impact_ar: "انخفاض سعة الخدمة، زيادة الحمل على الأهداف الصحية"
+          action: "Check health of upstream targets and network connectivity"
+          action_ar: "تحقق من صحة الأهداف الخلفية واتصال الشبكة"
+
+      - alert: KongAllUpstreamsUnhealthy
+        expr: |
+          sum by (upstream) (kong_upstream_target_health{state="healthy"}) == 0
+          and
+          sum by (upstream) (kong_upstream_target_health) > 0
+        for: 1m
+        labels:
+          severity: critical
+          category: availability
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: All targets unhealthy for {{ $labels.upstream }}"
+          summary_ar: "حرج: جميع الأهداف غير صحية لـ {{ $labels.upstream }}"
+          description: "No healthy targets available for upstream {{ $labels.upstream }}"
+          description_ar: "لا توجد أهداف صحية متاحة للخدمة الخلفية {{ $labels.upstream }}"
+          impact: "Service completely unavailable through Kong"
+          impact_ar: "الخدمة غير متاحة تماماً عبر Kong"
+          action: "URGENT: Restore upstream service health immediately"
+          action_ar: "عاجل: استعد صحة الخدمة الخلفية فوراً"
+
+  # =============================================================================
+  # Kong Rate Limiting Alerts
+  # =============================================================================
+  - name: sahool_kong_rate_limiting_alerts
+    interval: 30s
+    rules:
+      - alert: KongRateLimitingTriggered
+        expr: |
+          rate(kong_http_requests_total{code="429"}[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: traffic
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "High rate limiting activity on Kong"
+          summary_ar: "نشاط تحديد معدل عالي على Kong"
+          description: "{{ $value | printf \"%.1f\" }} requests/sec being rate limited"
+          description_ar: "{{ $value | printf \"%.1f\" }} طلب/ثانية يتم تحديد معدلها"
+          impact: "Clients are being throttled, possible abuse or capacity issue"
+          impact_ar: "يتم تقييد العملاء، احتمال إساءة استخدام أو مشكلة سعة"
+          action: "Investigate traffic patterns and consider adjusting rate limits"
+          action_ar: "تحقق من أنماط حركة المرور وفكر في تعديل حدود المعدل"
+
+      - alert: KongRateLimitingExcessive
+        expr: |
+          (
+            rate(kong_http_requests_total{code="429"}[5m])
+            /
+            rate(kong_http_requests_total[5m])
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          category: traffic
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "Excessive rate limiting on Kong"
+          summary_ar: "تحديد معدل مفرط على Kong"
+          description: "{{ $value | humanizePercentage }} of requests being rate limited"
+          description_ar: "{{ $value | humanizePercentage }} من الطلبات يتم تحديد معدلها"
+          impact: "Significant portion of legitimate traffic may be blocked"
+          impact_ar: "جزء كبير من حركة المرور المشروعة قد يُحظر"
+          action: "URGENT: Review rate limiting configuration and traffic patterns"
+          action_ar: "عاجل: راجع إعدادات تحديد المعدل وأنماط حركة المرور"
+
+  # =============================================================================
+  # Kong Authentication Alerts
+  # =============================================================================
+  - name: sahool_kong_auth_alerts
+    interval: 30s
+    rules:
+      - alert: KongHighAuthenticationFailures
+        expr: |
+          rate(kong_http_requests_total{code="401"}[5m]) > 50
+        for: 5m
+        labels:
+          severity: warning
+          category: security
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "High authentication failure rate on Kong"
+          summary_ar: "معدل فشل المصادقة عالي على Kong"
+          description: "{{ $value | printf \"%.1f\" }} authentication failures/sec"
+          description_ar: "{{ $value | printf \"%.1f\" }} فشل مصادقة/ثانية"
+          impact: "Possible credential stuffing or misconfigured clients"
+          impact_ar: "احتمال هجوم بيانات اعتماد أو عملاء بإعدادات خاطئة"
+          action: "Review authentication logs for suspicious patterns"
+          action_ar: "راجع سجلات المصادقة لأنماط مشبوهة"
+
+      - alert: KongHighAuthorizationFailures
+        expr: |
+          rate(kong_http_requests_total{code="403"}[5m]) > 20
+        for: 5m
+        labels:
+          severity: warning
+          category: security
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "High authorization failure rate on Kong"
+          summary_ar: "معدل فشل التفويض عالي على Kong"
+          description: "{{ $value | printf \"%.1f\" }} authorization failures/sec"
+          description_ar: "{{ $value | printf \"%.1f\" }} فشل تفويض/ثانية"
+          impact: "Users attempting unauthorized access to resources"
+          impact_ar: "مستخدمون يحاولون الوصول غير المصرح به للموارد"
+          action: "Review RBAC configuration and user permissions"
+          action_ar: "راجع إعدادات RBAC وصلاحيات المستخدمين"
+
+      - alert: KongSuspiciousTraffic
+        expr: |
+          (
+            rate(kong_http_requests_total{code=~"4.."}[5m])
+            /
+            rate(kong_http_requests_total[5m])
+          ) > 0.3
+        for: 10m
+        labels:
+          severity: warning
+          category: security
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "Suspicious traffic pattern on Kong"
+          summary_ar: "نمط حركة مرور مشبوه على Kong"
+          description: "{{ $value | humanizePercentage }} of requests are client errors"
+          description_ar: "{{ $value | humanizePercentage }} من الطلبات هي أخطاء العميل"
+          impact: "Possible scanning/probing attack or misconfigured clients"
+          impact_ar: "احتمال هجوم مسح/استكشاف أو عملاء بإعدادات خاطئة"
+          action: "Analyze request patterns and consider blocking suspicious IPs"
+          action_ar: "حلل أنماط الطلبات وفكر في حظر عناوين IP المشبوهة"
+
+  # =============================================================================
+  # Kong Performance Alerts
+  # =============================================================================
+  - name: sahool_kong_performance_alerts
+    interval: 30s
+    rules:
+      - alert: KongHighConnectionCount
+        expr: |
+          kong_nginx_connections_total{state="active"} > 5000
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "High active connection count on Kong"
+          summary_ar: "عدد اتصالات نشطة عالي على Kong"
+          description: "{{ $value }} active connections (threshold: 5000)"
+          description_ar: "{{ $value }} اتصال نشط (الحد: 5000)"
+          impact: "Kong may be approaching connection limits"
+          impact_ar: "Kong قد يقترب من حدود الاتصال"
+          action: "Monitor connection growth and consider scaling"
+          action_ar: "راقب نمو الاتصالات وفكر في التوسيع"
+
+      - alert: KongHighRequestQueueing
+        expr: |
+          kong_nginx_connections_total{state="waiting"} > 1000
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "High request queuing on Kong"
+          summary_ar: "انتظار طلبات عالي على Kong"
+          description: "{{ $value }} requests waiting (threshold: 1000)"
+          description_ar: "{{ $value }} طلب في الانتظار (الحد: 1000)"
+          impact: "Requests are queuing, latency will increase"
+          impact_ar: "الطلبات في قائمة الانتظار، سيزداد التأخير"
+          action: "Check upstream service capacity and response times"
+          action_ar: "تحقق من سعة الخدمة الخلفية وأوقات الاستجابة"
+
+      - alert: KongDatabaseConnectivity
+        expr: |
+          kong_db_reachable == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: infrastructure
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: Kong cannot reach database"
+          summary_ar: "حرج: Kong لا يمكنه الوصول إلى قاعدة البيانات"
+          description: "Kong is unable to connect to its database"
+          description_ar: "Kong غير قادر على الاتصال بقاعدة بياناته"
+          impact: "Kong may serve stale configuration, new routes won't work"
+          impact_ar: "Kong قد يقدم إعدادات قديمة، المسارات الجديدة لن تعمل"
+          action: "URGENT: Check Kong database connectivity"
+          action_ar: "عاجل: تحقق من اتصال قاعدة بيانات Kong"
+
+  # =============================================================================
+  # Kong Error Rate Alerts
+  # =============================================================================
+  - name: sahool_kong_error_alerts
+    interval: 30s
+    rules:
+      - alert: KongHighUpstreamErrors
+        expr: |
+          (
+            sum by (service) (rate(kong_http_requests_total{code=~"5.."}[5m]))
+            /
+            sum by (service) (rate(kong_http_requests_total[5m]))
+          ) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          category: errors
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "High upstream error rate for {{ $labels.service }}"
+          summary_ar: "معدل أخطاء خلفية عالي لخدمة {{ $labels.service }}"
+          description: "{{ $value | humanizePercentage }} of requests to {{ $labels.service }} are failing"
+          description_ar: "{{ $value | humanizePercentage }} من الطلبات إلى {{ $labels.service }} تفشل"
+          impact: "Service reliability degraded for consumers"
+          impact_ar: "تدهور موثوقية الخدمة للمستهلكين"
+          action: "Check upstream service health and logs"
+          action_ar: "تحقق من صحة الخدمة الخلفية والسجلات"
+
+      - alert: KongBadGatewayErrors
+        expr: |
+          rate(kong_http_requests_total{code="502"}[5m]) > 5
+        for: 3m
+        labels:
+          severity: critical
+          category: errors
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "Kong returning Bad Gateway errors"
+          summary_ar: "Kong يُرجع أخطاء Bad Gateway"
+          description: "{{ $value | printf \"%.1f\" }} Bad Gateway (502) errors/sec"
+          description_ar: "{{ $value | printf \"%.1f\" }} خطأ Bad Gateway (502)/ثانية"
+          impact: "Upstream services are failing or unreachable"
+          impact_ar: "الخدمات الخلفية تفشل أو غير قابلة للوصول"
+          action: "URGENT: Check upstream service availability"
+          action_ar: "عاجل: تحقق من توفر الخدمة الخلفية"
+
+      - alert: KongGatewayTimeout
+        expr: |
+          rate(kong_http_requests_total{code="504"}[5m]) > 5
+        for: 3m
+        labels:
+          severity: warning
+          category: errors
+          component: api-gateway
+          platform: sahool
+        annotations:
+          summary: "Kong gateway timeout errors"
+          summary_ar: "أخطاء انتهاء مهلة بوابة Kong"
+          description: "{{ $value | printf \"%.1f\" }} Gateway Timeout (504) errors/sec"
+          description_ar: "{{ $value | printf \"%.1f\" }} خطأ انتهاء مهلة البوابة (504)/ثانية"
+          impact: "Upstream services are too slow to respond"
+          impact_ar: "الخدمات الخلفية بطيئة جداً في الاستجابة"
+          action: "Check upstream service latency and consider increasing timeout"
+          action_ar: "تحقق من تأخر الخدمة الخلفية وفكر في زيادة المهلة"

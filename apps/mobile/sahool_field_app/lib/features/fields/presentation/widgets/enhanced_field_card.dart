@@ -33,16 +33,16 @@ class EnhancedFieldCard extends StatelessWidget {
             // Header with gradient
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    const Color(0xFF367C2B),
-                    const Color(0xFF4A9A3D),
+                    Color(0xFF367C2B),
+                    Color(0xFF4A9A3D),
                   ],
                 ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
               ),
               child: Row(
                 children: [
@@ -402,7 +402,7 @@ class EnhancedFieldCard extends StatelessWidget {
   }) {
     return Column(
       children: [
-        Icon(icon, size: 18, color: Colors.grey[500]),
+        Icon(icon, size: 18, color: Colors.grey),
         const SizedBox(height: 4),
         Text(
           value,
@@ -414,9 +414,9 @@ class EnhancedFieldCard extends StatelessWidget {
         ),
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 10,
-            color: Colors.grey[500],
+            color: Colors.grey,
           ),
         ),
       ],

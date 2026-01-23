@@ -51,7 +51,7 @@ export const Public = () => SetMetadata("isPublic", true);
 export const Roles = (...roles: string[]) => SetMetadata("roles", roles);
 
 /**
- * Require Permissions decorator
+ * Require Permissions decorator (OR logic)
  *
  * Specify required permissions for a route
  * User must have at least one of the specified permissions
@@ -72,6 +72,52 @@ export const Roles = (...roles: string[]) => SetMetadata("roles", roles);
  */
 export const RequirePermissions = (...permissions: string[]) =>
   SetMetadata("permissions", permissions);
+
+/**
+ * Require All Roles decorator (AND logic)
+ *
+ * Specify required roles for a route
+ * User must have ALL of the specified roles
+ *
+ * @param roles - One or more role names (all required)
+ *
+ * @example
+ * ```typescript
+ * @Controller('admin')
+ * export class AdminController {
+ *   @RequireAllRoles('admin', 'verified')
+ *   @Get('sensitive')
+ *   getSensitiveData() {
+ *     return this.adminService.getSensitiveData();
+ *   }
+ * }
+ * ```
+ */
+export const RequireAllRoles = (...roles: string[]) =>
+  SetMetadata("requiredAllRoles", roles);
+
+/**
+ * Require All Permissions decorator (AND logic)
+ *
+ * Specify required permissions for a route
+ * User must have ALL of the specified permissions
+ *
+ * @param permissions - One or more permission names (all required)
+ *
+ * @example
+ * ```typescript
+ * @Controller('farms')
+ * export class FarmsController {
+ *   @RequireAllPermissions('farm:read', 'farm:write')
+ *   @Put(':id')
+ *   updateFarm(@Param('id') id: string) {
+ *     return this.farmsService.update(id);
+ *   }
+ * }
+ * ```
+ */
+export const RequireAllPermissions = (...permissions: string[]) =>
+  SetMetadata("requiredAllPermissions", permissions);
 
 /**
  * Current User decorator
@@ -343,4 +389,46 @@ export const hasPermission = (user: any, permission: string): boolean => {
  */
 export const hasAnyPermission = (user: any, permissions: string[]): boolean => {
   return permissions.some((perm) => user?.permissions?.includes(perm)) || false;
+};
+
+/**
+ * Has All Roles helper (for use in guards/validators)
+ *
+ * Check if user has ALL of the specified roles (AND logic)
+ *
+ * @example
+ * ```typescript
+ * import { hasAllRoles } from '@shared/auth/decorators';
+ *
+ * if (hasAllRoles(user, ['admin', 'verified'])) {
+ *   // User has both admin AND verified roles
+ * }
+ * ```
+ */
+export const hasAllRoles = (user: any, roles: string[]): boolean => {
+  if (!user?.roles || !Array.isArray(user.roles)) {
+    return false;
+  }
+  return roles.every((role) => user.roles.includes(role));
+};
+
+/**
+ * Has All Permissions helper (for use in guards/validators)
+ *
+ * Check if user has ALL of the specified permissions (AND logic)
+ *
+ * @example
+ * ```typescript
+ * import { hasAllPermissions } from '@shared/auth/decorators';
+ *
+ * if (hasAllPermissions(user, ['farm:read', 'farm:write'])) {
+ *   // User has both read AND write permissions
+ * }
+ * ```
+ */
+export const hasAllPermissions = (user: any, permissions: string[]): boolean => {
+  if (!user?.permissions || !Array.isArray(user.permissions)) {
+    return false;
+  }
+  return permissions.every((perm) => user.permissions.includes(perm));
 };

@@ -17,6 +17,8 @@ export {
   FarmAccessGuard,
   OptionalAuthGuard,
   ActiveAccountGuard,
+  AllRolesGuard,
+  AllPermissionsGuard,
 } from "./guards/jwt.guard";
 
 export {
@@ -27,7 +29,7 @@ export {
 } from "./guards/token-revocation.guard";
 
 // Export strategy
-export { JwtStrategy } from "./strategies/jwt.strategy";
+export { JwtStrategy, TokenType } from "./strategies/jwt.strategy";
 export type { JwtPayload, AuthenticatedUser } from "./strategies/jwt.strategy";
 
 // Export services
@@ -44,11 +46,20 @@ export type {
   RevocationStats,
 } from "./services/token-revocation";
 
+export {
+  SecurityAuditService,
+  SecurityEventType,
+  SecurityEventSeverity,
+} from "./services/security-audit.service";
+export type { SecurityAuditEvent } from "./services/security-audit.service";
+
 // Export decorators
 export {
   Public,
   Roles,
   RequirePermissions,
+  RequireAllRoles,
+  RequireAllPermissions,
   CurrentUser,
   UserId,
   UserRoles,
@@ -60,6 +71,8 @@ export {
   hasAnyRole,
   hasPermission,
   hasAnyPermission,
+  hasAllRoles,
+  hasAllPermissions,
 } from "./decorators";
 
 // Export config

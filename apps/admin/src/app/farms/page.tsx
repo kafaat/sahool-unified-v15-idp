@@ -3,11 +3,12 @@
 // Farms Management Page
 // صفحة إدارة المزارع
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Header from "@/components/layout/Header";
 import StatusBadge from "@/components/ui/StatusBadge";
 import DataTable from "@/components/ui/DataTable";
+import ErrorState, { getErrorType } from "@/components/ui/ErrorState";
 import { fetchFarms } from "@/lib/api";
 import { formatDate, formatArea, getHealthScoreColor, cn } from "@/lib/utils";
 import type { Farm } from "@/types";
@@ -42,6 +43,7 @@ type ViewMode = "map" | "table";
 export default function FarmsPage() {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<{ type: "network" | "server" | "not-found" | "generic"; message?: string } | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("map");
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
 
@@ -50,21 +52,26 @@ export default function FarmsPage() {
   const [governorateFilter, setGovernorateFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  useEffect(() => {
-    loadFarms();
-  }, []);
-
-  async function loadFarms() {
+  const loadFarms = useCallback(async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
       const data = await fetchFarms();
       setFarms(data);
     } catch (error) {
       logger.error("Failed to load farms:", error);
+      setLoadError({
+        type: getErrorType(error),
+        message: "فشل تحميل بيانات المزارع. يرجى المحاولة مرة أخرى.",
+      });
     } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadFarms();
+  }, [loadFarms]);
 
   // Filter farms
   const filteredFarms = useMemo(() => {
@@ -297,7 +304,15 @@ export default function FarmsPage() {
 
       {/* Content */}
       <div className="mt-6">
-        {isLoading ? (
+        {loadError ? (
+          <ErrorState
+            type={loadError.type}
+            title="فشل تحميل المزارع"
+            message={loadError.message}
+            onRetry={loadFarms}
+            isRetrying={isLoading}
+          />
+        ) : isLoading ? (
           <div className="h-[600px] bg-gray-200 animate-pulse rounded-xl"></div>
         ) : viewMode === "map" ? (
           <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">

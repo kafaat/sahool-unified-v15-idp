@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/stores/auth.store";
 import { useToast } from "@/components/ui/toast";
+import { getCsrfHeaders } from "@/lib/security/security";
 
 interface RegisterFormData {
   email: string;
@@ -164,13 +165,15 @@ export default function RegisterClient() {
     setErrors({});
 
     try {
-      // Call registration API
+      // Call registration API with CSRF protection
+      const csrfHeaders = getCsrfHeaders();
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL || ""}/api/v1/auth/register`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            ...csrfHeaders,
           },
           body: JSON.stringify({
             email: formData.email.toLowerCase().trim(),

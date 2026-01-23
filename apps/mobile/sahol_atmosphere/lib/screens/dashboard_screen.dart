@@ -11,8 +11,32 @@ import '../widgets/voice_control_button.dart';
 import '../widgets/stats_panel.dart';
 import '../widgets/weather_widget.dart';
 
-class DashboardScreen extends StatelessWidget {
+/// Dashboard screen displaying farm overview, weather, and field status
+///
+/// This is the main screen of the SAHOOL Atmosphere app, providing:
+/// - Weather information
+/// - Farm statistics
+/// - Active field status cards
+/// - Voice control interface
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  int _selectedNavIndex = 0;
+
+  /// Handle bottom navigation item tap
+  void _onNavItemTapped(int index) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _selectedNavIndex = index;
+    });
+    // Navigation logic would be implemented here
+    // For now, we stay on the dashboard
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,19 +76,33 @@ class DashboardScreen extends StatelessWidget {
                       ],
                     ),
                     actions: [
-                      IconButton(
-                        icon: const Icon(Icons.notifications_outlined),
-                        color: AtmosphereColors.textSecondary,
-                        onPressed: () {
-                          HapticFeedback.lightImpact();
-                        },
+                      Semantics(
+                        label: 'الإشعارات',
+                        hint: 'اضغط لعرض الإشعارات',
+                        button: true,
+                        child: IconButton(
+                          icon: const Icon(Icons.notifications_outlined),
+                          color: AtmosphereColors.textSecondary,
+                          tooltip: 'الإشعارات',
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            // TODO: Navigate to notifications screen
+                          },
+                        ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.person_outline),
-                        color: AtmosphereColors.textSecondary,
-                        onPressed: () {
-                          HapticFeedback.lightImpact();
-                        },
+                      Semantics(
+                        label: 'الملف الشخصي',
+                        hint: 'اضغط لعرض الملف الشخصي',
+                        button: true,
+                        child: IconButton(
+                          icon: const Icon(Icons.person_outline),
+                          color: AtmosphereColors.textSecondary,
+                          tooltip: 'الملف الشخصي',
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            // TODO: Navigate to profile screen
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -155,71 +193,98 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
+  /// Builds the greeting section based on time of day
   Widget _buildGreeting() {
     final hour = DateTime.now().hour;
-    String greeting;
+    final String greeting;
+    final String greetingEn;
+
     if (hour < 12) {
       greeting = 'صباح الخير';
+      greetingEn = 'Good morning';
     } else if (hour < 17) {
       greeting = 'مساء الخير';
+      greetingEn = 'Good afternoon';
     } else {
       greeting = 'مساء النور';
+      greetingEn = 'Good evening';
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          greeting,
-          style: AtmosphereTypography.bodyMedium,
-        ),
-        const SizedBox(height: AtmosphereSpacing.xs),
-        Text(
-          'المزارع أحمد',
-          style: AtmosphereTypography.displayMedium,
-        ),
-      ],
+    const String farmerName = 'المزارع أحمد';
+
+    return Semantics(
+      label: '$greetingEn, Farmer Ahmed',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            greeting,
+            style: AtmosphereTypography.bodyMedium,
+          ),
+          const SizedBox(height: AtmosphereSpacing.xs),
+          Text(
+            farmerName,
+            style: AtmosphereTypography.displayMedium,
+          ),
+        ],
+      ),
     );
   }
 
+  /// Builds a section header with Arabic and English titles
   Widget _buildSectionHeader(String titleAr, String titleEn) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              titleAr,
-              style: AtmosphereTypography.headlineLarge,
-            ),
-            Text(
-              titleEn.toUpperCase(),
-              style: AtmosphereTypography.labelSmall.copyWith(
-                color: AtmosphereColors.success,
-                letterSpacing: 2,
-              ),
-            ),
-          ],
-        ),
-        TextButton(
-          onPressed: () {},
-          child: Text(
-            'عرض الكل',
-            style: AtmosphereTypography.bodyMedium.copyWith(
-              color: AtmosphereColors.success,
+    return Semantics(
+      header: true,
+      label: titleEn,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  titleAr,
+                  style: AtmosphereTypography.headlineLarge,
+                ),
+                Text(
+                  titleEn.toUpperCase(),
+                  style: AtmosphereTypography.labelSmall.copyWith(
+                    color: AtmosphereColors.success,
+                    letterSpacing: 2,
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+          Semantics(
+            label: 'عرض جميع $titleEn',
+            hint: 'اضغط لعرض جميع العناصر',
+            button: true,
+            child: TextButton(
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                // TODO: Navigate to full list view
+              },
+              child: Text(
+                'عرض الكل',
+                style: AtmosphereTypography.bodyMedium.copyWith(
+                  color: AtmosphereColors.success,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
+  /// Builds the bottom navigation bar
   Widget _buildBottomNav() {
     return Container(
       decoration: BoxDecoration(
         color: AtmosphereColors.bgSecondary,
-        border: Border(
+        border: const Border(
           top: BorderSide(
             color: AtmosphereColors.glassBorder,
             width: 1,
@@ -232,11 +297,35 @@ class DashboardScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(Icons.home_outlined, 'الرئيسية', true),
-              _buildNavItem(Icons.map_outlined, 'الخريطة', false),
+              _buildNavItem(
+                index: 0,
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home,
+                label: 'الرئيسية',
+                labelEn: 'Home',
+              ),
+              _buildNavItem(
+                index: 1,
+                icon: Icons.map_outlined,
+                activeIcon: Icons.map,
+                label: 'الخريطة',
+                labelEn: 'Map',
+              ),
               const SizedBox(width: 56), // Space for voice button
-              _buildNavItem(Icons.agriculture_outlined, 'المحاصيل', false),
-              _buildNavItem(Icons.menu, 'المزيد', false),
+              _buildNavItem(
+                index: 2,
+                icon: Icons.agriculture_outlined,
+                activeIcon: Icons.agriculture,
+                label: 'المحاصيل',
+                labelEn: 'Crops',
+              ),
+              _buildNavItem(
+                index: 3,
+                icon: Icons.menu,
+                activeIcon: Icons.menu,
+                label: 'المزيد',
+                labelEn: 'More',
+              ),
             ],
           ),
         ),
@@ -244,23 +333,53 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(IconData icon, String label, bool isActive) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          icon,
-          color: isActive ? AtmosphereColors.success : AtmosphereColors.textMuted,
-          size: 24,
-        ),
-        const SizedBox(height: AtmosphereSpacing.xs),
-        Text(
-          label,
-          style: AtmosphereTypography.bodySmall.copyWith(
-            color: isActive ? AtmosphereColors.success : AtmosphereColors.textMuted,
+  /// Builds a single navigation item with accessibility support
+  Widget _buildNavItem({
+    required int index,
+    required IconData icon,
+    required IconData activeIcon,
+    required String label,
+    required String labelEn,
+  }) {
+    final bool isActive = _selectedNavIndex == index;
+
+    return Semantics(
+      label: labelEn,
+      hint: isActive ? 'Selected' : 'Double tap to select',
+      button: true,
+      selected: isActive,
+      child: InkWell(
+        onTap: () => _onNavItemTapped(index),
+        borderRadius: BorderRadius.circular(AtmosphereRadius.sm),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AtmosphereSpacing.sm,
+            vertical: AtmosphereSpacing.xs,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isActive ? activeIcon : icon,
+                color: isActive
+                    ? AtmosphereColors.success
+                    : AtmosphereColors.textMuted,
+                size: 24,
+              ),
+              const SizedBox(height: AtmosphereSpacing.xs),
+              Text(
+                label,
+                style: AtmosphereTypography.bodySmall.copyWith(
+                  color: isActive
+                      ? AtmosphereColors.success
+                      : AtmosphereColors.textMuted,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                ),
+              ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

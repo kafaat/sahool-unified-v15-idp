@@ -1,11 +1,15 @@
 /**
  * Yield Chart Component
  * مكون رسم بياني للمحصول
+ *
+ * Performance optimizations:
+ * - React.memo prevents re-renders when props don't change
+ * - useMemo memoizes chart rendering to prevent expensive recalculations
  */
 
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -32,7 +36,15 @@ interface YieldChartProps {
   showGrid?: boolean;
 }
 
-export const YieldChart: React.FC<YieldChartProps> = ({
+// Memoized tooltip style to prevent object recreation
+const TOOLTIP_STYLE = {
+  backgroundColor: "#fff",
+  border: "1px solid #e5e7eb",
+  borderRadius: "8px",
+  padding: "8px 12px",
+} as const;
+
+const YieldChartComponent: React.FC<YieldChartProps> = ({
   data,
   chartType = "line",
   title,
@@ -50,16 +62,10 @@ export const YieldChart: React.FC<YieldChartProps> = ({
     );
   }
 
-  const renderChart = () => {
+  // Memoize chart rendering to prevent expensive recalculations
+  const chartElement = useMemo(() => {
     const commonProps = {
       data,
-    };
-
-    const tooltipStyle = {
-      backgroundColor: "#fff",
-      border: "1px solid #e5e7eb",
-      borderRadius: "8px",
-      padding: "8px 12px",
     };
 
     switch (chartType) {
@@ -75,7 +81,7 @@ export const YieldChart: React.FC<YieldChartProps> = ({
               height={80}
             />
             <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip contentStyle={tooltipStyle} />
+            <Tooltip contentStyle={TOOLTIP_STYLE} />
             {showLegend && <Legend />}
             <Bar
               dataKey="value"
@@ -97,7 +103,7 @@ export const YieldChart: React.FC<YieldChartProps> = ({
               height={80}
             />
             <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip contentStyle={tooltipStyle} />
+            <Tooltip contentStyle={TOOLTIP_STYLE} />
             {showLegend && <Legend />}
             <Area
               type="monotone"
@@ -122,7 +128,7 @@ export const YieldChart: React.FC<YieldChartProps> = ({
               height={80}
             />
             <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip contentStyle={tooltipStyle} />
+            <Tooltip contentStyle={TOOLTIP_STYLE} />
             {showLegend && <Legend />}
             <Line
               type="monotone"
@@ -136,7 +142,7 @@ export const YieldChart: React.FC<YieldChartProps> = ({
           </LineChart>
         );
     }
-  };
+  }, [data, chartType, showGrid, showLegend]);
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
@@ -153,11 +159,15 @@ export const YieldChart: React.FC<YieldChartProps> = ({
 
       <div style={{ height: `${height}px` }}>
         <ResponsiveContainer width="100%" height="100%">
-          {renderChart()}
+          {chartElement}
         </ResponsiveContainer>
       </div>
     </div>
   );
 };
+
+// Memoize component for performance optimization
+export const YieldChart = React.memo(YieldChartComponent);
+YieldChart.displayName = "YieldChart";
 
 export default YieldChart;

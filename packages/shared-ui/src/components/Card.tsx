@@ -6,14 +6,24 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { cn } from "@sahool/shared-utils";
-import { ReactNode } from "react";
+import { forwardRef, HTMLAttributes, ReactNode } from "react";
 
-export interface CardProps {
+/** Card padding options */
+export type CardPadding = "none" | "sm" | "md" | "lg";
+
+export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, "onClick"> {
+  /** Card content */
   children: ReactNode;
+  /** Additional CSS classes */
   className?: string;
-  padding?: "none" | "sm" | "md" | "lg";
+  /** Padding size */
+  padding?: CardPadding;
+  /** Enable hover effect */
   hover?: boolean;
+  /** Click handler - makes card interactive/focusable */
   onClick?: () => void;
+  /** Accessible label for clickable cards */
+  "aria-label"?: string;
 }
 
 const paddingClasses = {
@@ -23,37 +33,52 @@ const paddingClasses = {
   lg: "p-6",
 };
 
-export function Card({
-  children,
-  className = "",
-  padding = "md",
-  hover = false,
-  onClick,
-}: CardProps) {
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (onClick && (e.key === "Enter" || e.key === " ")) {
-      e.preventDefault(); // Prevent default space scrolling behavior
-      onClick();
-    }
-  };
+export const Card = forwardRef<HTMLDivElement, CardProps>(
+  (
+    {
+      children,
+      className = "",
+      padding = "md",
+      hover = false,
+      onClick,
+      "aria-label": ariaLabel,
+      ...props
+    },
+    ref,
+  ) => {
+    const isClickable = !!onClick;
 
-  return (
-    <div
-      className={cn(
-        "bg-white rounded-lg border border-gray-200 shadow-sm",
-        paddingClasses[padding],
-        hover && "hover:shadow-md transition-shadow cursor-pointer",
-        className,
-      )}
-      onClick={onClick}
-      onKeyDown={onClick ? handleKeyDown : undefined}
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick ? 0 : undefined}
-    >
-      {children}
-    </div>
-  );
-}
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (onClick && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        onClick();
+      }
+    };
+
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "bg-white rounded-lg border border-gray-200 shadow-sm",
+          paddingClasses[padding],
+          hover && "hover:shadow-md transition-shadow cursor-pointer",
+          isClickable && "focus:outline-none focus:ring-2 focus:ring-sahool-500 focus:ring-offset-2",
+          className,
+        )}
+        onClick={onClick}
+        onKeyDown={isClickable ? handleKeyDown : undefined}
+        role={isClickable ? "button" : undefined}
+        tabIndex={isClickable ? 0 : undefined}
+        aria-label={isClickable ? ariaLabel : undefined}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  },
+);
+
+Card.displayName = "Card";
 
 export interface CardHeaderProps {
   title: string;

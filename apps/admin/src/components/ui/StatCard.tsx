@@ -3,6 +3,7 @@
 // Statistics Card Component
 // بطاقة الإحصائيات
 
+import { memo, useMemo } from "react";
 import { cn, formatNumber } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 
@@ -19,7 +20,7 @@ interface StatCardProps {
   iconColor?: string;
 }
 
-export default function StatCard({
+function StatCard({
   title,
   value,
   icon: Icon,
@@ -28,7 +29,17 @@ export default function StatCard({
   className = "",
   iconColor = "text-sahool-600",
 }: StatCardProps) {
-  const displayValue = typeof value === "number" ? formatNumber(value) : value;
+  // Memoize the display value calculation
+  const displayValue = useMemo(
+    () => (typeof value === "number" ? formatNumber(value) : value),
+    [value]
+  );
+
+  // Memoize the background color class
+  const bgColorClass = useMemo(
+    () => iconColor.replace("text-", "bg-"),
+    [iconColor]
+  );
 
   return (
     <div
@@ -62,7 +73,7 @@ export default function StatCard({
         <div
           className={cn(
             "p-3 rounded-xl bg-opacity-10",
-            iconColor.replace("text-", "bg-"),
+            bgColorClass,
           )}
         >
           <Icon className={cn("w-6 h-6", iconColor)} />
@@ -71,3 +82,6 @@ export default function StatCard({
     </div>
   );
 }
+
+// Memoized export to prevent unnecessary re-renders when parent re-renders
+export default memo(StatCard);

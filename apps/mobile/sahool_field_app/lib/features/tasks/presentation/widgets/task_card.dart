@@ -80,8 +80,8 @@ class TaskCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   task.description!,
-                  style: TextStyle(
-                    color: Colors.grey[600],
+                  style: const TextStyle(
+                    color: Colors.grey,
                     fontSize: 14,
                   ),
                   maxLines: 2,
@@ -99,11 +99,7 @@ class TaskCard extends StatelessWidget {
                     Icon(
                       Icons.schedule,
                       size: 14,
-                      color: task.isOverdue
-                          ? Colors.red
-                          : task.isDueToday
-                              ? Colors.orange
-                              : Colors.grey,
+                      color: _getDueDateColor(task),
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -125,17 +121,17 @@ class TaskCard extends StatelessWidget {
 
                   // Evidence indicator
                   if (task.evidencePhotos.isNotEmpty) ...[
-                    Icon(
+                    const Icon(
                       Icons.photo_camera,
                       size: 14,
-                      color: Colors.grey[600],
+                      color: Colors.grey,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       '${task.evidencePhotos.length}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
-                        color: Colors.grey[600],
+                        color: Colors.grey,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -143,17 +139,17 @@ class TaskCard extends StatelessWidget {
 
                   // Assigned to
                   if (task.assignedTo != null) ...[
-                    Icon(
+                    const Icon(
                       Icons.person_outline,
                       size: 14,
-                      color: Colors.grey[600],
+                      color: Colors.grey,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       task.assignedTo!,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
-                        color: Colors.grey[600],
+                        color: Colors.grey,
                       ),
                     ),
                   ],
@@ -164,6 +160,12 @@ class TaskCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _getDueDateColor(FieldTask task) {
+    if (task.isOverdue) return Colors.red;
+    if (task.isDueToday) return Colors.orange;
+    return Colors.grey;
   }
 
   String _formatDueDate(DateTime date) {

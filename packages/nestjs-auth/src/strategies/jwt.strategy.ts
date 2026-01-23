@@ -16,6 +16,14 @@ import { JWTConfig, AuthErrors } from "../config/jwt.config";
 import { UserValidationService } from "../services/user-validation.service";
 
 /**
+ * Token types for JWT
+ */
+export enum TokenType {
+  ACCESS = "access",
+  REFRESH = "refresh",
+}
+
+/**
  * JWT Token Payload Interface
  */
 export interface JwtPayload {
@@ -24,9 +32,11 @@ export interface JwtPayload {
   exp: number;
   iat: number;
   tid?: string; // tenant_id
-  jti?: string; // token_id
-  type?: string; // access or refresh
+  jti?: string; // token_id (REQUIRED for revocation support)
+  type?: TokenType | string; // access or refresh
   permissions?: string[];
+  /** Token fingerprint hash for binding validation */
+  fph?: string;
 }
 
 /**
@@ -89,18 +99,51 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    *
    * This method is called automatically by Passport after token verification.
    * It performs additional validation:
-   * 1. Checks if user exists in database (with caching)
-   * 2. Validates user status (active, verified, not deleted/suspended)
-   * 3. Logs failed authentication attempts
+   * 1. Validates token type (must be access token)
+   * 2. Validates required claims (sub, jti)
+   * 3. Checks if user exists in database (with caching)
+   * 4. Validates user status (active, verified, not deleted/suspended)
+   * 5. Logs failed authentication attempts
+   *
+   * SECURITY: Performs multiple validation checks to ensure token integrity
    *
    * @param payload - Decoded JWT payload
    * @returns Authenticated user object
    * @throws UnauthorizedException if validation fails
    */
   async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
-    // Ensure required fields exist
+    // SECURITY: Validate required fields exist
     if (!payload.sub) {
       this.logger.warn("JWT validation failed: Missing subject (user ID)");
+      throw new UnauthorizedException(AuthErrors.INVALID_TOKEN.en);
+    }
+
+    // SECURITY: Validate token type - only access tokens allowed for API access
+    if (payload.type && payload.type !== TokenType.ACCESS) {
+      this.logger.warn(
+        `JWT validation failed: Invalid token type '${payload.type}' for user ${payload.sub}`,
+      );
+      throw new UnauthorizedException({
+        error: "invalid_token_type",
+        message: "Invalid token type. Access token required.",
+        messageAr: "نوع الرمز غير صالح. يجب استخدام رمز الوصول.",
+      });
+    }
+
+    // SECURITY: Warn if JTI is missing (revocation won't work)
+    if (!payload.jti) {
+      this.logger.warn(
+        `JWT for user ${payload.sub} is missing JTI claim - token revocation is disabled`,
+      );
+    }
+
+    // SECURITY: Validate token is not issued in the future (clock skew protection)
+    const now = Math.floor(Date.now() / 1000);
+    const maxClockSkew = 60; // Allow 60 seconds of clock skew
+    if (payload.iat && payload.iat > now + maxClockSkew) {
+      this.logger.warn(
+        `JWT validation failed: Token issued in the future for user ${payload.sub}`,
+      );
       throw new UnauthorizedException(AuthErrors.INVALID_TOKEN.en);
     }
 

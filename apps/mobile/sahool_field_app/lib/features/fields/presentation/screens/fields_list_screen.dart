@@ -515,6 +515,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
       itemBuilder: (context, index) {
         final field = filteredFields[index];
         return Padding(
+          key: ValueKey('field_list_${field.id}'),
           padding: const EdgeInsets.only(bottom: 12),
           child: EnhancedFieldCard(
             field: field,
@@ -538,6 +539,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
       itemBuilder: (context, index) {
         final field = filteredFields[index];
         return EnhancedFieldCard(
+          key: ValueKey('field_grid_${field.id}'),
           field: field,
           isCompact: true,
           onTap: () => _openFieldDetails(field),

@@ -2,9 +2,15 @@
 # SAHOOL Platform - Prometheus Configuration
 # إعدادات Prometheus لمنصة سهول الزراعية
 # ═══════════════════════════════════════════════════════════════════════════════
-# Version: 1.0.0
-# Date: 2025-12-25
-# Services: 39 microservices + infrastructure
+# Version: 2.0.0
+# Date: 2026-01-23
+# Services: 50+ microservices + infrastructure
+# Changes:
+#   - Fixed exporter ports for PostgreSQL and Redis
+#   - Added missing services from governance/services.yaml
+#   - Marked deprecated services
+#   - Added recording rules reference
+#   - Improved label consistency
 
 global:
   scrape_interval: 15s        # معدل جمع البيانات - Data collection interval
@@ -49,28 +55,33 @@ scrape_configs:
   # ─────────────────────────────────────────────────────────────────────────────
 
   # PostgreSQL Database - قاعدة البيانات المكانية
+  # Uses postgres_exporter on port 9187
   - job_name: 'postgres'
     static_configs:
-      - targets: ['postgres:5432']
+      - targets: ['postgres-exporter:9187']
         labels:
           tier: 'infrastructure'
           component: 'database'
           service: 'postgres'
+          language: 'sql'
           description: 'PostGIS Spatial Database'
           description_ar: 'قاعدة البيانات المكانية PostGIS'
     metrics_path: /metrics
     scrape_interval: 30s
 
   # Redis Cache - ذاكرة التخزين المؤقت
+  # Uses redis_exporter on port 9121
   - job_name: 'redis'
     static_configs:
-      - targets: ['redis:6379']
+      - targets: ['redis-exporter:9121']
         labels:
           tier: 'infrastructure'
           component: 'cache'
           service: 'redis'
+          language: 'c'
           description: 'Redis Cache & Session Store'
           description_ar: 'ذاكرة التخزين المؤقت والجلسات'
+    metrics_path: /metrics
     scrape_interval: 30s
 
   # NATS Message Queue - نظام الرسائل
@@ -416,30 +427,42 @@ scrape_configs:
   # Satellite & Weather Services - خدمات الأقمار الصناعية والطقس
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Satellite Service - خدمة الأقمار الصناعية
+  # ─────────────────────────────────────────────────────────────────────────────
+  # DEPRECATED SERVICES - خدمات مهملة
+  # These services are deprecated and will be removed in a future version
+  # Replaced by newer consolidated services as noted
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Satellite Service - DEPRECATED (replaced by vegetation-analysis-service)
+  # خدمة الأقمار الصناعية - مهملة (تم استبدالها بـ vegetation-analysis-service)
   - job_name: 'satellite-service'
     static_configs:
-      - targets: ['satellite_service:8090']
+      - targets: ['satellite_service:9190']
         labels:
           tier: 'remote-sensing'
           component: 'satellite'
           service: 'satellite-service'
           language: 'python'
-          description: 'Multi-Provider Satellite Imagery & NDVI'
-          description_ar: 'صور الأقمار الصناعية ومؤشر NDVI'
+          status: 'deprecated'
+          replaced_by: 'vegetation-analysis-service'
+          description: 'DEPRECATED: Multi-Provider Satellite Imagery & NDVI'
+          description_ar: 'مهملة: صور الأقمار الصناعية ومؤشر NDVI'
     metrics_path: /metrics
 
-  # Weather Advanced - الطقس المتقدم
+  # Weather Advanced - DEPRECATED (replaced by weather-service)
+  # الطقس المتقدم - مهملة (تم استبدالها بـ weather-service)
   - job_name: 'weather-advanced'
     static_configs:
-      - targets: ['weather_advanced:8092']
+      - targets: ['weather_advanced:9092']
         labels:
           tier: 'remote-sensing'
           component: 'weather'
           service: 'weather-advanced'
           language: 'python'
-          description: 'Advanced Agricultural Weather Forecasting'
-          description_ar: 'التنبؤ الجوي الزراعي المتقدم'
+          status: 'deprecated'
+          replaced_by: 'weather-service'
+          description: 'DEPRECATED: Advanced Agricultural Weather Forecasting'
+          description_ar: 'مهملة: التنبؤ الجوي الزراعي المتقدم'
     metrics_path: /metrics
 
   # Astronomical Calendar - التقويم الفلكي

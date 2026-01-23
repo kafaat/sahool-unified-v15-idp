@@ -182,32 +182,33 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
     );
   }
 
-  Widget _buildFieldsSection() {
-    // Demo fields - في الإنتاج ستكون من API
-    final demoFields = [
-      {
-        'id': 'field_1',
-        'name': 'حقل القمح الشمالي',
-        'area': 45.5,
-        'crop': 'قمح',
-        'health': 0.78,
-      },
-      {
-        'id': 'field_2',
-        'name': 'حقل الشعير الغربي',
-        'area': 32.0,
-        'crop': 'شعير',
-        'health': 0.85,
-      },
-      {
-        'id': 'field_3',
-        'name': 'حقل البرسيم',
-        'area': 28.5,
-        'crop': 'برسيم',
-        'health': 0.65,
-      },
-    ];
+  // Demo fields - في الإنتاج ستكون من API
+  // Made static const to avoid recreating on every build
+  static const List<Map<String, dynamic>> _demoFields = [
+    {
+      'id': 'field_1',
+      'name': 'حقل القمح الشمالي',
+      'area': 45.5,
+      'crop': 'قمح',
+      'health': 0.78,
+    },
+    {
+      'id': 'field_2',
+      'name': 'حقل الشعير الغربي',
+      'area': 32.0,
+      'crop': 'شعير',
+      'health': 0.85,
+    },
+    {
+      'id': 'field_3',
+      'name': 'حقل البرسيم',
+      'area': 28.5,
+      'crop': 'برسيم',
+      'health': 0.65,
+    },
+  ];
 
+  Widget _buildFieldsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -237,8 +238,9 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             ],
           ),
         ),
-        ...demoFields.map(
+        ..._demoFields.map(
           (field) => Padding(
+            key: ValueKey('home_field_${field['id']}'),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: FieldCard(
               fieldId: field['id'] as String,

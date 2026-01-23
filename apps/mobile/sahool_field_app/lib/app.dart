@@ -245,34 +245,6 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
-    final isSelected = _currentIndex == index;
-    return Expanded(
-      child: InkWell(
-        onTap: () => setState(() => _currentIndex = index),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? SahoolTheme.primary : Colors.grey,
-              size: 26,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: isSelected ? SahoolTheme.primary : Colors.grey,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget? _buildFAB() {
     // Different FABs based on current screen
     switch (_currentIndex) {
@@ -413,37 +385,6 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
               style: const TextStyle(fontSize: 12),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Fields placeholder screen
-class _FieldsPlaceholder extends StatelessWidget {
-  const _FieldsPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('حقولي'),
-          backgroundColor: SahoolTheme.primary,
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.landscape, size: 80, color: Colors.grey[400]),
-              const SizedBox(height: 16),
-              Text(
-                'قائمة الحقول',
-                style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-              ),
-            ],
-          ),
         ),
       ),
     );

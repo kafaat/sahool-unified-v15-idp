@@ -3,11 +3,12 @@
 // Disease Management Page - Sahool Vision AI
 // صفحة إدارة الأمراض - سهول فيجن
 
-import { useEffect, useState, useMemo, Suspense } from "react";
+import { useEffect, useState, useMemo, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/layout/Header";
 import AlertBadge from "@/components/ui/AlertBadge";
 import StatusBadge from "@/components/ui/StatusBadge";
+import ErrorState, { getErrorType } from "@/components/ui/ErrorState";
 import { fetchDiagnoses, updateDiagnosisStatus } from "@/lib/api";
 import { formatDate, cn } from "@/lib/utils";
 import type { DiagnosisRecord } from "@/types";
@@ -51,6 +52,7 @@ function DiseasesContent() {
 
   const [diagnoses, setDiagnoses] = useState<DiagnosisRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<{ type: "network" | "server" | "not-found" | "generic"; message?: string } | null>(null);
   const [selectedDiagnosis, setSelectedDiagnosis] =
     useState<DiagnosisRecord | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,21 +68,26 @@ function DiseasesContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
-  useEffect(() => {
-    loadDiagnoses();
-  }, []);
-
-  async function loadDiagnoses() {
+  const loadDiagnoses = useCallback(async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
       const data = await fetchDiagnoses();
       setDiagnoses(data);
     } catch (error) {
       logger.error("Failed to load diagnoses:", error);
+      setLoadError({
+        type: getErrorType(error),
+        message: "فشل تحميل بيانات التشخيصات. يرجى المحاولة مرة أخرى.",
+      });
     } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadDiagnoses();
+  }, [loadDiagnoses]);
 
   // Filter diagnoses
   const filteredDiagnoses = useMemo(() => {
@@ -244,7 +251,17 @@ function DiseasesContent() {
       </div>
 
       {/* Diagnoses Grid */}
-      {isLoading ? (
+      {loadError ? (
+        <div className="mt-6">
+          <ErrorState
+            type={loadError.type}
+            title="فشل تحميل التشخيصات"
+            message={loadError.message}
+            onRetry={loadDiagnoses}
+            isRetrying={isLoading}
+          />
+        </div>
+      ) : isLoading ? (
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
             <div

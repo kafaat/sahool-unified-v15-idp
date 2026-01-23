@@ -447,10 +447,12 @@ export const StatefulFieldMap: React.FC = () => {
   );
 };
 
-export default {
+const InteractiveFieldMapExamples = {
   BasicFieldMap,
   MultipleFieldsMap,
   FieldMapWithTasksAndZones,
   FullFeaturedMap,
   StatefulFieldMap,
 };
+
+export default InteractiveFieldMapExamples;

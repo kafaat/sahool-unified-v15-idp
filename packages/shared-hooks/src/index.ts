@@ -41,7 +41,13 @@ export {
 export { useLocalStorage } from "./useLocalStorage";
 
 // Utilities
-export { useDebounce, useDebouncedCallback } from "./useDebounce";
+export {
+  useDebounce,
+  useDebouncedCallback,
+  useDebouncedValue,
+  type UseDebounceReturn,
+  type DebouncedFunction,
+} from "./useDebounce";
 
 // API
 export {

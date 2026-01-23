@@ -1,0 +1,424 @@
+# ===============================================================================
+# SAHOOL Platform - Prometheus Recording Rules
+# ===============================================================================
+# Version: 1.0.0
+# Date: 2026-01-23
+# Purpose: Pre-computed metrics for performance and consistent alerting
+# ===============================================================================
+
+groups:
+  # =============================================================================
+  # Request Rate Recording Rules
+  # =============================================================================
+  - name: sahool_request_rate_recording
+    interval: 15s
+    rules:
+      # Total request rate per service
+      - record: sahool:http:request_rate:5m
+        expr: |
+          sum by (service, tier, component) (
+            rate(http_requests_total[5m])
+          )
+
+      # Request rate by status code class
+      - record: sahool:http:request_rate_by_status:5m
+        expr: |
+          sum by (service, status_class) (
+            label_replace(
+              rate(http_requests_total[5m]),
+              "status_class", "${1}xx", "code", "([0-9]).*"
+            )
+          )
+
+      # Request rate by endpoint (top endpoints)
+      - record: sahool:http:request_rate_by_endpoint:5m
+        expr: |
+          topk by (service) (10,
+            sum by (service, method, path) (
+              rate(http_requests_total[5m])
+            )
+          )
+
+  # =============================================================================
+  # Latency Recording Rules - Pre-computed Histograms
+  # =============================================================================
+  - name: sahool_latency_recording
+    interval: 15s
+    rules:
+      # P50 latency per service
+      - record: sahool:http:latency_p50:5m
+        expr: |
+          histogram_quantile(0.50,
+            sum by (service, le) (
+              rate(http_request_duration_seconds_bucket[5m])
+            )
+          )
+
+      # P90 latency per service
+      - record: sahool:http:latency_p90:5m
+        expr: |
+          histogram_quantile(0.90,
+            sum by (service, le) (
+              rate(http_request_duration_seconds_bucket[5m])
+            )
+          )
+
+      # P95 latency per service
+      - record: sahool:http:latency_p95:5m
+        expr: |
+          histogram_quantile(0.95,
+            sum by (service, le) (
+              rate(http_request_duration_seconds_bucket[5m])
+            )
+          )
+
+      # P99 latency per service
+      - record: sahool:http:latency_p99:5m
+        expr: |
+          histogram_quantile(0.99,
+            sum by (service, le) (
+              rate(http_request_duration_seconds_bucket[5m])
+            )
+          )
+
+      # Average latency per service
+      - record: sahool:http:latency_avg:5m
+        expr: |
+          sum by (service) (rate(http_request_duration_seconds_sum[5m]))
+          /
+          sum by (service) (rate(http_request_duration_seconds_count[5m]))
+
+      # P95 latency by endpoint (for slow endpoint detection)
+      - record: sahool:http:latency_p95_by_endpoint:5m
+        expr: |
+          histogram_quantile(0.95,
+            sum by (service, method, path, le) (
+              rate(http_request_duration_seconds_bucket[5m])
+            )
+          )
+
+  # =============================================================================
+  # Error Rate Recording Rules
+  # =============================================================================
+  - name: sahool_error_rate_recording
+    interval: 15s
+    rules:
+      # 5xx error rate per service
+      - record: sahool:http:error_rate_5xx:5m
+        expr: |
+          (
+            sum by (service) (rate(http_requests_total{code=~"5.."}[5m]))
+            /
+            sum by (service) (rate(http_requests_total[5m]))
+          ) or vector(0)
+
+      # 4xx error rate per service
+      - record: sahool:http:error_rate_4xx:5m
+        expr: |
+          (
+            sum by (service) (rate(http_requests_total{code=~"4.."}[5m]))
+            /
+            sum by (service) (rate(http_requests_total[5m]))
+          ) or vector(0)
+
+      # Success rate per service (2xx + 3xx)
+      - record: sahool:http:success_rate:5m
+        expr: |
+          (
+            sum by (service) (rate(http_requests_total{code=~"[23].."}[5m]))
+            /
+            sum by (service) (rate(http_requests_total[5m]))
+          ) or vector(0)
+
+      # Error rate by endpoint
+      - record: sahool:http:error_rate_by_endpoint:5m
+        expr: |
+          (
+            sum by (service, method, path) (rate(http_requests_total{code=~"5.."}[5m]))
+            /
+            sum by (service, method, path) (rate(http_requests_total[5m]))
+          ) or vector(0)
+
+  # =============================================================================
+  # Database Recording Rules
+  # =============================================================================
+  - name: sahool_database_recording
+    interval: 30s
+    rules:
+      # PostgreSQL connection pool utilization
+      - record: sahool:postgres:connection_pool_utilization
+        expr: |
+          pg_stat_database_numbackends{datname="sahool"}
+          /
+          pg_settings_max_connections
+
+      # PostgreSQL active connections by state
+      - record: sahool:postgres:connections_by_state
+        expr: |
+          sum by (state) (pg_stat_activity_count)
+
+      # PostgreSQL transaction rate
+      - record: sahool:postgres:transaction_rate:5m
+        expr: |
+          sum by (datname) (rate(pg_stat_database_xact_commit[5m]))
+          +
+          sum by (datname) (rate(pg_stat_database_xact_rollback[5m]))
+
+      # PostgreSQL cache hit ratio
+      - record: sahool:postgres:cache_hit_ratio
+        expr: |
+          sum by (datname) (pg_stat_database_blks_hit)
+          /
+          (sum by (datname) (pg_stat_database_blks_hit) + sum by (datname) (pg_stat_database_blks_read))
+
+      # PostgreSQL query duration (average)
+      - record: sahool:postgres:query_duration_avg:5m
+        expr: |
+          rate(pg_stat_statements_seconds_total[5m])
+          /
+          rate(pg_stat_statements_calls_total[5m])
+
+  # =============================================================================
+  # Redis Recording Rules
+  # =============================================================================
+  - name: sahool_redis_recording
+    interval: 30s
+    rules:
+      # Redis memory utilization
+      - record: sahool:redis:memory_utilization
+        expr: |
+          redis_memory_used_bytes / redis_memory_max_bytes
+
+      # Redis command rate
+      - record: sahool:redis:command_rate:5m
+        expr: |
+          sum by (cmd) (rate(redis_commands_total[5m]))
+
+      # Redis hit rate
+      - record: sahool:redis:hit_rate:5m
+        expr: |
+          rate(redis_keyspace_hits_total[5m])
+          /
+          (rate(redis_keyspace_hits_total[5m]) + rate(redis_keyspace_misses_total[5m]))
+
+      # Redis eviction rate
+      - record: sahool:redis:eviction_rate:5m
+        expr: |
+          rate(redis_evicted_keys_total[5m])
+
+  # =============================================================================
+  # NATS Recording Rules
+  # =============================================================================
+  - name: sahool_nats_recording
+    interval: 15s
+    rules:
+      # NATS message throughput (in)
+      - record: sahool:nats:message_rate_in:5m
+        expr: |
+          rate(gnatsd_varz_in_msgs[5m])
+
+      # NATS message throughput (out)
+      - record: sahool:nats:message_rate_out:5m
+        expr: |
+          rate(gnatsd_varz_out_msgs[5m])
+
+      # NATS bytes throughput
+      - record: sahool:nats:bytes_rate:5m
+        expr: |
+          rate(gnatsd_varz_in_bytes[5m]) + rate(gnatsd_varz_out_bytes[5m])
+
+      # JetStream consumer lag
+      - record: sahool:nats:jetstream_consumer_lag
+        expr: |
+          sum by (stream, consumer) (nats_jetstream_consumer_num_pending)
+
+      # JetStream stream size
+      - record: sahool:nats:jetstream_stream_messages
+        expr: |
+          sum by (stream) (nats_jetstream_stream_messages)
+
+      # NATS connection utilization
+      - record: sahool:nats:connection_utilization
+        expr: |
+          gnatsd_varz_connections / gnatsd_varz_max_connections
+
+  # =============================================================================
+  # AI/ML Service Recording Rules
+  # =============================================================================
+  - name: sahool_ai_ml_recording
+    interval: 30s
+    rules:
+      # AI model inference latency
+      - record: sahool:ai:inference_latency_p95:5m
+        expr: |
+          histogram_quantile(0.95,
+            sum by (service, model, le) (
+              rate(ai_inference_duration_seconds_bucket[5m])
+            )
+          )
+
+      # AI model error rate
+      - record: sahool:ai:model_error_rate:5m
+        expr: |
+          (
+            sum by (service, model) (rate(ai_model_errors_total[5m]))
+            /
+            sum by (service, model) (rate(ai_model_requests_total[5m]))
+          ) or vector(0)
+
+      # AI model throughput
+      - record: sahool:ai:inference_rate:5m
+        expr: |
+          sum by (service, model) (rate(ai_model_requests_total[5m]))
+
+      # Crop health assessments rate
+      - record: sahool:ai:crop_health_assessments_rate:5m
+        expr: |
+          sum by (crop_type) (rate(crop_health_assessments_total[5m]))
+
+      # Advisory generation rate
+      - record: sahool:ai:advisory_generation_rate:5m
+        expr: |
+          sum by (advisory_type) (rate(advisory_generated_total[5m]))
+
+  # =============================================================================
+  # Kong API Gateway Recording Rules
+  # =============================================================================
+  - name: sahool_kong_recording
+    interval: 15s
+    rules:
+      # Kong request rate by service
+      - record: sahool:kong:request_rate:5m
+        expr: |
+          sum by (service, route) (rate(kong_http_requests_total[5m]))
+
+      # Kong latency by service
+      - record: sahool:kong:latency_p95:5m
+        expr: |
+          histogram_quantile(0.95,
+            sum by (service, le) (
+              rate(kong_latency_bucket[5m])
+            )
+          )
+
+      # Kong rate limiting hits
+      - record: sahool:kong:rate_limit_hits:5m
+        expr: |
+          sum by (service, route) (rate(kong_rate_limiting_hit_total[5m]))
+
+      # Kong authentication failures
+      - record: sahool:kong:auth_failures:5m
+        expr: |
+          sum by (service, route) (rate(kong_http_requests_total{code="401"}[5m]))
+          +
+          sum by (service, route) (rate(kong_http_requests_total{code="403"}[5m]))
+
+  # =============================================================================
+  # Resource Utilization Recording Rules
+  # =============================================================================
+  - name: sahool_resource_recording
+    interval: 30s
+    rules:
+      # Container CPU utilization
+      - record: sahool:container:cpu_utilization
+        expr: |
+          sum by (container, pod) (
+            rate(container_cpu_usage_seconds_total[5m])
+          )
+          /
+          sum by (container, pod) (
+            container_spec_cpu_quota / container_spec_cpu_period
+          )
+
+      # Container memory utilization
+      - record: sahool:container:memory_utilization
+        expr: |
+          sum by (container, pod) (container_memory_usage_bytes)
+          /
+          sum by (container, pod) (container_spec_memory_limit_bytes)
+
+      # Node CPU utilization
+      - record: sahool:node:cpu_utilization
+        expr: |
+          1 - avg by (node) (
+            rate(node_cpu_seconds_total{mode="idle"}[5m])
+          )
+
+      # Node memory utilization
+      - record: sahool:node:memory_utilization
+        expr: |
+          1 - (
+            node_memory_MemAvailable_bytes
+            /
+            node_memory_MemTotal_bytes
+          )
+
+      # Node disk utilization
+      - record: sahool:node:disk_utilization
+        expr: |
+          1 - (
+            node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"}
+            /
+            node_filesystem_size_bytes{fstype!~"tmpfs|overlay"}
+          )
+
+  # =============================================================================
+  # Service Health Recording Rules
+  # =============================================================================
+  - name: sahool_service_health_recording
+    interval: 30s
+    rules:
+      # Service availability (up/down)
+      - record: sahool:service:up
+        expr: |
+          up{job=~".*-service|.*-core|.*-gateway|.*-advisor|.*-engine"}
+
+      # Service availability percentage (5m window)
+      - record: sahool:service:availability:5m
+        expr: |
+          avg_over_time(up[5m])
+
+      # Scrape duration by job
+      - record: sahool:scrape:duration_seconds
+        expr: |
+          scrape_duration_seconds
+
+      # Scrape samples by job
+      - record: sahool:scrape:samples_scraped
+        expr: |
+          scrape_samples_scraped
+
+  # =============================================================================
+  # Business Metrics Recording Rules
+  # =============================================================================
+  - name: sahool_business_recording
+    interval: 60s
+    rules:
+      # Active fields count
+      - record: sahool:business:active_fields
+        expr: |
+          sum(sahool_fields_total{status="active"})
+
+      # Active users count (daily)
+      - record: sahool:business:daily_active_users
+        expr: |
+          count(
+            count by (user_id) (
+              increase(http_requests_total{authenticated="true"}[24h])
+            )
+          )
+
+      # Tasks created rate
+      - record: sahool:business:tasks_created_rate:1h
+        expr: |
+          sum(increase(sahool_tasks_created_total[1h]))
+
+      # Notifications sent rate
+      - record: sahool:business:notifications_sent_rate:1h
+        expr: |
+          sum(increase(sahool_notifications_sent_total[1h]))
+
+      # Irrigation recommendations rate
+      - record: sahool:business:irrigation_recommendations_rate:1h
+        expr: |
+          sum(increase(sahool_irrigation_recommendations_total[1h]))

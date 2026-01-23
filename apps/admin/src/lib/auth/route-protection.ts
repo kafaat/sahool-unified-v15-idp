@@ -44,13 +44,24 @@ export const PROTECTED_ROUTES: Record<string, UserRole[]> = {
 
 /**
  * Public routes that don't require authentication
+ *
+ * SECURITY NOTE: These routes are explicitly public. Each route should have its
+ * own security measures (rate limiting, CSRF protection, input validation).
+ *
+ * - Auth routes: Handle their own authentication flow
+ * - Health routes: Required for container orchestration
+ * - Error/CSP reporting routes: Need to work pre-authentication, have rate limiting
+ * - CSRF token route: Must work to bootstrap CSRF protection
  */
 export const PUBLIC_ROUTES = [
+  // Page routes - authentication flow
   "/login",
   "/register",
   "/forgot-password",
   "/reset-password",
   "/verify-otp",
+
+  // API routes - authentication
   "/api/auth/login",
   "/api/auth/register",
   "/api/auth/forgot-password",
@@ -58,7 +69,14 @@ export const PUBLIC_ROUTES = [
   "/api/auth/verify-otp",
   "/api/auth/resend-otp",
   "/api/auth/refresh",
+
+  // API routes - health checks (required for K8s probes)
   "/api/health",
+
+  // API routes - security reporting (rate-limited, no auth needed)
+  "/api/log-error", // Client-side error logging (rate-limited)
+  "/api/csp-report", // CSP violation reports (rate-limited)
+  "/api/csrf-token", // CSRF token endpoint (must be public to bootstrap protection)
 ];
 
 /**

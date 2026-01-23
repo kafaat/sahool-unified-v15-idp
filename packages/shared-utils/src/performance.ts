@@ -4,79 +4,329 @@
  */
 
 /**
+ * Debounced function interface with cancel capability
+ * واجهة الدالة المؤخرة مع إمكانية الإلغاء
+ */
+export interface DebouncedFunction<T extends (...args: unknown[]) => unknown> {
+  (...args: Parameters<T>): void;
+  /** Cancel any pending execution / إلغاء أي تنفيذ معلق */
+  cancel: () => void;
+  /** Flush pending execution immediately / تنفيذ معلق فوراً */
+  flush: () => void;
+  /** Check if there's a pending execution / التحقق من وجود تنفيذ معلق */
+  pending: () => boolean;
+}
+
+/**
  * Debounce function - delays execution until after wait time
  * تأخير تنفيذ الدالة حتى انتهاء وقت الانتظار
+ *
+ * @param func - الدالة - Function to debounce
+ * @param wait - الانتظار - Wait time in milliseconds
+ * @param options - الخيارات - Options for leading/trailing edge
+ * @returns دالة مؤخرة - Debounced function with cancel/flush
+ *
+ * @example
+ * const debouncedSearch = debounce(search, 300);
+ * debouncedSearch('query');
+ * debouncedSearch.cancel(); // Cancel pending
  */
 export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number,
-): (...args: Parameters<T>) => void {
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  options: { leading?: boolean; trailing?: boolean } = {},
+): DebouncedFunction<T> {
+  const { leading = false, trailing = true } = options;
 
-  return function debounced(...args: Parameters<T>) {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  let lastArgs: Parameters<T> | null = null;
+  let lastCallTime: number | undefined;
+  let leadingInvoked = false;
+
+  function invokeFunc(args: Parameters<T>): void {
+    func(...args);
+  }
+
+  function debounced(...args: Parameters<T>): void {
+    const now = Date.now();
+    lastArgs = args;
+    lastCallTime = now;
+
+    // Leading edge invocation
+    if (leading && !timeoutId && !leadingInvoked) {
+      leadingInvoked = true;
+      invokeFunc(args);
+    }
+
+    // Clear existing timeout
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
+
+    // Set up trailing edge
     timeoutId = setTimeout(() => {
-      func(...args);
+      if (trailing && lastArgs) {
+        // Only invoke if not already invoked on leading edge
+        if (!leading || !leadingInvoked || lastCallTime !== now) {
+          invokeFunc(lastArgs);
+        }
+      }
       timeoutId = null;
+      lastArgs = null;
+      leadingInvoked = false;
     }, wait);
+  }
+
+  debounced.cancel = function cancel(): void {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+    lastArgs = null;
+    leadingInvoked = false;
   };
+
+  debounced.flush = function flush(): void {
+    if (timeoutId && lastArgs) {
+      clearTimeout(timeoutId);
+      invokeFunc(lastArgs);
+      timeoutId = null;
+      lastArgs = null;
+      leadingInvoked = false;
+    }
+  };
+
+  debounced.pending = function pending(): boolean {
+    return timeoutId !== null;
+  };
+
+  return debounced;
+}
+
+/**
+ * Throttled function interface with cancel capability
+ * واجهة الدالة المُقيّدة مع إمكانية الإلغاء
+ */
+export interface ThrottledFunction<T extends (...args: unknown[]) => unknown> {
+  (...args: Parameters<T>): void;
+  /** Cancel any pending execution / إلغاء أي تنفيذ معلق */
+  cancel: () => void;
+  /** Flush pending execution immediately / تنفيذ معلق فوراً */
+  flush: () => void;
 }
 
 /**
  * Throttle function - limits execution to once per wait time
  * تقييد تنفيذ الدالة لمرة واحدة خلال فترة الانتظار
+ *
+ * @param func - الدالة - Function to throttle
+ * @param wait - الانتظار - Wait time in milliseconds
+ * @param options - الخيارات - Options for leading/trailing edge
+ * @returns دالة مُقيّدة - Throttled function with cancel/flush
+ *
+ * @example
+ * const throttledScroll = throttle(handleScroll, 100);
+ * window.addEventListener('scroll', throttledScroll);
  */
 export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number,
-): (...args: Parameters<T>) => void {
+  options: { leading?: boolean; trailing?: boolean } = {},
+): ThrottledFunction<T> {
+  const { leading = true, trailing = true } = options;
+
   let lastTime = 0;
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  let lastArgs: Parameters<T> | null = null;
 
-  return function throttled(...args: Parameters<T>) {
+  function invokeFunc(args: Parameters<T>): void {
+    func(...args);
+    lastTime = Date.now();
+  }
+
+  function throttled(...args: Parameters<T>): void {
     const now = Date.now();
     const remaining = wait - (now - lastTime);
+    lastArgs = args;
 
-    if (remaining <= 0) {
+    if (remaining <= 0 || remaining > wait) {
       if (timeoutId) {
         clearTimeout(timeoutId);
         timeoutId = null;
       }
-      lastTime = now;
-      func(...args);
-    } else if (!timeoutId) {
+
+      if (leading) {
+        invokeFunc(args);
+      } else {
+        lastTime = now;
+      }
+    } else if (!timeoutId && trailing) {
       timeoutId = setTimeout(() => {
-        lastTime = Date.now();
+        if (lastArgs) {
+          invokeFunc(lastArgs);
+        }
         timeoutId = null;
-        func(...args);
+        lastArgs = null;
       }, remaining);
     }
+  }
+
+  throttled.cancel = function cancel(): void {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+    lastArgs = null;
+    lastTime = 0;
   };
+
+  throttled.flush = function flush(): void {
+    if (timeoutId && lastArgs) {
+      clearTimeout(timeoutId);
+      invokeFunc(lastArgs);
+      timeoutId = null;
+      lastArgs = null;
+    }
+  };
+
+  return throttled;
 }
 
 /**
- * Memoize function results
- * تخزين نتائج الدالة مؤقتاً
+ * Memoize options
+ * خيارات التخزين المؤقت
+ */
+export interface MemoizeOptions<T extends (...args: unknown[]) => unknown> {
+  /** Key resolver function / دالة حل المفتاح */
+  keyResolver?: (...args: Parameters<T>) => string;
+  /** Maximum cache size / الحد الأقصى لحجم الذاكرة المؤقتة */
+  maxSize?: number;
+  /** Time-to-live in milliseconds / مدة الصلاحية بالمللي ثانية */
+  ttl?: number;
+}
+
+/**
+ * Memoized function interface
+ * واجهة الدالة المُخزّنة مؤقتاً
+ */
+export interface MemoizedFunction<T extends (...args: unknown[]) => unknown> {
+  (...args: Parameters<T>): ReturnType<T>;
+  /** Clear the cache / مسح الذاكرة المؤقتة */
+  clear: () => void;
+  /** Delete a specific cache entry / حذف إدخال محدد */
+  delete: (...args: Parameters<T>) => boolean;
+  /** Check if key exists in cache / التحقق من وجود المفتاح */
+  has: (...args: Parameters<T>) => boolean;
+  /** Get cache size / الحصول على حجم الذاكرة المؤقتة */
+  size: () => number;
+}
+
+interface CacheEntry<V> {
+  value: V;
+  timestamp: number;
+}
+
+/**
+ * Memoize function results with optional TTL and max size
+ * تخزين نتائج الدالة مؤقتاً مع خيارات TTL والحد الأقصى للحجم
+ *
+ * @param func - الدالة - Function to memoize
+ * @param options - الخيارات - Memoization options
+ * @returns دالة مُخزّنة مؤقتاً - Memoized function with cache control
+ *
+ * @example
+ * const memoizedFetch = memoize(fetchData, {
+ *   maxSize: 100,
+ *   ttl: 60000 // 1 minute
+ * });
  */
 export function memoize<T extends (...args: unknown[]) => unknown>(
   func: T,
-  keyResolver?: (...args: Parameters<T>) => string,
-): T {
-  const cache = new Map<string, ReturnType<T>>();
+  options: MemoizeOptions<T> | ((...args: Parameters<T>) => string) = {},
+): MemoizedFunction<T> {
+  // Support legacy signature (keyResolver as second argument)
+  const opts: MemoizeOptions<T> =
+    typeof options === "function" ? { keyResolver: options } : options;
 
-  return function memoized(...args: Parameters<T>): ReturnType<T> {
-    const key = keyResolver ? keyResolver(...args) : JSON.stringify(args);
+  const { keyResolver, maxSize = 1000, ttl } = opts;
 
-    if (cache.has(key)) {
-      return cache.get(key)!;
+  const cache = new Map<string, CacheEntry<ReturnType<T>>>();
+
+  function getKey(args: Parameters<T>): string {
+    return keyResolver ? keyResolver(...args) : JSON.stringify(args);
+  }
+
+  function isExpired(entry: CacheEntry<ReturnType<T>>): boolean {
+    if (!ttl) return false;
+    return Date.now() - entry.timestamp > ttl;
+  }
+
+  function evictOldest(): void {
+    // Simple LRU-like eviction: remove first (oldest) entry
+    const firstKey = cache.keys().next().value;
+    if (firstKey !== undefined) {
+      cache.delete(firstKey);
+    }
+  }
+
+  function memoized(...args: Parameters<T>): ReturnType<T> {
+    const key = getKey(args);
+    const cached = cache.get(key);
+
+    if (cached && !isExpired(cached)) {
+      // Move to end (most recently used) - LRU behavior
+      cache.delete(key);
+      cache.set(key, cached);
+      return cached.value;
+    }
+
+    // Remove expired entry if exists
+    if (cached) {
+      cache.delete(key);
+    }
+
+    // Evict if at capacity
+    if (cache.size >= maxSize) {
+      evictOldest();
     }
 
     const result = func(...args) as ReturnType<T>;
-    cache.set(key, result);
+    cache.set(key, { value: result, timestamp: Date.now() });
     return result;
-  } as T;
+  }
+
+  memoized.clear = function clear(): void {
+    cache.clear();
+  };
+
+  memoized.delete = function deleteEntry(...args: Parameters<T>): boolean {
+    return cache.delete(getKey(args));
+  };
+
+  memoized.has = function has(...args: Parameters<T>): boolean {
+    const key = getKey(args);
+    const entry = cache.get(key);
+    if (!entry) return false;
+    if (isExpired(entry)) {
+      cache.delete(key);
+      return false;
+    }
+    return true;
+  };
+
+  memoized.size = function size(): number {
+    // Clean up expired entries on size check
+    if (ttl) {
+      for (const [key, entry] of cache) {
+        if (isExpired(entry)) {
+          cache.delete(key);
+        }
+      }
+    }
+    return cache.size;
+  };
+
+  return memoized as MemoizedFunction<T>;
 }
 
 /**

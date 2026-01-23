@@ -425,7 +425,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               padding: const EdgeInsets.all(16),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
-                return _buildMessageBubble(_messages[index]);
+                final message = _messages[index];
+                return _buildMessageBubble(message);
+              },
+              // Use message.id as key for proper diffing during list updates
+              findChildIndexCallback: (key) {
+                final messageKey = key as ValueKey<String>;
+                final index = _messages.indexWhere((m) => m.id == messageKey.value);
+                return index >= 0 ? index : null;
               },
             ),
           ),
@@ -521,6 +528,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     if (isSystem) {
       return Center(
+        key: ValueKey<String>(message.id),
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 8),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -541,6 +549,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
 
     return Align(
+      key: ValueKey<String>(message.id),
       alignment: isMe ? Alignment.centerLeft : Alignment.centerRight,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4),

@@ -399,7 +399,7 @@ export function useDebouncedDateValidation(
 // Export all hooks as default
 // ═══════════════════════════════════════════════════════════════════════════
 
-export default {
+const fieldIntelligenceHooks = {
   useFieldZones,
   useFieldAlerts,
   useBestDays,
@@ -409,3 +409,5 @@ export default {
   useFieldIntelligence,
   useDebouncedDateValidation,
 };
+
+export default fieldIntelligenceHooks;

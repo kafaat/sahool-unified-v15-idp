@@ -3,9 +3,14 @@
 /**
  * SAHOOL Fields List Component
  * مكون قائمة الحقول
+ *
+ * Performance optimizations:
+ * - React.memo prevents re-renders when props don't change
+ * - useCallback memoizes handler functions
+ * - useMemo memoizes computed values
  */
 
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { Grid3x3, List, Map as MapIcon, Search, Plus } from "lucide-react";
 import { useFields } from "../hooks/useFields";
 import { FieldCard } from "./FieldCard";
@@ -16,7 +21,7 @@ interface FieldsListProps {
   onCreateClick?: () => void;
 }
 
-export const FieldsList: React.FC<FieldsListProps> = ({
+const FieldsListComponent: React.FC<FieldsListProps> = ({
   onFieldClick,
   onCreateClick,
 }) => {
@@ -24,9 +29,22 @@ export const FieldsList: React.FC<FieldsListProps> = ({
   const [filters, setFilters] = useState<FieldFilters>({});
   const { data: fields, isLoading } = useFields(filters);
 
-  const handleSearch = (search: string) => {
+  // Memoized search handler to prevent child re-renders
+  const handleSearch = useCallback((search: string) => {
     setFilters((prev) => ({ ...prev, search }));
-  };
+  }, []);
+
+  // Memoized view mode handlers
+  const handleSetGridView = useCallback(() => setViewMode("grid"), []);
+  const handleSetListView = useCallback(() => setViewMode("list"), []);
+  const handleSetMapView = useCallback(() => setViewMode("map"), []);
+
+  // Memoized grid class computation
+  const gridClassName = useMemo(() => {
+    return viewMode === "grid"
+      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      : "space-y-4";
+  }, [viewMode]);
 
   if (isLoading) {
     return (
@@ -67,20 +85,26 @@ export const FieldsList: React.FC<FieldsListProps> = ({
           {/* View Mode Toggle */}
           <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
             <button
-              onClick={() => setViewMode("grid")}
+              onClick={handleSetGridView}
               className={`p-2 rounded ${viewMode === "grid" ? "bg-white shadow-sm" : "hover:bg-gray-200"}`}
+              aria-label="عرض شبكي"
+              aria-pressed={viewMode === "grid"}
             >
               <Grid3x3 className="w-5 h-5" />
             </button>
             <button
-              onClick={() => setViewMode("list")}
+              onClick={handleSetListView}
               className={`p-2 rounded ${viewMode === "list" ? "bg-white shadow-sm" : "hover:bg-gray-200"}`}
+              aria-label="عرض قائمة"
+              aria-pressed={viewMode === "list"}
             >
               <List className="w-5 h-5" />
             </button>
             <button
-              onClick={() => setViewMode("map")}
+              onClick={handleSetMapView}
               className={`p-2 rounded ${viewMode === "map" ? "bg-white shadow-sm" : "hover:bg-gray-200"}`}
+              aria-label="عرض خريطة"
+              aria-pressed={viewMode === "map"}
             >
               <MapIcon className="w-5 h-5" />
             </button>
@@ -117,13 +141,7 @@ export const FieldsList: React.FC<FieldsListProps> = ({
           )}
         </div>
       ) : (
-        <div
-          className={
-            viewMode === "grid"
-              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              : "space-y-4"
-          }
-        >
+        <div className={gridClassName}>
           {fields.map((field) => (
             <FieldCard
               key={field.id}
@@ -143,5 +161,9 @@ export const FieldsList: React.FC<FieldsListProps> = ({
     </div>
   );
 };
+
+// Memoize component for performance optimization
+export const FieldsList = React.memo(FieldsListComponent);
+FieldsList.displayName = "FieldsList";
 
 export default FieldsList;

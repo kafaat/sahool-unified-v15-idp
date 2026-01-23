@@ -333,14 +333,75 @@ export function createInlineScript(
 }
 
 /**
+ * Dangerous patterns that should not appear in inline CSS
+ * أنماط خطيرة يجب ألا تظهر في CSS المضمن
+ */
+const DANGEROUS_CSS_PATTERNS = [
+  // JavaScript expressions in CSS
+  /expression\s*\(/gi,
+  /behavior\s*:/gi,
+  /binding\s*:/gi,
+  // URL-based attacks
+  /javascript:/gi,
+  /vbscript:/gi,
+  /data:\s*text\/html/gi,
+  // Import attacks
+  /@import\s+url\s*\(\s*["']?javascript:/gi,
+  // CSS escape sequences that could execute code
+  /\\0{0,4}(4a|6a|4A|6A)/g, // j in hex
+];
+
+/**
+ * Validate CSS code for security issues
+ * التحقق من كود CSS بحثًا عن مشاكل أمنية
+ */
+export function validateCssCode(css: string): { isValid: boolean; error?: string } {
+  if (!css || typeof css !== "string") {
+    return { isValid: false, error: "CSS must be a non-empty string" };
+  }
+
+  for (const pattern of DANGEROUS_CSS_PATTERNS) {
+    if (pattern.test(css)) {
+      return {
+        isValid: false,
+        error: `Dangerous CSS pattern detected: ${pattern.source}`,
+      };
+    }
+  }
+
+  return { isValid: true };
+}
+
+/**
  * Safe way to add inline style with nonce
  * طريقة آمنة لإضافة style مضمن مع nonce
+ *
+ * @security
+ * ⚠️ SECURITY WARNING ⚠️
+ * - ONLY use this function with static CSS from trusted sources
+ * - NEVER pass user input or dynamic content from untrusted sources
+ * - This function validates CSS for dangerous patterns but is NOT foolproof
  *
  * Usage in Server Components:
  * const nonce = await getNonce();
  * <style {...createInlineStyle(css, nonce)} />
  */
 export function createInlineStyle(css: string, nonce: string | null) {
+  // Validate CSS for dangerous patterns
+  const validation = validateCssCode(css);
+
+  if (!validation.isValid) {
+    const errorMessage = `[Security] Inline CSS validation failed: ${validation.error}`;
+
+    // In production, reject dangerous CSS
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(errorMessage);
+    }
+
+    // In development, log warning but allow
+    logger.warn(errorMessage);
+  }
+
   return {
     ...getStyleNonceProps(nonce),
     dangerouslySetInnerHTML: { __html: css },
@@ -360,6 +421,7 @@ export const Nonce = {
   createInlineScript,
   createInlineStyle,
   validateScriptCode,
+  validateCssCode,
 };
 
 export default Nonce;

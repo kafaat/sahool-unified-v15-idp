@@ -1,128 +1,315 @@
 """
 Redis Sentinel Client for High Availability
-===========================================
+============================================
+عميل Redis Sentinel للتوافر العالي
 
-يوفر هذا الملف اتصالاً بـ Redis Sentinel مع:
-- Automatic failover handling
-- Connection pooling
-- Circuit breaker pattern
-- Health monitoring
-- Retry logic with exponential backoff
+Provides Redis Sentinel connectivity with:
+- Automatic failover handling (تجاوز الفشل التلقائي)
+- Connection pooling (تجميع الاتصالات)
+- Circuit breaker pattern (نمط قاطع الدائرة)
+- Health monitoring (مراقبة الصحة)
+- Retry logic with exponential backoff (إعادة المحاولة مع تراجع أسي)
 
 Author: Sahool Platform Team
+Updated: January 2026
 License: MIT
+
+Example:
+    >>> client = RedisSentinelClient()
+    >>> client.set('key', 'value', ex=60)
+    >>> value = client.get('key')
+    >>> print(value)
+    'value'
+
+    # Using context manager
+    >>> with client.pipeline() as pipe:
+    ...     pipe.set('key1', 'value1')
+    ...     pipe.set('key2', 'value2')
+    ...     pipe.execute()
 """
+
+from __future__ import annotations
 
 import logging
 import os
 import time
 from contextlib import contextmanager
-from typing import Any
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from redis.exceptions import ConnectionError, RedisError, TimeoutError
 from redis.sentinel import Sentinel
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Generator
+
+# Type variable for generic operations
+T = TypeVar("T")
+
+# Configure structured logging
 logger = logging.getLogger(__name__)
 
 
+class CircuitBreakerState(str, Enum):
+    """States for the circuit breaker pattern."""
+    CLOSED = "CLOSED"      # Normal operation - requests pass through
+    OPEN = "OPEN"          # Service down - requests fail fast
+    HALF_OPEN = "HALF_OPEN"  # Testing recovery
+
+
+@dataclass
 class RedisSentinelConfig:
     """
+    Redis Sentinel Configuration.
     تكوين Redis Sentinel
 
+    Configuration for connecting to Redis via Sentinel for high availability.
+    All settings can be overridden via environment variables.
+
     Environment Variables:
-        REDIS_SENTINEL_HOSTS: قائمة بعناوين Sentinel (مفصولة بفاصلة)
-        REDIS_SENTINEL_PORT: منفذ Sentinel (افتراضي: 26379)
-        REDIS_PASSWORD: كلمة مرور Redis
-        REDIS_MASTER_NAME: اسم المجموعة الرئيسية (افتراضي: sahool-master)
-        REDIS_DB: رقم قاعدة البيانات (افتراضي: 0)
-        REDIS_SOCKET_TIMEOUT: مهلة الاتصال بالثواني (افتراضي: 5)
-        REDIS_SOCKET_CONNECT_TIMEOUT: مهلة الاتصال الأولي (افتراضي: 5)
-        REDIS_MAX_CONNECTIONS: الحد الأقصى للاتصالات (افتراضي: 50)
+        REDIS_SENTINEL_HOSTS: Comma-separated list of Sentinel hosts (قائمة مضيفي Sentinel)
+        REDIS_SENTINEL_PORT: Sentinel port (default: 26379) (منفذ Sentinel)
+        REDIS_PASSWORD: Redis authentication password (كلمة مرور Redis)
+        REDIS_MASTER_NAME: Master set name (default: sahool-master) (اسم المجموعة الرئيسية)
+        REDIS_DB: Database number (default: 0) (رقم قاعدة البيانات)
+        REDIS_SOCKET_TIMEOUT: Socket timeout in seconds (default: 5) (مهلة الاتصال)
+        REDIS_SOCKET_CONNECT_TIMEOUT: Connection timeout (default: 5) (مهلة الاتصال الأولي)
+        REDIS_MAX_CONNECTIONS: Max pool connections (default: 50) (الحد الأقصى للاتصالات)
+
+    Example:
+        >>> config = RedisSentinelConfig()
+        >>> config = RedisSentinelConfig(master_name="custom-master", db=1)
     """
 
-    def __init__(self):
-        # Sentinel configuration
-        self.sentinel_hosts = os.getenv(
+    # Sentinel hosts (loaded from env or default)
+    sentinel_hosts: list[str] = field(
+        default_factory=lambda: os.getenv(
             "REDIS_SENTINEL_HOSTS", "localhost,localhost,localhost"
         ).split(",")
-        self.sentinel_port = int(os.getenv("REDIS_SENTINEL_PORT", "26379"))
-        self.sentinel_ports = [26379, 26380, 26381]  # Multiple sentinel ports
+    )
+    sentinel_port: int = field(
+        default_factory=lambda: int(os.getenv("REDIS_SENTINEL_PORT", "26379"))
+    )
+    sentinel_ports: list[int] = field(default_factory=lambda: [26379, 26380, 26381])
 
-        # Redis configuration
-        self.password = os.getenv("REDIS_PASSWORD", "redis_password")
-        self.master_name = os.getenv("REDIS_MASTER_NAME", "sahool-master")
-        self.db = int(os.getenv("REDIS_DB", "0"))
+    # Redis configuration
+    password: str = field(
+        default_factory=lambda: os.getenv("REDIS_PASSWORD", "redis_password")
+    )
+    master_name: str = field(
+        default_factory=lambda: os.getenv("REDIS_MASTER_NAME", "sahool-master")
+    )
+    db: int = field(default_factory=lambda: int(os.getenv("REDIS_DB", "0")))
 
-        # Connection settings
-        self.socket_timeout = int(os.getenv("REDIS_SOCKET_TIMEOUT", "5"))
-        self.socket_connect_timeout = int(os.getenv("REDIS_SOCKET_CONNECT_TIMEOUT", "5"))
-        self.socket_keepalive = True
-        self.socket_keepalive_options = {
+    # Connection settings
+    socket_timeout: int = field(
+        default_factory=lambda: int(os.getenv("REDIS_SOCKET_TIMEOUT", "5"))
+    )
+    socket_connect_timeout: int = field(
+        default_factory=lambda: int(os.getenv("REDIS_SOCKET_CONNECT_TIMEOUT", "5"))
+    )
+    socket_keepalive: bool = True
+    socket_keepalive_options: dict[int, int] = field(
+        default_factory=lambda: {
             1: 1,  # TCP_KEEPIDLE
             2: 1,  # TCP_KEEPINTVL
             3: 3,  # TCP_KEEPCNT
         }
+    )
 
-        # Connection pool settings
-        self.max_connections = int(os.getenv("REDIS_MAX_CONNECTIONS", "50"))
-        self.retry_on_timeout = True
-        self.health_check_interval = 30
+    # Connection pool settings
+    max_connections: int = field(
+        default_factory=lambda: int(os.getenv("REDIS_MAX_CONNECTIONS", "50"))
+    )
+    retry_on_timeout: bool = True
+    health_check_interval: int = 30
 
-        # Failover settings
-        self.sentinel_kwargs = {
+    @property
+    def sentinel_kwargs(self) -> dict[str, Any]:
+        """
+        Get sentinel connection kwargs.
+
+        Returns:
+            Dictionary of sentinel connection parameters
+        """
+        return {
             "socket_timeout": self.socket_timeout,
             "socket_connect_timeout": self.socket_connect_timeout,
             "password": self.password,
         }
 
-    def get_sentinels(self) -> list[tuple]:
+    def get_sentinels(self) -> list[tuple[str, int]]:
         """
-        الحصول على قائمة Sentinels
+        Get list of Sentinel nodes as (host, port) tuples.
+        الحصول على قائمة عقد Sentinel
 
         Returns:
-            قائمة من tuples (host, port)
+            List of (host, port) tuples for Sentinel nodes
         """
-        sentinels = []
+        sentinels: list[tuple[str, int]] = []
         for i, host in enumerate(self.sentinel_hosts):
             port = self.sentinel_ports[i] if i < len(self.sentinel_ports) else self.sentinel_port
             sentinels.append((host.strip(), port))
         return sentinels
 
+    def to_dict(self) -> dict[str, Any]:
+        """
+        Convert configuration to dictionary.
+
+        Returns:
+            Dictionary representation of the configuration
+        """
+        return {
+            "sentinel_hosts": self.sentinel_hosts,
+            "sentinel_port": self.sentinel_port,
+            "master_name": self.master_name,
+            "db": self.db,
+            "socket_timeout": self.socket_timeout,
+            "max_connections": self.max_connections,
+        }
+
+
+class CircuitBreakerOpenError(Exception):
+    """
+    Exception raised when circuit breaker is open.
+    استثناء يُطرح عندما يكون قاطع الدائرة مفتوحاً
+
+    Attributes:
+        retry_after: Seconds until circuit breaker may close
+        message: Error description
+    """
+
+    def __init__(self, message: str = "Circuit breaker is OPEN", retry_after: float | None = None):
+        self.retry_after = retry_after
+        self.message = message
+        super().__init__(message)
+
+
+@dataclass
+class CircuitBreakerStats:
+    """
+    Statistics for circuit breaker monitoring.
+    إحصائيات مراقبة قاطع الدائرة
+    """
+    total_calls: int = 0
+    successful_calls: int = 0
+    failed_calls: int = 0
+    rejected_calls: int = 0
+    state_changes: int = 0
+    last_state_change: datetime | None = None
+
+    @property
+    def success_rate(self) -> float:
+        """Calculate success rate as percentage."""
+        if self.total_calls == 0:
+            return 100.0
+        return (self.successful_calls / self.total_calls) * 100
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "total_calls": self.total_calls,
+            "successful_calls": self.successful_calls,
+            "failed_calls": self.failed_calls,
+            "rejected_calls": self.rejected_calls,
+            "state_changes": self.state_changes,
+            "success_rate": round(self.success_rate, 2),
+            "last_state_change": self.last_state_change.isoformat() if self.last_state_change else None,
+        }
+
 
 class CircuitBreaker:
     """
-    Circuit Breaker Pattern لحماية من الأخطاء المتكررة
+    Circuit Breaker Pattern for protecting against cascading failures.
+    نمط قاطع الدائرة للحماية من الأخطاء المتتالية
 
     States:
-        - CLOSED: عمل عادي
-        - OPEN: الخدمة معطلة، رفض الطلبات
-        - HALF_OPEN: اختبار استعادة الخدمة
+        - CLOSED: Normal operation, requests pass through (عمل عادي)
+        - OPEN: Service is down, requests fail immediately (الخدمة معطلة)
+        - HALF_OPEN: Testing if service has recovered (اختبار استعادة الخدمة)
+
+    Attributes:
+        failure_threshold: Number of failures before opening circuit
+        recovery_timeout: Seconds to wait before testing recovery
+        expected_exception: Exception type to catch
+
+    Example:
+        >>> breaker = CircuitBreaker(failure_threshold=3, recovery_timeout=30)
+        >>> result = breaker.call(some_function, arg1, arg2)
     """
 
     def __init__(
         self,
         failure_threshold: int = 5,
         recovery_timeout: int = 60,
-        expected_exception: type = Exception,
-    ):
+        expected_exception: type[Exception] = Exception,
+        name: str = "default",
+    ) -> None:
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self.expected_exception = expected_exception
+        self.name = name
 
-        self.failure_count = 0
-        self.last_failure_time = None
-        self.state = "CLOSED"
+        self._failure_count: int = 0
+        self._last_failure_time: float | None = None
+        self._state: CircuitBreakerState = CircuitBreakerState.CLOSED
+        self._stats = CircuitBreakerStats()
 
-    def call(self, func, *args, **kwargs):
+    @property
+    def state(self) -> str:
+        """Get current state as string."""
+        return self._state.value
+
+    @property
+    def failure_count(self) -> int:
+        """Get current failure count."""
+        return self._failure_count
+
+    @property
+    def last_failure_time(self) -> float | None:
+        """Get timestamp of last failure."""
+        return self._last_failure_time
+
+    @property
+    def stats(self) -> CircuitBreakerStats:
+        """Get circuit breaker statistics."""
+        return self._stats
+
+    def call(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
         """
-        استدعاء دالة مع حماية Circuit Breaker
+        Execute function through circuit breaker protection.
+        تنفيذ دالة مع حماية قاطع الدائرة
+
+        Args:
+            func: Function to execute
+            *args: Positional arguments for function
+            **kwargs: Keyword arguments for function
+
+        Returns:
+            Result of the function call
+
+        Raises:
+            CircuitBreakerOpenError: If circuit is open
+            Exception: If function raises an expected exception
         """
-        if self.state == "OPEN":
-            if time.time() - self.last_failure_time > self.recovery_timeout:
-                self.state = "HALF_OPEN"
-                logger.info("Circuit breaker entering HALF_OPEN state")
+        self._stats.total_calls += 1
+
+        # Check if we should transition from OPEN to HALF_OPEN
+        if self._state == CircuitBreakerState.OPEN:
+            if self._last_failure_time and time.time() - self._last_failure_time > self.recovery_timeout:
+                self._transition_to(CircuitBreakerState.HALF_OPEN)
+                logger.info(f"Circuit breaker '{self.name}' entering HALF_OPEN state")
             else:
-                raise Exception("Circuit breaker is OPEN")
+                self._stats.rejected_calls += 1
+                retry_after = None
+                if self._last_failure_time:
+                    retry_after = self.recovery_timeout - (time.time() - self._last_failure_time)
+                raise CircuitBreakerOpenError(
+                    f"Circuit breaker '{self.name}' is OPEN",
+                    retry_after=retry_after
+                )
 
         try:
             result = func(*args, **kwargs)
@@ -130,21 +317,71 @@ class CircuitBreaker:
             return result
         except self.expected_exception as e:
             self._on_failure()
-            raise e
+            raise
 
-    def _on_success(self):
-        """نجاح العملية"""
-        self.failure_count = 0
-        self.state = "CLOSED"
+    def _transition_to(self, new_state: CircuitBreakerState) -> None:
+        """Transition to a new state."""
+        if self._state != new_state:
+            old_state = self._state
+            self._state = new_state
+            self._stats.state_changes += 1
+            self._stats.last_state_change = datetime.utcnow()
+            logger.info(
+                f"Circuit breaker '{self.name}' transitioned: {old_state.value} -> {new_state.value}"
+            )
 
-    def _on_failure(self):
-        """فشل العملية"""
-        self.failure_count += 1
-        self.last_failure_time = time.time()
+    def _on_success(self) -> None:
+        """Handle successful operation."""
+        self._failure_count = 0
+        self._stats.successful_calls += 1
+        if self._state == CircuitBreakerState.HALF_OPEN:
+            self._transition_to(CircuitBreakerState.CLOSED)
+            logger.info(f"Circuit breaker '{self.name}' closed after successful recovery")
+        elif self._state != CircuitBreakerState.CLOSED:
+            self._transition_to(CircuitBreakerState.CLOSED)
 
-        if self.failure_count >= self.failure_threshold:
-            self.state = "OPEN"
-            logger.error(f"Circuit breaker opened after {self.failure_count} failures")
+    def _on_failure(self) -> None:
+        """Handle failed operation."""
+        self._failure_count += 1
+        self._last_failure_time = time.time()
+        self._stats.failed_calls += 1
+
+        if self._state == CircuitBreakerState.HALF_OPEN:
+            # Recovery failed, reopen circuit
+            self._transition_to(CircuitBreakerState.OPEN)
+            logger.warning(f"Circuit breaker '{self.name}' reopened after failed recovery")
+        elif self._failure_count >= self.failure_threshold:
+            self._transition_to(CircuitBreakerState.OPEN)
+            logger.error(
+                f"Circuit breaker '{self.name}' opened after {self._failure_count} failures"
+            )
+
+    def reset(self) -> None:
+        """
+        Manually reset the circuit breaker to CLOSED state.
+        إعادة ضبط قاطع الدائرة يدوياً
+        """
+        self._failure_count = 0
+        self._last_failure_time = None
+        self._transition_to(CircuitBreakerState.CLOSED)
+        logger.info(f"Circuit breaker '{self.name}' manually reset")
+
+    def get_status(self) -> dict[str, Any]:
+        """
+        Get current status of the circuit breaker.
+        الحصول على الحالة الحالية لقاطع الدائرة
+
+        Returns:
+            Dictionary with state, failure count, and statistics
+        """
+        return {
+            "name": self.name,
+            "state": self.state,
+            "failure_count": self._failure_count,
+            "failure_threshold": self.failure_threshold,
+            "recovery_timeout": self.recovery_timeout,
+            "stats": self._stats.to_dict(),
+        }
 
 
 class RedisSentinelClient:

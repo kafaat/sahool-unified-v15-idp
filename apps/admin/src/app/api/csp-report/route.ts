@@ -201,15 +201,47 @@ export async function POST(request: NextRequest) {
 /**
  * OPTIONS /api/csp-report
  * Handle CORS preflight
+ *
+ * SECURITY: CORS origin is restricted based on environment.
+ * In production, only same-origin requests are allowed.
+ * In development, localhost is allowed for testing.
  */
-export async function OPTIONS() {
+export async function OPTIONS(request: NextRequest) {
+  // Determine allowed origin based on environment
+  const origin = request.headers.get("origin") || "";
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // In production, only allow same-origin or specific trusted domains
+  // In development, allow localhost for testing
+  let allowedOrigin: string;
+
+  if (isProduction) {
+    // In production, restrict to the application's own origin
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+    if (origin && appUrl && origin === appUrl) {
+      allowedOrigin = origin;
+    } else {
+      // For CSP reports, browsers may not always send origin header
+      // Default to rejecting unknown origins in production
+      allowedOrigin = appUrl || "";
+    }
+  } else {
+    // In development, allow localhost origins
+    if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
+      allowedOrigin = origin;
+    } else {
+      allowedOrigin = "http://localhost:3001";
+    }
+  }
+
   return new NextResponse(null, {
     status: 204,
     headers: {
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": allowedOrigin,
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
       "Access-Control-Max-Age": "86400",
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }

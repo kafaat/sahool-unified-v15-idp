@@ -24,7 +24,7 @@ class DailyForecastList extends StatelessWidget {
         child: Column(
           children: [
             for (int i = 0; i < forecasts.length; i++) ...[
-              _buildDayRow(context, forecasts[i], isToday: i == 0),
+              _buildDayRow(context, forecasts[i], isToday: i == 0, key: ValueKey('daily_${forecasts[i].dayName}_$i')),
               if (i < forecasts.length - 1)
                 const Divider(height: 24),
             ],
@@ -38,8 +38,10 @@ class DailyForecastList extends StatelessWidget {
     BuildContext context,
     DailyForecast forecast, {
     bool isToday = false,
+    Key? key,
   }) {
     return Row(
+      key: key,
       children: [
         // اليوم
         SizedBox(

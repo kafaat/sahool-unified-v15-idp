@@ -24,6 +24,23 @@ interface TaskCardProps {
   draggable?: boolean;
 }
 
+type ConfigInfo = { colors: string; label: string; labelAr: string; icon: React.ReactNode };
+
+const DEFAULT_STATUS_INFO: ConfigInfo = {
+  colors: "border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700",
+  label: "Open",
+  labelAr: "مفتوحة",
+  icon: <Circle className="w-4 h-4 text-gray-400" aria-hidden="true" />,
+};
+
+const DEFAULT_PRIORITY_INFO: ConfigInfo = {
+  colors:
+    "bg-green-100 text-green-700 border-green-200 dark:bg-green-800 dark:text-green-100",
+  label: "Low",
+  labelAr: "منخفضة",
+  icon: <Flag className="w-3 h-3" aria-hidden="true" />,
+};
+
 const priorityConfig: Record<string, ConfigInfo> = {
   urgent: {
     colors:
@@ -47,23 +64,6 @@ const priorityConfig: Record<string, ConfigInfo> = {
     icon: <Flag className="w-3 h-3" aria-hidden="true" />,
   },
   low: DEFAULT_PRIORITY_INFO,
-};
-
-type ConfigInfo = { colors: string; label: string; labelAr: string; icon: React.ReactNode };
-
-const DEFAULT_STATUS_INFO: ConfigInfo = {
-  colors: "border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700",
-  label: "Open",
-  labelAr: "مفتوحة",
-  icon: <Circle className="w-4 h-4 text-gray-400" aria-hidden="true" />,
-};
-
-const DEFAULT_PRIORITY_INFO: ConfigInfo = {
-  colors:
-    "bg-green-100 text-green-700 border-green-200 dark:bg-green-800 dark:text-green-100",
-  label: "Low",
-  labelAr: "منخفضة",
-  icon: <Flag className="w-3 h-3" aria-hidden="true" />,
 };
 
 const statusConfig: Record<string, ConfigInfo> = {

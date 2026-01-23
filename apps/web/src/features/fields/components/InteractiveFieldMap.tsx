@@ -621,7 +621,6 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
                 eventHandlers={{
                   click: () => handleTaskClick(task),
                 }}
-                {...({} as React.ComponentProps<typeof Marker>)}
               >
                 <Popup>
                   <div className="p-2 min-w-[200px]">

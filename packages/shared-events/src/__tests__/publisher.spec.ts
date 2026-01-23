@@ -240,7 +240,9 @@ describe("Event Publisher", () => {
     it("should publish order.completed event", async () => {
       await publishOrderCompleted({
         orderId: TEST_UUID_1,
+        userId: TEST_UUID_2,
         completedAt: new Date().toISOString(),
+        totalAmount: 200,
       });
 
       const [subject] = mockConnection.publish.mock.calls[0];
@@ -250,6 +252,7 @@ describe("Event Publisher", () => {
     it("should publish order.cancelled event", async () => {
       await publishOrderCancelled({
         orderId: TEST_UUID_1,
+        userId: TEST_UUID_2,
         cancelledAt: new Date().toISOString(),
         reason: "Customer request",
       });
@@ -402,7 +405,7 @@ describe("Event Publisher", () => {
         recipientType: "user",
         channel: "push",
         priority: "high",
-        title: "Alert",
+        subject: "Alert",
         message: "Low soil moisture detected",
       });
 

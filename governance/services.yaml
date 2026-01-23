@@ -3,8 +3,8 @@
 # Single Source of Truth for all microservices
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: "3.0.0"
-last_updated: "2026-01-14"
+version: "3.1.0"
+last_updated: "2026-01-23"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Architecture Layers
@@ -14,7 +14,7 @@ event_architecture:
   layers:
     acquisition:
       description: "Data ingestion layer - طبقة جمع البيانات"
-      services: [satellite-service, iot-service, weather-advanced, virtual-sensors, weather-service]
+      services: [satellite-service, iot-service, iot-gateway, weather-advanced, weather-service, weather-core, virtual-sensors, ussd-gateway]
       rules:
         - "No business logic"
         - "Only ingestion + normalization"
@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [indicators-service, lai-estimation, crop-health-ai, disaster-assessment, agro-rules, crop-intelligence-service, ndvi-processor, field-intelligence, vegetation-analysis-service, skills-service, ai-agents-service]
+      services: [indicators-service, lai-estimation, crop-health-ai, crop-health, disaster-assessment, agro-rules, crop-intelligence-service, ndvi-processor, ndvi-engine, field-intelligence, vegetation-analysis-service, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -30,7 +30,7 @@ event_architecture:
 
     decision:
       description: "Advisory & planning layer - طبقة القرار"
-      services: [crop-growth-model, fertilizer-advisor, irrigation-smart, yield-engine, yield-prediction, advisory-service]
+      services: [crop-growth-model, fertilizer-advisor, irrigation-smart, yield-engine, yield-prediction, advisory-service, ai-advisor, agro-advisor]
       rules:
         - "Consumes from Intelligence"
         - "Produces recommendations/plans"
@@ -38,7 +38,7 @@ event_architecture:
 
     business:
       description: "Business operations layer - طبقة الأعمال"
-      services: [notification-service, marketplace-service, billing-core, community-chat, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service]
+      services: [notification-service, marketplace-service, billing-core, community-chat, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service, field-management-service, field-core, field-ops, field-service, user-service, alert-service, inventory-service, field-chat, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service]
       rules:
         - "Consumes from Decision"
         - "User-facing operations"
@@ -1753,6 +1753,530 @@ services:
         - "WeChatAPIError"
         - "WeChatRateLimitExceeded"
         - "WeChatMessageDeliveryFailed"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AGENT REGISTRY - سجل الوكلاء
+  # ═══════════════════════════════════════════════════════════════════════════
+  agent-registry:
+    name: "Agent Registry"
+    name_ar: "سجل الوكلاء"
+    description: "Central registry for AI agent discovery, registration, and lifecycle management"
+    description_ar: "السجل المركزي لاكتشاف الوكلاء الذكية وتسجيلها وإدارة دورة حياتها"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/agent-registry"
+    port: 8140
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - AgentRegistered.v1
+        - AgentDeregistered.v1
+        - AgentHeartbeat.v1
+      consumes: []
+    dependencies:
+      - redis
+      - nats
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AI ADVISOR - المستشار الذكي
+  # ═══════════════════════════════════════════════════════════════════════════
+  ai-advisor:
+    name: "AI Advisor"
+    name_ar: "المستشار الذكي"
+    description: "AI-powered agricultural advisor with natural language query support"
+    description_ar: "مستشار زراعي مدعوم بالذكاء الاصطناعي مع دعم الاستعلام باللغة الطبيعية"
+    type: python
+    category: analytics
+    layer: decision
+    path: "apps/services/ai-advisor"
+    port: 8141
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    ui_connections:
+      - admin
+      - mobile
+    events:
+      produces:
+        - AIAdviceGenerated.v1
+        - QueryProcessed.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - WeatherForecastReady.v1
+        - CropHealthAssessed.v1
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AI AGENTS CORE - نواة الوكلاء الذكية
+  # ═══════════════════════════════════════════════════════════════════════════
+  ai-agents-core:
+    name: "AI Agents Core"
+    name_ar: "نواة الوكلاء الذكية"
+    description: "Core agent infrastructure with shared utilities, base classes, and patterns"
+    description_ar: "بنية الوكلاء الأساسية مع الأدوات المشتركة والفئات الأساسية والأنماط"
+    type: python
+    category: core
+    layer: intelligence
+    path: "apps/services/ai-agents-core"
+    port: 8142
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces: []
+      consumes: []
+    dependencies:
+      - redis
+    resources:
+      cpu: "300m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CHAT SERVICE - خدمة الدردشة
+  # Note: May overlap with community-chat - evaluate for consolidation
+  # ═══════════════════════════════════════════════════════════════════════════
+  chat-service:
+    name: "Chat Service"
+    name_ar: "خدمة الدردشة"
+    description: "Real-time chat service for farmer-to-expert communication"
+    description_ar: "خدمة الدردشة الفورية للتواصل بين المزارعين والخبراء"
+    type: nestjs
+    category: community
+    layer: business
+    path: "apps/services/chat-service"
+    port: 8143
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    ui_connections:
+      - web
+      - admin
+      - mobile
+    consolidation_note: "Review for potential merge with community-chat service"
+    events:
+      produces:
+        - ChatMessageSent.v1
+        - ChatRoomCreated.v1
+      consumes:
+        - UserAuthenticated.v1
+    database:
+      type: postgresql
+      name: sahool_chat
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "300m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CODE FIX AGENT - وكيل إصلاح الكود
+  # ═══════════════════════════════════════════════════════════════════════════
+  code-fix-agent:
+    name: "Code Fix Agent"
+    name_ar: "وكيل إصلاح الكود"
+    description: "Autonomous AI agent for code diagnostics and automated fixing"
+    description_ar: "وكيل ذكاء اصطناعي مستقل لتشخيص الكود وإصلاحه تلقائياً"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/code-fix-agent"
+    port: 8144
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - CodeFixApplied.v1
+        - DiagnosticGenerated.v1
+      consumes: []
+    dependencies:
+      - redis
+    resources:
+      cpu: "400m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CODE REVIEW AGENT - وكيل مراجعة الكود
+  # ═══════════════════════════════════════════════════════════════════════════
+  code-review-agent:
+    name: "Code Review Agent"
+    name_ar: "وكيل مراجعة الكود"
+    description: "AI-powered code review agent for pull request analysis"
+    description_ar: "وكيل مراجعة الكود المدعوم بالذكاء الاصطناعي لتحليل طلبات السحب"
+    type: nestjs
+    category: analytics
+    layer: intelligence
+    path: "apps/services/code-review-agent"
+    port: 8145
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces:
+        - CodeReviewCompleted.v1
+        - PRAnalyzed.v1
+      consumes: []
+    dependencies:
+      - redis
+      - nats
+    resources:
+      cpu: "400m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CODE REVIEW SERVICE - خدمة مراجعة الكود
+  # ═══════════════════════════════════════════════════════════════════════════
+  code-review-service:
+    name: "Code Review Service"
+    name_ar: "خدمة مراجعة الكود"
+    description: "Code review orchestration service for managing review workflows"
+    description_ar: "خدمة تنسيق مراجعة الكود لإدارة سير عمل المراجعة"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/code-review-service"
+    port: 8146
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - ReviewRequested.v1
+        - ReviewApproved.v1
+      consumes:
+        - CodeReviewCompleted.v1
+    dependencies:
+      - postgres
+      - redis
+    resources:
+      cpu: "300m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CROP HEALTH - صحة المحاصيل
+  # Legacy service - consider migration to crop-intelligence-service
+  # ═══════════════════════════════════════════════════════════════════════════
+  crop-health:
+    name: "Crop Health"
+    name_ar: "صحة المحاصيل"
+    description: "Basic crop health monitoring and disease detection"
+    description_ar: "مراقبة صحة المحاصيل الأساسية واكتشاف الأمراض"
+    type: python
+    category: crop
+    layer: intelligence
+    path: "apps/services/crop-health"
+    port: 8147
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    ui_connections:
+      - web
+      - admin
+      - mobile
+    migration_note: "Consider migration to crop-intelligence-service for unified health monitoring"
+    events:
+      produces:
+        - CropHealthChecked.v1
+      consumes:
+        - SatelliteSceneIngested.v1
+        - FieldIndicatorsComputed.v1
+    dependencies:
+      - postgres
+      - redis
+    resources:
+      cpu: "400m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # GLOBALGAP COMPLIANCE - التوافق مع GlobalGAP
+  # ═══════════════════════════════════════════════════════════════════════════
+  globalgap-compliance:
+    name: "GlobalGAP Compliance"
+    name_ar: "التوافق مع GlobalGAP"
+    description: "GlobalGAP certification compliance tracking and audit preparation"
+    description_ar: "تتبع التوافق مع شهادة GlobalGAP وإعداد التدقيق"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/globalgap-compliance"
+    port: 8148
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - ComplianceCheckCompleted.v1
+        - AuditReportGenerated.v1
+      consumes:
+        - FieldUpdated.v1
+        - TaskCompleted.v1
+    dependencies:
+      - postgres
+      - redis
+    resources:
+      cpu: "300m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # KNOWLEDGE GRAPH - الرسم البياني المعرفي
+  # ═══════════════════════════════════════════════════════════════════════════
+  knowledge-graph:
+    name: "Knowledge Graph"
+    name_ar: "الرسم البياني المعرفي"
+    description: "Agricultural knowledge graph for entity relationships and semantic queries"
+    description_ar: "الرسم البياني للمعرفة الزراعية لعلاقات الكيانات والاستعلامات الدلالية"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/knowledge-graph"
+    port: 8149
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - EntityLinked.v1
+        - GraphQueryExecuted.v1
+      consumes:
+        - FieldCreated.v1
+        - CropHealthAssessed.v1
+        - AdvisoryGenerated.v1
+    database:
+      type: postgresql
+      name: sahool_knowledge
+    dependencies:
+      - postgres
+      - redis
+    resources:
+      cpu: "400m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # LOGISTICS SERVICE - خدمة اللوجستيات
+  # ═══════════════════════════════════════════════════════════════════════════
+  logistics-service:
+    name: "Logistics Service"
+    name_ar: "خدمة اللوجستيات"
+    description: "Farm logistics management for harvest transportation and supply chain"
+    description_ar: "إدارة اللوجستيات الزراعية لنقل المحاصيل وسلسلة التوريد"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/logistics-service"
+    port: 8150
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - ShipmentCreated.v1
+        - DeliveryCompleted.v1
+      consumes:
+        - OrderCreated.v1
+        - YieldEstimated.v1
+    database:
+      type: postgresql
+      name: sahool_logistics
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "300m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NDVI ENGINE - محرك NDVI
+  # ═══════════════════════════════════════════════════════════════════════════
+  ndvi-engine:
+    name: "NDVI Engine"
+    name_ar: "محرك NDVI"
+    description: "Core NDVI calculation engine for vegetation index processing"
+    description_ar: "محرك حساب NDVI الأساسي لمعالجة مؤشر الغطاء النباتي"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/ndvi-engine"
+    port: 8152
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - NDVICalculated.v1
+      consumes:
+        - SatelliteSceneIngested.v1
+    dependencies:
+      - redis
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # USSD GATEWAY - بوابة USSD
+  # ═══════════════════════════════════════════════════════════════════════════
+  ussd-gateway:
+    name: "USSD Gateway"
+    name_ar: "بوابة USSD"
+    description: "USSD/SMS gateway for farmers without smartphone access"
+    description_ar: "بوابة USSD/SMS للمزارعين الذين لا يملكون هواتف ذكية"
+    type: python
+    category: integration
+    layer: business
+    path: "apps/services/ussd-gateway"
+    port: 8153
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - USSDSessionStarted.v1
+        - SMSReceived.v1
+      consumes:
+        - NotificationQueued.v1
+        - AlertTriggered.v1
+    dependencies:
+      - redis
+      - nats
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WEATHER CORE - نواة الطقس
+  # Base weather service with caching and aggregation
+  # ═══════════════════════════════════════════════════════════════════════════
+  weather-core:
+    name: "Weather Core"
+    name_ar: "نواة الطقس"
+    description: "Core weather data aggregation and caching layer"
+    description_ar: "طبقة تجميع وتخزين بيانات الطقس الأساسية"
+    type: python
+    category: integration
+    layer: acquisition
+    path: "apps/services/weather-core"
+    port: 8154
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    consolidation_note: "Base layer for weather-service - may be merged in future"
+    events:
+      produces:
+        - WeatherDataCached.v1
+      consumes: []
+    dependencies:
+      - redis
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FIELD CORE - نواة الحقول (DEPRECATED)
+  # ═══════════════════════════════════════════════════════════════════════════
+  field-core:
+    name: "Field Core"
+    name_ar: "نواة الحقول"
+    type: nestjs
+    category: core
+    layer: business
+    path: "apps/services/field-core"
+    port: 3005
+    protocol: http
+    health_endpoint: "/health"
+    status: deprecated
+    replaced_by: field-management-service
+    deprecation_date: "2026-01-01"
+    ui_connections:
+      - web
+      - admin
+      - mobile
+    events:
+      produces:
+        - FieldCreated.v1
+        - FieldUpdated.v1
+      consumes: []
+    resources:
+      cpu: "400m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FIELD OPS - عمليات الحقول (DEPRECATED)
+  # ═══════════════════════════════════════════════════════════════════════════
+  field-ops:
+    name: "Field Operations"
+    name_ar: "عمليات الحقول"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/field-ops"
+    port: 8155
+    protocol: http
+    health_endpoint: "/healthz"
+    status: deprecated
+    replaced_by: field-management-service
+    deprecation_date: "2026-01-01"
+    events:
+      produces:
+        - FieldOperationLogged.v1
+      consumes: []
+    resources:
+      cpu: "300m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FIELD SERVICE - خدمة الحقول (DEPRECATED)
+  # ═══════════════════════════════════════════════════════════════════════════
+  field-service:
+    name: "Field Service"
+    name_ar: "خدمة الحقول"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/field-service"
+    port: 8156
+    protocol: http
+    health_endpoint: "/healthz"
+    status: deprecated
+    replaced_by: field-management-service
+    deprecation_date: "2026-01-01"
+    events:
+      produces:
+        - FieldDataSynced.v1
+      consumes: []
+    resources:
+      cpu: "300m"
+      memory: "384Mi"
+      replicas: 1
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Applications (Frontend)

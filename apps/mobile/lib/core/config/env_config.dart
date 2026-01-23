@@ -170,8 +170,19 @@ class EnvConfig {
         return const String.fromEnvironment('INVENTORY_PORT');
       case 'NOTIFICATIONS_PORT':
         return const String.fromEnvironment('NOTIFICATIONS_PORT');
+      case 'BILLING_PORT':
+        return const String.fromEnvironment('BILLING_PORT');
+      case 'AI_ADVISOR_PORT':
+        return const String.fromEnvironment('AI_ADVISOR_PORT');
       case 'GATEWAY_PORT':
         return const String.fromEnvironment('GATEWAY_PORT');
+      // Service Health Monitoring
+      case 'ENABLE_SERVICE_HEALTH_MONITORING':
+        return const String.fromEnvironment('ENABLE_SERVICE_HEALTH_MONITORING');
+      case 'SERVICE_HEALTH_CHECK_INTERVAL_MINUTES':
+        return const String.fromEnvironment('SERVICE_HEALTH_CHECK_INTERVAL_MINUTES');
+      case 'SERVICE_HEALTH_CHECK_TIMEOUT_SECONDS':
+        return const String.fromEnvironment('SERVICE_HEALTH_CHECK_TIMEOUT_SECONDS');
       // Service URL Overrides
       case 'MARKETPLACE_URL':
         return const String.fromEnvironment('MARKETPLACE_URL');
@@ -378,6 +389,8 @@ class EnvConfig {
   static int get equipmentPort => _getInt('EQUIPMENT_PORT', 8101); // equipment-service
   static int get inventoryPort => _getInt('INVENTORY_PORT', 8116); // inventory-service (FIXED: was 8102)
   static int get notificationsPort => _getInt('NOTIFICATIONS_PORT', 8110); // notification-service
+  static int get billingPort => _getInt('BILLING_PORT', 8089); // billing-core
+  static int get aiAdvisorPort => _getInt('AI_ADVISOR_PORT', 8112); // ai-advisor service
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Service URLs
@@ -513,6 +526,38 @@ class EnvConfig {
     }
     return 'http://$developmentHost:$notificationsPort';
   }
+
+  /// Billing service URL
+  static String get billingUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$billingPort';
+  }
+
+  /// AI Advisor service URL
+  static String get aiAdvisorUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$aiAdvisorPort';
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Service Health Monitoring Configuration
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Enable service health monitoring
+  static bool get enableServiceHealthMonitoring =>
+      _getBool('ENABLE_SERVICE_HEALTH_MONITORING', true);
+
+  /// Service health check interval in minutes
+  static Duration get serviceHealthCheckInterval =>
+      Duration(minutes: _getInt('SERVICE_HEALTH_CHECK_INTERVAL_MINUTES', 5));
+
+  /// Service health check timeout in seconds
+  static Duration get serviceHealthCheckTimeout =>
+      Duration(seconds: _getInt('SERVICE_HEALTH_CHECK_TIMEOUT_SECONDS', 10));
 
   // ═══════════════════════════════════════════════════════════════════════════
   // WebSocket Configuration

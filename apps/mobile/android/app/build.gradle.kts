@@ -10,8 +10,8 @@ plugins {
 
 android {
     namespace = "io.sahool.sahool_field_app"
-    compileSdk = 34
-    ndkVersion = "26.1.10909125"
+    compileSdk = 36
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
             isCoreLibraryDesugaringEnabled = true

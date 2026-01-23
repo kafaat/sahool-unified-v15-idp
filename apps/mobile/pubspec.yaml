@@ -101,7 +101,7 @@ dependencies:
   file_picker: ^8.1.4
 
   # Audio Recording
-  record: ^5.1.2
+  record: ^5.0.5  # 5.1.x has incompatible record_linux
   permission_handler: ^11.3.1
 
   # Sharing & URLs

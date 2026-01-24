@@ -745,7 +745,7 @@ extension DraftManagerFormHelpers on DraftManager {
   Future<Draft> saveHarvestDraft({
     required String? fieldId,
     required String? cropType,
-    required double? yield,
+    required double? harvestYield,
     required String? yieldUnit,
     required String? quality,
     required DateTime? date,
@@ -756,7 +756,7 @@ extension DraftManagerFormHelpers on DraftManager {
       data: {
         'fieldId': fieldId,
         'cropType': cropType,
-        'yield': yield,
+        'yield': harvestYield,
         'yieldUnit': yieldUnit,
         'quality': quality,
         'date': date?.toIso8601String(),

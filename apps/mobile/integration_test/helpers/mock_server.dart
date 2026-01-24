@@ -383,7 +383,7 @@ class MockServer {
           'description': 'صافي',
           'icon': 'sunny',
         },
-        'hourly': List.generate(24, (i) => {
+        'hourly': List.generate(24, (i) {
           return {
             'time': DateTime.now().add(Duration(hours: i)).toIso8601String(),
             'temperature': 25 + (i % 10),
@@ -391,7 +391,7 @@ class MockServer {
             'icon': i > 6 && i < 18 ? 'sunny' : 'moon',
           };
         }),
-        'daily': List.generate(7, (i) => {
+        'daily': List.generate(7, (i) {
           return {
             'date': DateTime.now().add(Duration(days: i)).toIso8601String(),
             'temperatureMax': 30 + i,

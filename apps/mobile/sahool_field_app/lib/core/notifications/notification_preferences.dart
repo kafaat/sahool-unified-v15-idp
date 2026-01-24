@@ -12,7 +12,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'firebase_messaging_service.dart';
+import 'notification_types.dart';
 
 /// Notification preferences model
 class NotificationPreferences {
@@ -281,12 +281,8 @@ class NotificationPreferences {
 /// Notification preferences service
 class NotificationPreferencesService {
   static const _prefsKey = 'notification_preferences';
-  static NotificationPreferencesService? _instance;
 
-  static NotificationPreferencesService get instance {
-    _instance ??= NotificationPreferencesService._();
-    return _instance!;
-  }
+  static final NotificationPreferencesService instance = NotificationPreferencesService._();
 
   NotificationPreferencesService._();
 
@@ -301,36 +297,40 @@ class NotificationPreferencesService {
 
   /// Load preferences from storage
   Future<NotificationPreferences> loadPreferences() async {
-    if (_sharedPrefs == null) {
+    var prefs = _sharedPrefs;
+    if (prefs == null) {
       await initialize();
+      prefs = _sharedPrefs;
     }
 
-    final json = _sharedPrefs!.getString(_prefsKey);
+    final json = prefs?.getString(_prefsKey);
     if (json != null) {
       try {
         _preferences = NotificationPreferences.fromJson(
           jsonDecode(json) as Map<String, dynamic>,
         );
       } catch (e) {
-        debugPrint('❌ Failed to load preferences: $e');
+        debugPrint('Failed to load preferences: $e');
         _preferences = NotificationPreferences();
       }
     } else {
       _preferences = NotificationPreferences();
     }
 
-    return _preferences!;
+    return _preferences ?? NotificationPreferences();
   }
 
   /// Save preferences to storage
   Future<void> savePreferences(NotificationPreferences preferences) async {
-    if (_sharedPrefs == null) {
+    var prefs = _sharedPrefs;
+    if (prefs == null) {
       await initialize();
+      prefs = _sharedPrefs;
     }
 
     _preferences = preferences;
-    await _sharedPrefs!.setString(_prefsKey, jsonEncode(preferences.toJson()));
-    debugPrint('✅ Notification preferences saved');
+    await prefs?.setString(_prefsKey, jsonEncode(preferences.toJson()));
+    debugPrint('Notification preferences saved');
   }
 
   /// Get current preferences

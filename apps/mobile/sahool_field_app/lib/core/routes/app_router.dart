@@ -288,7 +288,10 @@ class AppRouter {
       GoRoute(
         path: '/rotation',
         name: 'rotation',
-        builder: (context, state) => const RotationCalendarScreen(),
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>?;
+          return RotationCalendarScreen(fieldId: args?['fieldId']);
+        },
       ),
 
       GoRoute(

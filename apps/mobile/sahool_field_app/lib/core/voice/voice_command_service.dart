@@ -13,11 +13,7 @@ import '../utils/app_logger.dart';
 /// - Farmer-friendly commands
 
 class VoiceCommandService {
-  static VoiceCommandService? _instance;
-  static VoiceCommandService get instance {
-    _instance ??= VoiceCommandService._();
-    return _instance!;
-  }
+  static final VoiceCommandService instance = VoiceCommandService._();
 
   VoiceCommandService._();
 

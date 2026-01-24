@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../core/theme/sahool_theme.dart';
 
 /// شاشة السوق الزراعي - تصميم احترافي
@@ -99,10 +100,11 @@ class _MarketScreenState extends State<MarketScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text("سوق سهول"),
+        title: Text(l10n.sahoolMarket),
         backgroundColor: SahoolColors.forestGreen,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -185,9 +187,9 @@ class _MarketScreenState extends State<MarketScreen> {
         backgroundColor: SahoolColors.harvestGold,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
-        label: const Text(
-          "بيع محصولي",
-          style: TextStyle(fontWeight: FontWeight.bold),
+        label: Text(
+          l10n.sellMyCrop,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -212,7 +214,7 @@ class _MarketScreenState extends State<MarketScreen> {
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: "ابحث عن بذور، أسمدة، معدات...",
+              hintText: l10n.searchProductsPlaceholder,
               prefixIcon: const Icon(Icons.search, color: Colors.grey),
               suffixIcon: IconButton(
                 icon: const Icon(Icons.tune, color: Colors.grey),

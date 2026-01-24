@@ -78,6 +78,34 @@ class WeatherSummary extends Equatable {
     return (et0 - (precipitation / 7)).clamp(0.0, et0);
   }
 
+  WeatherSummary copyWith({
+    String? fieldId,
+    double? temperature,
+    double? minTemp,
+    double? maxTemp,
+    double? precipitation,
+    double? humidity,
+    double? et0,
+    String? condition,
+    String? conditionAr,
+    DateTime? updatedAt,
+    List<DailyForecastSummary>? forecast,
+  }) {
+    return WeatherSummary(
+      fieldId: fieldId ?? this.fieldId,
+      temperature: temperature ?? this.temperature,
+      minTemp: minTemp ?? this.minTemp,
+      maxTemp: maxTemp ?? this.maxTemp,
+      precipitation: precipitation ?? this.precipitation,
+      humidity: humidity ?? this.humidity,
+      et0: et0 ?? this.et0,
+      condition: condition ?? this.condition,
+      conditionAr: conditionAr ?? this.conditionAr,
+      updatedAt: updatedAt ?? this.updatedAt,
+      forecast: forecast ?? this.forecast,
+    );
+  }
+
   @override
   List<Object?> get props => [
         fieldId,
@@ -139,6 +167,26 @@ class DailyForecastSummary extends Equatable {
     };
   }
 
+  DailyForecastSummary copyWith({
+    DateTime? date,
+    double? tempMin,
+    double? tempMax,
+    double? precipitation,
+    String? condition,
+    String? conditionAr,
+    String? icon,
+  }) {
+    return DailyForecastSummary(
+      date: date ?? this.date,
+      tempMin: tempMin ?? this.tempMin,
+      tempMax: tempMax ?? this.tempMax,
+      precipitation: precipitation ?? this.precipitation,
+      condition: condition ?? this.condition,
+      conditionAr: conditionAr ?? this.conditionAr,
+      icon: icon ?? this.icon,
+    );
+  }
+
   @override
   List<Object?> get props => [date, tempMin, tempMax, precipitation, condition, conditionAr, icon];
 }
@@ -188,6 +236,26 @@ class WeatherAlertSummary extends Equatable {
       'starts_at': startsAt.toIso8601String(),
       'ends_at': endsAt?.toIso8601String(),
     };
+  }
+
+  WeatherAlertSummary copyWith({
+    String? id,
+    WeatherAlertType? type,
+    String? severity,
+    String? message,
+    String? messageAr,
+    DateTime? startsAt,
+    DateTime? endsAt,
+  }) {
+    return WeatherAlertSummary(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      severity: severity ?? this.severity,
+      message: message ?? this.message,
+      messageAr: messageAr ?? this.messageAr,
+      startsAt: startsAt ?? this.startsAt,
+      endsAt: endsAt ?? this.endsAt,
+    );
   }
 
   @override

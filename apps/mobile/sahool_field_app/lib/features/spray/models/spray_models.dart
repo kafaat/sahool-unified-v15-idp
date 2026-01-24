@@ -76,6 +76,28 @@ enum RecommendationStatus {
   }
 }
 
+/// مستوى خطر الانجراف - Drift Risk Level
+enum DriftRiskLevel {
+  low('low', 'منخفض', 'Low'),
+  medium('medium', 'متوسط', 'Medium'),
+  high('high', 'مرتفع', 'High');
+
+  final String value;
+  final String nameAr;
+  final String nameEn;
+
+  const DriftRiskLevel(this.value, this.nameAr, this.nameEn);
+
+  String getName(String locale) => locale == 'ar' ? nameAr : nameEn;
+
+  static DriftRiskLevel fromString(String value) {
+    return DriftRiskLevel.values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => DriftRiskLevel.medium,
+    );
+  }
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 // Models
 // ═════════════════════════════════════════════════════════════════════════════
@@ -173,6 +195,58 @@ class WeatherCondition {
     return score.clamp(0, 100);
   }
 
+  /// حساب خطر الانجراف (Drift Risk)
+  /// يعتمد على سرعة الرياح، درجة الحرارة، والرطوبة
+  /// Returns a value from 0 (low risk) to 100 (high risk)
+  int get driftRiskScore {
+    int risk = 0;
+
+    // Wind speed is the primary factor
+    // سرعة الرياح هي العامل الأساسي
+    if (windSpeed >= 20) {
+      risk += 50; // High drift risk
+    } else if (windSpeed >= 15) {
+      risk += 35;
+    } else if (windSpeed >= 10) {
+      risk += 20;
+    } else if (windSpeed >= 5) {
+      risk += 10;
+    }
+
+    // Temperature affects evaporation and droplet size
+    // درجة الحرارة تؤثر على التبخر وحجم القطرات
+    if (temperature > 30) {
+      risk += 25; // High temp causes rapid evaporation
+    } else if (temperature > 25) {
+      risk += 15;
+    } else if (temperature < 10) {
+      risk += 10; // Low temp affects spray pattern
+    }
+
+    // Low humidity increases evaporation and drift
+    // الرطوبة المنخفضة تزيد من التبخر والانجراف
+    if (humidity < 40) {
+      risk += 25; // Very dry - high evaporation
+    } else if (humidity < 50) {
+      risk += 15;
+    } else if (humidity < 60) {
+      risk += 5;
+    }
+
+    return risk.clamp(0, 100);
+  }
+
+  /// مستوى خطر الانجراف
+  DriftRiskLevel get driftRiskLevel {
+    final risk = driftRiskScore;
+    if (risk >= 60) return DriftRiskLevel.high;
+    if (risk >= 30) return DriftRiskLevel.medium;
+    return DriftRiskLevel.low;
+  }
+
+  /// هل الانجراف منخفض الخطورة للرش؟
+  bool get isDriftRiskAcceptable => driftRiskScore < 40;
+
   factory WeatherCondition.fromJson(Map<String, dynamic> json) {
     return WeatherCondition(
       conditionId: json['condition_id'] as String,
@@ -206,6 +280,38 @@ class WeatherCondition {
         'condition_ar': conditionAr,
         'metadata': metadata,
       };
+
+  WeatherCondition copyWith({
+    String? conditionId,
+    DateTime? timestamp,
+    double? temperature,
+    double? humidity,
+    double? windSpeed,
+    String? windDirection,
+    String? windDirectionAr,
+    double? rainProbability,
+    double? rainfall,
+    double? pressure,
+    String? condition,
+    String? conditionAr,
+    Map<String, dynamic>? metadata,
+  }) {
+    return WeatherCondition(
+      conditionId: conditionId ?? this.conditionId,
+      timestamp: timestamp ?? this.timestamp,
+      temperature: temperature ?? this.temperature,
+      humidity: humidity ?? this.humidity,
+      windSpeed: windSpeed ?? this.windSpeed,
+      windDirection: windDirection ?? this.windDirection,
+      windDirectionAr: windDirectionAr ?? this.windDirectionAr,
+      rainProbability: rainProbability ?? this.rainProbability,
+      rainfall: rainfall ?? this.rainfall,
+      pressure: pressure ?? this.pressure,
+      condition: condition ?? this.condition,
+      conditionAr: conditionAr ?? this.conditionAr,
+      metadata: metadata ?? this.metadata,
+    );
+  }
 }
 
 /// نموذج منتج الرش
@@ -360,6 +466,64 @@ class SprayProduct {
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
       };
+
+  SprayProduct copyWith({
+    String? productId,
+    String? name,
+    String? nameAr,
+    SprayType? type,
+    String? manufacturer,
+    String? manufacturerAr,
+    String? activeIngredient,
+    String? activeIngredientAr,
+    double? concentration,
+    String? unit,
+    String? unitAr,
+    double? recommendedRate,
+    double? minRate,
+    double? maxRate,
+    int? phi,
+    int? rei,
+    String? targetPest,
+    String? targetPestAr,
+    String? targetDisease,
+    String? targetDiseaseAr,
+    String? notes,
+    String? notesAr,
+    bool? isYemenProduct,
+    Map<String, dynamic>? metadata,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return SprayProduct(
+      productId: productId ?? this.productId,
+      name: name ?? this.name,
+      nameAr: nameAr ?? this.nameAr,
+      type: type ?? this.type,
+      manufacturer: manufacturer ?? this.manufacturer,
+      manufacturerAr: manufacturerAr ?? this.manufacturerAr,
+      activeIngredient: activeIngredient ?? this.activeIngredient,
+      activeIngredientAr: activeIngredientAr ?? this.activeIngredientAr,
+      concentration: concentration ?? this.concentration,
+      unit: unit ?? this.unit,
+      unitAr: unitAr ?? this.unitAr,
+      recommendedRate: recommendedRate ?? this.recommendedRate,
+      minRate: minRate ?? this.minRate,
+      maxRate: maxRate ?? this.maxRate,
+      phi: phi ?? this.phi,
+      rei: rei ?? this.rei,
+      targetPest: targetPest ?? this.targetPest,
+      targetPestAr: targetPestAr ?? this.targetPestAr,
+      targetDisease: targetDisease ?? this.targetDisease,
+      targetDiseaseAr: targetDiseaseAr ?? this.targetDiseaseAr,
+      notes: notes ?? this.notes,
+      notesAr: notesAr ?? this.notesAr,
+      isYemenProduct: isYemenProduct ?? this.isYemenProduct,
+      metadata: metadata ?? this.metadata,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }
 
 /// نموذج نافذة الرش المثلى
@@ -451,6 +615,34 @@ class SprayWindow {
         'warnings_ar': warningsAr,
         'metadata': metadata,
       };
+
+  SprayWindow copyWith({
+    String? windowId,
+    DateTime? startTime,
+    DateTime? endTime,
+    SprayWindowStatus? status,
+    WeatherCondition? weatherCondition,
+    int? confidenceScore,
+    String? reason,
+    String? reasonAr,
+    List<String>? warnings,
+    List<String>? warningsAr,
+    Map<String, dynamic>? metadata,
+  }) {
+    return SprayWindow(
+      windowId: windowId ?? this.windowId,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      status: status ?? this.status,
+      weatherCondition: weatherCondition ?? this.weatherCondition,
+      confidenceScore: confidenceScore ?? this.confidenceScore,
+      reason: reason ?? this.reason,
+      reasonAr: reasonAr ?? this.reasonAr,
+      warnings: warnings ?? this.warnings,
+      warningsAr: warningsAr ?? this.warningsAr,
+      metadata: metadata ?? this.metadata,
+    );
+  }
 }
 
 /// نموذج توصية الرش
@@ -854,4 +1046,62 @@ class SprayApplicationLog {
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
       };
+
+  SprayApplicationLog copyWith({
+    String? logId,
+    String? tenantId,
+    String? fieldId,
+    String? fieldName,
+    String? fieldNameAr,
+    String? recommendationId,
+    SprayType? sprayType,
+    SprayProduct? product,
+    double? appliedRate,
+    String? unit,
+    String? unitAr,
+    double? area,
+    double? totalQuantity,
+    DateTime? applicationDate,
+    WeatherCondition? weatherCondition,
+    String? applicatorName,
+    String? equipmentUsed,
+    String? equipmentUsedAr,
+    List<String>? photoUrls,
+    String? notes,
+    String? notesAr,
+    String? createdBy,
+    String? createdByName,
+    Map<String, dynamic>? metadata,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return SprayApplicationLog(
+      logId: logId ?? this.logId,
+      tenantId: tenantId ?? this.tenantId,
+      fieldId: fieldId ?? this.fieldId,
+      fieldName: fieldName ?? this.fieldName,
+      fieldNameAr: fieldNameAr ?? this.fieldNameAr,
+      recommendationId: recommendationId ?? this.recommendationId,
+      sprayType: sprayType ?? this.sprayType,
+      product: product ?? this.product,
+      appliedRate: appliedRate ?? this.appliedRate,
+      unit: unit ?? this.unit,
+      unitAr: unitAr ?? this.unitAr,
+      area: area ?? this.area,
+      totalQuantity: totalQuantity ?? this.totalQuantity,
+      applicationDate: applicationDate ?? this.applicationDate,
+      weatherCondition: weatherCondition ?? this.weatherCondition,
+      applicatorName: applicatorName ?? this.applicatorName,
+      equipmentUsed: equipmentUsed ?? this.equipmentUsed,
+      equipmentUsedAr: equipmentUsedAr ?? this.equipmentUsedAr,
+      photoUrls: photoUrls ?? this.photoUrls,
+      notes: notes ?? this.notes,
+      notesAr: notesAr ?? this.notesAr,
+      createdBy: createdBy ?? this.createdBy,
+      createdByName: createdByName ?? this.createdByName,
+      metadata: metadata ?? this.metadata,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }

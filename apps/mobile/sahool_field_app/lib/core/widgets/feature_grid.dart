@@ -50,7 +50,7 @@ class FeatureGrid extends StatelessWidget {
         itemCount: features.length,
         itemBuilder: (context, index) {
           return Padding(
-            padding: const EdgeInsets.only(left: 12),
+            padding: const EdgeInsetsDirectional.only(start: 12),
             child: _buildCompactFeatureCard(context, features[index]),
           );
         },
@@ -305,7 +305,7 @@ class FeatureSection extends StatelessWidget {
             itemBuilder: (context, index) {
               final feature = features[index];
               return Padding(
-                padding: const EdgeInsets.only(left: 12),
+                padding: const EdgeInsetsDirectional.only(start: 12),
                 child: _buildFeatureCard(context, feature),
               );
             },
@@ -463,7 +463,10 @@ class QuickActionCard extends StatelessWidget {
                     ),
                   ),
                 ),
-              Icon(Icons.chevron_left_rounded, color: Colors.grey[400]),
+              // Use RTL-aware chevron icon
+              Directionality.of(context) == TextDirection.rtl
+                  ? Icon(Icons.chevron_left_rounded, color: Colors.grey[400])
+                  : Icon(Icons.chevron_right_rounded, color: Colors.grey[400]),
             ],
           ),
         ),

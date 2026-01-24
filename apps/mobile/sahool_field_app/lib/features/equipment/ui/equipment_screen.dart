@@ -840,6 +840,8 @@ IconData _getEquipmentIcon(EquipmentType type) {
       return Icons.sensors;
     case EquipmentType.vehicle:
       return Icons.local_shipping;
+    case EquipmentType.iotDevice:
+      return Icons.memory;
     case EquipmentType.other:
       return Icons.build;
   }
@@ -855,6 +857,10 @@ Color _getStatusColor(EquipmentStatus status) {
       return Colors.grey;
     case EquipmentStatus.repair:
       return SahoolColors.danger;
+    case EquipmentStatus.standby:
+      return SahoolColors.info;
+    case EquipmentStatus.inUse:
+      return SahoolColors.success;
   }
 }
 

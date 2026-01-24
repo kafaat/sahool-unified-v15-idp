@@ -1,11 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:sahool_field_app/core/error_handling/app_exceptions.dart';
 import 'package:sahool_field_app/features/tasks/data/repo/tasks_repo.dart';
 import 'package:sahool_field_app/features/tasks/data/remote/tasks_api.dart';
 import 'package:sahool_field_app/features/tasks/domain/entities/task.dart';
 import '../../../mocks/mock_app_database.dart';
 import '../../../mocks/mock_network_status.dart';
 import '../../../fixtures/sample_tasks.dart';
+
+// Import NotFoundException for tests
+export 'package:sahool_field_app/core/error_handling/app_exceptions.dart' show NotFoundException;
 
 /// Mock TasksApi for testing
 class MockTasksApi extends Mock implements TasksApi {}
@@ -312,17 +316,41 @@ void main() {
         // Assert
         expect(task1.id, isNot(equals(task2.id)));
       });
+
+      test('should throw ValidationException for empty title', () async {
+        // Act & Assert
+        await expectLater(
+          tasksRepo.createTask(
+            tenantId: 'tenant_test',
+            fieldId: 'field_001',
+            title: '',
+          ),
+          throwsA(isA<ValidationException>()),
+        );
+      });
+
+      test('should throw ValidationException for whitespace-only title', () async {
+        // Act & Assert
+        await expectLater(
+          tasksRepo.createTask(
+            tenantId: 'tenant_test',
+            fieldId: 'field_001',
+            title: '   ',
+          ),
+          throwsA(isA<ValidationException>()),
+        );
+      });
     });
 
     group('refreshFromServer', () {
-      test('should throw when offline', () async {
+      test('should throw SyncException when offline', () async {
         // Arrange
         mockNetworkStatus.setOnlineStatus(false);
 
         // Act & Assert
         await expectLater(
           tasksRepo.refreshFromServer(),
-          throwsA(isA<Exception>()),
+          throwsA(isA<SyncException>()),
         );
       });
 
@@ -353,6 +381,237 @@ void main() {
         // Assert
         expect(count, serverTasks.length);
         verify(() => mockApi.fetchTasks(fieldId: any(named: 'fieldId'))).called(1);
+      });
+    });
+
+    group('updateTask', () {
+      test('should update task title and description', () async {
+        // Arrange
+        const taskId = 'task_001';
+        final task = SampleTasks.createPendingTask(id: taskId);
+        mockDatabase.seedTask(task);
+
+        // Act
+        final updatedTask = await tasksRepo.updateTask(
+          taskId: taskId,
+          title: 'Updated Title',
+          description: 'Updated Description',
+        );
+
+        // Assert
+        expect(updatedTask.title, 'Updated Title');
+        expect(updatedTask.description, 'Updated Description');
+        expect(updatedTask.synced, isFalse);
+      });
+
+      test('should update task priority', () async {
+        // Arrange
+        const taskId = 'task_001';
+        final task = SampleTasks.createPendingTask(id: taskId);
+        mockDatabase.seedTask(task);
+
+        // Act
+        final updatedTask = await tasksRepo.updateTask(
+          taskId: taskId,
+          priority: TaskPriority.urgent,
+        );
+
+        // Assert
+        expect(updatedTask.priority, TaskPriority.urgent);
+      });
+
+      test('should update task due date', () async {
+        // Arrange
+        const taskId = 'task_001';
+        final task = SampleTasks.createPendingTask(id: taskId);
+        mockDatabase.seedTask(task);
+        final newDueDate = DateTime.now().add(const Duration(days: 7));
+
+        // Act
+        final updatedTask = await tasksRepo.updateTask(
+          taskId: taskId,
+          dueDate: newDueDate,
+        );
+
+        // Assert
+        expect(updatedTask.dueDate, isNotNull);
+        expect(updatedTask.dueDate!.day, newDueDate.day);
+      });
+
+      test('should queue update in outbox', () async {
+        // Arrange
+        const taskId = 'task_001';
+        final task = SampleTasks.createPendingTask(id: taskId);
+        mockDatabase.seedTask(task);
+
+        // Act
+        await tasksRepo.updateTask(
+          taskId: taskId,
+          title: 'Updated Title',
+        );
+
+        // Assert
+        final outboxItems = await mockDatabase.getPendingOutbox();
+        expect(outboxItems.any((item) =>
+            item.entityType == 'task' &&
+            item.entityId == taskId &&
+            item.method == 'PUT'), isTrue);
+      });
+
+      test('should throw NotFoundException for nonexistent task', () async {
+        // Act & Assert
+        await expectLater(
+          tasksRepo.updateTask(taskId: 'nonexistent', title: 'Test'),
+          throwsA(isA<NotFoundException>()),
+        );
+      });
+    });
+
+    group('deleteTask', () {
+      test('should mark task as cancelled (soft delete)', () async {
+        // Arrange
+        const taskId = 'task_001';
+        final task = SampleTasks.createPendingTask(id: taskId);
+        mockDatabase.seedTask(task);
+
+        // Act
+        await tasksRepo.deleteTask(taskId);
+
+        // Assert
+        final deletedTask = await mockDatabase.getTaskById(taskId);
+        expect(deletedTask!.status, 'cancelled');
+        expect(deletedTask.synced, isFalse);
+      });
+
+      test('should queue delete in outbox', () async {
+        // Arrange
+        const taskId = 'task_001';
+        final task = SampleTasks.createPendingTask(id: taskId);
+        mockDatabase.seedTask(task);
+
+        // Act
+        await tasksRepo.deleteTask(taskId);
+
+        // Assert
+        final outboxItems = await mockDatabase.getPendingOutbox();
+        expect(outboxItems.any((item) =>
+            item.entityType == 'task' &&
+            item.entityId == taskId &&
+            item.method == 'DELETE'), isTrue);
+      });
+
+      test('should throw NotFoundException for nonexistent task', () async {
+        // Act & Assert
+        await expectLater(
+          tasksRepo.deleteTask('nonexistent'),
+          throwsA(isA<NotFoundException>()),
+        );
+      });
+    });
+
+    group('getOverdueTasks', () {
+      test('should return tasks with due date in the past', () async {
+        // Arrange
+        const tenantId = 'tenant_test';
+        final overdueTask = SampleTasks.createPendingTask(
+          id: 'overdue_1',
+          tenantId: tenantId,
+        ).copyWith(
+          dueDate: DateTime.now().subtract(const Duration(days: 2)),
+        );
+        final futureTask = SampleTasks.createPendingTask(
+          id: 'future_1',
+          tenantId: tenantId,
+        ).copyWith(
+          dueDate: DateTime.now().add(const Duration(days: 2)),
+        );
+
+        mockDatabase.seedTask(overdueTask);
+        mockDatabase.seedTask(futureTask);
+
+        // Act
+        final overdueTasks = await tasksRepo.getOverdueTasks(tenantId);
+
+        // Assert
+        expect(overdueTasks.length, 1);
+        expect(overdueTasks.first.id, 'overdue_1');
+      });
+
+      test('should not include completed tasks', () async {
+        // Arrange
+        const tenantId = 'tenant_test';
+        final overdueCompletedTask = SampleTasks.createCompletedTask(
+          id: 'overdue_completed',
+          tenantId: tenantId,
+        ).copyWith(
+          dueDate: DateTime.now().subtract(const Duration(days: 2)),
+        );
+
+        mockDatabase.seedTask(overdueCompletedTask);
+
+        // Act
+        final overdueTasks = await tasksRepo.getOverdueTasks(tenantId);
+
+        // Assert
+        expect(overdueTasks.isEmpty, isTrue);
+      });
+    });
+
+    group('getTasksDueToday', () {
+      test('should return tasks due today', () async {
+        // Arrange
+        const tenantId = 'tenant_test';
+        final todayTask = SampleTasks.createPendingTask(
+          id: 'today_1',
+          tenantId: tenantId,
+        ).copyWith(
+          dueDate: DateTime.now(),
+        );
+        final tomorrowTask = SampleTasks.createPendingTask(
+          id: 'tomorrow_1',
+          tenantId: tenantId,
+        ).copyWith(
+          dueDate: DateTime.now().add(const Duration(days: 1)),
+        );
+
+        mockDatabase.seedTask(todayTask);
+        mockDatabase.seedTask(tomorrowTask);
+
+        // Act
+        final tasksDueToday = await tasksRepo.getTasksDueToday(tenantId);
+
+        // Assert
+        expect(tasksDueToday.length, 1);
+        expect(tasksDueToday.first.id, 'today_1');
+      });
+    });
+
+    group('getTasksDueWithin', () {
+      test('should return tasks due within specified days', () async {
+        // Arrange
+        const tenantId = 'tenant_test';
+        final threeDaysTask = SampleTasks.createPendingTask(
+          id: 'three_days',
+          tenantId: tenantId,
+        ).copyWith(
+          dueDate: DateTime.now().add(const Duration(days: 3)),
+        );
+        final tenDaysTask = SampleTasks.createPendingTask(
+          id: 'ten_days',
+          tenantId: tenantId,
+        ).copyWith(
+          dueDate: DateTime.now().add(const Duration(days: 10)),
+        );
+
+        mockDatabase.seedTask(threeDaysTask);
+        mockDatabase.seedTask(tenDaysTask);
+
+        // Act
+        final tasks = await tasksRepo.getTasksDueWithin(tenantId, 7);
+
+        // Assert
+        expect(tasks.length, 1);
+        expect(tasks.first.id, 'three_days');
       });
     });
   });

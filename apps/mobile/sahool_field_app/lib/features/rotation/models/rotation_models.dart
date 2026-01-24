@@ -561,4 +561,32 @@ class CropRecommendation {
         'warning': warning,
         'warningAr': warningAr,
       };
+
+  factory CropRecommendation.fromJson(Map<String, dynamic> json) =>
+      CropRecommendation(
+        crop: Crop.fromJson(json['crop'] as Map<String, dynamic>),
+        suitabilityScore: (json['suitabilityScore'] as num).toDouble(),
+        reasons: List<String>.from(json['reasons'] as List),
+        reasonsAr: List<String>.from(json['reasonsAr'] as List),
+        warning: json['warning'] as String?,
+        warningAr: json['warningAr'] as String?,
+      );
+
+  CropRecommendation copyWith({
+    Crop? crop,
+    double? suitabilityScore,
+    List<String>? reasons,
+    List<String>? reasonsAr,
+    String? warning,
+    String? warningAr,
+  }) {
+    return CropRecommendation(
+      crop: crop ?? this.crop,
+      suitabilityScore: suitabilityScore ?? this.suitabilityScore,
+      reasons: reasons ?? this.reasons,
+      reasonsAr: reasonsAr ?? this.reasonsAr,
+      warning: warning ?? this.warning,
+      warningAr: warningAr ?? this.warningAr,
+    );
+  }
 }

@@ -329,7 +329,7 @@ class _CropCompatibilityScreenState
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: DataTable(
-              headingRowColor: MaterialStateProperty.all(Colors.grey.shade200),
+              headingRowColor: WidgetStateProperty.all(Colors.grey.shade200),
               columnSpacing: 8,
               horizontalMargin: 8,
               dataRowHeight: 48,

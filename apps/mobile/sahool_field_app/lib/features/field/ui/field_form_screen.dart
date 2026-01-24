@@ -1,24 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/config/env_config.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
 import '../../../core/http/api_client.dart';
+import '../../../core/utils/app_logger.dart';
 import '../../crops/data/models/crop_model.dart';
 import '../../crops/data/remote/crops_api.dart';
 import '../../crops/data/repositories/crops_repository.dart';
+import '../../polygon_editor/utils/geo_utils.dart';
+import '../presentation/providers/field_controller.dart';
 
 /// شاشة إضافة/تعديل الحقل - Smart Form
 /// نموذج بسيط وسهل الاستخدام لإدخال بيانات الحقل
-class FieldFormScreen extends StatefulWidget {
+class FieldFormScreen extends ConsumerStatefulWidget {
   final String? fieldId; // null = إضافة جديد
+  final String? tenantId; // Tenant ID for creating fields
+  final List<LatLng>? initialBoundary; // Initial boundary from map drawing
 
-  const FieldFormScreen({super.key, this.fieldId});
+  const FieldFormScreen({
+    super.key,
+    this.fieldId,
+    this.tenantId,
+    this.initialBoundary,
+  });
 
   @override
-  State<FieldFormScreen> createState() => _FieldFormScreenState();
+  ConsumerState<FieldFormScreen> createState() => _FieldFormScreenState();
 }
 
-class _FieldFormScreenState extends State<FieldFormScreen> {
+class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _areaController = TextEditingController();
@@ -27,6 +41,11 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
   String? _selectedIrrigation;
   DateTime? _plantingDate;
   bool _hasBoundary = false;
+  List<LatLng> _boundary = [];
+  double _calculatedArea = 0;
+
+  // Saving state
+  bool _isSaving = false;
 
   // Crops data
   List<Crop> _crops = [];
@@ -35,11 +54,47 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
   late CropsRepository _cropsRepository;
 
   bool get isEditing => widget.fieldId != null;
+  String get _tenantId => widget.tenantId ?? EnvConfig.defaultTenantId;
 
   @override
   void initState() {
     super.initState();
     _initializeCropsRepository();
+
+    // Initialize boundary from passed data
+    if (widget.initialBoundary != null && widget.initialBoundary!.isNotEmpty) {
+      _boundary = List.from(widget.initialBoundary!);
+      _hasBoundary = true;
+      _calculatedArea = GeoUtils.calculateAreaHectares(_boundary);
+      _areaController.text = _calculatedArea.toStringAsFixed(2);
+    }
+
+    // Load existing field data if editing
+    if (isEditing) {
+      _loadExistingField();
+    }
+  }
+
+  Future<void> _loadExistingField() async {
+    // Load field data from repository for editing
+    try {
+      final controller = ref.read(fieldControllerProvider(_tenantId).notifier);
+      final field = controller.getFieldById(widget.fieldId!);
+      if (field != null) {
+        setState(() {
+          _nameController.text = field.name;
+          _selectedCrop = field.cropType;
+          if (field.hasBoundary) {
+            _boundary = field.boundary;
+            _hasBoundary = true;
+            _calculatedArea = field.areaHectares;
+            _areaController.text = _calculatedArea.toStringAsFixed(2);
+          }
+        });
+      }
+    } catch (e) {
+      AppLogger.e('Failed to load field for editing', error: e);
+    }
   }
 
   Future<void> _initializeCropsRepository() async {
@@ -218,7 +273,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
 
               // زر الحفظ
               ElevatedButton(
-                onPressed: _saveField,
+                onPressed: _isSaving ? null : _saveField,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SahoolColors.forestGreen,
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -226,14 +281,23 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
-                  isEditing ? "حفظ التغييرات" : "إضافة الحقل",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
+                child: _isSaving
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation(Colors.white),
+                        ),
+                      )
+                    : Text(
+                        isEditing ? "حفظ التغييرات" : "إضافة الحقل",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
 
               const SizedBox(height: 16),
@@ -473,16 +537,37 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
           ),
           const SizedBox(height: 8),
           if (_hasBoundary)
-            const Text(
-              "المساحة: 2.5 هكتار",
-              style: TextStyle(color: Colors.grey, fontSize: 12),
+            Text(
+              "المساحة: ${_calculatedArea.toStringAsFixed(2)} هكتار",
+              style: const TextStyle(color: Colors.grey, fontSize: 12),
+            ),
+          if (_hasBoundary)
+            Text(
+              "${_boundary.length} نقاط",
+              style: const TextStyle(color: Colors.grey, fontSize: 11),
             ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: () async {
-              final result = await Navigator.pushNamed(context, '/map', arguments: {'mode': 'draw'});
-              if (result == true) {
-                setState(() => _hasBoundary = true);
+              final result = await context.push<Map<String, dynamic>>(
+                '/map',
+                extra: {
+                  'mode': 'draw',
+                  'tenantId': _tenantId,
+                  'existingBoundary': _boundary.isNotEmpty ? _boundary : null,
+                },
+              );
+
+              if (result != null && result['boundary'] != null) {
+                final newBoundary = result['boundary'] as List<LatLng>;
+                if (newBoundary.length >= 3) {
+                  setState(() {
+                    _boundary = newBoundary;
+                    _hasBoundary = true;
+                    _calculatedArea = GeoUtils.calculateAreaHectares(_boundary);
+                    _areaController.text = _calculatedArea.toStringAsFixed(2);
+                  });
+                }
               }
             },
             icon: Icon(_hasBoundary ? Icons.edit : Icons.draw),
@@ -519,34 +604,110 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
     }
   }
 
-  void _saveField() {
-    if (_formKey.currentState!.validate()) {
-      // حفظ البيانات
+  Future<void> _saveField() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    // Validate boundary
+    if (!_hasBoundary || _boundary.length < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isEditing ? "تم تحديث الحقل بنجاح" : "تم إضافة الحقل بنجاح"),
-          backgroundColor: SahoolColors.forestGreen,
+        const SnackBar(
+          content: Text('الرجاء رسم حدود الحقل على الخريطة'),
+          backgroundColor: Colors.orange,
         ),
       );
-      Navigator.pop(context, true);
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    try {
+      final controller = ref.read(fieldControllerProvider(_tenantId).notifier);
+
+      if (isEditing) {
+        // Update existing field
+        final success = await controller.updateFieldProperties(
+          fieldId: widget.fieldId!,
+          name: _nameController.text.trim(),
+          cropType: _selectedCrop,
+        );
+
+        if (!mounted) return;
+
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('تم تحديث الحقل بنجاح'),
+              backgroundColor: SahoolColors.forestGreen,
+            ),
+          );
+          Navigator.pop(context, true);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('فشل تحديث الحقل'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else {
+        // Create new field
+        final field = await controller.createField(
+          name: _nameController.text.trim(),
+          boundary: _boundary,
+          cropType: _selectedCrop,
+        );
+
+        if (!mounted) return;
+
+        if (field != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('تم إضافة الحقل "${field.name}" بنجاح'),
+              backgroundColor: SahoolColors.forestGreen,
+            ),
+          );
+          Navigator.pop(context, true);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('فشل إضافة الحقل'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      AppLogger.e('Failed to save field', error: e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('خطأ: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
   }
 
   void _showDeleteConfirmation() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text("حذف الحقل"),
         content: const Text("هل أنت متأكد من حذف هذا الحقل؟ لا يمكن التراجع عن هذا الإجراء."),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text("إلغاء"),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context, 'deleted'); // Return to previous screen
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              await _deleteField();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: SahoolColors.danger,
@@ -556,5 +717,49 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _deleteField() async {
+    if (widget.fieldId == null) return;
+
+    setState(() => _isSaving = true);
+
+    try {
+      final controller = ref.read(fieldControllerProvider(_tenantId).notifier);
+      final success = await controller.deleteField(widget.fieldId!);
+
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تم حذف الحقل بنجاح'),
+            backgroundColor: SahoolColors.forestGreen,
+          ),
+        );
+        Navigator.pop(context, 'deleted');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('فشل حذف الحقل'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      AppLogger.e('Failed to delete field', error: e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('خطأ: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
   }
 }

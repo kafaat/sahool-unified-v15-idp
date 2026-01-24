@@ -71,6 +71,11 @@ class FieldEntity {
       center: json['center'] != null
           ? GeoLocation.fromJson(json['center'] as Map<String, dynamic>)
           : null,
+      boundary: json['boundary'] != null
+          ? (json['boundary'] as List)
+              .map((loc) => GeoLocation.fromJson(loc as Map<String, dynamic>))
+              .toList()
+          : null,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
@@ -95,6 +100,7 @@ class FieldEntity {
       'expected_harvest': expectedHarvest?.toIso8601String(),
       'status': status.value,
       'center': center?.toJson(),
+      'boundary': boundary?.map((loc) => loc.toJson()).toList(),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -157,6 +163,67 @@ class FieldEntity {
     if (expectedHarvest == null) return null;
     return expectedHarvest!.difference(DateTime.now()).inDays;
   }
+
+  /// Create a copy with updated fields
+  FieldEntity copyWith({
+    String? id,
+    String? tenantId,
+    String? name,
+    String? farmId,
+    String? farmName,
+    double? areaHectares,
+    String? cropType,
+    double? healthScore,
+    double? ndviValue,
+    double? ndwiValue,
+    String? soilType,
+    String? irrigationType,
+    DateTime? lastIrrigation,
+    DateTime? plantingDate,
+    DateTime? expectedHarvest,
+    FieldStatus? status,
+    GeoLocation? center,
+    List<GeoLocation>? boundary,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return FieldEntity(
+      id: id ?? this.id,
+      tenantId: tenantId ?? this.tenantId,
+      name: name ?? this.name,
+      farmId: farmId ?? this.farmId,
+      farmName: farmName ?? this.farmName,
+      areaHectares: areaHectares ?? this.areaHectares,
+      cropType: cropType ?? this.cropType,
+      healthScore: healthScore ?? this.healthScore,
+      ndviValue: ndviValue ?? this.ndviValue,
+      ndwiValue: ndwiValue ?? this.ndwiValue,
+      soilType: soilType ?? this.soilType,
+      irrigationType: irrigationType ?? this.irrigationType,
+      lastIrrigation: lastIrrigation ?? this.lastIrrigation,
+      plantingDate: plantingDate ?? this.plantingDate,
+      expectedHarvest: expectedHarvest ?? this.expectedHarvest,
+      status: status ?? this.status,
+      center: center ?? this.center,
+      boundary: boundary ?? this.boundary,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FieldEntity &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() =>
+      'FieldEntity($id: $name, ${areaHectares.toStringAsFixed(2)}ha)';
 }
 
 /// Field Status
@@ -203,4 +270,28 @@ class GeoLocation {
       'longitude': longitude,
     };
   }
+
+  GeoLocation copyWith({
+    double? latitude,
+    double? longitude,
+  }) {
+    return GeoLocation(
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GeoLocation &&
+          runtimeType == other.runtimeType &&
+          latitude == other.latitude &&
+          longitude == other.longitude;
+
+  @override
+  int get hashCode => latitude.hashCode ^ longitude.hashCode;
+
+  @override
+  String toString() => 'GeoLocation($latitude, $longitude)';
 }

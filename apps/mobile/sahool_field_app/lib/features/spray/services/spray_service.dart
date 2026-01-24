@@ -1,9 +1,12 @@
 /// Spray Advisor Service - خدمة مستشار الرش
 /// يتواصل مع Spray Advisor API Service
+/// Supports offline-first architecture with local caching
 library;
 
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/config/api_config.dart';
 import '../../../core/config/env_config.dart';
@@ -20,34 +23,83 @@ class ApiResult<T> {
   final String? error;
   final String? errorAr;
   final bool isSuccess;
+  final bool isFromCache;
 
-  const ApiResult._({this.data, this.error, this.errorAr, required this.isSuccess});
+  const ApiResult._({
+    this.data,
+    this.error,
+    this.errorAr,
+    required this.isSuccess,
+    this.isFromCache = false,
+  });
 
-  factory ApiResult.success(T data) => ApiResult._(data: data, isSuccess: true);
+  factory ApiResult.success(T data, {bool isFromCache = false}) =>
+      ApiResult._(data: data, isSuccess: true, isFromCache: isFromCache);
   factory ApiResult.failure(String error, [String? errorAr]) =>
       ApiResult._(error: error, errorAr: errorAr, isSuccess: false);
+}
+
+/// Cache keys for offline support
+class _CacheKeys {
+  static String recommendations(String? fieldId) =>
+      'spray_recommendations_${fieldId ?? 'all'}';
+  static String products(String? type) => 'spray_products_${type ?? 'all'}';
+  static String logs(String? fieldId) => 'spray_logs_${fieldId ?? 'all'}';
+  static String currentWeather(String fieldId) => 'spray_weather_$fieldId';
+  static String sprayWindows(String fieldId) => 'spray_windows_$fieldId';
 }
 
 /// Spray Advisor Service
 class SprayService {
   final Dio _dio;
+  SharedPreferences? _prefs;
 
-  // Note: Add spray service port to ApiConfig when backend is ready
-  static const int sprayServicePort = 8098;
+  /// Cache expiry duration (1 hour for weather, 24 hours for products)
+  static const Duration _weatherCacheExpiry = Duration(hours: 1);
+  static const Duration _dataCacheExpiry = Duration(hours: 24);
 
   SprayService({Dio? dio})
       : _dio = dio ??
             Dio(BaseOptions(
-              baseUrl: 'http://${_getHost()}:$sprayServicePort',
+              baseUrl: EnvConfig.sprayUrl,
               connectTimeout: ApiConfig.connectTimeout,
               sendTimeout: ApiConfig.sendTimeout,
               receiveTimeout: ApiConfig.receiveTimeout,
               headers: ApiConfig.defaultHeaders,
-            ));
+            )) {
+    _initPrefs();
+  }
 
-  static String _getHost() {
-    // Use EnvConfig for development host
-    return EnvConfig.developmentHost;
+  Future<void> _initPrefs() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  /// Save data to cache with timestamp
+  Future<void> _saveToCache(String key, dynamic data) async {
+    _prefs ??= await SharedPreferences.getInstance();
+    final cacheData = {
+      'timestamp': DateTime.now().toIso8601String(),
+      'data': data,
+    };
+    await _prefs!.setString(key, jsonEncode(cacheData));
+  }
+
+  /// Get data from cache if not expired
+  Future<dynamic> _getFromCache(String key, Duration expiry) async {
+    _prefs ??= await SharedPreferences.getInstance();
+    final cached = _prefs!.getString(key);
+    if (cached == null) return null;
+
+    try {
+      final cacheData = jsonDecode(cached) as Map<String, dynamic>;
+      final timestamp = DateTime.parse(cacheData['timestamp'] as String);
+      if (DateTime.now().difference(timestamp) > expiry) {
+        return null; // Cache expired
+      }
+      return cacheData['data'];
+    } catch (_) {
+      return null;
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -55,6 +107,7 @@ class SprayService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   /// جلب توصيات الرش لحقل
+  /// Supports offline-first: returns cached data if network fails
   Future<ApiResult<List<SprayRecommendation>>> getSprayRecommendations({
     String? fieldId,
     SprayType? sprayType,
@@ -64,6 +117,8 @@ class SprayService {
     int limit = 50,
     int offset = 0,
   }) async {
+    final cacheKey = _CacheKeys.recommendations(fieldId);
+
     try {
       final queryParams = <String, dynamic>{
         'limit': limit,
@@ -85,13 +140,32 @@ class SprayService {
           .map((e) => SprayRecommendation.fromJson(e as Map<String, dynamic>))
           .toList();
 
+      // Cache the data for offline access
+      await _saveToCache(cacheKey, data['recommendations']);
+
       return ApiResult.success(recommendations);
     } on DioException catch (e) {
+      // Try to return cached data on network error
+      final cached = await _getFromCache(cacheKey, _dataCacheExpiry);
+      if (cached != null) {
+        final recommendations = (cached as List)
+            .map((e) => SprayRecommendation.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return ApiResult.success(recommendations, isFromCache: true);
+      }
       return ApiResult.failure(
         e.message ?? 'Failed to fetch spray recommendations',
         'فشل في جلب توصيات الرش',
       );
     } catch (e) {
+      // Try cache on any error
+      final cached = await _getFromCache(cacheKey, _dataCacheExpiry);
+      if (cached != null) {
+        final recommendations = (cached as List)
+            .map((e) => SprayRecommendation.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return ApiResult.success(recommendations, isFromCache: true);
+      }
       return ApiResult.failure(e.toString(), 'حدث خطأ غير متوقع');
     }
   }
@@ -220,10 +294,13 @@ class SprayService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   /// جلب نوافذ الرش المثلى
+  /// Supports offline-first: returns cached data if network fails
   Future<ApiResult<List<SprayWindow>>> getOptimalSprayWindows({
     required String fieldId,
     int days = 7,
   }) async {
+    final cacheKey = _CacheKeys.sprayWindows(fieldId);
+
     try {
       final response = await _dio.get(
         '/v1/spray/windows',
@@ -238,13 +315,31 @@ class SprayService {
           .map((e) => SprayWindow.fromJson(e as Map<String, dynamic>))
           .toList();
 
+      // Cache for offline access (shorter expiry for time-sensitive data)
+      await _saveToCache(cacheKey, data['windows']);
+
       return ApiResult.success(windows);
     } on DioException catch (e) {
+      // Try cached data on network error
+      final cached = await _getFromCache(cacheKey, _weatherCacheExpiry);
+      if (cached != null) {
+        final windows = (cached as List)
+            .map((e) => SprayWindow.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return ApiResult.success(windows, isFromCache: true);
+      }
       return ApiResult.failure(
         e.message ?? 'Failed to fetch spray windows',
         'فشل في جلب نوافذ الرش',
       );
     } catch (e) {
+      final cached = await _getFromCache(cacheKey, _weatherCacheExpiry);
+      if (cached != null) {
+        final windows = (cached as List)
+            .map((e) => SprayWindow.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return ApiResult.success(windows, isFromCache: true);
+      }
       return ApiResult.failure(e.toString(), 'حدث خطأ غير متوقع');
     }
   }
@@ -304,9 +399,12 @@ class SprayService {
   }
 
   /// جلب الطقس الحالي
+  /// Supports offline-first: returns cached data if network fails
   Future<ApiResult<WeatherCondition>> getCurrentWeather({
     required String fieldId,
   }) async {
+    final cacheKey = _CacheKeys.currentWeather(fieldId);
+
     try {
       final response = await _dio.get(
         '/v1/spray/weather/current',
@@ -315,15 +413,33 @@ class SprayService {
         },
       );
 
+      // Cache for offline access
+      await _saveToCache(cacheKey, response.data);
+
       return ApiResult.success(
         WeatherCondition.fromJson(response.data as Map<String, dynamic>),
       );
     } on DioException catch (e) {
+      // Try cached weather on network error
+      final cached = await _getFromCache(cacheKey, _weatherCacheExpiry);
+      if (cached != null) {
+        return ApiResult.success(
+          WeatherCondition.fromJson(cached as Map<String, dynamic>),
+          isFromCache: true,
+        );
+      }
       return ApiResult.failure(
         e.message ?? 'Failed to fetch current weather',
         'فشل في جلب الطقس الحالي',
       );
     } catch (e) {
+      final cached = await _getFromCache(cacheKey, _weatherCacheExpiry);
+      if (cached != null) {
+        return ApiResult.success(
+          WeatherCondition.fromJson(cached as Map<String, dynamic>),
+          isFromCache: true,
+        );
+      }
       return ApiResult.failure(e.toString(), 'حدث خطأ غير متوقع');
     }
   }
@@ -333,6 +449,7 @@ class SprayService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   /// جلب منتجات الرش
+  /// Supports offline-first: returns cached data if network fails
   Future<ApiResult<List<SprayProduct>>> getSprayProducts({
     SprayType? sprayType,
     bool yemenProductsOnly = false,
@@ -340,6 +457,8 @@ class SprayService {
     int limit = 100,
     int offset = 0,
   }) async {
+    final cacheKey = _CacheKeys.products(sprayType?.value);
+
     try {
       final queryParams = <String, dynamic>{
         'limit': limit,
@@ -359,13 +478,31 @@ class SprayService {
           .map((e) => SprayProduct.fromJson(e as Map<String, dynamic>))
           .toList();
 
+      // Cache for offline access (products rarely change)
+      await _saveToCache(cacheKey, data['products']);
+
       return ApiResult.success(products);
     } on DioException catch (e) {
+      // Try cached products on network error
+      final cached = await _getFromCache(cacheKey, _dataCacheExpiry);
+      if (cached != null) {
+        final products = (cached as List)
+            .map((e) => SprayProduct.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return ApiResult.success(products, isFromCache: true);
+      }
       return ApiResult.failure(
         e.message ?? 'Failed to fetch spray products',
         'فشل في جلب منتجات الرش',
       );
     } catch (e) {
+      final cached = await _getFromCache(cacheKey, _dataCacheExpiry);
+      if (cached != null) {
+        final products = (cached as List)
+            .map((e) => SprayProduct.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return ApiResult.success(products, isFromCache: true);
+      }
       return ApiResult.failure(e.toString(), 'حدث خطأ غير متوقع');
     }
   }
@@ -448,6 +585,7 @@ class SprayService {
   }
 
   /// جلب سجلات تطبيق الرش
+  /// Supports offline-first: returns cached data if network fails
   Future<ApiResult<List<SprayApplicationLog>>> getSprayLogs({
     String? fieldId,
     SprayType? sprayType,
@@ -456,6 +594,8 @@ class SprayService {
     int limit = 50,
     int offset = 0,
   }) async {
+    final cacheKey = _CacheKeys.logs(fieldId);
+
     try {
       final queryParams = <String, dynamic>{
         'limit': limit,
@@ -476,13 +616,31 @@ class SprayService {
           .map((e) => SprayApplicationLog.fromJson(e as Map<String, dynamic>))
           .toList();
 
+      // Cache for offline access
+      await _saveToCache(cacheKey, data['logs']);
+
       return ApiResult.success(logs);
     } on DioException catch (e) {
+      // Try cached logs on network error
+      final cached = await _getFromCache(cacheKey, _dataCacheExpiry);
+      if (cached != null) {
+        final logs = (cached as List)
+            .map((e) => SprayApplicationLog.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return ApiResult.success(logs, isFromCache: true);
+      }
       return ApiResult.failure(
         e.message ?? 'Failed to fetch spray logs',
         'فشل في جلب سجلات الرش',
       );
     } catch (e) {
+      final cached = await _getFromCache(cacheKey, _dataCacheExpiry);
+      if (cached != null) {
+        final logs = (cached as List)
+            .map((e) => SprayApplicationLog.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return ApiResult.success(logs, isFromCache: true);
+      }
       return ApiResult.failure(e.toString(), 'حدث خطأ غير متوقع');
     }
   }

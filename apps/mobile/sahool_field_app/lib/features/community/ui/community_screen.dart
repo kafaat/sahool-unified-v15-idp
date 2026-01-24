@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
 
@@ -16,10 +17,11 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: SahoolColors.warmCream,
       appBar: AppBar(
-        title: const Text("مجتمع المزارعين"),
+        title: Text(l10n.farmersCommunity),
         backgroundColor: Colors.white,
         foregroundColor: SahoolColors.forestGreen,
         elevation: 0,
@@ -143,9 +145,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
         onPressed: () => _showCreatePost(context),
         backgroundColor: SahoolColors.harvestGold,
         icon: const Icon(Icons.edit, color: Colors.white),
-        label: const Text(
-          "اسأل المجتمع",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        label: Text(
+          l10n.askTheCommunity,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
     );

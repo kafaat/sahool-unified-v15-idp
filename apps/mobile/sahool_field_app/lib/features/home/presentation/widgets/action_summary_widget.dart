@@ -178,11 +178,8 @@ class ActionSummaryWidget extends StatelessWidget {
           ),
         ),
         onTap: () {
-          Navigator.pushNamed(
-            context,
-            '/task/details',
-            arguments: action,
-          );
+          // Navigate to tasks list (task details would require task ID)
+          context.push('/tasks', extra: action);
         },
       ),
     );

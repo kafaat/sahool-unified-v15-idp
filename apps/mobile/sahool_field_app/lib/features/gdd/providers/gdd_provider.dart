@@ -182,17 +182,19 @@ final gddChartDataProvider = FutureProvider.autoDispose
 // State Providers
 // ═════════════════════════════════════════════════════════════════════════════
 
-/// مزود الحقل المحدد حالياً
-final selectedFieldIdProvider = StateProvider<String?>((ref) => null);
+/// مزود الحقل المحدد حالياً لـ GDD
+/// Note: This is scoped to GDD feature. Use core/providers/selected_field_provider.dart
+/// for app-wide field selection.
+final gddSelectedFieldIdProvider = StateProvider.autoDispose<String?>((ref) => null);
 
-/// مزود نطاق التاريخ المحدد
-final selectedDateRangeProvider = StateProvider<DateRange?>((ref) => null);
+/// مزود نطاق التاريخ المحدد - autoDispose for proper cleanup
+final selectedDateRangeProvider = StateProvider.autoDispose<DateRange?>((ref) => null);
 
-/// مزود عرض التوقعات
-final showForecastProvider = StateProvider<bool>((ref) => true);
+/// مزود عرض التوقعات - autoDispose for proper cleanup
+final showForecastProvider = StateProvider.autoDispose<bool>((ref) => true);
 
-/// مزود عرض مراحل النمو
-final showGrowthStagesProvider = StateProvider<bool>((ref) => true);
+/// مزود عرض مراحل النمو - autoDispose for proper cleanup
+final showGrowthStagesProvider = StateProvider.autoDispose<bool>((ref) => true);
 
 // ═════════════════════════════════════════════════════════════════════════════
 // Controller for Settings

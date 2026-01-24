@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
 
@@ -29,7 +30,7 @@ class FieldDetailsScreen extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.edit_outlined),
               onPressed: () {
-                Navigator.pushNamed(context, '/field-form');
+                context.push('/fields');
               },
             ),
             IconButton(
@@ -60,7 +61,7 @@ class FieldDetailsScreen extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
-            Navigator.pushNamed(context, '/scouting');
+            context.push('/scouting');
           },
           backgroundColor: SahoolColors.harvestGold,
           icon: const Icon(Icons.add_a_photo, color: Colors.white),

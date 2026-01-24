@@ -256,7 +256,6 @@ class HealthCheckResult {
 /// مدير تبديل الخدمات
 class ServiceSwitcher {
   static const String _storageKey = 'sahool_service_versions';
-  static ServiceSwitcher? _instance;
 
   final Map<ServiceType, ServiceVersion> _versions = {};
   final StreamController<Map<ServiceType, ServiceVersion>> _controller =
@@ -278,10 +277,7 @@ class ServiceSwitcher {
 
   ServiceSwitcher._();
 
-  static ServiceSwitcher get instance {
-    _instance ??= ServiceSwitcher._();
-    return _instance!;
-  }
+  static final ServiceSwitcher instance = ServiceSwitcher._();
 
   /// Stream للاستماع للتغييرات
   Stream<Map<ServiceType, ServiceVersion>> get onVersionsChanged =>

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../core/config/theme.dart';
 import '../domain/entities/task.dart';
 import '../providers/tasks_provider.dart';
+import '../services/task_reminder_service.dart';
 import 'complete_task_screen.dart';
 
 /// Task Details Screen - View and manage single task
@@ -61,6 +62,40 @@ class _TaskDetailsBody extends ConsumerWidget {
                 Icons.cloud_off,
                 color: Colors.orange,
               ),
+            ),
+          // Delete button (only for non-completed tasks)
+          if (task.status != TaskStatus.done && task.status != TaskStatus.cancelled)
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              onSelected: (value) async {
+                if (value == 'delete') {
+                  await _showDeleteConfirmation(context, ref);
+                } else if (value == 'reschedule') {
+                  await _showRescheduleDialog(context, ref);
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'reschedule',
+                  child: Row(
+                    children: [
+                      Icon(Icons.schedule, color: Colors.blue),
+                      SizedBox(width: 8),
+                      Text('إعادة جدولة'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text('حذف المهمة'),
+                    ],
+                  ),
+                ),
+              ],
             ),
         ],
       ),
@@ -280,6 +315,165 @@ class _TaskDetailsBody extends ConsumerWidget {
         builder: (context) => CompleteTaskScreen(task: task),
       ),
     );
+  }
+
+  Future<void> _showDeleteConfirmation(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('حذف المهمة'),
+        content: Text('هل أنت متأكد من حذف "${task.title}"؟'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('إلغاء'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('حذف'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        // Cancel any reminder
+        try {
+          final reminderService = ref.read(taskReminderServiceProvider);
+          await reminderService.cancelReminder(task.id);
+        } catch (_) {}
+
+        // Delete task
+        await ref.read(tasksProvider.notifier).deleteTask(task.id);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('تم حذف المهمة'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('فشل حذف المهمة: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _showRescheduleDialog(BuildContext context, WidgetRef ref) async {
+    DateTime? newDate = task.dueDate ?? DateTime.now().add(const Duration(days: 1));
+    TimeOfDay? newTime = task.dueDate != null
+        ? TimeOfDay.fromDateTime(task.dueDate!)
+        : const TimeOfDay(hour: 9, minute: 0);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('إعادة جدولة المهمة'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Date picker
+              ListTile(
+                leading: const Icon(Icons.calendar_today),
+                title: const Text('التاريخ'),
+                subtitle: Text('${newDate!.day}/${newDate!.month}/${newDate!.year}'),
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: newDate!,
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime.now().add(const Duration(days: 365)),
+                  );
+                  if (picked != null) {
+                    setState(() => newDate = picked);
+                  }
+                },
+              ),
+              // Time picker
+              ListTile(
+                leading: const Icon(Icons.access_time),
+                title: const Text('الوقت'),
+                subtitle: Text('${newTime!.hour.toString().padLeft(2, '0')}:${newTime!.minute.toString().padLeft(2, '0')}'),
+                onTap: () async {
+                  final picked = await showTimePicker(
+                    context: context,
+                    initialTime: newTime!,
+                  );
+                  if (picked != null) {
+                    setState(() => newTime = picked);
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('إلغاء'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('حفظ'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed == true && newDate != null && newTime != null) {
+      final newDueDate = DateTime(
+        newDate!.year,
+        newDate!.month,
+        newDate!.day,
+        newTime!.hour,
+        newTime!.minute,
+      );
+
+      try {
+        // Update task with new due date
+        final updatedTask = await ref.read(tasksProvider.notifier).updateTask(
+          taskId: task.id,
+          dueDate: newDueDate,
+        );
+
+        // Reschedule reminder
+        try {
+          final reminderService = ref.read(taskReminderServiceProvider);
+          await reminderService.cancelReminder(task.id);
+          await reminderService.scheduleReminder(task: updatedTask);
+        } catch (_) {}
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('تم إعادة جدولة المهمة'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('فشل إعادة الجدولة: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 }
 

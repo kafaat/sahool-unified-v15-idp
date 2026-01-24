@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/config/theme.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
 import '../widgets/quick_stats_card.dart';
@@ -117,7 +118,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
           children: [
             IconButton(
               icon: const Icon(Icons.notifications_outlined, size: 26),
-              onPressed: () => Navigator.pushNamed(context, '/notifications'),
+              onPressed: () => context.push('/notifications'),
             ),
             if (unreadCount > 0)
               Positioned(
@@ -255,10 +256,6 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
   }
 
   void _navigateToField(String fieldId) {
-    Navigator.pushNamed(
-      context,
-      '/crop-health',
-      arguments: {'fieldId': fieldId},
-    );
+    context.push('/crop-health', extra: {'fieldId': fieldId});
   }
 }

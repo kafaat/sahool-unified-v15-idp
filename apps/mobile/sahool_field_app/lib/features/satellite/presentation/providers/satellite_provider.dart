@@ -5,12 +5,13 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import '../../../data/remote/satellite_api.dart';
-import '../../../data/repositories/satellite_repository.dart';
-import '../../../data/models/ndvi_data.dart';
-import '../../../data/models/field_health.dart';
-import '../../../data/models/weather_data.dart';
-import '../../../data/models/phenology_data.dart';
+import '../../../../core/sync/sync_metrics_providers.dart' show sharedPreferencesProvider;
+import '../../data/remote/satellite_api.dart';
+import '../../data/repositories/satellite_repository.dart';
+import '../../data/models/ndvi_data.dart';
+import '../../data/models/field_health.dart';
+import '../../data/models/weather_data.dart';
+import '../../data/models/phenology_data.dart';
 
 // =============================================================================
 // State Classes
@@ -277,10 +278,7 @@ class PhenologyNotifier extends StateNotifier<AsyncValue<PhenologyData>> {
 // Riverpod Providers
 // =============================================================================
 
-/// Shared Preferences Provider
-final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
-  throw UnimplementedError('SharedPreferences must be overridden in main.dart');
-});
+// Note: sharedPreferencesProvider is imported from core/sync/sync_metrics_providers.dart (canonical source)
 
 /// Current Field ID Provider
 final currentFieldIdProvider = StateProvider<String?>((ref) => null);

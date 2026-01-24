@@ -3,22 +3,51 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/rotation_models.dart';
 import '../providers/rotation_provider.dart';
 
-class RotationCalendarScreen extends ConsumerWidget {
-  final String fieldId;
+class RotationCalendarScreen extends ConsumerStatefulWidget {
+  final String? fieldId;
 
   const RotationCalendarScreen({
     Key? key,
-    required this.fieldId,
+    this.fieldId,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final planAsync = ref.watch(rotationPlanProvider(fieldId));
+  ConsumerState<RotationCalendarScreen> createState() => _RotationCalendarScreenState();
+}
+
+class _RotationCalendarScreenState extends ConsumerState<RotationCalendarScreen> {
+  String? _selectedFieldId;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedFieldId = widget.fieldId;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // If no field selected, show field selector
+    if (_selectedFieldId == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Rotation Calendar'),
+        ),
+        body: _buildFieldSelector(context),
+      );
+    }
+
+    final planAsync = ref.watch(rotationPlanProvider(_selectedFieldId!));
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rotation Calendar'),
         actions: [
+          // Field selector dropdown
+          IconButton(
+            icon: const Icon(Icons.swap_horiz),
+            tooltip: 'Change Field',
+            onPressed: () => _showFieldSelectorDialog(context),
+          ),
           IconButton(
             icon: const Icon(Icons.info_outline),
             tooltip: 'Legend',
@@ -36,8 +65,121 @@ class RotationCalendarScreen extends ConsumerWidget {
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
               Text('Error: $error'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.invalidate(rotationPlanProvider(_selectedFieldId!)),
+                child: const Text('Retry'),
+              ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFieldSelector(BuildContext context) {
+    // Sample fields for selection (in real app, these would come from a provider)
+    final sampleFields = [
+      {'id': 'field_001', 'name': 'North Field', 'nameAr': 'الحقل الشمالي'},
+      {'id': 'field_002', 'name': 'South Field', 'nameAr': 'الحقل الجنوبي'},
+      {'id': 'field_003', 'name': 'East Terrace', 'nameAr': 'مصطبة شرقية'},
+    ];
+
+    return Column(
+      children: [
+        // Header
+        Container(
+          padding: const EdgeInsets.all(24),
+          color: Colors.green.shade50,
+          width: double.infinity,
+          child: Column(
+            children: [
+              const Icon(Icons.agriculture, size: 64, color: Colors.green),
+              const SizedBox(height: 16),
+              const Text(
+                'Select a Field',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                'اختر حقلاً',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Choose a field to view its rotation calendar',
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Field list
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: sampleFields.length,
+            itemBuilder: (context, index) {
+              final field = sampleFields[index];
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ListTile(
+                  leading: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.landscape, color: Colors.green),
+                  ),
+                  title: Text(
+                    field['name']!,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(field['nameAr']!),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    setState(() {
+                      _selectedFieldId = field['id'];
+                    });
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showFieldSelectorDialog(BuildContext context) {
+    final sampleFields = [
+      {'id': 'field_001', 'name': 'North Field', 'nameAr': 'الحقل الشمالي'},
+      {'id': 'field_002', 'name': 'South Field', 'nameAr': 'الحقل الجنوبي'},
+      {'id': 'field_003', 'name': 'East Terrace', 'nameAr': 'مصطبة شرقية'},
+    ];
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Field'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: sampleFields.map((field) {
+            return ListTile(
+              leading: const Icon(Icons.landscape, color: Colors.green),
+              title: Text(field['name']!),
+              subtitle: Text(field['nameAr']!),
+              selected: _selectedFieldId == field['id'],
+              onTap: () {
+                setState(() {
+                  _selectedFieldId = field['id'];
+                });
+                Navigator.pop(context);
+              },
+            );
+          }).toList(),
         ),
       ),
     );

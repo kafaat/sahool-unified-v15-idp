@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/di/providers.dart';
+import '../../field/domain/entities/field.dart' as domain;
 import '../domain/entities/task.dart';
 import '../providers/tasks_provider.dart';
+import '../services/task_reminder_service.dart';
 
 /// شاشة إنشاء مهمة جديدة
 /// Create New Task Screen
@@ -220,34 +223,57 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
   }
 
   Widget _buildFieldSelector() {
-    // مثال على قائمة الحقول
-    final fields = [
-      {'id': 'field1', 'name': 'حقل القمح الشمالي'},
-      {'id': 'field2', 'name': 'حقل الذرة الغربي'},
-      {'id': 'field3', 'name': 'حقل الشعير'},
-      {'id': 'field4', 'name': 'حقل البرسيم'},
-    ];
+    // Load fields from database using Riverpod
+    final apiClient = ref.watch(apiClientProvider);
+    final fieldsAsync = ref.watch(allFieldsProvider(apiClient.tenantId));
 
-    return DropdownButtonFormField<String>(
-      value: _selectedFieldId,
-      decoration: const InputDecoration(
-        prefixIcon: Icon(Icons.landscape),
-        hintText: 'اختر الحقل',
+    return fieldsAsync.when(
+      loading: () => const LinearProgressIndicator(),
+      error: (error, _) => Text(
+        'فشل تحميل الحقول: $error',
+        style: const TextStyle(color: Colors.red),
       ),
-      items: fields.map((field) {
-        return DropdownMenuItem<String>(
-          value: field['id'],
-          child: Text(field['name']!),
-        );
-      }).toList(),
-      onChanged: (value) {
-        setState(() => _selectedFieldId = value);
-      },
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'الرجاء اختيار الحقل';
+      data: (fields) {
+        // If fieldId was provided but not in list, add a placeholder
+        if (_selectedFieldId != null &&
+            !fields.any((f) => f.id == _selectedFieldId) &&
+            widget.fieldName != null) {
+          // Use provided field
         }
-        return null;
+
+        return DropdownButtonFormField<String>(
+          value: _selectedFieldId,
+          decoration: const InputDecoration(
+            prefixIcon: Icon(Icons.landscape),
+            hintText: 'اختر الحقل',
+          ),
+          items: [
+            // If we have a pre-selected field that's not in the list
+            if (_selectedFieldId != null &&
+                !fields.any((f) => f.id == _selectedFieldId) &&
+                widget.fieldName != null)
+              DropdownMenuItem<String>(
+                value: _selectedFieldId,
+                child: Text(widget.fieldName!),
+              ),
+            // Fields from database
+            ...fields.map((field) {
+              return DropdownMenuItem<String>(
+                value: field.id,
+                child: Text(field.name),
+              );
+            }),
+          ],
+          onChanged: (value) {
+            setState(() => _selectedFieldId = value);
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'الرجاء اختيار الحقل';
+            }
+            return null;
+          },
+        );
       },
     );
   }
@@ -431,13 +457,24 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
       ].join('\n');
 
       // Create task using provider
-      await ref.read(tasksProvider.notifier).createTask(
+      final task = await ref.read(tasksProvider.notifier).createTask(
             fieldId: _selectedFieldId!,
             title: _titleController.text,
             description: fullDescription,
             priority: _selectedPriority,
             dueDate: dueDateTime,
           );
+
+      // Schedule reminder if due date is set
+      if (dueDateTime.isAfter(DateTime.now())) {
+        try {
+          final reminderService = ref.read(taskReminderServiceProvider);
+          await reminderService.scheduleReminder(task: task);
+        } catch (e) {
+          // Log but don't fail task creation if reminder scheduling fails
+          debugPrint('Failed to schedule reminder: $e');
+        }
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

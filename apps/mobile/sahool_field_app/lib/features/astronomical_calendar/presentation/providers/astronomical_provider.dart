@@ -1,12 +1,16 @@
-/// SAHOOL Astronomical Calendar Providers
-/// مزودات التقويم الفلكي
+/// SAHOOL Astronomical Calendar Providers (Legacy)
+/// مزودات التقويم الفلكي (الإصدار القديم)
+///
+/// Note: This is the legacy version. For new development, use:
+/// features/astronomical/providers/astronomical_providers.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/remote/astronomical_api.dart';
 import '../../domain/entities/astronomical_entities.dart';
 
-/// API Provider
-final astronomicalApiProvider = Provider<AstronomicalCalendarApi>((ref) {
+/// API Provider (Legacy)
+/// Note: Renamed from astronomicalApiProvider to avoid conflict with features/astronomical version
+final astronomicalCalendarApiProvider = Provider<AstronomicalCalendarApi>((ref) {
   return AstronomicalCalendarApi();
 });
 
@@ -80,7 +84,7 @@ class DailyAstronomicalNotifier extends StateNotifier<DailyAstronomicalState> {
 final dailyAstronomicalProvider =
     StateNotifierProvider<DailyAstronomicalNotifier, DailyAstronomicalState>(
         (ref) {
-  final api = ref.watch(astronomicalApiProvider);
+  final api = ref.watch(astronomicalCalendarApiProvider);
   return DailyAstronomicalNotifier(api);
 });
 
@@ -130,10 +134,11 @@ class WeeklyForecastNotifier extends StateNotifier<WeeklyForecastState> {
   }
 }
 
-/// Weekly Forecast Provider
-final weeklyForecastProvider =
+/// Weekly Forecast Provider (Legacy)
+/// Note: Renamed to avoid conflict with features/astronomical version
+final astronomicalCalendarWeeklyForecastProvider =
     StateNotifierProvider<WeeklyForecastNotifier, WeeklyForecastState>((ref) {
-  final api = ref.watch(astronomicalApiProvider);
+  final api = ref.watch(astronomicalCalendarApiProvider);
   return WeeklyForecastNotifier(api);
 });
 
@@ -183,10 +188,11 @@ class CropCalendarNotifier extends StateNotifier<CropCalendarState> {
   }
 }
 
-/// Crop Calendar Provider
-final cropCalendarProvider =
+/// Crop Calendar Provider (Legacy)
+/// Note: Renamed to avoid conflict with features/astronomical version
+final astronomicalCalendarCropCalendarProvider =
     StateNotifierProvider<CropCalendarNotifier, CropCalendarState>((ref) {
-  final api = ref.watch(astronomicalApiProvider);
+  final api = ref.watch(astronomicalCalendarApiProvider);
   return CropCalendarNotifier(api);
 });
 
@@ -239,54 +245,61 @@ class BestDaysNotifier extends StateNotifier<BestDaysState> {
   }
 }
 
-/// Best Days Provider
-final bestDaysProvider =
+/// Best Days Provider (Legacy)
+/// Note: Renamed to avoid conflict with features/astronomical version
+final astronomicalCalendarBestDaysProvider =
     StateNotifierProvider<BestDaysNotifier, BestDaysState>((ref) {
-  final api = ref.watch(astronomicalApiProvider);
+  final api = ref.watch(astronomicalCalendarApiProvider);
   return BestDaysNotifier(api);
 });
 
-/// Moon Phase Provider (FutureProvider)
-final moonPhaseProvider = FutureProvider.family<MoonPhase, String?>((ref, dateStr) async {
-  final api = ref.watch(astronomicalApiProvider);
+/// Moon Phase Provider (FutureProvider) - Legacy
+/// Note: Renamed to avoid conflict with features/astronomical version
+final astronomicalCalendarMoonPhaseProvider = FutureProvider.family<MoonPhase, String?>((ref, dateStr) async {
+  final api = ref.watch(astronomicalCalendarApiProvider);
   return api.getMoonPhase(dateStr: dateStr);
 });
 
-/// Lunar Mansion Provider
-final lunarMansionProvider = FutureProvider.family<LunarMansion, String?>((ref, dateStr) async {
-  final api = ref.watch(astronomicalApiProvider);
+/// Lunar Mansion Provider - Legacy
+/// Note: Renamed to avoid conflict with features/astronomical version
+final astronomicalCalendarLunarMansionProvider = FutureProvider.family<LunarMansion, String?>((ref, dateStr) async {
+  final api = ref.watch(astronomicalCalendarApiProvider);
   return api.getLunarMansion(dateStr: dateStr);
 });
 
 /// Hijri Date Provider
 final hijriDateProvider = FutureProvider.family<HijriDate, String?>((ref, dateStr) async {
-  final api = ref.watch(astronomicalApiProvider);
+  final api = ref.watch(astronomicalCalendarApiProvider);
   return api.getHijriDate(dateStr: dateStr);
 });
 
 /// Current Season Provider
 final currentSeasonProvider = FutureProvider<SeasonInfo>((ref) async {
-  final api = ref.watch(astronomicalApiProvider);
+  final api = ref.watch(astronomicalCalendarApiProvider);
   return api.getCurrentSeason();
 });
 
-/// Supported Crops Provider
-final supportedCropsProvider = FutureProvider<List<Map<String, String>>>((ref) async {
-  final api = ref.watch(astronomicalApiProvider);
+/// Supported Crops Provider - Legacy
+/// Note: Renamed to avoid conflict with features/astronomical and other versions
+final astronomicalCalendarSupportedCropsProvider = FutureProvider<List<Map<String, String>>>((ref) async {
+  final api = ref.watch(astronomicalCalendarApiProvider);
   return api.getSupportedCrops();
 });
 
-/// Lunar Mansions List Provider
-final lunarMansionsListProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
-  final api = ref.watch(astronomicalApiProvider);
+/// Lunar Mansions List Provider - Legacy
+final astronomicalCalendarLunarMansionsListProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  final api = ref.watch(astronomicalCalendarApiProvider);
   return api.getLunarMansions();
 });
 
-/// التاريخ المحدد
-final selectedDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
+/// التاريخ المحدد - Legacy
+/// Note: Renamed to avoid conflict with features/astronomical version
+final astronomicalCalendarSelectedDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
 
-/// النشاط المحدد للبحث
-final selectedActivityProvider = StateProvider<String>((ref) => 'زراعة');
+/// النشاط المحدد للبحث - Legacy
+/// Note: Renamed to avoid conflict with features/astronomical version
+final astronomicalCalendarSelectedActivityProvider = StateProvider<String>((ref) => 'زراعة');
 
-/// المحصول المحدد
-final selectedCropProvider = StateProvider<String?>((ref) => null);
+/// المحصول المحدد - Legacy
+/// Note: Renamed to avoid conflict with features/astronomical version
+final astronomicalCalendarSelectedCropProvider = StateProvider<String?>((ref) => null);

@@ -241,4 +241,28 @@ class NotificationTopic {
       isSubscribed: json['is_subscribed'] as bool? ?? false,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'name_ar': nameAr,
+        'description': description,
+        'is_subscribed': isSubscribed,
+      };
+
+  NotificationTopic copyWith({
+    String? id,
+    String? name,
+    String? nameAr,
+    String? description,
+    bool? isSubscribed,
+  }) {
+    return NotificationTopic(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      nameAr: nameAr ?? this.nameAr,
+      description: description ?? this.description,
+      isSubscribed: isSubscribed ?? this.isSubscribed,
+    );
+  }
 }

@@ -60,11 +60,16 @@ class MapProviderConfig {
     this.costPerRequest,
   });
 
-  bool get isConfigured => !requiresApiKey || (apiKey != null && apiKey!.isNotEmpty);
+  bool get isConfigured {
+    if (!requiresApiKey) return true;
+    final key = apiKey;
+    return key != null && key.isNotEmpty;
+  }
 
   String get effectiveUrl {
-    if (apiKey != null) {
-      return urlTemplate.replaceAll('{apiKey}', apiKey!);
+    final key = apiKey;
+    if (key != null) {
+      return urlTemplate.replaceAll('{apiKey}', key);
     }
     return urlTemplate;
   }
@@ -259,7 +264,11 @@ class WeatherProviderConfig {
     this.rateLimit = 60,
   });
 
-  bool get isConfigured => !requiresApiKey || (apiKey != null && apiKey!.isNotEmpty);
+  bool get isConfigured {
+    if (!requiresApiKey) return true;
+    final key = apiKey;
+    return key != null && key.isNotEmpty;
+  }
 }
 
 /// All available weather providers
@@ -366,7 +375,11 @@ class SatelliteProviderConfig {
     this.costPerKm2,
   });
 
-  bool get isConfigured => !requiresApiKey || (apiKey != null && apiKey!.isNotEmpty);
+  bool get isConfigured {
+    if (!requiresApiKey) return true;
+    final key = apiKey;
+    return key != null && key.isNotEmpty;
+  }
 }
 
 /// All available satellite providers

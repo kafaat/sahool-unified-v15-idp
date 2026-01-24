@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../constants/navigation_constants.dart';
 import '../config/theme.dart';
 
@@ -226,7 +227,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
   Widget _buildFeatureItem(BuildContext context, String featureKey) {
     final route = _getRouteForFeature(featureKey);
     return ListTile(
-      contentPadding: const EdgeInsets.only(left: 24, right: 72),
+      contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 24),
       leading: Container(
         width: 36,
         height: 36,
@@ -303,7 +304,10 @@ class SahoolDrawerMenu extends ConsumerWidget {
               ),
             )
           : Icon(
-              Icons.chevron_left_rounded,
+              // Use RTL-aware chevron icon
+              Directionality.of(context) == TextDirection.rtl
+                  ? Icons.chevron_left_rounded
+                  : Icons.chevron_right_rounded,
               color: Colors.grey[400],
             ),
       onTap: () {
@@ -319,7 +323,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Align(
-            alignment: Alignment.centerRight,
+            alignment: AlignmentDirectional.centerEnd, // RTL-aware alignment
             child: Text(
               'أدوات مساعدة',
               style: TextStyle(
@@ -396,7 +400,10 @@ class SahoolDrawerMenu extends ConsumerWidget {
               ),
             )
           : Icon(
-              Icons.chevron_left_rounded,
+              // Use RTL-aware chevron icon
+              Directionality.of(context) == TextDirection.rtl
+                  ? Icons.chevron_left_rounded
+                  : Icons.chevron_right_rounded,
               color: Colors.grey[400],
             ),
       onTap: () {
@@ -479,6 +486,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
       'spray': NavigationConstants.spray,
       'rotation': NavigationConstants.rotation,
       'profitability': NavigationConstants.profitability,
+      'pivot_irrigation': NavigationConstants.pivotIrrigation,
       'fields': NavigationConstants.fields,
       'tasks': NavigationConstants.tasks,
       'crop_health': NavigationConstants.cropHealth,
@@ -486,6 +494,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
       'weather': NavigationConstants.weather,
       'alerts': NavigationConstants.alerts,
       'map': NavigationConstants.map,
+      'astronomical': NavigationConstants.astronomical,
       'inventory': NavigationConstants.inventory,
       'market': NavigationConstants.market,
       'chat': NavigationConstants.chat,

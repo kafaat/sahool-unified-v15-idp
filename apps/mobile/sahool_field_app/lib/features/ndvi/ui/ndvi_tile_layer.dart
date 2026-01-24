@@ -1,10 +1,14 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../domain/ndvi_colormap.dart';
+import '../../../core/performance/image_cache_manager.dart';
 
 /// NDVI Tile Layer Configuration
-/// Supports COG (Cloud Optimized GeoTIFF) and standard XYZ tiles
+/// Supports COG (Cloud Optimized GeoTIFF) and standard XYZ tiles with offline caching
 class NdviTileConfig {
   /// Tile URL template
   /// Use {z}, {x}, {y} for tile coordinates
@@ -61,14 +65,17 @@ class NdviTileConfig {
 }
 
 /// NDVI Tile Layer Widget for FlutterMap
+/// Supports offline caching for agricultural field monitoring
 class NdviTileLayerWidget extends StatelessWidget {
   final NdviTileConfig config;
   final bool visible;
+  final bool enableOfflineCache;
 
   const NdviTileLayerWidget({
     super.key,
     required this.config,
     this.visible = true,
+    this.enableOfflineCache = true,
   });
 
   @override
@@ -82,16 +89,211 @@ class NdviTileLayerWidget extends StatelessWidget {
         additionalOptions: {
           if (config.apiKey != null) 'apiKey': config.apiKey!,
         },
-        tileDimension: config.tileSize,  // Updated from deprecated tileSize
+        tileDimension: config.tileSize,
         minZoom: config.minZoom.toDouble(),
         maxZoom: config.maxZoom.toDouble(),
         backgroundColor: Colors.transparent,
+        tileProvider: enableOfflineCache
+            ? CachedNdviTileProvider(headers: config.headers)
+            : null,
         errorTileCallback: (tile, error, stackTrace) {
           // Silent fail for missing tiles
         },
       ),
     );
   }
+}
+
+/// Cached NDVI Tile Provider for offline support
+/// مزود البلاطات المخزنة مؤقتاً لدعم الوضع غير المتصل
+class CachedNdviTileProvider extends TileProvider {
+  final Map<String, String>? headers;
+  static const String _cacheKeyPrefix = 'ndvi_tile_';
+
+  CachedNdviTileProvider({this.headers});
+
+  @override
+  ImageProvider getImage(TileCoordinates coordinates, TileLayer options) {
+    final url = getTileUrl(coordinates, options);
+    return CachedNdviTileImage(
+      url: url,
+      headers: headers,
+      cacheKey: '$_cacheKeyPrefix${coordinates.z}_${coordinates.x}_${coordinates.y}',
+    );
+  }
+}
+
+/// Cached NDVI Tile Image Provider
+/// مزود صورة بلاطة NDVI المخزنة مؤقتاً
+class CachedNdviTileImage extends ImageProvider<CachedNdviTileImage> {
+  final String url;
+  final Map<String, String>? headers;
+  final String cacheKey;
+
+  const CachedNdviTileImage({
+    required this.url,
+    this.headers,
+    required this.cacheKey,
+  });
+
+  @override
+  ImageStreamCompleter loadImage(CachedNdviTileImage key, ImageDecoderCallback decode) {
+    return MultiFrameImageStreamCompleter(
+      codec: _loadAsync(key, decode),
+      scale: 1.0,
+    );
+  }
+
+  Future<ui.Codec> _loadAsync(CachedNdviTileImage key, ImageDecoderCallback decode) async {
+    try {
+      // Try to get from cache first
+      final file = await SahoolImageCacheManager.instance.getSingleFile(
+        key.url,
+        key: key.cacheKey,
+        headers: key.headers,
+      );
+
+      final bytes = await file.readAsBytes();
+      final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
+      return decode(buffer);
+    } catch (e) {
+      // Return transparent image on error
+      final emptyBytes = _createTransparentPng();
+      final buffer = await ui.ImmutableBuffer.fromUint8List(emptyBytes);
+      return decode(buffer);
+    }
+  }
+
+  /// Create a minimal transparent PNG for error fallback
+  static Uint8List _createTransparentPng() {
+    // 1x1 transparent PNG
+    return Uint8List.fromList([
+      0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, // PNG signature
+      0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, // IHDR length + type
+      0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, // 1x1
+      0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, // 8-bit RGBA
+      0x89, 0x00, 0x00, 0x00, 0x0A, 0x49, 0x44, 0x41, // IDAT
+      0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00, // compressed data
+      0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00, // IEND
+      0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
+      0x42, 0x60, 0x82,
+    ]);
+  }
+
+  @override
+  Future<CachedNdviTileImage> obtainKey(ImageConfiguration configuration) {
+    return Future.value(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is CachedNdviTileImage && other.url == url;
+  }
+
+  @override
+  int get hashCode => url.hashCode;
+}
+
+/// NDVI Image Cache Manager for preloading tiles
+/// مدير كاش صور NDVI للتحميل المسبق
+class NdviImageCacheManager {
+  static final NdviImageCacheManager instance = NdviImageCacheManager._();
+  NdviImageCacheManager._();
+
+  /// Preload NDVI tiles for a field's bounding box for offline use
+  /// تحميل بلاطات NDVI مسبقاً لمنطقة الحقل
+  Future<void> preloadFieldTiles({
+    required String urlTemplate,
+    required List<LatLng> boundary,
+    required int minZoom,
+    required int maxZoom,
+    Map<String, String>? headers,
+    void Function(int completed, int total)? onProgress,
+  }) async {
+    if (boundary.isEmpty) return;
+
+    // Calculate bounds
+    double minLat = boundary.first.latitude;
+    double maxLat = boundary.first.latitude;
+    double minLng = boundary.first.longitude;
+    double maxLng = boundary.first.longitude;
+
+    for (final point in boundary) {
+      minLat = point.latitude < minLat ? point.latitude : minLat;
+      maxLat = point.latitude > maxLat ? point.latitude : maxLat;
+      minLng = point.longitude < minLng ? point.longitude : minLng;
+      maxLng = point.longitude > maxLng ? point.longitude : maxLng;
+    }
+
+    // Generate tile URLs
+    final urls = <String>[];
+    for (int z = minZoom; z <= maxZoom; z++) {
+      final tiles = _getTilesForBounds(minLat, minLng, maxLat, maxLng, z);
+      for (final tile in tiles) {
+        final url = urlTemplate
+            .replaceAll('{z}', z.toString())
+            .replaceAll('{x}', tile.x.toString())
+            .replaceAll('{y}', tile.y.toString());
+        urls.add(url);
+      }
+    }
+
+    // Preload tiles
+    await SahoolImageCacheManager.instance.preloadImages(
+      urls,
+      onProgress: onProgress,
+    );
+  }
+
+  /// Calculate tile coordinates for a bounding box
+  List<_TileCoords> _getTilesForBounds(
+    double minLat,
+    double minLng,
+    double maxLat,
+    double maxLng,
+    int zoom,
+  ) {
+    final minTile = _latLngToTile(maxLat, minLng, zoom);
+    final maxTile = _latLngToTile(minLat, maxLng, zoom);
+
+    final tiles = <_TileCoords>[];
+    for (int x = minTile.x; x <= maxTile.x; x++) {
+      for (int y = minTile.y; y <= maxTile.y; y++) {
+        tiles.add(_TileCoords(x, y, zoom));
+      }
+    }
+    return tiles;
+  }
+
+  /// Convert lat/lng to tile coordinates
+  _TileCoords _latLngToTile(double lat, double lng, int zoom) {
+    final n = 1 << zoom;
+    final x = ((lng + 180.0) / 360.0 * n).floor();
+    final latRad = lat * 3.141592653589793 / 180.0;
+    final y = ((1.0 - (latRad.tan() + 1.0 / latRad.tan().abs()).log() / 3.141592653589793) / 2.0 * n).floor();
+    return _TileCoords(x.clamp(0, n - 1), y.clamp(0, n - 1), zoom);
+  }
+
+  /// Clear cached NDVI tiles
+  /// مسح البلاطات المخزنة مؤقتاً
+  Future<void> clearCache() async {
+    await SahoolImageCacheManager.instance.clearCache();
+  }
+
+  /// Get cache info
+  /// الحصول على معلومات الكاش
+  Future<CacheInfo> getCacheInfo() async {
+    return SahoolImageCacheManager.instance.getCacheInfo();
+  }
+}
+
+class _TileCoords {
+  final int x;
+  final int y;
+  final int zoom;
+
+  _TileCoords(this.x, this.y, this.zoom);
 }
 
 /// NDVI Polygon Overlay - Colors field polygons based on NDVI value

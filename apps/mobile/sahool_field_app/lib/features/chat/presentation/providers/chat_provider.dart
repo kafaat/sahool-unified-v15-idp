@@ -7,8 +7,10 @@
 /// - Real-time updates via WebSocket
 /// - Typing indicators
 /// - Online status
+/// - Auto-disposal with keepAlive for session persistence
 
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/api_config.dart';
 import '../../data/models/conversation_model.dart';
@@ -593,9 +595,16 @@ final chatRepositoryProvider = Provider<ChatRepository>((ref) {
 });
 
 /// Chat notifier provider
-final chatProvider = StateNotifierProvider<ChatNotifier, ChatState>((ref) {
+/// Uses autoDispose with keepAlive for chat session persistence
+/// Stays alive for 15 minutes to maintain conversation context
+final chatProvider = StateNotifierProvider.autoDispose<ChatNotifier, ChatState>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   final userId = ref.watch(chatUserIdProvider);
+
+  // Keep alive for 15 minutes to maintain conversation state
+  final link = ref.keepAlive();
+  final timer = Timer(const Duration(minutes: 15), link.close);
+  ref.onDispose(timer.cancel);
 
   return ChatNotifier(
     repository: repository,
@@ -603,24 +612,34 @@ final chatProvider = StateNotifierProvider<ChatNotifier, ChatState>((ref) {
   );
 });
 
-/// Unread count provider
-final unreadCountProvider = Provider<int>((ref) {
+/// Unread count provider - autoDispose to match parent
+final unreadCountProvider = Provider.autoDispose<int>((ref) {
   return ref.watch(chatProvider).unreadCount;
 });
 
-/// Active conversation provider
-final activeConversationProvider = Provider<Conversation?>((ref) {
+/// Active conversation provider - autoDispose to match parent
+final activeConversationProvider = Provider.autoDispose<Conversation?>((ref) {
   return ref.watch(chatProvider).activeConversation;
 });
 
-/// Active messages provider
-final activeMessagesProvider = Provider<List<Message>>((ref) {
+/// Active messages provider - autoDispose to match parent
+final activeMessagesProvider = Provider.autoDispose<List<Message>>((ref) {
   return ref.watch(chatProvider).activeMessages;
 });
 
-/// Typing status for active conversation
-final activeConversationTypingProvider = Provider<bool>((ref) {
+/// Typing status for active conversation - autoDispose to match parent
+final activeConversationTypingProvider = Provider.autoDispose<bool>((ref) {
   final state = ref.watch(chatProvider);
   if (state.activeConversationId == null) return false;
   return state.typingStatus[state.activeConversationId] ?? false;
+});
+
+/// Chat loading state provider - convenient access to loading state
+final chatLoadingProvider = Provider.autoDispose<bool>((ref) {
+  return ref.watch(chatProvider).isLoading;
+});
+
+/// Chat error state provider - convenient access to error state
+final chatErrorProvider = Provider.autoDispose<String?>((ref) {
+  return ref.watch(chatProvider).error;
 });

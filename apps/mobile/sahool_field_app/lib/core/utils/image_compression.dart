@@ -364,7 +364,8 @@ class ImageCompressionUtil {
   /// تحديد جودة الضغط بناءً على حجم الشاشة
   /// Determine compression quality based on screen size
   static double getQualityForDevice(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    // Use sizeOf for better performance - avoids unnecessary rebuilds
+    final screenWidth = MediaQuery.sizeOf(context).width;
 
     // تعتبر الأجهزة التي عرضها أكبر من 600 بكسل تابلت
     // Devices with width > 600px are considered tablets

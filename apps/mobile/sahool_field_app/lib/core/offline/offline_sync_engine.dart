@@ -20,11 +20,7 @@ import 'sync_conflict_resolver.dart';
 /// - Queue prioritization
 
 class OfflineSyncEngine {
-  static OfflineSyncEngine? _instance;
-  static OfflineSyncEngine get instance {
-    _instance ??= OfflineSyncEngine._();
-    return _instance!;
-  }
+  static final OfflineSyncEngine instance = OfflineSyncEngine._();
 
   OfflineSyncEngine._();
 
@@ -276,20 +272,22 @@ class OfflineSyncEngine {
   /// معالجة عملية تحديث
   Future<void> _processUpdate(OutboxEntry entry) async {
     // Check for conflicts
-    if (entry.previousData != null) {
-      final serverData = await _fetchServerData(entry.entityType, entry.entityId!);
+    final previousData = entry.previousData;
+    final entityId = entry.entityId;
+    if (previousData != null && entityId != null) {
+      final serverData = await _fetchServerData(entry.entityType, entityId);
       if (serverData != null) {
         final hasConflict = _conflictResolver.detectConflict(
           local: entry.data,
           server: serverData,
-          base: entry.previousData!,
+          base: previousData,
         );
 
         if (hasConflict) {
           final resolved = await _conflictResolver.resolve(
             local: entry.data,
             server: serverData,
-            base: entry.previousData!,
+            base: previousData,
             strategy: ConflictStrategy.serverWins, // or custom logic
           );
 

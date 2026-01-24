@@ -365,15 +365,17 @@ class PermissionService {
 
   /// Get current role
   UserRole get currentRole {
-    if (user == null) return UserRole.viewer;
-    return UserRole.fromString(user!.role);
+    final currentUser = user;
+    if (currentUser == null) return UserRole.viewer;
+    return UserRole.fromString(currentUser.role);
   }
 
   /// Get all permissions for current user
   Set<String> get permissions {
     // If we have a capability token, use it (offline mode)
-    if (_capabilityToken != null && _capabilityToken!.isValid) {
-      return _capabilityToken!.capabilities;
+    final token = _capabilityToken;
+    if (token != null && token.isValid) {
+      return token.capabilities;
     }
     // Otherwise, use role-based permissions
     return rolePermissions[currentRole] ?? {};
@@ -422,8 +424,9 @@ class PermissionService {
     if (!can(permission)) return false;
 
     // Use capability token if available
-    if (_capabilityToken != null) {
-      return _capabilityToken!.canAccessField(fieldId);
+    final token = _capabilityToken;
+    if (token != null) {
+      return token.canAccessField(fieldId);
     }
 
     // Default to true if online (server will validate)

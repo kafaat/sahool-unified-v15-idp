@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/di/providers.dart';
+import '../../../../core/config/env_config.dart';
+import '../../../field/domain/mappers/field_mapper.dart';
+import '../../../field/presentation/providers/field_controller.dart';
 import '../../domain/entities/field_entity.dart';
 import '../widgets/enhanced_field_card.dart';
 import 'field_details_screen.dart';
@@ -20,93 +25,12 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   String _sortBy = 'name';
   bool _isGridView = false;
 
-  // Mock data - في الإنتاج سيأتي من API
-  final List<FieldEntity> _fields = [
-    FieldEntity(
-      id: '1',
-      tenantId: 't1',
-      name: 'حقل القمح الشمالي',
-      areaHectares: 45.5,
-      cropType: 'قمح',
-      healthScore: 0.85,
-      ndviValue: 0.72,
-      ndwiValue: -0.05,
-      soilType: 'طيني',
-      irrigationType: 'محوري',
-      plantingDate: DateTime.now().subtract(const Duration(days: 60)),
-      expectedHarvest: DateTime.now().add(const Duration(days: 90)),
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    FieldEntity(
-      id: '2',
-      tenantId: 't1',
-      name: 'حقل الذرة الغربي',
-      areaHectares: 60.0,
-      cropType: 'ذرة',
-      healthScore: 0.72,
-      ndviValue: 0.65,
-      ndwiValue: -0.12,
-      soilType: 'رملي',
-      irrigationType: 'تنقيط',
-      plantingDate: DateTime.now().subtract(const Duration(days: 45)),
-      expectedHarvest: DateTime.now().add(const Duration(days: 75)),
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    FieldEntity(
-      id: '3',
-      tenantId: 't1',
-      name: 'حقل الشعير',
-      areaHectares: 35.0,
-      cropType: 'شعير',
-      healthScore: 0.45,
-      ndviValue: 0.42,
-      ndwiValue: -0.25,
-      soilType: 'طيني',
-      irrigationType: 'غمر',
-      plantingDate: DateTime.now().subtract(const Duration(days: 90)),
-      expectedHarvest: DateTime.now().add(const Duration(days: 30)),
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    FieldEntity(
-      id: '4',
-      tenantId: 't1',
-      name: 'حقل البرسيم',
-      areaHectares: 50.0,
-      cropType: 'برسيم',
-      healthScore: 0.92,
-      ndviValue: 0.85,
-      ndwiValue: 0.02,
-      soilType: 'طيني رملي',
-      irrigationType: 'محوري',
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    FieldEntity(
-      id: '5',
-      tenantId: 't1',
-      name: 'حقل النخيل',
-      areaHectares: 25.0,
-      cropType: 'نخيل',
-      healthScore: 0.78,
-      ndviValue: 0.68,
-      ndwiValue: -0.08,
-      soilType: 'رملي',
-      irrigationType: 'تنقيط',
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-  ];
+  /// Get current tenant ID
+  String get _tenantId => EnvConfig.defaultTenantId;
 
-  List<FieldEntity> get _filteredFields {
-    var fields = _fields.where((f) {
+  /// Get filtered and sorted fields
+  List<FieldEntity> _getFilteredFields(List<FieldEntity> fields) {
+    var filteredFields = fields.where((f) {
       if (_searchQuery.isNotEmpty &&
           !f.name.toLowerCase().contains(_searchQuery.toLowerCase())) {
         return false;
@@ -123,54 +47,57 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     // Sort
     switch (_sortBy) {
       case 'name':
-        fields.sort((a, b) => a.name.compareTo(b.name));
+        filteredFields.sort((a, b) => a.name.compareTo(b.name));
         break;
       case 'area':
-        fields.sort((a, b) => b.areaHectares.compareTo(a.areaHectares));
+        filteredFields.sort((a, b) => b.areaHectares.compareTo(a.areaHectares));
         break;
       case 'health':
-        fields.sort((a, b) => b.healthScore.compareTo(a.healthScore));
+        filteredFields.sort((a, b) => b.healthScore.compareTo(a.healthScore));
         break;
     }
 
-    return fields;
+    return filteredFields;
   }
 
-  /// Refresh fields from API
+  /// Refresh fields from server
   /// تحديث الحقول من الخادم
   Future<void> _refreshFields() async {
-    // Simulate API call delay
-    // في الإنتاج، استبدل هذا باستدعاء API حقيقي
-    await Future.delayed(const Duration(milliseconds: 800));
+    final controller = ref.read(fieldControllerProvider(_tenantId).notifier);
 
-    // In production, fetch from API:
-    // final apiClient = ref.read(apiClientProvider);
-    // final response = await apiClient.get('/fields');
-    // final newFields = (response.data as List).map((f) => FieldEntity.fromJson(f)).toList();
+    try {
+      await controller.refreshFromServer();
 
-    // For now, just refresh with updated timestamps
-    setState(() {
-      for (var i = 0; i < _fields.length; i++) {
-        _fields[i] = _fields[i].copyWith(
-          updatedAt: DateTime.now(),
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تم تحديث البيانات'),
+            duration: Duration(seconds: 1),
+            backgroundColor: Color(0xFF367C2B),
+          ),
         );
       }
-    });
-
-    // Show refresh confirmation
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم تحديث البيانات'),
-          duration: Duration(seconds: 1),
-          backgroundColor: Color(0xFF367C2B),
-        ),
-      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('فشل التحديث: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Watch the field controller state
+    final controllerState = ref.watch(fieldControllerProvider(_tenantId));
+
+    // Convert domain fields to FieldEntity for UI display
+    final fieldEntities = controllerState.fields.toFieldEntities();
+    final filteredFields = _getFilteredFields(fieldEntities);
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -179,6 +106,19 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
           backgroundColor: const Color(0xFF367C2B),
           foregroundColor: Colors.white,
           actions: [
+            // Sync indicator
+            if (controllerState.unsyncedCount > 0)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Chip(
+                  label: Text(
+                    '${controllerState.unsyncedCount}',
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                  backgroundColor: Colors.orange,
+                  avatar: const Icon(Icons.cloud_off, color: Colors.white, size: 16),
+                ),
+              ),
             // Toggle view
             IconButton(
               icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
@@ -230,17 +170,41 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
         ),
         body: Column(
           children: [
+            // Error banner
+            if (controllerState.error != null)
+              MaterialBanner(
+                content: Text(controllerState.error!),
+                backgroundColor: Colors.red.shade100,
+                actions: [
+                  TextButton(
+                    onPressed: () => ref.read(fieldControllerProvider(_tenantId).notifier).clearError(),
+                    child: const Text('إغلاق'),
+                  ),
+                ],
+              ),
+
             // Search and filters
             _buildSearchAndFilters(),
 
             // Stats bar
-            _buildStatsBar(),
+            _buildStatsBar(filteredFields),
+
+            // Loading indicator
+            if (controllerState.isLoading || controllerState.isRefreshing)
+              const LinearProgressIndicator(
+                backgroundColor: Color(0xFFE8F5E9),
+                valueColor: AlwaysStoppedAnimation(Color(0xFF367C2B)),
+              ),
 
             // Fields list/grid
             Expanded(
               child: RefreshIndicator(
                 onRefresh: _refreshFields,
-                child: _isGridView ? _buildGridView() : _buildListView(),
+                child: controllerState.isLoading && fieldEntities.isEmpty
+                    ? _buildLoadingState()
+                    : _isGridView
+                        ? _buildGridView(filteredFields)
+                        : _buildListView(filteredFields),
               ),
             ),
           ],
@@ -251,6 +215,19 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
           icon: const Icon(Icons.add),
           label: const Text('حقل جديد'),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(color: Color(0xFF367C2B)),
+          SizedBox(height: 16),
+          Text('جاري تحميل الحقول...'),
+        ],
       ),
     );
   }
@@ -349,15 +326,15 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     );
   }
 
-  Widget _buildStatsBar() {
-    final totalArea = _filteredFields.fold<double>(
+  Widget _buildStatsBar(List<FieldEntity> fields) {
+    final totalArea = fields.fold<double>(
       0,
       (sum, f) => sum + f.areaHectares,
     );
-    final avgHealth = _filteredFields.isEmpty
+    final avgHealth = fields.isEmpty
         ? 0.0
-        : _filteredFields.fold<double>(0, (sum, f) => sum + f.healthScore) /
-            _filteredFields.length;
+        : fields.fold<double>(0, (sum, f) => sum + f.healthScore) /
+            fields.length;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -368,7 +345,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
           _buildStatItem(
             icon: Icons.landscape,
             label: 'الحقول',
-            value: '${_filteredFields.length}',
+            value: '${fields.length}',
           ),
           _buildStatItem(
             icon: Icons.square_foot,
@@ -415,16 +392,16 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     );
   }
 
-  Widget _buildListView() {
-    if (_filteredFields.isEmpty) {
+  Widget _buildListView(List<FieldEntity> fields) {
+    if (fields.isEmpty) {
       return _buildEmptyState();
     }
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _filteredFields.length,
+      itemCount: fields.length,
       itemBuilder: (context, index) {
-        final field = _filteredFields[index];
+        final field = fields[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: EnhancedFieldCard(
@@ -436,8 +413,8 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     );
   }
 
-  Widget _buildGridView() {
-    if (_filteredFields.isEmpty) {
+  Widget _buildGridView(List<FieldEntity> fields) {
+    if (fields.isEmpty) {
       return _buildEmptyState();
     }
 
@@ -449,9 +426,9 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
         crossAxisSpacing: 12,
         childAspectRatio: 0.85,
       ),
-      itemCount: _filteredFields.length,
+      itemCount: fields.length,
       itemBuilder: (context, index) {
-        final field = _filteredFields[index];
+        final field = fields[index];
         return EnhancedFieldCard(
           field: field,
           isCompact: true,
@@ -488,21 +465,16 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   }
 
   void _openFieldDetails(FieldEntity field) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FieldDetailsScreen(field: field),
-      ),
-    );
+    // Navigate to field details using GoRouter with field ID
+    context.push('/field/${field.id}', extra: field);
   }
 
   void _addField() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('إضافة حقل جديد - قريباً'),
-        backgroundColor: Color(0xFF367C2B),
-      ),
-    );
+    // Navigate to map screen for drawing field boundary
+    context.push('/map', extra: {'mode': 'draw', 'tenantId': _tenantId}).then((_) {
+      // Refresh fields after returning from map
+      ref.read(fieldControllerProvider(_tenantId).notifier).loadFields();
+    });
   }
 
   Color _getHealthColor(double score) {

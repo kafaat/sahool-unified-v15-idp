@@ -73,23 +73,30 @@ class _ZoneMapWidgetState extends State<ZoneMapWidget> {
   }
 
   List<LatLng> _extractCoordinates(Map<String, dynamic> geometry) {
-    final type = geometry['type'] as String;
-    final coordinates = geometry['coordinates'];
+    final type = geometry['type'] as String?;
+    final coordinates = geometry['coordinates'] as List<dynamic>?;
+
+    if (type == null || coordinates == null || coordinates.isEmpty) {
+      return [];
+    }
 
     if (type == 'Polygon') {
       // Polygon coordinates are [[[lng, lat], [lng, lat], ...]]
-      final ring = coordinates[0] as List;
+      final ring = coordinates[0] as List<dynamic>?;
+      if (ring == null) return [];
       return ring.map((coord) {
-        final c = coord as List;
-        return LatLng(c[1] as double, c[0] as double);
+        final c = coord as List<dynamic>;
+        return LatLng((c[1] as num).toDouble(), (c[0] as num).toDouble());
       }).toList();
     } else if (type == 'MultiPolygon') {
       // MultiPolygon coordinates are [[[[lng, lat], [lng, lat], ...]]]
-      final firstPolygon = coordinates[0] as List;
-      final ring = firstPolygon[0] as List;
+      final firstPolygon = coordinates[0] as List<dynamic>?;
+      if (firstPolygon == null || firstPolygon.isEmpty) return [];
+      final ring = firstPolygon[0] as List<dynamic>?;
+      if (ring == null) return [];
       return ring.map((coord) {
-        final c = coord as List;
-        return LatLng(c[1] as double, c[0] as double);
+        final c = coord as List<dynamic>;
+        return LatLng((c[1] as num).toDouble(), (c[0] as num).toDouble());
       }).toList();
     }
 
@@ -236,11 +243,11 @@ class _ZoneMapWidgetState extends State<ZoneMapWidget> {
         ),
 
         // معلومات المنطقة عند التحويم (للأجهزة اللوحية/سطح المكتب)
-        if (_hoveredZone != null)
+        if (_hoveredZone case final hoveredZone?)
           Positioned(
             top: 16,
             right: 16,
-            child: _buildZoneInfoCard(_hoveredZone!),
+            child: _buildZoneInfoCard(hoveredZone),
           ),
       ],
     );
@@ -286,10 +293,10 @@ class _ZoneMapWidgetState extends State<ZoneMapWidget> {
                 isRTL ? 'المعدل' : 'Rate',
                 '${rate.rate.toStringAsFixed(2)} ${rate.getUnit(locale)}',
               ),
-            if (zone.averageNdvi != null)
+            if (zone.averageNdvi case final ndvi?)
               _buildInfoRow(
                 isRTL ? 'NDVI' : 'NDVI',
-                zone.averageNdvi!.toStringAsFixed(3),
+                ndvi.toStringAsFixed(3),
               ),
           ],
         ),

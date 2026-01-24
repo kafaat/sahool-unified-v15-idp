@@ -20,6 +20,7 @@ class TasksListScreen extends ConsumerStatefulWidget {
 
 class _TasksListScreenState extends ConsumerState<TasksListScreen> {
   TaskStatus? _statusFilter;
+  bool _showOverdueOnly = false;
   bool _isRefreshing = false;
 
   @override
@@ -62,6 +63,22 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
         backgroundColor: SahoolTheme.primary,
         foregroundColor: Colors.white,
         actions: [
+          // Overdue filter toggle
+          IconButton(
+            icon: Icon(
+              Icons.warning_amber_rounded,
+              color: _showOverdueOnly ? Colors.amber : Colors.white,
+            ),
+            tooltip: 'المهام المتأخرة',
+            onPressed: () {
+              setState(() {
+                _showOverdueOnly = !_showOverdueOnly;
+                if (_showOverdueOnly) {
+                  _statusFilter = null; // Clear status filter when showing overdue
+                }
+              });
+            },
+          ),
           // Filter button
           PopupMenuButton<TaskStatus?>(
             icon: Icon(
@@ -69,7 +86,10 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
               color: _statusFilter != null ? Colors.amber : Colors.white,
             ),
             onSelected: (status) {
-              setState(() => _statusFilter = status);
+              setState(() {
+                _statusFilter = status;
+                _showOverdueOnly = false; // Clear overdue filter when selecting status
+              });
             },
             itemBuilder: (context) => [
               const PopupMenuItem(
@@ -115,13 +135,21 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
             ),
           ),
           data: (tasks) {
-            // Apply filter
+            // Apply filters
             var filteredTasks = tasks;
-            if (_statusFilter != null) {
+
+            // Apply overdue filter
+            if (_showOverdueOnly) {
+              filteredTasks = tasks.where((t) => t.isOverdue).toList();
+            } else if (_statusFilter != null) {
+              // Apply status filter
               filteredTasks = tasks
                   .where((t) => t.status == _statusFilter)
                   .toList();
             }
+
+            // Count overdue tasks for badge
+            final overdueCount = tasks.where((t) => t.isOverdue).length;
 
             if (filteredTasks.isEmpty) {
               return Center(
@@ -129,20 +157,32 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.task_alt,
+                      _showOverdueOnly ? Icons.check_circle : Icons.task_alt,
                       size: 64,
-                      color: Colors.grey[400],
+                      color: _showOverdueOnly ? Colors.green[400] : Colors.grey[400],
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      _statusFilter != null
-                          ? 'لا توجد مهام ${_statusFilter!.arabicLabel}'
-                          : 'لا توجد مهام',
+                      _showOverdueOnly
+                          ? 'لا توجد مهام متأخرة'
+                          : _statusFilter != null
+                              ? 'لا توجد مهام ${_statusFilter!.arabicLabel}'
+                              : 'لا توجد مهام',
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.grey[600],
                       ),
                     ),
+                    if (_showOverdueOnly) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'ممتاز! جميع مهامك في موعدها',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.green[600],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               );

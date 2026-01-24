@@ -4,19 +4,23 @@ import '../../../core/config/api_config.dart';
 import '../../../core/auth/secure_storage_service.dart';
 import '../../../core/di/providers.dart';
 
-/// SAHOOL Authentication Service
-/// خدمة المصادقة - تسجيل الدخول والتسجيل
+/// SAHOOL Registration Authentication Service
+/// خدمة المصادقة للتسجيل - تسجيل المستخدمين الجدد
 ///
 /// Features:
 /// - User registration with email/password
 /// - Token management (store/retrieve/refresh)
 /// - Bilingual error handling
+///
+/// Note: For main authentication (login/logout/session), use core/auth/auth_service.dart
 
-/// Provider for auth service
-final authServiceProvider = Provider<AuthService>((ref) {
+/// Provider for registration auth service
+/// Note: Renamed from authServiceProvider to avoid conflict with core/auth/auth_service.dart
+/// Use this for user registration flows only
+final registrationAuthServiceProvider = Provider<RegistrationAuthService>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   final secureStorage = ref.watch(secureStorageProvider);
-  return AuthService(
+  return RegistrationAuthService(
     apiClient: apiClient,
     secureStorage: secureStorage,
   );
@@ -144,8 +148,9 @@ class AuthResult {
       );
 }
 
-/// Authentication Service
-class AuthService {
+/// Registration Authentication Service
+/// خدمة مصادقة التسجيل
+class RegistrationAuthService {
   final ApiClient _apiClient;
   final SecureStorageService _secureStorage;
 

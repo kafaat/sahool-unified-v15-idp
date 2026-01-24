@@ -608,6 +608,227 @@ class AppDatabase extends _$AppDatabase {
       ),
     );
   }
+
+  // ============================================================
+  // Transaction Support
+  // ============================================================
+
+  /// Execute multiple operations in a transaction
+  ///
+  /// Provides atomic execution - all operations succeed or all fail
+  /// Usage:
+  /// ```dart
+  /// await db.runInTransaction(() async {
+  ///   await db.insertField(field1);
+  ///   await db.insertField(field2);
+  ///   await db.addToOutbox(outboxItem);
+  /// });
+  /// ```
+  Future<T> runInTransaction<T>(Future<T> Function() action) async {
+    return transaction(action);
+  }
+
+  /// Execute batch operations efficiently
+  ///
+  /// All operations are executed in a single transaction
+  Future<void> runBatch(Function(Batch batch) operations) async {
+    await batch(operations);
+  }
+
+  // ============================================================
+  // Stream Watchers
+  // ============================================================
+
+  /// Watch tasks for a specific field (live stream)
+  Stream<List<Task>> watchTasksForField(String fieldId) {
+    return (select(tasks)
+          ..where((t) => t.fieldId.equals(fieldId))
+          ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
+        .watch();
+  }
+
+  /// Watch pending tasks for tenant (live stream)
+  Stream<List<Task>> watchPendingTasks(String tenantId) {
+    return (select(tasks)
+          ..where((t) => t.tenantId.equals(tenantId))
+          ..where((t) => t.status.isIn(['open', 'in_progress']))
+          ..orderBy([
+            (t) => OrderingTerm.asc(t.dueDate),
+            (t) => OrderingTerm.desc(t.priority),
+          ]))
+        .watch();
+  }
+
+  /// Watch outbox count (for sync indicator)
+  Stream<int> watchPendingOutboxCount() {
+    final query = selectOnly(outbox)
+      ..where(outbox.isSynced.equals(false))
+      ..addColumns([outbox.id.count()]);
+    return query
+        .map((row) => row.read(outbox.id.count()) ?? 0)
+        .watchSingle();
+  }
+
+  /// Watch sync logs (live stream)
+  Stream<List<SyncLog>> watchRecentSyncLogs({int limit = 20}) {
+    return (select(syncLogs)
+          ..orderBy([(l) => OrderingTerm.desc(l.timestamp)])
+          ..limit(limit))
+        .watch();
+  }
+
+  // ============================================================
+  // Database Health and Maintenance
+  // ============================================================
+
+  /// Check database health
+  ///
+  /// Returns a map with health indicators
+  Future<Map<String, dynamic>> checkHealth() async {
+    try {
+      // Check basic connectivity
+      await customSelect('SELECT 1').get();
+
+      // Get table counts
+      final fieldsCount = await (selectOnly(fields)
+            ..addColumns([fields.id.count()]))
+          .map((row) => row.read(fields.id.count()) ?? 0)
+          .getSingle();
+
+      final tasksCount = await (selectOnly(tasks)
+            ..addColumns([tasks.id.count()]))
+          .map((row) => row.read(tasks.id.count()) ?? 0)
+          .getSingle();
+
+      final pendingOutboxCount = await (selectOnly(outbox)
+            ..where(outbox.isSynced.equals(false))
+            ..addColumns([outbox.id.count()]))
+          .map((row) => row.read(outbox.id.count()) ?? 0)
+          .getSingle();
+
+      final unreadEventsCount = await (selectOnly(syncEvents)
+            ..where(syncEvents.isRead.equals(false))
+            ..addColumns([syncEvents.id.count()]))
+          .map((row) => row.read(syncEvents.id.count()) ?? 0)
+          .getSingle();
+
+      return {
+        'healthy': true,
+        'fieldsCount': fieldsCount,
+        'tasksCount': tasksCount,
+        'pendingOutboxCount': pendingOutboxCount,
+        'unreadEventsCount': unreadEventsCount,
+        'schemaVersion': schemaVersion,
+      };
+    } catch (e) {
+      return {
+        'healthy': false,
+        'error': e.toString(),
+      };
+    }
+  }
+
+  /// Vacuum database to reclaim space
+  ///
+  /// Should be called periodically during app maintenance
+  Future<void> vacuum() async {
+    await customStatement('VACUUM;');
+    AppLogger.i('Database vacuumed', tag: 'Database');
+  }
+
+  /// Analyze database for query optimization
+  Future<void> analyze() async {
+    await customStatement('ANALYZE;');
+    AppLogger.i('Database analyzed', tag: 'Database');
+  }
+
+  /// Clear all data for a specific tenant
+  ///
+  /// Use with caution - this permanently deletes data
+  Future<void> clearTenantData(String tenantId) async {
+    await transaction(() async {
+      await (delete(tasks)..where((t) => t.tenantId.equals(tenantId))).go();
+      await (delete(fields)..where((f) => f.tenantId.equals(tenantId))).go();
+      await (delete(outbox)..where((o) => o.tenantId.equals(tenantId))).go();
+      await (delete(syncEvents)..where((e) => e.tenantId.equals(tenantId))).go();
+    });
+    AppLogger.i('Cleared tenant data', tag: 'Database', data: {'tenantId': tenantId});
+  }
+
+  /// Get database statistics
+  Future<Map<String, dynamic>> getStatistics() async {
+    final stats = <String, dynamic>{};
+
+    // Get page count and size
+    try {
+      final pageCount = await customSelect('PRAGMA page_count;')
+          .map((row) => row.read<int>('page_count'))
+          .getSingle();
+      final pageSize = await customSelect('PRAGMA page_size;')
+          .map((row) => row.read<int>('page_size'))
+          .getSingle();
+
+      stats['pageCount'] = pageCount;
+      stats['pageSize'] = pageSize;
+      stats['estimatedSizeBytes'] = (pageCount ?? 0) * (pageSize ?? 4096);
+    } catch (e) {
+      stats['sizeError'] = e.toString();
+    }
+
+    // Get unsynced counts
+    final unsyncedFields = await (selectOnly(fields)
+          ..where(fields.synced.equals(false))
+          ..addColumns([fields.id.count()]))
+        .map((row) => row.read(fields.id.count()) ?? 0)
+        .getSingle();
+
+    final unsyncedTasks = await (selectOnly(tasks)
+          ..where(tasks.synced.equals(false))
+          ..addColumns([tasks.id.count()]))
+        .map((row) => row.read(tasks.id.count()) ?? 0)
+        .getSingle();
+
+    stats['unsyncedFields'] = unsyncedFields;
+    stats['unsyncedTasks'] = unsyncedTasks;
+
+    return stats;
+  }
+
+  // ============================================================
+  // Utility Methods
+  // ============================================================
+
+  /// Delete task by ID
+  Future<void> deleteTask(String taskId) async {
+    await (delete(tasks)..where((t) => t.id.equals(taskId))).go();
+  }
+
+  /// Delete all synced outbox items older than specified duration
+  Future<int> pruneOldOutboxItems({Duration olderThan = const Duration(days: 7)}) async {
+    final cutoff = DateTime.now().subtract(olderThan);
+    return await (delete(outbox)
+          ..where((o) => o.isSynced.equals(true))
+          ..where((o) => o.createdAt.isSmallerThanValue(cutoff)))
+        .go();
+  }
+
+  /// Get count of failed outbox items (retry count exceeded)
+  Future<int> getFailedOutboxCount({int maxRetries = 5}) async {
+    return await (selectOnly(outbox)
+          ..where(outbox.isSynced.equals(false))
+          ..where(outbox.retryCount.isBiggerOrEqualValue(maxRetries))
+          ..addColumns([outbox.id.count()]))
+        .map((row) => row.read(outbox.id.count()) ?? 0)
+        .getSingle();
+  }
+
+  /// Reset retry count for failed outbox items
+  Future<void> resetFailedOutboxItems({int maxRetries = 5}) async {
+    await (update(outbox)
+          ..where((o) => o.isSynced.equals(false))
+          ..where((o) => o.retryCount.isBiggerOrEqualValue(maxRetries)))
+        .write(const OutboxCompanion(retryCount: Value(0)));
+  }
 }
 
 /// Open encrypted database connection with SQLCipher
@@ -617,76 +838,144 @@ class AppDatabase extends _$AppDatabase {
 /// - Secure key storage in platform keychain/keystore
 /// - Automatic migration from unencrypted to encrypted database
 /// - Backward compatibility support
+/// - Robust error handling with retry mechanism
+/// - Database integrity verification
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    // Ensure SQLCipher native library is loaded
-    await applyWorkaroundToOpenSqlCipherOnOldAndroidVersions();
+    const maxRetries = 3;
+    const retryDelay = Duration(milliseconds: 500);
 
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final dbPath = p.join(dbFolder.path, 'sahool_field.db');
-    final dbFile = File(dbPath);
-    final oldDbPath = p.join(dbFolder.path, 'sahool_field_unencrypted.db');
-    final oldDbFile = File(oldDbPath);
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await _initializeDatabase();
+      } catch (e, stackTrace) {
+        AppLogger.e(
+          'Database initialization attempt $attempt failed',
+          tag: 'Database',
+          error: e,
+          stackTrace: stackTrace,
+        );
 
-    // Initialize encryption key manager
-    final encryption = DatabaseEncryption();
-
-    // Check if we need to migrate from unencrypted database
-    if (!await encryption.hasKey() && dbFile.existsSync()) {
-      AppLogger.i('Migrating from unencrypted to encrypted database', tag: 'Database');
-
-      // Backup unencrypted database
-      await dbFile.copy(oldDbPath);
-      AppLogger.i('Backup created', tag: 'Database', data: {'path': oldDbPath});
-
-      // Generate new encryption key
-      final encryptionKey = await encryption.getOrCreateKey();
-
-      // Migrate to encrypted database
-      await _migrateToEncryptedDatabase(
-        dbPath,
-        oldDbPath,
-        encryptionKey,
-        encryption,
-      );
-
-      AppLogger.i('Migration to encrypted database completed', tag: 'Database');
-    } else if (!await encryption.hasKey()) {
-      // First time setup - generate encryption key
-      await encryption.getOrCreateKey();
-      AppLogger.i('New encryption key generated', tag: 'Database');
+        if (attempt < maxRetries) {
+          await Future.delayed(retryDelay * attempt);
+        } else {
+          AppLogger.critical(
+            'Database initialization failed after $maxRetries attempts',
+            tag: 'Database',
+            error: e,
+          );
+          rethrow;
+        }
+      }
     }
 
-    // Get encryption key for opening database
+    // This should never be reached, but Dart requires a return
+    throw StateError('Database initialization failed unexpectedly');
+  });
+}
+
+/// Initialize database with encryption and migrations
+Future<NativeDatabase> _initializeDatabase() async {
+  // Ensure SQLCipher native library is loaded
+  await applyWorkaroundToOpenSqlCipherOnOldAndroidVersions();
+
+  final dbFolder = await getApplicationDocumentsDirectory();
+  final dbPath = p.join(dbFolder.path, 'sahool_field.db');
+  final dbFile = File(dbPath);
+  final oldDbPath = p.join(dbFolder.path, 'sahool_field_unencrypted.db');
+
+  // Initialize encryption key manager
+  final encryption = DatabaseEncryption();
+
+  // Check if we need to migrate from unencrypted database
+  if (!await encryption.hasKey() && dbFile.existsSync()) {
+    AppLogger.i('Migrating from unencrypted to encrypted database', tag: 'Database');
+
+    // Backup unencrypted database
+    await dbFile.copy(oldDbPath);
+    AppLogger.i('Backup created', tag: 'Database', data: {'path': oldDbPath});
+
+    // Generate new encryption key
     final encryptionKey = await encryption.getOrCreateKey();
 
-    // Open database with encryption
-    return NativeDatabase.createInBackground(
-      dbFile,
-      setup: (database) {
-        // Set SQLCipher encryption key
-        final pragma = encryption.getSqlCipherPragma(encryptionKey);
-        database.execute(pragma);
-
-        // Configure SQLCipher for better performance and security
-        // Use SQLCipher 4.x compatibility
-        database.execute('PRAGMA cipher_compatibility = 4;');
-
-        // Optimize for mobile devices
-        database.execute('PRAGMA cipher_page_size = 4096;');
-        database.execute('PRAGMA kdf_iter = 64000;');
-        database.execute('PRAGMA cipher_hmac_algorithm = HMAC_SHA512;');
-        database.execute('PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA512;');
-
-        // Standard SQLite optimizations
-        database.execute('PRAGMA foreign_keys = ON;');
-        database.execute('PRAGMA journal_mode = WAL;');
-        database.execute('PRAGMA synchronous = NORMAL;');
-        database.execute('PRAGMA temp_store = MEMORY;');
-        database.execute('PRAGMA mmap_size = 30000000000;');
-      },
+    // Migrate to encrypted database
+    await _migrateToEncryptedDatabase(
+      dbPath,
+      oldDbPath,
+      encryptionKey,
+      encryption,
     );
-  });
+
+    AppLogger.i('Migration to encrypted database completed', tag: 'Database');
+  } else if (!await encryption.hasKey()) {
+    // First time setup - generate encryption key
+    await encryption.getOrCreateKey();
+    AppLogger.i('New encryption key generated', tag: 'Database');
+  }
+
+  // Get encryption key for opening database
+  final encryptionKey = await encryption.getOrCreateKey();
+
+  // Open database with encryption
+  final database = NativeDatabase.createInBackground(
+    dbFile,
+    setup: (database) {
+      _configureDatabase(database, encryption, encryptionKey);
+    },
+  );
+
+  return database;
+}
+
+/// Configure database with encryption and optimizations
+void _configureDatabase(
+  CommonDatabase database,
+  DatabaseEncryption encryption,
+  String encryptionKey,
+) {
+  // Set SQLCipher encryption key
+  final pragma = encryption.getSqlCipherPragma(encryptionKey);
+  database.execute(pragma);
+
+  // Configure SQLCipher for better performance and security
+  // Use SQLCipher 4.x compatibility
+  database.execute('PRAGMA cipher_compatibility = 4;');
+
+  // Optimize for mobile devices
+  database.execute('PRAGMA cipher_page_size = 4096;');
+  database.execute('PRAGMA kdf_iter = 64000;');
+  database.execute('PRAGMA cipher_hmac_algorithm = HMAC_SHA512;');
+  database.execute('PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA512;');
+
+  // Standard SQLite optimizations
+  database.execute('PRAGMA foreign_keys = ON;');
+  database.execute('PRAGMA journal_mode = WAL;');
+  database.execute('PRAGMA synchronous = NORMAL;');
+  database.execute('PRAGMA temp_store = MEMORY;');
+  database.execute('PRAGMA mmap_size = 30000000000;');
+
+  // Set busy timeout to handle concurrent access
+  database.execute('PRAGMA busy_timeout = 5000;');
+
+  // Verify database integrity
+  _verifyDatabaseIntegrity(database);
+}
+
+/// Verify database integrity
+void _verifyDatabaseIntegrity(CommonDatabase database) {
+  try {
+    final result = database.select('PRAGMA integrity_check;');
+    if (result.isNotEmpty && result.first['integrity_check'] != 'ok') {
+      AppLogger.w(
+        'Database integrity check warning',
+        tag: 'Database',
+        data: {'result': result.first['integrity_check']},
+      );
+    }
+  } catch (e) {
+    // Log but don't fail - the database might still be usable
+    AppLogger.w('Could not verify database integrity', tag: 'Database');
+  }
 }
 
 /// Migrate unencrypted database to encrypted database
@@ -694,9 +983,11 @@ LazyDatabase _openConnection() {
 /// This function:
 /// 1. Opens the old unencrypted database
 /// 2. Creates a new encrypted database
-/// 3. Copies all data using ATTACH DATABASE
+/// 3. Copies all data using table-by-table migration
 /// 4. Verifies the migration
 /// 5. Removes the old database file
+///
+/// Security Note: Uses hex key format to avoid SQL injection
 Future<void> _migrateToEncryptedDatabase(
   String newDbPath,
   String oldDbPath,
@@ -705,73 +996,117 @@ Future<void> _migrateToEncryptedDatabase(
 ) async {
   final tempNewPath = '$newDbPath.encrypted';
   final tempNewFile = File(tempNewPath);
+  final lockFile = File('$newDbPath.migration.lock');
+
+  // Check for existing migration lock (crash recovery)
+  if (lockFile.existsSync()) {
+    AppLogger.w('Found migration lock file - previous migration may have failed', tag: 'Database');
+    // Clean up any partial migration
+    if (tempNewFile.existsSync()) {
+      await tempNewFile.delete();
+    }
+    await lockFile.delete();
+  }
 
   // Remove temporary file if it exists
   if (tempNewFile.existsSync()) {
     await tempNewFile.delete();
   }
 
+  // Create lock file to track migration state
+  await lockFile.create();
+
   try {
+    // Get hex key for safe SQL construction
+    final hexKey = encryption.getHexKey(encryptionKey);
+
     // Open the old unencrypted database
     final oldDb = sqlite3.open(oldDbPath);
 
     try {
-      // Attach new encrypted database
-      final pragma = encryption.getSqlCipherPragma(encryptionKey);
-      oldDb.execute("ATTACH DATABASE '$tempNewPath' AS encrypted KEY \"${pragma.split('\"')[1]}\";");
+      // Attach new encrypted database using hex key format (safer than string escaping)
+      // The x'...' format is a SQLite blob literal which is safe from injection
+      oldDb.execute("ATTACH DATABASE '$tempNewPath' AS encrypted KEY \"x'$hexKey'\";");
 
       // Configure SQLCipher settings for the attached database
       oldDb.execute('PRAGMA encrypted.cipher_compatibility = 4;');
       oldDb.execute('PRAGMA encrypted.cipher_page_size = 4096;');
       oldDb.execute('PRAGMA encrypted.kdf_iter = 64000;');
+      oldDb.execute('PRAGMA encrypted.cipher_hmac_algorithm = HMAC_SHA512;');
+      oldDb.execute('PRAGMA encrypted.cipher_kdf_algorithm = PBKDF2_HMAC_SHA512;');
 
       // Export all data to encrypted database
       // Use sqlcipher_export() if available, otherwise use table-by-table copy
       try {
         oldDb.execute('SELECT sqlcipher_export("encrypted");');
+        AppLogger.i('Used sqlcipher_export for migration', tag: 'Database');
       } catch (e) {
-        // Fallback: Copy schema and data manually
+        // Fallback: Copy schema and data manually with transaction
         AppLogger.i('Using manual migration (sqlcipher_export not available)', tag: 'Database');
 
-        // Get all tables
-        final tables = oldDb.select(
-          "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'",
-        );
+        // Begin transaction for data integrity
+        oldDb.execute('BEGIN EXCLUSIVE TRANSACTION;');
 
-        for (final table in tables) {
-          final tableName = table['name'] as String;
-
-          // Copy schema
-          final schema = oldDb.select(
-            "SELECT sql FROM sqlite_master WHERE type='table' AND name=?",
-            [tableName],
+        try {
+          // Get all tables (excluding internal sqlite tables)
+          final tables = oldDb.select(
+            "SELECT name, sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' ORDER BY name",
           );
 
-          if (schema.isNotEmpty) {
-            final createSql = schema.first['sql'] as String;
-            oldDb.execute('$createSql'.replaceFirst('CREATE TABLE', 'CREATE TABLE encrypted.'));
+          for (final table in tables) {
+            final tableName = table['name'] as String;
+            final createSql = table['sql'] as String?;
+
+            if (createSql != null && createSql.isNotEmpty) {
+              // Validate table name to prevent injection (alphanumeric and underscore only)
+              if (!RegExp(r'^[a-zA-Z_][a-zA-Z0-9_]*$').hasMatch(tableName)) {
+                AppLogger.w('Skipping table with invalid name', tag: 'Database', data: {'table': tableName});
+                continue;
+              }
+
+              // Create table in encrypted database
+              final encryptedCreateSql = createSql.replaceFirst(
+                RegExp(r'CREATE TABLE\s+', caseSensitive: false),
+                'CREATE TABLE IF NOT EXISTS encrypted.',
+              );
+              oldDb.execute(encryptedCreateSql);
+
+              // Copy data
+              oldDb.execute('INSERT OR REPLACE INTO encrypted."$tableName" SELECT * FROM main."$tableName";');
+
+              AppLogger.d('Migrated table', tag: 'Database', data: {'table': tableName});
+            }
           }
 
-          // Copy data
-          oldDb.execute('INSERT INTO encrypted.$tableName SELECT * FROM main.$tableName;');
-        }
+          // Copy indices
+          final indices = oldDb.select(
+            "SELECT name, sql FROM sqlite_master WHERE type='index' AND sql IS NOT NULL AND name NOT LIKE 'sqlite_%'",
+          );
 
-        // Copy indices
-        final indices = oldDb.select(
-          "SELECT sql FROM sqlite_master WHERE type='index' AND sql IS NOT NULL",
-        );
+          for (final index in indices) {
+            final createSql = index['sql'] as String?;
+            if (createSql != null && createSql.isNotEmpty) {
+              try {
+                final encryptedIndexSql = createSql.replaceFirst(
+                  RegExp(r'CREATE INDEX\s+', caseSensitive: false),
+                  'CREATE INDEX IF NOT EXISTS encrypted.',
+                );
+                oldDb.execute(encryptedIndexSql);
+              } catch (e) {
+                // Index might reference a table that doesn't exist, ignore
+                AppLogger.d(
+                  'Could not create index (may be expected)',
+                  tag: 'Database',
+                  data: {'index': index['name']},
+                );
+              }
+            }
+          }
 
-        for (final index in indices) {
-          final createSql = index['sql'] as String;
-          try {
-            oldDb.execute(createSql.replaceFirst('CREATE INDEX', 'CREATE INDEX encrypted.'));
-          } catch (e) {
-            // Index might already exist, ignore
-            AppLogger.w(
-              'Could not create index',
-              tag: 'Database',
-              data: {'error': e.toString()},
-            );}
+          oldDb.execute('COMMIT;');
+        } catch (e) {
+          oldDb.execute('ROLLBACK;');
+          rethrow;
         }
       }
 
@@ -783,7 +1118,7 @@ Future<void> _migrateToEncryptedDatabase(
       oldDb.dispose();
     }
 
-    // Verify the encrypted database can be opened
+    // Verify the encrypted database can be opened and has data
     final verifyDb = sqlite3.open(tempNewPath);
     try {
       final pragma = encryption.getSqlCipherPragma(encryptionKey);
@@ -791,8 +1126,20 @@ Future<void> _migrateToEncryptedDatabase(
       verifyDb.execute('PRAGMA cipher_compatibility = 4;');
 
       // Test query to verify encryption worked
-      final result = verifyDb.select('SELECT COUNT(*) as count FROM sqlite_master;');
-      AppLogger.d('Verification: Found schema objects', tag: 'Database', data: {'count': result.first['count']});
+      final result = verifyDb.select('SELECT COUNT(*) as count FROM sqlite_master WHERE type="table";');
+      final tableCount = result.first['count'] as int;
+
+      if (tableCount == 0) {
+        throw StateError('Migration verification failed: no tables found in encrypted database');
+      }
+
+      AppLogger.d('Verification: Found tables', tag: 'Database', data: {'count': tableCount});
+
+      // Verify data integrity
+      final integrityResult = verifyDb.select('PRAGMA integrity_check;');
+      if (integrityResult.isEmpty || integrityResult.first['integrity_check'] != 'ok') {
+        throw StateError('Migration verification failed: integrity check failed');
+      }
     } finally {
       verifyDb.dispose();
     }
@@ -804,18 +1151,28 @@ Future<void> _migrateToEncryptedDatabase(
     }
     await tempNewFile.rename(newDbPath);
 
+    // Remove lock file - migration complete
+    if (lockFile.existsSync()) {
+      await lockFile.delete();
+    }
+
     AppLogger.i('Encrypted database is now active', tag: 'Database');
 
     // Keep backup for safety (can be deleted manually later)
     AppLogger.i('Unencrypted backup kept', tag: 'Database', data: {'path': oldDbPath});
     AppLogger.i('You can delete the backup manually after verifying the app works correctly', tag: 'Database');
 
-  } catch (e) {
-    AppLogger.e('Error during migration', tag: 'Database', error: e);
+  } catch (e, stackTrace) {
+    AppLogger.e('Error during migration', tag: 'Database', error: e, stackTrace: stackTrace);
 
     // Clean up temporary file on error
     if (tempNewFile.existsSync()) {
       await tempNewFile.delete();
+    }
+
+    // Remove lock file
+    if (lockFile.existsSync()) {
+      await lockFile.delete();
     }
 
     rethrow;

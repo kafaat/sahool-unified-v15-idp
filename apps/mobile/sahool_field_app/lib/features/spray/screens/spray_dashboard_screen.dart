@@ -24,6 +24,9 @@ class SprayDashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
+  /// Get current locale code
+  String get _locale => Localizations.localeOf(context).languageCode;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);

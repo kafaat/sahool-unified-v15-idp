@@ -1841,5 +1841,241 @@
   "stability": "الاستقرار",
   "security_": "الأمان",
   "compatibility": "التوافق",
-  "accessibility": "إمكانية الوصول"
+  "accessibility": "إمكانية الوصول",
+
+  "farmersCommunity": "مجتمع المزارعين",
+  "askTheCommunity": "اسأل المجتمع",
+  "addStory": "إضافة",
+  "plantDiseases": "أمراض النبات",
+  "irrigationAndFertilization": "الري والتسميد",
+  "marketingCategory": "تسويق",
+  "equipmentCategory": "معدات",
+  "theNotifications": "الإشعارات",
+  "theComments": "التعليقات",
+  "newReplyToQuestion": "رد جديد على سؤالك",
+  "newLike": "إعجاب جديد",
+  "newFollower": "متابع جديد",
+  "replied": "رد",
+  "answered": "مُجاب",
+  "savePost": "حفظ",
+  "reportPost": "إبلاغ",
+  "sharePost": "مشاركة",
+  "writeComment": "اكتب تعليقاً...",
+  "newQuestion": "سؤال جديد",
+  "questionTitle": "عنوان السؤال",
+  "writeQuestionDetails": "اكتب تفاصيل سؤالك هنا...",
+  "post": "نشر",
+  "cameraWillOpen": "سيتم فتح الكاميرا لإضافة قصة",
+  "viewingStory": "عرض قصة {name}",
+  "@viewingStory": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "searchInCommunity": "ابحث في المجتمع...",
+  "searchResultsFor": "نتائج البحث عن: {query}",
+  "@searchResultsFor": {
+    "placeholders": {
+      "query": {"type": "String"}
+    }
+  },
+  "tomatoDiseases": "أمراض الطماطم",
+  "dripIrrigation": "ري بالتنقيط",
+  "npkFertilizer": "سماد NPK",
+  "pestControl_search": "مكافحة الآفات",
+  "greenhouses": "البيوت المحمية",
+  "photoAttach": "صورة",
+  "fieldAttach": "الحقل",
+  "categoryAttach": "تصنيف",
+  "reply": "رد",
+  "likesCount": "{count} شخص أعجبوا بمنشورك",
+  "@likesCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "startedFollowing": "بدأ متابعتك",
+  "sinceMinutes": "{count, plural, =0{الآن} =1{منذ دقيقة} =2{منذ دقيقتين} few{منذ {count} دقائق} many{منذ {count} دقيقة} other{منذ {count} دقيقة}}",
+  "@sinceMinutes": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "sinceHours": "{count, plural, =0{الآن} =1{منذ ساعة} =2{منذ ساعتين} few{منذ {count} ساعات} many{منذ {count} ساعة} other{منذ {count} ساعة}}",
+  "@sinceHours": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "sinceYesterday": "أمس",
+
+  "sahoolMarket": "سوق سهول",
+  "sellMyCrop": "بيع محصولي",
+  "searchProductsPlaceholder": "ابحث عن بذور، أسمدة، معدات...",
+  "allCategories": "الكل",
+  "seedsAndCrops": "بذور ومحاصيل",
+  "fertilizersCategory": "أسمدة",
+  "irrigationEquipment": "معدات ري",
+  "agriculturalTools": "أدوات زراعية",
+  "addedToCart": "تمت إضافة {productName} للسلة",
+  "@addedToCart": {
+    "placeholders": {
+      "productName": {"type": "String"}
+    }
+  },
+  "yemeniWheatSeeds": "بذور قمح يمني",
+  "ureaFertilizer": "سماد يوريا 46%",
+  "dripIrrigationSystem": "نظام ري بالتنقيط",
+  "hybridTomatoSeeds": "بذور طماطم هجين",
+  "naturalInsecticide": "مبيد حشري طبيعي",
+  "solarWaterPump": "مضخة مياه شمسية",
+
+  "moreMenu": "المزيد",
+  "theMap": "الخريطة",
+  "theReports": "التقارير",
+  "theHistory": "السجل",
+  "theSync": "المزامنة",
+  "theHelp": "المساعدة",
+  "aboutApp": "حول التطبيق",
+  "versionNumber": "الإصدار {version}",
+  "@versionNumber": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
+  "allRightsReservedKafaat": "جميع الحقوق محفوظة لـ KAFAAT.",
+  "logoutConfirmationTitle": "تسجيل الخروج",
+  "logoutConfirmationMessage": "هل أنت متأكد من تسجيل الخروج؟",
+  "farmerName": "أحمد المزارع",
+  "farmNameExample": "مزرعة الخير",
+
+  "clearCacheSuccess": "تم مسح الكاش بنجاح",
+  "noInfoAvailable": "لا توجد معلومات",
+  "refreshLabel": "تحديث",
+  "clearLabel": "مسح",
+  "settingsSaved": "تم حفظ الإعدادات",
+  "notificationSettingsTitle": "إعدادات الإشعارات",
+  "quietHoursStart": "بداية الهدوء",
+  "quietHoursEnd": "نهاية الهدوء",
+  "undoAction": "تراجع",
+  "finishAction": "إنهاء",
+  "compressedMap": "خريطة مضغوطة",
+  "cacheSize": "الكاش",
+  "filesCount": "الملفات",
+  "prefetching": "جاري التحميل...",
+  "qualityLabel": "الجودة",
+  "presetsLabel": "إعدادات مسبقة",
+  "mobilePreset": "جوال (60%)",
+  "tabletPreset": "تابلت (80%)",
+  "prefetchCities": "تحميل مسبق",
+  "cityAden": "عدن",
+  "cityTaiz": "تعز",
+  "cityHodeidah": "الحديدة",
+  "cancelDownload": "إلغاء التحميل",
+  "downloadLabel": "تحميل",
+  "connectionRestored": "تم إعادة الاتصال",
+  "retryConnection": "إعادة المحاولة",
+  "syncCompleted": "تمت المزامنة بنجاح",
+  "syncNowButton": "مزامنة الآن",
+  "securityWarningTitle": "تحذير أمني",
+  "screenRecordingDetected": "تم اكتشاف تسجيل الشاشة",
+  "understoodButton": "فهمت",
+  "errorSelectingImage": "خطأ في اختيار الصورة: {error}",
+  "@errorSelectingImage": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "savedLocallyWillSync": "تم الحفظ محلياً - سيتم المزامنة عند توفر الاتصال",
+  "errorSaving": "خطأ في الحفظ: {error}",
+  "@errorSaving": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "fieldScoutTask": "مهمة رصد ميداني",
+  "cameraButton": "الكاميرا",
+  "galleryButton": "المعرض",
+  "researchExperiments": "التجارب البحثية",
+  "newExperiment": "تجربة جديدة",
+  "experimentDetails": "تفاصيل التجربة",
+  "viewMap": "عرض الخريطة",
+  "treatmentLabel": "المعاملة: {code}",
+  "@treatmentLabel": {
+    "placeholders": {
+      "code": {"type": "String"}
+    }
+  },
+  "lastObservation": "آخر رصد",
+  "sampleCollection": "جمع العينات",
+  "sampleCollectionScreen": "شاشة جمع العينات - قيد التطوير",
+  "plotMapTitle": "خريطة القطع",
+  "plotMapScreen": "خريطة القطع التجريبية - قيد التطوير",
+  "copyErrorDetails": "نسخ تفاصيل الخطأ",
+  "errorDetailsCopied": "تم نسخ تفاصيل الخطأ",
+  "scannedValue": "تم المسح: {value}",
+  "@scannedValue": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "appContent": "محتوى التطبيق",
+  "errorDisplayExample": "مثال على عرض الأخطاء",
+  "someContent": "بعض المحتوى",
+  "loadingExample": "مثال على التحميل",
+  "startOperation": "بدء العملية",
+  "fieldsScreen": "الحقول",
+  "addFieldButton": "إضافة حقل",
+  "arabicSupportExample": "دعم اللغة العربية",
+  "showAllButton": "عرض الكل",
+  "backToHome": "العودة للرئيسية",
+  "processFailed": "فشلت العملية",
+  "processData": "معالجة البيانات",
+  "goToSettings": "الذهاب للإعدادات",
+  "performRiskyOperation": "تنفيذ العملية",
+
+  "fieldNumber": "حقل رقم {number}",
+  "@fieldNumber": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "pressGenerateToPreview": "اضغط على \"توليد\" لمعاينة المناطق",
+
+  "nFieldsCount": "{count, plural, =0{لا يوجد حقول} =1{حقل واحد} =2{حقلان} few{{count} حقول} many{{count} حقل} other{{count} حقل}}",
+  "@nFieldsCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "nTasksCount": "{count, plural, =0{لا يوجد مهام} =1{مهمة واحدة} =2{مهمتان} few{{count} مهام} many{{count} مهمة} other{{count} مهمة}}",
+  "@nTasksCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "nAlertsCount": "{count, plural, =0{لا يوجد تنبيهات} =1{تنبيه واحد} =2{تنبيهان} few{{count} تنبيهات} many{{count} تنبيه} other{{count} تنبيه}}",
+  "@nAlertsCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "nItemsCount": "{count, plural, =0{لا يوجد عناصر} =1{عنصر واحد} =2{عنصران} few{{count} عناصر} many{{count} عنصر} other{{count} عنصر}}",
+  "@nItemsCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "nMessagesCount": "{count, plural, =0{لا يوجد رسائل} =1{رسالة واحدة} =2{رسالتان} few{{count} رسائل} many{{count} رسالة} other{{count} رسالة}}",
+  "@nMessagesCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "nDaysRemaining": "{count, plural, =0{لا يوجد أيام متبقية} =1{يوم واحد متبقي} =2{يومان متبقيان} few{{count} أيام متبقية} many{{count} يوم متبقي} other{{count} يوم متبقي}}",
+  "@nDaysRemaining": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  }
 }

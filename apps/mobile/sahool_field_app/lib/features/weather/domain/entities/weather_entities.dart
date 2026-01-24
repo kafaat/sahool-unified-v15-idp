@@ -52,6 +52,48 @@ class CurrentWeather {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+        'temperature': temperature,
+        'feels_like': feelsLike,
+        'humidity': humidity,
+        'wind_speed': windSpeed,
+        'wind_direction': windDirection,
+        'condition': condition,
+        'condition_ar': conditionAr,
+        'icon': icon,
+        'precipitation': precipitation,
+        'uv_index': uvIndex,
+        'timestamp': timestamp.toIso8601String(),
+      };
+
+  CurrentWeather copyWith({
+    double? temperature,
+    double? feelsLike,
+    int? humidity,
+    double? windSpeed,
+    String? windDirection,
+    String? condition,
+    String? conditionAr,
+    String? icon,
+    double? precipitation,
+    double? uvIndex,
+    DateTime? timestamp,
+  }) {
+    return CurrentWeather(
+      temperature: temperature ?? this.temperature,
+      feelsLike: feelsLike ?? this.feelsLike,
+      humidity: humidity ?? this.humidity,
+      windSpeed: windSpeed ?? this.windSpeed,
+      windDirection: windDirection ?? this.windDirection,
+      condition: condition ?? this.condition,
+      conditionAr: conditionAr ?? this.conditionAr,
+      icon: icon ?? this.icon,
+      precipitation: precipitation ?? this.precipitation,
+      uvIndex: uvIndex ?? this.uvIndex,
+      timestamp: timestamp ?? this.timestamp,
+    );
+  }
+
   String get temperatureDisplay => '${temperature.round()}°';
 }
 
@@ -96,6 +138,45 @@ class DailyForecast {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+        'date': date.toIso8601String(),
+        'temp_min': tempMin,
+        'temp_max': tempMax,
+        'condition': condition,
+        'condition_ar': conditionAr,
+        'icon': icon,
+        'precipitation_chance': precipitationChance,
+        'precipitation_amount': precipitationAmount,
+        'humidity': humidity,
+        'wind_speed': windSpeed,
+      };
+
+  DailyForecast copyWith({
+    DateTime? date,
+    double? tempMin,
+    double? tempMax,
+    String? condition,
+    String? conditionAr,
+    String? icon,
+    int? precipitationChance,
+    double? precipitationAmount,
+    int? humidity,
+    double? windSpeed,
+  }) {
+    return DailyForecast(
+      date: date ?? this.date,
+      tempMin: tempMin ?? this.tempMin,
+      tempMax: tempMax ?? this.tempMax,
+      condition: condition ?? this.condition,
+      conditionAr: conditionAr ?? this.conditionAr,
+      icon: icon ?? this.icon,
+      precipitationChance: precipitationChance ?? this.precipitationChance,
+      precipitationAmount: precipitationAmount ?? this.precipitationAmount,
+      humidity: humidity ?? this.humidity,
+      windSpeed: windSpeed ?? this.windSpeed,
+    );
+  }
+
   String get dayName {
     final days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
     return days[date.weekday % 7];
@@ -128,6 +209,33 @@ class HourlyForecast {
       icon: json['icon'] as String? ?? '☀️',
       precipitationChance: json['precipitation_chance'] as int? ?? 0,
       humidity: json['humidity'] as int? ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'time': time.toIso8601String(),
+        'temperature': temperature,
+        'condition': condition,
+        'icon': icon,
+        'precipitation_chance': precipitationChance,
+        'humidity': humidity,
+      };
+
+  HourlyForecast copyWith({
+    DateTime? time,
+    double? temperature,
+    String? condition,
+    String? icon,
+    int? precipitationChance,
+    int? humidity,
+  }) {
+    return HourlyForecast(
+      time: time ?? this.time,
+      temperature: temperature ?? this.temperature,
+      condition: condition ?? this.condition,
+      icon: icon ?? this.icon,
+      precipitationChance: precipitationChance ?? this.precipitationChance,
+      humidity: humidity ?? this.humidity,
     );
   }
 
@@ -169,6 +277,39 @@ class WeatherAlert {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'type': type,
+        'severity': severity,
+        'title': title,
+        'title_ar': titleAr,
+        'description': description,
+        'start_time': startTime.toIso8601String(),
+        'end_time': endTime.toIso8601String(),
+      };
+
+  WeatherAlert copyWith({
+    String? id,
+    String? type,
+    String? severity,
+    String? title,
+    String? titleAr,
+    String? description,
+    DateTime? startTime,
+    DateTime? endTime,
+  }) {
+    return WeatherAlert(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      severity: severity ?? this.severity,
+      title: title ?? this.title,
+      titleAr: titleAr ?? this.titleAr,
+      description: description ?? this.description,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+    );
+  }
+
   /// الحصول على AlertSeverity enum
   AlertSeverity get alertSeverity => AlertSeverityColor.fromString(severity);
 
@@ -199,6 +340,30 @@ class AgriculturalImpact {
       recommendationAr: json['recommendation_ar'] as String? ?? json['recommendation'],
       status: json['status'] as String,
       reasons: List<String>.from(json['reasons'] ?? []),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'category': category,
+        'recommendation': recommendation,
+        'recommendation_ar': recommendationAr,
+        'status': status,
+        'reasons': reasons,
+      };
+
+  AgriculturalImpact copyWith({
+    String? category,
+    String? recommendation,
+    String? recommendationAr,
+    String? status,
+    List<String>? reasons,
+  }) {
+    return AgriculturalImpact(
+      category: category ?? this.category,
+      recommendation: recommendation ?? this.recommendation,
+      recommendationAr: recommendationAr ?? this.recommendationAr,
+      status: status ?? this.status,
+      reasons: reasons ?? this.reasons,
     );
   }
 
@@ -285,6 +450,30 @@ class WeatherData {
               ?.map((i) => AgriculturalImpact.fromJson(i))
               .toList() ??
           [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'current': current.toJson(),
+        'hourly': hourly.map((h) => h.toJson()).toList(),
+        'daily': daily.map((d) => d.toJson()).toList(),
+        'alerts': alerts.map((a) => a.toJson()).toList(),
+        'impacts': impacts.map((i) => i.toJson()).toList(),
+      };
+
+  WeatherData copyWith({
+    CurrentWeather? current,
+    List<HourlyForecast>? hourly,
+    List<DailyForecast>? daily,
+    List<WeatherAlert>? alerts,
+    List<AgriculturalImpact>? impacts,
+  }) {
+    return WeatherData(
+      current: current ?? this.current,
+      hourly: hourly ?? this.hourly,
+      daily: daily ?? this.daily,
+      alerts: alerts ?? this.alerts,
+      impacts: impacts ?? this.impacts,
     );
   }
 }

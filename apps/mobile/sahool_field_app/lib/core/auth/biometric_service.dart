@@ -11,6 +11,8 @@ import 'secure_storage_service.dart';
 /// - Fingerprint authentication
 /// - Face ID support
 /// - Fallback to device credentials
+/// - Lockout handling after repeated failures
+/// - Secure session validation
 
 final biometricServiceProvider = Provider<BiometricService>((ref) {
   return BiometricService(
@@ -18,9 +20,45 @@ final biometricServiceProvider = Provider<BiometricService>((ref) {
   );
 });
 
+/// Biometric authentication result
+class BiometricResult {
+  final bool success;
+  final String? errorCode;
+  final String? errorMessage;
+  final int? remainingAttempts;
+  final Duration? lockoutRemaining;
+
+  const BiometricResult({
+    required this.success,
+    this.errorCode,
+    this.errorMessage,
+    this.remainingAttempts,
+    this.lockoutRemaining,
+  });
+
+  factory BiometricResult.success() => const BiometricResult(success: true);
+
+  factory BiometricResult.failed({
+    required String code,
+    required String message,
+    int? remainingAttempts,
+    Duration? lockoutRemaining,
+  }) =>
+      BiometricResult(
+        success: false,
+        errorCode: code,
+        errorMessage: message,
+        remainingAttempts: remainingAttempts,
+        lockoutRemaining: lockoutRemaining,
+      );
+}
+
 class BiometricService {
   final LocalAuthentication _localAuth = LocalAuthentication();
   final SecureStorageService secureStorage;
+
+  // Maximum consecutive failures before lockout
+  static const _maxFailures = 5;
 
   BiometricService({required this.secureStorage});
 
@@ -104,13 +142,44 @@ class BiometricService {
   // Authentication
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Authenticate with biometric
+  /// Authenticate with biometric (returns simple bool for backward compatibility)
   Future<bool> authenticate({
+    required String reason,
+    bool biometricOnly = false,
+  }) async {
+    final result = await authenticateWithResult(
+      reason: reason,
+      biometricOnly: biometricOnly,
+    );
+
+    if (!result.success && result.errorCode != null) {
+      throw BiometricException(
+        result.errorMessage ?? 'فشل التحقق من البصمة',
+        code: result.errorCode,
+      );
+    }
+
+    return result.success;
+  }
+
+  /// Authenticate with biometric (returns detailed result)
+  Future<BiometricResult> authenticateWithResult({
     required String reason,
     bool biometricOnly = false,
   }) async {
     try {
       AppLogger.i('Biometric authentication requested', tag: 'BIOMETRIC');
+
+      // Check for lockout first
+      if (await secureStorage.isBiometricLockedOut()) {
+        final remaining = await secureStorage.getBiometricLockoutRemaining();
+        AppLogger.w('Biometric is locked out', tag: 'BIOMETRIC');
+        return BiometricResult.failed(
+          code: 'LOCKED_OUT',
+          message: 'تم قفل البصمة. حاول بعد ${_formatDuration(remaining)}',
+          lockoutRemaining: remaining,
+        );
+      }
 
       final authenticated = await _localAuth.authenticate(
         localizedReason: reason,
@@ -124,29 +193,77 @@ class BiometricService {
 
       if (authenticated) {
         AppLogger.i('Biometric authentication successful', tag: 'BIOMETRIC');
+        // Reset failure count on success
+        await secureStorage.resetBiometricLockout();
+        return BiometricResult.success();
       } else {
         AppLogger.w('Biometric authentication cancelled', tag: 'BIOMETRIC');
+        // User cancelled - don't count as failure
+        return BiometricResult.failed(
+          code: 'CANCELLED',
+          message: 'تم إلغاء التحقق من البصمة',
+        );
       }
-
-      return authenticated;
     } on PlatformException catch (e) {
       AppLogger.e('Biometric authentication error', tag: 'BIOMETRIC', error: e);
 
+      // Record failure for lockout tracking
+      final failureCount = await secureStorage.recordBiometricFailure();
+      final remainingAttempts = _maxFailures - failureCount;
+
       switch (e.code) {
         case 'NotAvailable':
-          throw BiometricException('البصمة غير متاحة');
+          return BiometricResult.failed(
+            code: 'NOT_AVAILABLE',
+            message: 'البصمة غير متاحة',
+          );
         case 'NotEnrolled':
-          throw BiometricException('لم يتم تسجيل بصمة على هذا الجهاز');
+          return BiometricResult.failed(
+            code: 'NOT_ENROLLED',
+            message: 'لم يتم تسجيل بصمة على هذا الجهاز',
+          );
         case 'LockedOut':
-          throw BiometricException('تم قفل البصمة. حاول لاحقاً');
+          final remaining = await secureStorage.getBiometricLockoutRemaining();
+          return BiometricResult.failed(
+            code: 'LOCKED_OUT',
+            message: 'تم قفل البصمة. حاول بعد ${_formatDuration(remaining)}',
+            lockoutRemaining: remaining,
+          );
         case 'PermanentlyLockedOut':
-          throw BiometricException(
-            'تم قفل البصمة بشكل دائم. استخدم كلمة المرور',
+          return BiometricResult.failed(
+            code: 'PERMANENTLY_LOCKED_OUT',
+            message: 'تم قفل البصمة بشكل دائم. استخدم كلمة المرور',
           );
         default:
-          throw BiometricException('حدث خطأ في التحقق من البصمة');
+          // Check if we should lock out
+          if (remainingAttempts <= 0) {
+            final lockoutRemaining = await secureStorage.getBiometricLockoutRemaining();
+            return BiometricResult.failed(
+              code: 'LOCKED_OUT',
+              message: 'تم قفل البصمة بعد محاولات فاشلة متعددة',
+              lockoutRemaining: lockoutRemaining,
+            );
+          }
+
+          return BiometricResult.failed(
+            code: 'FAILED',
+            message: remainingAttempts > 0
+                ? 'فشل التحقق من البصمة. المحاولات المتبقية: $remainingAttempts'
+                : 'فشل التحقق من البصمة',
+            remainingAttempts: remainingAttempts > 0 ? remainingAttempts : null,
+          );
       }
     }
+  }
+
+  /// Format duration for display
+  String _formatDuration(Duration? duration) {
+    if (duration == null) return 'بضع دقائق';
+
+    final minutes = duration.inMinutes;
+    if (minutes <= 1) return 'دقيقة واحدة';
+    if (minutes < 10) return '$minutes دقائق';
+    return '$minutes دقيقة';
   }
 
   /// Authenticate with fallback to device credentials
@@ -164,8 +281,24 @@ class BiometricService {
     try {
       await _localAuth.stopAuthentication();
     } catch (e) {
-      AppLogger.e('Failed to cancel authentication', error: e);
+      AppLogger.e('Failed to cancel authentication', error: e, tag: 'BIOMETRIC');
     }
+  }
+
+  /// Check if biometric is currently locked out
+  Future<bool> isLockedOut() async {
+    return secureStorage.isBiometricLockedOut();
+  }
+
+  /// Get remaining lockout time
+  Future<Duration?> getLockoutRemaining() async {
+    return secureStorage.getBiometricLockoutRemaining();
+  }
+
+  /// Reset lockout (call after successful password authentication)
+  Future<void> resetLockout() async {
+    await secureStorage.resetBiometricLockout();
+    AppLogger.i('Biometric lockout reset', tag: 'BIOMETRIC');
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

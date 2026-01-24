@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  iOS Export Options for SAHOOL Field App
+  Used for CI/CD automated release builds
+
+  Update the following values for your team:
+  - teamID: Your Apple Developer Team ID
+  - signingCertificate: Your distribution certificate name
+  - provisioningProfiles: Your provisioning profile name
+
+  Usage:
+  xcodebuild -exportArchive -archivePath build/Runner.xcarchive \
+    -exportOptionsPlist ios/ExportOptions.plist \
+    -exportPath build/ios
+-->
+<plist version="1.0">
+<dict>
+    <!-- Export method: app-store, ad-hoc, enterprise, development -->
+    <key>method</key>
+    <string>app-store</string>
+
+    <!-- Your Apple Developer Team ID -->
+    <key>teamID</key>
+    <string>YOUR_TEAM_ID</string>
+
+    <!-- Signing certificate name -->
+    <key>signingCertificate</key>
+    <string>Apple Distribution</string>
+
+    <!-- Provisioning profiles mapping -->
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>io.sahool.field</key>
+        <string>SAHOOL Field App Distribution</string>
+    </dict>
+
+    <!-- Upload symbols for crash reporting -->
+    <key>uploadSymbols</key>
+    <true/>
+
+    <!-- Compile bitcode (deprecated, set to false) -->
+    <key>compileBitcode</key>
+    <false/>
+
+    <!-- Strip Swift symbols -->
+    <key>stripSwiftSymbols</key>
+    <true/>
+
+    <!-- Manage app version/build automatically -->
+    <key>manageAppVersionAndBuildNumber</key>
+    <true/>
+
+    <!-- Signing style: automatic or manual -->
+    <key>signingStyle</key>
+    <string>manual</string>
+
+    <!-- Destination: upload (App Store Connect) or export -->
+    <key>destination</key>
+    <string>upload</string>
+</dict>
+</plist>

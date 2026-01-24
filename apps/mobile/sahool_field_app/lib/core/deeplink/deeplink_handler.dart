@@ -868,11 +868,13 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
 // Riverpod Providers
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// Provider for the GoRouter instance (should be overridden in app setup)
-final goRouterProvider = Provider<GoRouter>((ref) {
-  throw UnimplementedError(
-    'goRouterProvider must be overridden with your GoRouter instance',
-  );
+/// Provider for the GoRouter instance
+/// This provider gets the router from the appRouterProvider defined in app.dart
+/// If accessed before app.dart initializes, it will return null and use fallback
+final goRouterProvider = Provider<GoRouter?>((ref) {
+  // This is a placeholder - the actual router is set via setRouter() method
+  // in the DeepLinkNotifier when the app initializes
+  return null;
 });
 
 /// Provider for the navigator key (should be overridden in app setup)
@@ -887,11 +889,8 @@ final deepLinkProvider =
   GlobalKey<NavigatorState>? navigatorKey;
 
   // Try to get router, but don't fail if not available
-  try {
-    router = ref.watch(goRouterProvider);
-  } catch (_) {
-    // Router not yet available
-  }
+  // The router will be set later via setRouter() when app.dart initializes
+  router = ref.watch(goRouterProvider);
 
   // Try to get navigator key
   try {

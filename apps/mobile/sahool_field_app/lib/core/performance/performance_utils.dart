@@ -17,11 +17,7 @@ import '../utils/app_logger.dart';
 ///
 /// Monitors app performance including FPS, frame drops, and frame build times
 class PerformanceMonitor {
-  static PerformanceMonitor? _instance;
-  static PerformanceMonitor get instance {
-    _instance ??= PerformanceMonitor._();
-    return _instance!;
-  }
+  static final PerformanceMonitor instance = PerformanceMonitor._();
 
   PerformanceMonitor._();
 
@@ -124,9 +120,10 @@ class PerformanceMonitor {
 
   /// Get average FPS over monitoring period
   double getAverageFps() {
-    if (_monitoringStartTime == null || _totalFrames == 0) return 0.0;
+    final startTime = _monitoringStartTime;
+    if (startTime == null || _totalFrames == 0) return 0.0;
 
-    final duration = DateTime.now().difference(_monitoringStartTime!);
+    final duration = DateTime.now().difference(startTime);
     if (duration.inMilliseconds == 0) return 0.0;
 
     return _totalFrames / (duration.inMilliseconds / 1000.0);
@@ -159,6 +156,7 @@ class PerformanceMonitor {
           _recentFrames.length;
     }
 
+    final startTime = _monitoringStartTime;
     return PerformanceSummary(
       currentFps: currentFps,
       averageFps: avgFps,
@@ -168,8 +166,8 @@ class PerformanceMonitor {
       avgBuildTime: avgBuildTime,
       avgRasterTime: avgRasterTime,
       avgTotalTime: avgTotalTime,
-      monitoringDuration: _monitoringStartTime != null
-          ? DateTime.now().difference(_monitoringStartTime!)
+      monitoringDuration: startTime != null
+          ? DateTime.now().difference(startTime)
           : Duration.zero,
     );
   }
@@ -371,9 +369,9 @@ class Throttler {
 
   void run(VoidCallback action) {
     final now = DateTime.now();
+    final lastCall = _lastCallTime;
 
-    if (_lastCallTime == null ||
-        now.difference(_lastCallTime!) >= duration) {
+    if (lastCall == null || now.difference(lastCall) >= duration) {
       _lastCallTime = now;
       action();
     }
@@ -396,12 +394,12 @@ class BuildTimeTracker {
   static final Map<String, List<int>> _buildTimes = {};
 
   static void recordBuildTime(String widgetName, int milliseconds) {
-    _buildTimes.putIfAbsent(widgetName, () => []);
-    _buildTimes[widgetName]!.add(milliseconds);
+    final times = _buildTimes.putIfAbsent(widgetName, () => []);
+    times.add(milliseconds);
 
     // Keep only last 100 builds
-    if (_buildTimes[widgetName]!.length > 100) {
-      _buildTimes[widgetName]!.removeAt(0);
+    if (times.length > 100) {
+      times.removeAt(0);
     }
   }
 

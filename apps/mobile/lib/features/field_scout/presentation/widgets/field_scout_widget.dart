@@ -526,7 +526,7 @@ class _ControlButtons extends ConsumerWidget {
     );
   }
 
-  void _endSession(BuildContext context, WidgetRef ref) async {
+  Future<void> _endSession(BuildContext context, WidgetRef ref) async {
     final session = await ref.read(fieldScoutProvider.notifier).endSession();
     if (context.mounted) {
       _showSessionSummary(context, session);

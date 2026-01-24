@@ -64,6 +64,7 @@ export default function StatCard({
             "p-3 rounded-xl bg-opacity-10",
             iconColor.replace("text-", "bg-"),
           )}
+          suppressHydrationWarning
         >
           <Icon className={cn("w-6 h-6", iconColor)} />
         </div>

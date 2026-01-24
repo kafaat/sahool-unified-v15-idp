@@ -125,28 +125,30 @@ class _FieldMapScreenState extends State<FieldMapScreen> {
               color: color.withOpacity(_showNdviLayer ? 0.6 : 0.3),
               borderColor: isSelected ? Colors.white : color,
               borderStrokeWidth: isSelected ? 3.0 : 1.5,
-              isFilled: true,
             );
           }).toList(),
         ),
 
         // Field Markers Layer
         MarkerLayer(
-          markers: SampleFields.all.map((field) {
-            if (field.center == null) return null;
-            return Marker(
-              point: field.center!,
-              width: 80,
-              height: 40,
-              child: GestureDetector(
-                onTap: () {
-                  setState(() => _selectedField = field);
-                  HapticFeedback.mediumImpact();
-                },
-                child: _buildFieldMarker(field),
-              ),
-            );
-          }).whereType<Marker>().toList(),
+          markers: SampleFields.all
+              .map((field) {
+                if (field.center == null) return null;
+                return Marker(
+                  point: field.center!,
+                  width: 80,
+                  height: 40,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() => _selectedField = field);
+                      HapticFeedback.mediumImpact();
+                    },
+                    child: _buildFieldMarker(field),
+                  ),
+                );
+              })
+              .whereType<Marker>()
+              .toList(),
         ),
       ],
     );

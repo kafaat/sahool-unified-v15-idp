@@ -833,7 +833,7 @@ class _SequentialAnimationRunnerState extends State<SequentialAnimationRunner>
     }).toList();
   }
 
-  void _startSequence() async {
+  Future<void> _startSequence() async {
     for (int i = 0; i < widget.sequence.length; i++) {
       _currentIndex = i;
       await Future.delayed(widget.sequence[i].delay);

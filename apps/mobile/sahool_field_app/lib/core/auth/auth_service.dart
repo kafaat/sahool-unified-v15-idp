@@ -728,9 +728,11 @@ class AuthService {
       throw AuthException('فشل التحقق من البصمة', code: 'BIOMETRIC_FAILED');
     }
 
-    try {
-      // Refresh token to get new access token
-      await refreshToken();
+    // Get stored credentials
+    final storedRefreshToken = await secureStorage.getRefreshToken();
+    if (storedRefreshToken == null) {
+      throw AuthException('لا توجد جلسة محفوظة');
+    }
 
       // Sync user context with full information
       final user = await getCurrentUser();

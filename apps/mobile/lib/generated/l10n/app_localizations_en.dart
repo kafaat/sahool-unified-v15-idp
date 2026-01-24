@@ -2489,7 +2489,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fuelCost => 'Fuel Cost';
 
   @override
-  String get maintenanceCost => 'Maintenance Cost';
+  String get maintenanceCost => 'Cost (Riyal)';
 
   @override
   String get rentCost => 'Rent Cost';
@@ -3596,7 +3596,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get operationalEquipment => 'Operational';
 
   @override
-  String get underMaintenance => 'Under Maintenance';
+  String get underMaintenance => 'Maintenance';
 
   @override
   String get outOfService => 'Out of Service';
@@ -3677,7 +3677,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fuelType => 'Fuel Type';
 
   @override
-  String get fuelLevel => 'Fuel Level';
+  String get fuelLevel => 'Fuel';
 
   @override
   String get refuel => 'Refuel';
@@ -4682,7 +4682,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noDataAvailable => 'No Data Available';
 
   @override
-  String get noResults => 'No Results';
+  String get noResults => 'No results';
 
   @override
   String get noResultsFound => 'No Results Found';
@@ -5425,4 +5425,1074 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accessibility => 'Accessibility';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navMarketplace => 'Marketplace';
+
+  @override
+  String get navWallet => 'Wallet';
+
+  @override
+  String get navCommunity => 'Community';
+
+  @override
+  String get navMore => 'More';
+
+  @override
+  String get navFields => 'Fields';
+
+  @override
+  String get navMyFields => 'My Fields';
+
+  @override
+  String get navSettings => 'Settings';
+
+  @override
+  String get navHelp => 'Help';
+
+  @override
+  String get navAbout => 'About';
+
+  @override
+  String get navLogout => 'Logout';
+
+  @override
+  String get quickAction => 'Quick Action';
+
+  @override
+  String get takePhoto => 'Take Photo';
+
+  @override
+  String get newField => 'New Field';
+
+  @override
+  String get addTask => 'Add Task';
+
+  @override
+  String get logIrrigation => 'Log Irrigation';
+
+  @override
+  String get logFertilization => 'Log Fertilization';
+
+  @override
+  String get reportIssue => 'Report Issue';
+
+  @override
+  String get sellMyCrop => 'Sell My Crop';
+
+  @override
+  String get errorGeneric => 'Something went wrong. Please try again.';
+
+  @override
+  String get errorNetwork => 'Network error. Please check your connection.';
+
+  @override
+  String get errorTimeout => 'Request timed out. Please try again.';
+
+  @override
+  String get errorServer => 'Server error. Please try again later.';
+
+  @override
+  String get errorUnauthorized => 'Session expired. Please login again.';
+
+  @override
+  String get errorForbidden =>
+      'You don\'t have permission to perform this action.';
+
+  @override
+  String get errorNotFound => 'Resource not found.';
+
+  @override
+  String get errorValidation => 'Please check your input and try again.';
+
+  @override
+  String get errorLoadingData => 'Error loading data';
+
+  @override
+  String get errorLoadingStats => 'Error loading statistics';
+
+  @override
+  String get errorSavingData => 'Error saving data. Please try again.';
+
+  @override
+  String get errorDeletingData => 'Error deleting data. Please try again.';
+
+  @override
+  String get errorUploadingFile => 'Error uploading file. Please try again.';
+
+  @override
+  String get errorDownloadingFile =>
+      'Error downloading file. Please try again.';
+
+  @override
+  String get errorLocationServices => 'Location services unavailable.';
+
+  @override
+  String get errorCameraAccess => 'Camera access denied.';
+
+  @override
+  String get errorStorageAccess => 'Storage access denied.';
+
+  @override
+  String get errorNoInternet => 'No internet connection.';
+
+  @override
+  String get errorOfflineMode => 'You are in offline mode.';
+
+  @override
+  String get errorSyncFailed => 'Sync failed. Data saved locally.';
+
+  @override
+  String get errorInvalidCredentials => 'Invalid email or password.';
+
+  @override
+  String get errorAccountLocked => 'Account locked. Please contact support.';
+
+  @override
+  String get errorEmailExists => 'Email already registered.';
+
+  @override
+  String get errorWeakPassword => 'Password is too weak.';
+
+  @override
+  String get errorPasswordMismatch => 'Passwords do not match.';
+
+  @override
+  String get errorFieldRequired => 'This field is required.';
+
+  @override
+  String get errorInvalidEmail => 'Please enter a valid email address.';
+
+  @override
+  String get errorInvalidPhone => 'Please enter a valid phone number.';
+
+  @override
+  String get errorInvalidDate => 'Please enter a valid date.';
+
+  @override
+  String get errorInvalidNumber => 'Please enter a valid number.';
+
+  @override
+  String errorMinLength(int count) {
+    return 'Must be at least $count characters.';
+  }
+
+  @override
+  String errorMaxLength(int count) {
+    return 'Must be at most $count characters.';
+  }
+
+  @override
+  String errorMinValue(String value) {
+    return 'Value must be at least $value.';
+  }
+
+  @override
+  String errorMaxValue(String value) {
+    return 'Value must be at most $value.';
+  }
+
+  @override
+  String get btnSave => 'Save';
+
+  @override
+  String get btnCancel => 'Cancel';
+
+  @override
+  String get btnClose => 'Close';
+
+  @override
+  String get btnConfirm => 'Confirm';
+
+  @override
+  String get btnApply => 'Apply';
+
+  @override
+  String get btnSubmit => 'Submit';
+
+  @override
+  String get btnContinue => 'Continue';
+
+  @override
+  String get btnNext => 'Next';
+
+  @override
+  String get btnPrevious => 'Previous';
+
+  @override
+  String get btnBack => 'Back';
+
+  @override
+  String get btnDone => 'Done';
+
+  @override
+  String get btnOk => 'OK';
+
+  @override
+  String get btnYes => 'Yes';
+
+  @override
+  String get btnNo => 'No';
+
+  @override
+  String get btnRetry => 'Retry';
+
+  @override
+  String get btnTryAgain => 'Try Again';
+
+  @override
+  String get btnRefresh => 'Refresh';
+
+  @override
+  String get btnReload => 'Reload';
+
+  @override
+  String get btnEdit => 'Edit';
+
+  @override
+  String get btnDelete => 'Delete';
+
+  @override
+  String get btnRemove => 'Remove';
+
+  @override
+  String get btnAdd => 'Add';
+
+  @override
+  String get btnCreate => 'Create';
+
+  @override
+  String get btnUpdate => 'Update';
+
+  @override
+  String get btnView => 'View';
+
+  @override
+  String get btnViewDetails => 'View Details';
+
+  @override
+  String get btnViewAll => 'View All';
+
+  @override
+  String get btnSeeMore => 'See More';
+
+  @override
+  String get btnShowLess => 'Show Less';
+
+  @override
+  String get btnExpand => 'Expand';
+
+  @override
+  String get btnCollapse => 'Collapse';
+
+  @override
+  String get btnShare => 'Share';
+
+  @override
+  String get btnDownload => 'Download';
+
+  @override
+  String get btnUpload => 'Upload';
+
+  @override
+  String get btnExport => 'Export';
+
+  @override
+  String get btnImport => 'Import';
+
+  @override
+  String get btnPrint => 'Print';
+
+  @override
+  String get btnCopy => 'Copy';
+
+  @override
+  String get btnPaste => 'Paste';
+
+  @override
+  String get btnCut => 'Cut';
+
+  @override
+  String get btnSelect => 'Select';
+
+  @override
+  String get btnSelectAll => 'Select All';
+
+  @override
+  String get btnDeselect => 'Deselect';
+
+  @override
+  String get btnClear => 'Clear';
+
+  @override
+  String get btnReset => 'Reset';
+
+  @override
+  String get btnFilter => 'Filter';
+
+  @override
+  String get btnSort => 'Sort';
+
+  @override
+  String get btnSearch => 'Search';
+
+  @override
+  String get btnFind => 'Find';
+
+  @override
+  String get btnLogin => 'Login';
+
+  @override
+  String get btnLogout => 'Logout';
+
+  @override
+  String get btnSignUp => 'Sign Up';
+
+  @override
+  String get btnRegister => 'Register';
+
+  @override
+  String get btnForgotPassword => 'Forgot Password?';
+
+  @override
+  String get btnResetPassword => 'Reset Password';
+
+  @override
+  String get btnChangePassword => 'Change Password';
+
+  @override
+  String get btnSendCode => 'Send Code';
+
+  @override
+  String get btnVerify => 'Verify';
+
+  @override
+  String get btnResendCode => 'Resend Code';
+
+  @override
+  String get btnSkip => 'Skip';
+
+  @override
+  String get btnGetStarted => 'Get Started';
+
+  @override
+  String get btnLearnMore => 'Learn More';
+
+  @override
+  String get btnAccept => 'Accept';
+
+  @override
+  String get btnDecline => 'Decline';
+
+  @override
+  String get btnAgree => 'Agree';
+
+  @override
+  String get btnDisagree => 'Disagree';
+
+  @override
+  String get btnEnable => 'Enable';
+
+  @override
+  String get btnDisable => 'Disable';
+
+  @override
+  String get btnStart => 'Start';
+
+  @override
+  String get btnStop => 'Stop';
+
+  @override
+  String get btnPause => 'Pause';
+
+  @override
+  String get btnResume => 'Resume';
+
+  @override
+  String get btnSend => 'Send';
+
+  @override
+  String get btnReceive => 'Receive';
+
+  @override
+  String get btnSyncNow => 'Sync Now';
+
+  @override
+  String get btnContinueAnyway => 'Continue Anyway';
+
+  @override
+  String get formEmail => 'Email';
+
+  @override
+  String get formEmailHint => 'Enter your email';
+
+  @override
+  String get formPassword => 'Password';
+
+  @override
+  String get formPasswordHint => 'Enter your password';
+
+  @override
+  String get formConfirmPassword => 'Confirm Password';
+
+  @override
+  String get formConfirmPasswordHint => 'Re-enter your password';
+
+  @override
+  String get formFullName => 'Full Name';
+
+  @override
+  String get formFullNameHint => 'Enter your full name';
+
+  @override
+  String get formPhone => 'Phone Number';
+
+  @override
+  String get formPhoneHint => 'Enter your phone number';
+
+  @override
+  String get formAddress => 'Address';
+
+  @override
+  String get formAddressHint => 'Enter your address';
+
+  @override
+  String get formCity => 'City';
+
+  @override
+  String get formCountry => 'Country';
+
+  @override
+  String get formZipCode => 'Zip Code';
+
+  @override
+  String get formDate => 'Date';
+
+  @override
+  String get formTime => 'Time';
+
+  @override
+  String get formDateTime => 'Date & Time';
+
+  @override
+  String get formNotes => 'Notes';
+
+  @override
+  String get formNotesHint => 'Enter any notes...';
+
+  @override
+  String get formDescription => 'Description';
+
+  @override
+  String get formDescriptionHint => 'Enter description...';
+
+  @override
+  String get formAmount => 'Amount';
+
+  @override
+  String get formQuantity => 'Quantity';
+
+  @override
+  String get formPrice => 'Price';
+
+  @override
+  String get formCurrency => 'Currency';
+
+  @override
+  String get formSearchHint => 'Search...';
+
+  @override
+  String get formSearchFieldHint => 'Search for a field...';
+
+  @override
+  String get formSelectOption => 'Select an option';
+
+  @override
+  String get formSelectDate => 'Select date';
+
+  @override
+  String get formSelectTime => 'Select time';
+
+  @override
+  String get formOptional => 'Optional';
+
+  @override
+  String get formRequired => 'Required';
+
+  @override
+  String get tooltipRefresh => 'Refresh data';
+
+  @override
+  String get tooltipFilter => 'Filter results';
+
+  @override
+  String get tooltipSort => 'Sort results';
+
+  @override
+  String get tooltipSearch => 'Search';
+
+  @override
+  String get tooltipSettings => 'Settings';
+
+  @override
+  String get tooltipNotifications => 'Notifications';
+
+  @override
+  String get tooltipHelp => 'Help';
+
+  @override
+  String get tooltipInfo => 'More information';
+
+  @override
+  String get tooltipEdit => 'Edit';
+
+  @override
+  String get tooltipDelete => 'Delete';
+
+  @override
+  String get tooltipShare => 'Share';
+
+  @override
+  String get tooltipDownload => 'Download';
+
+  @override
+  String get tooltipUpload => 'Upload';
+
+  @override
+  String get tooltipClose => 'Close';
+
+  @override
+  String get tooltipExpand => 'Expand';
+
+  @override
+  String get tooltipCollapse => 'Collapse';
+
+  @override
+  String get tooltipViewList => 'View as list';
+
+  @override
+  String get tooltipViewGrid => 'View as grid';
+
+  @override
+  String get tooltipAddEquipment => 'Add equipment';
+
+  @override
+  String get tooltipScanQR => 'Scan QR code';
+
+  @override
+  String get tooltipShowMap => 'Show on map';
+
+  @override
+  String get tooltipZoomIn => 'Zoom in';
+
+  @override
+  String get tooltipZoomOut => 'Zoom out';
+
+  @override
+  String get tooltipMyLocation => 'My location';
+
+  @override
+  String get tooltipLayers => 'Map layers';
+
+  @override
+  String get a11yNavigateHome => 'Navigate to home';
+
+  @override
+  String get a11yNavigateBack => 'Go back';
+
+  @override
+  String get a11yOpenMenu => 'Open menu';
+
+  @override
+  String get a11yCloseMenu => 'Close menu';
+
+  @override
+  String get a11yOpenSidebar => 'Open sidebar';
+
+  @override
+  String get a11yCloseSidebar => 'Close sidebar';
+
+  @override
+  String get a11yLoadingContent => 'Loading content';
+
+  @override
+  String get a11yContentLoaded => 'Content loaded';
+
+  @override
+  String get a11yErrorOccurred => 'An error occurred';
+
+  @override
+  String get a11yFieldRequired => 'This field is required';
+
+  @override
+  String get a11yFieldOptional => 'This field is optional';
+
+  @override
+  String get a11ySelectedItem => 'Selected';
+
+  @override
+  String get a11yUnselectedItem => 'Not selected';
+
+  @override
+  String get a11yExpandSection => 'Expand section';
+
+  @override
+  String get a11yCollapseSection => 'Collapse section';
+
+  @override
+  String get a11yImageDescription => 'Image';
+
+  @override
+  String get a11yMapView => 'Map view';
+
+  @override
+  String get a11yChartView => 'Chart view';
+
+  @override
+  String get a11yListView => 'List view';
+
+  @override
+  String get a11yGridView => 'Grid view';
+
+  @override
+  String get a11ySwipeLeft => 'Swipe left for more options';
+
+  @override
+  String get a11ySwipeRight => 'Swipe right for more options';
+
+  @override
+  String get a11yDoubleTap => 'Double tap to open';
+
+  @override
+  String get a11yLongPress => 'Long press for more options';
+
+  @override
+  String a11yCurrentPage(int page, int total) {
+    return 'Current page: $page of $total';
+  }
+
+  @override
+  String get successGeneric => 'Operation completed successfully.';
+
+  @override
+  String get successSaved => 'Changes saved successfully.';
+
+  @override
+  String get successDeleted => 'Item deleted successfully.';
+
+  @override
+  String get successUpdated => 'Item updated successfully.';
+
+  @override
+  String get successCreated => 'Item created successfully.';
+
+  @override
+  String get successSent => 'Sent successfully.';
+
+  @override
+  String get successCopied => 'Copied to clipboard.';
+
+  @override
+  String get successDownloaded => 'Download completed.';
+
+  @override
+  String get successUploaded => 'Upload completed.';
+
+  @override
+  String get successSynced => 'Data synced successfully.';
+
+  @override
+  String get successLoggedIn => 'Welcome back!';
+
+  @override
+  String get successLoggedOut => 'Logged out successfully.';
+
+  @override
+  String get successPasswordChanged => 'Password changed successfully.';
+
+  @override
+  String get successProfileUpdated => 'Profile updated successfully.';
+
+  @override
+  String get dataRefreshed => 'Data refreshed';
+
+  @override
+  String get itemAdded => 'Item added';
+
+  @override
+  String get itemRemoved => 'Item removed';
+
+  @override
+  String get settingsSaved => 'Settings saved';
+
+  @override
+  String get operationPending => 'Operation pending...';
+
+  @override
+  String get operationInProgress => 'Please wait...';
+
+  @override
+  String get processingRequest => 'Processing your request...';
+
+  @override
+  String get savingChanges => 'Saving changes...';
+
+  @override
+  String get loadingData => 'Loading data...';
+
+  @override
+  String get syncingData => 'Syncing data...';
+
+  @override
+  String get uploadingFile => 'Uploading file...';
+
+  @override
+  String get downloadingFile => 'Downloading file...';
+
+  @override
+  String get equipmentAndAssets => 'Equipment & Assets';
+
+  @override
+  String get equipmentFleet => 'Equipment Fleet';
+
+  @override
+  String get equipmentCount => 'Equipment';
+
+  @override
+  String get operationalReady => 'Ready';
+
+  @override
+  String get allCategories => 'All';
+
+  @override
+  String get tractors => 'Tractors';
+
+  @override
+  String get pumps => 'Pumps';
+
+  @override
+  String get drones => 'Drones';
+
+  @override
+  String get harvesters => 'Harvesters';
+
+  @override
+  String get pivots => 'Pivots';
+
+  @override
+  String get sprayers => 'Sprayers';
+
+  @override
+  String get sensors => 'Sensors';
+
+  @override
+  String get noEquipment => 'No equipment';
+
+  @override
+  String get addNewEquipment => 'Add New Equipment';
+
+  @override
+  String get equipmentNameHint => 'Example: John Deere 8R';
+
+  @override
+  String get serialNumber_equipment => 'Serial Number';
+
+  @override
+  String get currentLocation => 'Current Location';
+
+  @override
+  String get notSpecified => 'Not specified';
+
+  @override
+  String get viewOnMap => 'View on Map';
+
+  @override
+  String get maintenanceAlerts => 'Maintenance Alerts';
+
+  @override
+  String get addMaintenanceRecord => 'Add Maintenance Record';
+
+  @override
+  String get upcomingMaintenance => 'Upcoming Maintenance';
+
+  @override
+  String get maintenanceDate => 'Maintenance Date';
+
+  @override
+  String get maintenanceDescription => 'Maintenance Description';
+
+  @override
+  String get maintenanceDescriptionHint =>
+      'Example: Engine oil change and air filter';
+
+  @override
+  String get technicianName => 'Technician Name';
+
+  @override
+  String get technicianNameHint => 'Technician name';
+
+  @override
+  String get additionalNotes => 'Additional Notes';
+
+  @override
+  String get additionalNotesHint => 'Any other notes...';
+
+  @override
+  String get saveMaintenanceRecord => 'Save Maintenance Record';
+
+  @override
+  String get savingRecord => 'Saving...';
+
+  @override
+  String get maintenanceRecordAdded => 'Maintenance record added successfully';
+
+  @override
+  String get pleaseEnterDescription => 'Please enter maintenance description';
+
+  @override
+  String get yearManufactured => 'Year Manufactured';
+
+  @override
+  String get horsepower => 'Horsepower';
+
+  @override
+  String get hp => 'HP';
+
+  @override
+  String get maintenanceType => 'Maintenance Type';
+
+  @override
+  String get oilChange => 'Oil Change';
+
+  @override
+  String get filterChange => 'Filter Change';
+
+  @override
+  String get tireCheck => 'Tire Check';
+
+  @override
+  String get batteryCheck => 'Battery Check';
+
+  @override
+  String get calibration => 'Calibration';
+
+  @override
+  String get generalService => 'General Service';
+
+  @override
+  String get repair_maintenance => 'Repair';
+
+  @override
+  String overdueByDays(int days) {
+    return 'Overdue $days days';
+  }
+
+  @override
+  String dueInDays(int days) {
+    return 'Due in $days days';
+  }
+
+  @override
+  String get noMaintenanceHistory => 'No maintenance history';
+
+  @override
+  String get maintenanceRecordsWillAppear =>
+      'Maintenance records will appear here when added';
+
+  @override
+  String get startEquipment => 'Start';
+
+  @override
+  String get stopEquipment => 'Stop';
+
+  @override
+  String get viewHistory => 'History';
+
+  @override
+  String get performMaintenance => 'Maintenance';
+
+  @override
+  String get equipmentAdded => 'Equipment added successfully';
+
+  @override
+  String get failedToAddEquipment => 'Failed to add equipment';
+
+  @override
+  String get pleaseEnterEquipmentName => 'Please enter equipment name';
+
+  @override
+  String get scanEquipmentCode => 'Scan Equipment Code';
+
+  @override
+  String get pointCameraAtQR =>
+      'Point camera at QR code or barcode on the equipment';
+
+  @override
+  String get scanned => 'Scanned';
+
+  @override
+  String get fieldsTitle => 'Fields';
+
+  @override
+  String get searchFieldsHint => 'Search for a field...';
+
+  @override
+  String get sortByName => 'Name';
+
+  @override
+  String get sortByArea => 'Area';
+
+  @override
+  String get sortByHealth => 'Health';
+
+  @override
+  String get sortTooltip => 'Sort';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get fieldsCount => 'Fields';
+
+  @override
+  String get totalAreaLabel => 'Total Area';
+
+  @override
+  String get hectareAbbrev => 'ha';
+
+  @override
+  String get averageHealth => 'Average Health';
+
+  @override
+  String get noFields => 'No fields';
+
+  @override
+  String get addFieldToStart => 'Add a field to get started';
+
+  @override
+  String get addNewField => 'Add Field';
+
+  @override
+  String get fieldCreatedComingSoon => 'Add new field - Coming soon';
+
+  @override
+  String get corn => 'Corn';
+
+  @override
+  String get datePalm => 'Date Palm';
+
+  @override
+  String get statusActive => 'Active';
+
+  @override
+  String get statusInactive => 'Inactive';
+
+  @override
+  String get statusPending => 'Pending';
+
+  @override
+  String get statusCompleted => 'Completed';
+
+  @override
+  String get statusInProgress => 'In Progress';
+
+  @override
+  String get statusCancelled => 'Cancelled';
+
+  @override
+  String get statusScheduled => 'Scheduled';
+
+  @override
+  String get statusOverdue => 'Overdue';
+
+  @override
+  String get statusUpcoming => 'Upcoming';
+
+  @override
+  String get statusOperational => 'Operational';
+
+  @override
+  String get statusMaintenance => 'Maintenance';
+
+  @override
+  String get statusRepair => 'Repair';
+
+  @override
+  String get highTemperatureWarning =>
+      'High temperature - Early irrigation recommended';
+
+  @override
+  String get updateRequired => 'Update Required';
+
+  @override
+  String get newUpdateAvailable => 'New Update Available';
+
+  @override
+  String get majorUpdateAvailable => 'Major Update Available';
+
+  @override
+  String get minorUpdateAvailable => 'New Update Available';
+
+  @override
+  String get patchUpdateAvailable => 'Patch Update Available';
+
+  @override
+  String get appIsUpToDate => 'App is Up to Date';
+
+  @override
+  String get remindLater => 'Remind Later';
+
+  @override
+  String get skipThisVersion => 'Skip This Version';
+
+  @override
+  String get whatsNewTitle => 'What\'s New:';
+
+  @override
+  String get updateDescription => 'A new version of SAHOOL is available.';
+
+  @override
+  String get forceUpdateDescription =>
+      'You must update the app to continue using it. This update includes important improvements and security fixes.';
+
+  @override
+  String get majorUpdateDescription =>
+      'A new major version is available with significant improvements and new features. We highly recommend updating.';
+
+  @override
+  String get minorUpdateDescription =>
+      'A new update is available with additional features and improvements.';
+
+  @override
+  String get patchUpdateDescription =>
+      'A patch update is available with bug fixes and performance improvements.';
+
+  @override
+  String get versionLabel => 'Version';
+
+  @override
+  String get currentVersionLabel => 'Current Version';
+
+  @override
+  String get latestVersionLabel => 'Latest Version';
+
+  @override
+  String get checkingForUpdates => 'Checking for updates...';
+
+  @override
+  String get updateCheckFailed => 'Failed to check for updates';
+
+  @override
+  String get noInternetForUpdate =>
+      'No internet connection. Cannot check for updates.';
+
+  @override
+  String get updateSkipped => 'Update skipped';
+
+  @override
+  String get updateRemindLaterSet =>
+      'You will be reminded about this update later';
 }

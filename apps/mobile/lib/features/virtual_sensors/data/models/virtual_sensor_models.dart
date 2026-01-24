@@ -1,6 +1,5 @@
 /// Virtual Sensors Models - Smart Irrigation
 /// نماذج المستشعرات الافتراضية - الري الذكي
-library;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 

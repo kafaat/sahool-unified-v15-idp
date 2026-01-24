@@ -43,7 +43,7 @@ class NetworkQualityMonitor {
 
   void _initialize() {
     // Check initial connectivity
-    _connectivity.checkConnectivity().then(_updateFromConnectivity);
+    unawaited(_connectivity.checkConnectivity().then(_updateFromConnectivity));
 
     // Listen for changes
     _subscription = _connectivity.onConnectivityChanged.listen(_updateFromConnectivity);

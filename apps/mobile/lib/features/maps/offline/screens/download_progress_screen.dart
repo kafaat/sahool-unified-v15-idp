@@ -571,7 +571,7 @@ class _DownloadProgressScreenState extends State<DownloadProgressScreen>
     }
   }
 
-  void _showExitConfirmation() async {
+  Future<void> _showExitConfirmation() async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(

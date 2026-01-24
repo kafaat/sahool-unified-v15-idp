@@ -65,16 +65,31 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
   className = "",
 }: FarmsMapProps<T>) {
   const [isMounted, setIsMounted] = useState(false);
+  const [mapVersion, setMapVersion] = useState(0);
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
 
   useEffect(() => {
     setIsMounted(true);
+    // Increment version to force new map instance on mount
+    setMapVersion((v) => v + 1);
 
     // Cleanup function to remove any existing Leaflet instances
     return () => {
+      // Clean up the map instance if it exists
+      if (mapInstanceRef.current) {
+        try {
+          mapInstanceRef.current.remove();
+          mapInstanceRef.current = null;
+        } catch (error) {
+          // Ignore errors during cleanup
+        }
+      }
+
+      // Force cleanup of Leaflet's internal tracker
       if (mapContainerRef.current) {
         const container = mapContainerRef.current;
-        // Remove any Leaflet-specific properties
+        // Remove any Leaflet-specific properties to prevent "Map container already initialized"
         if ((container as any)._leaflet_id) {
           delete (container as any)._leaflet_id;
         }
@@ -134,8 +149,13 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
         zoom={DEFAULT_ZOOM}
         style={{ height: "100%", minHeight: "500px", width: "100%" }}
         scrollWheelZoom={true}
-        // Force new instance on every mount
-        key={`map-${isMounted ? "mounted" : "unmounted"}`}
+        // Force new instance on every mount using version counter
+        key={`map-${mapVersion}`}
+        ref={(map: any) => {
+          if (map) {
+            mapInstanceRef.current = map;
+          }
+        }}
       >
         {/* Base tile layer - OpenStreetMap */}
         <TileLayer

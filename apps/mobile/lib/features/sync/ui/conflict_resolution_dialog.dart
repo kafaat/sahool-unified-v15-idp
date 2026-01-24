@@ -388,7 +388,7 @@ class _ConflictResolutionDialogState extends State<ConflictResolutionDialog> {
     );
   }
 
-  void _handleResolve() async {
+  Future<void> _handleResolve() async {
     if (_selectedChoice == null) return;
 
     setState(() => _isProcessing = true);

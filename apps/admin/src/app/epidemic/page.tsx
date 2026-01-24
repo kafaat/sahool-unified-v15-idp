@@ -202,7 +202,7 @@ export default function EpidemicCenterPage() {
 
       {/* Time Range Filter */}
       <div className="mt-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" suppressHydrationWarning>
           <Filter className="w-5 h-5 text-gray-400" />
           <span className="text-sm text-gray-600">الفترة الزمنية:</span>
           <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
@@ -230,6 +230,7 @@ export default function EpidemicCenterPage() {
         <button
           onClick={loadData}
           className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          suppressHydrationWarning
         >
           <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
           تحديث
@@ -239,7 +240,7 @@ export default function EpidemicCenterPage() {
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Governorates Map (Simplified) */}
         <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2" suppressHydrationWarning>
             <MapPin className="w-5 h-5 text-sahool-600" />
             خريطة انتشار الأمراض
           </h3>
@@ -282,7 +283,7 @@ export default function EpidemicCenterPage() {
                   <p className="text-xs text-gray-500">حالة</p>
 
                   {govStats?.critical > 0 && (
-                    <div className="mt-2 flex items-center gap-1 text-xs text-red-600">
+                    <div className="mt-2 flex items-center gap-1 text-xs text-red-600" suppressHydrationWarning>
                       <AlertTriangle className="w-3 h-3" />
                       {govStats.critical} حرج
                     </div>
@@ -315,7 +316,7 @@ export default function EpidemicCenterPage() {
 
         {/* Top Diseases Sidebar */}
         <div className="bg-white rounded-xl border border-gray-100 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2" suppressHydrationWarning>
             <BarChart3 className="w-5 h-5 text-sahool-600" />
             أكثر الأمراض انتشاراً
           </h3>
@@ -353,7 +354,7 @@ export default function EpidemicCenterPage() {
                 );
               })
             ) : (
-              <div className="text-center py-8 text-gray-400">
+              <div className="text-center py-8 text-gray-400" suppressHydrationWarning>
                 <Bug className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p>لا توجد بيانات</p>
               </div>
@@ -393,7 +394,7 @@ export default function EpidemicCenterPage() {
 
       {/* Recent Critical Cases */}
       <div className="mt-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2" suppressHydrationWarning>
           <AlertTriangle className="w-5 h-5 text-red-600" />
           الحالات الحرجة الأخيرة
         </h3>

@@ -148,7 +148,7 @@ class _VoiceButtonWidgetState extends ConsumerState<VoiceButtonWidget>
     );
   }
 
-  void _toggleListening(VoiceStatus status) async {
+  Future<void> _toggleListening(VoiceStatus status) async {
     final service = ref.read(voiceCommandServiceProvider);
 
     if (status == VoiceStatus.listening) {

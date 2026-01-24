@@ -338,7 +338,7 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
     );
   }
 
-  void _showQrScanner(BuildContext context) async {
+  Future<void> _showQrScanner(BuildContext context) async {
     final result = await BarcodeScannerScreen.scan(
       context,
       title: 'مسح رمز المعدة',

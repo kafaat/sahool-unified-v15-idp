@@ -40,7 +40,7 @@ class SchemaVersion {
   /// Breaking changes introduced in this version
   final List<String> breakingChanges;
 
-  const SchemaVersion({
+  SchemaVersion({
     required this.version,
     required this.description,
     required this.descriptionAr,
@@ -58,20 +58,28 @@ class SchemaVersion {
   String toString() => 'SchemaVersion(v$version: $description)';
 }
 
+// Release date constants (cannot be const, so defined as final)
+final DateTime _v1ReleaseDate = DateTime(2024, 1, 1);
+final DateTime _v2ReleaseDate = DateTime(2024, 6, 1);
+final DateTime _v3ReleaseDate = DateTime(2024, 9, 1);
+final DateTime _v4ReleaseDate = DateTime(2025, 1, 1);
+final DateTime _v5ReleaseDate = DateTime(2025, 6, 1);
+
 /// Registry of all schema versions
 class SchemaVersionRegistry {
-  static const List<SchemaVersion> versions = [
+  static final List<SchemaVersion> versions = [
     SchemaVersion(
       version: 1,
       description: 'Initial schema with Tasks, Outbox, Fields, SyncLogs',
-      descriptionAr: 'المخطط الاولي مع المهام والصندوق الصادر والحقول وسجلات المزامنة',
-      releaseDate: DateTime(2024, 1, 1),
+      descriptionAr:
+          'المخطط الاولي مع المهام والصندوق الصادر والحقول وسجلات المزامنة',
+      releaseDate: _v1ReleaseDate,
     ),
     SchemaVersion(
       version: 2,
       description: 'Added GIS columns (boundary, centroid) to Fields table',
       descriptionAr: 'اضافة اعمدة نظام المعلومات الجغرافية للحقول',
-      releaseDate: DateTime(2024, 6, 1),
+      releaseDate: _v2ReleaseDate,
       requiresDataMigration: true,
       breakingChanges: ['Fields table recreated with new GIS columns'],
     ),
@@ -79,13 +87,13 @@ class SchemaVersionRegistry {
       version: 3,
       description: 'Added ETag support and SyncEvents table',
       descriptionAr: 'اضافة دعم ETag وجدول احداث المزامنة',
-      releaseDate: DateTime(2024, 9, 1),
+      releaseDate: _v3ReleaseDate,
     ),
     SchemaVersion(
       version: 4,
       description: 'Unified Outbox schema with ETag support',
       descriptionAr: 'توحيد مخطط صندوق الصادر مع دعم ETag',
-      releaseDate: DateTime(2025, 1, 1),
+      releaseDate: _v4ReleaseDate,
       requiresDataMigration: true,
       breakingChanges: ['Outbox table recreated with new schema'],
     ),
@@ -93,7 +101,7 @@ class SchemaVersionRegistry {
       version: 5,
       description: 'Added migration tracking and metadata columns',
       descriptionAr: 'اضافة تتبع الترحيل واعمدة البيانات الوصفية',
-      releaseDate: DateTime(2025, 6, 1),
+      releaseDate: _v5ReleaseDate,
     ),
   ];
 
@@ -111,14 +119,13 @@ class SchemaVersionRegistry {
 
   /// Check if version is supported
   static bool isSupported(int version) {
-    return version >= minimumSupportedVersion && version <= currentSchemaVersion;
+    return version >= minimumSupportedVersion &&
+        version <= currentSchemaVersion;
   }
 
   /// Get all versions between [from] and [to] (exclusive of from, inclusive of to)
   static List<SchemaVersion> getVersionsBetween(int from, int to) {
-    return versions
-        .where((v) => v.version > from && v.version <= to)
-        .toList()
+    return versions.where((v) => v.version > from && v.version <= to).toList()
       ..sort((a, b) => a.version.compareTo(b.version));
   }
 
@@ -164,7 +171,8 @@ class MigrationHistory extends Table {
   IntColumn get durationMs => integer().nullable()();
 
   /// Whether a backup was created before migration
-  BoolColumn get backupCreated => boolean().withDefault(const Constant(false))();
+  BoolColumn get backupCreated =>
+      boolean().withDefault(const Constant(false))();
 
   /// Path to backup file (if created)
   TextColumn get backupPath => text().nullable()();

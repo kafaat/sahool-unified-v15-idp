@@ -72,8 +72,7 @@ class MockResponse {
   static MockResponse created(Map<String, dynamic> data) =>
       MockResponse(statusCode: 201, body: data);
 
-  static MockResponse error(int statusCode, String message) =>
-      MockResponse(
+  static MockResponse error(int statusCode, String message) => MockResponse(
         statusCode: statusCode,
         body: {'error': message, 'message': message},
       );
@@ -111,8 +110,7 @@ class MockRequest {
   }) : timestamp = DateTime.now();
 
   @override
-  String toString() =>
-      '$method $path ${body != null ? jsonEncode(body) : ''}';
+  String toString() => '$method $path ${body != null ? jsonEncode(body) : ''}';
 }
 
 /// Mock server for API testing
@@ -195,7 +193,8 @@ class MockServer {
   }
 
   bool _shouldSimulateError() {
-    return (DateTime.now().millisecondsSinceEpoch % 100) / 100 < _config.errorRate;
+    return (DateTime.now().millisecondsSinceEpoch % 100) / 100 <
+        _config.errorRate;
   }
 
   MockResponse _getDefaultResponse(MockRequest request) {
@@ -258,7 +257,8 @@ class MockServer {
 
     if (email == TestUsers.validEmail && password == TestUsers.validPassword) {
       return MockResponse.success({
-        'access_token': 'mock_access_token_${DateTime.now().millisecondsSinceEpoch}',
+        'access_token':
+            'mock_access_token_${DateTime.now().millisecondsSinceEpoch}',
         'refresh_token': 'mock_refresh_token',
         'token_type': 'Bearer',
         'expires_in': 3600,
@@ -291,7 +291,8 @@ class MockServer {
 
   MockResponse _handleTokenRefresh(MockRequest request) {
     return MockResponse.success({
-      'access_token': 'mock_refreshed_token_${DateTime.now().millisecondsSinceEpoch}',
+      'access_token':
+          'mock_refreshed_token_${DateTime.now().millisecondsSinceEpoch}',
       'refresh_token': 'mock_new_refresh_token',
       'token_type': 'Bearer',
       'expires_in': 3600,
@@ -383,7 +384,7 @@ class MockServer {
           'description': 'صافي',
           'icon': 'sunny',
         },
-        'hourly': List.generate(24, (i) => {
+        'hourly': List.generate(24, (i) {
           return {
             'time': DateTime.now().add(Duration(hours: i)).toIso8601String(),
             'temperature': 25 + (i % 10),
@@ -391,7 +392,7 @@ class MockServer {
             'icon': i > 6 && i < 18 ? 'sunny' : 'moon',
           };
         }),
-        'daily': List.generate(7, (i) => {
+        'daily': List.generate(7, (i) {
           return {
             'date': DateTime.now().add(Duration(days: i)).toIso8601String(),
             'temperatureMax': 30 + i,
@@ -572,7 +573,8 @@ class MockHttpClient {
   }
 
   /// DELETE request
-  Future<MockResponse> delete(String path, {Map<String, String>? headers}) async {
+  Future<MockResponse> delete(String path,
+      {Map<String, String>? headers}) async {
     return _server.processRequest(MockRequest(
       method: 'DELETE',
       path: path,
@@ -635,8 +637,10 @@ void stubError(String path, int statusCode, String message) {
 /// Stub delayed response
 /// إعداد استجابة متأخرة
 void stubDelayedResponse(String path, MockResponse response, Duration delay) {
-  MockServer.instance.stub(path, (_) async {
-    await Future.delayed(delay);
-    return response;
-  } as MockResponse Function(MockRequest));
+  MockServer.instance.stub(
+      path,
+      (_) async {
+        await Future.delayed(delay);
+        return response;
+      } as MockResponse Function(MockRequest));
 }

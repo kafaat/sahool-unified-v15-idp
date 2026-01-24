@@ -10,6 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 
+part 'migration_integration_test.g.dart';
+
 // We need to create a mock/test database since the real one uses SQLCipher
 
 /// Test database that mimics the structure of AppDatabase

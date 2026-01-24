@@ -930,7 +930,7 @@ class _CartBottomSheet extends ConsumerWidget {
     );
   }
 
-  void _checkout(BuildContext context, WidgetRef ref) async {
+  Future<void> _checkout(BuildContext context, WidgetRef ref) async {
     final order = await ref.read(marketplaceProvider.notifier).createOrder();
 
     if (order != null && context.mounted) {

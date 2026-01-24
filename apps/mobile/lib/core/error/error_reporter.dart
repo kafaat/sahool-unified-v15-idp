@@ -133,6 +133,8 @@ class _CurrentDateTime implements DateTime {
   @override
   DateTime subtract(Duration duration) => _now.subtract(duration);
   @override
+  Duration difference(DateTime other) => _now.difference(other);
+  @override
   bool isBefore(DateTime other) => _now.isBefore(other);
   @override
   bool isAfter(DateTime other) => _now.isAfter(other);
@@ -397,10 +399,12 @@ class ErrorReporter {
         AppLogger.w('$error', tag: 'ErrorReporter');
         break;
       case ReportSeverity.error:
-        AppLogger.e('$error', tag: 'ErrorReporter', error: error, stackTrace: stackTrace);
+        AppLogger.e('$error',
+            tag: 'ErrorReporter', error: error, stackTrace: stackTrace);
         break;
       case ReportSeverity.fatal:
-        AppLogger.critical('$error', tag: 'ErrorReporter', error: error, stackTrace: stackTrace);
+        AppLogger.critical('$error',
+            tag: 'ErrorReporter', error: error, stackTrace: stackTrace);
         break;
     }
   }

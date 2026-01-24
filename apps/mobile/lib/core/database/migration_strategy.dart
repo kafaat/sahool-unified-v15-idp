@@ -171,7 +171,7 @@ class SahoolMigrationStrategy {
       },
       beforeOpen: (details) async {
         // Enable foreign keys
-        await details.executor.runCustom('PRAGMA foreign_keys = ON');
+        await database.customStatement('PRAGMA foreign_keys = ON');
 
         AppLogger.d(
           'Database opened: v${details.versionNow}, '
@@ -397,12 +397,12 @@ class SahoolMigrationStrategy {
           Variable.withString(DateTime.now().toIso8601String()),
           status == MigrationStatus.completed
               ? Variable.withString(DateTime.now().toIso8601String())
-              : const Constant<String?>(null),
+              : const CustomExpression<String>('NULL'),
           Variable.withString(status.value),
-          errorMessage != null ? Variable.withString(errorMessage) : const Constant<String?>(null),
+          errorMessage != null ? Variable.withString(errorMessage) : const CustomExpression<String>('NULL'),
           Variable.withInt(durationMs),
           Variable.withBool(backupPath != null),
-          backupPath != null ? Variable.withString(backupPath) : const Constant<String?>(null),
+          backupPath != null ? Variable.withString(backupPath) : const CustomExpression<String>('NULL'),
         ],
       );
     } catch (e) {

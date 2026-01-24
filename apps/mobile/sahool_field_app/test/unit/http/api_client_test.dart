@@ -3,7 +3,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:dio/dio.dart';
 import 'package:sahool_field_app/core/http/api_client.dart';
 import 'package:sahool_field_app/core/security/security_config.dart';
-import 'package:sahool_field_app/core/security/certificate_pinning_service.dart';
+import 'package:sahool_field_app/core/security/certificate_pinning_service.dart'
+    show CertificatePinningService, CertificatePin, PinType;
 
 /// Mock dependencies
 class MockDio extends Mock implements Dio {}
@@ -235,8 +236,9 @@ void main() {
 
         final pins = [
           CertificatePin(
-            sha256: 'test_pin_hash',
-            expiresAt: DateTime.now().add(const Duration(days: 365)),
+            type: PinType.sha256,
+            value: 'test_pin_hash_value_0123456789abcdef',
+            expiryDate: DateTime.now().add(const Duration(days: 365)),
           ),
         ];
 

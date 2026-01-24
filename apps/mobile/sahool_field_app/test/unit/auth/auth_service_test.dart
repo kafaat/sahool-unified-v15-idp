@@ -236,8 +236,8 @@ void main() {
         when(() => mockSecureStorage.getRefreshToken()).thenAnswer((_) async => null);
 
         // Act & Assert
-        expect(
-          () => authService.refreshToken(),
+        await expectLater(
+          authService.refreshToken(),
           throwsA(isA<AuthException>()),
         );
       });
@@ -249,8 +249,8 @@ void main() {
         when(() => mockBiometricService.isAvailable()).thenAnswer((_) async => false);
 
         // Act & Assert
-        expect(
-          () => authService.loginWithBiometric(),
+        await expectLater(
+          authService.loginWithBiometric(),
           throwsA(isA<AuthException>()),
         );
       });
@@ -261,8 +261,8 @@ void main() {
         when(() => mockBiometricService.isEnabled()).thenAnswer((_) async => false);
 
         // Act & Assert
-        expect(
-          () => authService.loginWithBiometric(),
+        await expectLater(
+          authService.loginWithBiometric(),
           throwsA(isA<AuthException>()),
         );
       });
@@ -275,8 +275,8 @@ void main() {
             .thenAnswer((_) async => false);
 
         // Act & Assert
-        expect(
-          () => authService.loginWithBiometric(),
+        await expectLater(
+          authService.loginWithBiometric(),
           throwsA(isA<AuthException>()),
         );
       });

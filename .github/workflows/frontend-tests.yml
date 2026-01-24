@@ -232,7 +232,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: apps/mobile/sahool_field_app
+        working-directory: apps/mobile
 
     steps:
       - name: Checkout repository
@@ -272,10 +272,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            apps/mobile/sahool_field_app/.dart_tool
-            apps/mobile/sahool_field_app/.packages
+            apps/mobile/.dart_tool
+            apps/mobile/.packages
             ~/.pub-cache
-          key: ${{ runner.os }}-flutter-${{ hashFiles('apps/mobile/sahool_field_app/pubspec.lock') }}
+          key: ${{ runner.os }}-flutter-${{ hashFiles('apps/mobile/pubspec.lock') }}
           restore-keys: |
             ${{ runner.os }}-flutter-
 
@@ -296,7 +296,7 @@ jobs:
           mkdir -p assets/icon assets/images assets/icons
           # Generate icons from parent directory script
           if [ -f "../scripts/generate_icons.py" ]; then
-            cd ../ && python3 scripts/generate_icons.py && cd sahool_field_app
+            python3 scripts/generate_icons.py
           else
             echo "⚠️ Icon generation script not found - using existing assets"
           fi
@@ -410,7 +410,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: flutter-coverage
-          path: apps/mobile/sahool_field_app/coverage/
+          path: apps/mobile/coverage/
           retention-days: 7
 
       - name: Build Android APK
@@ -424,7 +424,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: flutter-android-apk
-          path: apps/mobile/sahool_field_app/build/app/outputs/flutter-apk/*.apk
+          path: apps/mobile/build/app/outputs/flutter-apk/*.apk
           retention-days: 7
 
   # =============================================================================
@@ -437,7 +437,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: apps/mobile/sahool_field_app
+        working-directory: apps/mobile
 
     steps:
       - name: Checkout repository
@@ -454,10 +454,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            apps/mobile/sahool_field_app/.dart_tool
-            apps/mobile/sahool_field_app/.packages
+            apps/mobile/.dart_tool
+            apps/mobile/.packages
             ~/.pub-cache
-          key: ${{ runner.os }}-flutter-${{ hashFiles('apps/mobile/sahool_field_app/pubspec.lock') }}
+          key: ${{ runner.os }}-flutter-${{ hashFiles('apps/mobile/pubspec.lock') }}
           restore-keys: |
             ${{ runner.os }}-flutter-
 
@@ -478,7 +478,7 @@ jobs:
           pip install Pillow
           # Generate icons from parent directory script
           if [ -f "../scripts/generate_icons.py" ]; then
-            cd ../ && python3 scripts/generate_icons.py && cd sahool_field_app
+            python3 scripts/generate_icons.py
           else
             echo "⚠️ Icon generation script not found - using existing assets"
           fi
@@ -667,21 +667,18 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            apps/mobile/sahool_field_app/.dart_tool
+            apps/mobile/.dart_tool
             ~/.pub-cache
-          key: ${{ runner.os }}-flutter-integration-${{ hashFiles('apps/mobile/sahool_field_app/pubspec.lock') }}
+          key: ${{ runner.os }}-flutter-integration-${{ hashFiles('apps/mobile/pubspec.lock') }}
           restore-keys: |
             ${{ runner.os }}-flutter-integration-
             ${{ runner.os }}-flutter-
 
       - name: Get Flutter dependencies
-        run: |
-          cd sahool_field_app
-          flutter pub get
+        run: flutter pub get
 
       - name: Create .env file
         run: |
-          cd sahool_field_app
           cat > .env << EOF
           API_BASE_URL=https://api.sahool.app
           WEATHER_API_KEY=test_weather_key
@@ -691,7 +688,6 @@ jobs:
 
       - name: Clean previous build artifacts
         run: |
-          cd sahool_field_app
           echo "Cleaning previous build artifacts..."
           flutter clean
           rm -rf .dart_tool/build
@@ -699,14 +695,12 @@ jobs:
 
       - name: Generate code
         run: |
-          cd sahool_field_app
           echo "Generating code with build_runner..."
           dart run build_runner clean || true
           dart run build_runner build --delete-conflicting-outputs
 
       - name: Verify generated code exists
         run: |
-          cd sahool_field_app
           if [ ! -f "lib/core/storage/database.g.dart" ]; then
             echo "❌ ERROR: database.g.dart was not generated!"
             echo "Running code generation again..."
@@ -720,7 +714,6 @@ jobs:
 
       - name: Create .env file for integration tests
         run: |
-          cd sahool_field_app
           cat > .env << 'EOF'
           # CI Environment Configuration
           ENV=test

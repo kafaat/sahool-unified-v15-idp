@@ -144,20 +144,22 @@ final logDetailsProvider =
 // State Providers
 // ═════════════════════════════════════════════════════════════════════════════
 
-/// فلتر التوصيات المحدد
-final selectedRecommendationFilterProvider = StateProvider<SprayRecommendationFilter?>((ref) => null);
+/// فلتر التوصيات المحدد - autoDispose for proper cleanup
+final selectedRecommendationFilterProvider = StateProvider.autoDispose<SprayRecommendationFilter?>((ref) => null);
 
-/// الحقل المحدد
-final selectedFieldIdProvider = StateProvider<String?>((ref) => null);
+/// الحقل المحدد للرش
+/// Note: This is scoped to spray feature. Use core/providers/selected_field_provider.dart
+/// for app-wide field selection.
+final spraySelectedFieldIdProvider = StateProvider.autoDispose<String?>((ref) => null);
 
-/// التوصية الحالية (للتعديل)
-final currentRecommendationProvider = StateProvider<SprayRecommendation?>((ref) => null);
+/// التوصية الحالية (للتعديل) - autoDispose for proper cleanup
+final currentRecommendationProvider = StateProvider.autoDispose<SprayRecommendation?>((ref) => null);
 
-/// المنتج المحدد
-final selectedProductProvider = StateProvider<SprayProduct?>((ref) => null);
+/// المنتج المحدد - autoDispose for proper cleanup
+final selectedProductProvider = StateProvider.autoDispose<SprayProduct?>((ref) => null);
 
-/// نوع الرش المحدد (للتصفية)
-final selectedSprayTypeProvider = StateProvider<SprayType?>((ref) => null);
+/// نوع الرش المحدد (للتصفية) - autoDispose for proper cleanup
+final selectedSprayTypeProvider = StateProvider.autoDispose<SprayType?>((ref) => null);
 
 // ═════════════════════════════════════════════════════════════════════════════
 // Filter Classes

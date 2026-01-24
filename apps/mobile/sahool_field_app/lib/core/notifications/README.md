@@ -1,149 +1,259 @@
-# SAHOOL Push Notifications Infrastructure
+# SAHOOL Notifications System
 
-# بنية الإشعارات الفورية لسهول
+# نظام إشعارات سهول
 
 ## Overview / نظرة عامة
 
-This directory contains the complete push notifications infrastructure for the SAHOOL mobile application, including Firebase Cloud Messaging (FCM) integration, local notifications, and deep linking capabilities.
+This directory contains the complete notifications infrastructure for the SAHOOL mobile application, including local notifications, scheduled notifications, and the structure for push notifications when Firebase is enabled.
 
-يحتوي هذا المجلد على البنية التحتية الكاملة للإشعارات الفورية لتطبيق سهول المحمول، بما في ذلك تكامل Firebase Cloud Messaging (FCM) والإشعارات المحلية وقدرات الروابط العميقة.
+يحتوي هذا المجلد على البنية التحتية الكاملة للإشعارات لتطبيق سهول المحمول، بما في ذلك الإشعارات المحلية والمجدولة وهيكل الإشعارات الفورية عند تفعيل Firebase.
+
+## Current Status / الحالة الحالية
+
+- **Local Notifications**: Fully functional
+- **Scheduled Notifications**: Fully functional
+- **Push Notifications (Firebase)**: Disabled (structure ready for when Firebase is added)
+
+- **الإشعارات المحلية**: تعمل بالكامل
+- **الإشعارات المجدولة**: تعمل بالكامل
+- **الإشعارات الفورية (Firebase)**: معطلة (الهيكل جاهز لإضافة Firebase)
 
 ## Files / الملفات
 
 ### Core Services / الخدمات الأساسية
 
-1. **notification_service.dart**
-   - Main notification service for handling push notifications
-   - Abstract interface with implementation
-   - خدمة الإشعارات الرئيسية لمعالجة الإشعارات الفورية
+| File | Description | الوصف |
+|------|-------------|--------|
+| `notification_manager.dart` | Central notification manager (unified interface) | مدير الإشعارات المركزي |
+| `notification_service.dart` | Abstract notification service with implementation | خدمة الإشعارات المجردة مع التنفيذ |
+| `local_notification_service.dart` | Local notifications using flutter_local_notifications | الإشعارات المحلية |
+| `push_notification_service.dart` | Push notification service (local mode when Firebase disabled) | خدمة الإشعارات الفورية |
+| `notification_handler.dart` | Notification tap handling and deep linking | معالجة النقر على الإشعارات والروابط العميقة |
 
-2. **push_notification_service.dart**
-   - Firebase Cloud Messaging (FCM) integration
-   - Background and foreground message handling
-   - Topic subscriptions and token management
-   - تكامل Firebase Cloud Messaging
-   - معالجة الرسائل في الخلفية والواجهة
-   - اشتراكات المواضيع وإدارة الرموز
+### Configuration / الإعدادات
 
-3. **local_notification_service.dart**
-   - Local notifications using flutter_local_notifications
-   - Support for different notification channels (tasks, weather, alerts)
-   - Scheduled notifications
-   - Progress notifications
-   - الإشعارات المحلية باستخدام flutter_local_notifications
-   - دعم قنوات الإشعارات المختلفة (المهام، الطقس، التنبيهات)
+| File | Description | الوصف |
+|------|-------------|--------|
+| `notification_types.dart` | Notification types, channels, and priorities | أنواع الإشعارات والقنوات والأولويات |
+| `notification_settings.dart` | User notification settings (per SharedPreferences) | إعدادات إشعارات المستخدم |
+| `notification_preferences.dart` | Notification preferences model and service | نموذج وخدمة تفضيلات الإشعارات |
 
-4. **notification_handler.dart**
-   - Handle notification tap actions
-   - Deep linking to specific screens based on notification data
-   - Parse and build notification payloads
-   - معالجة إجراءات النقر على الإشعارات
-   - الروابط العميقة للشاشات المحددة
+### Providers / المزودات
 
-### Supporting Files / الملفات الداعمة
+| File | Description | الوصف |
+|------|-------------|--------|
+| `notification_provider.dart` | Riverpod providers for notifications | مزودات Riverpod للإشعارات |
+| `notifications.dart` | Barrel export file | ملف التصدير |
 
-5. **notification_types.dart**
-   - Notification type enumerations
-   - Channel configurations
-   - أنواع الإشعارات
-   - إعدادات القنوات
+### Disabled Files / الملفات المعطلة
 
-6. **notification_settings.dart**
-   - User notification preferences
-   - Settings management
-   - إعدادات إشعارات المستخدم
+Files with `.firebase_disabled` extension are templates for when Firebase is enabled:
 
-7. **notifications.dart**
-   - Export file for all notification services
-   - ملف التصدير لجميع خدمات الإشعارات
+- `firebase_messaging_service.dart.firebase_disabled`
+- `push_notification_service.dart.firebase_disabled`
+- `notification_integration_example.dart.firebase_disabled`
 
-## Notification Channels / قنوات الإشعارات
+## Notification Channels / قنوات الإشعارات (Android)
 
-The app supports the following notification channels:
+| Channel ID | Name (AR) | Priority | Use Case |
+|------------|-----------|----------|----------|
+| `sahool_alerts` | التنبيهات العاجلة | Max | Weather, disease, pest alerts |
+| `sahool_tasks` | المهام والتذكيرات | High | Task, harvest, irrigation reminders |
+| `sahool_field_updates` | تحديثات الحقل | Default | Satellite images, crop health |
+| `sahool_financial` | المالية والأسواق | Default | Payments, market prices |
+| `sahool_operations` | العمليات الزراعية | High | Spray window, operations |
+| `sahool_inventory` | المخزون | Low | Inventory alerts |
+| `sahool_main` | إشعارات سهول | Default | General notifications |
+| `sahool_sync` | المزامنة | Low | Sync progress |
 
-### 1. Alerts / التنبيهات
+## Quick Start / البدء السريع
 
-- **Channel ID**: `alerts`
-- **Priority**: High
-- **Use Case**: Farm and field alerts, urgent notifications
-- **الاستخدام**: تنبيهات المزرعة والحقول
+### 1. Initialization (in main.dart)
 
-### 2. Tasks / المهام
+```dart
+import 'core/notifications/notification_manager.dart';
 
-- **Channel ID**: `tasks`
-- **Priority**: Default
-- **Use Case**: Task reminders and due dates
-- **الاستخدام**: تذكيرات المهام والمواعيد النهائية
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-### 3. NDVI
+  // Initialize notification system
+  await NotificationManager.instance.initialize();
+  await NotificationManager.instance.requestPermission();
 
-- **Channel ID**: `ndvi`
-- **Priority**: Default
-- **Use Case**: Crop health changes and NDVI updates
-- **الاستخدام**: تغييرات صحة المحصول وتحديثات NDVI
-
-### 4. Irrigation / الري
-
-- **Channel ID**: `irrigation`
-- **Priority**: High
-- **Use Case**: Irrigation scheduling and reminders
-- **الاستخدام**: جدولة الري والتذكيرات
-
-### 5. Weather / الطقس
-
-- **Channel ID**: `weather`
-- **Priority**: High
-- **Use Case**: Weather alerts and warnings
-- **الاستخدام**: تحذيرات الطقس والتنبيهات
-
-### 6. System / النظام
-
-- **Channel ID**: `system`
-- **Priority**: Low
-- **Use Case**: Sync notifications and system updates
-- **الاستخدام**: إشعارات المزامنة وتحديثات النظام
-
-## Setup / الإعداد
-
-### 1. Dependencies
-
-Add to `pubspec.yaml`:
-
-```yaml
-dependencies:
-  flutter_local_notifications: ^18.0.1
-  firebase_core: ^3.8.1
-  firebase_messaging: ^15.1.5
+  runApp(MyApp());
+}
 ```
 
-### 2. Firebase Configuration
+### 2. Show a Local Notification
 
-1. Add `google-services.json` to `android/app/`
-2. Add `GoogleService-Info.plist` to `ios/Runner/`
-3. Configure Firebase in your Firebase Console
+```dart
+import 'package:sahool_field_app/core/notifications/notifications.dart';
 
-### 3. Android Configuration
+// Show immediate notification
+await NotificationManager.instance.showNotification(
+  title: 'تنبيه الري',
+  body: 'حان موعد ري حقل الطماطم',
+  type: SAHOOLNotificationType.irrigationReminder,
+  priority: NotificationPriority.high,
+  data: {'field_id': 'field123'},
+);
+```
+
+### 3. Schedule a Notification
+
+```dart
+// Schedule notification for later
+await NotificationManager.instance.scheduleNotification(
+  title: 'مهمة قادمة',
+  body: 'فحص آفات القطن غداً',
+  scheduledTime: DateTime.now().add(Duration(hours: 24)),
+  type: SAHOOLNotificationType.taskReminder,
+  data: {'task_id': 'task456', 'field_id': 'field123'},
+);
+```
+
+### 4. Using Riverpod Providers
+
+```dart
+// In a ConsumerWidget:
+@override
+Widget build(BuildContext context, WidgetRef ref) {
+  // Watch notification initialization
+  final notificationInit = ref.watch(notificationInitializedProvider);
+
+  // Watch incoming notifications
+  final notifications = ref.watch(notificationStreamProvider);
+
+  // Use notification actions
+  final notificationActions = ref.read(notificationActionsProvider.notifier);
+
+  await notificationActions.showNotification(
+    title: 'عنوان الإشعار',
+    body: 'محتوى الإشعار',
+  );
+}
+```
+
+### 5. Cancel Notifications
+
+```dart
+// Cancel specific notification
+await NotificationManager.instance.cancelNotification(notificationId);
+
+// Cancel all notifications
+await NotificationManager.instance.cancelAllNotifications();
+
+// Get pending notifications
+final pending = await NotificationManager.instance.getPendingNotifications();
+```
+
+## Notification Types / أنواع الإشعارات
+
+```dart
+enum SAHOOLNotificationType {
+  weatherAlert,        // تنبيه طقس
+  diseaseDetected,     // كشف مرض
+  pestOutbreak,        // انتشار آفة
+  sprayWindow,         // وقت الرش
+  harvestReminder,     // تذكير الحصاد
+  irrigationReminder,  // تذكير الري
+  taskReminder,        // تذكير مهمة
+  fieldUpdate,         // تحديث الحقل
+  satelliteReady,      // صور الأقمار جاهزة
+  cropHealth,          // صحة المحصول
+  marketPrice,         // أسعار السوق
+  paymentDue,          // دفعة مستحقة
+  lowStock,            // مخزون منخفض
+  system,              // إشعار نظام
+}
+```
+
+## Priority Levels / مستويات الأولوية
+
+```dart
+enum NotificationPriority {
+  low,      // منخفض - for informational notifications
+  medium,   // متوسط - default priority
+  high,     // عالي - important notifications
+  critical, // حرج - urgent notifications (ignore quiet hours)
+}
+```
+
+## User Preferences / تفضيلات المستخدم
+
+Users can configure:
+
+- Enable/disable specific notification types
+- Quiet hours (no notifications during sleep)
+- Sound and vibration settings
+- Minimum priority threshold
+- Badge and preview settings
+
+```dart
+// Get current preferences
+final prefs = NotificationPreferencesService.instance.getPreferences();
+
+// Update preferences
+await NotificationPreferencesService.instance.updatePreference(
+  (prefs) => prefs.copyWith(
+    enableQuietHours: true,
+    quietHoursStart: TimeOfDay(hour: 22, minute: 0),
+    quietHoursEnd: TimeOfDay(hour: 6, minute: 0),
+  ),
+);
+```
+
+## Handling Notification Taps / معالجة النقر على الإشعارات
+
+```dart
+// Initialize handler with navigator key
+NotificationHandler.instance.initialize(navigatorKey);
+
+// Listen to notification taps
+NotificationHandler.instance.onNotification.listen((payload) {
+  // Handle notification tap
+  print('Notification tapped: ${payload.type}');
+  print('Field ID: ${payload.fieldId}');
+});
+```
+
+## Enabling Firebase Push Notifications / تفعيل إشعارات Firebase
+
+When you're ready to enable Firebase:
+
+1. Uncomment Firebase dependencies in `pubspec.yaml`:
+   ```yaml
+   firebase_core: ^3.8.1
+   firebase_messaging: ^15.1.5
+   ```
+
+2. Add Firebase configuration files:
+   - `android/app/google-services.json`
+   - `ios/Runner/GoogleService-Info.plist`
+
+3. Set `firebaseEnabled = true` in `push_notification_service.dart`:
+   ```dart
+   class PushNotificationConfig {
+     static const bool firebaseEnabled = true;
+   }
+   ```
+
+4. Rename `.firebase_disabled` files back to `.dart`
+
+5. Update `notifications.dart` to export Firebase services
+
+## Android Configuration / إعدادات أندرويد
 
 Add to `android/app/src/main/AndroidManifest.xml`:
 
 ```xml
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-<uses-permission android:name="android.permission.VIBRATE" />
-
-<application>
-    <!-- FCM default channel -->
-    <meta-data
-        android:name="com.google.firebase.messaging.default_notification_channel_id"
-        android:value="sahool_main" />
-
-    <!-- FCM default icon -->
-    <meta-data
-        android:name="com.google.firebase.messaging.default_notification_icon"
-        android:resource="@mipmap/ic_launcher" />
-</application>
+<uses-permission android:name="android.permission.VIBRATE"/>
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
 ```
 
-### 4. iOS Configuration
+## iOS Configuration / إعدادات iOS
 
 Add to `ios/Runner/Info.plist`:
 
@@ -155,171 +265,59 @@ Add to `ios/Runner/Info.plist`:
 </array>
 ```
 
-## Usage / الاستخدام
-
-### Initialize Services
-
-```dart
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Firebase
-  await Firebase.initializeApp();
-
-  // Initialize Push Notifications
-  final pushService = PushNotificationService.instance;
-  await pushService.initialize();
-
-  // Initialize Local Notifications
-  final localService = LocalNotificationService();
-  final handler = NotificationHandler();
-
-  await localService.initialize(
-    onTap: (payload) => handler.handleNotificationTap(payload),
-  );
-
-  runApp(MyApp());
-}
-```
-
-### Initialize Notification Handler
-
-```dart
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final router = AppRouter.router;
-
-    // Initialize handler with router for deep linking
-    NotificationHandler().initialize(router);
-
-    return MaterialApp.router(
-      routerConfig: router,
-    );
-  }
-}
-```
-
-### Show Local Notification
-
-```dart
-final localService = LocalNotificationService();
-final handler = NotificationHandler();
-
-await localService.showNotification(
-  type: NotificationType.irrigationDue,
-  title: 'وقت الري',
-  body: 'حان موعد ري حقل الطماطم',
-  data: handler.parsePayload(
-    handler.createIrrigationNotificationPayload(fieldId: 'field123'),
-  ),
-);
-```
-
-### Schedule Notification
-
-```dart
-await localService.showScheduledNotification(
-  type: NotificationType.taskDue,
-  title: 'مهمة قادمة',
-  body: 'فحص آفات القطن',
-  scheduledTime: DateTime.now().add(Duration(hours: 2)),
-  data: handler.parsePayload(
-    handler.createTaskNotificationPayload(
-      taskId: 'task123',
-      fieldId: 'field456',
-    ),
-  ),
-);
-```
-
-### Subscribe to Topics
-
-```dart
-final pushService = PushNotificationService.instance;
-
-// Subscribe to user topics
-await pushService.subscribeToUserTopics(userId, tenantId);
-
-// Subscribe to specific topics
-await pushService.subscribeToTopic('weather_alerts');
-await pushService.subscribeToTopic('system_updates');
-```
-
-### Handle Token Refresh
-
-```dart
-PushNotificationService.instance.onTokenRefresh.listen((token) {
-  // Send token to backend
-  _sendTokenToBackend(token);
-});
-```
-
-## Deep Linking / الروابط العميقة
-
-The notification handler supports deep linking to various screens:
-
-### Supported Routes
-
-- `/field/:id` - Field details
-- `/field/:id?taskId=xxx` - Field with specific task
-- `/alerts` - Alerts screen
-- `/map` - Map screen
-- `/sync` - Sync screen
-- `/advisor` - AI Advisor
-
-### Payload Structure
-
-```json
-{
-  "type": "irrigation",
-  "action": "open_irrigation",
-  "fieldId": "field123",
-  "targetId": "alert456",
-  "timestamp": "2024-12-24T10:00:00.000Z"
-}
-```
-
 ## Testing / الاختبار
 
-### Test Local Notification
-
 ```dart
-// Show immediate test notification
-await localService.showNotification(
-  type: NotificationType.system,
-  title: 'اختبار',
-  body: 'هذا إشعار تجريبي',
+// Test immediate notification
+await NotificationManager.instance.showNotification(
+  title: 'Test Notification',
+  body: 'This is a test notification',
+  type: SAHOOLNotificationType.system,
+);
+
+// Test scheduled notification (5 seconds from now)
+await NotificationManager.instance.scheduleNotification(
+  title: 'Scheduled Test',
+  body: 'This notification was scheduled',
+  scheduledTime: DateTime.now().add(Duration(seconds: 5)),
+);
+
+// Simulate push notification (for testing without Firebase)
+await PushNotificationService.instance.simulatePushNotification(
+  title: 'Simulated Push',
+  body: 'This simulates a push notification',
+  type: SAHOOLNotificationType.weatherAlert,
 );
 ```
-
-### Test Push Notification
-
-Use Firebase Console to send test messages:
-
-1. Go to Firebase Console > Cloud Messaging
-2. Click "Send test message"
-3. Enter FCM token
-4. Send message
 
 ## Troubleshooting / استكشاف الأخطاء
 
-### Common Issues
+### Notifications not showing
 
-1. **Notifications not showing**
-   - Check permissions are granted
-   - Verify notification channels are created
-   - Check Android notification settings
+1. Check permissions are granted:
+   ```dart
+   final enabled = await NotificationManager.instance.areNotificationsEnabled();
+   ```
 
-2. **FCM token not received**
-   - Verify Firebase configuration
-   - Check internet connection
-   - Verify google-services.json is correct
+2. Verify notification channels are created (Android)
 
-3. **Deep linking not working**
-   - Verify router is initialized in NotificationHandler
-   - Check payload structure
-   - Verify routes exist in app_router.dart
+3. Check Android app notification settings
+
+### Scheduled notifications not working
+
+1. Ensure `SCHEDULE_EXACT_ALARM` permission is granted (Android 12+)
+
+2. Verify scheduled time is in the future
+
+3. Check that the app is not battery-optimized
+
+### Deep linking not working
+
+1. Verify NotificationHandler is initialized with navigator key
+
+2. Check payload contains correct route data
+
+3. Verify routes exist in app_router.dart
 
 ## Best Practices / أفضل الممارسات
 
@@ -328,29 +326,10 @@ Use Firebase Console to send test messages:
 3. Include meaningful payload data for deep linking
 4. Handle notification taps gracefully
 5. Clear notifications when user logs out
-6. Subscribe to topics after successful login
-7. Unsubscribe from topics on logout
-
-## Example Implementation
-
-See `notification_integration_example.dart` for comprehensive examples of:
-
-- Service initialization
-- Local notifications
-- Push notifications
-- Deep linking
-- Topic subscriptions
-- Progress notifications
-- And more...
-
-## Support
-
-For issues or questions:
-
-- Check Firebase documentation: https://firebase.google.com/docs/cloud-messaging
-- Flutter local notifications: https://pub.dev/packages/flutter_local_notifications
-- SAHOOL project documentation
+6. Respect user preferences (quiet hours, disabled types)
+7. Use progress notifications for long-running operations
 
 ---
 
-Built with ❤️ for SAHOOL Agricultural Platform
+Built for SAHOOL Agricultural Platform
+تم بناؤه لمنصة سهول الزراعية

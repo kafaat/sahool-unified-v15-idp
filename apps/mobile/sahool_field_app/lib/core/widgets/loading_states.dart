@@ -72,7 +72,7 @@ class _SahoolShimmerState extends State<SahoolShimmer>
             ).createShader(bounds);
           },
           blendMode: BlendMode.srcATop,
-          child: widget.child,
+          child: child, // Use builder's child parameter for optimization
         );
       },
       child: widget.child,

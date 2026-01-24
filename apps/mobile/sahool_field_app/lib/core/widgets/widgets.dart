@@ -7,6 +7,10 @@
 // أدوات إمكانية الوصول للمستخدمين ضعاف البصر
 export '../accessibility/accessibility_utils.dart';
 
+// Responsive Utilities
+// أدوات التصميم المتجاوب
+export '../utils/responsive_utils.dart';
+
 // Error Handling
 export 'error_boundary.dart';
 
@@ -21,3 +25,8 @@ export 'connectivity_widget.dart';
 
 // Permission Gates
 export 'permission_gate.dart';
+
+// Navigation Widgets
+export 'bottom_navigation.dart';
+export 'drawer_menu.dart';
+export 'feature_grid.dart';

@@ -12,6 +12,7 @@ import 'core/security/device_integrity_service.dart';
 import 'core/security/device_security_screen.dart';
 import 'core/security/security_config.dart';
 import 'core/utils/app_logger.dart';
+import 'core/notifications/notification_manager.dart';
 
 // Global crash reporting instance
 final crashReporting = CrashReportingService();
@@ -242,6 +243,38 @@ void main() async {
         stackTrace,
         severity: ErrorSeverity.warning,
         reason: 'Background sync initialization failed (non-critical)',
+        fatal: false,
+      );
+    }
+
+    // Initialize notification system (non-critical)
+    // تهيئة نظام الإشعارات (غير حرج)
+    try {
+      crashReporting.recordBreadcrumb(
+        message: 'Initializing notification system',
+        category: 'lifecycle',
+        level: BreadcrumbLevel.info,
+      );
+      await NotificationManager.instance.initialize();
+      final permissionGranted = await NotificationManager.instance.requestPermission();
+      AppLogger.i(
+        'Notification system initialized (permission: ${permissionGranted ? "granted" : "denied"})',
+        tag: 'Main',
+      );
+      crashReporting.recordBreadcrumb(
+        message: 'Notification system initialized',
+        category: 'lifecycle',
+        level: BreadcrumbLevel.info,
+        data: {'permission_granted': permissionGranted},
+      );
+    } catch (e, stackTrace) {
+      // Non-critical - app can work without notifications
+      AppLogger.w('Notification system init failed (non-critical): $e', tag: 'Main');
+      crashReporting.reportError(
+        e,
+        stackTrace,
+        severity: ErrorSeverity.warning,
+        reason: 'Notification system initialization failed (non-critical)',
         fatal: false,
       );
     }

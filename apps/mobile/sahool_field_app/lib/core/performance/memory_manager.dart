@@ -13,11 +13,7 @@ import '../utils/app_logger.dart';
 /// - Low memory warnings
 
 class MemoryManager {
-  static MemoryManager? _instance;
-  static MemoryManager get instance {
-    _instance ??= MemoryManager._();
-    return _instance!;
-  }
+  static final MemoryManager instance = MemoryManager._();
 
   MemoryManager._() {
     _init();

@@ -1,20 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/di/providers.dart';
 import '../../../core/http/api_client.dart';
-import '../../../core/storage/database.dart';
+import '../../../core/notifications/notification_manager.dart';
+import '../../../main.dart' show databaseProvider;
 import '../data/remote/tasks_api.dart';
 import '../data/repo/tasks_repo.dart';
 import '../domain/entities/task.dart';
 
-/// Database provider
-final databaseProvider = Provider<AppDatabase>((ref) {
-  return AppDatabase();
-});
-
-/// API Client provider
-final apiClientProvider = Provider<ApiClient>((ref) {
-  return ApiClient();
-});
+// Note: databaseProvider is imported from main.dart (canonical source)
+// Note: apiClientProvider is imported from core/di/providers.dart (with security config)
 
 /// Tasks API provider
 final tasksApiProvider = Provider<TasksApi>((ref) {
@@ -28,6 +25,10 @@ final tasksRepoProvider = Provider<TasksRepo>((ref) {
   final api = ref.watch(tasksApiProvider);
   return TasksRepo(database: db, api: api);
 });
+
+// Re-export for use in other files
+export '../../../core/http/api_client.dart' show ApiClient;
+export '../../../core/notifications/notification_manager.dart' show notificationManagerProvider;
 
 /// Tasks state notifier
 class TasksNotifier extends StateNotifier<AsyncValue<List<FieldTask>>> {
@@ -102,19 +103,56 @@ class TasksNotifier extends StateNotifier<AsyncValue<List<FieldTask>>> {
     await _loadLocal();
     return task;
   }
+
+  /// Update task details
+  Future<FieldTask> updateTask({
+    required String taskId,
+    String? title,
+    String? description,
+    TaskPriority? priority,
+    DateTime? dueDate,
+    String? assignedTo,
+  }) async {
+    final task = await _repo.updateTask(
+      taskId: taskId,
+      title: title,
+      description: description,
+      priority: priority,
+      dueDate: dueDate,
+      assignedTo: assignedTo,
+    );
+    await _loadLocal();
+    return task;
+  }
+
+  /// Delete task (soft delete - marks as cancelled)
+  Future<void> deleteTask(String taskId) async {
+    await _repo.deleteTask(taskId);
+    await _loadLocal();
+  }
 }
 
 /// Tasks provider
+/// Uses autoDispose with ref.keepAlive() for critical data that should persist
+/// but still clean up properly when app navigates away from tasks feature
 final tasksProvider =
-    StateNotifierProvider<TasksNotifier, AsyncValue<List<FieldTask>>>((ref) {
+    StateNotifierProvider.autoDispose<TasksNotifier, AsyncValue<List<FieldTask>>>((ref) {
   final repo = ref.watch(tasksRepoProvider);
   final client = ref.watch(apiClientProvider);
+
+  // Keep alive for the duration of the app session since tasks are frequently accessed
+  final link = ref.keepAlive();
+
+  // Auto-dispose after 5 minutes of inactivity to prevent memory leaks
+  final timer = Timer(const Duration(minutes: 5), link.close);
+  ref.onDispose(timer.cancel);
+
   return TasksNotifier(repo, client);
 });
 
-/// Single task provider
+/// Single task provider - autoDispose to match parent provider
 final taskByIdProvider =
-    Provider.family<FieldTask?, String>((ref, taskId) {
+    Provider.autoDispose.family<FieldTask?, String>((ref, taskId) {
   final tasksState = ref.watch(tasksProvider);
   return tasksState.when(
     data: (tasks) => tasks.where((t) => t.id == taskId).firstOrNull,
@@ -123,8 +161,8 @@ final taskByIdProvider =
   );
 });
 
-/// Pending tasks provider
-final pendingTasksProvider = Provider<List<FieldTask>>((ref) {
+/// Pending tasks provider - autoDispose to match parent provider
+final pendingTasksProvider = Provider.autoDispose<List<FieldTask>>((ref) {
   final tasksState = ref.watch(tasksProvider);
   return tasksState.when(
     data: (tasks) => tasks
@@ -136,8 +174,8 @@ final pendingTasksProvider = Provider<List<FieldTask>>((ref) {
   );
 });
 
-/// Overdue tasks provider
-final overdueTasksProvider = Provider<List<FieldTask>>((ref) {
+/// Overdue tasks provider - autoDispose to match parent provider
+final overdueTasksProvider = Provider.autoDispose<List<FieldTask>>((ref) {
   final tasksState = ref.watch(tasksProvider);
   return tasksState.when(
     data: (tasks) => tasks.where((t) => t.isOverdue).toList(),

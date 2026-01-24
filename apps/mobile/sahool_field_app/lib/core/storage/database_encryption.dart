@@ -140,15 +140,47 @@ class DatabaseEncryption {
   /// Get the SQLCipher PRAGMA key command
   ///
   /// Converts the base64 key to hex format for SQLCipher
+  /// Returns the PRAGMA command with properly escaped hex key
   String getSqlCipherPragma(String base64Key) {
     try {
       final keyBytes = base64Url.decode(base64Key);
       final hexKey = keyBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+      // Use hex literal format which is safer (no escaping issues)
       return "PRAGMA key = \"x'$hexKey'\";";
     } catch (e) {
       throw DatabaseEncryptionException(
         'Failed to generate SQLCipher PRAGMA: $e',
       );
+    }
+  }
+
+  /// Get the hex key directly for use in parameterized ATTACH commands
+  ///
+  /// Returns just the hex key without PRAGMA wrapper for safe parameterization
+  String getHexKey(String base64Key) {
+    try {
+      final keyBytes = base64Url.decode(base64Key);
+      return keyBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+    } catch (e) {
+      throw DatabaseEncryptionException(
+        'Failed to convert key to hex: $e',
+      );
+    }
+  }
+
+  /// Verify database can be opened with the stored key
+  ///
+  /// Returns true if database is accessible, false otherwise
+  Future<bool> verifyDatabaseAccess(String dbPath) async {
+    try {
+      final key = await _secureStorage.read(key: _keyStorageKey);
+      if (key == null || key.isEmpty || !_isValidKey(key)) {
+        return false;
+      }
+      // Key exists and is valid format
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 

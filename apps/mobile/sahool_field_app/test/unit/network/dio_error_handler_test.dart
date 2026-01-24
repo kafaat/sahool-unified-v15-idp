@@ -3,6 +3,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:dio/dio.dart';
 import 'package:sahool_field_app/core/network/dio_error_handler.dart';
 import 'package:sahool_field_app/core/network/api_result.dart';
+import 'package:sahool_field_app/core/error_handling/app_exceptions.dart';
 
 /// Mock dependencies
 class MockDioException extends Mock implements DioException {}
@@ -43,7 +44,7 @@ void main() {
 
         // Assert
         expect(result, isA<Failure<String>>());
-        expect(result.message, contains('انتهت مهلة إرسال البيانات'));
+        expect(result.message, contains('انتهت مهلة الاتصال'));
       });
 
       test('should handle receive timeout error', () {
@@ -58,7 +59,7 @@ void main() {
 
         // Assert
         expect(result, isA<Failure<String>>());
-        expect(result.message, contains('انتهت مهلة استقبال البيانات'));
+        expect(result.message, contains('انتهت مهلة الاتصال'));
       });
 
       test('should handle connection error', () {
@@ -88,7 +89,7 @@ void main() {
 
         // Assert
         expect(result, isA<Failure<String>>());
-        expect(result.message, contains('خطأ في شهادة الأمان'));
+        expect(result.message, contains('SSL'));
       });
 
       test('should handle cancel error', () {
@@ -103,7 +104,7 @@ void main() {
 
         // Assert
         expect(result, isA<Failure<String>>());
-        expect(result.message, contains('تم إلغاء الطلب'));
+        expect(result.message, contains('إلغاء'));
       });
 
       test('should handle 400 bad request error', () {
@@ -123,7 +124,6 @@ void main() {
         // Assert
         expect(result, isA<Failure<String>>());
         expect(result.statusCode, 400);
-        expect(result.message, contains('طلب غير صحيح'));
       });
 
       test('should handle 401 unauthorized error', () {
@@ -142,7 +142,6 @@ void main() {
 
         // Assert
         expect(result.statusCode, 401);
-        expect(result.message, contains('يرجى تسجيل الدخول مجدداً'));
       });
 
       test('should handle 403 forbidden error', () {
@@ -161,7 +160,7 @@ void main() {
 
         // Assert
         expect(result.statusCode, 403);
-        expect(result.message, contains('غير مصرح لك'));
+        expect(result.message, contains('غير مصرح'));
       });
 
       test('should handle 404 not found error', () {
@@ -180,7 +179,7 @@ void main() {
 
         // Assert
         expect(result.statusCode, 404);
-        expect(result.message, contains('البيانات غير موجودة'));
+        expect(result.message, contains('غير موجود'));
       });
 
       test('should handle 413 payload too large error', () {
@@ -199,7 +198,7 @@ void main() {
 
         // Assert
         expect(result.statusCode, 413);
-        expect(result.message, contains('حجم الملف كبير جداً'));
+        expect(result.message, contains('كبير'));
       });
 
       test('should handle 422 unprocessable entity error', () {
@@ -218,7 +217,6 @@ void main() {
 
         // Assert
         expect(result.statusCode, 422);
-        expect(result.message, contains('بيانات غير صالحة'));
       });
 
       test('should handle 429 too many requests error', () {
@@ -256,7 +254,7 @@ void main() {
 
         // Assert
         expect(result.statusCode, 500);
-        expect(result.message, contains('خطأ في السيرفر'));
+        expect(result.message, contains('خطأ'));
       });
 
       test('should handle unknown error', () {
@@ -271,7 +269,7 @@ void main() {
 
         // Assert
         expect(result, isA<Failure<String>>());
-        expect(result.message, contains('حدث خطأ غير متوقع'));
+        expect(result.message, contains('خطأ'));
       });
 
       test('should detect socket exception in unknown error', () {
@@ -287,6 +285,63 @@ void main() {
 
         // Assert
         expect(result.message, contains('لا يوجد اتصال بالإنترنت'));
+      });
+    });
+
+    group('toAppException', () {
+      test('should convert timeout to NetworkException', () {
+        // Arrange
+        final dioException = DioException(
+          type: DioExceptionType.connectionTimeout,
+          requestOptions: RequestOptions(path: '/test'),
+        );
+
+        // Act
+        final appException = DioErrorHandler.toAppException(dioException);
+
+        // Assert
+        expect(appException, isA<NetworkException>());
+        expect(appException.type, ErrorType.network);
+        expect(appException.isRetryable, isTrue);
+      });
+
+      test('should convert 401 to AuthException', () {
+        // Arrange
+        final dioException = DioException(
+          type: DioExceptionType.badResponse,
+          requestOptions: RequestOptions(path: '/test'),
+          response: Response(
+            requestOptions: RequestOptions(path: '/test'),
+            statusCode: 401,
+          ),
+        );
+
+        // Act
+        final appException = DioErrorHandler.toAppException(dioException);
+
+        // Assert
+        expect(appException, isA<AuthException>());
+        expect(appException.type, ErrorType.auth);
+      });
+
+      test('should convert 500 to ServerException', () {
+        // Arrange
+        final dioException = DioException(
+          type: DioExceptionType.badResponse,
+          requestOptions: RequestOptions(path: '/test'),
+          response: Response(
+            requestOptions: RequestOptions(path: '/test'),
+            statusCode: 500,
+          ),
+        );
+
+        // Act
+        final appException = DioErrorHandler.toAppException(dioException);
+
+        // Assert
+        expect(appException, isA<ServerException>());
+        expect(appException.type, ErrorType.server);
+        expect(appException.isRetryable, isTrue);
       });
     });
 

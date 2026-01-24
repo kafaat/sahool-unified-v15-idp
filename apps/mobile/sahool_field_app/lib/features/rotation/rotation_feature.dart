@@ -26,11 +26,24 @@
 /// );
 /// ```
 
+// Models
 export 'models/rotation_models.dart';
+
+// Services
 export 'services/rotation_service.dart';
+
+// Data Layer (Offline Support)
+export 'data/rotation_local_data_source.dart';
+export 'data/rotation_repository.dart';
+
+// Providers
 export 'providers/rotation_provider.dart';
+
+// Screens
 export 'screens/rotation_plan_screen.dart';
 export 'screens/rotation_calendar_screen.dart';
 export 'screens/crop_compatibility_screen.dart';
+
+// Widgets
 export 'widgets/rotation_timeline_widget.dart';
 export 'widgets/soil_health_chart.dart';

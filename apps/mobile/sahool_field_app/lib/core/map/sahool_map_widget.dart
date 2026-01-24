@@ -179,9 +179,9 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
             ),
 
             // Field Polygons
-            if (widget.fieldPolygons != null && widget.fieldPolygons!.isNotEmpty)
+            if (widget.fieldPolygons case final polygons? when polygons.isNotEmpty)
               PolygonLayer(
-                polygons: widget.fieldPolygons!.map((points) => Polygon(
+                polygons: polygons.map((points) => Polygon(
                   points: points,
                   color: Colors.green.withOpacity(0.3),
                   borderColor: Colors.green,
@@ -232,8 +232,8 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
               ),
 
             // Custom markers
-            if (widget.markers != null && widget.markers!.isNotEmpty)
-              MarkerLayer(markers: widget.markers!),
+            if (widget.markers case final markers? when markers.isNotEmpty)
+              MarkerLayer(markers: markers),
 
             // Attribution
             RichAttributionWidget(

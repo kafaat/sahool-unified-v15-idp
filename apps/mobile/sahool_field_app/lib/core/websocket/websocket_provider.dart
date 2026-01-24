@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'websocket_service.dart';
 import '../auth/auth_service.dart';
@@ -50,11 +52,18 @@ final webSocketEventsProvider = StreamProvider.autoDispose<WebSocketEvent>((ref)
 
 /// Field-specific events provider
 /// مزود أحداث خاصة بالحقل
-final fieldEventsProvider = StreamProvider.family<WebSocketEvent, String>((ref, fieldId) {
+/// Uses autoDispose and onDispose for proper room subscription cleanup
+final fieldEventsProvider = StreamProvider.autoDispose.family<WebSocketEvent, String>((ref, fieldId) {
   final service = ref.watch(webSocketServiceProvider);
 
   // Subscribe to field room
-  service.subscribeToRoom('field:$fieldId');
+  final roomName = 'field:$fieldId';
+  service.subscribeToRoom(roomName);
+
+  // Cleanup: unsubscribe from room when provider is disposed
+  ref.onDispose(() {
+    service.unsubscribeFromRoom(roomName);
+  });
 
   return service.events.where((event) {
     // Filter events for this field
@@ -80,11 +89,18 @@ final weatherAlertsProvider = StreamProvider.autoDispose<WebSocketEvent>((ref) {
 
 /// Chat messages provider for a specific room
 /// مزود رسائل الدردشة لغرفة معينة
-final chatMessagesProvider = StreamProvider.family<WebSocketEvent, String>((ref, roomId) {
+/// Uses autoDispose and onDispose for proper room subscription cleanup
+final chatMessagesProvider = StreamProvider.autoDispose.family<WebSocketEvent, String>((ref, roomId) {
   final service = ref.watch(webSocketServiceProvider);
 
   // Subscribe to chat room
-  service.subscribeToRoom('chat:$roomId');
+  final roomName = 'chat:$roomId';
+  service.subscribeToRoom(roomName);
+
+  // Cleanup: unsubscribe from room when provider is disposed
+  ref.onDispose(() {
+    service.unsubscribeFromRoom(roomName);
+  });
 
   return service.events.where((event) {
     return event.eventType?.startsWith('chat.') == true &&
@@ -130,11 +146,18 @@ final taskUpdatesProvider = StreamProvider.autoDispose<WebSocketEvent>((ref) {
 
 /// IoT sensor readings provider for a field
 /// مزود قراءات المستشعرات لحقل معين
-final iotReadingsProvider = StreamProvider.family<WebSocketEvent, String>((ref, fieldId) {
+/// Uses autoDispose and onDispose for proper room subscription cleanup
+final iotReadingsProvider = StreamProvider.autoDispose.family<WebSocketEvent, String>((ref, fieldId) {
   final service = ref.watch(webSocketServiceProvider);
 
   // Subscribe to field's IoT events
-  service.subscribeToRoom('field:$fieldId');
+  final roomName = 'field:$fieldId';
+  service.subscribeToRoom(roomName);
+
+  // Cleanup: unsubscribe from room when provider is disposed
+  ref.onDispose(() {
+    service.unsubscribeFromRoom(roomName);
+  });
 
   return service.events.where((event) {
     return event.eventType?.startsWith('iot.') == true &&
@@ -198,11 +221,14 @@ final highPriorityAlertsProvider = StreamProvider.autoDispose<WebSocketEvent>((r
 /// مدير اتصال WebSocket
 class WebSocketConnectionNotifier extends StateNotifier<ConnectionState> {
   final WebSocketService _service;
+  StreamSubscription<ConnectionState>? _connectionSubscription;
 
   WebSocketConnectionNotifier(this._service) : super(ConnectionState.disconnected) {
-    // Listen to connection state changes
-    _service.connectionState.listen((newState) {
-      state = newState;
+    // Listen to connection state changes with proper subscription management
+    _connectionSubscription = _service.connectionState.listen((newState) {
+      if (mounted) {
+        state = newState;
+      }
     });
   }
 
@@ -231,6 +257,12 @@ class WebSocketConnectionNotifier extends StateNotifier<ConnectionState> {
       AppLogger.i('Refreshing WebSocket connection with new token', tag: 'WS');
       await reconnect();
     }
+  }
+
+  @override
+  void dispose() {
+    _connectionSubscription?.cancel();
+    super.dispose();
   }
 }
 

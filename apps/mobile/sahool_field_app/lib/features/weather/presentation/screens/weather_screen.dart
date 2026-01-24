@@ -33,11 +33,12 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
 
-    // تحميل البيانات
+    // تحميل البيانات مع دعم التخزين المؤقت
     Future.microtask(() {
       ref.read(weatherProvider.notifier).loadWeather(widget.fieldId);
       ref.read(alertsProvider.notifier).loadAlerts(widget.fieldId);
       ref.read(impactsProvider.notifier).loadImpacts(widget.fieldId);
+      ref.read(forecastProvider.notifier).loadForecast(widget.fieldId);
     });
   }
 
@@ -338,6 +339,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
       ref.read(weatherProvider.notifier).loadWeather(widget.fieldId),
       ref.read(alertsProvider.notifier).loadAlerts(widget.fieldId),
       ref.read(impactsProvider.notifier).loadImpacts(widget.fieldId),
+      ref.read(forecastProvider.notifier).loadForecast(widget.fieldId),
     ]);
   }
 }

@@ -40,8 +40,7 @@ class SahoolImageCacheManager {
 
   /// الحصول على المثيل الوحيد
   static SahoolImageCacheManager get instance {
-    _instance ??= SahoolImageCacheManager._();
-    return _instance!;
+    return _instance ??= SahoolImageCacheManager._();
   }
 
   /// تهيئة مع إعدادات مخصصة

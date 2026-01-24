@@ -461,4 +461,88 @@ class ApiConfig {
   static String billingPayInvoice(String invoiceId) => '$_billingBase/invoices/$invoiceId/pay';
   static String get billingUsage => '$_billingBase/usage';
   static String get billingHealthz => '$_billingBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Inventory Service Endpoints (port 8116)
+  // خدمة المخزون
+  // Kong route: /api/v1/inventory
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _inventoryBase => useDirectServices ? inventoryServiceUrl : '$effectiveBaseUrl/api/v1/inventory';
+
+  /// Inventory endpoints
+  static String get inventoryItems => _inventoryBase;
+  static String inventoryItemById(String id) => '$_inventoryBase/$id';
+  static String get inventoryCategories => '$_inventoryBase/categories';
+  static String get inventoryLowStock => '$_inventoryBase/low-stock';
+  static String get inventoryMovements => '$_inventoryBase/movements';
+  static String inventoryByField(String fieldId) => '$_inventoryBase/field/$fieldId';
+  static String get inventoryHealthz => '$_inventoryBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Spray Service Endpoints (port 8098)
+  // خدمة عمليات الرش
+  // Kong route: /api/v1/spray
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _sprayBase => useDirectServices ? sprayServiceUrl : '$effectiveBaseUrl/api/v1/spray';
+
+  /// Spray operations endpoints
+  static String get sprayOperations => _sprayBase;
+  static String sprayOperationById(String id) => '$_sprayBase/$id';
+  static String sprayByField(String fieldId) => '$_sprayBase/field/$fieldId';
+  static String get sprayProducts => '$_sprayBase/products';
+  static String get spraySchedule => '$_sprayBase/schedule';
+  static String get sprayRecommendations => '$_sprayBase/recommendations';
+  static String get sprayHealthz => '$_sprayBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // User Profile Service Endpoints (via user-service)
+  // خدمة الملف الشخصي
+  // Kong route: /api/v1/users
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _userProfileBase => '$effectiveBaseUrl/api/v1/users';
+
+  /// User profile endpoints
+  static String get userProfile => '$_userProfileBase/me';
+  static String userProfileById(String userId) => '$_userProfileBase/$userId';
+  static String get updateProfile => '$_userProfileBase/me';
+  static String get userPreferences => '$_userProfileBase/me/preferences';
+  static String get userSettings => '$_userProfileBase/me/settings';
+  static String get userFarms => '$_userProfileBase/me/farms';
+  static String get changePassword => '$_userProfileBase/me/password';
+  static String get uploadAvatar => '$_userProfileBase/me/avatar';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Research/Trials Service Endpoints (port 3015)
+  // خدمة البحث والتجارب
+  // Kong route: /api/v1/research
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _researchBase => '$effectiveBaseUrl/api/v1/research';
+
+  /// Research endpoints
+  static String get researchTrials => _researchBase;
+  static String researchTrialById(String id) => '$_researchBase/$id';
+  static String get researchExperiments => '$_researchBase/experiments';
+  static String researchObservations(String trialId) => '$_researchBase/$trialId/observations';
+  static String get researchResults => '$_researchBase/results';
+  static String get researchHealthz => '$_researchBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Crops Service Endpoints (via crop-intelligence)
+  // خدمة المحاصيل
+  // Kong route: /api/v1/crops
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _cropsBase => '$effectiveBaseUrl/api/v1/crops';
+
+  /// Crops endpoints
+  static String get cropsList => _cropsBase;
+  static String cropById(String id) => '$_cropsBase/$id';
+  static String get cropVarieties => '$_cropsBase/varieties';
+  static String cropGrowthStages(String cropId) => '$_cropsBase/$cropId/growth-stages';
+  static String get cropCalendar => '$_cropsBase/calendar';
+  static String get cropsHealthz => '$_cropsBase/healthz';
 }

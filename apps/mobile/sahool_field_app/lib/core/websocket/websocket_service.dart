@@ -132,7 +132,7 @@ class WebSocketService {
       _channel = IOWebSocketChannel(socket);
 
       // Listen to messages
-      _channel!.stream.listen(
+      _channel?.stream.listen(
         _handleMessage,
         onError: _handleError,
         onDone: _handleDisconnect,
@@ -161,8 +161,9 @@ class WebSocketService {
     _reconnectTimer?.cancel();
     _pingTimer?.cancel();
 
-    if (_channel != null) {
-      await _channel!.sink.close(status.goingAway);
+    final channel = _channel;
+    if (channel != null) {
+      await channel.sink.close(status.goingAway);
       _channel = null;
     }
 
@@ -282,7 +283,11 @@ class WebSocketService {
   /// Handle incoming message
   void _handleMessage(dynamic message) {
     try {
-      final data = jsonDecode(message as String) as Map<String, dynamic>;
+      if (message is! String) {
+        AppLogger.warning('WebSocket received non-string message: ${message.runtimeType}');
+        return;
+      }
+      final data = jsonDecode(message) as Map<String, dynamic>;
       final event = WebSocketEvent.fromJson(data);
 
       _eventController.add(event);
@@ -316,12 +321,13 @@ class WebSocketService {
 
   /// Send message to server
   Future<void> _sendMessage(Map<String, dynamic> message) async {
-    if (_channel == null) {
+    final channel = _channel;
+    if (channel == null) {
       throw Exception('WebSocket not connected');
     }
 
-    final json = jsonEncode(message);
-    _channel!.sink.add(json);
+    final jsonStr = jsonEncode(message);
+    channel.sink.add(jsonStr);
   }
 
   /// Update connection state

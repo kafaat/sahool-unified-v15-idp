@@ -39,6 +39,24 @@ class VegetationIndices {
         'savi': savi,
       };
 
+  VegetationIndices copyWith({
+    double? ndvi,
+    double? evi,
+    double? ndre,
+    double? lci,
+    double? ndwi,
+    double? savi,
+  }) {
+    return VegetationIndices(
+      ndvi: ndvi ?? this.ndvi,
+      evi: evi ?? this.evi,
+      ndre: ndre ?? this.ndre,
+      lci: lci ?? this.lci,
+      ndwi: ndwi ?? this.ndwi,
+      savi: savi ?? this.savi,
+    );
+  }
+
   /// حالة الصحة النباتية بناءً على NDVI
   String get healthStatus {
     if (ndvi >= 0.7) return 'excellent';
@@ -91,6 +109,30 @@ class Zone {
       geometry: json['geometry'] as Map<String, dynamic>?,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'zone_id': zoneId,
+        'name': name,
+        'name_ar': nameAr,
+        'area_hectares': areaHectares,
+        'geometry': geometry,
+      };
+
+  Zone copyWith({
+    String? zoneId,
+    String? name,
+    String? nameAr,
+    double? areaHectares,
+    Map<String, dynamic>? geometry,
+  }) {
+    return Zone(
+      zoneId: zoneId ?? this.zoneId,
+      name: name ?? this.name,
+      nameAr: nameAr ?? this.nameAr,
+      areaHectares: areaHectares ?? this.areaHectares,
+      geometry: geometry ?? this.geometry,
+    );
+  }
 }
 
 /// إجراء موصى به
@@ -134,6 +176,48 @@ class DiagnosisAction {
       recommendedWindowHours: json['recommended_window_hours'] as int?,
       recommendedDoseHint: json['recommended_dose_hint'] as String?,
       severity: json['severity'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'zone_id': zoneId,
+        'type': type,
+        'priority': priority,
+        'title': title,
+        'title_en': titleEn,
+        'reason': reason,
+        'reason_en': reasonEn,
+        'evidence': evidence,
+        'recommended_window_hours': recommendedWindowHours,
+        'recommended_dose_hint': recommendedDoseHint,
+        'severity': severity,
+      };
+
+  DiagnosisAction copyWith({
+    String? zoneId,
+    String? type,
+    String? priority,
+    String? title,
+    String? titleEn,
+    String? reason,
+    String? reasonEn,
+    Map<String, dynamic>? evidence,
+    int? recommendedWindowHours,
+    String? recommendedDoseHint,
+    String? severity,
+  }) {
+    return DiagnosisAction(
+      zoneId: zoneId ?? this.zoneId,
+      type: type ?? this.type,
+      priority: priority ?? this.priority,
+      title: title ?? this.title,
+      titleEn: titleEn ?? this.titleEn,
+      reason: reason ?? this.reason,
+      reasonEn: reasonEn ?? this.reasonEn,
+      evidence: evidence ?? this.evidence,
+      recommendedWindowHours: recommendedWindowHours ?? this.recommendedWindowHours,
+      recommendedDoseHint: recommendedDoseHint ?? this.recommendedDoseHint,
+      severity: severity ?? this.severity,
     );
   }
 
@@ -202,6 +286,27 @@ class DiagnosisSummary {
       zonesOk: json['zones_ok'] as int,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'zones_total': zonesTotal,
+        'zones_critical': zonesCritical,
+        'zones_warning': zonesWarning,
+        'zones_ok': zonesOk,
+      };
+
+  DiagnosisSummary copyWith({
+    int? zonesTotal,
+    int? zonesCritical,
+    int? zonesWarning,
+    int? zonesOk,
+  }) {
+    return DiagnosisSummary(
+      zonesTotal: zonesTotal ?? this.zonesTotal,
+      zonesCritical: zonesCritical ?? this.zonesCritical,
+      zonesWarning: zonesWarning ?? this.zonesWarning,
+      zonesOk: zonesOk ?? this.zonesOk,
+    );
+  }
 }
 
 /// روابط طبقات الخريطة
@@ -224,6 +329,27 @@ class MapLayers {
       ndwiRasterUrl: json['ndwi_raster_url'] as String?,
       ndreRasterUrl: json['ndre_raster_url'] as String?,
       zonesGeojsonUrl: json['zones_geojson_url'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'ndvi_raster_url': ndviRasterUrl,
+        'ndwi_raster_url': ndwiRasterUrl,
+        'ndre_raster_url': ndreRasterUrl,
+        'zones_geojson_url': zonesGeojsonUrl,
+      };
+
+  MapLayers copyWith({
+    String? ndviRasterUrl,
+    String? ndwiRasterUrl,
+    String? ndreRasterUrl,
+    String? zonesGeojsonUrl,
+  }) {
+    return MapLayers(
+      ndviRasterUrl: ndviRasterUrl ?? this.ndviRasterUrl,
+      ndwiRasterUrl: ndwiRasterUrl ?? this.ndwiRasterUrl,
+      ndreRasterUrl: ndreRasterUrl ?? this.ndreRasterUrl,
+      zonesGeojsonUrl: zonesGeojsonUrl ?? this.zonesGeojsonUrl,
     );
   }
 }
@@ -253,6 +379,30 @@ class FieldDiagnosis {
           .map((a) => DiagnosisAction.fromJson(a))
           .toList(),
       mapLayers: MapLayers.fromJson(json['map_layers']),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'field_id': fieldId,
+        'date': date,
+        'summary': summary.toJson(),
+        'actions': actions.map((a) => a.toJson()).toList(),
+        'map_layers': mapLayers.toJson(),
+      };
+
+  FieldDiagnosis copyWith({
+    String? fieldId,
+    String? date,
+    DiagnosisSummary? summary,
+    List<DiagnosisAction>? actions,
+    MapLayers? mapLayers,
+  }) {
+    return FieldDiagnosis(
+      fieldId: fieldId ?? this.fieldId,
+      date: date ?? this.date,
+      summary: summary ?? this.summary,
+      actions: actions ?? this.actions,
+      mapLayers: mapLayers ?? this.mapLayers,
     );
   }
 
@@ -296,6 +446,36 @@ class TimelinePoint {
       savi: (json['savi'] as num?)?.toDouble(),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'date': date,
+        'ndvi': ndvi,
+        'evi': evi,
+        'ndre': ndre,
+        'ndwi': ndwi,
+        'lci': lci,
+        'savi': savi,
+      };
+
+  TimelinePoint copyWith({
+    String? date,
+    double? ndvi,
+    double? evi,
+    double? ndre,
+    double? ndwi,
+    double? lci,
+    double? savi,
+  }) {
+    return TimelinePoint(
+      date: date ?? this.date,
+      ndvi: ndvi ?? this.ndvi,
+      evi: evi ?? this.evi,
+      ndre: ndre ?? this.ndre,
+      ndwi: ndwi ?? this.ndwi,
+      lci: lci ?? this.lci,
+      savi: savi ?? this.savi,
+    );
+  }
 }
 
 /// السلسلة الزمنية للمنطقة
@@ -317,6 +497,24 @@ class ZoneTimeline {
       series: (json['series'] as List)
           .map((s) => TimelinePoint.fromJson(s))
           .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'zone_id': zoneId,
+        'field_id': fieldId,
+        'series': series.map((s) => s.toJson()).toList(),
+      };
+
+  ZoneTimeline copyWith({
+    String? zoneId,
+    String? fieldId,
+    List<TimelinePoint>? series,
+  }) {
+    return ZoneTimeline(
+      zoneId: zoneId ?? this.zoneId,
+      fieldId: fieldId ?? this.fieldId,
+      series: series ?? this.series,
     );
   }
 }

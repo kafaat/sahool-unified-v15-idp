@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/storage/database.dart';
 import '../../../core/sync/sync_engine.dart';
 import '../../../core/sync/queue_manager.dart';
+import '../../../core/sync/sync_metrics_providers.dart' show queueManagerProvider;
 import '../../../core/config/config.dart';
-import '../../../main.dart';
+import '../../../main.dart' show databaseProvider, syncEngineProvider;
 
 /// Sync Events State
 class SyncEventsState {
@@ -111,20 +112,28 @@ class SyncEventsNotifier extends StateNotifier<SyncEventsState> {
 }
 
 /// Sync Events Provider
+/// Uses autoDispose with keepAlive for critical sync data
+/// Stays alive for 5 minutes after last use since sync events are important
 final syncEventsProvider =
-    StateNotifierProvider<SyncEventsNotifier, SyncEventsState>((ref) {
+    StateNotifierProvider.autoDispose<SyncEventsNotifier, SyncEventsState>((ref) {
   final database = ref.watch(databaseProvider);
+
+  // Keep alive for sync critical operations
+  final link = ref.keepAlive();
+  final timer = Timer(const Duration(minutes: 5), link.close);
+  ref.onDispose(timer.cancel);
+
   return SyncEventsNotifier(database: database);
 });
 
-/// Unread conflicts count provider
-final unreadConflictsCountProvider = Provider<int>((ref) {
+/// Unread conflicts count provider - autoDispose to match parent
+final unreadConflictsCountProvider = Provider.autoDispose<int>((ref) {
   final state = ref.watch(syncEventsProvider);
   return state.events.where((e) => e.type == 'CONFLICT' && !e.isRead).length;
 });
 
-/// Has unread conflicts provider
-final hasUnreadConflictsProvider = Provider<bool>((ref) {
+/// Has unread conflicts provider - autoDispose to match parent
+final hasUnreadConflictsProvider = Provider.autoDispose<bool>((ref) {
   return ref.watch(unreadConflictsCountProvider) > 0;
 });
 
@@ -237,35 +246,39 @@ class SyncStatusNotifier extends StateNotifier<SyncStatusState> {
   }
 }
 
-/// Queue Manager Provider
-final queueManagerProvider = Provider<QueueManager>((ref) {
-  final database = ref.watch(databaseProvider);
-  return QueueManager(database: database);
-});
+// Note: queueManagerProvider is imported from core/sync/sync_metrics_providers.dart (canonical source)
 
 /// Sync Status Provider
+/// Uses autoDispose with keepAlive for critical sync status
+/// Stays alive for 5 minutes after last use
 final syncStatusProvider =
-    StateNotifierProvider<SyncStatusNotifier, SyncStatusState>((ref) {
+    StateNotifierProvider.autoDispose<SyncStatusNotifier, SyncStatusState>((ref) {
   final syncEngine = ref.watch(syncEngineProvider);
   final queueManager = ref.watch(queueManagerProvider);
+
+  // Keep alive for sync critical operations
+  final link = ref.keepAlive();
+  final timer = Timer(const Duration(minutes: 5), link.close);
+  ref.onDispose(timer.cancel);
+
   return SyncStatusNotifier(
     syncEngine: syncEngine,
     queueManager: queueManager,
   );
 });
 
-/// Is syncing provider (simple boolean)
-final isSyncingProvider = Provider<bool>((ref) {
+/// Is syncing provider (simple boolean) - autoDispose to match parent
+final isSyncingProvider = Provider.autoDispose<bool>((ref) {
   return ref.watch(syncStatusProvider).isSyncing;
 });
 
-/// Pending items count provider
-final pendingItemsCountProvider = Provider<int>((ref) {
+/// Pending items count provider - autoDispose to match parent
+final pendingItemsCountProvider = Provider.autoDispose<int>((ref) {
   return ref.watch(syncStatusProvider).pendingCount;
 });
 
-/// Sync health status provider
-final syncHealthProvider = Provider<QueueHealthStatus>((ref) {
+/// Sync health status provider - autoDispose for proper cleanup
+final syncHealthProvider = Provider.autoDispose<QueueHealthStatus>((ref) {
   final queueManager = ref.watch(queueManagerProvider);
   return queueManager.getHealthStatus();
 });

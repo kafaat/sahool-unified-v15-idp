@@ -1,16 +1,22 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import '../config/env_config.dart';
+import '../error_handling/app_exceptions.dart';
 import '../security/security_config.dart';
 import '../security/certificate_pinning_service.dart';
 import '../security/certificate_config.dart';
 import '../security/signing_key_service.dart';
 import '../utils/app_logger.dart';
+import 'network_config.dart';
 import 'rate_limiter.dart';
 import 'request_signing_interceptor.dart';
 import 'security_headers_interceptor.dart';
 import 'retry_interceptor.dart';
+import 'logging_interceptor.dart';
+import 'connectivity_aware_client.dart';
 
 /// SAHOOL API Client with offline handling and certificate pinning
 class ApiClient {
@@ -19,6 +25,8 @@ class ApiClient {
   String _tenantId = EnvConfig.defaultTenantId;
   CertificatePinningService? _certificatePinningService;
   late final RateLimiter _rateLimiter;
+  late final NetworkConfig _networkConfig;
+  NetworkConnectivityService? _connectivityService;
 
   ApiClient({
     String? baseUrl,
@@ -29,22 +37,35 @@ class ApiClient {
     bool enableRequestSigning = true,
     SecurityHeaderConfig? securityHeaderConfig,
     bool enableSecurityHeaderValidation = true,
+    NetworkConfig? networkConfig,
+    NetworkConnectivityService? connectivityService,
+    bool enableConnectivityMonitoring = true,
+    bool useAdvancedLogging = true,
   }) {
     // Use security config based on environment or build mode
     final config = securityConfig ?? SecurityConfig.fromBuildMode();
+
+    // Use network config based on environment
+    _networkConfig = networkConfig ?? NetworkConfig.fromEnvironment();
+
+    // Store connectivity service for monitoring
+    _connectivityService = connectivityService;
 
     // Initialize rate limiter
     _rateLimiter = rateLimiter ?? RateLimiter();
 
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl ?? EnvConfig.apiBaseUrl,
-      connectTimeout: EnvConfig.connectTimeout,
-      receiveTimeout: config.requestTimeout,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      connectTimeout: _networkConfig.connectTimeout,
+      sendTimeout: _networkConfig.sendTimeout,
+      receiveTimeout: _networkConfig.receiveTimeout,
+      followRedirects: _networkConfig.followRedirects,
+      maxRedirects: _networkConfig.maxRedirects,
+      headers: _networkConfig.getDefaultHeaders(),
     ));
+
+    // Configure TLS settings for enhanced security
+    _configureTlsSettings(config);
 
     // Configure certificate pinning if enabled
     if (config.enableCertificatePinning) {
@@ -124,7 +145,79 @@ class ApiClient {
       AppLogger.w('Security header validation is disabled', tag: 'ApiClient');
     }
 
-    _dio.interceptors.add(_LoggingInterceptor());
+    // Add connectivity monitoring interceptor if enabled
+    if (enableConnectivityMonitoring && _connectivityService != null) {
+      _dio.interceptors.add(ConnectivityInterceptor(
+        connectivityService: _connectivityService!,
+        blockOfflineRequests: false, // Allow requests, let retry handle failures
+        queueOfflineRequests: false,
+      ));
+    }
+
+    // Add advanced logging interceptor with PII protection instead of basic one
+    if (useAdvancedLogging) {
+      _dio.interceptors.add(LoggingInterceptor(
+        logRequestHeaders: kDebugMode,
+        logRequestBody: kDebugMode,
+        logResponseHeaders: false,
+        logResponseBody: false, // Avoid logging sensitive response data
+        logErrorBody: kDebugMode,
+        maxBodyLength: 2000,
+      ));
+    } else {
+      _dio.interceptors.add(_BasicLoggingInterceptor());
+    }
+
+    if (kDebugMode) {
+      AppLogger.i('ApiClient initialized', tag: 'ApiClient', data: {
+        'baseUrl': baseUrl ?? EnvConfig.apiBaseUrl,
+        'connectTimeout': _networkConfig.connectTimeout.inSeconds,
+        'sendTimeout': _networkConfig.sendTimeout.inSeconds,
+        'receiveTimeout': _networkConfig.receiveTimeout.inSeconds,
+        'certificatePinning': config.enableCertificatePinning,
+        'connectivityMonitoring': enableConnectivityMonitoring && _connectivityService != null,
+      });
+    }
+  }
+
+  /// Configure TLS settings for enhanced security
+  void _configureTlsSettings(SecurityConfig securityConfig) {
+    try {
+      final adapter = _dio.httpClientAdapter;
+      if (adapter is IOHttpClientAdapter) {
+        adapter.createHttpClient = () {
+          final client = HttpClient();
+
+          // Set idle timeout for connection pooling
+          client.idleTimeout = _networkConfig.keepAliveTimeout;
+
+          // Set maximum connections per host
+          client.maxConnectionsPerHost = _networkConfig.maxConnectionsPerHost;
+
+          // Enable connection keep-alive
+          client.autoUncompress = true;
+
+          // Configure certificate validation
+          if (!_networkConfig.validateCertificates && kDebugMode) {
+            // Only in debug mode, allow self-signed certificates
+            client.badCertificateCallback = (cert, host, port) => true;
+            AppLogger.w('Certificate validation disabled (debug only)', tag: 'ApiClient');
+          }
+
+          return client;
+        };
+
+        if (kDebugMode) {
+          AppLogger.d('TLS settings configured', tag: 'ApiClient', data: {
+            'idleTimeout': _networkConfig.keepAliveTimeout.inSeconds,
+            'maxConnectionsPerHost': _networkConfig.maxConnectionsPerHost,
+            'minTlsVersion': _networkConfig.minTlsVersion.name,
+          });
+        }
+      }
+    } catch (e) {
+      AppLogger.e('Error configuring TLS settings', tag: 'ApiClient', error: e);
+    }
   }
 
   void setAuthToken(String token) {
@@ -139,6 +232,14 @@ class ApiClient {
   String get tenantId => _tenantId;
   CertificatePinningService? get certificatePinningService => _certificatePinningService;
   RateLimiter get rateLimiter => _rateLimiter;
+  NetworkConfig get networkConfig => _networkConfig;
+  NetworkConnectivityService? get connectivityService => _connectivityService;
+
+  /// Check if network is currently connected
+  bool get isNetworkConnected => _connectivityService?.isConnected ?? true;
+
+  /// Get current network state
+  NetworkConnectivityState? get networkState => _connectivityService?.currentState;
 
   /// Check if certificate pinning is enabled
   bool get isCertificatePinningEnabled => _certificatePinningService != null;
@@ -266,56 +367,21 @@ class ApiClient {
     }
   }
 
-  ApiException _handleError(DioException e) {
+  /// Convert DioException to AppException using unified error handling
+  AppException _handleError(DioException e) {
     // Check for security header validation errors
     if (e.error is SecurityHeaderException) {
       final securityError = e.error as SecurityHeaderException;
-      return ApiException(
+      return SecurityException(
+        message: 'Security header validation failed: ${securityError.code}',
+        messageAr: 'فشل التحقق من رؤوس الأمان',
         code: securityError.code,
-        message: 'فشل التحقق من رؤوس الأمان',
-        statusCode: e.response?.statusCode,
-        isSecurityError: true,
+        originalError: e,
       );
     }
 
-    switch (e.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
-        return ApiException(
-          code: 'TIMEOUT',
-          message: 'انتهت مهلة الاتصال',
-          isNetworkError: true,
-        );
-
-      case DioExceptionType.connectionError:
-        return ApiException(
-          code: 'NO_CONNECTION',
-          message: 'لا يوجد اتصال بالإنترنت',
-          isNetworkError: true,
-        );
-
-      case DioExceptionType.badResponse:
-        final statusCode = e.response?.statusCode ?? 0;
-        final data = e.response?.data;
-        String message = 'حدث خطأ غير متوقع';
-
-        if (data is Map) {
-          message = data['message'] ?? data['error'] ?? message;
-        }
-
-        return ApiException(
-          code: 'HTTP_$statusCode',
-          message: message,
-          statusCode: statusCode,
-        );
-
-      default:
-        return ApiException(
-          code: 'UNKNOWN',
-          message: 'حدث خطأ غير متوقع',
-        );
-    }
+    // Use unified exception conversion
+    return fromDioException(e);
   }
 }
 
@@ -339,9 +405,9 @@ class _AuthInterceptor extends Interceptor {
   }
 }
 
-/// Logging Interceptor
+/// Basic Logging Interceptor (fallback when advanced logging is disabled)
 /// Only logs in debug mode to prevent sensitive data exposure in production
-class _LoggingInterceptor extends Interceptor {
+class _BasicLoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (kDebugMode) {
@@ -369,21 +435,37 @@ class _LoggingInterceptor extends Interceptor {
   }
 }
 
-/// API Exception
-class ApiException implements Exception {
-  final String code;
-  final String message;
-  final int? statusCode;
-  final bool isNetworkError;
-  final bool isSecurityError;
+/// API Exception - Legacy wrapper for backwards compatibility
+///
+/// New code should use [AppException] and its subclasses directly.
+/// This class is kept for backwards compatibility with existing code.
+@Deprecated('Use AppException from error_handling/app_exceptions.dart instead')
+class ApiException extends AppException {
+  @override
+  bool get isNetworkError => type == ErrorType.network;
+
+  bool get isSecurityError => type == ErrorType.security;
 
   ApiException({
-    required this.code,
-    required this.message,
-    this.statusCode,
-    this.isNetworkError = false,
-    this.isSecurityError = false,
-  });
+    required String code,
+    required String message,
+    int? statusCode,
+    bool isNetworkError = false,
+    bool isSecurityError = false,
+  }) : super(
+          message: message,
+          messageAr: message, // For backwards compatibility, use same message
+          code: code,
+          statusCode: statusCode,
+          type: isSecurityError
+              ? ErrorType.security
+              : isNetworkError
+                  ? ErrorType.network
+                  : statusCode != null && statusCode >= 500
+                      ? ErrorType.server
+                      : ErrorType.client,
+          isRetryable: isNetworkError || (statusCode != null && statusCode >= 500),
+        );
 
   @override
   String toString() => 'ApiException($code): $message';

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/sync/sync_metrics_providers.dart' show sharedPreferencesProvider;
 import '../../../core/http/api_client.dart';
 import '../../../core/utils/app_logger.dart';
 import '../ui/otp_verification_screen.dart';
@@ -702,12 +703,7 @@ class OTPConfigRepository {
 // موفرو Riverpod
 // =============================================================================
 
-/// SharedPreferences provider
-final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
-  throw UnimplementedError(
-    'sharedPreferencesProvider must be overridden in main.dart',
-  );
-});
+// Note: sharedPreferencesProvider is imported from core/sync/sync_metrics_providers.dart (canonical source)
 
 /// OTP Config Repository provider
 final otpConfigRepositoryProvider = Provider<OTPConfigRepository>((ref) {

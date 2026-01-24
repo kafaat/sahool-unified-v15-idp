@@ -517,10 +517,20 @@ final marketplaceApiUrlProvider = Provider<String>((ref) {
 });
 
 /// مزود المحفظة الرئيسي
+/// Uses autoDispose with keepAlive for critical financial data
+/// The provider will stay alive for 10 minutes after last use to avoid
+/// frequent re-fetching of wallet data while still cleaning up eventually
 final walletProvider =
-    StateNotifierProvider<WalletNotifier, WalletState>((ref) {
+    StateNotifierProvider.autoDispose<WalletNotifier, WalletState>((ref) {
   final baseUrl = ref.watch(marketplaceApiUrlProvider);
   final userId = ref.watch(userIdProvider);
+
+  // Keep alive for the duration of user session since wallet data is critical
+  final link = ref.keepAlive();
+
+  // Auto-dispose after 10 minutes of inactivity
+  final timer = Timer(const Duration(minutes: 10), link.close);
+  ref.onDispose(timer.cancel);
 
   return WalletNotifier(
     baseUrl: baseUrl,
@@ -528,17 +538,17 @@ final walletProvider =
   );
 });
 
-/// الرصيد الحالي
-final balanceProvider = Provider<double>((ref) {
+/// الرصيد الحالي - autoDispose to match parent
+final balanceProvider = Provider.autoDispose<double>((ref) {
   return ref.watch(walletProvider).wallet?.balance ?? 0;
 });
 
-/// التصنيف الائتماني
-final creditScoreProvider = Provider<int>((ref) {
+/// التصنيف الائتماني - autoDispose to match parent
+final creditScoreProvider = Provider.autoDispose<int>((ref) {
   return ref.watch(walletProvider).wallet?.creditScore ?? 300;
 });
 
-/// الرصيد المتاح للتمويل
-final availableCreditProvider = Provider<double>((ref) {
+/// الرصيد المتاح للتمويل - autoDispose to match parent
+final availableCreditProvider = Provider.autoDispose<double>((ref) {
   return ref.watch(walletProvider).wallet?.availableCredit ?? 0;
 });

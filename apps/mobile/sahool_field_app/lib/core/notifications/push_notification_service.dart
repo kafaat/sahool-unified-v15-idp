@@ -1,443 +1,292 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../utils/app_logger.dart';
-import '../auth/secure_storage_service.dart';
-
 /// SAHOOL Push Notification Service
 /// خدمة الإشعارات الفورية
 ///
-/// Features:
-/// - Firebase Cloud Messaging (FCM)
-/// - Local notifications
-/// - Background message handling
-/// - Topic subscriptions
-/// - Notification channels (Android)
+/// This service provides push notification functionality.
+/// Currently operates in local-only mode (Firebase disabled).
+/// When Firebase is enabled, this service will be updated to use FCM.
+///
+/// توفر هذه الخدمة وظائف الإشعارات الفورية.
+/// حالياً تعمل في وضع الإشعارات المحلية فقط (Firebase معطل).
+/// عند تفعيل Firebase، سيتم تحديث هذه الخدمة لاستخدام FCM.
 
-// Background message handler - must be top-level
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  AppLogger.i('Background message: ${message.messageId}', tag: 'FCM');
+import 'dart:async';
 
-  // Handle background notification
-  await PushNotificationService._handleBackgroundMessage(message);
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../utils/app_logger.dart';
+import 'notification_types.dart';
+import 'notification_manager.dart';
+import 'notification_handler.dart';
+
+/// Push notification configuration
+/// إعدادات الإشعارات الفورية
+class PushNotificationConfig {
+  /// Whether Firebase is enabled
+  /// هل Firebase مفعل
+  static const bool firebaseEnabled = false;
+
+  /// Default topics to subscribe to
+  /// المواضيع الافتراضية للاشتراك
+  static const List<String> defaultTopics = [
+    'all_farmers',
+    'system_announcements',
+  ];
 }
 
+/// Push Notification Service
+/// خدمة الإشعارات الفورية
+///
+/// Provides a unified interface for push notifications.
+/// When Firebase is disabled, uses local notification fallback.
 class PushNotificationService {
-  static PushNotificationService? _instance;
-  static PushNotificationService get instance {
-    _instance ??= PushNotificationService._();
-    return _instance!;
-  }
+  static final PushNotificationService instance = PushNotificationService._();
 
   PushNotificationService._();
 
-  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _localNotifications =
-      FlutterLocalNotificationsPlugin();
-
+  /// FCM Token (null when Firebase is disabled)
   String? _fcmToken;
   String? get fcmToken => _fcmToken;
 
+  /// Notification stream controller
   final _notificationController = StreamController<NotificationPayload>.broadcast();
   Stream<NotificationPayload> get onNotification => _notificationController.stream;
 
+  /// Token refresh stream controller
   final _tokenController = StreamController<String>.broadcast();
   Stream<String> get onTokenRefresh => _tokenController.stream;
 
-  bool _isInitialized = false;
+  /// Subscribed topics
+  final Set<String> _subscribedTopics = {};
+  Set<String> get subscribedTopics => Set.unmodifiable(_subscribedTopics);
 
-  /// تهيئة خدمة الإشعارات
+  bool _isInitialized = false;
+  bool get isInitialized => _isInitialized;
+
+  /// Initialize the push notification service
+  /// تهيئة خدمة الإشعارات الفورية
   Future<void> initialize() async {
     if (_isInitialized) return;
 
     try {
-      // Request permission
-      await _requestPermission();
+      if (PushNotificationConfig.firebaseEnabled) {
+        // Firebase initialization would go here when enabled
+        // await _initializeFirebase();
+        AppLogger.i('Firebase push notifications not enabled', tag: 'PUSH');
+      }
 
-      // Initialize local notifications
-      await _initializeLocalNotifications();
+      // Always initialize local notification support
+      await NotificationManager.instance.initialize();
 
-      // Set up message handlers
-      _setupMessageHandlers();
-
-      // Get FCM token
-      await _getToken();
-
-      // Listen for token refresh
-      _fcm.onTokenRefresh.listen((token) {
-        _fcmToken = token;
-        _tokenController.add(token);
-        AppLogger.i('FCM token refreshed', tag: 'FCM');
-      });
+      // Subscribe to default topics (simulated when Firebase is disabled)
+      for (final topic in PushNotificationConfig.defaultTopics) {
+        await subscribeToTopic(topic);
+      }
 
       _isInitialized = true;
-      AppLogger.i('Push notification service initialized', tag: 'FCM');
+      AppLogger.i('Push notification service initialized (local mode)', tag: 'PUSH');
+    } catch (e, stackTrace) {
+      AppLogger.e(
+        'Failed to initialize push notifications',
+        tag: 'PUSH',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  /// Request push notification permission
+  /// طلب إذن الإشعارات الفورية
+  Future<bool> requestPermission() async {
+    return await NotificationManager.instance.requestPermission();
+  }
+
+  /// Get the push notification token
+  /// الحصول على رمز الإشعارات الفورية
+  ///
+  /// When Firebase is disabled, this returns a device-specific identifier
+  /// that can be used for local notification scheduling.
+  Future<String?> getToken() async {
+    if (PushNotificationConfig.firebaseEnabled) {
+      // Firebase token retrieval would go here
+      return null;
+    }
+
+    // Generate a pseudo-token for local notifications
+    // This could be used for backend registration when Firebase is unavailable
+    _fcmToken ??= 'local-${DateTime.now().millisecondsSinceEpoch}';
+    return _fcmToken;
+  }
+
+  /// Subscribe to a notification topic
+  /// الاشتراك في موضوع إشعارات
+  ///
+  /// When Firebase is disabled, this tracks topics locally for when
+  /// Firebase is enabled later or for backend notification routing.
+  Future<void> subscribeToTopic(String topic) async {
+    try {
+      if (PushNotificationConfig.firebaseEnabled) {
+        // Firebase topic subscription would go here
+        // await FirebaseMessaging.instance.subscribeToTopic(topic);
+      }
+
+      _subscribedTopics.add(topic);
+      AppLogger.d('Subscribed to topic: $topic', tag: 'PUSH');
     } catch (e) {
-      AppLogger.e('Failed to initialize push notifications', tag: 'FCM', error: e);
+      AppLogger.e('Failed to subscribe to topic: $topic', tag: 'PUSH', error: e);
     }
   }
 
-  /// طلب إذن الإشعارات
-  Future<bool> _requestPermission() async {
-    final settings = await _fcm.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
+  /// Unsubscribe from a notification topic
+  /// إلغاء الاشتراك من موضوع إشعارات
+  Future<void> unsubscribeFromTopic(String topic) async {
+    try {
+      if (PushNotificationConfig.firebaseEnabled) {
+        // Firebase topic unsubscription would go here
+        // await FirebaseMessaging.instance.unsubscribeFromTopic(topic);
+      }
 
-    final authorized = settings.authorizationStatus == AuthorizationStatus.authorized;
-    AppLogger.i('Notification permission: ${settings.authorizationStatus}', tag: 'FCM');
-
-    return authorized;
-  }
-
-  /// تهيئة الإشعارات المحلية
-  Future<void> _initializeLocalNotifications() async {
-    // Android settings
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    // iOS settings
-    final iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-      onDidReceiveLocalNotification: (id, title, body, payload) async {
-        // Handle iOS foreground notification (iOS < 10)
-      },
-    );
-
-    final settings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
-
-    await _localNotifications.initialize(
-      settings,
-      onDidReceiveNotificationResponse: _onNotificationTapped,
-      onDidReceiveBackgroundNotificationResponse: _onBackgroundNotificationTapped,
-    );
-
-    // Create Android notification channels
-    if (Platform.isAndroid) {
-      await _createNotificationChannels();
+      _subscribedTopics.remove(topic);
+      AppLogger.d('Unsubscribed from topic: $topic', tag: 'PUSH');
+    } catch (e) {
+      AppLogger.e('Failed to unsubscribe from topic: $topic', tag: 'PUSH', error: e);
     }
   }
 
-  /// إنشاء قنوات الإشعارات (Android)
-  Future<void> _createNotificationChannels() async {
-    final androidPlugin = _localNotifications
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+  /// Subscribe to user-specific topics
+  /// الاشتراك في مواضيع المستخدم
+  Future<void> subscribeToUserTopics({
+    required String userId,
+    String? tenantId,
+    String? governorate,
+    List<String>? crops,
+  }) async {
+    // User-specific topic
+    await subscribeToTopic('user_$userId');
 
-    if (androidPlugin == null) return;
+    // Tenant topic
+    if (tenantId != null) {
+      await subscribeToTopic('tenant_$tenantId');
+    }
 
-    // Main channel
-    await androidPlugin.createNotificationChannel(
-      const AndroidNotificationChannel(
-        'sahool_main',
-        'إشعارات سهول',
-        description: 'إشعارات التطبيق الرئيسية',
-        importance: Importance.high,
-      ),
-    );
+    // Governorate topic
+    if (governorate != null) {
+      await subscribeToTopic('gov_$governorate');
+    }
 
-    // Alerts channel
-    await androidPlugin.createNotificationChannel(
-      const AndroidNotificationChannel(
-        'sahool_alerts',
-        'التنبيهات',
-        description: 'تنبيهات الحقول والري',
-        importance: Importance.max,
-        enableVibration: true,
-        playSound: true,
-      ),
-    );
-
-    // Tasks channel
-    await androidPlugin.createNotificationChannel(
-      const AndroidNotificationChannel(
-        'sahool_tasks',
-        'المهام',
-        description: 'تذكيرات المهام',
-        importance: Importance.defaultImportance,
-      ),
-    );
-
-    // Sync channel
-    await androidPlugin.createNotificationChannel(
-      const AndroidNotificationChannel(
-        'sahool_sync',
-        'المزامنة',
-        description: 'حالة المزامنة',
-        importance: Importance.low,
-      ),
-    );
+    // Crop topics
+    if (crops != null) {
+      for (final crop in crops) {
+        await subscribeToTopic('crop_$crop');
+      }
+    }
   }
 
-  /// إعداد معالجات الرسائل
-  void _setupMessageHandlers() {
-    // Background handler
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  /// Unsubscribe from user-specific topics
+  /// إلغاء الاشتراك من مواضيع المستخدم
+  Future<void> unsubscribeFromUserTopics({
+    required String userId,
+    String? tenantId,
+    String? governorate,
+    List<String>? crops,
+  }) async {
+    await unsubscribeFromTopic('user_$userId');
 
-    // Foreground handler
-    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+    if (tenantId != null) {
+      await unsubscribeFromTopic('tenant_$tenantId');
+    }
 
-    // Message opened app
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
+    if (governorate != null) {
+      await unsubscribeFromTopic('gov_$governorate');
+    }
 
-    // Check for initial message (app opened from terminated state)
-    _checkInitialMessage();
+    if (crops != null) {
+      for (final crop in crops) {
+        await unsubscribeFromTopic('crop_$crop');
+      }
+    }
   }
 
-  /// معالجة الرسائل في الواجهة
-  Future<void> _handleForegroundMessage(RemoteMessage message) async {
-    AppLogger.i('Foreground message: ${message.messageId}', tag: 'FCM');
-
+  /// Simulate receiving a push notification (for testing)
+  /// محاكاة استلام إشعار فوري (للاختبار)
+  @visibleForTesting
+  Future<void> simulatePushNotification({
+    required String title,
+    required String body,
+    SAHOOLNotificationType type = SAHOOLNotificationType.system,
+    NotificationPriority priority = NotificationPriority.medium,
+    Map<String, dynamic>? data,
+  }) async {
     // Show local notification
-    await _showLocalNotification(message);
+    await NotificationManager.instance.showNotification(
+      title: title,
+      body: body,
+      type: type,
+      priority: priority,
+      data: data,
+    );
 
     // Emit to stream
-    _emitNotification(message);
-  }
-
-  /// معالجة فتح التطبيق من الإشعار
-  void _handleMessageOpenedApp(RemoteMessage message) {
-    AppLogger.i('Message opened app: ${message.messageId}', tag: 'FCM');
-    _emitNotification(message, tapped: true);
-  }
-
-  /// التحقق من رسالة البدء
-  Future<void> _checkInitialMessage() async {
-    final initialMessage = await _fcm.getInitialMessage();
-    if (initialMessage != null) {
-      AppLogger.i('Initial message: ${initialMessage.messageId}', tag: 'FCM');
-      _emitNotification(initialMessage, tapped: true);
-    }
-  }
-
-  /// معالجة الرسائل في الخلفية
-  static Future<void> _handleBackgroundMessage(RemoteMessage message) async {
-    // This is called from the background handler
-    // Store notification for later processing if needed
-  }
-
-  /// عرض إشعار محلي
-  Future<void> _showLocalNotification(RemoteMessage message) async {
-    final notification = message.notification;
-    final android = message.notification?.android;
-    final data = message.data;
-
-    if (notification == null) return;
-
-    // Determine channel based on notification type
-    final channel = _getChannelForType(data['type'] as String?);
-
-    await _localNotifications.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel.id,
-          channel.name,
-          channelDescription: channel.description,
-          importance: channel.importance,
-          priority: Priority.high,
-          icon: android?.smallIcon ?? '@mipmap/ic_launcher',
-        ),
-        iOS: const DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      ),
-      payload: jsonEncode(data),
-    );
-  }
-
-  /// الحصول على القناة المناسبة
-  AndroidNotificationChannel _getChannelForType(String? type) {
-    switch (type) {
-      case 'alert':
-      case 'irrigation':
-      case 'weather':
-        return const AndroidNotificationChannel(
-          'sahool_alerts',
-          'التنبيهات',
-          importance: Importance.max,
-        );
-      case 'task':
-        return const AndroidNotificationChannel(
-          'sahool_tasks',
-          'المهام',
-          importance: Importance.defaultImportance,
-        );
-      case 'sync':
-        return const AndroidNotificationChannel(
-          'sahool_sync',
-          'المزامنة',
-          importance: Importance.low,
-        );
-      default:
-        return const AndroidNotificationChannel(
-          'sahool_main',
-          'إشعارات سهول',
-          importance: Importance.high,
-        );
-    }
-  }
-
-  /// إرسال الإشعار للـ Stream
-  void _emitNotification(RemoteMessage message, {bool tapped = false}) {
     final payload = NotificationPayload(
-      id: message.messageId ?? '',
-      title: message.notification?.title ?? '',
-      body: message.notification?.body ?? '',
-      data: message.data,
-      tapped: tapped,
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      type: type,
+      priority: priority,
+      title: title,
+      body: body,
+      data: data ?? {},
       receivedAt: DateTime.now(),
+      tapped: false,
     );
     _notificationController.add(payload);
   }
 
-  /// معالجة الضغط على الإشعار
-  void _onNotificationTapped(NotificationResponse response) {
-    if (response.payload == null) return;
-
-    try {
-      final data = jsonDecode(response.payload!) as Map<String, dynamic>;
-      final payload = NotificationPayload(
-        id: response.id?.toString() ?? '',
-        title: '',
-        body: '',
-        data: data.cast<String, String>(),
-        tapped: true,
-        receivedAt: DateTime.now(),
-      );
-      _notificationController.add(payload);
-    } catch (e) {
-      AppLogger.e('Failed to parse notification payload', tag: 'FCM', error: e);
-    }
-  }
-
-  /// الحصول على الـ Token
-  Future<String?> _getToken() async {
-    try {
-      _fcmToken = await _fcm.getToken();
-      if (_fcmToken != null) {
-        AppLogger.d('FCM Token: ${_fcmToken!.substring(0, 20)}...', tag: 'FCM');
-      }
-      return _fcmToken;
-    } catch (e) {
-      AppLogger.e('Failed to get FCM token', tag: 'FCM', error: e);
-      return null;
-    }
-  }
-
-  /// الاشتراك في موضوع
-  Future<void> subscribeToTopic(String topic) async {
-    try {
-      await _fcm.subscribeToTopic(topic);
-      AppLogger.i('Subscribed to topic: $topic', tag: 'FCM');
-    } catch (e) {
-      AppLogger.e('Failed to subscribe to topic', tag: 'FCM', error: e);
-    }
-  }
-
-  /// إلغاء الاشتراك من موضوع
-  Future<void> unsubscribeFromTopic(String topic) async {
-    try {
-      await _fcm.unsubscribeFromTopic(topic);
-      AppLogger.i('Unsubscribed from topic: $topic', tag: 'FCM');
-    } catch (e) {
-      AppLogger.e('Failed to unsubscribe from topic', tag: 'FCM', error: e);
-    }
-  }
-
-  /// الاشتراك في مواضيع المستخدم
-  Future<void> subscribeToUserTopics(String userId, String? tenantId) async {
-    await subscribeToTopic('user_$userId');
-    if (tenantId != null) {
-      await subscribeToTopic('tenant_$tenantId');
-    }
-    await subscribeToTopic('all_users');
-  }
-
-  /// إلغاء اشتراكات المستخدم
-  Future<void> unsubscribeFromUserTopics(String userId, String? tenantId) async {
-    await unsubscribeFromTopic('user_$userId');
-    if (tenantId != null) {
-      await unsubscribeFromTopic('tenant_$tenantId');
-    }
-  }
-
-  /// حذف الـ Token
+  /// Delete the push notification token
+  /// حذف رمز الإشعارات الفورية
   Future<void> deleteToken() async {
     try {
-      await _fcm.deleteToken();
+      if (PushNotificationConfig.firebaseEnabled) {
+        // Firebase token deletion would go here
+        // await FirebaseMessaging.instance.deleteToken();
+      }
+
       _fcmToken = null;
-      AppLogger.i('FCM token deleted', tag: 'FCM');
+      AppLogger.i('Push notification token deleted', tag: 'PUSH');
     } catch (e) {
-      AppLogger.e('Failed to delete FCM token', tag: 'FCM', error: e);
+      AppLogger.e('Failed to delete push notification token', tag: 'PUSH', error: e);
     }
   }
 
-  /// إغلاق الخدمة
+  /// Dispose resources
+  /// التخلص من الموارد
   void dispose() {
     _notificationController.close();
     _tokenController.close();
   }
 }
 
-/// Background notification tap handler
-@pragma('vm:entry-point')
-void _onBackgroundNotificationTapped(NotificationResponse response) {
-  // Handle background notification tap
-}
+// ═══════════════════════════════════════════════════════════════════════════
+// Riverpod Providers
+// مزودات Riverpod
+// ═══════════════════════════════════════════════════════════════════════════
 
-/// حمولة الإشعار
-class NotificationPayload {
-  final String id;
-  final String title;
-  final String body;
-  final Map<String, dynamic> data;
-  final bool tapped;
-  final DateTime receivedAt;
-
-  const NotificationPayload({
-    required this.id,
-    required this.title,
-    required this.body,
-    required this.data,
-    required this.tapped,
-    required this.receivedAt,
-  });
-
-  String? get type => data['type'] as String?;
-  String? get targetId => data['targetId'] as String?;
-  String? get action => data['action'] as String?;
-
-  @override
-  String toString() => 'NotificationPayload(id: $id, title: $title, type: $type)';
-}
-
-/// Provider للخدمة
+/// Provider for PushNotificationService
 final pushNotificationServiceProvider = Provider<PushNotificationService>((ref) {
   return PushNotificationService.instance;
 });
 
-/// Provider للإشعارات
-/// Uses autoDispose to clean up subscription when no longer watched
-final notificationStreamProvider = StreamProvider.autoDispose<NotificationPayload>((ref) {
+/// Provider for push notification initialization
+final pushNotificationInitProvider = FutureProvider<bool>((ref) async {
+  final service = ref.watch(pushNotificationServiceProvider);
+  await service.initialize();
+  return await service.requestPermission();
+});
+
+/// Stream provider for push notifications
+final pushNotificationStreamProvider = StreamProvider<NotificationPayload>((ref) {
   return PushNotificationService.instance.onNotification;
+});
+
+/// Provider for subscribed topics
+final subscribedTopicsProvider = Provider<Set<String>>((ref) {
+  return PushNotificationService.instance.subscribedTopics;
 });

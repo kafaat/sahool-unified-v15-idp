@@ -10,12 +10,14 @@ class SampleFields {
   static Field createWheatField({
     String? id,
     String tenantId = 'tenant_test',
+    String? farmId,
+    bool synced = true,
   }) {
     return Field(
       id: id ?? 'field_wheat_001',
-      remoteId: 'remote_wheat_001',
+      remoteId: synced ? 'remote_wheat_001' : null,
       tenantId: tenantId,
-      farmId: 'farm_001',
+      farmId: farmId ?? 'farm_001',
       name: 'حقل القمح الشمالي',
       cropType: 'wheat',
       boundary: [
@@ -29,12 +31,46 @@ class SampleFields {
       status: 'active',
       ndviCurrent: 0.75,
       ndviUpdatedAt: DateTime.now().subtract(const Duration(days: 1)),
-      synced: true,
+      synced: synced,
       isDeleted: false,
       createdAt: DateTime.now().subtract(const Duration(days: 30)),
       updatedAt: DateTime.now().subtract(const Duration(days: 1)),
-      etag: 'etag_wheat_001',
-      serverUpdatedAt: DateTime.now().subtract(const Duration(days: 1)),
+      etag: synced ? 'etag_wheat_001' : null,
+      serverUpdatedAt: synced ? DateTime.now().subtract(const Duration(days: 1)) : null,
+    );
+  }
+
+  /// Sample date palm field
+  static Field createDatePalmField({
+    String? id,
+    String tenantId = 'tenant_test',
+    String? farmId,
+    bool synced = true,
+  }) {
+    return Field(
+      id: id ?? 'field_palm_001',
+      remoteId: synced ? 'remote_palm_001' : null,
+      tenantId: tenantId,
+      farmId: farmId ?? 'farm_001',
+      name: 'بستان النخيل',
+      cropType: 'date_palm',
+      boundary: [
+        const LatLng(15.3750, 44.2000),
+        const LatLng(15.3760, 44.2010),
+        const LatLng(15.3745, 44.2015),
+        const LatLng(15.3740, 44.2005),
+      ],
+      centroid: const LatLng(15.3749, 44.2008),
+      areaHectares: 80.0,
+      status: 'active',
+      ndviCurrent: 0.68,
+      ndviUpdatedAt: DateTime.now().subtract(const Duration(days: 2)),
+      synced: synced,
+      isDeleted: false,
+      createdAt: DateTime.now().subtract(const Duration(days: 45)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 2)),
+      etag: synced ? 'etag_palm_001' : null,
+      serverUpdatedAt: synced ? DateTime.now().subtract(const Duration(days: 2)) : null,
     );
   }
 

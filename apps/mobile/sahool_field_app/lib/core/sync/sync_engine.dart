@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:convert';
 import 'package:drift/drift.dart';
 import '../storage/database.dart';
@@ -296,14 +296,27 @@ class SyncEngine {
     }
   }
 
-  /// Handle 409 Conflict - apply server version
+  /// Handle 409 Conflict - fetch and apply server version
+  /// Implements Last-Write-Wins (LWW) strategy with server preference
   Future<void> _handleConflict(OutboxData item) async {
+    AppLogger.i('Handling conflict', tag: 'SyncEngine', data: {
+      'entityType': item.entityType,
+      'entityId': item.entityId,
+    });
+
+    try {
+      // Fetch the latest server version and apply it
+      await _fetchAndApplyServerVersion(item);
+    } catch (e) {
+      AppLogger.e('Failed to fetch server version for conflict resolution',
+          tag: 'SyncEngine', data: {'error': e.toString()});
+    }
+
     // Add sync event for UI notification
     await database.addSyncEvent(
       tenantId: _tenantId,
       type: 'CONFLICT',
-      message:
-          'ØªÙ… ØªØ·Ø¨ÙŠÙ‚ Ù†Ø³Ø®Ø© Ø§Ù„Ø³ÙŠØ±ÙØ± Ø¨Ø³Ø¨Ø¨ ØªØ¹Ø§Ø±Ø¶ ÙÙŠ ${_getEntityTypeAr(item.entityType)}',
+      message: 'Server version applied due to conflict in ${_getEntityTypeAr(item.entityType)}',
       entityType: item.entityType,
       entityId: item.entityId,
     );
@@ -311,77 +324,239 @@ class SyncEngine {
     await database.logSync(
       type: 'conflict',
       status: 'resolved',
-      message:
-          'Conflict resolved by applying server version for: ${item.entityType}/${item.entityId}',
+      message: 'Conflict resolved by applying server version for: ${item.entityType}/${item.entityId}',
     );
+  }
+
+  /// Fetch and apply the server version of an entity
+  Future<void> _fetchAndApplyServerVersion(OutboxData item) async {
+    switch (item.entityType) {
+      case 'field':
+        await _fetchAndApplyFieldFromServer(item.entityId);
+        break;
+      case 'task':
+        await _fetchAndApplyTaskFromServer(item.entityId);
+        break;
+      default:
+        AppLogger.w('Unknown entity type for conflict resolution',
+            tag: 'SyncEngine', data: {'entityType': item.entityType});
+    }
+  }
+
+  /// Fetch and apply field data from server
+  Future<void> _fetchAndApplyFieldFromServer(String fieldId) async {
+    try {
+      final response = await _apiClient.get(
+        '/api/v1/fields/$fieldId',
+        queryParameters: {'tenant_id': _tenantId},
+      );
+
+      if (response is Map<String, dynamic>) {
+        // Handle GeoJSON feature response
+        final Map<String, dynamic> fieldData;
+        if (response.containsKey('properties')) {
+          // GeoJSON Feature format
+          final props = response['properties'] as Map<String, dynamic>;
+          fieldData = {
+            'id': fieldId,
+            'remote_id': response['id'] ?? fieldId,
+            'tenant_id': props['tenant_id'] ?? _tenantId,
+            'farm_id': props['farm_id'],
+            'name': props['name'],
+            'crop_type': props['crop_type'],
+            'geometry': response['geometry'],
+            'area_hectares': props['area_hectares'],
+            'status': props['status'],
+            'ndvi_current': props['ndvi_current'],
+            'ndvi_updated_at': props['ndvi_updated_at'],
+            'etag': props['etag'],
+            'created_at': props['created_at'] ?? DateTime.now().toIso8601String(),
+            'updated_at': props['updated_at'] ?? DateTime.now().toIso8601String(),
+          };
+        } else {
+          fieldData = response;
+        }
+
+        await database.upsertFieldsFromServer([fieldData]);
+        AppLogger.i('Server field version applied', tag: 'SyncEngine', data: {'fieldId': fieldId});
+      }
+    } catch (e) {
+      AppLogger.e('Failed to fetch field from server',
+          tag: 'SyncEngine', data: {'fieldId': fieldId, 'error': e.toString()});
+      rethrow;
+    }
+  }
+
+  /// Fetch and apply task data from server
+  Future<void> _fetchAndApplyTaskFromServer(String taskId) async {
+    try {
+      final response = await _apiClient.get(
+        '/api/v1/tasks/$taskId',
+        queryParameters: {'tenant_id': _tenantId},
+      );
+
+      if (response is Map<String, dynamic>) {
+        await database.upsertTasksFromServer([response]);
+        AppLogger.i('Server task version applied', tag: 'SyncEngine', data: {'taskId': taskId});
+      }
+    } catch (e) {
+      AppLogger.e('Failed to fetch task from server',
+          tag: 'SyncEngine', data: {'taskId': taskId, 'error': e.toString()});
+      rethrow;
+    }
   }
 
   /// Get Arabic entity type name
   String _getEntityTypeAr(String type) {
     switch (type) {
       case 'field':
-        return 'Ø§Ù„Ø­Ù‚Ù„';
+        return 'field';
       case 'task':
-        return 'Ø§Ù„Ù…Ù‡Ù…Ø©';
+        return 'task';
       default:
-        return 'Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª';
+        return 'data';
     }
   }
 
   /// Pull latest data from server with circuit breaker
+  /// Pulls both tasks and fields for comprehensive offline-first sync
   Future<PullResult> _pullFromServer() async {
     int count = 0;
-    const tasksEndpoint = '/tasks';
+    int fieldsCount = 0;
+    int tasksCount = 0;
+
+    // Pull fields
+    fieldsCount = await _pullFields();
+    count += fieldsCount;
+
+    // Pull tasks
+    tasksCount = await _pullTasks();
+    count += tasksCount;
+
+    AppLogger.d('Pull from server completed', tag: 'SyncEngine', data: {
+      'fields': fieldsCount,
+      'tasks': tasksCount,
+      'total': count,
+    });
+
+    return PullResult(count: count, fieldsCount: fieldsCount, tasksCount: tasksCount);
+  }
+
+  /// Pull fields from server
+  Future<int> _pullFields() async {
+    const fieldsEndpoint = '/api/v1/fields';
+
+    // Check if fields endpoint can be accessed
+    if (!_retryTracker.canRetryNow(fieldsEndpoint)) {
+      final status = _retryTracker.getEndpointStatus(fieldsEndpoint);
+      AppLogger.d('Skipping fields pull - endpoint in backoff', tag: 'SyncEngine', data: {
+        'endpoint': fieldsEndpoint,
+        'status': status.statusDescription
+      });
+      return 0;
+    }
+
+    try {
+      final fieldsResponse = await _apiClient.get(
+        fieldsEndpoint,
+        queryParameters: {'tenant_id': _tenantId},
+      );
+
+      if (fieldsResponse is Map && fieldsResponse['features'] is List) {
+        // GeoJSON FeatureCollection response
+        final features = fieldsResponse['features'] as List;
+        final fieldMaps = features.map((feature) {
+          final props = (feature as Map<String, dynamic>)['properties'] as Map<String, dynamic>;
+          return {
+            'id': feature['id'] ?? props['local_id'],
+            'remote_id': feature['id'],
+            'tenant_id': props['tenant_id'] ?? _tenantId,
+            'farm_id': props['farm_id'],
+            'name': props['name'],
+            'crop_type': props['crop_type'],
+            'geometry': feature['geometry'],
+            'area_hectares': props['area_hectares'],
+            'status': props['status'],
+            'ndvi_current': props['ndvi_current'],
+            'ndvi_updated_at': props['ndvi_updated_at'],
+            'etag': props['etag'],
+            'created_at': props['created_at'] ?? DateTime.now().toIso8601String(),
+            'updated_at': props['updated_at'] ?? DateTime.now().toIso8601String(),
+          };
+        }).toList();
+
+        await database.upsertFieldsFromServer(fieldMaps.cast<Map<String, dynamic>>());
+        _retryTracker.recordSuccess(fieldsEndpoint);
+        return fieldMaps.length;
+      } else if (fieldsResponse is List) {
+        // Array response
+        await database.upsertFieldsFromServer(
+          fieldsResponse.cast<Map<String, dynamic>>(),
+        );
+        _retryTracker.recordSuccess(fieldsEndpoint);
+        return fieldsResponse.length;
+      }
+
+      _retryTracker.recordSuccess(fieldsEndpoint);
+      return 0;
+    } catch (e) {
+      AppLogger.w('Failed to pull fields', tag: 'SyncEngine', data: {'error': e.toString()});
+      final currentRetry = _retryTracker.getRetryCount(fieldsEndpoint);
+      _retryTracker.recordFailure(fieldsEndpoint, currentRetry + 1);
+
+      if (e.toString().contains('RateLimitException') || e.toString().contains('429')) {
+        rethrow;
+      }
+      return 0;
+    }
+  }
+
+  /// Pull tasks from server
+  Future<int> _pullTasks() async {
+    const tasksEndpoint = '/api/v1/tasks';
 
     // Check if tasks endpoint can be accessed
     if (!_retryTracker.canRetryNow(tasksEndpoint)) {
       final status = _retryTracker.getEndpointStatus(tasksEndpoint);
-      AppLogger.d('Skipping pull from endpoint', tag: 'SyncEngine', data: {
+      AppLogger.d('Skipping tasks pull - endpoint in backoff', tag: 'SyncEngine', data: {
         'endpoint': tasksEndpoint,
         'status': status.statusDescription
       });
-      return PullResult(count: 0);
+      return 0;
     }
 
     try {
-      // Pull tasks
       final tasksResponse = await _apiClient.get(
         tasksEndpoint,
-        queryParameters: {'tenant_id': _apiClient.tenantId},
+        queryParameters: {'tenant_id': _tenantId},
       );
 
       if (tasksResponse is List) {
         await database.upsertTasksFromServer(
           tasksResponse.cast<Map<String, dynamic>>(),
         );
-        count += tasksResponse.length;
+        _retryTracker.recordSuccess(tasksEndpoint);
+        return tasksResponse.length;
       }
 
-      // Record success
       _retryTracker.recordSuccess(tasksEndpoint);
+      return 0;
     } catch (e) {
-      AppLogger.w(
-        'Failed to pull tasks',
-        tag: 'SyncEngine',
-        data: {'error': e.toString()},
-      ); // Record failure in circuit breaker
+      AppLogger.w('Failed to pull tasks', tag: 'SyncEngine', data: {'error': e.toString()});
       final currentRetry = _retryTracker.getRetryCount(tasksEndpoint);
       _retryTracker.recordFailure(tasksEndpoint, currentRetry + 1);
 
-      // If rate limited, rethrow to trigger backoff
-      if (e.toString().contains('RateLimitException') ||
-          e.toString().contains('429')) {
+      if (e.toString().contains('RateLimitException') || e.toString().contains('429')) {
         rethrow;
       }
+      return 0;
     }
-
-    return PullResult(count: count);
   }
 
   /// Force refresh from server
   Future<void> forceRefresh() async {
     if (!await _networkStatus.checkOnline()) {
-      throw Exception('Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø§ØªØµØ§Ù„ Ø¨Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª');
+      throw Exception('No internet connection');
     }
 
     _syncStatusController.add(SyncStatus.syncing);
@@ -510,11 +685,20 @@ class OutboxResult {
   }
 }
 
-/// Pull result
+/// Pull result with breakdown by entity type
 class PullResult {
   final int count;
+  final int fieldsCount;
+  final int tasksCount;
 
-  PullResult({required this.count});
+  PullResult({
+    required this.count,
+    this.fieldsCount = 0,
+    this.tasksCount = 0,
+  });
+
+  @override
+  String toString() => 'PullResult(total: $count, fields: $fieldsCount, tasks: $tasksCount)';
 }
 
 /// Internal item processing result

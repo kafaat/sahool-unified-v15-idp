@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../http/api_client.dart';
 import '../config/env_config.dart';
@@ -7,17 +8,23 @@ import '../di/providers.dart';
 import '../utils/app_logger.dart';
 import 'secure_storage_service.dart';
 import 'biometric_service.dart';
+import 'user_context.dart';
 
 /// SAHOOL Authentication Service
 /// خدمة المصادقة مع Token Refresh تلقائي
 ///
 /// Features:
-/// - Automatic token refresh
-/// - Secure token storage
+/// - Automatic token refresh with race condition protection
+/// - Secure token storage with validation
 /// - Biometric authentication support
-/// - Session management
+/// - Session management with app lifecycle handling
+/// - Proper logout and token revocation
 
 // Providers
+final userContextProvider = Provider<UserContext>((ref) {
+  return UserContext();
+});
+
 final authServiceProvider = Provider<AuthService>((ref) {
   // Import apiClientProvider from core/di/providers.dart
   // We use read here to avoid circular dependencies
@@ -26,6 +33,7 @@ final authServiceProvider = Provider<AuthService>((ref) {
     return AuthService(
       secureStorage: ref.read(secureStorageProvider),
       biometricService: ref.read(biometricServiceProvider),
+      userContext: ref.read(userContextProvider),
       apiClient: apiClient,
     );
   } catch (e) {
@@ -35,6 +43,7 @@ final authServiceProvider = Provider<AuthService>((ref) {
     return AuthService(
       secureStorage: ref.read(secureStorageProvider),
       biometricService: ref.read(biometricServiceProvider),
+      userContext: ref.read(userContextProvider),
     );
   }
 });
@@ -44,19 +53,62 @@ final authStateProvider = StateNotifierProvider<AuthStateNotifier, AuthState>((r
 });
 
 /// Auth State
-enum AuthStatus { initial, authenticated, unauthenticated, loading }
+enum AuthStatus { initial, authenticated, unauthenticated, loading, sessionExpired }
+
+/// Session information for tracking session health
+class SessionInfo {
+  final DateTime? tokenExpiresAt;
+  final DateTime? lastActivity;
+  final DateTime? sessionStartedAt;
+  final bool isBiometricSession;
+
+  const SessionInfo({
+    this.tokenExpiresAt,
+    this.lastActivity,
+    this.sessionStartedAt,
+    this.isBiometricSession = false,
+  });
+
+  /// Check if session is about to expire (within buffer)
+  bool isExpiringSoon(Duration buffer) {
+    if (tokenExpiresAt == null) return true;
+    return DateTime.now().add(buffer).isAfter(tokenExpiresAt!);
+  }
+
+  /// Check if session has been idle too long
+  bool isIdleTooLong(Duration maxIdleTime) {
+    if (lastActivity == null) return false;
+    return DateTime.now().difference(lastActivity!) > maxIdleTime;
+  }
+
+  SessionInfo copyWith({
+    DateTime? tokenExpiresAt,
+    DateTime? lastActivity,
+    DateTime? sessionStartedAt,
+    bool? isBiometricSession,
+  }) {
+    return SessionInfo(
+      tokenExpiresAt: tokenExpiresAt ?? this.tokenExpiresAt,
+      lastActivity: lastActivity ?? this.lastActivity,
+      sessionStartedAt: sessionStartedAt ?? this.sessionStartedAt,
+      isBiometricSession: isBiometricSession ?? this.isBiometricSession,
+    );
+  }
+}
 
 class AuthState {
   final AuthStatus status;
   final User? user;
   final String? accessToken;
   final String? error;
+  final SessionInfo sessionInfo;
 
   const AuthState({
     this.status = AuthStatus.initial,
     this.user,
     this.accessToken,
     this.error,
+    this.sessionInfo = const SessionInfo(),
   });
 
   AuthState copyWith({
@@ -64,26 +116,157 @@ class AuthState {
     User? user,
     String? accessToken,
     String? error,
+    SessionInfo? sessionInfo,
     bool clearToken = false,
+    bool clearUser = false,
   }) {
     return AuthState(
       status: status ?? this.status,
-      user: user ?? this.user,
+      user: clearUser ? null : (user ?? this.user),
       accessToken: clearToken ? null : (accessToken ?? this.accessToken),
       error: error,
+      sessionInfo: sessionInfo ?? this.sessionInfo,
     );
   }
 
   bool get isAuthenticated => status == AuthStatus.authenticated;
   bool get isLoading => status == AuthStatus.loading;
+  bool get isSessionExpired => status == AuthStatus.sessionExpired;
 }
 
-/// Auth State Notifier
-class AuthStateNotifier extends StateNotifier<AuthState> {
+/// Auth State Notifier with session management
+class AuthStateNotifier extends StateNotifier<AuthState> with WidgetsBindingObserver {
   final AuthService _authService;
+  Timer? _sessionCheckTimer;
+  DateTime? _lastActiveTime;
+
+  // Session configuration
+  static const _sessionCheckInterval = Duration(minutes: 1);
+  static const _maxIdleTime = Duration(minutes: 30);
 
   AuthStateNotifier(this._authService) : super(const AuthState()) {
+    WidgetsBinding.instance.addObserver(this);
     _init();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _sessionCheckTimer?.cancel();
+    _authService.dispose();
+    super.dispose();
+  }
+
+  /// Handle app lifecycle changes
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState appState) {
+    switch (appState) {
+      case AppLifecycleState.resumed:
+        _onAppResumed();
+        break;
+      case AppLifecycleState.paused:
+        _onAppPaused();
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+        break;
+    }
+  }
+
+  void _onAppResumed() {
+    AppLogger.d('App resumed, checking session', tag: 'AUTH');
+    _checkSessionOnResume();
+    _startSessionMonitoring();
+  }
+
+  void _onAppPaused() {
+    AppLogger.d('App paused', tag: 'AUTH');
+    _lastActiveTime = DateTime.now();
+    _stopSessionMonitoring();
+  }
+
+  Future<void> _checkSessionOnResume() async {
+    if (state.status != AuthStatus.authenticated) return;
+
+    try {
+      // Check if we were paused for too long (idle timeout)
+      if (_lastActiveTime != null) {
+        final idleDuration = DateTime.now().difference(_lastActiveTime!);
+        if (idleDuration > _maxIdleTime) {
+          AppLogger.w('Session idle for too long, requiring re-authentication', tag: 'AUTH');
+          await _handleSessionExpired(reason: 'انتهت الجلسة بسبب عدم النشاط');
+          return;
+        }
+      }
+
+      // Validate session is still valid
+      final isValid = await _authService.validateSession();
+      if (!isValid) {
+        AppLogger.w('Session invalidated while app was paused', tag: 'AUTH');
+        await _handleSessionExpired(reason: 'انتهت صلاحية الجلسة');
+        return;
+      }
+
+      // Proactively refresh if token is expiring soon
+      final tokenExpiry = await _authService.getTokenExpiry();
+      if (tokenExpiry != null) {
+        final timeUntilExpiry = tokenExpiry.difference(DateTime.now());
+        if (timeUntilExpiry < const Duration(minutes: 10)) {
+          AppLogger.i('Token expiring soon, proactively refreshing', tag: 'AUTH');
+          await refreshSession();
+        }
+      }
+
+      // Update session info
+      _updateSessionInfo();
+    } catch (e) {
+      AppLogger.e('Session check on resume failed', error: e, tag: 'AUTH');
+    }
+  }
+
+  void _startSessionMonitoring() {
+    _sessionCheckTimer?.cancel();
+    _sessionCheckTimer = Timer.periodic(_sessionCheckInterval, (_) {
+      _checkSession();
+    });
+  }
+
+  void _stopSessionMonitoring() {
+    _sessionCheckTimer?.cancel();
+    _sessionCheckTimer = null;
+  }
+
+  Future<void> _checkSession() async {
+    if (state.status != AuthStatus.authenticated) return;
+
+    try {
+      final isValid = await _authService.validateSession();
+      if (!isValid) {
+        await _handleSessionExpired(reason: 'انتهت صلاحية الجلسة');
+      }
+    } catch (e) {
+      AppLogger.e('Periodic session check failed', error: e, tag: 'AUTH');
+    }
+  }
+
+  Future<void> _handleSessionExpired({required String reason}) async {
+    _stopSessionMonitoring();
+    await _authService.clearLocalSession();
+    state = AuthState(
+      status: AuthStatus.sessionExpired,
+      error: reason,
+    );
+  }
+
+  Future<void> _updateSessionInfo() async {
+    final tokenExpiry = await _authService.getTokenExpiry();
+    state = state.copyWith(
+      sessionInfo: state.sessionInfo.copyWith(
+        tokenExpiresAt: tokenExpiry,
+        lastActivity: DateTime.now(),
+      ),
+    );
   }
 
   Future<void> _init() async {
@@ -94,16 +277,24 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
       if (isLoggedIn) {
         final user = await _authService.getCurrentUser();
         final token = await _authService.getAccessToken();
+        final tokenExpiry = await _authService.getTokenExpiry();
+
         state = state.copyWith(
           status: AuthStatus.authenticated,
           user: user,
           accessToken: token,
+          sessionInfo: SessionInfo(
+            tokenExpiresAt: tokenExpiry,
+            lastActivity: DateTime.now(),
+            sessionStartedAt: DateTime.now(),
+          ),
         );
+        _startSessionMonitoring();
       } else {
         state = state.copyWith(status: AuthStatus.unauthenticated);
       }
     } catch (e) {
-      AppLogger.e('Auth init error', error: e);
+      AppLogger.e('Auth init error', error: e, tag: 'AUTH');
       state = state.copyWith(
         status: AuthStatus.unauthenticated,
         error: e.toString(),
@@ -117,11 +308,59 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
     try {
       final user = await _authService.login(email, password);
       final token = await _authService.getAccessToken();
+      final tokenExpiry = await _authService.getTokenExpiry();
+
       state = state.copyWith(
         status: AuthStatus.authenticated,
         user: user,
         accessToken: token,
+        sessionInfo: SessionInfo(
+          tokenExpiresAt: tokenExpiry,
+          lastActivity: DateTime.now(),
+          sessionStartedAt: DateTime.now(),
+          isBiometricSession: false,
+        ),
       );
+      _startSessionMonitoring();
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        status: AuthStatus.unauthenticated,
+        error: e.toString(),
+      );
+      return false;
+    }
+  }
+
+  /// Login with biometric authentication
+  Future<bool> loginWithBiometric() async {
+    state = state.copyWith(status: AuthStatus.loading);
+
+    try {
+      final user = await _authService.loginWithBiometric();
+      if (user == null) {
+        state = state.copyWith(
+          status: AuthStatus.unauthenticated,
+          error: 'فشل تسجيل الدخول بالبصمة',
+        );
+        return false;
+      }
+
+      final token = await _authService.getAccessToken();
+      final tokenExpiry = await _authService.getTokenExpiry();
+
+      state = state.copyWith(
+        status: AuthStatus.authenticated,
+        user: user,
+        accessToken: token,
+        sessionInfo: SessionInfo(
+          tokenExpiresAt: tokenExpiry,
+          lastActivity: DateTime.now(),
+          sessionStartedAt: DateTime.now(),
+          isBiometricSession: true,
+        ),
+      );
+      _startSessionMonitoring();
       return true;
     } catch (e) {
       state = state.copyWith(
@@ -133,19 +372,51 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    _stopSessionMonitoring();
     await _authService.logout();
     state = const AuthState(status: AuthStatus.unauthenticated);
+  }
+
+  /// Force logout (e.g., from remote session invalidation)
+  Future<void> forceLogout({String? reason}) async {
+    _stopSessionMonitoring();
+    await _authService.clearLocalSession();
+    state = AuthState(
+      status: AuthStatus.unauthenticated,
+      error: reason ?? 'تم تسجيل الخروج من جلستك',
+    );
   }
 
   Future<bool> refreshSession() async {
     try {
       await _authService.refreshToken();
       final token = await _authService.getAccessToken();
-      state = state.copyWith(accessToken: token);
+      final tokenExpiry = await _authService.getTokenExpiry();
+
+      state = state.copyWith(
+        accessToken: token,
+        sessionInfo: state.sessionInfo.copyWith(
+          tokenExpiresAt: tokenExpiry,
+          lastActivity: DateTime.now(),
+        ),
+      );
       return true;
     } catch (e) {
-      await logout();
+      AppLogger.e('Session refresh failed', error: e, tag: 'AUTH');
+      await _handleSessionExpired(reason: 'فشل تجديد الجلسة');
       return false;
+    }
+  }
+
+  /// Record user activity to prevent idle timeout
+  void recordActivity() {
+    _lastActiveTime = DateTime.now();
+    if (state.status == AuthStatus.authenticated) {
+      state = state.copyWith(
+        sessionInfo: state.sessionInfo.copyWith(
+          lastActivity: DateTime.now(),
+        ),
+      );
     }
   }
 }
@@ -154,14 +425,25 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 class AuthService {
   final SecureStorageService secureStorage;
   final BiometricService biometricService;
+  final UserContext userContext;
   final ApiClient? apiClient;
 
   Timer? _refreshTimer;
+  bool _isRefreshing = false;
+  Completer<void>? _refreshCompleter;
+
   static const _tokenRefreshBuffer = Duration(minutes: 5);
+  static const _tokenRefreshRetryDelay = Duration(seconds: 5);
+  static const _maxRefreshRetries = 3;
+
+  // Session tracking
+  String? _currentSessionId;
+  int _refreshRetryCount = 0;
 
   AuthService({
     required this.secureStorage,
     required this.biometricService,
+    required this.userContext,
     this.apiClient,
   });
 
@@ -217,6 +499,7 @@ class AuthService {
       final accessToken = data['access_token'] ?? data['accessToken'];
       final refreshToken = data['refresh_token'] ?? data['refreshToken'];
       final expiresIn = data['expires_in'] ?? data['expiresIn'] ?? 3600;
+      final sessionId = data['session_id'] ?? data['sessionId'];
 
       if (accessToken == null || refreshToken == null) {
         throw AuthException('بيانات التوكن مفقودة في الاستجابة');
@@ -247,6 +530,18 @@ class AuthService {
       // Store tokens and user data securely
       await _storeTokens(tokens);
       await _storeUserData(user);
+
+      // Store session ID for session management
+      _currentSessionId = sessionId as String?;
+      if (_currentSessionId != null) {
+        await secureStorage.write('session_id', _currentSessionId!);
+      }
+
+      // Sync user context with full information
+      userContext.setUser(user.id, tenantId: user.tenantId, role: user.role);
+
+      // Reset refresh retry count on successful login
+      _refreshRetryCount = 0;
 
       // Schedule token refresh
       _scheduleTokenRefresh(tokens.expiresIn);
@@ -294,6 +589,12 @@ class AuthService {
 
     // Store user data and tenant ID
     await _storeUserData(user);
+
+    // Sync user context with full information
+    userContext.setUser(user.id, tenantId: user.tenantId, role: user.role);
+
+    // Reset refresh retry count on successful login
+    _refreshRetryCount = 0;
 
     // Schedule token refresh
     _scheduleTokenRefresh(tokens.expiresIn);
@@ -397,11 +698,25 @@ class AuthService {
 
     // Check if biometric is available and enabled
     if (!await biometricService.isAvailable()) {
-      throw AuthException('البصمة غير متاحة على هذا الجهاز');
+      throw AuthException('البصمة غير متاحة على هذا الجهاز', code: 'BIOMETRIC_NOT_AVAILABLE');
     }
 
     if (!await biometricService.isEnabled()) {
-      throw AuthException('البصمة غير مفعلة');
+      throw AuthException('البصمة غير مفعلة', code: 'BIOMETRIC_NOT_ENABLED');
+    }
+
+    // Verify a valid session exists before attempting biometric auth
+    final storedRefreshToken = await secureStorage.getRefreshToken();
+    if (storedRefreshToken == null) {
+      throw AuthException('لا توجد جلسة محفوظة. يرجى تسجيل الدخول أولاً', code: 'NO_STORED_SESSION');
+    }
+
+    // Check if refresh token might be expired (stored user data exists)
+    final userData = await secureStorage.getUserData();
+    if (userData == null) {
+      // User data missing, session is invalid
+      await clearLocalSession();
+      throw AuthException('انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى', code: 'SESSION_INVALID');
     }
 
     // Authenticate with biometric
@@ -410,7 +725,7 @@ class AuthService {
     );
 
     if (!authenticated) {
-      throw AuthException('فشل التحقق من البصمة');
+      throw AuthException('فشل التحقق من البصمة', code: 'BIOMETRIC_FAILED');
     }
 
     // Get stored credentials
@@ -419,24 +734,42 @@ class AuthService {
       throw AuthException('لا توجد جلسة محفوظة');
     }
 
-    // Refresh token to get new access token
-    await refreshToken();
+      // Sync user context with full information
+      final user = await getCurrentUser();
+      if (user != null) {
+        userContext.setUser(user.id, tenantId: user.tenantId, role: user.role);
+      }
 
-    // Get current user
-    return getCurrentUser();
+      // Get current user
+      return user;
+    } catch (e) {
+      // If refresh fails, the session is invalid
+      AppLogger.e('Biometric login failed during token refresh', error: e, tag: 'AUTH');
+      await clearLocalSession();
+      throw AuthException('انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى', code: 'SESSION_EXPIRED');
+    }
   }
 
-  /// Logout
+  /// Logout with proper token revocation
   Future<void> logout() async {
-    AppLogger.i('Logout', tag: 'AUTH');
+    AppLogger.i('Logout initiated', tag: 'AUTH');
 
     _cancelTokenRefresh();
+
+    // Get refresh token before clearing storage (for revocation)
+    final refreshToken = await secureStorage.getRefreshToken();
+    final sessionId = _currentSessionId ?? await secureStorage.read('session_id');
 
     // Call logout API if available (best effort - don't fail if it errors)
     if (apiClient != null && !_shouldUseMockMode()) {
       try {
-        await apiClient!.post('/api/v1/auth/logout', {});
-        AppLogger.i('Logout API call successful', tag: 'AUTH');
+        // Revoke refresh token explicitly
+        await apiClient!.post('/api/v1/auth/logout', {
+          'refresh_token': refreshToken,
+          'session_id': sessionId,
+          'revoke_all_sessions': false,
+        });
+        AppLogger.i('Logout API call successful - tokens revoked', tag: 'AUTH');
       } catch (e) {
         // Log but don't fail - local logout should always succeed
         AppLogger.w('Logout API call failed (continuing with local logout)', tag: 'AUTH', error: e);
@@ -448,10 +781,91 @@ class AuthService {
       apiClient!.setAuthToken('');
     }
 
-    // Clear stored tokens
+    // Clear user context
+    userContext.clearUser();
+
+    // Clear session ID
+    _currentSessionId = null;
+
+    // Clear stored tokens and user data
     await secureStorage.clearAll();
 
-    AppLogger.i('Logout complete', tag: 'AUTH');
+    // Reset state
+    _refreshRetryCount = 0;
+    _isRefreshing = false;
+    _refreshCompleter = null;
+
+    AppLogger.i('Logout complete - all local data cleared', tag: 'AUTH');
+  }
+
+  /// Clear local session without calling logout API
+  /// Used for session expiry or forced logout
+  Future<void> clearLocalSession() async {
+    AppLogger.i('Clearing local session', tag: 'AUTH');
+
+    _cancelTokenRefresh();
+
+    // Clear auth token from API client
+    if (apiClient != null) {
+      apiClient!.setAuthToken('');
+    }
+
+    // Clear user context
+    userContext.clearUser();
+
+    // Clear session ID
+    _currentSessionId = null;
+
+    // Clear stored tokens and user data
+    await secureStorage.clearAll();
+
+    // Reset state
+    _refreshRetryCount = 0;
+    _isRefreshing = false;
+    _refreshCompleter = null;
+
+    AppLogger.i('Local session cleared', tag: 'AUTH');
+  }
+
+  /// Logout from all devices
+  Future<void> logoutAllDevices() async {
+    AppLogger.i('Logout from all devices initiated', tag: 'AUTH');
+
+    _cancelTokenRefresh();
+
+    final refreshToken = await secureStorage.getRefreshToken();
+
+    // Call logout API with revoke_all_sessions flag
+    if (apiClient != null && !_shouldUseMockMode()) {
+      try {
+        await apiClient!.post('/api/v1/auth/logout', {
+          'refresh_token': refreshToken,
+          'revoke_all_sessions': true,
+        });
+        AppLogger.i('All sessions revoked via API', tag: 'AUTH');
+      } catch (e) {
+        AppLogger.w('Failed to revoke all sessions via API', tag: 'AUTH', error: e);
+      }
+    }
+
+    // Clear auth token from API client
+    if (apiClient != null) {
+      apiClient!.setAuthToken('');
+    }
+
+    // Clear user context
+    userContext.clearUser();
+
+    // Clear session ID
+    _currentSessionId = null;
+
+    // Clear stored tokens and user data
+    await secureStorage.clearAll();
+
+    // Reset state
+    _refreshRetryCount = 0;
+
+    AppLogger.i('Logout from all devices complete', tag: 'AUTH');
   }
 
   /// Check if user is logged in
@@ -488,35 +902,129 @@ class AuthService {
   // Token Management
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Refresh access token
+  /// Refresh access token with race condition protection
+  /// Multiple calls while refresh is in progress will wait for the same refresh
   Future<void> refreshToken() async {
-    AppLogger.i('Refreshing token', tag: 'AUTH');
-
-    final refreshToken = await secureStorage.getRefreshToken();
-    if (refreshToken == null) {
-      throw AuthException('لا يوجد refresh token');
+    // If a refresh is already in progress, wait for it
+    if (_isRefreshing && _refreshCompleter != null) {
+      AppLogger.d('Token refresh already in progress, waiting...', tag: 'AUTH');
+      return _refreshCompleter!.future;
     }
 
+    _isRefreshing = true;
+    _refreshCompleter = Completer<void>();
+
     try {
+      AppLogger.i('Refreshing token', tag: 'AUTH');
+
+      final storedRefreshToken = await secureStorage.getRefreshToken();
+      if (storedRefreshToken == null) {
+        throw AuthException('لا يوجد refresh token', code: 'NO_REFRESH_TOKEN');
+      }
+
       // Use real API if available, otherwise fall back to mock in development
       if (apiClient != null && !_shouldUseMockMode()) {
-        await _refreshTokenWithApi(refreshToken);
+        await _refreshTokenWithApi(storedRefreshToken);
       } else {
         await _refreshTokenWithMock();
       }
+
+      // Reset retry count on success
+      _refreshRetryCount = 0;
+      _refreshCompleter!.complete();
     } catch (e) {
       AppLogger.e('Token refresh failed', tag: 'AUTH', error: e);
 
       // In development, fallback to mock if API fails
       if (kDebugMode && e is ApiException && e.isNetworkError) {
         AppLogger.w('API unavailable, falling back to mock refresh', tag: 'AUTH');
-        await _refreshTokenWithMock();
-        return;
+        try {
+          await _refreshTokenWithMock();
+          _refreshRetryCount = 0;
+          _refreshCompleter!.complete();
+          return;
+        } catch (mockError) {
+          _refreshCompleter!.completeError(mockError);
+          rethrow;
+        } finally {
+          _isRefreshing = false;
+        }
       }
 
-      await logout();
+      // Handle retry logic for network errors
+      if (e is AuthException && e.code == 'NETWORK_ERROR') {
+        _refreshRetryCount++;
+        if (_refreshRetryCount < _maxRefreshRetries) {
+          AppLogger.w('Token refresh network error, will retry (attempt $_refreshRetryCount)', tag: 'AUTH');
+          _refreshCompleter!.completeError(e);
+          _isRefreshing = false;
+
+          // Schedule retry
+          Timer(_tokenRefreshRetryDelay, () {
+            refreshToken().catchError((_) {});
+          });
+          rethrow;
+        }
+      }
+
+      // For non-retryable errors or max retries exceeded, clear session
+      _refreshCompleter!.completeError(e);
+      await clearLocalSession();
       rethrow;
+    } finally {
+      _isRefreshing = false;
     }
+  }
+
+  /// Validate current session is still valid
+  Future<bool> validateSession() async {
+    try {
+      // Check if we have tokens
+      final accessToken = await secureStorage.getAccessToken();
+      if (accessToken == null) return false;
+
+      // Check if token is expired
+      final expiry = await secureStorage.getTokenExpiry();
+      if (expiry == null) return false;
+
+      // If token is expired, try to refresh
+      if (DateTime.now().isAfter(expiry)) {
+        try {
+          await refreshToken();
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      // Optionally validate with server (for remote session invalidation)
+      if (apiClient != null && !_shouldUseMockMode()) {
+        try {
+          final response = await apiClient!.get('/api/v1/auth/validate');
+          if (response is Map) {
+            return response['valid'] == true;
+          }
+          return true;
+        } catch (e) {
+          // Network error - assume valid if token isn't expired
+          if (e is ApiException && e.isNetworkError) {
+            return true;
+          }
+          // Server says invalid
+          return false;
+        }
+      }
+
+      return true;
+    } catch (e) {
+      AppLogger.e('Session validation error', error: e, tag: 'AUTH');
+      return false;
+    }
+  }
+
+  /// Get token expiry time
+  Future<DateTime?> getTokenExpiry() async {
+    return secureStorage.getTokenExpiry();
   }
 
   /// Refresh token using real API
@@ -620,13 +1128,22 @@ class AuthService {
 
     // Refresh before expiry
     final refreshIn = Duration(seconds: expiresInSeconds) - _tokenRefreshBuffer;
-    if (refreshIn.isNegative) return;
+    if (refreshIn.isNegative) {
+      // Token is already near expiry, refresh immediately
+      AppLogger.w('Token near expiry, refreshing immediately', tag: 'AUTH');
+      refreshToken().catchError((e) {
+        AppLogger.e('Immediate token refresh failed', tag: 'AUTH', error: e);
+      });
+      return;
+    }
 
     _refreshTimer = Timer(refreshIn, () async {
       try {
         await refreshToken();
+        AppLogger.i('Scheduled token refresh successful', tag: 'AUTH');
       } catch (e) {
         AppLogger.e('Scheduled token refresh failed', tag: 'AUTH', error: e);
+        // The refreshToken method will handle retry logic
       }
     });
 
@@ -642,9 +1159,25 @@ class AuthService {
     _refreshTimer = null;
   }
 
+  /// Proactively refresh token if it's expiring soon
+  /// Call this before making important API calls
+  Future<void> ensureValidToken() async {
+    final expiry = await secureStorage.getTokenExpiry();
+    if (expiry == null) {
+      throw AuthException('لا توجد جلسة نشطة', code: 'NO_SESSION');
+    }
+
+    final timeUntilExpiry = expiry.difference(DateTime.now());
+    if (timeUntilExpiry < _tokenRefreshBuffer) {
+      AppLogger.i('Token expiring soon, proactively refreshing', tag: 'AUTH');
+      await refreshToken();
+    }
+  }
+
   /// Dispose resources
   void dispose() {
     _cancelTokenRefresh();
+    _refreshCompleter = null;
   }
 }
 

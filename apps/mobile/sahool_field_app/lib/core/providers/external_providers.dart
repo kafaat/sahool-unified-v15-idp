@@ -3,10 +3,35 @@
 // إدارة حالة المزودين الخارجيين مع Riverpod
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/providers_config.dart';
 import '../services/map_provider_service.dart';
 import '../services/weather_provider_service.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// APP-WIDE FIELD SELECTION
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// App-wide selected field ID provider
+/// This is the canonical source for field selection across the entire app.
+/// Features should use this instead of creating their own selectedFieldIdProvider.
+///
+/// This provider persists for 30 minutes after last use to avoid losing user context
+/// while navigating between features, but still cleans up eventually.
+final appSelectedFieldIdProvider = StateProvider.autoDispose<String?>((ref) {
+  // Keep alive for 30 minutes of inactivity
+  final link = ref.keepAlive();
+  final timer = Timer(const Duration(minutes: 30), link.close);
+  ref.onDispose(timer.cancel);
+
+  return null;
+});
+
+/// App-wide selected tenant ID provider
+/// This persists for the duration of the user session.
+final appSelectedTenantIdProvider = StateProvider<String?>((ref) => null);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PROVIDERS CONFIGURATION

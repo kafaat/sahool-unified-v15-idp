@@ -28,6 +28,9 @@ class SprayLogScreen extends ConsumerStatefulWidget {
 class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  /// Get current locale code
+  String get _locale => Localizations.localeOf(context).languageCode;
+
   // Form fields
   SprayType? _selectedSprayType;
   SprayProduct? _selectedProduct;

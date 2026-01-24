@@ -143,7 +143,7 @@ Future<_SyncItemResult> _processSyncItem(
   } catch (e) {
     // Check for 409 Conflict
     if (e.toString().contains('409') || e.toString().contains('Conflict')) {
-      await _handleConflict(item, database, tenantId);
+      await _handleConflict(item, database, apiClient, tenantId);
       await database.markOutboxDone(item.id);
       return _SyncItemResult.conflict;
     }
@@ -151,29 +151,127 @@ Future<_SyncItemResult> _processSyncItem(
   }
 }
 
-/// Handle 409 Conflict
+/// Handle 409 Conflict - fetch and apply server version
 Future<void> _handleConflict(
   OutboxData item,
   AppDatabase database,
+  ApiClient apiClient,
   String tenantId,
 ) async {
+  try {
+    // Fetch the latest server version and apply it
+    await _fetchAndApplyServerVersion(item, database, apiClient, tenantId);
+  } catch (e) {
+    await _logBackgroundError(
+      'Failed to fetch server version for conflict: ${item.entityType}/${item.entityId}: $e',
+    );
+  }
+
   await database.addSyncEvent(
     tenantId: tenantId,
     type: 'CONFLICT',
-    message: 'تم تطبيق نسخة السيرفر بسبب تعارض في ${_getEntityTypeAr(item.entityType)}',
+    message: 'Server version applied due to conflict in ${_getEntityTypeAr(item.entityType)}',
     entityType: item.entityType,
     entityId: item.entityId,
   );
+
+  await database.logSync(
+    type: 'conflict',
+    status: 'resolved',
+    message: 'Conflict resolved by applying server version for: ${item.entityType}/${item.entityId}',
+  );
+}
+
+/// Fetch and apply the server version of an entity
+Future<void> _fetchAndApplyServerVersion(
+  OutboxData item,
+  AppDatabase database,
+  ApiClient apiClient,
+  String tenantId,
+) async {
+  switch (item.entityType) {
+    case 'field':
+      await _fetchAndApplyFieldFromServer(item.entityId, database, apiClient, tenantId);
+      break;
+    case 'task':
+      await _fetchAndApplyTaskFromServer(item.entityId, database, apiClient, tenantId);
+      break;
+    default:
+      await _logBackgroundInfo(
+        'Unknown entity type for conflict resolution: ${item.entityType}',
+      );
+  }
+}
+
+/// Fetch and apply field data from server
+Future<void> _fetchAndApplyFieldFromServer(
+  String fieldId,
+  AppDatabase database,
+  ApiClient apiClient,
+  String tenantId,
+) async {
+  final response = await apiClient.get(
+    '/api/v1/fields/$fieldId',
+    queryParameters: {'tenant_id': tenantId},
+  );
+
+  if (response is Map<String, dynamic>) {
+    // Handle GeoJSON feature response
+    final Map<String, dynamic> fieldData;
+    if (response.containsKey('properties')) {
+      // GeoJSON Feature format
+      final props = response['properties'] as Map<String, dynamic>;
+      fieldData = {
+        'id': fieldId,
+        'remote_id': response['id'] ?? fieldId,
+        'tenant_id': props['tenant_id'] ?? tenantId,
+        'farm_id': props['farm_id'],
+        'name': props['name'],
+        'crop_type': props['crop_type'],
+        'geometry': response['geometry'],
+        'area_hectares': props['area_hectares'],
+        'status': props['status'],
+        'ndvi_current': props['ndvi_current'],
+        'ndvi_updated_at': props['ndvi_updated_at'],
+        'etag': props['etag'],
+        'created_at': props['created_at'] ?? DateTime.now().toIso8601String(),
+        'updated_at': props['updated_at'] ?? DateTime.now().toIso8601String(),
+      };
+    } else {
+      fieldData = response;
+    }
+
+    await database.upsertFieldsFromServer([fieldData]);
+    await _logBackgroundInfo('Server field version applied: $fieldId');
+  }
+}
+
+/// Fetch and apply task data from server
+Future<void> _fetchAndApplyTaskFromServer(
+  String taskId,
+  AppDatabase database,
+  ApiClient apiClient,
+  String tenantId,
+) async {
+  final response = await apiClient.get(
+    '/api/v1/tasks/$taskId',
+    queryParameters: {'tenant_id': tenantId},
+  );
+
+  if (response is Map<String, dynamic>) {
+    await database.upsertTasksFromServer([response]);
+    await _logBackgroundInfo('Server task version applied: $taskId');
+  }
 }
 
 String _getEntityTypeAr(String type) {
   switch (type) {
     case 'field':
-      return 'الحقل';
+      return 'field';
     case 'task':
-      return 'المهمة';
+      return 'task';
     default:
-      return 'البيانات';
+      return 'data';
   }
 }
 

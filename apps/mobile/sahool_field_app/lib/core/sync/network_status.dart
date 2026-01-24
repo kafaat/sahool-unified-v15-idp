@@ -4,6 +4,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 /// Network Status Monitor
 /// مراقب حالة الشبكة
 class NetworkStatus {
+  // Singleton instance
+  static final NetworkStatus instance = NetworkStatus._internal();
+
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<List<ConnectivityResult>>? _subscription;
 
@@ -13,8 +16,21 @@ class NetworkStatus {
   Stream<bool> get onlineStream => _onlineController.stream;
   bool get isOnline => _isOnline;
 
-  NetworkStatus() {
+  /// Alias for isOnline (used by OfflineSyncEngine)
+  Future<bool> get isConnected async {
+    await checkOnline();
+    return _isOnline;
+  }
+
+  /// Private constructor for singleton
+  NetworkStatus._internal() {
     _init();
+  }
+
+  /// Public constructor that returns singleton or creates new instance
+  /// (allows DI while maintaining singleton behavior)
+  factory NetworkStatus() {
+    return instance;
   }
 
   void _init() {

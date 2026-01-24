@@ -37,6 +37,20 @@ class NdviDataPoint extends Equatable {
     };
   }
 
+  NdviDataPoint copyWith({
+    DateTime? date,
+    double? value,
+    String? source,
+    double? cloudCoverage,
+  }) {
+    return NdviDataPoint(
+      date: date ?? this.date,
+      value: value ?? this.value,
+      source: source ?? this.source,
+      cloudCoverage: cloudCoverage ?? this.cloudCoverage,
+    );
+  }
+
   @override
   List<Object?> get props => [date, value, source, cloudCoverage];
 }
@@ -105,6 +119,30 @@ class NdviAnalysis extends Equatable {
       'image_url': imageUrl,
       'indices': indices,
     };
+  }
+
+  NdviAnalysis copyWith({
+    String? fieldId,
+    double? currentNdvi,
+    double? previousNdvi,
+    double? changeRate,
+    VegetationHealth? health,
+    List<NdviDataPoint>? timeSeries,
+    DateTime? analyzedAt,
+    String? imageUrl,
+    Map<String, double>? indices,
+  }) {
+    return NdviAnalysis(
+      fieldId: fieldId ?? this.fieldId,
+      currentNdvi: currentNdvi ?? this.currentNdvi,
+      previousNdvi: previousNdvi ?? this.previousNdvi,
+      changeRate: changeRate ?? this.changeRate,
+      health: health ?? this.health,
+      timeSeries: timeSeries ?? this.timeSeries,
+      analyzedAt: analyzedAt ?? this.analyzedAt,
+      imageUrl: imageUrl ?? this.imageUrl,
+      indices: indices ?? this.indices,
+    );
   }
 
   @override
@@ -198,6 +236,26 @@ class VegetationIndex extends Equatable {
       'description': description,
       'description_ar': descriptionAr,
     };
+  }
+
+  VegetationIndex copyWith({
+    String? name,
+    String? nameAr,
+    String? code,
+    double? value,
+    String? unit,
+    String? description,
+    String? descriptionAr,
+  }) {
+    return VegetationIndex(
+      name: name ?? this.name,
+      nameAr: nameAr ?? this.nameAr,
+      code: code ?? this.code,
+      value: value ?? this.value,
+      unit: unit ?? this.unit,
+      description: description ?? this.description,
+      descriptionAr: descriptionAr ?? this.descriptionAr,
+    );
   }
 
   @override

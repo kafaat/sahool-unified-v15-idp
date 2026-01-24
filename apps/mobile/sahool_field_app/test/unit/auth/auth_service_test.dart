@@ -131,49 +131,69 @@ void main() {
       });
     });
 
-    group('isTokenExpired', () {
-      test('should return true when token expiry is null', () async {
+    group('getTokenExpiry', () {
+      test('should return null when token expiry is null', () async {
         // Arrange
         when(() => mockSecureStorage.getTokenExpiry()).thenAnswer((_) async => null);
 
         // Act
-        final result = await authService.isTokenExpired();
+        final result = await authService.getTokenExpiry();
 
         // Assert
-        expect(result, true);
+        expect(result, null);
       });
 
-      test('should return true when token is expired', () async {
-        // Arrange
-        final expiredTime = DateTime.now().subtract(const Duration(hours: 1));
-        when(() => mockSecureStorage.getTokenExpiry()).thenAnswer((_) async => expiredTime);
-
-        // Act
-        final result = await authService.isTokenExpired();
-
-        // Assert
-        expect(result, true);
-      });
-
-      test('should return false when token is still valid', () async {
+      test('should return expiry time when token exists', () async {
         // Arrange
         final futureTime = DateTime.now().add(const Duration(hours: 1));
         when(() => mockSecureStorage.getTokenExpiry()).thenAnswer((_) async => futureTime);
 
         // Act
-        final result = await authService.isTokenExpired();
+        final result = await authService.getTokenExpiry();
+
+        // Assert
+        expect(result, isNotNull);
+        expect(result!.isAfter(DateTime.now()), isTrue);
+      });
+    })
+
+    group('validateSession', () {
+      test('should return false when no access token exists', () async {
+        // Arrange
+        when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => null);
+
+        // Act
+        final result = await authService.validateSession();
 
         // Assert
         expect(result, false);
       });
 
-      test('should return true when token expires within buffer time', () async {
+      test('should return true when token is valid', () async {
         // Arrange
-        final nearExpiry = DateTime.now().add(const Duration(minutes: 3));
-        when(() => mockSecureStorage.getTokenExpiry()).thenAnswer((_) async => nearExpiry);
+        when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => 'valid_token');
+        when(() => mockSecureStorage.getTokenExpiry())
+            .thenAnswer((_) async => DateTime.now().add(const Duration(hours: 1)));
 
         // Act
-        final result = await authService.isTokenExpired();
+        final result = await authService.validateSession();
+
+        // Assert
+        expect(result, true);
+      });
+
+      test('should attempt token refresh when token is expired', () async {
+        // Arrange
+        when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => 'expired_token');
+        when(() => mockSecureStorage.getTokenExpiry())
+            .thenAnswer((_) async => DateTime.now().subtract(const Duration(hours: 1)));
+        when(() => mockSecureStorage.getRefreshToken()).thenAnswer((_) async => 'refresh_token');
+        when(() => mockSecureStorage.setAccessToken(any())).thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setRefreshToken(any())).thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setTokenExpiry(any())).thenAnswer((_) async => {});
+
+        // Act
+        final result = await authService.validateSession();
 
         // Assert
         expect(result, true);
@@ -307,42 +327,27 @@ void main() {
       });
     });
 
-    group('getTokenTimeUntilExpiry', () {
-      test('should return null when token expiry is null', () async {
+    group('getTenantId', () {
+      test('should return tenant id when it exists', () async {
         // Arrange
-        when(() => mockSecureStorage.getTokenExpiry()).thenAnswer((_) async => null);
+        when(() => mockSecureStorage.getTenantId()).thenAnswer((_) async => 'tenant_001');
 
         // Act
-        final result = await authService.getTokenTimeUntilExpiry();
+        final result = await authService.getTenantId();
+
+        // Assert
+        expect(result, 'tenant_001');
+      });
+
+      test('should return null when tenant id does not exist', () async {
+        // Arrange
+        when(() => mockSecureStorage.getTenantId()).thenAnswer((_) async => null);
+
+        // Act
+        final result = await authService.getTenantId();
 
         // Assert
         expect(result, null);
-      });
-
-      test('should return zero duration when token is already expired', () async {
-        // Arrange
-        final expiredTime = DateTime.now().subtract(const Duration(hours: 1));
-        when(() => mockSecureStorage.getTokenExpiry()).thenAnswer((_) async => expiredTime);
-
-        // Act
-        final result = await authService.getTokenTimeUntilExpiry();
-
-        // Assert
-        expect(result, Duration.zero);
-      });
-
-      test('should return correct duration when token is valid', () async {
-        // Arrange
-        final futureTime = DateTime.now().add(const Duration(hours: 1));
-        when(() => mockSecureStorage.getTokenExpiry()).thenAnswer((_) async => futureTime);
-
-        // Act
-        final result = await authService.getTokenTimeUntilExpiry();
-
-        // Assert
-        expect(result, isNotNull);
-        expect(result!.inMinutes, greaterThan(55));
-        expect(result.inMinutes, lessThan(65));
       });
     });
 

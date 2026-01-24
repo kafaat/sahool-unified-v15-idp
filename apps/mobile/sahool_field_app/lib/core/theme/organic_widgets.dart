@@ -205,7 +205,7 @@ class FloatingNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
+      margin: const EdgeInsets.symmetric(horizontal: 24).copyWith(bottom: 24),
       height: 70,
       decoration: BoxDecoration(
         color: SahoolColors.forestGreen,

@@ -1,31 +1,58 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/rotation_models.dart';
 import '../services/rotation_service.dart';
+import '../data/rotation_local_data_source.dart';
+import '../data/rotation_repository.dart';
+export '../data/rotation_local_data_source.dart' show RotationHistoryEntry;
+
+/// SharedPreferences provider (should be overridden at app startup)
+final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  throw UnimplementedError(
+    'sharedPreferencesProvider must be overridden with the actual SharedPreferences instance',
+  );
+});
 
 /// Rotation service provider
 final rotationServiceProvider = Provider<RotationService>((ref) {
   return RotationService();
 });
 
-/// Rotation plan provider for a specific field
+/// Rotation local data source provider
+final rotationLocalDataSourceProvider = Provider<RotationLocalDataSource>((ref) {
+  final prefs = ref.watch(sharedPreferencesProvider);
+  return RotationLocalDataSource(prefs);
+});
+
+/// Rotation repository provider with offline support
+final rotationRepositoryProvider = Provider<RotationRepository>((ref) {
+  final service = ref.watch(rotationServiceProvider);
+  final localDataSource = ref.watch(rotationLocalDataSourceProvider);
+  return RotationRepository(
+    service: service,
+    localDataSource: localDataSource,
+  );
+});
+
+/// Rotation plan provider for a specific field (with offline support)
 final rotationPlanProvider =
     FutureProvider.family<RotationPlan, String>((ref, fieldId) async {
-  final service = ref.watch(rotationServiceProvider);
-  return service.getRotationPlan(fieldId);
+  final repository = ref.watch(rotationRepositoryProvider);
+  return repository.getRotationPlan(fieldId);
 });
 
 /// Soil health trend provider for a specific field
 final soilHealthTrendProvider =
     FutureProvider.family<List<SoilHealth>, String>((ref, fieldId) async {
-  final service = ref.watch(rotationServiceProvider);
-  return service.getSoilHealthTrend(fieldId);
+  final repository = ref.watch(rotationRepositoryProvider);
+  return repository.getSoilHealthTrend(fieldId);
 });
 
 /// Crop compatibility provider for two crops
 final cropCompatibilityProvider = FutureProvider.family<CompatibilityScore,
     CropCompatibilityParams>((ref, params) async {
-  final service = ref.watch(rotationServiceProvider);
-  return service.getCropCompatibility(params.crop1, params.crop2);
+  final repository = ref.watch(rotationRepositoryProvider);
+  return repository.getCropCompatibility(params.crop1, params.crop2);
 });
 
 /// Parameters for crop compatibility
@@ -50,11 +77,11 @@ class CropCompatibilityParams {
   int get hashCode => crop1.id.hashCode ^ crop2.id.hashCode;
 }
 
-/// Recommended crops provider for a field and year
+/// Recommended crops provider for a field and year (with offline caching)
 final recommendedCropsProvider = FutureProvider.family<List<CropRecommendation>,
     RecommendedCropsParams>((ref, params) async {
-  final service = ref.watch(rotationServiceProvider);
-  return service.getRecommendedCrops(params.fieldId, params.year);
+  final repository = ref.watch(rotationRepositoryProvider);
+  return repository.getRecommendedCrops(params.fieldId, params.year);
 });
 
 /// Parameters for recommended crops
@@ -81,22 +108,41 @@ class RecommendedCropsParams {
 
 /// All crop families provider
 final cropFamiliesProvider = Provider<List<CropFamilyInfo>>((ref) {
-  final service = ref.watch(rotationServiceProvider);
-  return service.getAllCropFamilies();
+  final repository = ref.watch(rotationRepositoryProvider);
+  return repository.getAllCropFamilies();
 });
 
 /// Compatibility matrix provider
 final compatibilityMatrixProvider =
     FutureProvider<Map<String, Map<String, CompatibilityScore>>>((ref) async {
-  final service = ref.watch(rotationServiceProvider);
-  return service.getCompatibilityMatrix();
+  final repository = ref.watch(rotationRepositoryProvider);
+  return repository.getCompatibilityMatrix();
 });
 
-/// State notifier for managing rotation plan generation
-class RotationPlanNotifier extends StateNotifier<AsyncValue<RotationPlan>> {
-  final RotationService _service;
+/// Rotation history provider for a field
+final rotationHistoryProvider = FutureProvider.family<List<RotationHistoryEntry>,
+    String>((ref, fieldId) async {
+  final repository = ref.watch(rotationRepositoryProvider);
+  return repository.getRotationHistory(fieldId);
+});
 
-  RotationPlanNotifier(this._service) : super(const AsyncValue.loading());
+/// Pending sync status provider
+final rotationPendingSyncProvider = FutureProvider<bool>((ref) async {
+  final repository = ref.watch(rotationRepositoryProvider);
+  return repository.hasPendingSync();
+});
+
+/// Last sync time provider
+final rotationLastSyncProvider = FutureProvider<DateTime?>((ref) async {
+  final repository = ref.watch(rotationRepositoryProvider);
+  return repository.getLastSyncTime();
+});
+
+/// State notifier for managing rotation plan generation (with offline support)
+class RotationPlanNotifier extends StateNotifier<AsyncValue<RotationPlan>> {
+  final RotationRepository _repository;
+
+  RotationPlanNotifier(this._repository) : super(const AsyncValue.loading());
 
   Future<void> generatePlan(
     String fieldId,
@@ -105,7 +151,7 @@ class RotationPlanNotifier extends StateNotifier<AsyncValue<RotationPlan>> {
   ) async {
     state = const AsyncValue.loading();
     try {
-      final plan = await _service.generateRotationPlan(
+      final plan = await _repository.generateRotationPlan(
         fieldId,
         years,
         preferences,
@@ -119,30 +165,54 @@ class RotationPlanNotifier extends StateNotifier<AsyncValue<RotationPlan>> {
   Future<void> loadPlan(String fieldId) async {
     state = const AsyncValue.loading();
     try {
-      final plan = await _service.getRotationPlan(fieldId);
+      final plan = await _repository.getRotationPlan(fieldId);
       state = AsyncValue.data(plan);
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
     }
   }
+
+  Future<void> updateRotationYear(String fieldId, RotationYear updatedYear) async {
+    final currentState = state;
+    if (currentState is AsyncData<RotationPlan>) {
+      state = const AsyncValue.loading();
+      try {
+        final updatedPlan = await _repository.updateRotationYear(fieldId, updatedYear);
+        state = AsyncValue.data(updatedPlan);
+      } catch (error, stackTrace) {
+        state = currentState; // Revert on error
+        rethrow;
+      }
+    }
+  }
+
+  Future<void> syncPendingChanges() async {
+    try {
+      await _repository.syncPendingChanges();
+    } catch (e) {
+      // Silent fail for sync - will retry later
+    }
+  }
 }
 
-/// Provider for rotation plan notifier
+/// Provider for rotation plan notifier - autoDispose for proper cleanup
 final rotationPlanNotifierProvider =
-    StateNotifierProvider<RotationPlanNotifier, AsyncValue<RotationPlan>>((ref) {
-  final service = ref.watch(rotationServiceProvider);
-  return RotationPlanNotifier(service);
+    StateNotifierProvider.autoDispose<RotationPlanNotifier, AsyncValue<RotationPlan>>((ref) {
+  final repository = ref.watch(rotationRepositoryProvider);
+  return RotationPlanNotifier(repository);
 });
 
-/// Selected field ID provider (for UI state)
-final selectedFieldIdProvider = StateProvider<String?>((ref) => null);
+/// Selected field ID provider for rotation feature (for UI state)
+/// Note: This is scoped to rotation feature. Use core/providers/selected_field_provider.dart
+/// for app-wide field selection.
+final rotationSelectedFieldIdProvider = StateProvider.autoDispose<String?>((ref) => null);
 
-/// Selected year provider (for recommendations)
-final selectedYearProvider = StateProvider<int>((ref) => DateTime.now().year);
+/// Selected year provider (for recommendations) - autoDispose to match
+final selectedYearProvider = StateProvider.autoDispose<int>((ref) => DateTime.now().year);
 
-/// Rotation preferences provider
+/// Rotation preferences provider - autoDispose to match
 final rotationPreferencesProvider =
-    StateProvider<Map<String, dynamic>>((ref) => {
+    StateProvider.autoDispose<Map<String, dynamic>>((ref) => {
           'prioritizeSoilHealth': true,
           'includeNitrogenFixers': true,
           'avoidSameFamily': true,

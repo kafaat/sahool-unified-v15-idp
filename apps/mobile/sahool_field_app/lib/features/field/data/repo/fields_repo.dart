@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/error_handling/error_handling.dart';
 import '../../../../core/storage/database.dart';
 import '../../../../core/sync/network_status.dart';
 import '../../../../core/geo/geojson.dart';
@@ -16,11 +17,13 @@ import '../remote/fields_api.dart';
 /// - Local SQLite storage with GeoPolygonConverter
 /// - GeoJSON transformation for PostGIS sync
 /// - Offline-first create/update operations
+/// - Proper error handling with bilingual messages
 class FieldsRepo {
   final AppDatabase _db;
   final FieldsApi _api;
   final NetworkStatus _networkStatus;
   final _uuid = const Uuid();
+  static const _tag = 'FieldsRepo';
 
   FieldsRepo({
     required AppDatabase database,
@@ -143,6 +146,7 @@ class FieldsRepo {
   }
 
   /// Update field boundary (e.g., after redrawing polygon)
+  /// Uses ETag for optimistic locking to detect concurrent edits
   Future<void> updateFieldBoundary({
     required String fieldId,
     required List<LatLng> newBoundary,
@@ -159,7 +163,7 @@ class FieldsRepo {
       areaHectares: areaHectares,
     );
 
-    // 2. Get field for tenant info
+    // 2. Get field for tenant info and ETag
     final field = await _db.getFieldById(fieldId);
     if (field == null) return;
 
@@ -175,7 +179,7 @@ class FieldsRepo {
       'area_hectares': areaHectares,
     };
 
-    // 4. Add to outbox
+    // 4. Add to outbox with ETag for conflict detection
     await _db.addToOutbox(
       OutboxCompanion.insert(
         tenantId: field.tenantId,
@@ -184,16 +188,19 @@ class FieldsRepo {
         apiEndpoint: '/api/v1/fields/$fieldId/boundary',
         method: const Value('PUT'),
         payload: jsonEncode(geoJsonPayload),
+        ifMatch: Value(field.etag), // Include ETag for optimistic locking
       ),
     );
 
-    AppLogger.i('Field boundary updated', tag: 'FieldsRepo', data: {
+    AppLogger.i('Field boundary updated', tag: _tag, data: {
       'fieldId': fieldId,
       'area_ha': areaHectares.toStringAsFixed(2),
+      'hasETag': field.etag != null,
     });
   }
 
   /// Update field properties (name, crop type, etc.)
+  /// Uses ETag for optimistic locking to detect concurrent edits
   Future<void> updateFieldProperties({
     required String fieldId,
     String? name,
@@ -215,7 +222,7 @@ class FieldsRepo {
       ),
     );
 
-    // 2. Add to outbox
+    // 2. Add to outbox with ETag for conflict detection
     await _db.addToOutbox(
       OutboxCompanion.insert(
         tenantId: field.tenantId,
@@ -231,11 +238,18 @@ class FieldsRepo {
           if (cropType != null) 'crop_type': cropType,
           if (status != null) 'status': status,
         }),
+        ifMatch: Value(field.etag), // Include ETag for optimistic locking
       ),
     );
+
+    AppLogger.i('Field properties updated', tag: _tag, data: {
+      'fieldId': fieldId,
+      'hasETag': field.etag != null,
+    });
   }
 
   /// Soft delete field
+  /// Uses ETag for optimistic locking to detect concurrent edits
   Future<void> deleteField(String fieldId) async {
     final field = await _db.getFieldById(fieldId);
     if (field == null) return;
@@ -243,7 +257,7 @@ class FieldsRepo {
     // 1. Soft delete locally
     await _db.softDeleteField(fieldId);
 
-    // 2. Add to outbox
+    // 2. Add to outbox with ETag for conflict detection
     await _db.addToOutbox(
       OutboxCompanion.insert(
         tenantId: field.tenantId,
@@ -256,10 +270,14 @@ class FieldsRepo {
           'remote_id': field.remoteId,
           'tenant_id': field.tenantId,
         }),
+        ifMatch: Value(field.etag), // Include ETag for optimistic locking
       ),
     );
 
-    AppLogger.i('Field soft-deleted', tag: 'FieldsRepo', data: {'fieldId': fieldId});
+    AppLogger.i('Field soft-deleted', tag: _tag, data: {
+      'fieldId': fieldId,
+      'hasETag': field.etag != null,
+    });
   }
 
   // ============================================================
@@ -267,9 +285,13 @@ class FieldsRepo {
   // ============================================================
 
   /// Refresh fields from server
+  ///
+  /// Returns the number of fields refreshed.
+  /// Throws [SyncException] if offline.
+  /// Throws [AppException] on API errors.
   Future<int> refreshFromServer(String tenantId) async {
     if (!await _networkStatus.checkOnline()) {
-      throw Exception('لا يوجد اتصال بالإنترنت');
+      throw SyncException.offline();
     }
 
     try {
@@ -299,10 +321,15 @@ class FieldsRepo {
       // Upsert to local DB
       await _db.upsertFieldsFromServer(fieldMaps);
 
+      AppLogger.i('Fields refreshed from server', tag: _tag, data: {'count': fieldMaps.length});
       return fieldMaps.length;
-    } catch (e) {
-      AppLogger.e('Failed to refresh fields', tag: 'FieldsRepo', error: e);
-      rethrow;
+    } catch (e, stackTrace) {
+      final appException = ErrorHandler().handle(
+        e,
+        stackTrace: stackTrace,
+        tag: _tag,
+      );
+      throw appException;
     }
   }
 

@@ -1,12 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/http/api_client.dart';
+import '../../../../core/di/providers.dart' show apiClientProvider;
 import '../../data/remote/crop_health_api.dart';
 import '../../domain/entities/crop_health_entities.dart';
 
-/// API Client Provider
-final apiClientProvider = Provider<ApiClient>((ref) {
-  return ApiClient();
-});
+// Note: apiClientProvider is imported from core/di/providers.dart (with security config)
 
 /// Crop Health API Provider
 final cropHealthApiProvider = Provider<CropHealthApi>((ref) {

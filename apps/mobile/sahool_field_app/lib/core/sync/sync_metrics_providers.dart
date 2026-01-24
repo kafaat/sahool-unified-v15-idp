@@ -6,20 +6,19 @@ import '../storage/database.dart';
 import 'sync_engine.dart';
 import 'queue_manager.dart';
 
-/// Initialize SharedPreferences for metrics service
-/// Must be overridden in main.dart with actual SharedPreferences instance
+// Import canonical providers from main.dart
+import '../../main.dart' show databaseProvider, syncEngineProvider;
+
+/// SharedPreferences provider - must be overridden in main.dart
+/// This is the canonical definition for SharedPreferences
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw UnimplementedError(
     'sharedPreferencesProvider must be overridden in main.dart with actual SharedPreferences instance',
   );
 });
 
-/// Database provider (must be overridden in app)
-final databaseProvider = Provider<AppDatabase>((ref) {
-  throw UnimplementedError(
-    'databaseProvider must be overridden in main.dart with actual AppDatabase instance',
-  );
-});
+// Note: databaseProvider is imported from main.dart (canonical source)
+// Note: syncEngineProvider is imported from main.dart (canonical source)
 
 /// Provide SyncMetricsService instance
 final syncMetricsServiceProvider = Provider<SyncMetricsService>((ref) {
@@ -27,13 +26,8 @@ final syncMetricsServiceProvider = Provider<SyncMetricsService>((ref) {
   return SyncMetricsService(prefs);
 });
 
-/// Provide base SyncEngine without metrics
-final syncEngineProvider = Provider<SyncEngine>((ref) {
-  final database = ref.watch(databaseProvider);
-  return SyncEngine(database: database);
-});
-
 /// Provide base QueueManager without metrics
+/// This is the canonical queueManagerProvider definition
 final queueManagerProvider = Provider<QueueManager>((ref) {
   final database = ref.watch(databaseProvider);
   return QueueManager(database: database);
@@ -41,11 +35,43 @@ final queueManagerProvider = Provider<QueueManager>((ref) {
 
 /// Metrics-aware wrapper for SyncEngine that tracks sync operations
 /// Uses composition pattern instead of constructor injection
+/// Provides comprehensive tracking of uploads, downloads, conflicts, and retries
 class MetricsAwareSyncEngine {
   final SyncEngine _engine;
   final SyncMetricsService _metrics;
+  StreamSubscription<SyncStatus>? _statusSubscription;
+  StreamSubscription<BackoffStatus>? _backoffSubscription;
 
-  MetricsAwareSyncEngine(this._engine, this._metrics);
+  MetricsAwareSyncEngine(this._engine, this._metrics) {
+    _initializeStatusTracking();
+  }
+
+  void _initializeStatusTracking() {
+    // Track sync status changes for metrics
+    _statusSubscription = _engine.syncStatus.listen((status) {
+      if (status == SyncStatus.error) {
+        // Update metrics when sync enters error state
+        _metrics.updateQueueDepth(0); // Will be updated on next queue check
+      }
+    });
+
+    // Track backoff status for retry metrics
+    _backoffSubscription = _engine.backoffStatus.listen((status) {
+      if (status.isBackoffActive) {
+        // Track endpoints in backoff
+        for (final endpoint in status.affectedEndpoints) {
+          final retryCount = endpoint.retryCount;
+          if (retryCount > 0) {
+            _metrics.recordRetry(
+              operationId: 'backoff_${endpoint.endpoint}',
+              attemptNumber: retryCount,
+              backoffDelay: endpoint.timeUntilRetry ?? Duration.zero,
+            );
+          }
+        }
+      }
+    });
+  }
 
   /// Get the underlying sync engine
   SyncEngine get engine => _engine;
@@ -63,30 +89,43 @@ class MetricsAwareSyncEngine {
     _engine.stop();
   }
 
-  /// Run single sync cycle with metrics tracking
+  /// Run single sync cycle with comprehensive metrics tracking
+  /// Tracks both upload (outbox processing) and download (server pull) operations
   Future<SyncResult> runOnce() async {
-    // Start tracking the operation (upload since we're pushing local changes first)
-    final operationId = _metrics.startSyncOperation(
+    // Track upload operation (processing local changes)
+    final uploadOperationId = _metrics.startSyncOperation(
       type: SyncOperationType.upload,
-      entityType: 'all',
+      entityType: 'outbox',
     );
 
     try {
       final result = await _engine.runOnce();
 
-      // Complete the operation tracking
+      // Complete upload operation tracking
       await _metrics.completeSyncOperation(
-        operationId: operationId,
+        operationId: uploadOperationId,
         success: result.success,
-        // Estimate payload size from number of items
-        actualPayloadSize: (result.uploaded + result.downloaded) * 1024,
+        actualPayloadSize: result.uploaded * 1024, // Estimate 1KB per item
         errorMessage: result.success ? null : result.message,
       );
+
+      // Track download operation if items were pulled
+      if (result.downloaded > 0) {
+        final downloadOperationId = _metrics.startSyncOperation(
+          type: SyncOperationType.download,
+          entityType: 'server',
+        );
+        await _metrics.completeSyncOperation(
+          operationId: downloadOperationId,
+          success: true,
+          actualPayloadSize: result.downloaded * 1024,
+        );
+      }
 
       return result;
     } catch (e) {
       await _metrics.completeSyncOperation(
-        operationId: operationId,
+        operationId: uploadOperationId,
         success: false,
         errorMessage: e.toString(),
       );
@@ -94,11 +133,57 @@ class MetricsAwareSyncEngine {
     }
   }
 
+  /// Track a conflict resolution
+  Future<void> trackConflict({
+    required String entityType,
+    required String entityId,
+    required ConflictResolution resolution,
+  }) async {
+    final operationId = _metrics.startSyncOperation(
+      type: SyncOperationType.conflict,
+      entityType: entityType,
+    );
+    await _metrics.completeSyncOperation(
+      operationId: operationId,
+      success: true,
+      wasConflict: true,
+      conflictResolution: resolution,
+    );
+  }
+
+  /// Track a retry attempt
+  Future<void> trackRetry({
+    required String endpoint,
+    required int attemptNumber,
+    Duration backoffDelay = Duration.zero,
+  }) async {
+    await _metrics.recordRetry(
+      operationId: 'retry_$endpoint',
+      attemptNumber: attemptNumber,
+      backoffDelay: backoffDelay,
+    );
+  }
+
+  /// Get sync statistics including metrics
+  SyncStatistics getStatistics() => _engine.getStatistics();
+
+  /// Get current metrics snapshot
+  SyncMetrics getCurrentMetrics() => _metrics.currentMetrics;
+
+  /// Export metrics as JSON for debugging
+  Map<String, dynamic> exportMetrics() => _metrics.exportMetrics();
+
   /// Sync status stream
   Stream<SyncStatus> get syncStatus => _engine.syncStatus;
 
   /// Backoff status stream
   Stream<BackoffStatus> get backoffStatus => _engine.backoffStatus;
+
+  /// Dispose subscriptions
+  void dispose() {
+    _statusSubscription?.cancel();
+    _backoffSubscription?.cancel();
+  }
 }
 
 /// Provide MetricsAwareSyncEngine with composition pattern

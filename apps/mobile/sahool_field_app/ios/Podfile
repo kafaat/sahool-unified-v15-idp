@@ -49,8 +49,27 @@ post_install do |installer|
       # Fix for Xcode 15+ arm64 simulator issues
       config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386'
 
-      # Enable bitcode for release builds only
+      # Disable bitcode (deprecated in Xcode 14+)
       config.build_settings['ENABLE_BITCODE'] = 'NO'
+
+      # Fix for permission handling in iOS 17+
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+        '$(inherited)',
+        'PERMISSION_CAMERA=1',
+        'PERMISSION_PHOTOS=1',
+        'PERMISSION_LOCATION=1',
+        'PERMISSION_LOCATION_ALWAYS=1',
+      ]
+
+      # Code signing settings for CI/CD compatibility
+      if config.name == 'Release'
+        config.build_settings['CODE_SIGN_IDENTITY'] = 'iPhone Distribution'
+      end
     end
+  end
+
+  # Workaround for Xcode 15 DT_TOOLCHAIN_DIR issue
+  installer.pods_project.build_configurations.each do |config|
+    config.build_settings['DEAD_CODE_STRIPPING'] = 'YES'
   end
 end

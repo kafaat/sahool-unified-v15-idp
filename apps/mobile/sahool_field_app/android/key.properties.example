@@ -1,0 +1,18 @@
+# Android Keystore Configuration for SAHOOL Field App
+# Copy this file to key.properties and fill in your values
+# IMPORTANT: Never commit key.properties to version control!
+#
+# To create a keystore:
+# keytool -genkey -v -keystore sahool-release-key.jks -keyalias sahool -keyalg RSA -keysize 2048 -validity 10000
+
+# Keystore file path (relative to android/app or absolute path)
+storeFile=../sahool-release-key.jks
+
+# Keystore password
+storePassword=your_keystore_password
+
+# Key alias (name of the key in the keystore)
+keyAlias=sahool
+
+# Key password (usually same as keystore password)
+keyPassword=your_key_password

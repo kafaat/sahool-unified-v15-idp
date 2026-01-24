@@ -3,11 +3,15 @@
 ///
 /// Handles notification taps and routes to appropriate screens
 /// Manages notification badge counts and read status
+/// يتعامل مع النقر على الإشعارات والتوجيه للشاشات المناسبة
+/// يدير عدد الإشعارات غير المقروءة وحالة القراءة
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 
 import '../../features/notifications/data/remote/notification_api.dart';
-import 'firebase_messaging_service.dart';
+import 'notification_types.dart';
 
 /// Navigation action for notifications
 class NotificationAction {
@@ -20,14 +24,57 @@ class NotificationAction {
   });
 }
 
+/// Notification payload for internal use
+/// حمولة الإشعار للاستخدام الداخلي
+class NotificationPayload {
+  final String id;
+  final SAHOOLNotificationType type;
+  final NotificationPriority priority;
+  final String title;
+  final String body;
+  final Map<String, dynamic> data;
+  final DateTime receivedAt;
+  final bool tapped;
+
+  const NotificationPayload({
+    required this.id,
+    required this.type,
+    required this.priority,
+    required this.title,
+    required this.body,
+    required this.data,
+    required this.receivedAt,
+    this.tapped = false,
+  });
+
+  factory NotificationPayload.fromJson(Map<String, dynamic> json) {
+    return NotificationPayload(
+      id: json['id'] as String? ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      type: SAHOOLNotificationType.fromString(json['type'] as String? ?? 'system'),
+      priority: NotificationPriority.fromString(json['priority'] as String?),
+      title: json['title'] as String? ?? '',
+      body: json['body'] as String? ?? '',
+      data: json,
+      receivedAt: DateTime.now(),
+      tapped: json['tapped'] as bool? ?? false,
+    );
+  }
+
+  /// Get action URL from data
+  String? get actionUrl => data['action_url'] as String?;
+
+  /// Get field ID from data
+  String? get fieldId => data['field_id'] as String?;
+
+  /// Get crop type from data
+  String? get cropType => data['crop_type'] as String?;
+}
+
 /// Notification Handler
 /// Routes notifications to appropriate screens and manages state
+/// معالج الإشعارات - يوجه الإشعارات للشاشات المناسبة ويدير الحالة
 class NotificationHandler {
-  static NotificationHandler? _instance;
-  static NotificationHandler get instance {
-    _instance ??= NotificationHandler._();
-    return _instance!;
-  }
+  static final NotificationHandler instance = NotificationHandler._();
 
   NotificationHandler._();
 
@@ -41,14 +88,23 @@ class NotificationHandler {
   int _unreadCount = 0;
   int get unreadCount => _unreadCount;
 
-  /// Notification count stream
-  final _countController = Stream<int>.empty();
-  Stream<int> get onCountChanged => _countController;
+  /// Notification stream controller
+  final _notificationStreamController = StreamController<NotificationPayload>.broadcast();
+  Stream<NotificationPayload> get onNotification => _notificationStreamController.stream;
+
+  /// Notification count stream controller
+  final _countStreamController = StreamController<int>.broadcast();
+  Stream<int> get onCountChanged => _countStreamController.stream;
+
+  bool _initialized = false;
+  bool get isInitialized => _initialized;
 
   /// Initialize with navigator key
   void initialize(GlobalKey<NavigatorState> navigatorKey) {
+    if (_initialized) return;
     _navigatorKey = navigatorKey;
-    _listenToNotifications();
+    _initialized = true;
+    debugPrint('NotificationHandler initialized');
   }
 
   /// Configure the notification API client
@@ -57,23 +113,25 @@ class NotificationHandler {
     _notificationApi = api;
   }
 
-  /// Listen to notification stream
-  void _listenToNotifications() {
-    FirebaseMessagingService.instance.onNotification.listen((payload) {
-      // Increment unread count for background notifications
-      if (!payload.tapped) {
-        _incrementUnreadCount();
-      }
+  /// Handle incoming notification (called from notification service)
+  void handleIncomingNotification(NotificationPayload payload) {
+    // Emit to stream
+    _notificationStreamController.add(payload);
 
-      // Handle notification tap
-      if (payload.tapped) {
-        handleNotificationTap(payload);
-      }
-    });
+    // Increment unread count for non-tapped notifications
+    if (!payload.tapped) {
+      _incrementUnreadCount();
+    }
+
+    // Handle notification tap
+    if (payload.tapped) {
+      handleNotificationTap(payload);
+    }
   }
 
   /// Handle notification tap
-  Future<void> handleNotificationTap(SAHOOLNotificationPayload payload) async {
+  /// معالجة النقر على الإشعار
+  Future<void> handleNotificationTap(NotificationPayload payload) async {
     final action = _getActionForNotification(payload);
 
     if (action == null) {
@@ -89,10 +147,12 @@ class NotificationHandler {
   }
 
   /// Get navigation action for notification type
-  NotificationAction? _getActionForNotification(SAHOOLNotificationPayload payload) {
+  /// الحصول على إجراء التنقل لنوع الإشعار
+  NotificationAction? _getActionForNotification(NotificationPayload payload) {
     // Check for custom action URL
-    if (payload.actionUrl != null) {
-      return _parseActionUrl(payload.actionUrl!);
+    final actionUrl = payload.actionUrl;
+    if (actionUrl != null) {
+      return _parseActionUrl(actionUrl);
     }
 
     // Default routes based on notification type
@@ -259,13 +319,14 @@ class NotificationHandler {
     String route, {
     Map<String, dynamic>? arguments,
   }) async {
-    if (_navigatorKey?.currentState == null) {
+    final navigatorState = _navigatorKey?.currentState;
+    if (navigatorState == null) {
       debugPrint('⚠️ Navigator not available');
       return;
     }
 
     try {
-      await _navigatorKey!.currentState!.pushNamed(
+      await navigatorState.pushNamed(
         route,
         arguments: arguments,
       );
@@ -273,7 +334,7 @@ class NotificationHandler {
     } catch (e) {
       debugPrint('❌ Navigation failed: $e');
       // Fallback to home
-      _navigatorKey!.currentState!.pushNamed('/');
+      navigatorState.pushNamed('/');
     }
   }
 
@@ -307,9 +368,10 @@ class NotificationHandler {
   /// Mark notification as read
   Future<void> markAsRead(String notificationId) async {
     // Call API to mark notification as read
-    if (_notificationApi != null) {
+    final api = _notificationApi;
+    if (api != null) {
       try {
-        await _notificationApi!.markAsRead(notificationId);
+        await api.markAsRead(notificationId);
       } catch (e) {
         debugPrint('Failed to mark notification as read: $e');
         // Continue with local state update even if API call fails
@@ -321,9 +383,10 @@ class NotificationHandler {
   /// Mark all as read
   Future<void> markAllAsRead() async {
     // Call API to mark all notifications as read
-    if (_notificationApi != null) {
+    final api = _notificationApi;
+    if (api != null) {
       try {
-        await _notificationApi!.markAllAsRead();
+        await api.markAllAsRead();
       } catch (e) {
         debugPrint('Failed to mark all notifications as read: $e');
         // Continue with local state update even if API call fails
@@ -331,12 +394,18 @@ class NotificationHandler {
     }
     resetUnreadCount();
   }
+
+  /// Dispose resources
+  void dispose() {
+    _notificationStreamController.close();
+    _countStreamController.close();
+  }
 }
 
 /// Extension for easy notification handling in widgets
 extension NotificationHandlerExtension on BuildContext {
   /// Handle notification tap from any widget
-  Future<void> handleNotification(SAHOOLNotificationPayload payload) async {
+  Future<void> handleNotification(NotificationPayload payload) async {
     await NotificationHandler.instance.handleNotificationTap(payload);
   }
 
@@ -348,7 +417,7 @@ extension NotificationHandlerExtension on BuildContext {
 
 /// Notification list item widget
 class NotificationListItem extends StatelessWidget {
-  final SAHOOLNotificationPayload notification;
+  final NotificationPayload notification;
   final bool isRead;
   final VoidCallback? onTap;
   final VoidCallback? onDismiss;

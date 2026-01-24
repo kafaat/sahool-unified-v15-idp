@@ -61,7 +61,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
 
     setState(() => _isLoading = true);
 
-    final authService = ref.read(authServiceProvider);
+    final authService = ref.read(registrationAuthServiceProvider);
 
     final request = RegisterRequest(
       email: _emailController.text.trim(),

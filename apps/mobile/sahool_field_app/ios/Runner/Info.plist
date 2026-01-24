@@ -45,5 +45,39 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Camera Permission - Required for image_picker, camera, mobile_scanner -->
+	<key>NSCameraUsageDescription</key>
+	<string>SAHOOL needs camera access to capture field photos, scan QR codes, and document crop conditions.</string>
+
+	<!-- Photo Library Permissions - Required for image_picker -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SAHOOL needs photo library access to select existing field images for crop documentation.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>SAHOOL needs permission to save captured field photos to your photo library.</string>
+
+	<!-- Location Permissions - Required for geolocator and flutter_map -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>SAHOOL needs your location to display your position on field maps and record field boundaries.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>SAHOOL needs continuous location access to track field operations and sync data in the background.</string>
+
+	<!-- Biometric Authentication - Required for local_auth (Face ID) -->
+	<key>NSFaceIDUsageDescription</key>
+	<string>SAHOOL uses Face ID for secure authentication to protect your agricultural data.</string>
+
+	<!-- Background Modes - Required for workmanager background sync -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
+
+	<!-- App Transport Security - Allow localhost for development -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

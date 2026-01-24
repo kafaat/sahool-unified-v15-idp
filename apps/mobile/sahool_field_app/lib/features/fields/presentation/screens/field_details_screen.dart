@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/config/env_config.dart';
+import '../../../field/domain/mappers/field_mapper.dart';
+import '../../../field/presentation/providers/field_controller.dart';
 import '../../domain/entities/field_entity.dart';
 
 /// شاشة تفاصيل الحقل
@@ -848,7 +852,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   }
 
   void _openMap() {
-    Navigator.pushNamed(context, '/map', arguments: {'fieldId': widget.field.id});
+    context.push('/map', extra: {'fieldId': widget.field.id});
   }
 
   void _handleMenuAction(String action) {
@@ -877,18 +881,18 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   void _showDeleteConfirmation() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('حذف الحقل'),
         content: Text('هل أنت متأكد من حذف "${widget.field.name}"؟'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('إلغاء'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              await _deleteField();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('حذف'),
@@ -896,6 +900,33 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         ],
       ),
     );
+  }
+
+  /// Delete field via repository
+  Future<void> _deleteField() async {
+    final tenantId = widget.field.tenantId;
+    final controller = ref.read(fieldControllerProvider(tenantId).notifier);
+
+    final success = await controller.deleteField(widget.field.id);
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('تم حذف الحقل "${widget.field.name}"'),
+          backgroundColor: const Color(0xFF367C2B),
+        ),
+      );
+      Navigator.pop(context, true); // Return true to indicate deletion
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('فشل حذف الحقل'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   Color _getHealthColor(double score) {

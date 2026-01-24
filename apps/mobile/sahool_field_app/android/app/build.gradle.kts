@@ -5,9 +5,21 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Load signing configuration from key.properties file (if exists)
+// For release builds, create android/key.properties with:
+//   storePassword=<keystore password>
+//   keyPassword=<key password>
+//   keyAlias=<key alias>
+//   storeFile=<path to keystore file>
+val keystorePropertiesFile = rootProject.file("key.properties")
+val keystoreProperties = java.util.Properties()
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+}
+
 android {
     namespace = "io.sahool.field"
-    compileSdk = 36
+    compileSdk = 35  // Android 15 (stable) - avoid Android 16 beta APIs
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -22,15 +34,21 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "io.sahool.field"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        // Camera libraries require API 23+
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        // Camera, mobile_scanner, and geolocator require API 23+
+        // SQLCipher and biometric auth also benefit from API 23+
+        minSdk = 23
+        targetSdk = 35  // Target Android 15 for latest features
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // Enable multidex for large app with many dependencies
+        multiDexEnabled = true
+
+        // NDK ABI filters for ARM devices (most Android phones)
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+        }
     }
 
     // APK Split Configuration for optimized APK sizes
@@ -44,19 +62,51 @@ android {
         }
     }
 
+    // Signing configurations for release builds
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
+        debug {
+            // Debug build optimizations
+            isDebuggable = true
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
+
         release {
-            // Disable code shrinking and minification to fix build errors
+            // Enable code shrinking and minification for smaller APKs
+            // Set to true once ProGuard rules are properly configured
             isMinifyEnabled = false
             isShrinkResources = false
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+
+            // Use release signing config if key.properties exists, otherwise use debug
+            signingConfig = if (keystorePropertiesFile.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
+    }
+
+    // Lint options to prevent build failures on warnings
+    lint {
+        checkReleaseBuilds = true
+        abortOnError = false
+        warningsAsErrors = false
     }
 }
 

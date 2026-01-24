@@ -13,11 +13,7 @@ import '../utils/app_logger.dart';
 /// - Cache size management
 
 class NetworkCache {
-  static NetworkCache? _instance;
-  static NetworkCache get instance {
-    _instance ??= NetworkCache._();
-    return _instance!;
-  }
+  static final NetworkCache instance = NetworkCache._();
 
   NetworkCache._();
 
@@ -128,7 +124,7 @@ class NetworkCache {
     if (data == null) return null;
 
     try {
-      final decoded = jsonDecode(data) as List;
+      final decoded = jsonDecode(data) as List<dynamic>;
 
       if (fromJson != null) {
         return decoded

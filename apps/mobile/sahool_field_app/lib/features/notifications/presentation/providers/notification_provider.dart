@@ -2,8 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/services/notification_service.dart';
 import '../../domain/entities/notification_entities.dart';
 
-/// Notification Service Provider
-final notificationServiceProvider = Provider<NotificationService>((ref) {
+/// In-App Notification Service Provider
+/// Note: Renamed from notificationServiceProvider to avoid conflict with
+/// core/notifications/notification_provider.dart (local push notifications)
+/// This provider is for in-app notification state management
+final inAppNotificationServiceProvider = Provider<NotificationService>((ref) {
   final service = NotificationService();
   service.init();
   return service;
@@ -93,7 +96,7 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
 /// Notifications Provider
 final notificationsProvider =
     StateNotifierProvider<NotificationsNotifier, NotificationsState>((ref) {
-  final service = ref.watch(notificationServiceProvider);
+  final service = ref.watch(inAppNotificationServiceProvider);
   return NotificationsNotifier(service);
 });
 

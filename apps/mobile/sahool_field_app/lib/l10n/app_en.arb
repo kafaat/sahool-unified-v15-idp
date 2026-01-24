@@ -1841,5 +1841,241 @@
   "stability": "Stability",
   "security_": "Security",
   "compatibility": "Compatibility",
-  "accessibility": "Accessibility"
+  "accessibility": "Accessibility",
+
+  "farmersCommunity": "Farmers Community",
+  "askTheCommunity": "Ask the Community",
+  "addStory": "Add",
+  "plantDiseases": "Plant Diseases",
+  "irrigationAndFertilization": "Irrigation and Fertilization",
+  "marketingCategory": "Marketing",
+  "equipmentCategory": "Equipment",
+  "theNotifications": "Notifications",
+  "theComments": "Comments",
+  "newReplyToQuestion": "New reply to your question",
+  "newLike": "New Like",
+  "newFollower": "New Follower",
+  "replied": "replied",
+  "answered": "Answered",
+  "savePost": "Save",
+  "reportPost": "Report",
+  "sharePost": "Share",
+  "writeComment": "Write a comment...",
+  "newQuestion": "New Question",
+  "questionTitle": "Question Title",
+  "writeQuestionDetails": "Write your question details here...",
+  "post": "Post",
+  "cameraWillOpen": "Camera will open to add a story",
+  "viewingStory": "Viewing story of {name}",
+  "@viewingStory": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "searchInCommunity": "Search in community...",
+  "searchResultsFor": "Search results for: {query}",
+  "@searchResultsFor": {
+    "placeholders": {
+      "query": {"type": "String"}
+    }
+  },
+  "tomatoDiseases": "Tomato diseases",
+  "dripIrrigation": "Drip irrigation",
+  "npkFertilizer": "NPK fertilizer",
+  "pestControl_search": "Pest control",
+  "greenhouses": "Greenhouses",
+  "photoAttach": "Photo",
+  "fieldAttach": "Field",
+  "categoryAttach": "Category",
+  "reply": "Reply",
+  "likesCount": "{count} people liked your post",
+  "@likesCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "startedFollowing": "started following you",
+  "sinceMinutes": "{count, plural, =1{1 minute ago} other{{count} minutes ago}}",
+  "@sinceMinutes": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "sinceHours": "{count, plural, =1{1 hour ago} other{{count} hours ago}}",
+  "@sinceHours": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "sinceYesterday": "Yesterday",
+
+  "sahoolMarket": "SAHOOL Market",
+  "sellMyCrop": "Sell My Crop",
+  "searchProductsPlaceholder": "Search for seeds, fertilizers, equipment...",
+  "allCategories": "All",
+  "seedsAndCrops": "Seeds and Crops",
+  "fertilizersCategory": "Fertilizers",
+  "irrigationEquipment": "Irrigation Equipment",
+  "agriculturalTools": "Agricultural Tools",
+  "addedToCart": "{productName} added to cart",
+  "@addedToCart": {
+    "placeholders": {
+      "productName": {"type": "String"}
+    }
+  },
+  "yemeniWheatSeeds": "Yemeni Wheat Seeds",
+  "ureaFertilizer": "Urea Fertilizer 46%",
+  "dripIrrigationSystem": "Drip Irrigation System",
+  "hybridTomatoSeeds": "Hybrid Tomato Seeds",
+  "naturalInsecticide": "Natural Insecticide",
+  "solarWaterPump": "Solar Water Pump",
+
+  "moreMenu": "More",
+  "theMap": "Map",
+  "theReports": "Reports",
+  "theHistory": "History",
+  "theSync": "Sync",
+  "theHelp": "Help",
+  "aboutApp": "About App",
+  "versionNumber": "Version {version}",
+  "@versionNumber": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
+  "allRightsReservedKafaat": "All rights reserved to KAFAAT.",
+  "logoutConfirmationTitle": "Logout",
+  "logoutConfirmationMessage": "Are you sure you want to logout?",
+  "farmerName": "Ahmed the Farmer",
+  "farmNameExample": "Al-Khair Farm",
+
+  "clearCacheSuccess": "Cache cleared successfully",
+  "noInfoAvailable": "No information available",
+  "refreshLabel": "Refresh",
+  "clearLabel": "Clear",
+  "settingsSaved": "Settings saved",
+  "notificationSettingsTitle": "Notification Settings",
+  "quietHoursStart": "Quiet Hours Start",
+  "quietHoursEnd": "Quiet Hours End",
+  "undoAction": "Undo",
+  "finishAction": "Finish",
+  "compressedMap": "Compressed Map",
+  "cacheSize": "Cache",
+  "filesCount": "Files",
+  "prefetching": "Prefetching...",
+  "qualityLabel": "Quality",
+  "presetsLabel": "Presets",
+  "mobilePreset": "Mobile (60%)",
+  "tabletPreset": "Tablet (80%)",
+  "prefetchCities": "Prefetch Cities",
+  "cityAden": "Aden",
+  "cityTaiz": "Taiz",
+  "cityHodeidah": "Hodeidah",
+  "cancelDownload": "Cancel Download",
+  "downloadLabel": "Download",
+  "connectionRestored": "Connection restored",
+  "retryConnection": "Retry",
+  "syncCompleted": "Sync completed successfully",
+  "syncNowButton": "Sync Now",
+  "securityWarningTitle": "Security Warning",
+  "screenRecordingDetected": "Screen recording detected",
+  "understoodButton": "Understood",
+  "errorSelectingImage": "Error selecting image: {error}",
+  "@errorSelectingImage": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "savedLocallyWillSync": "Saved locally - will sync when connected",
+  "errorSaving": "Error saving: {error}",
+  "@errorSaving": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "fieldScoutTask": "Field Scout Task",
+  "cameraButton": "Camera",
+  "galleryButton": "Gallery",
+  "researchExperiments": "Research Experiments",
+  "newExperiment": "New Experiment",
+  "experimentDetails": "Experiment Details",
+  "viewMap": "View Map",
+  "treatmentLabel": "Treatment: {code}",
+  "@treatmentLabel": {
+    "placeholders": {
+      "code": {"type": "String"}
+    }
+  },
+  "lastObservation": "Last observation",
+  "sampleCollection": "Sample Collection",
+  "sampleCollectionScreen": "Sample collection screen - Under development",
+  "plotMapTitle": "Plot Map",
+  "plotMapScreen": "Experimental plots map - Under development",
+  "copyErrorDetails": "Copy Error Details",
+  "errorDetailsCopied": "Error details copied",
+  "scannedValue": "Scanned: {value}",
+  "@scannedValue": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "appContent": "App Content",
+  "errorDisplayExample": "Error Display Example",
+  "someContent": "Some content",
+  "loadingExample": "Loading Example",
+  "startOperation": "Start Operation",
+  "fieldsScreen": "Fields",
+  "addFieldButton": "Add Field",
+  "arabicSupportExample": "Arabic Support Example",
+  "showAllButton": "Show All",
+  "backToHome": "Back to Home",
+  "processFailed": "Operation failed",
+  "processData": "Process Data",
+  "goToSettings": "Go to Settings",
+  "performRiskyOperation": "Perform Risky Operation",
+
+  "fieldNumber": "Field {number}",
+  "@fieldNumber": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "pressGenerateToPreview": "Press \"Generate\" to preview zones",
+
+  "nFieldsCount": "{count, plural, =0{No fields} =1{1 field} other{{count} fields}}",
+  "@nFieldsCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "nTasksCount": "{count, plural, =0{No tasks} =1{1 task} other{{count} tasks}}",
+  "@nTasksCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "nAlertsCount": "{count, plural, =0{No alerts} =1{1 alert} other{{count} alerts}}",
+  "@nAlertsCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "nItemsCount": "{count, plural, =0{No items} =1{1 item} other{{count} items}}",
+  "@nItemsCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "nMessagesCount": "{count, plural, =0{No messages} =1{1 message} other{{count} messages}}",
+  "@nMessagesCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "nDaysRemaining": "{count, plural, =0{No days remaining} =1{1 day remaining} other{{count} days remaining}}",
+  "@nDaysRemaining": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  }
 }

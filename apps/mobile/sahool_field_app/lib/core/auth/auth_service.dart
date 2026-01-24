@@ -414,8 +414,8 @@ class AuthService {
     }
 
     // Get stored credentials
-    final refreshToken = await secureStorage.getRefreshToken();
-    if (refreshToken == null) {
+    final storedRefreshToken = await secureStorage.getRefreshToken();
+    if (storedRefreshToken == null) {
       throw AuthException('لا توجد جلسة محفوظة');
     }
 

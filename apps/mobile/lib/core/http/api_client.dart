@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -7,6 +8,9 @@ import '../security/certificate_pinning_service.dart';
 import '../security/certificate_config.dart';
 import '../security/signing_key_service.dart';
 import '../utils/app_logger.dart';
+import '../auth/token_manager.dart';
+import '../auth/secure_storage_service.dart';
+import '../network/network.dart';
 import 'rate_limiter.dart';
 import 'request_signing_interceptor.dart';
 import 'security_headers_interceptor.dart';
@@ -20,6 +24,12 @@ class ApiClient {
   CertificatePinningService? _certificatePinningService;
   late final RateLimiter _rateLimiter;
 
+  /// Robust retry interceptor with circuit breaker support
+  late final RobustRetryInterceptor _robustRetryInterceptor;
+
+  /// Token interceptor for advanced token management
+  _TokenInterceptorWrapper? _tokenInterceptorWrapper;
+
   ApiClient({
     String? baseUrl,
     SecurityConfig? securityConfig,
@@ -29,6 +39,11 @@ class ApiClient {
     bool enableRequestSigning = true,
     SecurityHeaderConfig? securityHeaderConfig,
     bool enableSecurityHeaderValidation = true,
+    RobustRetryInterceptor? robustRetryInterceptor,
+    bool enableRobustRetry = true,
+    RetryPolicy? defaultRetryPolicy,
+    OnRetryCallback? onRetry,
+    bool enableOfflineQueue = true,
   }) {
     // Use security config based on environment or build mode
     final config = securityConfig ?? SecurityConfig.fromBuildMode();
@@ -82,11 +97,34 @@ class ApiClient {
       queueExceededRequests: true,
     ));
 
-    // Add retry interceptor for automatic retry on network errors
-    _dio.interceptors.add(RetryInterceptor(
-      maxRetries: 3,
-      initialDelay: const Duration(seconds: 1),
-    ));
+    // Initialize and add robust retry interceptor with circuit breaker
+    if (enableRobustRetry) {
+      _robustRetryInterceptor = robustRetryInterceptor ?? RobustRetryInterceptor(
+        defaultPolicy: defaultRetryPolicy ?? RetryPolicies.standard,
+        onRetry: onRetry,
+        enableOfflineQueue: enableOfflineQueue,
+        onCircuitStateChange: (endpoint, state) {
+          if (kDebugMode) {
+            AppLogger.i(
+              'Circuit breaker state changed',
+              tag: 'ApiClient',
+              data: {'endpoint': endpoint, 'state': state.name},
+            );
+          }
+        },
+      );
+      _dio.interceptors.add(_robustRetryInterceptor);
+    } else {
+      // Fallback to basic retry interceptor
+      _robustRetryInterceptor = RobustRetryInterceptor(
+        defaultPolicy: RetryPolicies.none,
+        enableOfflineQueue: false,
+      );
+      _dio.interceptors.add(RetryInterceptor(
+        maxRetries: 3,
+        initialDelay: const Duration(seconds: 1),
+      ));
+    }
 
     _dio.interceptors.add(_AuthInterceptor(this));
 
@@ -137,6 +175,79 @@ class ApiClient {
   String get tenantId => _tenantId;
   CertificatePinningService? get certificatePinningService => _certificatePinningService;
   RateLimiter get rateLimiter => _rateLimiter;
+  RobustRetryInterceptor get retryInterceptor => _robustRetryInterceptor;
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Network Quality & Circuit Breaker Methods
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /// Get current network quality (good, slow, offline)
+  NetworkQuality get networkQuality => _robustRetryInterceptor.getNetworkQuality();
+
+  /// Check if network is offline
+  bool get isOffline => networkQuality == NetworkQuality.offline;
+
+  /// Get circuit breaker status for a specific endpoint
+  CircuitBreakerStatus? getCircuitBreakerStatus(String endpoint) {
+    return _robustRetryInterceptor.getCircuitBreakerStatus(endpoint);
+  }
+
+  /// Get health summary for all circuit breakers
+  CircuitBreakerHealthSummary get circuitBreakerHealth {
+    return _robustRetryInterceptor.getCircuitBreakerHealth();
+  }
+
+  /// Get retry interceptor statistics
+  RetryInterceptorStats get retryStats => _robustRetryInterceptor.getStats();
+
+  /// Get number of requests queued for offline retry
+  int get queuedRequestCount => _robustRetryInterceptor.queuedRequestCount;
+
+  /// Process offline queue manually
+  Future<void> processOfflineQueue() => _robustRetryInterceptor.processQueue();
+
+  /// Reset all circuit breakers
+  void resetCircuitBreakers() => _robustRetryInterceptor.resetCircuitBreakers();
+
+  /// Reset retry statistics
+  void resetRetryStats() => _robustRetryInterceptor.resetStats();
+
+  /// Get the underlying Dio instance (for advanced configuration)
+  Dio get dio => _dio;
+
+  /// Configure advanced token management with TokenManager
+  /// This adds proactive refresh, retry logic, and request queueing
+  void configureTokenInterceptor({
+    required TokenManager tokenManager,
+    required SecureStorageService secureStorage,
+  }) {
+    // Remove existing basic auth interceptor
+    _dio.interceptors.removeWhere((i) => i is _AuthInterceptor);
+
+    // Add advanced token interceptor wrapper
+    _tokenInterceptorWrapper = _TokenInterceptorWrapper(
+      dio: _dio,
+      tokenManager: tokenManager,
+      secureStorage: secureStorage,
+    );
+    _dio.interceptors.insert(0, _tokenInterceptorWrapper!);
+
+    // Update token manager with API client
+    tokenManager.setApiClient(this);
+
+    if (kDebugMode) {
+      AppLogger.i('Advanced token interceptor configured', tag: 'ApiClient');
+    }
+  }
+
+  /// Check if advanced token interceptor is configured
+  bool get hasTokenInterceptor => _tokenInterceptorWrapper != null;
+
+  /// Get pending request count (if token interceptor is configured)
+  int get pendingRequestCount => _tokenInterceptorWrapper?.pendingRequestCount ?? 0;
+
+  /// Check if token refresh is in progress
+  bool get isRefreshing => _tokenInterceptorWrapper?.isRefreshing ?? false;
 
   /// Check if certificate pinning is enabled
   bool get isCertificatePinningEnabled => _certificatePinningService != null;
@@ -385,4 +496,306 @@ class ApiException implements Exception {
 
   @override
   String toString() => 'ApiException($code): $message';
+}
+
+/// Token Interceptor Wrapper for advanced token management
+/// This is an inline implementation to avoid circular dependencies
+class _TokenInterceptorWrapper extends Interceptor {
+  final Dio _dio;
+  final TokenManager _tokenManager;
+  final SecureStorageService _secureStorage;
+
+  /// Buffer time before token expiration to trigger proactive refresh
+  static const Duration _refreshBuffer = Duration(minutes: 5);
+
+  /// Maximum retry attempts for token refresh
+  static const int _maxRefreshRetries = 3;
+
+  /// Initial delay for exponential backoff
+  static const Duration _initialRetryDelay = Duration(seconds: 1);
+
+  /// Lock for preventing concurrent refresh operations
+  bool _isRefreshing = false;
+
+  /// Completer for coordinating refresh operations
+  Completer<bool>? _refreshCompleter;
+
+  /// Queue of pending requests waiting for refresh
+  final List<_QueuedRequest> _requestQueue = [];
+
+  _TokenInterceptorWrapper({
+    required Dio dio,
+    required TokenManager tokenManager,
+    required SecureStorageService secureStorage,
+  })  : _dio = dio,
+        _tokenManager = tokenManager,
+        _secureStorage = secureStorage;
+
+  int get pendingRequestCount => _requestQueue.length;
+  bool get isRefreshing => _isRefreshing;
+
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    // Skip auth for public endpoints
+    if (_isPublicEndpoint(options.path)) {
+      return handler.next(options);
+    }
+
+    try {
+      // Check if token needs proactive refresh
+      await _checkAndRefreshTokenIfNeeded();
+
+      // Get current access token
+      final accessToken = await _secureStorage.getAccessToken();
+
+      if (accessToken != null && accessToken.isNotEmpty) {
+        options.headers['Authorization'] = 'Bearer $accessToken';
+      }
+
+      // Add tenant ID
+      final tenantId = await _secureStorage.getTenantId();
+      if (tenantId != null) {
+        options.headers['X-Tenant-Id'] = tenantId;
+      }
+
+      handler.next(options);
+    } catch (e) {
+      AppLogger.e('Error in token interceptor onRequest', tag: 'TOKEN', error: e);
+      handler.next(options);
+    }
+  }
+
+  @override
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+    // Handle 401 Unauthorized
+    if (err.response?.statusCode == 401) {
+      // Skip refresh for public endpoints or refresh endpoint itself
+      if (_isPublicEndpoint(err.requestOptions.path) ||
+          err.requestOptions.path.contains('/auth/refresh')) {
+        return handler.next(err);
+      }
+
+      final success = await _handleUnauthorizedError(err, handler);
+      if (success) return;
+    }
+
+    handler.next(err);
+  }
+
+  /// Check if token is about to expire and refresh proactively
+  Future<void> _checkAndRefreshTokenIfNeeded() async {
+    final expiry = await _secureStorage.getTokenExpiry();
+    if (expiry == null) return;
+
+    final now = DateTime.now();
+    final timeUntilExpiry = expiry.difference(now);
+
+    // If token expires within buffer time, refresh proactively
+    if (timeUntilExpiry <= _refreshBuffer && timeUntilExpiry.inSeconds > 0) {
+      AppLogger.i(
+        'Token expiring soon (${timeUntilExpiry.inMinutes} min), refreshing proactively',
+        tag: 'TOKEN',
+      );
+      await _performTokenRefresh();
+    }
+  }
+
+  /// Handle 401 error by refreshing token and retrying request
+  Future<bool> _handleUnauthorizedError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    final requestOptions = err.requestOptions;
+
+    // Check if this request has already been retried
+    final hasRetried = requestOptions.extra['_token_retry'] == true;
+    if (hasRetried) {
+      return false;
+    }
+
+    // If already refreshing, queue this request
+    if (_isRefreshing) {
+      return _queueRequest(requestOptions, handler);
+    }
+
+    // Attempt to refresh token
+    final refreshSuccess = await _performTokenRefresh();
+
+    if (refreshSuccess) {
+      return _retryRequest(requestOptions, handler);
+    } else {
+      return false;
+    }
+  }
+
+  /// Perform token refresh with retry logic
+  Future<bool> _performTokenRefresh() async {
+    if (_isRefreshing) {
+      return _refreshCompleter?.future ?? Future.value(false);
+    }
+
+    _isRefreshing = true;
+    _refreshCompleter = Completer<bool>();
+
+    bool success = false;
+    int retryCount = 0;
+    Duration delay = _initialRetryDelay;
+
+    while (retryCount < _maxRefreshRetries && !success) {
+      try {
+        if (retryCount > 0) {
+          await Future.delayed(delay);
+        }
+
+        await _tokenManager.refreshToken();
+        success = true;
+      } catch (e) {
+        retryCount++;
+        delay = Duration(milliseconds: delay.inMilliseconds * 2);
+
+        if (_isPermanentRefreshError(e)) {
+          break;
+        }
+      }
+    }
+
+    _isRefreshing = false;
+    _refreshCompleter?.complete(success);
+    _refreshCompleter = null;
+
+    if (success) {
+      await _processQueuedRequests();
+    } else {
+      await _handleRefreshFailure();
+      _rejectQueuedRequests();
+    }
+
+    return success;
+  }
+
+  bool _isPermanentRefreshError(dynamic error) {
+    if (error is DioException) {
+      final statusCode = error.response?.statusCode;
+      return statusCode == 401 || statusCode == 403;
+    }
+    return false;
+  }
+
+  Future<bool> _queueRequest(
+    RequestOptions options,
+    ErrorInterceptorHandler handler,
+  ) async {
+    final queuedRequest = _QueuedRequest(
+      options: options,
+      handler: handler,
+      completer: Completer<bool>(),
+    );
+
+    _requestQueue.add(queuedRequest);
+    await _refreshCompleter?.future;
+    return queuedRequest.completer.future;
+  }
+
+  Future<void> _processQueuedRequests() async {
+    final newToken = await _secureStorage.getAccessToken();
+    if (newToken == null) {
+      _rejectQueuedRequests();
+      return;
+    }
+
+    for (final queuedRequest in _requestQueue) {
+      try {
+        queuedRequest.options.headers['Authorization'] = 'Bearer $newToken';
+        queuedRequest.options.extra['_token_retry'] = true;
+
+        final response = await _dio.fetch(queuedRequest.options);
+        queuedRequest.handler.resolve(response);
+        queuedRequest.completer.complete(true);
+      } catch (e) {
+        if (e is DioException) {
+          queuedRequest.handler.reject(e);
+        }
+        queuedRequest.completer.complete(false);
+      }
+    }
+
+    _requestQueue.clear();
+  }
+
+  void _rejectQueuedRequests() {
+    for (final queuedRequest in _requestQueue) {
+      queuedRequest.handler.reject(
+        DioException(
+          requestOptions: queuedRequest.options,
+          type: DioExceptionType.unknown,
+          error: 'Token refresh failed',
+          message: 'Unable to refresh authentication token',
+        ),
+      );
+      queuedRequest.completer.complete(false);
+    }
+    _requestQueue.clear();
+  }
+
+  Future<bool> _retryRequest(
+    RequestOptions options,
+    ErrorInterceptorHandler handler,
+  ) async {
+    try {
+      final newToken = await _secureStorage.getAccessToken();
+      if (newToken == null) return false;
+
+      options.headers['Authorization'] = 'Bearer $newToken';
+      options.extra['_token_retry'] = true;
+
+      final response = await _dio.fetch(options);
+      handler.resolve(response);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> _handleRefreshFailure() async {
+    try {
+      await _secureStorage.deleteTokens();
+      await _tokenManager.handleRefreshFailure();
+    } catch (e) {
+      AppLogger.e('Error clearing auth state', tag: 'TOKEN', error: e);
+    }
+  }
+
+  bool _isPublicEndpoint(String path) {
+    const publicPaths = [
+      '/auth/login',
+      '/auth/register',
+      '/auth/forgot-password',
+      '/auth/reset-password',
+      '/auth/verify-otp',
+      '/auth/send-otp',
+      '/health',
+      '/healthz',
+      '/readyz',
+      '/version',
+      '/api-docs',
+      '/swagger',
+    ];
+    return publicPaths.any((p) => path.contains(p));
+  }
+}
+
+/// Internal class to track queued requests
+class _QueuedRequest {
+  final RequestOptions options;
+  final ErrorInterceptorHandler handler;
+  final Completer<bool> completer;
+
+  _QueuedRequest({
+    required this.options,
+    required this.handler,
+    required this.completer,
+  });
 }

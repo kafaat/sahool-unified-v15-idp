@@ -8,6 +8,8 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 .PHONY: help dev build up down restart logs clean test health
+.PHONY: mobile-test mobile-build mobile-build-release mobile-build-aab mobile-analyze
+.PHONY: mobile-format mobile-clean mobile-deps mobile-codegen mobile-doctor mobile-ci
 .DEFAULT_GOAL := help
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -59,6 +61,9 @@ help: ## عرض قائمة الأوامر المتاحة - Show available comman
 	@echo ""
 	@echo "$(BOLD)$(BLUE)Monitoring - المراقبة:$(RESET)"
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## .*monitor/ {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
+	@echo "$(BOLD)$(BLUE)Mobile Development - تطوير الجوال:$(RESET)"
+	@awk 'BEGIN {FS = ":.*?## "} /^mobile-[a-zA-Z_-]+:.*?## / {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
 	@echo "$(BOLD)$(BLUE)Utilities - الأدوات المساعدة:$(RESET)"
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## .*(clean|status|health|shell)/ {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -525,6 +530,138 @@ quickstart: ## بدء سريع للمطورين الجدد - Quick start for new
 	@echo "$(BOLD)$(GREEN)✅ منصة سهول جاهزة! - SAHOOL Platform is ready!$(RESET)"
 	@echo ""
 	@$(MAKE) --no-print-directory status
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Mobile Development - تطوير تطبيق الجوال
+# ═══════════════════════════════════════════════════════════════════════════════
+
+MOBILE_DIR = apps/mobile
+
+mobile-test: ## تشغيل اختبارات Flutter - Run Flutter mobile app tests
+	@echo "$(BLUE)📱 تشغيل اختبارات تطبيق الجوال - Running Flutter tests...$(RESET)"
+	@if [ -d "$(MOBILE_DIR)" ]; then \
+		cd $(MOBILE_DIR) && flutter test --coverage --reporter=expanded; \
+		if [ -f coverage/lcov.info ]; then \
+			echo "$(GREEN)✅ التغطية: $$(lcov --summary coverage/lcov.info 2>&1 | grep 'lines' | sed 's/.*: //')$(RESET)"; \
+		fi; \
+	else \
+		echo "$(RED)❌ Mobile directory not found$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)✅ اكتملت اختبارات الجوال - Mobile tests complete!$(RESET)"
+
+mobile-build: ## بناء APK للتطبيق - Build Flutter APK (debug)
+	@echo "$(YELLOW)🔨 بناء تطبيق الجوال - Building Flutter APK...$(RESET)"
+	@if [ -d "$(MOBILE_DIR)" ]; then \
+		cd $(MOBILE_DIR) && \
+		flutter pub get && \
+		dart run build_runner build --delete-conflicting-outputs && \
+		flutter build apk --debug; \
+		APK_PATH=$$(find build/app/outputs -name "*.apk" | head -1); \
+		if [ -n "$$APK_PATH" ]; then \
+			APK_SIZE=$$(du -h "$$APK_PATH" | cut -f1); \
+			echo "$(GREEN)✅ APK جاهز: $$APK_PATH ($$APK_SIZE)$(RESET)"; \
+		fi; \
+	else \
+		echo "$(RED)❌ Mobile directory not found$(RESET)"; \
+		exit 1; \
+	fi
+
+mobile-build-release: ## بناء APK للإنتاج - Build Flutter APK (release)
+	@echo "$(YELLOW)🔨 بناء تطبيق الجوال للإنتاج - Building Release APK...$(RESET)"
+	@if [ -d "$(MOBILE_DIR)" ]; then \
+		cd $(MOBILE_DIR) && \
+		flutter pub get && \
+		dart run build_runner build --delete-conflicting-outputs && \
+		flutter build apk --release; \
+		APK_PATH=$$(find build/app/outputs -name "*.apk" | head -1); \
+		if [ -n "$$APK_PATH" ]; then \
+			APK_SIZE=$$(du -h "$$APK_PATH" | cut -f1); \
+			echo "$(GREEN)✅ Release APK جاهز: $$APK_PATH ($$APK_SIZE)$(RESET)"; \
+		fi; \
+	else \
+		echo "$(RED)❌ Mobile directory not found$(RESET)"; \
+		exit 1; \
+	fi
+
+mobile-build-aab: ## بناء AAB للمتجر - Build Flutter App Bundle for Play Store
+	@echo "$(YELLOW)🔨 بناء App Bundle للمتجر - Building AAB...$(RESET)"
+	@if [ -d "$(MOBILE_DIR)" ]; then \
+		cd $(MOBILE_DIR) && \
+		flutter pub get && \
+		dart run build_runner build --delete-conflicting-outputs && \
+		flutter build appbundle --release; \
+		AAB_PATH=$$(find build/app/outputs/bundle -name "*.aab" | head -1); \
+		if [ -n "$$AAB_PATH" ]; then \
+			AAB_SIZE=$$(du -h "$$AAB_PATH" | cut -f1); \
+			echo "$(GREEN)✅ AAB جاهز: $$AAB_PATH ($$AAB_SIZE)$(RESET)"; \
+		fi; \
+	else \
+		echo "$(RED)❌ Mobile directory not found$(RESET)"; \
+		exit 1; \
+	fi
+
+mobile-analyze: ## تحليل كود Flutter - Analyze Flutter code
+	@echo "$(BLUE)🔍 تحليل كود Flutter - Running Flutter analyze...$(RESET)"
+	@if [ -d "$(MOBILE_DIR)" ]; then \
+		cd $(MOBILE_DIR) && \
+		flutter pub get && \
+		flutter analyze --no-fatal-infos; \
+	else \
+		echo "$(RED)❌ Mobile directory not found$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)✅ تحليل الكود مكتمل - Analysis complete!$(RESET)"
+
+mobile-format: ## تنسيق كود Dart - Format Dart code
+	@echo "$(BLUE)✨ تنسيق كود Dart - Formatting Dart code...$(RESET)"
+	@if [ -d "$(MOBILE_DIR)" ]; then \
+		cd $(MOBILE_DIR) && dart format lib/ test/; \
+	else \
+		echo "$(RED)❌ Mobile directory not found$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)✅ تم تنسيق الكود - Code formatted!$(RESET)"
+
+mobile-clean: ## تنظيف ملفات Flutter - Clean Flutter build artifacts
+	@echo "$(RED)🧹 تنظيف ملفات البناء - Cleaning Flutter build...$(RESET)"
+	@if [ -d "$(MOBILE_DIR)" ]; then \
+		cd $(MOBILE_DIR) && \
+		flutter clean && \
+		rm -rf .dart_tool build coverage; \
+	fi
+	@echo "$(GREEN)✅ تم التنظيف - Clean complete!$(RESET)"
+
+mobile-deps: ## تثبيت تبعيات Flutter - Install Flutter dependencies
+	@echo "$(YELLOW)📦 تثبيت تبعيات Flutter - Installing Flutter dependencies...$(RESET)"
+	@if [ -d "$(MOBILE_DIR)" ]; then \
+		cd $(MOBILE_DIR) && \
+		flutter pub get && \
+		dart run build_runner build --delete-conflicting-outputs; \
+	else \
+		echo "$(RED)❌ Mobile directory not found$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)✅ التبعيات جاهزة - Dependencies installed!$(RESET)"
+
+mobile-codegen: ## توليد الكود (Drift, Freezed) - Generate code (Drift, Freezed, etc.)
+	@echo "$(YELLOW)⚙️  توليد الكود - Generating code...$(RESET)"
+	@if [ -d "$(MOBILE_DIR)" ]; then \
+		cd $(MOBILE_DIR) && \
+		flutter pub get && \
+		dart run build_runner build --delete-conflicting-outputs; \
+	else \
+		echo "$(RED)❌ Mobile directory not found$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)✅ توليد الكود مكتمل - Code generation complete!$(RESET)"
+
+mobile-doctor: ## فحص بيئة Flutter - Check Flutter environment
+	@echo "$(BLUE)🏥 فحص بيئة Flutter - Flutter doctor...$(RESET)"
+	flutter doctor -v
+
+mobile-ci: mobile-analyze mobile-test ## فحوصات CI للجوال - Run mobile CI checks
+	@echo "$(GREEN)✅ فحوصات CI للجوال مكتملة - Mobile CI checks passed!$(RESET)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # CI/CD Commands - أوامر التكامل والنشر المستمر

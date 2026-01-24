@@ -5,22 +5,40 @@ import '../../features/field/data/remote/fields_api.dart';
 import '../sync/network_status.dart';
 import '../http/api_client.dart';
 import '../security/signing_key_service.dart';
+import '../auth/token_manager.dart';
+import '../auth/secure_storage_service.dart';
 
 // Re-export database provider from main.dart
 // Note: databaseProvider is defined in main.dart and overridden at runtime
 
 /// API Client Provider
-/// Automatically configures certificate pinning and request signing based on build mode:
+/// Automatically configures certificate pinning, request signing, and token management based on build mode:
 /// - Debug builds: Certificate pinning disabled (for local development)
 /// - Release builds: Certificate pinning and request signing enabled (for production security)
+/// - Token interceptor: Configured for proactive refresh, retry logic, and request queueing
 final apiClientProvider = Provider<ApiClient>((ref) {
   final signingKeyService = ref.watch(signingKeyServiceProvider);
-  return ApiClient(
+  final tokenManager = ref.read(tokenManagerProvider);
+  final secureStorage = ref.read(secureStorageProvider);
+
+  final apiClient = ApiClient(
     signingKeyService: signingKeyService,
     enableRequestSigning: true,
   );
+
+  // Configure advanced token interceptor for:
+  // - Proactive refresh before token expiration (5 min buffer)
+  // - Exponential backoff retry on refresh failures
+  // - Request queueing during refresh
+  // - Mutex lock to prevent concurrent refreshes
+  apiClient.configureTokenInterceptor(
+    tokenManager: tokenManager,
+    secureStorage: secureStorage,
+  );
+
   // Note: ApiClient automatically uses SecurityConfig.fromBuildMode()
   // which enables certificate pinning in release builds
+  return apiClient;
 });
 
 /// Fields API Provider

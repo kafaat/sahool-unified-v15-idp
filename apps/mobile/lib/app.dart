@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/theme.dart';
+import 'core/error/error.dart';
+import 'generated/l10n/app_localizations.dart';
 import 'features/home/presentation/screens/home_dashboard.dart';
 import 'features/tasks/presentation/tasks_list_screen.dart';
 import 'features/crop_health/presentation/screens/crop_health_dashboard.dart';
@@ -13,6 +15,7 @@ import 'features/marketplace/marketplace_screen.dart';
 import 'features/wallet/wallet_screen.dart';
 import 'features/community/ui/community_screen.dart';
 import 'features/market/ui/sell_harvest_dialog.dart';
+import 'features/onboarding/onboarding.dart';
 
 /// SAHOOL Field App
 /// تطبيق سهول الميداني
@@ -42,17 +45,10 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
       title: 'سهول',
       debugShowCheckedModeBanner: false,
 
-      // Arabic RTL Support
+      // Arabic RTL Support with generated localizations
       locale: const Locale('ar'),
-      supportedLocales: const [
-        Locale('ar'),
-        Locale('en'),
-      ],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
 
       // Theme
       theme: SahoolTheme.light,
@@ -60,7 +56,7 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
       themeMode: ThemeMode.system,
 
       // Routes
-      home: const MainAppShell(),
+      home: const _AppStartupWrapper(),
       onGenerateRoute: _generateRoute,
     );
   }
@@ -68,31 +64,51 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
   Route<dynamic>? _generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case '/':
-        return _buildRoute(const MainAppShell(), settings);
+        return _buildRoute(
+          const MainAppShell().withScreenErrorBoundary(screenName: 'MainAppShell'),
+          settings,
+        );
+      case '/onboarding':
+        return _buildRoute(
+          const OnboardingScreen().withScreenErrorBoundary(screenName: 'OnboardingScreen'),
+          settings,
+        );
       case '/tasks':
-        return _buildRoute(const TasksListScreen(), settings);
+        return _buildRoute(
+          const TasksListScreen().withScreenErrorBoundary(screenName: 'TasksList'),
+          settings,
+        );
       case '/crop-health':
         final args = settings.arguments as Map<String, dynamic>?;
         return _buildRoute(
-          CropHealthDashboard(fieldId: args?['fieldId'] ?? ''),
+          CropHealthDashboard(fieldId: args?['fieldId'] ?? '')
+              .withScreenErrorBoundary(screenName: 'CropHealthDashboard'),
           settings,
         );
       case '/weather':
         final args = settings.arguments as Map<String, dynamic>?;
         return _buildRoute(
-          WeatherScreen(fieldId: args?['fieldId'] ?? ''),
+          WeatherScreen(fieldId: args?['fieldId'] ?? '')
+              .withScreenErrorBoundary(screenName: 'WeatherScreen'),
           settings,
         );
       case '/map':
         final args = settings.arguments as Map<String, dynamic>?;
         return _buildRoute(
-          FieldMapScreen(fieldId: args?['fieldId'] ?? ''),
+          FieldMapScreen(fieldId: args?['fieldId'] ?? '')
+              .withScreenErrorBoundary(screenName: 'FieldMapScreen'),
           settings,
         );
       case '/notifications':
-        return _buildRoute(const NotificationsScreen(), settings);
+        return _buildRoute(
+          const NotificationsScreen().withScreenErrorBoundary(screenName: 'NotificationsScreen'),
+          settings,
+        );
       default:
-        return _buildRoute(const MainAppShell(), settings);
+        return _buildRoute(
+          const MainAppShell().withScreenErrorBoundary(screenName: 'MainAppShell'),
+          settings,
+        );
     }
   }
 
@@ -100,6 +116,81 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
     return MaterialPageRoute(
       builder: (_) => page,
       settings: settings,
+    );
+  }
+}
+
+/// App Startup Wrapper
+/// يتحقق من حالة الإعداد الأولي عند بدء التطبيق
+class _AppStartupWrapper extends ConsumerWidget {
+  const _AppStartupWrapper();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final onboardingCompleted = ref.watch(onboardingCompletedProvider);
+
+    return onboardingCompleted.when(
+      data: (completed) {
+        if (completed) {
+          return const MainAppShell().withScreenErrorBoundary(screenName: 'MainAppShell');
+        }
+        return const OnboardingScreen().withScreenErrorBoundary(screenName: 'OnboardingScreen');
+      },
+      loading: () => const _SplashScreen(),
+      error: (_, __) => const MainAppShell().withScreenErrorBoundary(screenName: 'MainAppShell'),
+    );
+  }
+}
+
+/// Splash Screen while checking onboarding status
+/// شاشة البداية أثناء التحقق من حالة الإعداد
+class _SplashScreen extends StatelessWidget {
+  const _SplashScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                SahoolTheme.primary,
+                Color(0xFF1B4D1B),
+              ],
+            ),
+          ),
+          child: const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.eco_rounded,
+                  size: 80,
+                  color: Colors.white,
+                ),
+                SizedBox(height: 24),
+                Text(
+                  'ساهول',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 48),
+                CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -117,11 +208,11 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    const HomeDashboard(),
-    const MarketplaceScreen(),
-    const WalletScreen(),
-    const CommunityScreen(),
-    const _MoreScreen(),
+    const HomeDashboard().withScreenErrorBoundary(screenName: 'HomeDashboard'),
+    const MarketplaceScreen().withScreenErrorBoundary(screenName: 'MarketplaceScreen'),
+    const WalletScreen().withScreenErrorBoundary(screenName: 'WalletScreen'),
+    const CommunityScreen().withScreenErrorBoundary(screenName: 'CommunityScreen'),
+    const _MoreScreen().withScreenErrorBoundary(screenName: 'MoreScreen'),
   ];
 
   @override

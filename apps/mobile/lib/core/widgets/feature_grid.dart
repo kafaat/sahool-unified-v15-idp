@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../constants/navigation_constants.dart';
+import '../haptics/haptic_service.dart';
 
 /// Feature Grid Widget for Home Screen
 /// شبكة الميزات للشاشة الرئيسية
@@ -65,7 +66,10 @@ class FeatureGrid extends StatelessWidget {
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.1),
       child: InkWell(
-        onTap: () => context.push(feature.route),
+        onTap: () {
+          HapticService.instance.buttonTap();
+          context.push(feature.route);
+        },
         borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(12),
@@ -129,7 +133,10 @@ class FeatureGrid extends StatelessWidget {
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.1),
       child: InkWell(
-        onTap: () => context.push(feature.route),
+        onTap: () {
+          HapticService.instance.buttonTap();
+          context.push(feature.route);
+        },
         borderRadius: BorderRadius.circular(16),
         child: Container(
           width: 100,
@@ -290,7 +297,10 @@ class FeatureSection extends StatelessWidget {
               ),
               if (onViewAll != null)
                 TextButton(
-                  onPressed: onViewAll,
+                  onPressed: () {
+                    HapticService.instance.lightTap();
+                    onViewAll!();
+                  },
                   child: const Text('عرض الكل'),
                 ),
             ],
@@ -322,7 +332,10 @@ class FeatureSection extends StatelessWidget {
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.1),
       child: InkWell(
-        onTap: () => context.push(feature.route),
+        onTap: () {
+          HapticService.instance.buttonTap();
+          context.push(feature.route);
+        },
         borderRadius: BorderRadius.circular(16),
         child: Container(
           width: 120,
@@ -409,7 +422,10 @@ class QuickActionCard extends StatelessWidget {
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.1),
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          HapticService.instance.buttonTap();
+          onTap();
+        },
         borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(16),

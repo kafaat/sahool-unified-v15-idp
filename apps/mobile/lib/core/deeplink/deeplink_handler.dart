@@ -1,22 +1,27 @@
 /// SAHOOL Deep Link Handler
 /// معالج الروابط العميقة
 ///
-/// Handles deep links for password reset, OTP verification, and app navigation.
+/// Handles deep links for the SAHOOL app including field navigation,
+/// weather, NDVI, tasks, alerts, and authentication flows.
+///
 /// Supports both custom URI scheme (sahool://) and universal links (https://sahool.app/).
 ///
 /// Features:
-/// - Password reset link handling
-/// - OTP verification link handling
-/// - Universal links for iOS
-/// - App links for Android
-/// - Riverpod integration
-/// - Lifecycle management
+/// - Cold start deep link handling (app launched via deep link)
+/// - Warm start deep link handling (app already running)
+/// - Authentication-required deep links with login redirect
+/// - Invalid deep link parameter validation
+/// - Riverpod integration for state management
+/// - Full lifecycle management
 ///
-/// Link Formats:
-/// - Custom scheme: sahool://reset-password?token=xxx
-/// - Custom scheme: sahool://verify-otp?identifier=xxx&purpose=xxx
-/// - Universal link: https://sahool.app/reset-password?token=xxx
-/// - Universal link: https://sahool.app/verify-otp?identifier=xxx&purpose=xxx
+/// Supported Deep Links:
+/// - sahool://field/{fieldId} - Open specific field
+/// - sahool://weather - Open weather screen
+/// - sahool://ndvi/{fieldId} - Open NDVI for field
+/// - sahool://task/{taskId} - Open specific task
+/// - sahool://alert/{alertId} - Open alert details
+/// - sahool://reset-password?token=xxx - Password reset
+/// - sahool://verify-otp?identifier=xxx&purpose=xxx - OTP verification
 
 import 'dart:async';
 
@@ -26,46 +31,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../services/auth_service.dart';
 import '../utils/app_logger.dart';
+import 'deeplink_routes.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Constants
+// Re-export route constants for convenience
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// Custom URI scheme for the SAHOOL app
-const String kSahoolScheme = 'sahool';
+const String kSahoolScheme = DeepLinkRoutes.scheme;
 
 /// Universal link hosts for iOS and Android
-const List<String> kUniversalLinkHosts = [
-  'sahool.app',
-  'www.sahool.app',
-  'app.sahool.app',
-];
+const List<String> kUniversalLinkHosts = DeepLinkRoutes.universalLinkHosts;
 
-/// Deep link paths
+/// Deep link paths (legacy compatibility)
 class DeepLinkPaths {
   DeepLinkPaths._();
 
-  /// Password reset path
   static const String resetPassword = '/reset-password';
-
-  /// OTP verification path
   static const String verifyOtp = '/verify-otp';
-
-  /// Email verification path
   static const String verifyEmail = '/verify-email';
-
-  /// Account activation path
   static const String activateAccount = '/activate-account';
-
-  /// Field details path
   static const String fieldDetails = '/field';
-
-  /// Notification path
   static const String notification = '/notification';
-
-  /// Invite path
   static const String invite = '/invite';
+
+  // New paths
+  static const String weather = '/weather';
+  static const String ndvi = '/ndvi';
+  static const String task = '/task';
+  static const String alert = '/alert';
+  static const String tasks = '/tasks';
+  static const String alerts = '/alerts';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -95,11 +93,29 @@ enum DeepLinkType {
   /// Invite/referral deep link
   invite,
 
+  /// Weather screen deep link
+  weather,
+
+  /// NDVI analysis deep link
+  ndvi,
+
+  /// Task details deep link
+  task,
+
+  /// Alert details deep link
+  alert,
+
+  /// Tasks list deep link
+  tasks,
+
+  /// Alerts list deep link
+  alerts,
+
   /// Unknown or unsupported deep link
   unknown,
 }
 
-/// Extension for DeepLinkType to get display names
+/// Extension for DeepLinkType to get display names and auth requirements
 extension DeepLinkTypeExtension on DeepLinkType {
   /// Arabic display name
   String get displayNameAr {
@@ -118,6 +134,18 @@ extension DeepLinkTypeExtension on DeepLinkType {
         return 'إشعار';
       case DeepLinkType.invite:
         return 'دعوة';
+      case DeepLinkType.weather:
+        return 'الطقس';
+      case DeepLinkType.ndvi:
+        return 'تحليل NDVI';
+      case DeepLinkType.task:
+        return 'تفاصيل المهمة';
+      case DeepLinkType.alert:
+        return 'تفاصيل التنبيه';
+      case DeepLinkType.tasks:
+        return 'قائمة المهام';
+      case DeepLinkType.alerts:
+        return 'التنبيهات';
       case DeepLinkType.unknown:
         return 'رابط غير معروف';
     }
@@ -140,8 +168,42 @@ extension DeepLinkTypeExtension on DeepLinkType {
         return 'Notification';
       case DeepLinkType.invite:
         return 'Invitation';
+      case DeepLinkType.weather:
+        return 'Weather';
+      case DeepLinkType.ndvi:
+        return 'NDVI Analysis';
+      case DeepLinkType.task:
+        return 'Task Details';
+      case DeepLinkType.alert:
+        return 'Alert Details';
+      case DeepLinkType.tasks:
+        return 'Tasks List';
+      case DeepLinkType.alerts:
+        return 'Alerts';
       case DeepLinkType.unknown:
         return 'Unknown Link';
+    }
+  }
+
+  /// Whether this deep link type requires authentication
+  bool get requiresAuth {
+    switch (this) {
+      case DeepLinkType.resetPassword:
+      case DeepLinkType.verifyOtp:
+      case DeepLinkType.verifyEmail:
+      case DeepLinkType.activateAccount:
+      case DeepLinkType.invite:
+      case DeepLinkType.weather:
+        return false;
+      case DeepLinkType.fieldDetails:
+      case DeepLinkType.notification:
+      case DeepLinkType.ndvi:
+      case DeepLinkType.task:
+      case DeepLinkType.alert:
+      case DeepLinkType.tasks:
+      case DeepLinkType.alerts:
+      case DeepLinkType.unknown:
+        return true;
     }
   }
 }
@@ -162,25 +224,41 @@ class DeepLinkData {
   /// Query parameters from the link
   final Map<String, String> parameters;
 
+  /// Path parameters extracted from the URL
+  final Map<String, String> pathParameters;
+
   /// Timestamp when the link was received
   final DateTime receivedAt;
+
+  /// Whether this is from a cold start (app was not running)
+  final bool isColdStart;
 
   const DeepLinkData({
     required this.type,
     required this.uri,
     required this.parameters,
+    this.pathParameters = const {},
     required this.receivedAt,
+    this.isColdStart = false,
   });
 
-  /// Get a parameter value by key
-  String? getParameter(String key) => parameters[key];
+  /// Get a parameter value by key (checks both query and path params)
+  String? getParameter(String key) =>
+      parameters[key] ?? pathParameters[key];
 
   /// Check if a parameter exists
-  bool hasParameter(String key) => parameters.containsKey(key);
+  bool hasParameter(String key) =>
+      parameters.containsKey(key) || pathParameters.containsKey(key);
+
+  /// Whether this link requires authentication
+  bool get requiresAuth => type.requiresAuth;
+
+  /// Get all parameters combined
+  Map<String, String> get allParameters => {...pathParameters, ...parameters};
 
   @override
   String toString() {
-    return 'DeepLinkData(type: $type, uri: $uri, parameters: $parameters)';
+    return 'DeepLinkData(type: $type, uri: $uri, parameters: $parameters, pathParameters: $pathParameters, isColdStart: $isColdStart)';
   }
 
   @override
@@ -189,11 +267,12 @@ class DeepLinkData {
     return other is DeepLinkData &&
         other.type == type &&
         other.uri == uri &&
-        mapEquals(other.parameters, parameters);
+        mapEquals(other.parameters, parameters) &&
+        mapEquals(other.pathParameters, pathParameters);
   }
 
   @override
-  int get hashCode => Object.hash(type, uri, parameters);
+  int get hashCode => Object.hash(type, uri, parameters, pathParameters);
 }
 
 /// Password reset deep link data
@@ -210,6 +289,7 @@ class PasswordResetLinkData extends DeepLinkData {
     required this.token,
     this.email,
     required super.receivedAt,
+    super.isColdStart,
   }) : super(
           type: DeepLinkType.resetPassword,
           parameters: {
@@ -220,7 +300,6 @@ class PasswordResetLinkData extends DeepLinkData {
 
   /// Check if the token is expired (tokens expire after 1 hour typically)
   bool get isExpired {
-    // Token validation should be done server-side, but we can check timestamp
     final expirationDuration = const Duration(hours: 1);
     return DateTime.now().difference(receivedAt) > expirationDuration;
   }
@@ -248,6 +327,7 @@ class OtpVerificationLinkData extends DeepLinkData {
     this.otp,
     this.sessionId,
     required super.receivedAt,
+    super.isColdStart,
   }) : super(
           type: DeepLinkType.verifyOtp,
           parameters: {
@@ -261,25 +341,12 @@ class OtpVerificationLinkData extends DeepLinkData {
 
 /// OTP verification purposes
 enum OtpPurpose {
-  /// Password reset verification
   passwordReset,
-
-  /// Phone number verification
   phoneVerification,
-
-  /// Email verification
   emailVerification,
-
-  /// Two-factor authentication
   twoFactorAuth,
-
-  /// Account activation
   accountActivation,
-
-  /// Transaction verification
   transactionVerification,
-
-  /// Unknown purpose
   unknown,
 }
 
@@ -356,8 +423,14 @@ class DeepLinkState {
   /// Whether there's a pending link waiting to be handled
   final bool hasPendingLink;
 
+  /// Pending link that requires authentication
+  final DeepLinkData? pendingAuthLink;
+
   /// Error message if link parsing failed
   final String? error;
+
+  /// Error message in Arabic
+  final String? errorAr;
 
   /// History of handled deep links (for debugging)
   final List<DeepLinkData> linkHistory;
@@ -366,7 +439,9 @@ class DeepLinkState {
     this.currentLink,
     this.isInitialized = false,
     this.hasPendingLink = false,
+    this.pendingAuthLink,
     this.error,
+    this.errorAr,
     this.linkHistory = const [],
   });
 
@@ -374,16 +449,23 @@ class DeepLinkState {
     DeepLinkData? currentLink,
     bool? isInitialized,
     bool? hasPendingLink,
+    DeepLinkData? pendingAuthLink,
     String? error,
+    String? errorAr,
     List<DeepLinkData>? linkHistory,
     bool clearCurrentLink = false,
     bool clearError = false,
+    bool clearPendingAuthLink = false,
   }) {
     return DeepLinkState(
       currentLink: clearCurrentLink ? null : (currentLink ?? this.currentLink),
       isInitialized: isInitialized ?? this.isInitialized,
       hasPendingLink: hasPendingLink ?? this.hasPendingLink,
+      pendingAuthLink: clearPendingAuthLink
+          ? null
+          : (pendingAuthLink ?? this.pendingAuthLink),
       error: clearError ? null : (error ?? this.error),
+      errorAr: clearError ? null : (errorAr ?? this.errorAr),
       linkHistory: linkHistory ?? this.linkHistory,
     );
   }
@@ -399,13 +481,16 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
   StreamSubscription<Uri>? _linkSubscription;
   final GlobalKey<NavigatorState>? _navigatorKey;
   GoRouter? _router;
+  final Ref _ref;
 
   DeepLinkNotifier({
+    required Ref ref,
     GlobalKey<NavigatorState>? navigatorKey,
     GoRouter? router,
   })  : _appLinks = AppLinks(),
         _navigatorKey = navigatorKey,
         _router = router,
+        _ref = ref,
         super(const DeepLinkState());
 
   /// Initialize the deep link handler
@@ -418,16 +503,19 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
     AppLogger.i('Initializing deep link handler...', tag: 'DEEPLINK');
 
     try {
-      // Check for initial link (app opened via deep link)
+      // Check for initial link (app opened via deep link - cold start)
       final initialLink = await _appLinks.getInitialLinkString();
       if (initialLink != null) {
-        AppLogger.i('Initial deep link found: $initialLink', tag: 'DEEPLINK');
-        _handleLinkString(initialLink, isInitial: true);
+        AppLogger.i(
+          'Initial deep link found (cold start): $initialLink',
+          tag: 'DEEPLINK',
+        );
+        _handleLinkString(initialLink, isInitial: true, isColdStart: true);
       }
 
-      // Listen for incoming links while app is running
+      // Listen for incoming links while app is running (warm start)
       _linkSubscription = _appLinks.uriLinkStream.listen(
-        _handleUri,
+        (uri) => _handleUri(uri, isColdStart: false),
         onError: (error) {
           AppLogger.e(
             'Deep link stream error',
@@ -436,6 +524,7 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
           );
           state = state.copyWith(
             error: 'Failed to listen for deep links: $error',
+            errorAr: 'فشل في الاستماع للروابط العميقة: $error',
           );
         },
       );
@@ -451,6 +540,7 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
       );
       state = state.copyWith(
         error: 'Initialization failed: $e',
+        errorAr: 'فشل التهيئة: $e',
       );
     }
   }
@@ -459,19 +549,48 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
   void setRouter(GoRouter router) {
     _router = router;
     AppLogger.d('Router set for deep link handler', tag: 'DEEPLINK');
+
+    // Check if there's a pending auth link to handle after login
+    _checkPendingAuthLink();
+  }
+
+  /// Check and handle pending auth link after user logs in
+  void _checkPendingAuthLink() {
+    if (state.pendingAuthLink != null) {
+      try {
+        final isLoggedIn = _ref.read(isLoggedInProvider);
+        if (isLoggedIn) {
+          AppLogger.i(
+            'User logged in, handling pending auth link',
+            tag: 'DEEPLINK',
+          );
+          _processUri(state.pendingAuthLink!.uri, isInitial: false);
+          state = state.copyWith(clearPendingAuthLink: true);
+        }
+      } catch (_) {
+        // Auth provider not available yet
+      }
+    }
   }
 
   /// Handle a URI link
-  void _handleUri(Uri uri) {
-    AppLogger.i('Received deep link: $uri', tag: 'DEEPLINK');
-    _processUri(uri, isInitial: false);
+  void _handleUri(Uri uri, {bool isColdStart = false}) {
+    AppLogger.i(
+      'Received deep link: $uri (coldStart: $isColdStart)',
+      tag: 'DEEPLINK',
+    );
+    _processUri(uri, isInitial: false, isColdStart: isColdStart);
   }
 
   /// Handle a link string
-  void _handleLinkString(String linkString, {bool isInitial = false}) {
+  void _handleLinkString(
+    String linkString, {
+    bool isInitial = false,
+    bool isColdStart = false,
+  }) {
     try {
       final uri = Uri.parse(linkString);
-      _processUri(uri, isInitial: isInitial);
+      _processUri(uri, isInitial: isInitial, isColdStart: isColdStart);
     } catch (e) {
       AppLogger.e(
         'Failed to parse deep link string',
@@ -479,18 +598,72 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
         error: e,
         data: {'link': linkString},
       );
-      state = state.copyWith(error: 'Invalid link format: $linkString');
+      state = state.copyWith(
+        error: 'Invalid link format: $linkString',
+        errorAr: 'تنسيق الرابط غير صالح: $linkString',
+      );
     }
   }
 
   /// Process a URI and update state
-  void _processUri(Uri uri, {bool isInitial = false}) {
-    final deepLinkData = _parseUri(uri);
+  void _processUri(
+    Uri uri, {
+    bool isInitial = false,
+    bool isColdStart = false,
+  }) {
+    // Use the new parser for validation
+    final parseResult = DeepLinkParser.parse(uri);
+
+    if (!parseResult.isValid) {
+      AppLogger.w(
+        'Invalid deep link: ${parseResult.errorMessage}',
+        tag: 'DEEPLINK',
+        data: {'uri': uri.toString()},
+      );
+      state = state.copyWith(
+        error: parseResult.errorMessage,
+        errorAr: parseResult.errorMessageAr,
+      );
+      return;
+    }
+
+    // Parse into DeepLinkData
+    final deepLinkData = _parseUri(uri, isColdStart: isColdStart);
 
     if (deepLinkData == null) {
       AppLogger.w('Unsupported deep link: $uri', tag: 'DEEPLINK');
-      state = state.copyWith(error: 'Unsupported link: $uri');
+      state = state.copyWith(
+        error: 'Unsupported link: $uri',
+        errorAr: 'رابط غير مدعوم: $uri',
+      );
       return;
+    }
+
+    // Check authentication requirement
+    if (deepLinkData.requiresAuth) {
+      try {
+        final isLoggedIn = _ref.read(isLoggedInProvider);
+        if (!isLoggedIn) {
+          AppLogger.i(
+            'Deep link requires auth, storing for later',
+            tag: 'DEEPLINK',
+            data: {'type': deepLinkData.type.name},
+          );
+
+          state = state.copyWith(
+            pendingAuthLink: deepLinkData,
+            hasPendingLink: false,
+          );
+
+          // Redirect to login
+          _navigateToLogin(deepLinkData);
+          return;
+        }
+      } catch (_) {
+        // Auth provider not available, store link for later
+        state = state.copyWith(pendingAuthLink: deepLinkData);
+        return;
+      }
     }
 
     // Add to history
@@ -512,88 +685,162 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
       data: {
         'type': deepLinkData.type.name,
         'isInitial': isInitial,
+        'isColdStart': isColdStart,
+        'requiresAuth': deepLinkData.requiresAuth,
       },
     );
   }
 
+  /// Navigate to login screen with redirect info
+  void _navigateToLogin(DeepLinkData pendingLink) {
+    if (_router != null) {
+      _router!.go('/login', extra: {
+        'redirect': pendingLink.uri.toString(),
+        'redirectType': pendingLink.type.name,
+      });
+      AppLogger.i('Redirected to login for auth-required link', tag: 'DEEPLINK');
+    }
+  }
+
   /// Parse a URI into DeepLinkData
-  DeepLinkData? _parseUri(Uri uri) {
-    // Check if it's a valid SAHOOL deep link
+  DeepLinkData? _parseUri(Uri uri, {bool isColdStart = false}) {
+    // Check if it's a valid SAHOOL link
     if (!_isValidSahoolLink(uri)) {
       return null;
     }
 
-    final path = uri.path.toLowerCase();
+    final path = _extractPath(uri).toLowerCase();
     final queryParams = uri.queryParameters;
     final receivedAt = DateTime.now();
 
-    // Parse based on path
-    if (path == DeepLinkPaths.resetPassword ||
-        path.endsWith(DeepLinkPaths.resetPassword)) {
-      return _parsePasswordResetLink(uri, queryParams, receivedAt);
-    }
+    // Extract path parameters using regex patterns
+    final pathParams = _extractPathParams(path);
 
-    if (path == DeepLinkPaths.verifyOtp ||
-        path.endsWith(DeepLinkPaths.verifyOtp)) {
-      return _parseOtpVerificationLink(uri, queryParams, receivedAt);
-    }
+    // Determine link type based on path
+    final type = _determineType(path);
 
-    if (path == DeepLinkPaths.verifyEmail ||
-        path.endsWith(DeepLinkPaths.verifyEmail)) {
-      return DeepLinkData(
-        type: DeepLinkType.verifyEmail,
-        uri: uri,
-        parameters: queryParams,
-        receivedAt: receivedAt,
+    // Create specialized data objects for certain types
+    if (type == DeepLinkType.resetPassword) {
+      return _parsePasswordResetLink(
+        uri,
+        queryParams,
+        receivedAt,
+        isColdStart,
       );
     }
 
-    if (path == DeepLinkPaths.activateAccount ||
-        path.endsWith(DeepLinkPaths.activateAccount)) {
-      return DeepLinkData(
-        type: DeepLinkType.activateAccount,
-        uri: uri,
-        parameters: queryParams,
-        receivedAt: receivedAt,
+    if (type == DeepLinkType.verifyOtp) {
+      return _parseOtpVerificationLink(
+        uri,
+        queryParams,
+        receivedAt,
+        isColdStart,
       );
     }
 
-    if (path.startsWith(DeepLinkPaths.fieldDetails) ||
-        path.contains(DeepLinkPaths.fieldDetails)) {
-      return DeepLinkData(
-        type: DeepLinkType.fieldDetails,
-        uri: uri,
-        parameters: queryParams,
-        receivedAt: receivedAt,
-      );
-    }
-
-    if (path == DeepLinkPaths.notification ||
-        path.endsWith(DeepLinkPaths.notification)) {
-      return DeepLinkData(
-        type: DeepLinkType.notification,
-        uri: uri,
-        parameters: queryParams,
-        receivedAt: receivedAt,
-      );
-    }
-
-    if (path == DeepLinkPaths.invite || path.endsWith(DeepLinkPaths.invite)) {
-      return DeepLinkData(
-        type: DeepLinkType.invite,
-        uri: uri,
-        parameters: queryParams,
-        receivedAt: receivedAt,
-      );
-    }
-
-    // Unknown link type
+    // Generic DeepLinkData for other types
     return DeepLinkData(
-      type: DeepLinkType.unknown,
+      type: type,
       uri: uri,
       parameters: queryParams,
+      pathParameters: pathParams,
       receivedAt: receivedAt,
+      isColdStart: isColdStart,
     );
+  }
+
+  /// Extract path from URI
+  String _extractPath(Uri uri) {
+    if (uri.scheme == kSahoolScheme) {
+      // For custom scheme: sahool://field/123 -> /field/123
+      if (uri.host.isNotEmpty) {
+        return '/${uri.host}${uri.path}';
+      }
+      return uri.path;
+    }
+    return uri.path;
+  }
+
+  /// Extract path parameters from URL
+  Map<String, String> _extractPathParams(String path) {
+    final params = <String, String>{};
+
+    // Field: /field/{fieldId}
+    final fieldMatch = RegExp(r'/field/([a-zA-Z0-9\-_]+)').firstMatch(path);
+    if (fieldMatch != null) {
+      params['fieldId'] = fieldMatch.group(1)!;
+      params['id'] = fieldMatch.group(1)!;
+    }
+
+    // NDVI: /ndvi/{fieldId}
+    final ndviMatch = RegExp(r'/ndvi/([a-zA-Z0-9\-_]+)').firstMatch(path);
+    if (ndviMatch != null) {
+      params['fieldId'] = ndviMatch.group(1)!;
+    }
+
+    // Task: /task/{taskId}
+    final taskMatch = RegExp(r'/task/([a-zA-Z0-9\-_]+)').firstMatch(path);
+    if (taskMatch != null) {
+      params['taskId'] = taskMatch.group(1)!;
+      params['id'] = taskMatch.group(1)!;
+    }
+
+    // Alert: /alert/{alertId}
+    final alertMatch = RegExp(r'/alert/([a-zA-Z0-9\-_]+)').firstMatch(path);
+    if (alertMatch != null) {
+      params['alertId'] = alertMatch.group(1)!;
+      params['id'] = alertMatch.group(1)!;
+    }
+
+    return params;
+  }
+
+  /// Determine the DeepLinkType from path
+  DeepLinkType _determineType(String path) {
+    // Check specific patterns first
+    if (RegExp(r'^/field/[a-zA-Z0-9\-_]+$').hasMatch(path)) {
+      return DeepLinkType.fieldDetails;
+    }
+    if (RegExp(r'^/ndvi/[a-zA-Z0-9\-_]+$').hasMatch(path)) {
+      return DeepLinkType.ndvi;
+    }
+    if (RegExp(r'^/task/[a-zA-Z0-9\-_]+$').hasMatch(path)) {
+      return DeepLinkType.task;
+    }
+    if (RegExp(r'^/alert/[a-zA-Z0-9\-_]+$').hasMatch(path)) {
+      return DeepLinkType.alert;
+    }
+
+    // Check base paths
+    if (path == '/weather' || path.startsWith('/weather')) {
+      return DeepLinkType.weather;
+    }
+    if (path == '/tasks' || path.startsWith('/tasks')) {
+      return DeepLinkType.tasks;
+    }
+    if (path == '/alerts' || path.startsWith('/alerts')) {
+      return DeepLinkType.alerts;
+    }
+    if (path == '/reset-password' || path.endsWith('/reset-password')) {
+      return DeepLinkType.resetPassword;
+    }
+    if (path == '/verify-otp' || path.endsWith('/verify-otp')) {
+      return DeepLinkType.verifyOtp;
+    }
+    if (path == '/verify-email' || path.endsWith('/verify-email')) {
+      return DeepLinkType.verifyEmail;
+    }
+    if (path == '/activate-account' || path.endsWith('/activate-account')) {
+      return DeepLinkType.activateAccount;
+    }
+    if (path.contains('/notification')) {
+      return DeepLinkType.notification;
+    }
+    if (path == '/invite' || path.endsWith('/invite')) {
+      return DeepLinkType.invite;
+    }
+
+    return DeepLinkType.unknown;
   }
 
   /// Check if the URI is a valid SAHOOL link
@@ -617,6 +864,7 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
     Uri uri,
     Map<String, String> params,
     DateTime receivedAt,
+    bool isColdStart,
   ) {
     final token = params['token'];
     if (token == null || token.isEmpty) {
@@ -633,6 +881,7 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
       token: token,
       email: params['email'],
       receivedAt: receivedAt,
+      isColdStart: isColdStart,
     );
   }
 
@@ -641,6 +890,7 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
     Uri uri,
     Map<String, String> params,
     DateTime receivedAt,
+    bool isColdStart,
   ) {
     final identifier = params['identifier'];
     if (identifier == null || identifier.isEmpty) {
@@ -662,6 +912,7 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
       otp: params['otp'] ?? params['code'],
       sessionId: params['session_id'] ?? params['sid'],
       receivedAt: receivedAt,
+      isColdStart: isColdStart,
     );
   }
 
@@ -686,8 +937,33 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
     return success;
   }
 
+  /// Handle pending auth link after successful login
+  Future<bool> handlePendingAuthLink(BuildContext context) async {
+    final link = state.pendingAuthLink;
+    if (link == null) {
+      return false;
+    }
+
+    AppLogger.i(
+      'Handling pending auth link after login',
+      tag: 'DEEPLINK',
+      data: {'type': link.type.name},
+    );
+
+    final success = await _navigateForLink(link, context);
+
+    if (success) {
+      state = state.copyWith(clearPendingAuthLink: true);
+    }
+
+    return success;
+  }
+
   /// Navigate to the appropriate screen for a deep link
-  Future<bool> _navigateForLink(DeepLinkData link, BuildContext context) async {
+  Future<bool> _navigateForLink(
+    DeepLinkData link,
+    BuildContext context,
+  ) async {
     AppLogger.i(
       'Handling deep link navigation',
       tag: 'DEEPLINK',
@@ -715,11 +991,55 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
           );
 
         case DeepLinkType.fieldDetails:
-          final fieldId = link.parameters['id'] ?? link.parameters['field_id'];
+          final fieldId =
+              link.pathParameters['fieldId'] ?? link.parameters['id'];
           if (fieldId != null) {
             return _navigateToPath('/field/$fieldId');
           }
           return false;
+
+        case DeepLinkType.weather:
+          final fieldId = link.parameters['fieldId'];
+          return _navigateToPath(
+            '/weather',
+            extra: fieldId != null ? {'fieldId': fieldId} : null,
+          );
+
+        case DeepLinkType.ndvi:
+          final fieldId = link.pathParameters['fieldId'];
+          if (fieldId != null) {
+            return _navigateToPath('/satellite/$fieldId');
+          }
+          return _navigateToPath('/satellite');
+
+        case DeepLinkType.task:
+          final taskId =
+              link.pathParameters['taskId'] ?? link.parameters['id'];
+          if (taskId != null) {
+            return _navigateToPath('/task/$taskId');
+          }
+          return _navigateToPath('/tasks');
+
+        case DeepLinkType.tasks:
+          final fieldId = link.parameters['fieldId'];
+          return _navigateToPath(
+            '/tasks',
+            extra: fieldId != null ? {'fieldId': fieldId} : null,
+          );
+
+        case DeepLinkType.alert:
+          final alertId =
+              link.pathParameters['alertId'] ?? link.parameters['id'];
+          if (alertId != null) {
+            return _navigateToPath(
+              '/alerts',
+              extra: {'alertId': alertId},
+            );
+          }
+          return _navigateToPath('/alerts');
+
+        case DeepLinkType.alerts:
+          return _navigateToPath('/alerts');
 
         case DeepLinkType.notification:
           final notificationId =
@@ -759,10 +1079,8 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
     BuildContext context,
   ) async {
     if (link is PasswordResetLinkData) {
-      // Check if token might be expired (client-side check only)
       if (link.isExpired) {
         AppLogger.w('Password reset token may be expired', tag: 'DEEPLINK');
-        // Still navigate, let server validate
       }
 
       return _navigateToPath(
@@ -774,7 +1092,6 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
       );
     }
 
-    // Fallback for generic DeepLinkData
     final token = link.parameters['token'];
     if (token == null) {
       AppLogger.e('Password reset link missing token', tag: 'DEEPLINK');
@@ -804,7 +1121,6 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
       );
     }
 
-    // Fallback for generic DeepLinkData
     return _navigateToPath(
       '/verify-otp',
       extra: link.parameters,
@@ -831,12 +1147,12 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
 
   /// Manually process a deep link string
   void processLink(String linkString) {
-    _handleLinkString(linkString, isInitial: false);
+    _handleLinkString(linkString, isInitial: false, isColdStart: false);
   }
 
   /// Manually process a URI
   void processUri(Uri uri) {
-    _processUri(uri, isInitial: false);
+    _processUri(uri, isInitial: false, isColdStart: false);
   }
 
   /// Clear the current pending link
@@ -845,6 +1161,11 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
       hasPendingLink: false,
       clearCurrentLink: true,
     );
+  }
+
+  /// Clear pending auth link
+  void clearPendingAuthLink() {
+    state = state.copyWith(clearPendingAuthLink: true);
   }
 
   /// Clear any errors
@@ -901,6 +1222,7 @@ final deepLinkProvider =
   }
 
   final notifier = DeepLinkNotifier(
+    ref: ref,
     navigatorKey: navigatorKey,
     router: router,
   );
@@ -924,6 +1246,11 @@ final currentDeepLinkProvider = Provider<DeepLinkData?>((ref) {
 /// Provider for deep link errors
 final deepLinkErrorProvider = Provider<String?>((ref) {
   return ref.watch(deepLinkProvider).error;
+});
+
+/// Provider for pending auth link
+final pendingAuthLinkProvider = Provider<DeepLinkData?>((ref) {
+  return ref.watch(deepLinkProvider).pendingAuthLink;
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1022,6 +1349,18 @@ class _DeepLinkHandlerState extends ConsumerState<DeepLinkHandler>
       }
     });
 
+    // Listen for auth state changes to handle pending auth links
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      if (!previous!.isLoggedIn && next.isLoggedIn) {
+        // User just logged in, check for pending auth link
+        final pendingLink = ref.read(pendingAuthLinkProvider);
+        if (pendingLink != null) {
+          AppLogger.i('User logged in, handling pending auth link', tag: 'DEEPLINK');
+          ref.read(deepLinkProvider.notifier).handlePendingAuthLink(context);
+        }
+      }
+    });
+
     return widget.child;
   }
 }
@@ -1036,25 +1375,11 @@ String buildPasswordResetLink({
   String? email,
   bool useUniversalLink = true,
 }) {
-  final params = <String, String>{
-    'token': token,
-    if (email != null) 'email': email,
-  };
-
-  if (useUniversalLink) {
-    return Uri.https(
-      kUniversalLinkHosts.first,
-      DeepLinkPaths.resetPassword,
-      params,
-    ).toString();
-  }
-
-  return Uri(
-    scheme: kSahoolScheme,
-    host: '',
-    path: DeepLinkPaths.resetPassword,
-    queryParameters: params,
-  ).toString();
+  return DeepLinkBuilder.passwordReset(
+    token: token,
+    email: email,
+    useUniversalLink: useUniversalLink,
+  );
 }
 
 /// Build an OTP verification deep link URL
@@ -1065,42 +1390,67 @@ String buildOtpVerificationLink({
   String? sessionId,
   bool useUniversalLink = true,
 }) {
-  final params = <String, String>{
-    'identifier': identifier,
-    'purpose': purpose.name,
-    if (otp != null) 'otp': otp,
-    if (sessionId != null) 'session_id': sessionId,
-  };
+  return DeepLinkBuilder.verifyOtp(
+    identifier: identifier,
+    purpose: purpose.name,
+    otp: otp,
+    sessionId: sessionId,
+    useUniversalLink: useUniversalLink,
+  );
+}
 
-  if (useUniversalLink) {
-    return Uri.https(
-      kUniversalLinkHosts.first,
-      DeepLinkPaths.verifyOtp,
-      params,
-    ).toString();
-  }
+/// Build a field deep link URL
+String buildFieldLink({
+  required String fieldId,
+  bool useUniversalLink = false,
+}) {
+  return DeepLinkBuilder.field(fieldId, useUniversalLink: useUniversalLink);
+}
 
-  return Uri(
-    scheme: kSahoolScheme,
-    host: '',
-    path: DeepLinkPaths.verifyOtp,
-    queryParameters: params,
-  ).toString();
+/// Build a weather deep link URL
+String buildWeatherLink({
+  String? fieldId,
+  bool useUniversalLink = false,
+}) {
+  return DeepLinkBuilder.weather(
+    fieldId: fieldId,
+    useUniversalLink: useUniversalLink,
+  );
+}
+
+/// Build an NDVI deep link URL
+String buildNdviLink({
+  required String fieldId,
+  bool useUniversalLink = false,
+}) {
+  return DeepLinkBuilder.ndvi(fieldId, useUniversalLink: useUniversalLink);
+}
+
+/// Build a task deep link URL
+String buildTaskLink({
+  required String taskId,
+  bool useUniversalLink = false,
+}) {
+  return DeepLinkBuilder.task(taskId, useUniversalLink: useUniversalLink);
+}
+
+/// Build an alert deep link URL
+String buildAlertLink({
+  required String alertId,
+  bool useUniversalLink = false,
+}) {
+  return DeepLinkBuilder.alert(alertId, useUniversalLink: useUniversalLink);
 }
 
 /// Validate a deep link token format (basic validation)
 bool isValidTokenFormat(String token) {
-  // Basic validation - token should be at least 32 characters
-  // and contain only alphanumeric characters and hyphens
   if (token.length < 32) return false;
-
   final validPattern = RegExp(r'^[a-zA-Z0-9\-_]+$');
   return validPattern.hasMatch(token);
 }
 
 /// Extract field ID from a deep link path
 String? extractFieldIdFromPath(String path) {
-  // Match patterns like /field/123 or /fields/abc-def
   final pattern = RegExp(r'/fields?/([a-zA-Z0-9\-_]+)');
   final match = pattern.firstMatch(path);
   return match?.group(1);

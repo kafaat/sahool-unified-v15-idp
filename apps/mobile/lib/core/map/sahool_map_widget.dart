@@ -7,12 +7,15 @@
 /// - Field polygon drawing
 /// - Marker clustering
 /// - Yemen-optimized defaults
+/// - Accessibility support with semantic labels
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../accessibility/semantics_helper.dart';
 import 'map_providers.dart';
 
 /// Map interaction mode
@@ -150,205 +153,250 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
   Widget build(BuildContext context) {
     final center = widget.initialCenter ?? YemenMapBounds.center;
 
-    return Stack(
-      children: [
-        // Main Map
-        FlutterMap(
-          mapController: _mapController,
-          options: MapOptions(
-            initialCenter: center,
-            initialZoom: widget.initialZoom,
-            minZoom: YemenMapBounds.minZoom,
-            maxZoom: YemenMapBounds.maxZoom,
-            onTap: _handleTap,
-            onPositionChanged: (position, hasGesture) {
-              if (hasGesture && widget.onMapMoved != null) {
-                widget.onMapMoved!(
-                  position.center ?? center,
-                  position.zoom ?? widget.initialZoom,
-                );
-              }
-            },
+    return Semantics(
+      label: SahoolSemantics.mapView,
+      hint: widget.interactionMode == MapInteractionMode.drawPolygon
+          ? 'وضع الرسم مفعل، اضغط لإضافة نقاط'
+          : 'خريطة الحقول',
+      child: Stack(
+        children: [
+          // Main Map - exclude from semantics as it's primarily visual
+          ExcludeSemantics(
+            child: FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                initialCenter: center,
+                initialZoom: widget.initialZoom,
+                minZoom: YemenMapBounds.minZoom,
+                maxZoom: YemenMapBounds.maxZoom,
+                onTap: _handleTap,
+                onPositionChanged: (position, hasGesture) {
+                  if (hasGesture && widget.onMapMoved != null) {
+                    widget.onMapMoved!(
+                      position.center ?? center,
+                      position.zoom ?? widget.initialZoom,
+                    );
+                  }
+                },
+              ),
+              children: [
+                // Tile Layer
+                TileLayer(
+                  urlTemplate: _currentProvider.tileUrl,
+                  userAgentPackageName: 'app.sahool.field',
+                  maxZoom: _currentProvider.maxZoom.toDouble(),
+                ),
+
+                // Field Polygons
+                if (widget.fieldPolygons != null && widget.fieldPolygons!.isNotEmpty)
+                  PolygonLayer(
+                    polygons: widget.fieldPolygons!.map((points) => Polygon(
+                      points: points,
+                      color: Colors.green.withOpacity(0.3),
+                      borderColor: Colors.green,
+                      borderStrokeWidth: 2,
+                      isFilled: true,
+                    )).toList(),
+                  ),
+
+                // Drawing polygon
+                if (_drawnPoints.isNotEmpty)
+                  PolygonLayer(
+                    polygons: [
+                      Polygon(
+                        points: _drawnPoints,
+                        color: Colors.blue.withOpacity(0.2),
+                        borderColor: Colors.blue,
+                        borderStrokeWidth: 3,
+                        isFilled: true,
+                      ),
+                    ],
+                  ),
+
+                // Drawing points
+                if (_drawnPoints.isNotEmpty)
+                  MarkerLayer(
+                    markers: _drawnPoints.asMap().entries.map((entry) => Marker(
+                      point: entry.value,
+                      width: 24,
+                      height: 24,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${entry.key + 1}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )).toList(),
+                  ),
+
+                // Custom markers
+                if (widget.markers != null && widget.markers!.isNotEmpty)
+                  MarkerLayer(markers: widget.markers!),
+
+                // Attribution
+                RichAttributionWidget(
+                  attributions: [
+                    TextSourceAttribution(_currentProvider.attribution),
+                  ],
+                ),
+              ],
+            ),
           ),
-          children: [
-            // Tile Layer
-            TileLayer(
-              urlTemplate: _currentProvider.tileUrl,
-              userAgentPackageName: 'app.sahool.field',
-              maxZoom: _currentProvider.maxZoom.toDouble(),
+
+          // Layer Toggle Button with accessibility
+          if (widget.showLayerToggle)
+            Positioned(
+              top: 16,
+              right: 16,
+              child: Column(
+                children: [
+                  _buildControlButton(
+                    icon: _showSatellite ? Icons.map : Icons.satellite_alt,
+                    tooltip: _showSatellite ? 'خريطة' : 'قمر صناعي',
+                    semanticLabel: SahoolSemantics.toggleSatellite,
+                    onPressed: () {
+                      _toggleSatellite();
+                      AnnouncementHelper.announce(
+                        context,
+                        _showSatellite ? 'تم التبديل إلى عرض القمر الصناعي' : 'تم التبديل إلى عرض الخريطة',
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildProviderSelector(),
+                ],
+              ),
             ),
 
-            // Field Polygons
-            if (widget.fieldPolygons != null && widget.fieldPolygons!.isNotEmpty)
-              PolygonLayer(
-                polygons: widget.fieldPolygons!.map((points) => Polygon(
-                  points: points,
-                  color: Colors.green.withOpacity(0.3),
-                  borderColor: Colors.green,
-                  borderStrokeWidth: 2,
-                  isFilled: true,
-                )).toList(),
-              ),
-
-            // Drawing polygon
-            if (_drawnPoints.isNotEmpty)
-              PolygonLayer(
-                polygons: [
-                  Polygon(
-                    points: _drawnPoints,
-                    color: Colors.blue.withOpacity(0.2),
-                    borderColor: Colors.blue,
-                    borderStrokeWidth: 3,
-                    isFilled: true,
+          // Zoom Controls with accessibility
+          if (widget.showZoomControls)
+            Positioned(
+              bottom: 100,
+              right: 16,
+              child: Column(
+                children: [
+                  _buildControlButton(
+                    icon: Icons.add,
+                    tooltip: 'تكبير',
+                    semanticLabel: SahoolSemantics.zoomIn,
+                    onPressed: () {
+                      final currentZoom = _mapController.camera.zoom;
+                      _mapController.move(
+                        _mapController.camera.center,
+                        currentZoom + 1,
+                      );
+                      AnnouncementHelper.announce(context, 'تم التكبير');
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildControlButton(
+                    icon: Icons.remove,
+                    tooltip: 'تصغير',
+                    semanticLabel: SahoolSemantics.zoomOut,
+                    onPressed: () {
+                      final currentZoom = _mapController.camera.zoom;
+                      _mapController.move(
+                        _mapController.camera.center,
+                        currentZoom - 1,
+                      );
+                      AnnouncementHelper.announce(context, 'تم التصغير');
+                    },
                   ),
                 ],
               ),
+            ),
 
-            // Drawing points
-            if (_drawnPoints.isNotEmpty)
-              MarkerLayer(
-                markers: _drawnPoints.asMap().entries.map((entry) => Marker(
-                  point: entry.value,
-                  width: 24,
-                  height: 24,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${entry.key + 1}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+          // Drawing Controls with accessibility
+          if (widget.interactionMode == MapInteractionMode.drawPolygon)
+            Positioned(
+              bottom: 16,
+              left: 16,
+              right: 16,
+              child: Semantics(
+                liveRegion: true,
+                label: 'عناصر التحكم في الرسم، ${_drawnPoints.length} نقطة',
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Semantics(
+                          label: 'عدد النقاط المرسومة: ${_drawnPoints.length}',
+                          child: Text(
+                            'النقاط: ${_drawnPoints.length}',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
                         ),
-                      ),
+                        Semantics(
+                          label: 'تراجع عن آخر نقطة',
+                          button: true,
+                          enabled: _drawnPoints.isNotEmpty,
+                          child: TextButton.icon(
+                            onPressed: _drawnPoints.isNotEmpty ? () {
+                              _undoLastPoint();
+                              AnnouncementHelper.announce(context, 'تم حذف النقطة، ${_drawnPoints.length} نقطة متبقية');
+                            } : null,
+                            icon: const Icon(Icons.undo),
+                            label: const Text('تراجع'),
+                          ),
+                        ),
+                        Semantics(
+                          label: 'إنهاء رسم الحدود',
+                          hint: _drawnPoints.length < 3 ? 'يجب إضافة 3 نقاط على الأقل' : null,
+                          button: true,
+                          enabled: _drawnPoints.length >= 3,
+                          child: ElevatedButton.icon(
+                            onPressed: _drawnPoints.length >= 3 ? () {
+                              _completePolygon();
+                              AnnouncementHelper.announceComplete(context, 'رسم الحدود');
+                            } : null,
+                            icon: const Icon(Icons.check),
+                            label: const Text('إنهاء'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                )).toList(),
+                ),
               ),
-
-            // Custom markers
-            if (widget.markers != null && widget.markers!.isNotEmpty)
-              MarkerLayer(markers: widget.markers!),
-
-            // Attribution
-            RichAttributionWidget(
-              attributions: [
-                TextSourceAttribution(_currentProvider.attribution),
-              ],
             ),
-          ],
-        ),
 
-        // Layer Toggle Button
-        if (widget.showLayerToggle)
-          Positioned(
-            top: 16,
-            right: 16,
-            child: Column(
-              children: [
-                _buildControlButton(
-                  icon: _showSatellite ? Icons.map : Icons.satellite_alt,
-                  tooltip: _showSatellite ? 'خريطة' : 'قمر صناعي',
-                  onPressed: _toggleSatellite,
-                ),
-                const SizedBox(height: 8),
-                _buildProviderSelector(),
-              ],
-            ),
-          ),
-
-        // Zoom Controls
-        if (widget.showZoomControls)
-          Positioned(
-            bottom: 100,
-            right: 16,
-            child: Column(
-              children: [
-                _buildControlButton(
-                  icon: Icons.add,
-                  tooltip: 'تكبير',
-                  onPressed: () {
-                    final currentZoom = _mapController.camera.zoom;
-                    _mapController.move(
-                      _mapController.camera.center,
-                      currentZoom + 1,
-                    );
-                  },
-                ),
-                const SizedBox(height: 8),
-                _buildControlButton(
-                  icon: Icons.remove,
-                  tooltip: 'تصغير',
-                  onPressed: () {
-                    final currentZoom = _mapController.camera.zoom;
-                    _mapController.move(
-                      _mapController.camera.center,
-                      currentZoom - 1,
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-
-        // Drawing Controls
-        if (widget.interactionMode == MapInteractionMode.drawPolygon)
+          // Current Provider Info - decorative, exclude from semantics
           Positioned(
             bottom: 16,
             left: 16,
-            right: 16,
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text(
-                      'النقاط: ${_drawnPoints.length}',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    TextButton.icon(
-                      onPressed: _drawnPoints.isNotEmpty ? _undoLastPoint : null,
-                      icon: const Icon(Icons.undo),
-                      label: const Text('تراجع'),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: _drawnPoints.length >= 3 ? _completePolygon : null,
-                      icon: const Icon(Icons.check),
-                      label: const Text('إنهاء'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                  ],
+            child: ExcludeSemantics(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  _currentProvider.nameAr,
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
                 ),
               ),
             ),
           ),
-
-        // Current Provider Info
-        Positioned(
-          bottom: 16,
-          left: 16,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.black54,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              _currentProvider.nameAr,
-              style: const TextStyle(color: Colors.white, fontSize: 10),
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -356,23 +404,28 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
     required IconData icon,
     required String tooltip,
     required VoidCallback onPressed,
+    String? semanticLabel,
   }) {
-    return Material(
-      elevation: 2,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        onTap: onPressed,
+    return Semantics(
+      label: semanticLabel ?? tooltip,
+      button: true,
+      child: Material(
+        elevation: 2,
         borderRadius: BorderRadius.circular(8),
-        child: Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Tooltip(
-            message: tooltip,
-            child: Icon(icon, color: Colors.grey[700]),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            width: kMinTouchTargetSize,
+            height: kMinTouchTargetSize,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Tooltip(
+              message: tooltip,
+              child: Icon(icon, color: Colors.grey[700]),
+            ),
           ),
         ),
       ),
@@ -380,51 +433,63 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
   }
 
   Widget _buildProviderSelector() {
-    return PopupMenuButton<MapProviderConfig>(
-      onSelected: (provider) {
-        setState(() {
-          _currentProvider = provider;
-          _showSatellite = provider.provider == MapProvider.satellite;
-        });
-      },
-      itemBuilder: (context) => SahoolMapProviders.freeProviders
-          .map((provider) => PopupMenuItem(
-                value: provider,
-                child: Row(
-                  children: [
-                    Icon(
-                      provider.provider == MapProvider.satellite
-                          ? Icons.satellite_alt
-                          : Icons.map,
-                      size: 20,
-                      color: _currentProvider == provider
-                          ? Theme.of(context).primaryColor
-                          : Colors.grey,
+    return Semantics(
+      label: SahoolSemantics.toggleMapLayers,
+      button: true,
+      child: PopupMenuButton<MapProviderConfig>(
+        onSelected: (provider) {
+          setState(() {
+            _currentProvider = provider;
+            _showSatellite = provider.provider == MapProvider.satellite;
+          });
+          AnnouncementHelper.announce(context, 'تم اختيار ${provider.nameAr}');
+        },
+        tooltip: 'اختيار مزود الخريطة',
+        itemBuilder: (context) => SahoolMapProviders.freeProviders
+            .map((provider) => PopupMenuItem(
+                  value: provider,
+                  child: Semantics(
+                    label: provider.nameAr,
+                    selected: _currentProvider == provider,
+                    child: Row(
+                      children: [
+                        ExcludeSemantics(
+                          child: Icon(
+                            provider.provider == MapProvider.satellite
+                                ? Icons.satellite_alt
+                                : Icons.map,
+                            size: 20,
+                            color: _currentProvider == provider
+                                ? Theme.of(context).primaryColor
+                                : Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          provider.nameAr,
+                          style: TextStyle(
+                            fontWeight: _currentProvider == provider
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      provider.nameAr,
-                      style: TextStyle(
-                        fontWeight: _currentProvider == provider
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
-                    ),
-                  ],
-                ),
-              ))
-          .toList(),
-      child: Material(
-        elevation: 2,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
+                  ),
+                ))
+            .toList(),
+        child: Material(
+          elevation: 2,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            width: kMinTouchTargetSize,
+            height: kMinTouchTargetSize,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.layers, color: Colors.grey),
           ),
-          child: const Icon(Icons.layers, color: Colors.grey),
         ),
       ),
     );

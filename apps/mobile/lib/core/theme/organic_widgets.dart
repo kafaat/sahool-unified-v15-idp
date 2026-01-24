@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'sahool_theme.dart';
+import '../accessibility/semantics_helper.dart';
 
 /// بطاقة عضوية - تصميم Bento Grid
 /// OrganicCard - Rounded corners, soft shadows, natural feel
@@ -55,11 +56,13 @@ class OrganicCard extends StatelessWidget {
 }
 
 /// شارة الحالة - لعرض حالة الحقل أو الجهاز
+/// Status Badge with Accessibility Support
 class StatusBadge extends StatelessWidget {
   final String label;
   final Color color;
   final IconData? icon;
   final bool isSmall;
+  final String? semanticLabel;
 
   const StatusBadge({
     super.key,
@@ -67,36 +70,42 @@ class StatusBadge extends StatelessWidget {
     required this.color,
     this.icon,
     this.isSmall = false,
+    this.semanticLabel,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: isSmall ? 8 : 12,
-        vertical: isSmall ? 4 : 6,
-      ),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: isSmall ? 12 : 14, color: color),
-            const SizedBox(width: 4),
-          ],
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontSize: isSmall ? 10 : 12,
-              fontWeight: FontWeight.bold,
+    return Semantics(
+      label: semanticLabel ?? 'الحالة: $label',
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: isSmall ? 8 : 12,
+          vertical: isSmall ? 4 : 6,
+        ),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              ExcludeSemantics(
+                child: Icon(icon, size: isSmall ? 12 : 14, color: color),
+              ),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: isSmall ? 10 : 12,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -192,6 +201,7 @@ class MetricCard extends StatelessWidget {
 }
 
 /// شريط التنقل العائم
+/// Floating Navigation Bar with Accessibility Support
 class FloatingNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -204,64 +214,75 @@ class FloatingNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
-      height: 70,
-      decoration: BoxDecoration(
-        color: SahoolColors.forestGreen,
-        borderRadius: BorderRadius.circular(35),
-        boxShadow: [
-          BoxShadow(
-            color: SahoolColors.forestGreen.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _NavItem(
-            icon: Icons.home_filled,
-            isSelected: currentIndex == 0,
-            onTap: () => onTap(0),
-          ),
-          _NavItem(
-            icon: Icons.analytics_outlined,
-            isSelected: currentIndex == 1,
-            onTap: () => onTap(1),
-          ),
-          // زر الإضافة المركزي
-          GestureDetector(
-            onTap: () => onTap(-1), // -1 للإضافة
-            child: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: SahoolColors.harvestGold,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: SahoolColors.forestGreen,
-                  width: 4,
+    return Semantics(
+      label: 'شريط التنقل الرئيسي',
+      child: Container(
+        margin: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
+        height: 70,
+        decoration: BoxDecoration(
+          color: SahoolColors.forestGreen,
+          borderRadius: BorderRadius.circular(35),
+          boxShadow: [
+            BoxShadow(
+              color: SahoolColors.forestGreen.withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _NavItem(
+              icon: Icons.home_filled,
+              label: SahoolSemantics.homeTab,
+              isSelected: currentIndex == 0,
+              onTap: () => onTap(0),
+            ),
+            _NavItem(
+              icon: Icons.analytics_outlined,
+              label: SahoolSemantics.monitorTab,
+              isSelected: currentIndex == 1,
+              onTap: () => onTap(1),
+            ),
+            // زر الإضافة المركزي - Central add button
+            Semantics(
+              label: SahoolSemantics.addFieldButton,
+              button: true,
+              child: GestureDetector(
+                onTap: () => onTap(-1), // -1 للإضافة
+                child: Container(
+                  width: kMinTouchTargetSize,
+                  height: kMinTouchTargetSize,
+                  decoration: BoxDecoration(
+                    color: SahoolColors.harvestGold,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: SahoolColors.forestGreen,
+                      width: 4,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.add,
+                    color: SahoolColors.forestGreen,
+                  ),
                 ),
               ),
-              child: const Icon(
-                Icons.add,
-                color: SahoolColors.forestGreen,
-              ),
             ),
-          ),
-          _NavItem(
-            icon: Icons.chat_bubble_outline,
-            isSelected: currentIndex == 2,
-            onTap: () => onTap(2),
-          ),
-          _NavItem(
-            icon: Icons.person_outline,
-            isSelected: currentIndex == 3,
-            onTap: () => onTap(3),
-          ),
-        ],
+            _NavItem(
+              icon: Icons.chat_bubble_outline,
+              label: 'الرسائل، تبويب',
+              isSelected: currentIndex == 2,
+              onTap: () => onTap(2),
+            ),
+            _NavItem(
+              icon: Icons.person_outline,
+              label: SahoolSemantics.profileTab,
+              isSelected: currentIndex == 3,
+              onTap: () => onTap(3),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -269,23 +290,36 @@ class FloatingNavBar extends StatelessWidget {
 
 class _NavItem extends StatelessWidget {
   final IconData icon;
+  final String label;
   final bool isSelected;
   final VoidCallback onTap;
 
   const _NavItem({
     required this.icon,
+    required this.label,
     required this.isSelected,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        icon,
-        color: isSelected ? Colors.white : Colors.white70,
+    return Semantics(
+      label: label,
+      button: true,
+      selected: isSelected,
+      hint: isSelected ? 'محدد حالياً' : null,
+      child: SizedBox(
+        width: kMinTouchTargetSize,
+        height: kMinTouchTargetSize,
+        child: IconButton(
+          icon: Icon(
+            icon,
+            color: isSelected ? Colors.white : Colors.white70,
+          ),
+          onPressed: onTap,
+          tooltip: label,
+        ),
       ),
-      onPressed: onTap,
     );
   }
 }

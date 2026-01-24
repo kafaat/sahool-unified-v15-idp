@@ -776,28 +776,12 @@ class WeeklyMetrics {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Providers
+// Note: Providers are defined in sync_metrics_providers.dart to avoid circular
+// dependencies and to allow proper initialization with SharedPreferences.
+// Import sync_metrics_providers.dart for:
+// - syncMetricsServiceProvider
+// - syncMetricsProvider
+// - syncMetricsStreamProvider
+// - currentSyncMetricsProvider
+// - dailyMetricsProvider
 // ═══════════════════════════════════════════════════════════════════════════
-
-/// Provider for SyncMetricsService
-final syncMetricsServiceProvider = Provider<SyncMetricsService>((ref) {
-  throw UnimplementedError('syncMetricsServiceProvider must be overridden');
-});
-
-/// Provider for real-time sync metrics stream
-final syncMetricsProvider = StreamProvider<SyncMetrics>((ref) {
-  final service = ref.watch(syncMetricsServiceProvider);
-  return service.metricsStream;
-});
-
-/// Provider for current sync metrics
-final currentSyncMetricsProvider = Provider<SyncMetrics>((ref) {
-  final service = ref.watch(syncMetricsServiceProvider);
-  return service.currentMetrics;
-});
-
-/// Provider for daily metrics (last 7 days)
-final dailyMetricsProvider = Provider<List<DailyMetrics>>((ref) {
-  final service = ref.watch(syncMetricsServiceProvider);
-  return service.getLastNDays(7);
-});

@@ -48,3 +48,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment configuration (local overrides)
+# .env.* files are tracked (they contain placeholder values)
+# .env is for local overrides and should NOT be committed
+.env

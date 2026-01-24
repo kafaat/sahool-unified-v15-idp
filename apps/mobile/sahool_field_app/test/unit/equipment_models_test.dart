@@ -126,9 +126,9 @@ void main() {
 
   group('EquipmentStatus Tests', () {
     test('EquipmentStatus.nameAr returns Arabic names', () {
-      expect(EquipmentStatus.operational.nameAr, 'جاهز');
+      expect(EquipmentStatus.operational.nameAr, 'تعمل');
       expect(EquipmentStatus.maintenance.nameAr, 'صيانة');
-      expect(EquipmentStatus.inactive.nameAr, 'متوقف');
+      expect(EquipmentStatus.inactive.nameAr, 'غير نشطة');
       expect(EquipmentStatus.repair.nameAr, 'إصلاح');
     });
 
@@ -183,10 +183,10 @@ void main() {
 
   group('MaintenancePriority Tests', () {
     test('MaintenancePriority.nameAr returns Arabic names', () {
-      expect(MaintenancePriority.low.nameAr, 'منخفض');
-      expect(MaintenancePriority.medium.nameAr, 'متوسط');
-      expect(MaintenancePriority.high.nameAr, 'عالي');
-      expect(MaintenancePriority.critical.nameAr, 'حرج');
+      expect(MaintenancePriority.low.nameAr, 'منخفضة');
+      expect(MaintenancePriority.medium.nameAr, 'متوسطة');
+      expect(MaintenancePriority.high.nameAr, 'عالية');
+      expect(MaintenancePriority.critical.nameAr, 'حرجة');
     });
   });
 

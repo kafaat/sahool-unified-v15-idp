@@ -24,6 +24,9 @@
 .env
 .env.*
 !.env.example
+!.env.development
+!.env.staging
+!.env.production
 !.env.development.template
 *.pem
 *.key

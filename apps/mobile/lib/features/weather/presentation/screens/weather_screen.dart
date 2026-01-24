@@ -7,6 +7,8 @@ import '../widgets/hourly_forecast_list.dart';
 import '../widgets/daily_forecast_list.dart';
 import '../widgets/weather_alert_card.dart';
 import '../widgets/agricultural_impact_card.dart';
+import '../../../../core/widgets/loading_states.dart';
+import '../../../../core/widgets/empty_states.dart';
 
 /// شاشة الطقس
 /// Weather Dashboard Screen
@@ -112,7 +114,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
           ),
         ),
         body: weatherState.isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const WeatherScreenSkeleton()
             : weatherState.error != null
                 ? _buildErrorView(weatherState.error!)
                 : TabBarView(
@@ -128,7 +130,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
   }
 
   Widget _buildWeatherTab(WeatherData data) {
-    return RefreshIndicator(
+    return SahoolRefreshIndicator(
       onRefresh: _refreshData,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -173,14 +175,17 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
     final filteredImpacts = ref.watch(filteredImpactsProvider);
 
     if (impactsState.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const SkeletonList(
+        itemCount: 4,
+        itemHeight: 100,
+      );
     }
 
     if (impactsState.error != null) {
       return _buildErrorView(impactsState.error!);
     }
 
-    return RefreshIndicator(
+    return SahoolRefreshIndicator(
       onRefresh: _refreshData,
       child: ListView(
         padding: const EdgeInsets.all(16),
@@ -192,17 +197,13 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
 
           // قائمة التأثيرات
           if (filteredImpacts.isEmpty)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Column(
-                  children: [
-                    Icon(Icons.check_circle, size: 64, color: Colors.green),
-                    SizedBox(height: 16),
-                    Text('لا توجد توصيات حالياً'),
-                  ],
-                ),
-              ),
+            const EmptyStateWidget(
+              icon: Icons.check_circle_rounded,
+              titleAr: 'لا توجد توصيات حالياً',
+              titleEn: 'No recommendations at this time',
+              messageAr: 'الظروف الجوية مناسبة للعمليات الزراعية',
+              messageEn: 'Weather conditions are suitable for agricultural operations',
+              iconColor: Colors.green,
             )
           else
             ...filteredImpacts.map(
@@ -257,7 +258,10 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
     final alertsState = ref.watch(alertsProvider);
 
     if (alertsState.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const SkeletonList(
+        itemCount: 3,
+        itemHeight: 120,
+      );
     }
 
     if (alertsState.error != null) {
@@ -269,30 +273,10 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
         .toList();
 
     if (activeAlerts.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.check_circle, size: 64, color: Colors.green),
-              SizedBox(height: 16),
-              Text(
-                'لا توجد تنبيهات حالياً',
-                style: TextStyle(fontSize: 18),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'الطقس مستقر',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ],
-          ),
-        ),
-      );
+      return const NoAlertsEmptyState();
     }
 
-    return RefreshIndicator(
+    return SahoolRefreshIndicator(
       onRefresh: _refreshData,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -308,28 +292,12 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
   }
 
   Widget _buildErrorView(String error) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              error,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.red),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: _refreshData,
-              icon: const Icon(Icons.refresh),
-              label: const Text('إعادة المحاولة'),
-            ),
-          ],
-        ),
-      ),
+    return ErrorStateWidget(
+      errorAr: 'تعذر تحميل بيانات الطقس',
+      errorEn: 'Could not load weather data',
+      detailsAr: error,
+      onRetry: _refreshData,
+      onGoBack: () => Navigator.of(context).pop(),
     );
   }
 

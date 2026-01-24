@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,8 +13,15 @@ import 'core/security/device_integrity_service.dart';
 import 'core/security/device_security_screen.dart';
 import 'core/security/security_config.dart';
 import 'core/utils/app_logger.dart';
+import 'core/error/error.dart';
+import 'core/crash/crash_reporter.dart';
+import 'core/crash/crash_config.dart';
+import 'core/crash/breadcrumb_service.dart';
+import 'core/persistence/app_state_manager.dart';
+import 'core/persistence/preferences_manager.dart';
+import 'core/persistence/draft_manager.dart';
 
-// Global crash reporting instance
+// Global crash reporting instance (legacy - kept for compatibility)
 final crashReporting = CrashReportingService();
 
 void main() async {
@@ -25,7 +33,20 @@ void main() async {
     // Log to console in debug mode
     FlutterError.presentError(details);
 
-    // Report to crash reporting service
+    // Report to new CrashReporter (with Sentry integration)
+    crashReporter.reportError(
+      details.exception,
+      details.stack,
+      severity: CrashSeverity.error,
+      reason: details.context?.toString(),
+      context: {
+        'library': details.library ?? 'unknown',
+        'silent': details.silent,
+      },
+      fatal: false,
+    );
+
+    // Report to legacy crash reporting service
     crashReporting.reportError(
       details.exception,
       details.stack,
@@ -37,6 +58,56 @@ void main() async {
       },
       fatal: false,
     );
+
+    // Also report via ErrorReporter for unified error handling
+    errorReporter.reportFlutterError(
+      details,
+      context: ErrorContext.current(
+        widget: details.context?.toString(),
+        metadata: {
+          'library': details.library ?? 'unknown',
+          'silent': details.silent,
+        },
+      ),
+    );
+  };
+
+  // Set up Platform Dispatcher error handler for async errors
+  // This catches errors that occur outside the Flutter framework
+  // مُعالج أخطاء منصة التشغيل للأخطاء غير المتزامنة
+  PlatformDispatcher.instance.onError = (error, stack) {
+    AppLogger.critical('Platform Dispatcher Error: $error', tag: 'Main', error: error, stackTrace: stack);
+
+    // Report to new CrashReporter (with Sentry integration)
+    crashReporter.reportError(
+      error,
+      stack,
+      severity: CrashSeverity.fatal,
+      reason: 'Platform Dispatcher Error',
+      fatal: true,
+    );
+
+    // Report to legacy crash reporting service
+    crashReporting.reportError(
+      error,
+      stack,
+      severity: ErrorSeverity.fatal,
+      reason: 'Platform Dispatcher Error',
+      fatal: true,
+    );
+
+    // Report via ErrorReporter
+    errorReporter.reportPlatformError(
+      error,
+      stack,
+      context: ErrorContext.current(
+        recoverable: false,
+        metadata: {'source': 'PlatformDispatcher'},
+      ),
+    );
+
+    // Return true to prevent the error from propagating
+    return true;
   };
 
   // Catch all async errors in the zone
@@ -49,7 +120,25 @@ void main() async {
       // Continue anyway - defaults will be used
     }
 
-    // Initialize crash reporting service early
+    // Initialize new CrashReporter with Sentry integration
+    try {
+      final crashConfig = CrashConfig.fromEnvironment();
+      await crashReporter.initialize(crashConfig);
+
+      // Record app start breadcrumb
+      breadcrumbService.recordLifecycle('app_started');
+      breadcrumbService.recordSystem('environment', data: {
+        'env': EnvConfig.environment.name,
+        'version': EnvConfig.fullVersion,
+        'platform': defaultTargetPlatform.name,
+      });
+
+      AppLogger.i('New CrashReporter initialized (Sentry: ${crashConfig.hasSentryDsn})', tag: 'Main');
+    } catch (e) {
+      AppLogger.w('CrashReporter init failed (non-critical): $e', tag: 'Main');
+    }
+
+    // Initialize legacy crash reporting service (for compatibility)
     try {
       await crashReporting.initialize(
         samplingRate: 1.0, // 100% in production, can be adjusted
@@ -63,9 +152,13 @@ void main() async {
         level: BreadcrumbLevel.info,
       );
 
-      AppLogger.i('Crash reporting initialized', tag: 'Main');
+      AppLogger.i('Legacy crash reporting initialized', tag: 'Main');
+
+      // Initialize ErrorReporter (integrates with crash reporting)
+      await errorReporter.initialize();
+      AppLogger.i('ErrorReporter initialized', tag: 'Main');
     } catch (e) {
-      AppLogger.w('Crash reporting init failed (non-critical): $e', tag: 'Main');
+      AppLogger.w('Legacy crash reporting init failed (non-critical): $e', tag: 'Main');
     }
 
     // Device Integrity Check - Security Feature
@@ -76,6 +169,8 @@ void main() async {
     // Perform device integrity check if enabled
     if (securityConfig.deviceIntegrityPolicy != DeviceIntegrityPolicy.disabled) {
       try {
+        // Record breadcrumbs in both systems
+        breadcrumbService.recordSystem('device_integrity_check_starting');
         crashReporting.recordBreadcrumb(
           message: 'Starting device integrity check',
           category: 'security',
@@ -246,6 +341,43 @@ void main() async {
       );
     }
 
+    // Initialize persistence managers (non-critical)
+    // تهيئة مديري الحفظ (غير حرج)
+    final appStateManager = AppStateManager();
+    final preferencesManager = PreferencesManager();
+    final draftManager = DraftManager();
+
+    try {
+      crashReporting.recordBreadcrumb(
+        message: 'Initializing persistence managers',
+        category: 'lifecycle',
+        level: BreadcrumbLevel.info,
+      );
+
+      await Future.wait([
+        appStateManager.initialize(),
+        preferencesManager.initialize(),
+        draftManager.initialize(),
+      ]);
+
+      AppLogger.i('Persistence managers initialized', tag: 'Main');
+      crashReporting.recordBreadcrumb(
+        message: 'Persistence managers initialized successfully',
+        category: 'lifecycle',
+        level: BreadcrumbLevel.info,
+      );
+    } catch (e, stackTrace) {
+      // Non-critical - app can work without persistence
+      AppLogger.w('Persistence managers init failed (non-critical): $e', tag: 'Main');
+      crashReporting.reportError(
+        e,
+        stackTrace,
+        severity: ErrorSeverity.warning,
+        reason: 'Persistence managers initialization failed (non-critical)',
+        fatal: false,
+      );
+    }
+
     // Run the app
     crashReporting.recordBreadcrumb(
       message: 'Starting Flutter app',
@@ -258,13 +390,21 @@ void main() async {
         overrides: [
           databaseProvider.overrideWithValue(database),
           syncEngineProvider.overrideWithValue(syncEngine),
+          appStateManagerProvider.overrideWithValue(appStateManager),
+          preferencesManagerProvider.overrideWithValue(preferencesManager),
+          draftManagerProvider.overrideWithValue(draftManager),
         ],
-        child: const SahoolFieldApp(),
+        child: SahoolAppWithLifecycle(
+          appStateManager: appStateManager,
+          draftManager: draftManager,
+          child: const SahoolFieldApp(),
+        ),
       ),
     );
 
     // Start foreground sync when app is active (non-blocking)
     try {
+      breadcrumbService.recordSync('foreground', success: true);
       crashReporting.recordBreadcrumb(
         message: 'Starting foreground sync',
         category: 'lifecycle',
@@ -273,6 +413,14 @@ void main() async {
       syncEngine.startPeriodic();
     } catch (e, stackTrace) {
       AppLogger.w('Foreground sync start failed: $e', tag: 'Main');
+      breadcrumbService.recordSync('foreground', success: false);
+      crashReporter.reportError(
+        e,
+        stackTrace,
+        severity: CrashSeverity.warning,
+        reason: 'Foreground sync start failed (non-critical)',
+        fatal: false,
+      );
       crashReporting.reportError(
         e,
         stackTrace,
@@ -285,7 +433,16 @@ void main() async {
     // Global zone error handler - catches all uncaught async errors
     AppLogger.critical('Uncaught error: $error', tag: 'Main', error: error, stackTrace: stackTrace);
 
-    // Report to crash reporting service
+    // Report to new CrashReporter (with Sentry integration)
+    crashReporter.reportError(
+      error,
+      stackTrace,
+      severity: CrashSeverity.fatal,
+      reason: 'Uncaught zone error',
+      fatal: true,
+    );
+
+    // Report to legacy crash reporting service
     crashReporting.reportError(
       error,
       stackTrace,
@@ -311,3 +468,141 @@ final syncEngineProvider = Provider<SyncEngine>((ref) {
 final crashReportingProvider = Provider<CrashReportingService>((ref) {
   return CrashReportingService();
 });
+
+// New Crash Reporter provider (with Sentry integration)
+final newCrashReporterProvider = Provider<CrashReporter>((ref) {
+  return CrashReporter.instance;
+});
+
+// Breadcrumb service provider
+final breadcrumbServiceProvider = Provider<BreadcrumbService>((ref) {
+  return breadcrumbService;
+});
+
+// ============================================================
+// App Lifecycle Widget
+// ============================================================
+
+/// Widget that wraps the app with lifecycle observation
+/// ويدجت يغلف التطبيق بمراقبة دورة الحياة
+class SahoolAppWithLifecycle extends StatefulWidget {
+  final AppStateManager appStateManager;
+  final DraftManager draftManager;
+  final Widget child;
+
+  const SahoolAppWithLifecycle({
+    super.key,
+    required this.appStateManager,
+    required this.draftManager,
+    required this.child,
+  });
+
+  @override
+  State<SahoolAppWithLifecycle> createState() => _SahoolAppWithLifecycleState();
+}
+
+class _SahoolAppWithLifecycleState extends State<SahoolAppWithLifecycle>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    AppLogger.d('App lifecycle observer registered', tag: 'Lifecycle');
+
+    // Record app start
+    breadcrumbService.recordLifecycle('app_lifecycle_observer_registered');
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    widget.draftManager.dispose();
+    AppLogger.d('App lifecycle observer unregistered', tag: 'Lifecycle');
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    AppLogger.d('App lifecycle state changed: $state', tag: 'Lifecycle');
+
+    switch (state) {
+      case AppLifecycleState.paused:
+        _handleAppPaused();
+        break;
+      case AppLifecycleState.inactive:
+        _handleAppInactive();
+        break;
+      case AppLifecycleState.resumed:
+        _handleAppResumed();
+        break;
+      case AppLifecycleState.detached:
+        _handleAppDetached();
+        break;
+      case AppLifecycleState.hidden:
+        _handleAppHidden();
+        break;
+    }
+  }
+
+  /// Handle app going to background (paused)
+  /// معالجة انتقال التطبيق إلى الخلفية
+  void _handleAppPaused() {
+    AppLogger.i('App paused - saving state', tag: 'Lifecycle');
+    breadcrumbService.recordLifecycle('app_paused');
+    crashReporting.recordBreadcrumb(
+      message: 'App paused',
+      category: 'lifecycle',
+      level: BreadcrumbLevel.info,
+    );
+
+    // Save app state when going to background
+    widget.appStateManager.onAppBackgrounded();
+  }
+
+  /// Handle app becoming inactive (e.g., phone call)
+  /// معالجة عدم نشاط التطبيق
+  void _handleAppInactive() {
+    AppLogger.d('App inactive', tag: 'Lifecycle');
+    breadcrumbService.recordLifecycle('app_inactive');
+  }
+
+  /// Handle app coming to foreground (resumed)
+  /// معالجة عودة التطبيق إلى المقدمة
+  void _handleAppResumed() {
+    AppLogger.i('App resumed', tag: 'Lifecycle');
+    breadcrumbService.recordLifecycle('app_resumed');
+    crashReporting.recordBreadcrumb(
+      message: 'App resumed',
+      category: 'lifecycle',
+      level: BreadcrumbLevel.info,
+    );
+
+    // Restore app state when coming to foreground
+    widget.appStateManager.onAppResumed();
+
+    // Check if session expired (optional - for security)
+    if (widget.appStateManager.isSessionExpired(timeout: const Duration(hours: 24))) {
+      AppLogger.w('Session may be expired - consider re-authentication', tag: 'Lifecycle');
+      breadcrumbService.recordSystem('session_expired_warning');
+    }
+  }
+
+  /// Handle app being detached
+  /// معالجة فصل التطبيق
+  void _handleAppDetached() {
+    AppLogger.d('App detached', tag: 'Lifecycle');
+    breadcrumbService.recordLifecycle('app_detached');
+  }
+
+  /// Handle app being hidden (iOS only)
+  /// معالجة إخفاء التطبيق
+  void _handleAppHidden() {
+    AppLogger.d('App hidden', tag: 'Lifecycle');
+    breadcrumbService.recordLifecycle('app_hidden');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+}

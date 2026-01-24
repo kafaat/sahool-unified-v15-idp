@@ -410,7 +410,7 @@ class QuickContactSheet extends StatelessWidget {
     );
   }
 
-  void _handleAction(BuildContext context, String action) async {
+  Future<void> _handleAction(BuildContext context, String action) async {
     Navigator.pop(context);
 
     final contactActions = ContactActions(

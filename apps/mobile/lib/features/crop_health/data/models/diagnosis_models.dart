@@ -1,6 +1,5 @@
 /// Crop Health Diagnosis Models
 /// نماذج تشخيص صحة المحاصيل
-library;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 

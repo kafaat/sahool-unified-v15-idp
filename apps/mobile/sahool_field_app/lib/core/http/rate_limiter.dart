@@ -347,16 +347,19 @@ class _QueuedRequest {
 
 /// Dio Interceptor for rate limiting
 class RateLimitInterceptor extends Interceptor {
+  final Dio _dio;
   final RateLimiter rateLimiter;
   final bool queueExceededRequests;
 
   RateLimitInterceptor({
+    required Dio dio,
     RateLimiter? rateLimiter,
     this.queueExceededRequests = true,
-  }) : rateLimiter = rateLimiter ?? RateLimiter();
+  })  : _dio = dio,
+        rateLimiter = rateLimiter ?? RateLimiter();
 
   @override
-  void onRequest(
+  Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
@@ -447,21 +450,9 @@ class RateLimitInterceptor extends Interceptor {
             // Wait for rate limit token
             await rateLimiter.waitForToken(newOptions.path);
 
-            // Create a new Dio instance to retry (using the same base)
-            final dio = Dio(
-              BaseOptions(
-                baseUrl: newOptions.baseUrl,
-                headers: Map<String, dynamic>.from(newOptions.headers ?? const {}),
-                connectTimeout: newOptions.connectTimeout,
-                receiveTimeout: newOptions.receiveTimeout,
-                sendTimeout: newOptions.sendTimeout,
-                responseType: newOptions.responseType,
-                contentType: newOptions.contentType,
-                followRedirects: newOptions.followRedirects,
-                receiveDataWhenStatusError: newOptions.receiveDataWhenStatusError,
-                validateStatus: newOptions.validateStatus,
-              ),
-            );final response = await dio.fetch(newOptions);
+            // Use the same Dio instance to preserve interceptor chain
+            // (certificate pinning, auth, rate limiting)
+            final response = await _dio.fetch(newOptions);
             handler.resolve(response);
           } catch (e) {
             if (e is DioException) {

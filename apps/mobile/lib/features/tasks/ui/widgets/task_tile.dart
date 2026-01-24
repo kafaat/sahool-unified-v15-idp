@@ -72,6 +72,7 @@ class _TaskTileState extends State<TaskTile>
     HapticFeedback.mediumImpact();
 
     // Scale animation
+    // ignore: unawaited_futures
     _controller.forward().then((_) => _controller.reverse());
 
     // Notify parent

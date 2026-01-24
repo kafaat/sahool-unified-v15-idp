@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 /// SAHOOL PII Filter - Comprehensive Personally Identifiable Information Filter
 /// Ù†Ø¸Ø§Ù… ØªØµÙÙŠØ© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø´Ø®ØµÙŠØ© Ø§Ù„Ø­Ø³Ø§Ø³Ø©

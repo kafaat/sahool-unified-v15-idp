@@ -15,6 +15,11 @@ interface TranslationNamespace {
   [key: string]: TranslationEntry | TranslationNamespace;
 }
 
+// Type guard to check if value is a TranslationNamespace (not a TranslationEntry)
+function isTranslationNamespace(value: TranslationEntry | TranslationNamespace): value is TranslationNamespace {
+  return typeof value === 'object' && !('en' in value && 'ar' in value && Object.keys(value).length === 2);
+}
+
 class I18nManager {
   private locale: SupportedLocale = 'en';
   private translations: Map<string, TranslationNamespace> = new Map();
@@ -44,8 +49,8 @@ class I18nManager {
 
     let current: TranslationNamespace | TranslationEntry = namespaceTranslations;
     for (const part of path) {
-      if (typeof current === 'object' && part in current) {
-        current = current[part] as TranslationNamespace | TranslationEntry;
+      if (isTranslationNamespace(current) && part in current) {
+        current = current[part];
       } else {
         return key;
       }
@@ -384,11 +389,11 @@ describe('Arabic Text Validation', () => {
   }
 
   it('should verify Arabic translations contain Arabic characters', () => {
-    expect(containsArabic(commonTranslations.greeting.ar)).toBe(true);
-    expect(containsArabic((commonTranslations.field as TranslationNamespace).name.ar)).toBe(true);
+    expect(containsArabic((commonTranslations.greeting as TranslationEntry).ar)).toBe(true);
+    expect(containsArabic(((commonTranslations.field as TranslationNamespace).name as TranslationEntry).ar)).toBe(true);
   });
 
   it('should verify English translations do not contain Arabic', () => {
-    expect(containsArabic(commonTranslations.greeting.en)).toBe(false);
+    expect(containsArabic((commonTranslations.greeting as TranslationEntry).en)).toBe(false);
   });
 });

@@ -94,7 +94,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void _sendOtp() async {
+  Future<void> _sendOtp() async {
     // Validate phone number
     final validation = InputValidator.validateYemenPhone(_phoneController.text);
 
@@ -137,7 +137,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
   }
 
-  void _verifyOtp() async {
+  Future<void> _verifyOtp() async {
     final otp = _otpControllers.map((c) => c.text).join();
 
     // Validate OTP

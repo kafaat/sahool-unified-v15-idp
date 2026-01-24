@@ -133,7 +133,7 @@ class _ZonesMapExampleState extends State<ZonesMapExample> {
     });
   }
 
-  void _simulateLoading() async {
+  Future<void> _simulateLoading() async {
     setState(() {
       _isLoading = true;
     });

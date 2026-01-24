@@ -25,7 +25,7 @@ class RequestSigningInterceptor extends Interceptor {
   RequestSigningInterceptor(this._signingKeyService);
 
   @override
-  void onRequest(
+  Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {

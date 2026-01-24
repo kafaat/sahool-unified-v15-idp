@@ -128,7 +128,7 @@ class _SwipeToDeleteState extends State<SwipeToDelete>
     });
   }
 
-  void _handleDragEnd(DragEndDetails details) async {
+  Future<void> _handleDragEnd(DragEndDetails details) async {
     if (_isDismissed) return;
 
     final velocity = details.primaryVelocity ?? 0;
@@ -170,6 +170,7 @@ class _SwipeToDeleteState extends State<SwipeToDelete>
     ).animate(CurvedAnimation(parent: _controller, curve: widget.curve));
 
     _controller.addListener(_updateDragExtent);
+    // ignore: unawaited_futures
     _controller.forward(from: 0).then((_) {
       _controller.removeListener(_updateDragExtent);
       if (!_isDismissed) {
@@ -343,7 +344,7 @@ class _SahoolPullToRefreshState extends State<SahoolPullToRefresh>
     });
   }
 
-  void _handleDragEnd() async {
+  Future<void> _handleDragEnd() async {
     if (_isRefreshing) return;
 
     if (_triggered) {
@@ -676,7 +677,7 @@ class _PreviewOverlayState extends State<_PreviewOverlay>
     super.dispose();
   }
 
-  void _dismiss() async {
+  Future<void> _dismiss() async {
     await _controller.reverse();
     widget.onDismiss();
   }

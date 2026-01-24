@@ -118,12 +118,12 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
     );
   }
 
-  void _toggleFlash() async {
+  Future<void> _toggleFlash() async {
     await _controller.toggleTorch();
     setState(() => _isFlashOn = !_isFlashOn);
   }
 
-  void _switchCamera() async {
+  Future<void> _switchCamera() async {
     await _controller.switchCamera();
     setState(() => _isFrontCamera = !_isFrontCamera);
   }

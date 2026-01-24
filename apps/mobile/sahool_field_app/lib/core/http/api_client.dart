@@ -78,12 +78,14 @@ class ApiClient {
     // Add interceptors
     // Rate limiter must be first to control request flow
     _dio.interceptors.add(RateLimitInterceptor(
+      dio: _dio,
       rateLimiter: _rateLimiter,
       queueExceededRequests: true,
     ));
 
     // Add retry interceptor for automatic retry on network errors
     _dio.interceptors.add(RetryInterceptor(
+      dio: _dio,
       maxRetries: 3,
       initialDelay: const Duration(seconds: 1),
     ));

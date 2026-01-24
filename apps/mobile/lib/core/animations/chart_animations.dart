@@ -96,7 +96,7 @@ class _AnimatedBarChartState extends State<AnimatedBarChart>
     }).toList();
   }
 
-  void _startStaggeredAnimations() async {
+  Future<void> _startStaggeredAnimations() async {
     for (int i = 0; i < _controllers.length; i++) {
       await Future.delayed(widget.staggerDelay);
       if (mounted) {

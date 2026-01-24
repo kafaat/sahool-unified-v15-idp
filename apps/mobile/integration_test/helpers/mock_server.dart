@@ -384,25 +384,23 @@ class MockServer {
           'description': 'صافي',
           'icon': 'sunny',
         },
-        'hourly': List.generate(
-            24,
-            (i) => {
-                  'time':
-                      DateTime.now().add(Duration(hours: i)).toIso8601String(),
-                  'temperature': 25 + (i % 10),
-                  'precipitation': i % 4 == 0 ? 10 : 0,
-                  'icon': i > 6 && i < 18 ? 'sunny' : 'moon',
-                }),
-        'daily': List.generate(
-            7,
-            (i) => {
-                  'date':
-                      DateTime.now().add(Duration(days: i)).toIso8601String(),
-                  'temperatureMax': 30 + i,
-                  'temperatureMin': 20 + i,
-                  'precipitation': i % 3 == 0 ? 20 : 0,
-                  'icon': 'partly_cloudy',
-                }),
+        'hourly': List.generate(24, (i) {
+          return {
+            'time': DateTime.now().add(Duration(hours: i)).toIso8601String(),
+            'temperature': 25 + (i % 10),
+            'precipitation': i % 4 == 0 ? 10 : 0,
+            'icon': i > 6 && i < 18 ? 'sunny' : 'moon',
+          };
+        }),
+        'daily': List.generate(7, (i) {
+          return {
+            'date': DateTime.now().add(Duration(days: i)).toIso8601String(),
+            'temperatureMax': 30 + i,
+            'temperatureMin': 20 + i,
+            'precipitation': i % 3 == 0 ? 20 : 0,
+            'icon': 'partly_cloudy',
+          };
+        }),
         'alerts': [],
         'agricultural_impacts': [
           {

@@ -320,8 +320,8 @@ void main() {
         mockNetworkStatus.setOnlineStatus(false);
 
         // Act & Assert
-        expect(
-          () => tasksRepo.refreshFromServer(),
+        await expectLater(
+          tasksRepo.refreshFromServer(),
           throwsA(isA<Exception>()),
         );
       });

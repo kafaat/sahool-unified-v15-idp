@@ -125,7 +125,7 @@ class Logger {
 
     logger._piiFilteringEnabled = logger._config.enablePiiFiltering;
 
-    logger.info(
+    Logger.info(
       'Logger initialized',
       messageAr: 'تم تهيئة المسجل',
       category: LogCategory.app,
@@ -575,19 +575,25 @@ class Logger {
   /// Get log files info
   /// الحصول على معلومات ملفات السجل
   static Future<List<LogFileInfo>> getLogFilesInfo() async {
-    return instance._fileLogger?.getLogFilesInfo() ?? [];
+    final fileLogger = instance._fileLogger;
+    if (fileLogger == null) return [];
+    return fileLogger.getLogFilesInfo();
   }
 
   /// Get total storage size
   /// الحصول على إجمالي حجم التخزين
   static Future<int> getTotalStorageSize() async {
-    return instance._fileLogger?.getTotalStorageSize() ?? 0;
+    final fileLogger = instance._fileLogger;
+    if (fileLogger == null) return 0;
+    return fileLogger.getTotalStorageSize();
   }
 
   /// Clear synced logs
   /// مسح السجلات المتزامنة
   static Future<int> clearSyncedLogs({int keepDays = 7}) async {
-    return instance._fileLogger?.clearSyncedLogs(keepDays: keepDays) ?? 0;
+    final fileLogger = instance._fileLogger;
+    if (fileLogger == null) return 0;
+    return fileLogger.clearSyncedLogs(keepDays: keepDays);
   }
 
   /// Clear all logs

@@ -8,7 +8,6 @@
 /// - Rollback support (where possible)
 /// - Audit logging
 /// - Encrypted database support
-library;
 
 import 'dart:convert';
 import 'dart:io';
@@ -172,7 +171,7 @@ class SahoolMigrationStrategy {
       },
       beforeOpen: (details) async {
         // Enable foreign keys
-        await details.db.customStatement('PRAGMA foreign_keys = ON');
+        await details.executor.runCustom('PRAGMA foreign_keys = ON');
 
         AppLogger.d(
           'Database opened: v${details.versionNow}, '
@@ -398,12 +397,12 @@ class SahoolMigrationStrategy {
           Variable.withString(DateTime.now().toIso8601String()),
           status == MigrationStatus.completed
               ? Variable.withString(DateTime.now().toIso8601String())
-              : const Variable(null),
+              : const Constant<String?>(null),
           Variable.withString(status.value),
-          errorMessage != null ? Variable.withString(errorMessage) : const Variable(null),
+          errorMessage != null ? Variable.withString(errorMessage) : const Constant<String?>(null),
           Variable.withInt(durationMs),
           Variable.withBool(backupPath != null),
-          backupPath != null ? Variable.withString(backupPath) : const Variable(null),
+          backupPath != null ? Variable.withString(backupPath) : const Constant<String?>(null),
         ],
       );
     } catch (e) {

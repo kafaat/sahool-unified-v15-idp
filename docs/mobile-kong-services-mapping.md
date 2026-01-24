@@ -2,7 +2,7 @@
 
 > تقرير تحليلي للتحقق من ارتباط خدمات Kong بتطبيقات الموبايل
 >
-> **تاريخ التحليل**: 2026-01-24
+> **تاريخ التحليل**: 2026-01-24 (محدث)
 > **المصادر**:
 > - `apps/mobile/lib/core/config/api_config.dart`
 > - `apps/mobile/lib/core/config/env_config.dart`
@@ -10,6 +10,7 @@
 > - `apps/mobile/lib/core/services/service_registry.dart`
 > - `apps/mobile/sahool_field_app/`
 > - `apps/mobile/sahol_atmosphere/`
+> - `apps/mobile/sahool-mobile/` (React Native)
 > - `services-definition.md`
 
 ---
@@ -19,17 +20,18 @@
 | البند | العدد |
 |-------|-------|
 | **إجمالي خدمات Kong** | 62 |
-| **الخدمات المستخدمة في Mobile** | 29 |
-| **الخدمات غير المستخدمة** | 33 |
-| **نسبة التغطية** | 46.8% |
+| **الخدمات المستخدمة في Mobile (جميع التطبيقات)** | 32 |
+| **الخدمات غير المستخدمة** | 30 |
+| **نسبة التغطية الإجمالية** | 51.6% |
 
 ### تطبيقات الموبايل المكتشفة
 
-| التطبيق | الموقع | الوصف | الخدمات |
-|---------|--------|-------|---------|
-| **SAHOOL Field App (Main)** | `apps/mobile/lib/` | التطبيق الرئيسي الكامل | 29 خدمة |
-| **Sahool Field App** | `apps/mobile/sahool_field_app/` | تطبيق الحقول المتخصص | مجموعة فرعية |
-| **Sahol Atmosphere** | `apps/mobile/sahol_atmosphere/` | مراقبة صحة الخدمات | 4 خدمات |
+| التطبيق | الموقع | التقنية | الوصف | الخدمات |
+|---------|--------|---------|-------|---------|
+| **SAHOOL Field App (Main)** | `apps/mobile/lib/` | Flutter | التطبيق الرئيسي الكامل v16.0.0 | 29 خدمة |
+| **Sahool Field App** | `apps/mobile/sahool_field_app/` | Flutter | تطبيق الحقول المتخصص v15.5.0 | 5 خدمات |
+| **Sahol Atmosphere** | `apps/mobile/sahol_atmosphere/` | Flutter | مراقبة صحة الخدمات v16.0.0 | 4 خدمات |
+| **Sahool Mobile (React Native)** | `apps/mobile/sahool-mobile/` | React Native + TypeScript | مدير المزامنة Offline-First | 7 خدمات |
 
 ---
 
@@ -150,9 +152,142 @@ _ServiceConfig('Tasks', 'المهام', '/api/v1/tasks/healthz'),
 
 ---
 
-## 4. الخدمات غير المتصلة | Unconnected Services
+## 4. تطبيق Sahool Mobile (React Native) | Sahool Mobile App
 
-### 4.1 خدمات الوكلاء (Agent Services)
+تطبيق React Native/TypeScript متخصص في إدارة المزامنة بدون اتصال (Offline-First Sync Manager).
+
+### 4.1 معلومات التطبيق
+
+| البند | القيمة |
+|-------|--------|
+| **الموقع** | `apps/mobile/sahool-mobile/` |
+| **التقنية** | React Native + TypeScript |
+| **الإصدار** | 1.0.0 |
+| **الوصف** | Offline-first agricultural management system |
+| **حجم الكود** | 6,500+ سطر |
+
+### 4.2 المكتبات الرئيسية
+
+```json
+{
+  "react": "^18.2.0",
+  "react-native": "^0.72.0",
+  "@react-native-async-storage/async-storage": "^1.19.0",
+  "@react-native-community/netinfo": "^9.4.0"
+}
+```
+
+### 4.3 أنواع البيانات المدعومة للمزامنة
+
+| نوع البيانات | الوصف بالعربية | Kong Service |
+|--------------|----------------|--------------|
+| `FIELD_OBSERVATION` | ملاحظات الحقول | field-management-service |
+| `SENSOR_READING` | قراءات المستشعرات | iot-service |
+| `TASK_COMPLETION` | إكمال المهام | task-service |
+| `IMAGE_UPLOAD` | رفع الصور | notification-service |
+| `FIELD_UPDATE` | تحديث بيانات الحقل | field-management-service |
+| `FARM_UPDATE` | تحديث بيانات المزرعة | field-management-service |
+| `IRRIGATION_LOG` | سجل الري | irrigation-smart |
+| `PEST_REPORT` | تقرير الآفات | crop-intelligence-service |
+
+### 4.4 الخدمات المتصلة عبر Kong
+
+| الخدمة | نقاط النهاية |
+|--------|--------------|
+| **field-management-service** | `/api/v1/field-observations`, `/api/v1/fields/*` |
+| **iot-service** | `/api/v1/sensor-readings` |
+| **task-service** | `/api/v1/tasks/{id}/complete` |
+| **notification-service** | `/api/v1/images` (uploads) |
+| **irrigation-smart** | `/api/v1/irrigation/logs` |
+| **crop-intelligence-service** | `/api/v1/pest-reports` |
+| **user-service** | `/api/v1/auth/*` (implicit) |
+
+### 4.5 ميزات المزامنة
+
+```typescript
+// Default Sync Configuration
+{
+  autoSync: true,
+  syncInterval: 5 * 60 * 1000,  // 5 دقائق
+  maxRetries: 5,
+  retryDelayBase: 1000,
+  retryDelayMax: 30000,
+  batchSize: 10,
+  maxQueueSize: 1000,
+  conflictResolution: 'LAST_WRITE_WINS',
+  syncOnlyOnWifi: false,
+  throttleOnSlowConnection: true,
+  persistQueue: true,
+  maxUploadSize: 10 * 1024 * 1024  // 10 MB
+}
+```
+
+### 4.6 استراتيجيات حل التعارض
+
+| الاستراتيجية | الوصف بالعربية | الوصف |
+|--------------|----------------|-------|
+| `LAST_WRITE_WINS` | آخر كتابة تفوز | Based on timestamp |
+| `SERVER_WINS` | الخادم يفوز دائماً | Server data takes priority |
+| `CLIENT_WINS` | العميل يفوز دائماً | Client data takes priority |
+| `MANUAL_MERGE` | دمج يدوي | Requires user intervention |
+| `FIELD_LEVEL_MERGE` | دمج على مستوى الحقول | Merges field by field |
+| `CUSTOM` | استراتيجية مخصصة | Per data type resolver |
+
+### 4.7 نظام الأحداث
+
+| نوع الحدث | الوصف |
+|-----------|-------|
+| `SYNC_STARTED` | بدء المزامنة |
+| `SYNC_COMPLETED` | اكتمال المزامنة |
+| `SYNC_FAILED` | فشل المزامنة |
+| `OPERATION_QUEUED` | إضافة عملية للقائمة |
+| `OPERATION_COMPLETED` | اكتمال العملية |
+| `OPERATION_FAILED` | فشل العملية |
+| `CONFLICT_DETECTED` | اكتشاف تعارض |
+| `CONFLICT_RESOLVED` | حل التعارض |
+| `NETWORK_STATUS_CHANGED` | تغير حالة الشبكة |
+| `QUEUE_CLEARED` | مسح القائمة |
+
+### 4.8 مثال الاستخدام
+
+```typescript
+import SyncManager from './services/syncManager';
+import { SyncOperationType, SyncDataType, SyncPriority } from './models/syncTypes';
+
+// Initialize
+const syncManager = SyncManager.getInstance({
+  autoSync: true,
+  syncInterval: 5 * 60 * 1000
+});
+
+// Queue field observation
+await syncManager.queueOperation(
+  SyncOperationType.CREATE,
+  SyncDataType.FIELD_OBSERVATION,
+  {
+    fieldId: 'field-123',
+    notes: 'ملاحظات الحقل',
+    timestamp: new Date().toISOString()
+  },
+  {
+    priority: SyncPriority.HIGH,
+    endpoint: '/api/v1/field-observations'
+  }
+);
+
+// Check status
+const status = await syncManager.getSyncStatus();
+console.log('Pending:', status.pendingCount);
+
+// Force sync
+await syncManager.forceSync();
+```
+
+---
+
+## 5. الخدمات غير المتصلة | Unconnected Services
+
+### 5.1 خدمات الوكلاء (Agent Services)
 
 | Kong Service | المنفذ | الوصف |
 |--------------|--------|-------|
@@ -163,7 +298,7 @@ _ServiceConfig('Tasks', 'المهام', '/api/v1/tasks/healthz'),
 | `mcp-server` | 8200 | Model Context Protocol |
 | `skills-service` | 8121 | خدمة المهارات |
 
-### 4.2 خدمات أخرى غير مستخدمة
+### 5.2 خدمات أخرى غير مستخدمة
 
 | Kong Service | المنفذ | الوصف |
 |--------------|--------|-------|
@@ -179,7 +314,7 @@ _ServiceConfig('Tasks', 'المهام', '/api/v1/tasks/healthz'),
 | `logistics-service` | 8162 | اللوجستيات |
 | `ussd-gateway` | 8163 | بوابة USSD |
 
-### 4.3 الخدمات المهملة (لا يجب استخدامها)
+### 5.3 الخدمات المهملة (لا يجب استخدامها)
 
 | Kong Service | البديل |
 |--------------|--------|
@@ -197,40 +332,42 @@ _ServiceConfig('Tasks', 'المهام', '/api/v1/tasks/healthz'),
 
 ---
 
-## 5. مقارنة بين التطبيقات | Comparison
+## 6. مقارنة بين التطبيقات | Comparison
 
-| الخدمة | Mobile Main | Field App | Atmosphere | Web | Admin |
-|--------|-------------|-----------|------------|-----|-------|
-| field-management-service | ✅ | ✅ | ✅ | ✅ | ✅ |
-| user-service | ✅ | ❌ | ❌ | ✅ | ✅ |
-| weather-service | ✅ | ❌ | ✅ | ✅ | ✅ |
-| vegetation-analysis-service | ✅ | ❌ | ✅ | ✅ | ✅ |
-| indicators-service | ✅ | ❌ | ❌ | ❌ | ✅ |
-| crop-intelligence-service | ✅ | ❌ | ❌ | ✅ | ✅ |
-| advisory-service | ✅ | ❌ | ❌ | ✅ | ✅ |
-| irrigation-smart | ✅ | ❌ | ❌ | ✅ | ✅ |
-| virtual-sensors | ✅ | ❌ | ❌ | ❌ | ✅ |
-| equipment-service | ✅ | ✅ | ❌ | ✅ | ✅ |
-| task-service | ✅ | ✅ | ✅ | ✅ | ✅ |
-| alert-service | ✅ | ❌ | ❌ | ✅ | ⚠️ |
-| notification-service | ✅ | ❌ | ❌ | ❌ | ✅ |
-| marketplace-service | ✅ | ❌ | ❌ | ✅ | ❌ |
-| billing-core | ✅ | ❌ | ❌ | ✅ | ❌ |
-| iot-service | ✅ | ❌ | ❌ | ✅ | ❌ |
-| yield-prediction-service | ✅ | ❌ | ❌ | ✅ | ✅ |
-| ai-advisor | ✅ | ✅ | ❌ | ❌ | ❌ |
-| agro-advisor | ✅ | ✅ | ❌ | ✅ | ❌ |
-| community-chat | ✅ | ❌ | ❌ | ✅ | ✅ |
-| field-chat | ✅ | ❌ | ❌ | ✅ | ❌ |
-| inventory-service | ✅ | ❌ | ❌ | ❌ | ❌ |
-| astronomical-calendar | ✅ | ❌ | ❌ | ✅ | ❌ |
-| crm-service | ✅ | ❌ | ❌ | ❌ | ❌ |
+| الخدمة | Mobile Main | Field App | Atmosphere | RN Sync | Web | Admin |
+|--------|-------------|-----------|------------|---------|-----|-------|
+| field-management-service | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| user-service | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| weather-service | ✅ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| vegetation-analysis-service | ✅ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| indicators-service | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| crop-intelligence-service | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| advisory-service | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| irrigation-smart | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| virtual-sensors | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| equipment-service | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| task-service | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| alert-service | ✅ | ❌ | ❌ | ❌ | ✅ | ⚠️ |
+| notification-service | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ |
+| marketplace-service | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| billing-core | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| iot-service | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
+| yield-prediction-service | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| ai-advisor | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| agro-advisor | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ |
+| community-chat | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| field-chat | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| inventory-service | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| astronomical-calendar | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| crm-service | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+> **RN Sync** = Sahool Mobile (React Native Sync Manager)
 
 ---
 
-## 6. ملفات التكوين الرئيسية | Key Configuration Files
+## 7. ملفات التكوين الرئيسية | Key Configuration Files
 
-### 6.1 تطبيق Mobile الرئيسي
+### 7.1 تطبيق Mobile الرئيسي
 
 | الملف | الوصف |
 |-------|-------|
@@ -240,7 +377,7 @@ _ServiceConfig('Tasks', 'المهام', '/api/v1/tasks/healthz'),
 | `lib/core/services/service_registry.dart` | سجل جميع الخدمات ونقاط النهاية |
 | `lib/core/config/service_switcher.dart` | محول الخدمات للتبديل بين البيئات |
 
-### 6.2 ملفات Features API
+### 7.2 ملفات Features API
 
 | الملف | الخدمات |
 |-------|---------|
@@ -259,16 +396,17 @@ _ServiceConfig('Tasks', 'المهام', '/api/v1/tasks/healthz'),
 
 ---
 
-## 7. مخطط الاتصال | Connection Diagram
+## 8. مخطط الاتصال | Connection Diagram
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                       Mobile Applications                                    │
-├─────────────────┬───────────────────┬───────────────────────────────────────┤
-│  SAHOOL Field   │   Sahool Field    │        Sahol Atmosphere               │
-│    (Main)       │      App          │       (Health Monitor)                │
-│   29 services   │    5 services     │         4 services                    │
-└─────────────────┴───────────────────┴───────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                            Mobile Applications                                        │
+├─────────────────┬──────────────────┬──────────────────┬───────────────────────────────┤
+│  SAHOOL Field   │   Sahool Field   │ Sahol Atmosphere │    Sahool Mobile (RN)        │
+│    (Main)       │      App         │  (Health Monitor)│   (Offline Sync Manager)     │
+│  Flutter v16    │  Flutter v15.5   │   Flutter v16    │  React Native + TypeScript   │
+│   29 services   │    5 services    │    4 services    │        7 services            │
+└─────────────────┴──────────────────┴──────────────────┴───────────────────────────────┘
                                     │
                       ┌─────────────┼─────────────┐
                       │   Offline   │   Online    │
@@ -305,9 +443,9 @@ _ServiceConfig('Tasks', 'المهام', '/api/v1/tasks/healthz'),
 
 ---
 
-## 8. ميزات Mobile الفريدة | Mobile-Specific Features
+## 9. ميزات Mobile الفريدة | Mobile-Specific Features
 
-### 8.1 Offline-First Architecture
+### 9.1 Offline-First Architecture
 
 ```dart
 // Offline sync configuration
@@ -317,7 +455,7 @@ maxRetryCount: 5
 outboxBatchSize: 50
 ```
 
-### 8.2 Circuit Breaker Pattern
+### 9.2 Circuit Breaker Pattern
 
 ```dart
 // Circuit breaker configuration
@@ -325,7 +463,7 @@ failureThreshold: 3 failures
 circuitTimeout: 30 seconds
 ```
 
-### 8.3 Service Health Monitoring
+### 9.3 Service Health Monitoring
 
 ```dart
 // Health check configuration
@@ -334,7 +472,7 @@ serviceHealthCheckInterval: 5 minutes
 serviceHealthCheckTimeout: 10 seconds
 ```
 
-### 8.4 Multi-Environment Support
+### 9.4 Multi-Environment Support
 
 | البيئة | API URL | WS URL |
 |--------|---------|--------|
@@ -344,9 +482,9 @@ serviceHealthCheckTimeout: 10 seconds
 
 ---
 
-## 9. التوصيات | Recommendations
+## 10. التوصيات | Recommendations
 
-### 9.1 خدمات مفقودة يُنصح بتكاملها
+### 10.1 خدمات مفقودة يُنصح بتكاملها
 
 | الخدمة | الأولوية | السبب |
 |--------|---------|-------|
@@ -354,13 +492,13 @@ serviceHealthCheckTimeout: 10 seconds
 | `disaster-assessment` | متوسطة | تنبيهات الكوارث للمزارعين |
 | `ws-gateway` | عالية | Real-time updates للإشعارات |
 
-### 9.2 تحسينات مقترحة
+### 10.2 تحسينات مقترحة
 
 1. **توحيد ai-advisor و agro-advisor**: كلاهما يقدم خدمات استشارية مشابهة
 2. **إضافة offline support لـ reports**: تخزين التقارير محلياً
 3. **تكامل GDD مع Kong**: خدمة GDD غير موجودة في kong.yml
 
-### 9.3 ملاحظات أمنية
+### 10.3 ملاحظات أمنية
 
 - Certificate Pinning مُفعَّل للإنتاج
 - Token refresh تلقائي
@@ -369,21 +507,48 @@ serviceHealthCheckTimeout: 10 seconds
 
 ---
 
-## 10. الخلاصة | Conclusion
+## 11. الخلاصة | Conclusion
 
-تطبيق Mobile الرئيسي يستخدم **46.8%** من خدمات Kong المتاحة، وهو ثاني أعلى نسبة بعد Web (50%).
+تطبيقات Mobile الأربعة تستخدم مجتمعة **51.6%** من خدمات Kong المتاحة (32 من 62 خدمة).
 
-**نقاط القوة:**
-- تكامل شامل مع خدمات الذكاء الاصطناعي (ai-advisor, agro-advisor, crop-health)
-- دعم كامل للعمل بدون اتصال (Offline-First)
-- Circuit Breaker و Retry patterns
-- تكامل Billing و Marketplace كامل
-- دعم CRM و Inventory (غير موجود في Web/Admin)
+### ملخص التطبيقات
 
-**نقاط التحسين:**
-- إضافة تكامل WebSocket Gateway للتحديثات الفورية
-- توحيد خدمات AI المتعددة
-- إضافة audit-service للأمان
+| التطبيق | التقنية | الخدمات | الغرض |
+|---------|---------|---------|-------|
+| **SAHOOL Field (Main)** | Flutter v16.0.0 | 29 | التطبيق الرئيسي الشامل |
+| **Sahool Field App** | Flutter v15.5.0 | 5 | العمليات الميدانية الأساسية |
+| **Sahol Atmosphere** | Flutter v16.0.0 | 4 | مراقبة صحة الخدمات |
+| **Sahool Mobile (RN)** | React Native + TS | 7 | مدير المزامنة Offline |
+
+### نقاط القوة
+
+- ✅ تكامل شامل مع خدمات الذكاء الاصطناعي (ai-advisor, agro-advisor, crop-health)
+- ✅ دعم كامل للعمل بدون اتصال (Offline-First) في جميع التطبيقات
+- ✅ Circuit Breaker و Retry patterns
+- ✅ تكامل Billing و Marketplace كامل
+- ✅ دعم CRM و Inventory (غير موجود في Web/Admin)
+- ✅ تطبيق React Native متخصص للمزامنة مع دعم TypeScript كامل
+- ✅ استراتيجيات متعددة لحل التعارضات في المزامنة
+
+### نقاط التحسين
+
+- ⚠️ إضافة تكامل WebSocket Gateway للتحديثات الفورية
+- ⚠️ توحيد خدمات AI المتعددة
+- ⚠️ إضافة audit-service للأمان
+- ⚠️ توحيد التطبيقين Flutter (Main v16 و Field App v15.5) في تطبيق واحد
+
+### ملاحظة حول sahool-mobile
+
+تطبيق `sahool-mobile` هو **مكتبة/تطبيق React Native** متخصص في إدارة المزامنة بدون اتصال. يمكن استخدامه:
+1. كتطبيق مستقل للمزامنة
+2. كمكتبة يتم دمجها في تطبيقات React Native أخرى
+
+يحتوي على:
+- 1,900+ سطر من كود مدير المزامنة
+- 650+ سطر من تعريفات TypeScript
+- 800+ سطر من الأمثلة
+- 600+ سطر من الاختبارات
+- **إجمالي: 6,500+ سطر**
 
 ---
 

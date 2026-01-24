@@ -1,0 +1,141 @@
+name: 'Flutter Code Generation'
+description: 'Run build_runner with proper error handling for Drift, Freezed, and other generators'
+
+inputs:
+  working-directory:
+    description: 'Working directory for Flutter commands'
+    required: false
+    default: 'apps/mobile'
+  clean-first:
+    description: 'Run flutter clean before code generation'
+    required: false
+    default: 'true'
+  verify-files:
+    description: 'Comma-separated list of files to verify after generation'
+    required: false
+    default: 'lib/core/storage/database.g.dart'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Verify build configuration
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        echo "=== Verifying build configuration ==="
+
+        # Check for build.yaml
+        if [ -f "build.yaml" ]; then
+          echo "✅ build.yaml found"
+        else
+          echo "⚠️ build.yaml not found, using defaults"
+        fi
+
+        # Verify build_runner is in pubspec.yaml
+        if grep -q "build_runner" pubspec.yaml; then
+          echo "✅ build_runner found in pubspec.yaml"
+        else
+          echo "❌ build_runner not found in pubspec.yaml"
+          exit 1
+        fi
+
+        # Verify drift_dev is present if drift is used
+        if grep -q "^  drift:" pubspec.yaml && ! grep -q "drift_dev:" pubspec.yaml; then
+          echo "⚠️ Warning: drift is used but drift_dev not found"
+        fi
+
+    - name: Clean build artifacts
+      if: inputs.clean-first == 'true'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        echo "=== Cleaning previous build artifacts ==="
+        flutter clean
+        rm -rf .dart_tool/build
+
+        # Remove existing generated files to force regeneration
+        find lib -name "*.g.dart" -delete 2>/dev/null || true
+        find lib -name "*.freezed.dart" -delete 2>/dev/null || true
+
+        flutter pub get
+        echo "✅ Clean completed"
+
+    - name: Get dependencies (if not cleaned)
+      if: inputs.clean-first != 'true'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: flutter pub get
+
+    - name: Generate code
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        echo "=== Running code generation ==="
+        set -e
+
+        # Clean build_runner cache first
+        dart run build_runner clean 2>/dev/null || true
+
+        # Run build_runner with delete-conflicting-outputs
+        dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log
+
+        echo "✅ Code generation completed"
+        echo ""
+        echo "=== Generated files ==="
+        find lib -name "*.g.dart" -o -name "*.freezed.dart" 2>/dev/null | head -20 || echo "No generated files found"
+
+    - name: Verify critical files exist
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        echo "=== Verifying critical generated files ==="
+
+        IFS=',' read -ra FILES <<< "${{ inputs.verify-files }}"
+        missing_files=()
+
+        for file in "${FILES[@]}"; do
+          # Trim whitespace
+          file=$(echo "$file" | xargs)
+          if [ -n "$file" ] && [ ! -f "$file" ]; then
+            missing_files+=("$file")
+          fi
+        done
+
+        if [ ${#missing_files[@]} -gt 0 ]; then
+          echo "❌ Missing generated files:"
+          printf '  - %s\n' "${missing_files[@]}"
+          echo ""
+          echo "=== Attempting retry ==="
+
+          # Force regeneration by touching source files
+          for file in "${missing_files[@]}"; do
+            source_file="${file%.g.dart}.dart"
+            if [ -f "$source_file" ]; then
+              touch "$source_file"
+            fi
+          done
+
+          # Retry code generation
+          rm -rf .dart_tool/build
+          dart run build_runner build --delete-conflicting-outputs
+
+          # Check again
+          still_missing=()
+          for file in "${missing_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              still_missing+=("$file")
+            fi
+          done
+
+          if [ ${#still_missing[@]} -gt 0 ]; then
+            echo "❌ FATAL: Code generation failed after retry"
+            echo "Missing files:"
+            printf '  - %s\n' "${still_missing[@]}"
+            echo ""
+            echo "=== Code generation log ==="
+            cat codegen.log 2>/dev/null || true
+            exit 1
+          fi
+        fi
+
+        echo "✅ All critical files verified"

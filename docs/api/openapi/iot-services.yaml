@@ -3,85 +3,153 @@ info:
   title: SAHOOL IoT Services API
   description: |
     IoT and Sensor Management API for the SAHOOL Agricultural Platform
+    واجهة برمجة تطبيقات إدارة إنترنت الأشياء والمستشعرات لمنصة سهول الزراعية
 
     This API provides comprehensive IoT device management, sensor data collection,
-    actuator control, and real-time monitoring for agricultural fields.
+    real-time monitoring, and multi-protocol gateway support for agricultural fields.
 
-    Features:
-    - Sensor data management (soil moisture, temperature, humidity, pH, etc.)
-    - Actuator control (valves, pumps, irrigation systems)
-    - Real-time sensor readings via Server-Sent Events (SSE)
-    - Alert rule configuration and management
-    - MQTT bridge for device communication
-    - WebSocket support for real-time updates
+    توفر هذه الواجهة إدارة شاملة لأجهزة إنترنت الأشياء، وجمع بيانات المستشعرات،
+    والمراقبة في الوقت الفعلي، ودعم بوابة متعددة البروتوكولات للحقول الزراعية.
 
-    Arabic Support: جميع واجهات API تدعم اللغة العربية
-  version: 1.0.0
+    ## Services | الخدمات
+
+    This specification covers three interconnected services:
+    تغطي هذه المواصفات ثلاث خدمات مترابطة:
+
+    ### IoT Service (Port 8117) | خدمة إنترنت الأشياء
+    Core device management, sensor readings, and command execution.
+    إدارة الأجهزة الأساسية، وقراءات المستشعرات، وتنفيذ الأوامر.
+
+    ### IoT Gateway (Port 8106) | بوابة إنترنت الأشياء
+    Multi-protocol ingestion supporting MQTT, HTTP, CoAP, and LoRaWAN.
+    استيعاب متعدد البروتوكولات يدعم MQTT و HTTP و CoAP و LoRaWAN.
+
+    ### WebSocket Gateway (Port 8081) | بوابة WebSocket
+    Real-time event streaming for field updates, alerts, and sensor readings.
+    بث الأحداث في الوقت الفعلي لتحديثات الحقول والتنبيهات وقراءات المستشعرات.
+
+    ## Features | الميزات
+
+    - Device registration and lifecycle management | تسجيل الأجهزة وإدارة دورة حياتها
+    - Real-time sensor data collection | جمع بيانات المستشعرات في الوقت الفعلي
+    - Multi-protocol IoT gateway | بوابة إنترنت الأشياء متعددة البروتوكولات
+    - WebSocket-based real-time updates | تحديثات في الوقت الفعلي عبر WebSocket
+    - Device command and control | أوامر الأجهزة والتحكم بها
+    - Battery and connectivity monitoring | مراقبة البطارية والاتصال
+
+    ## Arabic Support | دعم اللغة العربية
+    جميع واجهات API تدعم اللغة العربية بالكامل
+  version: 16.0.0
   contact:
-    name: SAHOOL Platform Support
+    name: SAHOOL Platform Support | دعم منصة سهول
     email: support@sahool.sa
   license:
     name: Proprietary
 
 servers:
   - url: https://api.sahool.sa/api/v1
-    description: Production server
+    description: Production server | خادم الإنتاج
   - url: https://staging-api.sahool.sa/api/v1
-    description: Staging server
-  - url: http://localhost:3000/api/v1
-    description: Local development server
+    description: Staging server | خادم التجربة
+  - url: http://localhost:8117/api/v1
+    description: Local IoT Service | خدمة إنترنت الأشياء المحلية
+  - url: http://localhost:8106/api/v1
+    description: Local IoT Gateway | بوابة إنترنت الأشياء المحلية
+  - url: ws://localhost:8081
+    description: Local WebSocket Gateway | بوابة WebSocket المحلية
 
 tags:
-  - name: Sensors
-    description: Sensor management and data retrieval
-  - name: Sensor Readings
-    description: Sensor data and historical readings
-  - name: Actuators
-    description: Actuator control and management
-  - name: Alert Rules
-    description: Alert rule configuration and automation
   - name: Devices
-    description: IoT device management
-  - name: Real-time
-    description: Real-time data streaming endpoints
+    description: |
+      IoT device management and registration
+      إدارة وتسجيل أجهزة إنترنت الأشياء
+  - name: Device Data
+    description: |
+      Sensor data submission and retrieval
+      إرسال واسترجاع بيانات المستشعرات
+  - name: Device Commands
+    description: |
+      Device command and control operations
+      عمليات أوامر الأجهزة والتحكم بها
+  - name: IoT Gateway
+    description: |
+      Multi-protocol data ingestion and device provisioning
+      استيعاب البيانات متعدد البروتوكولات وتوفير الأجهزة
+  - name: WebSocket
+    description: |
+      Real-time event streaming via WebSocket
+      بث الأحداث في الوقت الفعلي عبر WebSocket
+  - name: Health
+    description: |
+      Service health and readiness endpoints
+      نقاط نهاية صحة الخدمة والجاهزية
 
 security:
   - BearerAuth: []
 
 paths:
-  /iot/sensors:
+  # =============================================================================
+  # IoT Service Endpoints (Port 8117, /api/v1/iot)
+  # نقاط نهاية خدمة إنترنت الأشياء
+  # =============================================================================
+
+  /iot/devices:
     get:
       tags:
-        - Sensors
-      summary: Get all sensors
+        - Devices
+      summary: List all devices | عرض جميع الأجهزة
       description: |
-        Retrieve a list of all sensors with optional filtering
-        جلب جميع المستشعرات مع إمكانية التصفية
-      operationId: getSensors
+        Retrieve a paginated list of all registered IoT devices with optional filtering.
+        استرجاع قائمة مرقمة بجميع أجهزة إنترنت الأشياء المسجلة مع إمكانية التصفية.
+      operationId: listDevices
       parameters:
-        - name: type
+        - name: fieldId
           in: query
-          description: Filter by sensor type
-          schema:
-            $ref: '#/components/schemas/SensorType'
-        - name: status
-          in: query
-          description: Filter by sensor status
-          schema:
-            $ref: '#/components/schemas/SensorStatus'
-        - name: field_id
-          in: query
-          description: Filter by field ID
+          description: |
+            Filter devices by field ID
+            تصفية الأجهزة حسب معرف الحقل
           schema:
             type: string
+            example: "field-001"
+        - name: type
+          in: query
+          description: |
+            Filter by device type
+            تصفية حسب نوع الجهاز
+          schema:
+            $ref: '#/components/schemas/DeviceType'
+        - name: status
+          in: query
+          description: |
+            Filter by device status
+            تصفية حسب حالة الجهاز
+          schema:
+            $ref: '#/components/schemas/DeviceStatus'
+        - name: page
+          in: query
+          description: Page number (1-indexed) | رقم الصفحة
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Items per page | عدد العناصر في الصفحة
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
         - name: search
           in: query
-          description: Search by sensor name or device ID
+          description: |
+            Search by device name or serial number
+            البحث بالاسم أو الرقم التسلسلي
           schema:
             type: string
       responses:
         '200':
-          description: List of sensors retrieved successfully
+          description: List of devices retrieved successfully | تم استرجاع قائمة الأجهزة بنجاح
           content:
             application/json:
               schema:
@@ -90,37 +158,39 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Sensor'
+                      $ref: '#/components/schemas/Device'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
                   total:
                     type: integer
-                    example: 25
+                    description: Total number of devices | العدد الإجمالي للأجهزة
+                    example: 45
               examples:
                 success:
+                  summary: Successful response | استجابة ناجحة
                   value:
                     data:
-                      - id: "sensor-001"
-                        name: "Soil Moisture Sensor 1"
-                        nameAr: "مستشعر رطوبة التربة 1"
+                      - id: "dev-001"
+                        name: "Soil Moisture Sensor A1"
+                        nameAr: "مستشعر رطوبة التربة أ1"
                         type: "soil_moisture"
-                        status: "active"
-                        deviceId: "SMS-001"
-                        unit: "%"
-                        unitAr: "%"
-                        location:
-                          latitude: 15.3694
-                          longitude: 44.191
-                          fieldId: "field-001"
-                          fieldName: "North Field"
-                        lastReading:
-                          value: 45
-                          unit: "%"
-                          timestamp: "2024-01-15T10:30:00Z"
-                        battery: 85
-                        signalStrength: 92
-                        metadata: {}
-                        createdAt: "2024-01-01T00:00:00Z"
-                        updatedAt: "2024-01-15T10:30:00Z"
-                    total: 1
+                        fieldId: "field-001"
+                        serialNumber: "SM-2024-001"
+                        status: "online"
+                        lastSeen: "2026-01-24T10:30:00Z"
+                        batteryLevel: 85
+                        config:
+                          reportInterval: 300
+                          threshold:
+                            min: 20
+                            max: 80
+                        createdAt: "2025-06-15T08:00:00Z"
+                        updatedAt: "2026-01-24T10:30:00Z"
+                    pagination:
+                      page: 1
+                      limit: 20
+                      totalPages: 3
+                    total: 45
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '500':
@@ -128,210 +198,391 @@ paths:
 
     post:
       tags:
-        - Sensors
-      summary: Create a new sensor
+        - Devices
+      summary: Register a new device | تسجيل جهاز جديد
       description: |
-        Register a new sensor in the system
-        إنشاء مستشعر جديد
-      operationId: createSensor
+        Register a new IoT device in the system. The device will be assigned a unique ID.
+        تسجيل جهاز إنترنت الأشياء جديد في النظام. سيتم تعيين معرف فريد للجهاز.
+      operationId: registerDevice
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateSensorRequest'
-            example:
-              name: "Temperature Sensor 2"
-              nameAr: "مستشعر درجة الحرارة 2"
-              type: "temperature"
-              deviceId: "TEMP-002"
-              unit: "°C"
-              unitAr: "°م"
-              location:
-                latitude: 15.3695
-                longitude: 44.192
-                fieldId: "field-001"
-              metadata: {}
+              $ref: '#/components/schemas/CreateDeviceRequest'
+            examples:
+              soilMoisture:
+                summary: Soil moisture sensor | مستشعر رطوبة التربة
+                value:
+                  name: "Soil Moisture Sensor B2"
+                  nameAr: "مستشعر رطوبة التربة ب2"
+                  type: "soil_moisture"
+                  fieldId: "field-001"
+                  serialNumber: "SM-2024-002"
+                  config:
+                    reportInterval: 300
+                    threshold:
+                      min: 20
+                      max: 80
+              weatherStation:
+                summary: Weather station | محطة طقس
+                value:
+                  name: "Weather Station North"
+                  nameAr: "محطة الطقس الشمالية"
+                  type: "weather_station"
+                  fieldId: "field-002"
+                  serialNumber: "WS-2024-001"
+                  config:
+                    reportInterval: 600
+                    sensors:
+                      - temperature
+                      - humidity
+                      - wind_speed
+                      - rainfall
       responses:
         '201':
-          description: Sensor created successfully
+          description: Device registered successfully | تم تسجيل الجهاز بنجاح
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/Sensor'
+                    $ref: '#/components/schemas/Device'
+                  message:
+                    type: string
+                    example: "Device registered successfully"
+                  messageAr:
+                    type: string
+                    example: "تم تسجيل الجهاز بنجاح"
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '409':
+          description: Device with this serial number already exists | الجهاز بهذا الرقم التسلسلي موجود بالفعل
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "CONFLICT"
+                message: "Device with serial number SM-2024-002 already exists"
+                messageAr: "الجهاز بالرقم التسلسلي SM-2024-002 موجود بالفعل"
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /iot/sensors/{sensorId}:
+  /iot/devices/{deviceId}:
     get:
       tags:
-        - Sensors
-      summary: Get sensor by ID
-      description: Retrieve detailed information about a specific sensor
-      operationId: getSensorById
+        - Devices
+      summary: Get device by ID | الحصول على جهاز بالمعرف
+      description: |
+        Retrieve detailed information about a specific device.
+        استرجاع معلومات تفصيلية عن جهاز معين.
+      operationId: getDeviceById
       parameters:
-        - name: sensorId
-          in: path
-          required: true
-          description: Sensor ID
-          schema:
-            type: string
+        - $ref: '#/components/parameters/DeviceIdPath'
       responses:
         '200':
-          description: Sensor retrieved successfully
+          description: Device retrieved successfully | تم استرجاع الجهاز بنجاح
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/Sensor'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
+                    $ref: '#/components/schemas/Device'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
     put:
       tags:
-        - Sensors
-      summary: Update sensor
-      description: Update sensor configuration and metadata
-      operationId: updateSensor
+        - Devices
+      summary: Update device | تحديث الجهاز
+      description: |
+        Update device configuration and metadata.
+        تحديث إعدادات الجهاز والبيانات الوصفية.
+      operationId: updateDevice
       parameters:
-        - name: sensorId
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/DeviceIdPath'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateSensorRequest'
+              $ref: '#/components/schemas/UpdateDeviceRequest'
+            example:
+              name: "Soil Moisture Sensor B2 Updated"
+              nameAr: "مستشعر رطوبة التربة ب2 محدث"
+              config:
+                reportInterval: 600
+                threshold:
+                  min: 25
+                  max: 75
       responses:
         '200':
-          description: Sensor updated successfully
+          description: Device updated successfully | تم تحديث الجهاز بنجاح
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/Sensor'
+                    $ref: '#/components/schemas/Device'
+                  message:
+                    type: string
+                    example: "Device updated successfully"
+                  messageAr:
+                    type: string
+                    example: "تم تحديث الجهاز بنجاح"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
     delete:
       tags:
-        - Sensors
-      summary: Delete sensor
-      description: Remove a sensor from the system
-      operationId: deleteSensor
+        - Devices
+      summary: Delete device | حذف الجهاز
+      description: |
+        Remove a device from the system. This will also delete all associated readings.
+        إزالة جهاز من النظام. سيؤدي هذا أيضًا إلى حذف جميع القراءات المرتبطة.
+      operationId: deleteDevice
       parameters:
-        - name: sensorId
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/DeviceIdPath'
       responses:
         '204':
-          description: Sensor deleted successfully
+          description: Device deleted successfully | تم حذف الجهاز بنجاح
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-  /iot/sensors/stats:
-    get:
+  /iot/devices/{deviceId}/data:
+    post:
       tags:
-        - Sensors
-      summary: Get sensor statistics
-      description: Retrieve aggregated statistics about all sensors
-      operationId: getSensorStats
+        - Device Data
+      summary: Submit sensor data | إرسال بيانات المستشعر
+      description: |
+        Submit sensor readings from a device. Supports batch submission of multiple readings.
+        إرسال قراءات المستشعر من جهاز. يدعم الإرسال الدفعي لقراءات متعددة.
+      operationId: submitDeviceData
+      parameters:
+        - $ref: '#/components/parameters/DeviceIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SensorDataSubmission'
+            examples:
+              singleReading:
+                summary: Single sensor reading | قراءة مستشعر واحدة
+                value:
+                  deviceId: "dev-001"
+                  readings:
+                    - type: "soil_moisture"
+                      value: 45.5
+                      unit: "%"
+                  timestamp: "2026-01-24T10:30:00Z"
+              multipleReadings:
+                summary: Multiple readings (weather station) | قراءات متعددة (محطة طقس)
+                value:
+                  deviceId: "dev-002"
+                  readings:
+                    - type: "temperature"
+                      value: 28.5
+                      unit: "°C"
+                    - type: "humidity"
+                      value: 65.0
+                      unit: "%"
+                    - type: "wind_speed"
+                      value: 12.3
+                      unit: "km/h"
+                    - type: "rainfall"
+                      value: 0.0
+                      unit: "mm"
+                  timestamp: "2026-01-24T10:30:00Z"
       responses:
-        '200':
-          description: Statistics retrieved successfully
+        '201':
+          description: Sensor data submitted successfully | تم إرسال بيانات المستشعر بنجاح
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  data:
-                    type: object
-                    properties:
-                      total:
-                        type: integer
-                        example: 50
-                      active:
-                        type: integer
-                        example: 45
-                      byType:
-                        type: object
-                        additionalProperties:
-                          type: integer
-                        example:
-                          soil_moisture: 15
-                          temperature: 12
-                          humidity: 10
-                      byStatus:
-                        type: object
-                        additionalProperties:
-                          type: integer
-                        example:
-                          active: 45
-                          offline: 3
-                          error: 2
+                  success:
+                    type: boolean
+                    example: true
+                  readingsProcessed:
+                    type: integer
+                    description: Number of readings processed | عدد القراءات المعالجة
+                    example: 4
+                  message:
+                    type: string
+                    example: "Sensor data submitted successfully"
+                  messageAr:
+                    type: string
+                    example: "تم إرسال بيانات المستشعر بنجاح"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-  /iot/sensors/readings:
+  /iot/devices/{deviceId}/commands:
+    post:
+      tags:
+        - Device Commands
+      summary: Send device command | إرسال أمر للجهاز
+      description: |
+        Send a command to a device for execution. Commands are queued and executed asynchronously.
+        إرسال أمر إلى جهاز للتنفيذ. يتم وضع الأوامر في قائمة الانتظار وتنفيذها بشكل غير متزامن.
+      operationId: sendDeviceCommand
+      parameters:
+        - $ref: '#/components/parameters/DeviceIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceCommand'
+            examples:
+              reboot:
+                summary: Reboot device | إعادة تشغيل الجهاز
+                value:
+                  command: "reboot"
+                  parameters: {}
+              setInterval:
+                summary: Set report interval | تعيين فترة التقرير
+                value:
+                  command: "set_interval"
+                  parameters:
+                    interval: 300
+              calibrate:
+                summary: Calibrate sensor | معايرة المستشعر
+                value:
+                  command: "calibrate"
+                  parameters:
+                    type: "soil_moisture"
+                    referenceValue: 50.0
+              openValve:
+                summary: Open irrigation valve | فتح صمام الري
+                value:
+                  command: "open_valve"
+                  parameters:
+                    duration: 1800
+                    flowRate: 10.5
+      responses:
+        '202':
+          description: Command queued for execution | تم وضع الأمر في قائمة الانتظار للتنفيذ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  commandId:
+                    type: string
+                    description: Unique command ID for tracking | معرف الأمر الفريد للتتبع
+                    example: "cmd-uuid-12345"
+                  status:
+                    type: string
+                    enum: [queued, pending, executing]
+                    example: "queued"
+                  message:
+                    type: string
+                    example: "Command queued for execution"
+                  messageAr:
+                    type: string
+                    example: "تم وضع الأمر في قائمة الانتظار للتنفيذ"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          description: Device is offline | الجهاز غير متصل
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "DEVICE_OFFLINE"
+                message: "Device is currently offline. Command will be queued."
+                messageAr: "الجهاز غير متصل حاليًا. سيتم وضع الأمر في قائمة الانتظار."
+
+  /iot/devices/{deviceId}/readings:
     get:
       tags:
-        - Sensor Readings
-      summary: Get sensor readings
+        - Device Data
+      summary: Get device readings | الحصول على قراءات الجهاز
       description: |
-        Retrieve historical sensor readings with optional time range filtering
-        جلب قراءات المستشعر التاريخية
-      operationId: getSensorReadings
+        Retrieve historical sensor readings from a device with optional time range filtering.
+        استرجاع قراءات المستشعر التاريخية من جهاز مع إمكانية تصفية النطاق الزمني.
+      operationId: getDeviceReadings
       parameters:
-        - name: sensor_id
+        - $ref: '#/components/parameters/DeviceIdPath'
+        - name: startDate
           in: query
-          required: true
-          description: Sensor ID
-          schema:
-            type: string
-        - name: start_date
-          in: query
-          description: Start date (ISO 8601)
+          description: |
+            Start date for readings (ISO 8601)
+            تاريخ البداية للقراءات
           schema:
             type: string
             format: date-time
-        - name: end_date
+            example: "2026-01-20T00:00:00Z"
+        - name: endDate
           in: query
-          description: End date (ISO 8601)
+          description: |
+            End date for readings (ISO 8601)
+            تاريخ النهاية للقراءات
           schema:
             type: string
             format: date-time
+            example: "2026-01-24T23:59:59Z"
+        - name: type
+          in: query
+          description: |
+            Filter by reading type
+            تصفية حسب نوع القراءة
+          schema:
+            type: string
+            example: "soil_moisture"
         - name: interval
           in: query
-          description: Data aggregation interval
+          description: |
+            Data aggregation interval
+            فترة تجميع البيانات
           schema:
             type: string
-            enum: [1h, 1d, 1w, 1m]
+            enum: [raw, 1h, 6h, 1d, 1w]
+            default: raw
         - name: limit
           in: query
-          description: Maximum number of readings
+          description: Maximum number of readings | الحد الأقصى لعدد القراءات
           schema:
             type: integer
-            default: 100
+            minimum: 1
             maximum: 1000
+            default: 100
       responses:
         '200':
-          description: Sensor readings retrieved successfully
+          description: Device readings retrieved successfully | تم استرجاع قراءات الجهاز بنجاح
           content:
             application/json:
               schema:
@@ -341,472 +592,588 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/SensorReading'
-              examples:
-                success:
-                  value:
-                    data:
-                      - id: "reading-001"
-                        sensorId: "sensor-001"
-                        value: 45.5
-                        unit: "%"
-                        timestamp: "2024-01-15T10:30:00Z"
-                        quality: "good"
-                        metadata: {}
-
-  /iot/sensors/{sensorId}/latest:
-    get:
-      tags:
-        - Sensor Readings
-      summary: Get latest sensor reading
-      description: Retrieve the most recent reading from a sensor
-      operationId: getLatestReading
-      parameters:
-        - name: sensorId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Latest reading retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/SensorReading'
-
-  /iot/sensors/stream:
-    get:
-      tags:
-        - Real-time
-      summary: Stream sensor readings (SSE)
-      description: |
-        Server-Sent Events endpoint for real-time sensor data streaming
-        بث بيانات المستشعر في الوقت الفعلي
-      operationId: streamSensorReadings
-      parameters:
-        - name: sensor_id
-          in: query
-          description: Filter by specific sensor ID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: SSE stream established
-          content:
-            text/event-stream:
-              schema:
-                type: string
-              examples:
-                sensorReading:
-                  value: |
-                    event: sensor-reading
-                    data: {"sensorId":"sensor-001","value":45.5,"unit":"%","timestamp":"2024-01-15T10:30:00Z"}
-
-                    event: sensor-reading
-                    data: {"sensorId":"sensor-002","value":28.3,"unit":"°C","timestamp":"2024-01-15T10:30:05Z"}
-
-  /iot/actuators:
-    get:
-      tags:
-        - Actuators
-      summary: Get all actuators
-      description: |
-        Retrieve a list of all actuators
-        جلب جميع المُشغلات
-      operationId: getActuators
-      parameters:
-        - name: field_id
-          in: query
-          description: Filter by field ID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: List of actuators retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Actuator'
-              examples:
-                success:
-                  value:
-                    data:
-                      - id: "actuator-001"
-                        name: "Irrigation Valve 1"
-                        nameAr: "صمام الري 1"
-                        type: "valve"
-                        status: "off"
-                        deviceId: "VALVE-001"
-                        location:
-                          latitude: 15.3694
-                          longitude: 44.191
-                          fieldId: "field-001"
-                        controlMode: "automatic"
-                        linkedSensorId: "sensor-001"
-                        metadata: {}
-                        createdAt: "2024-01-01T00:00:00Z"
-                        updatedAt: "2024-01-15T10:30:00Z"
-
-    post:
-      tags:
-        - Actuators
-      summary: Create a new actuator
-      description: Register a new actuator in the system
-      operationId: createActuator
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateActuatorRequest'
-      responses:
-        '201':
-          description: Actuator created successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Actuator'
-
-  /iot/actuators/{actuatorId}:
-    get:
-      tags:
-        - Actuators
-      summary: Get actuator by ID
-      description: Retrieve detailed information about a specific actuator
-      operationId: getActuatorById
-      parameters:
-        - name: actuatorId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Actuator retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Actuator'
-
-    put:
-      tags:
-        - Actuators
-      summary: Update actuator
-      description: Update actuator configuration
-      operationId: updateActuator
-      parameters:
-        - name: actuatorId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateActuatorRequest'
-      responses:
-        '200':
-          description: Actuator updated successfully
-
-    delete:
-      tags:
-        - Actuators
-      summary: Delete actuator
-      description: Remove an actuator from the system
-      operationId: deleteActuator
-      parameters:
-        - name: actuatorId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Actuator deleted successfully
-
-  /iot/actuators/{actuatorId}/control:
-    post:
-      tags:
-        - Actuators
-      summary: Control actuator
-      description: |
-        Send control command to an actuator
-        التحكم في المُشغل
-      operationId: controlActuator
-      parameters:
-        - name: actuatorId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ActuatorControlRequest'
-            examples:
-              turnOn:
-                value:
-                  action: "on"
-                  mode: "manual"
-              turnOff:
-                value:
-                  action: "off"
-              toggle:
-                value:
-                  action: "toggle"
-              timedOn:
-                value:
-                  action: "on"
-                  duration: 3600
-      responses:
-        '200':
-          description: Control command sent successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Actuator'
-                  message:
+                  deviceId:
                     type: string
-                    example: "Actuator turned on successfully"
+                    example: "dev-001"
+                  count:
+                    type: integer
+                    example: 100
+                  timeRange:
+                    type: object
+                    properties:
+                      start:
+                        type: string
+                        format: date-time
+                      end:
+                        type: string
+                        format: date-time
+              examples:
+                success:
+                  value:
+                    data:
+                      - deviceId: "dev-001"
+                        readings:
+                          - type: "soil_moisture"
+                            value: 45.5
+                            unit: "%"
+                        timestamp: "2026-01-24T10:30:00Z"
+                        quality: "good"
+                      - deviceId: "dev-001"
+                        readings:
+                          - type: "soil_moisture"
+                            value: 44.8
+                            unit: "%"
+                        timestamp: "2026-01-24T10:25:00Z"
+                        quality: "good"
+                    deviceId: "dev-001"
+                    count: 2
+                    timeRange:
+                      start: "2026-01-24T10:00:00Z"
+                      end: "2026-01-24T11:00:00Z"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-  /iot/actuators/{actuatorId}/mode:
-    patch:
-      tags:
-        - Actuators
-      summary: Set actuator mode
-      description: |
-        Change actuator control mode (manual/automatic/scheduled)
-        تغيير وضع التحكم
-      operationId: setActuatorMode
-      parameters:
-        - name: actuatorId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - mode
-              properties:
-                mode:
-                  type: string
-                  enum: [manual, automatic, scheduled]
-      responses:
-        '200':
-          description: Mode changed successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Actuator'
-
-  /iot/alert-rules:
-    get:
-      tags:
-        - Alert Rules
-      summary: Get all alert rules
-      description: |
-        Retrieve all alert rules with optional filtering
-        جلب جميع قواعد التنبيه
-      operationId: getAlertRules
-      parameters:
-        - name: sensor_id
-          in: query
-          description: Filter by sensor ID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Alert rules retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/AlertRule'
-
-    post:
-      tags:
-        - Alert Rules
-      summary: Create alert rule
-      description: |
-        Create a new alert rule for automated monitoring
-        إنشاء قاعدة تنبيه جديدة
-      operationId: createAlertRule
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateAlertRuleRequest'
-            examples:
-              lowMoisture:
-                value:
-                  name: "Low Soil Moisture Alert"
-                  nameAr: "تنبيه انخفاض رطوبة التربة"
-                  sensorId: "sensor-001"
-                  condition: "below"
-                  threshold: 30
-                  severity: "warning"
-                  enabled: true
-                  actionType: "both"
-                  actuatorId: "actuator-001"
-                  actuatorAction: "turn_on"
-      responses:
-        '201':
-          description: Alert rule created successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/AlertRule'
-
-  /iot/alert-rules/{ruleId}:
-    get:
-      tags:
-        - Alert Rules
-      summary: Get alert rule by ID
-      description: Retrieve specific alert rule details
-      operationId: getAlertRuleById
-      parameters:
-        - name: ruleId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Alert rule retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/AlertRule'
-
-    put:
-      tags:
-        - Alert Rules
-      summary: Update alert rule
-      description: Modify an existing alert rule
-      operationId: updateAlertRule
-      parameters:
-        - name: ruleId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateAlertRuleRequest'
-      responses:
-        '200':
-          description: Alert rule updated successfully
-
-    delete:
-      tags:
-        - Alert Rules
-      summary: Delete alert rule
-      description: Remove an alert rule
-      operationId: deleteAlertRule
-      parameters:
-        - name: ruleId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Alert rule deleted successfully
-
-  /iot/alert-rules/{ruleId}/toggle:
-    patch:
-      tags:
-        - Alert Rules
-      summary: Toggle alert rule
-      description: Enable or disable an alert rule
-      operationId: toggleAlertRule
-      parameters:
-        - name: ruleId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - enabled
-              properties:
-                enabled:
-                  type: boolean
-      responses:
-        '200':
-          description: Alert rule toggled successfully
-
-  /iot/devices:
+  /iot/devices/{deviceId}/status:
     get:
       tags:
         - Devices
-      summary: Get connected devices
+      summary: Get device status | الحصول على حالة الجهاز
       description: |
-        Retrieve list of all connected IoT devices
-        جلب جميع الأجهزة المتصلة
-      operationId: getDevices
+        Get the current status of a device including connectivity, battery, and health information.
+        الحصول على الحالة الحالية للجهاز بما في ذلك الاتصال والبطارية ومعلومات الصحة.
+      operationId: getDeviceStatus
+      parameters:
+        - $ref: '#/components/parameters/DeviceIdPath'
       responses:
         '200':
-          description: Devices retrieved successfully
+          description: Device status retrieved successfully | تم استرجاع حالة الجهاز بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceStatusResponse'
+              example:
+                deviceId: "dev-001"
+                name: "Soil Moisture Sensor A1"
+                nameAr: "مستشعر رطوبة التربة أ1"
+                status: "online"
+                lastSeen: "2026-01-24T10:30:00Z"
+                batteryLevel: 85
+                signalStrength: 92
+                firmware:
+                  version: "2.1.0"
+                  updateAvailable: true
+                  latestVersion: "2.2.0"
+                health:
+                  status: "healthy"
+                  issues: []
+                uptime: 604800
+                lastReading:
+                  value: 45.5
+                  unit: "%"
+                  timestamp: "2026-01-24T10:30:00Z"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # =============================================================================
+  # IoT Gateway Endpoints (Port 8106, /api/v1/iot-gateway)
+  # نقاط نهاية بوابة إنترنت الأشياء
+  # =============================================================================
+
+  /iot-gateway/ingest:
+    post:
+      tags:
+        - IoT Gateway
+      summary: Ingest data from any protocol | استيعاب البيانات من أي بروتوكول
+      description: |
+        Universal data ingestion endpoint supporting multiple IoT protocols.
+        Normalizes data from MQTT, HTTP, CoAP, and LoRaWAN into a unified format.
+
+        نقطة نهاية استيعاب البيانات الشاملة التي تدعم بروتوكولات إنترنت الأشياء المتعددة.
+        تقوم بتوحيد البيانات من MQTT و HTTP و CoAP و LoRaWAN في تنسيق موحد.
+      operationId: ingestData
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GatewayIngestRequest'
+            examples:
+              mqtt:
+                summary: MQTT payload | حمولة MQTT
+                value:
+                  protocol: "mqtt"
+                  deviceId: "dev-001"
+                  topic: "sahool/field-001/soil_moisture"
+                  payload:
+                    value: 45.5
+                    unit: "%"
+                    timestamp: "2026-01-24T10:30:00Z"
+                  metadata:
+                    qos: 1
+                    retain: false
+              http:
+                summary: HTTP payload | حمولة HTTP
+                value:
+                  protocol: "http"
+                  deviceId: "dev-002"
+                  payload:
+                    readings:
+                      - type: "temperature"
+                        value: 28.5
+                        unit: "°C"
+                      - type: "humidity"
+                        value: 65.0
+                        unit: "%"
+                    timestamp: "2026-01-24T10:30:00Z"
+              lorawan:
+                summary: LoRaWAN payload | حمولة LoRaWAN
+                value:
+                  protocol: "lorawan"
+                  deviceId: "dev-003"
+                  payload:
+                    devEUI: "0004A30B001C5F42"
+                    fPort: 1
+                    data: "SGVsbG8gV29ybGQ="
+                    rssi: -85
+                    snr: 7.5
+                  metadata:
+                    gateway: "gw-001"
+                    frequency: 868.1
+              coap:
+                summary: CoAP payload | حمولة CoAP
+                value:
+                  protocol: "coap"
+                  deviceId: "dev-004"
+                  payload:
+                    path: "/sensor/moisture"
+                    value: 42.3
+                    contentFormat: "application/json"
+                  metadata:
+                    method: "POST"
+                    token: "abc123"
+      responses:
+        '200':
+          description: Data ingested successfully | تم استيعاب البيانات بنجاح
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  devices:
+                  success:
+                    type: boolean
+                    example: true
+                  ingestId:
+                    type: string
+                    description: Unique ingestion ID for tracking | معرف الاستيعاب الفريد للتتبع
+                    example: "ing-uuid-12345"
+                  processedAt:
+                    type: string
+                    format: date-time
+                  message:
+                    type: string
+                    example: "Data ingested successfully"
+                  messageAr:
+                    type: string
+                    example: "تم استيعاب البيانات بنجاح"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          description: Invalid payload format | تنسيق الحمولة غير صالح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "INVALID_PAYLOAD"
+                message: "Could not parse LoRaWAN payload"
+                messageAr: "تعذر تحليل حمولة LoRaWAN"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /iot-gateway/protocols:
+    get:
+      tags:
+        - IoT Gateway
+      summary: List supported protocols | عرض البروتوكولات المدعومة
+      description: |
+        Retrieve the list of supported IoT protocols and their configurations.
+        استرجاع قائمة بروتوكولات إنترنت الأشياء المدعومة وإعداداتها.
+      operationId: listProtocols
+      responses:
+        '200':
+          description: Protocols retrieved successfully | تم استرجاع البروتوكولات بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  protocols:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Device'
-                  stats:
-                    $ref: '#/components/schemas/DeviceStats'
+                      $ref: '#/components/schemas/ProtocolInfo'
+              example:
+                protocols:
+                  - name: "mqtt"
+                    nameAr: "MQTT"
+                    description: "Message Queuing Telemetry Transport"
+                    descriptionAr: "بروتوكول نقل القياس عن بعد لقائمة الرسائل"
+                    enabled: true
+                    config:
+                      broker: "mqtt.sahool.sa"
+                      port: 1883
+                      tlsPort: 8883
+                      topicPrefix: "sahool/"
+                  - name: "http"
+                    nameAr: "HTTP"
+                    description: "Hypertext Transfer Protocol"
+                    descriptionAr: "بروتوكول نقل النص التشعبي"
+                    enabled: true
+                    config:
+                      endpoint: "https://iot-gateway.sahool.sa/api/v1/iot-gateway/ingest"
+                  - name: "coap"
+                    nameAr: "CoAP"
+                    description: "Constrained Application Protocol"
+                    descriptionAr: "بروتوكول التطبيقات المقيدة"
+                    enabled: true
+                    config:
+                      endpoint: "coap://iot-gateway.sahool.sa:5683"
+                  - name: "lorawan"
+                    nameAr: "LoRaWAN"
+                    description: "Long Range Wide Area Network"
+                    descriptionAr: "شبكة واسعة النطاق بعيدة المدى"
+                    enabled: true
+                    config:
+                      networkServer: "lns.sahool.sa"
+                      applicationId: "sahool-agri"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /iot-gateway/provision:
+    post:
+      tags:
+        - IoT Gateway
+      summary: Provision new device | توفير جهاز جديد
+      description: |
+        Provision a new device through the gateway. This creates device credentials
+        and configures the device for the specified protocol.
+
+        توفير جهاز جديد عبر البوابة. ينشئ هذا بيانات اعتماد الجهاز
+        ويهيئ الجهاز للبروتوكول المحدد.
+      operationId: provisionDevice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceProvisionRequest'
+            examples:
+              mqtt:
+                summary: MQTT device provisioning | توفير جهاز MQTT
+                value:
+                  name: "New Soil Sensor"
+                  nameAr: "مستشعر تربة جديد"
+                  type: "soil_moisture"
+                  fieldId: "field-001"
+                  protocol: "mqtt"
+                  serialNumber: "SM-2024-NEW"
+              lorawan:
+                summary: LoRaWAN device provisioning | توفير جهاز LoRaWAN
+                value:
+                  name: "LoRa Water Meter"
+                  nameAr: "عداد مياه LoRa"
+                  type: "flow_meter"
+                  fieldId: "field-002"
+                  protocol: "lorawan"
+                  serialNumber: "LW-FM-001"
+                  lorawanConfig:
+                    devEUI: "0004A30B001C5F42"
+                    appKey: "2B7E151628AED2A6ABF7158809CF4F3C"
+                    activationMode: "OTAA"
+      responses:
+        '201':
+          description: Device provisioned successfully | تم توفير الجهاز بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceProvisionResponse'
+              examples:
+                mqtt:
+                  value:
+                    deviceId: "dev-new-001"
+                    name: "New Soil Sensor"
+                    nameAr: "مستشعر تربة جديد"
+                    protocol: "mqtt"
+                    credentials:
+                      clientId: "sahool-dev-new-001"
+                      username: "dev-new-001"
+                      password: "generated-secure-password"
+                      topic: "sahool/field-001/dev-new-001"
+                    config:
+                      broker: "mqtt.sahool.sa"
+                      port: 8883
+                      tls: true
+                    message: "Device provisioned successfully"
+                    messageAr: "تم توفير الجهاز بنجاح"
+                lorawan:
+                  value:
+                    deviceId: "dev-lora-001"
+                    name: "LoRa Water Meter"
+                    nameAr: "عداد مياه LoRa"
+                    protocol: "lorawan"
+                    credentials:
+                      devEUI: "0004A30B001C5F42"
+                      appEUI: "70B3D57ED0000001"
+                      nwkKey: "generated-network-key"
+                    config:
+                      networkServer: "lns.sahool.sa"
+                      applicationId: "sahool-agri"
+                      activationMode: "OTAA"
+                    message: "Device provisioned successfully"
+                    messageAr: "تم توفير الجهاز بنجاح"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '409':
+          description: Device already provisioned | الجهاز موفر بالفعل
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "ALREADY_PROVISIONED"
+                message: "Device with this serial number is already provisioned"
+                messageAr: "الجهاز بهذا الرقم التسلسلي موفر بالفعل"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # =============================================================================
+  # WebSocket Gateway Endpoints (Port 8081, /ws)
+  # نقاط نهاية بوابة WebSocket
+  # =============================================================================
+
+  /ws:
+    get:
+      tags:
+        - WebSocket
+      summary: WebSocket connection for real-time events | اتصال WebSocket للأحداث في الوقت الفعلي
+      description: |
+        Establish a WebSocket connection for receiving real-time events.
+
+        إنشاء اتصال WebSocket لتلقي الأحداث في الوقت الفعلي.
+
+        ## Connection | الاتصال
+
+        Connect to `ws://localhost:8081/ws` or `wss://ws.sahool.sa/ws` for production.
+
+        اتصل بـ `ws://localhost:8081/ws` أو `wss://ws.sahool.sa/ws` للإنتاج.
+
+        ## Authentication | المصادقة
+
+        Pass JWT token as query parameter: `/ws?token=<jwt_token>`
+
+        مرر رمز JWT كمعامل استعلام: `/ws?token=<jwt_token>`
+
+        ## Available Channels | القنوات المتاحة
+
+        Subscribe to receive events on specific channels:
+        اشترك لتلقي الأحداث على قنوات محددة:
+
+        | Channel | Description | الوصف |
+        |---------|-------------|-------|
+        | `field.updates` | Field data updates | تحديثات بيانات الحقل |
+        | `alert.created` | New alerts | تنبيهات جديدة |
+        | `sensor.reading` | Real-time sensor readings | قراءات المستشعر في الوقت الفعلي |
+        | `device.status` | Device status changes | تغييرات حالة الجهاز |
+        | `irrigation.event` | Irrigation events | أحداث الري |
+
+        ## Message Format | تنسيق الرسالة
+
+        ### Subscribe to channel | الاشتراك في قناة
+        ```json
+        {
+          "type": "subscribe",
+          "channel": "sensor.reading",
+          "payload": {
+            "fieldId": "field-001",
+            "deviceIds": ["dev-001", "dev-002"]
+          }
+        }
+        ```
+
+        ### Unsubscribe from channel | إلغاء الاشتراك من قناة
+        ```json
+        {
+          "type": "unsubscribe",
+          "channel": "sensor.reading"
+        }
+        ```
+
+        ### Incoming event message | رسالة الحدث الواردة
+        ```json
+        {
+          "type": "event",
+          "channel": "sensor.reading",
+          "payload": {
+            "deviceId": "dev-001",
+            "fieldId": "field-001",
+            "readings": [
+              {
+                "type": "soil_moisture",
+                "value": 45.5,
+                "unit": "%"
+              }
+            ],
+            "timestamp": "2026-01-24T10:30:00Z"
+          }
+        }
+        ```
+
+        ### Ping/Pong for keepalive | نبض/استجابة للحفاظ على الاتصال
+        ```json
+        {
+          "type": "ping"
+        }
+        ```
+        Response | الاستجابة:
+        ```json
+        {
+          "type": "pong",
+          "timestamp": "2026-01-24T10:30:00Z"
+        }
+        ```
+
+        ## Error Handling | معالجة الأخطاء
+
+        Error messages follow this format | تتبع رسائل الخطأ هذا التنسيق:
+        ```json
+        {
+          "type": "error",
+          "channel": "sensor.reading",
+          "payload": {
+            "code": "INVALID_CHANNEL",
+            "message": "Channel does not exist",
+            "messageAr": "القناة غير موجودة"
+          }
+        }
+        ```
+      operationId: websocketConnect
+      parameters:
+        - name: token
+          in: query
+          required: true
+          description: JWT authentication token | رمز مصادقة JWT
+          schema:
+            type: string
+        - name: channels
+          in: query
+          description: |
+            Comma-separated list of channels to auto-subscribe
+            قائمة القنوات المفصولة بفواصل للاشتراك التلقائي
+          schema:
+            type: string
+            example: "sensor.reading,alert.created"
+      responses:
+        '101':
+          description: |
+            WebSocket connection established
+            تم إنشاء اتصال WebSocket
+        '401':
+          description: |
+            Invalid or expired token
+            رمز غير صالح أو منتهي الصلاحية
+
+  # =============================================================================
+  # Health Endpoints
+  # نقاط نهاية الصحة
+  # =============================================================================
+
+  /healthz:
+    get:
+      tags:
+        - Health
+      summary: Liveness probe | فحص الحياة
+      description: |
+        Check if the service is alive and running.
+        التحقق من أن الخدمة حية وتعمل.
+      operationId: healthLive
+      security: []
+      responses:
+        '200':
+          description: Service is alive | الخدمة حية
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  service:
+                    type: string
+                    example: "iot-service"
+                  version:
+                    type: string
+                    example: "16.0.0"
+
+  /readyz:
+    get:
+      tags:
+        - Health
+      summary: Readiness probe | فحص الجاهزية
+      description: |
+        Check if the service is ready to accept traffic.
+        التحقق من أن الخدمة جاهزة لقبول حركة المرور.
+      operationId: healthReady
+      security: []
+      responses:
+        '200':
+          description: Service is ready | الخدمة جاهزة
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  database:
+                    type: boolean
+                    example: true
+                  nats:
+                    type: boolean
+                    example: true
+                  redis:
+                    type: boolean
+                    example: true
+        '503':
+          description: Service is not ready | الخدمة غير جاهزة
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "error"
+                  database:
+                    type: boolean
+                    example: false
+                  nats:
+                    type: boolean
+                    example: true
 
 components:
   securitySchemes:
@@ -814,492 +1181,710 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: JWT authentication token
+      description: |
+        JWT authentication token
+        رمز مصادقة JWT
+
+  parameters:
+    DeviceIdPath:
+      name: deviceId
+      in: path
+      required: true
+      description: |
+        Unique device identifier
+        معرف الجهاز الفريد
+      schema:
+        type: string
+        example: "dev-001"
 
   schemas:
-    SensorType:
+    # =============================================================================
+    # Enums | التعدادات
+    # =============================================================================
+
+    DeviceType:
       type: string
+      description: |
+        Type of IoT device
+        نوع جهاز إنترنت الأشياء
       enum:
         - soil_moisture
-        - temperature
-        - humidity
-        - ph
-        - light
-        - pressure
-        - rain
-        - wind
-      description: Type of sensor
+        - weather_station
+        - irrigation_controller
+        - camera
+        - flow_meter
+        - ph_sensor
+        - ec_sensor
+      x-enum-descriptions:
+        soil_moisture: "Soil moisture sensor | مستشعر رطوبة التربة"
+        weather_station: "Weather station | محطة الطقس"
+        irrigation_controller: "Irrigation controller | وحدة تحكم الري"
+        camera: "Field camera | كاميرا الحقل"
+        flow_meter: "Water flow meter | عداد تدفق المياه"
+        ph_sensor: "pH sensor | مستشعر الحموضة"
+        ec_sensor: "Electrical conductivity sensor | مستشعر التوصيلية الكهربائية"
 
-    SensorStatus:
+    DeviceStatus:
       type: string
+      description: |
+        Current status of the device
+        الحالة الحالية للجهاز
       enum:
         - online
         - offline
         - error
         - maintenance
-        - active
-        - inactive
-      description: Current status of the sensor
+      x-enum-descriptions:
+        online: "Device is connected and operational | الجهاز متصل ويعمل"
+        offline: "Device is not connected | الجهاز غير متصل"
+        error: "Device has encountered an error | واجه الجهاز خطأ"
+        maintenance: "Device is under maintenance | الجهاز تحت الصيانة"
 
-    ActuatorType:
+    Protocol:
       type: string
+      description: |
+        IoT communication protocol
+        بروتوكول اتصال إنترنت الأشياء
       enum:
-        - valve
-        - pump
-        - fan
-        - heater
-        - light
-        - sprinkler
-      description: Type of actuator
+        - mqtt
+        - http
+        - coap
+        - lorawan
+      x-enum-descriptions:
+        mqtt: "MQTT protocol | بروتوكول MQTT"
+        http: "HTTP/HTTPS protocol | بروتوكول HTTP/HTTPS"
+        coap: "CoAP protocol | بروتوكول CoAP"
+        lorawan: "LoRaWAN protocol | بروتوكول LoRaWAN"
 
-    ActuatorStatus:
+    WebSocketMessageType:
       type: string
+      description: |
+        Type of WebSocket message
+        نوع رسالة WebSocket
       enum:
-        - online
-        - offline
+        - subscribe
+        - unsubscribe
+        - event
+        - ping
+        - pong
         - error
-        - on
-        - off
-        - auto
-      description: Current status of the actuator
+        - ack
 
-    Location:
+    WebSocketChannel:
+      type: string
+      description: |
+        WebSocket subscription channel
+        قناة اشتراك WebSocket
+      enum:
+        - field.updates
+        - alert.created
+        - sensor.reading
+        - device.status
+        - irrigation.event
+      x-enum-descriptions:
+        field.updates: "Field data updates | تحديثات بيانات الحقل"
+        alert.created: "New alerts | تنبيهات جديدة"
+        sensor.reading: "Real-time sensor readings | قراءات المستشعر في الوقت الفعلي"
+        device.status: "Device status changes | تغييرات حالة الجهاز"
+        irrigation.event: "Irrigation events | أحداث الري"
+
+    # =============================================================================
+    # Core Models | النماذج الأساسية
+    # =============================================================================
+
+    Device:
       type: object
+      description: |
+        IoT device representation
+        تمثيل جهاز إنترنت الأشياء
+      required:
+        - id
+        - name
+        - type
+        - fieldId
+        - serialNumber
+        - status
+      properties:
+        id:
+          type: string
+          description: Unique device identifier | معرف الجهاز الفريد
+          example: "dev-001"
+        name:
+          type: string
+          description: Device name | اسم الجهاز
+          example: "Soil Moisture Sensor A1"
+        nameAr:
+          type: string
+          description: Device name in Arabic | اسم الجهاز بالعربية
+          example: "مستشعر رطوبة التربة أ1"
+        type:
+          $ref: '#/components/schemas/DeviceType'
+        fieldId:
+          type: string
+          description: Associated field ID | معرف الحقل المرتبط
+          example: "field-001"
+        serialNumber:
+          type: string
+          description: Device serial number | الرقم التسلسلي للجهاز
+          example: "SM-2024-001"
+        status:
+          $ref: '#/components/schemas/DeviceStatus'
+        lastSeen:
+          type: string
+          format: date-time
+          description: Last communication timestamp | آخر طابع زمني للاتصال
+          example: "2026-01-24T10:30:00Z"
+        batteryLevel:
+          type: integer
+          description: Battery level percentage (0-100) | نسبة مستوى البطارية
+          minimum: 0
+          maximum: 100
+          example: 85
+        config:
+          type: object
+          description: Device configuration | إعدادات الجهاز
+          additionalProperties: true
+          example:
+            reportInterval: 300
+            threshold:
+              min: 20
+              max: 80
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+        firmware:
+          type: string
+          description: Firmware version | إصدار البرنامج الثابت
+          example: "2.1.0"
+        metadata:
+          type: object
+          description: Additional metadata | بيانات وصفية إضافية
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp | طابع زمني الإنشاء
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp | طابع زمني آخر تحديث
+
+    SensorReading:
+      type: object
+      description: |
+        Sensor reading data
+        بيانات قراءة المستشعر
+      required:
+        - deviceId
+        - readings
+        - timestamp
+      properties:
+        deviceId:
+          type: string
+          description: Device ID that produced the reading | معرف الجهاز الذي أنتج القراءة
+          example: "dev-001"
+        readings:
+          type: array
+          description: Array of sensor readings | مصفوفة قراءات المستشعر
+          items:
+            type: object
+            required:
+              - type
+              - value
+              - unit
+            properties:
+              type:
+                type: string
+                description: Reading type | نوع القراءة
+                example: "soil_moisture"
+              value:
+                type: number
+                description: Reading value | قيمة القراءة
+                example: 45.5
+              unit:
+                type: string
+                description: Unit of measurement | وحدة القياس
+                example: "%"
+        timestamp:
+          type: string
+          format: date-time
+          description: Reading timestamp | طابع زمني القراءة
+          example: "2026-01-24T10:30:00Z"
+        quality:
+          type: string
+          description: Data quality indicator | مؤشر جودة البيانات
+          enum: [good, fair, poor, unknown]
+          example: "good"
+        metadata:
+          type: object
+          description: Additional reading metadata | بيانات وصفية إضافية للقراءة
+          additionalProperties: true
+
+    DeviceCommand:
+      type: object
+      description: |
+        Command to be sent to a device
+        الأمر المراد إرساله إلى الجهاز
+      required:
+        - command
+      properties:
+        command:
+          type: string
+          description: |
+            Command name to execute
+            اسم الأمر المراد تنفيذه
+          example: "calibrate"
+          enum:
+            - reboot
+            - calibrate
+            - set_interval
+            - update_firmware
+            - open_valve
+            - close_valve
+            - take_photo
+            - reset
+        parameters:
+          type: object
+          description: |
+            Command parameters
+            معاملات الأمر
+          additionalProperties: true
+          example:
+            type: "soil_moisture"
+            referenceValue: 50.0
+
+    WebSocketMessage:
+      type: object
+      description: |
+        WebSocket message format
+        تنسيق رسالة WebSocket
+      required:
+        - type
+      properties:
+        type:
+          $ref: '#/components/schemas/WebSocketMessageType'
+        channel:
+          $ref: '#/components/schemas/WebSocketChannel'
+        payload:
+          type: object
+          description: |
+            Message payload (varies by message type)
+            حمولة الرسالة (تختلف حسب نوع الرسالة)
+          additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+          description: Message timestamp | طابع زمني الرسالة
+        messageId:
+          type: string
+          description: Unique message identifier | معرف الرسالة الفريد
+
+    # =============================================================================
+    # Request/Response Models | نماذج الطلب/الاستجابة
+    # =============================================================================
+
+    CreateDeviceRequest:
+      type: object
+      description: |
+        Request to create/register a new device
+        طلب إنشاء/تسجيل جهاز جديد
+      required:
+        - name
+        - type
+        - fieldId
+        - serialNumber
+      properties:
+        name:
+          type: string
+          description: Device name | اسم الجهاز
+          example: "Soil Moisture Sensor B2"
+        nameAr:
+          type: string
+          description: Device name in Arabic | اسم الجهاز بالعربية
+          example: "مستشعر رطوبة التربة ب2"
+        type:
+          $ref: '#/components/schemas/DeviceType'
+        fieldId:
+          type: string
+          description: Associated field ID | معرف الحقل المرتبط
+          example: "field-001"
+        serialNumber:
+          type: string
+          description: Device serial number | الرقم التسلسلي للجهاز
+          example: "SM-2024-002"
+        config:
+          type: object
+          description: Initial device configuration | إعدادات الجهاز الأولية
+          additionalProperties: true
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+        metadata:
+          type: object
+          description: Additional metadata | بيانات وصفية إضافية
+          additionalProperties: true
+
+    UpdateDeviceRequest:
+      type: object
+      description: |
+        Request to update an existing device
+        طلب تحديث جهاز موجود
+      properties:
+        name:
+          type: string
+          description: Updated device name | اسم الجهاز المحدث
+        nameAr:
+          type: string
+          description: Updated device name in Arabic | اسم الجهاز المحدث بالعربية
+        fieldId:
+          type: string
+          description: Updated field ID | معرف الحقل المحدث
+        status:
+          $ref: '#/components/schemas/DeviceStatus'
+        config:
+          type: object
+          description: Updated configuration | الإعدادات المحدثة
+          additionalProperties: true
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+        metadata:
+          type: object
+          description: Updated metadata | البيانات الوصفية المحدثة
+          additionalProperties: true
+
+    SensorDataSubmission:
+      type: object
+      description: |
+        Sensor data submission payload
+        حمولة إرسال بيانات المستشعر
+      required:
+        - deviceId
+        - readings
+        - timestamp
+      properties:
+        deviceId:
+          type: string
+          description: Device ID | معرف الجهاز
+          example: "dev-001"
+        readings:
+          type: array
+          description: Array of sensor readings | مصفوفة قراءات المستشعر
+          items:
+            type: object
+            required:
+              - type
+              - value
+              - unit
+            properties:
+              type:
+                type: string
+                example: "soil_moisture"
+              value:
+                type: number
+                example: 45.5
+              unit:
+                type: string
+                example: "%"
+        timestamp:
+          type: string
+          format: date-time
+          description: Reading timestamp | طابع زمني القراءة
+          example: "2026-01-24T10:30:00Z"
+        metadata:
+          type: object
+          additionalProperties: true
+
+    DeviceStatusResponse:
+      type: object
+      description: |
+        Device status response
+        استجابة حالة الجهاز
+      properties:
+        deviceId:
+          type: string
+          example: "dev-001"
+        name:
+          type: string
+          example: "Soil Moisture Sensor A1"
+        nameAr:
+          type: string
+          example: "مستشعر رطوبة التربة أ1"
+        status:
+          $ref: '#/components/schemas/DeviceStatus'
+        lastSeen:
+          type: string
+          format: date-time
+        batteryLevel:
+          type: integer
+          minimum: 0
+          maximum: 100
+        signalStrength:
+          type: integer
+          description: Signal strength (0-100) | قوة الإشارة
+          minimum: 0
+          maximum: 100
+        firmware:
+          type: object
+          properties:
+            version:
+              type: string
+              example: "2.1.0"
+            updateAvailable:
+              type: boolean
+              example: true
+            latestVersion:
+              type: string
+              example: "2.2.0"
+        health:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [healthy, degraded, unhealthy]
+            issues:
+              type: array
+              items:
+                type: string
+        uptime:
+          type: integer
+          description: Uptime in seconds | وقت التشغيل بالثواني
+        lastReading:
+          type: object
+          properties:
+            value:
+              type: number
+            unit:
+              type: string
+            timestamp:
+              type: string
+              format: date-time
+
+    GatewayIngestRequest:
+      type: object
+      description: |
+        IoT Gateway data ingestion request
+        طلب استيعاب بيانات بوابة إنترنت الأشياء
+      required:
+        - protocol
+        - deviceId
+        - payload
+      properties:
+        protocol:
+          $ref: '#/components/schemas/Protocol'
+        deviceId:
+          type: string
+          description: Device identifier | معرف الجهاز
+          example: "dev-001"
+        topic:
+          type: string
+          description: MQTT topic (for MQTT protocol) | موضوع MQTT
+          example: "sahool/field-001/soil_moisture"
+        payload:
+          type: object
+          description: Protocol-specific payload | الحمولة الخاصة بالبروتوكول
+          additionalProperties: true
+        metadata:
+          type: object
+          description: Protocol-specific metadata | البيانات الوصفية الخاصة بالبروتوكول
+          additionalProperties: true
+
+    DeviceProvisionRequest:
+      type: object
+      description: |
+        Device provisioning request
+        طلب توفير الجهاز
+      required:
+        - name
+        - type
+        - fieldId
+        - protocol
+        - serialNumber
+      properties:
+        name:
+          type: string
+          description: Device name | اسم الجهاز
+          example: "New Soil Sensor"
+        nameAr:
+          type: string
+          description: Device name in Arabic | اسم الجهاز بالعربية
+          example: "مستشعر تربة جديد"
+        type:
+          $ref: '#/components/schemas/DeviceType'
+        fieldId:
+          type: string
+          description: Field ID | معرف الحقل
+          example: "field-001"
+        protocol:
+          $ref: '#/components/schemas/Protocol'
+        serialNumber:
+          type: string
+          description: Device serial number | الرقم التسلسلي للجهاز
+          example: "SM-2024-NEW"
+        lorawanConfig:
+          type: object
+          description: LoRaWAN-specific configuration | إعدادات LoRaWAN
+          properties:
+            devEUI:
+              type: string
+              example: "0004A30B001C5F42"
+            appKey:
+              type: string
+              example: "2B7E151628AED2A6ABF7158809CF4F3C"
+            activationMode:
+              type: string
+              enum: [OTAA, ABP]
+              example: "OTAA"
+
+    DeviceProvisionResponse:
+      type: object
+      description: |
+        Device provisioning response
+        استجابة توفير الجهاز
+      properties:
+        deviceId:
+          type: string
+          description: Assigned device ID | معرف الجهاز المعين
+          example: "dev-new-001"
+        name:
+          type: string
+          example: "New Soil Sensor"
+        nameAr:
+          type: string
+          example: "مستشعر تربة جديد"
+        protocol:
+          $ref: '#/components/schemas/Protocol'
+        credentials:
+          type: object
+          description: Device credentials | بيانات اعتماد الجهاز
+          additionalProperties: true
+        config:
+          type: object
+          description: Protocol configuration | إعدادات البروتوكول
+          additionalProperties: true
+        message:
+          type: string
+          example: "Device provisioned successfully"
+        messageAr:
+          type: string
+          example: "تم توفير الجهاز بنجاح"
+
+    ProtocolInfo:
+      type: object
+      description: |
+        Protocol information
+        معلومات البروتوكول
+      properties:
+        name:
+          type: string
+          example: "mqtt"
+        nameAr:
+          type: string
+          example: "MQTT"
+        description:
+          type: string
+          example: "Message Queuing Telemetry Transport"
+        descriptionAr:
+          type: string
+          example: "بروتوكول نقل القياس عن بعد لقائمة الرسائل"
+        enabled:
+          type: boolean
+          example: true
+        config:
+          type: object
+          description: Protocol-specific configuration | إعدادات خاصة بالبروتوكول
+          additionalProperties: true
+
+    # =============================================================================
+    # Supporting Models | النماذج الداعمة
+    # =============================================================================
+
+    GeoLocation:
+      type: object
+      description: |
+        Geographic location
+        الموقع الجغرافي
       properties:
         latitude:
           type: number
           format: double
+          description: Latitude | خط العرض
           example: 15.3694
         longitude:
           type: number
           format: double
+          description: Longitude | خط الطول
           example: 44.191
-        fieldId:
-          type: string
-          example: "field-001"
-        fieldName:
-          type: string
-          example: "North Field"
-
-    LastReading:
-      type: object
-      properties:
-        value:
+        altitude:
           type: number
-          example: 45.5
-        unit:
-          type: string
-          example: "%"
-        timestamp:
-          type: string
-          format: date-time
+          format: double
+          description: Altitude in meters | الارتفاع بالأمتار
+          example: 350.5
 
-    Sensor:
+    Pagination:
       type: object
-      required:
-        - id
-        - name
-        - nameAr
-        - type
-        - status
-        - deviceId
-        - unit
-        - unitAr
+      description: |
+        Pagination information
+        معلومات ترقيم الصفحات
       properties:
-        id:
-          type: string
-          example: "sensor-001"
-        name:
-          type: string
-          example: "Soil Moisture Sensor 1"
-        nameAr:
-          type: string
-          example: "مستشعر رطوبة التربة 1"
-        type:
-          $ref: '#/components/schemas/SensorType'
-        status:
-          $ref: '#/components/schemas/SensorStatus'
-        deviceId:
-          type: string
-          example: "SMS-001"
-        unit:
-          type: string
-          example: "%"
-        unitAr:
-          type: string
-          example: "%"
-        location:
-          $ref: '#/components/schemas/Location'
-        lastReading:
-          $ref: '#/components/schemas/LastReading'
-        battery:
+        page:
           type: integer
-          minimum: 0
-          maximum: 100
-          example: 85
-        signalStrength:
+          description: Current page number | رقم الصفحة الحالية
+          example: 1
+        limit:
           type: integer
-          minimum: 0
-          maximum: 100
-          example: 92
-        metadata:
-          type: object
-          additionalProperties: true
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-
-    SensorReading:
-      type: object
-      required:
-        - id
-        - sensorId
-        - value
-        - unit
-        - timestamp
-      properties:
-        id:
-          type: string
-        sensorId:
-          type: string
-        value:
-          type: number
-        unit:
-          type: string
-        timestamp:
-          type: string
-          format: date-time
-        quality:
-          type: string
-          enum: [good, fair, poor]
-        metadata:
-          type: object
-          additionalProperties: true
-
-    Actuator:
-      type: object
-      required:
-        - id
-        - name
-        - nameAr
-        - type
-        - status
-        - deviceId
-        - controlMode
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        nameAr:
-          type: string
-        type:
-          $ref: '#/components/schemas/ActuatorType'
-        status:
-          $ref: '#/components/schemas/ActuatorStatus'
-        deviceId:
-          type: string
-        location:
-          $ref: '#/components/schemas/Location'
-        controlMode:
-          type: string
-          enum: [manual, automatic, scheduled]
-        linkedSensorId:
-          type: string
-        linkedSensorName:
-          type: string
-        metadata:
-          type: object
-          additionalProperties: true
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-
-    AlertRule:
-      type: object
-      required:
-        - id
-        - name
-        - nameAr
-        - sensorId
-        - condition
-        - threshold
-        - severity
-        - enabled
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        nameAr:
-          type: string
-        sensorId:
-          type: string
-        sensorName:
-          type: string
-        condition:
-          type: string
-          enum: [above, below, between, outside]
-        threshold:
-          type: number
-        thresholdMax:
-          type: number
-          description: Used for 'between' and 'outside' conditions
-        severity:
-          type: string
-          enum: [info, warning, critical]
-        enabled:
-          type: boolean
-        actionType:
-          type: string
-          enum: [notification, actuator, both]
-        actuatorId:
-          type: string
-        actuatorAction:
-          type: string
-          enum: [turn_on, turn_off]
-        metadata:
-          type: object
-          additionalProperties: true
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-
-    Device:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        type:
-          type: string
-        status:
-          type: string
-        lastSeen:
-          type: string
-          format: date-time
-
-    DeviceStats:
-      type: object
-      properties:
-        total:
+          description: Items per page | عدد العناصر في الصفحة
+          example: 20
+        totalPages:
           type: integer
-        online:
-          type: integer
-        offline:
-          type: integer
-        errors:
-          type: integer
-
-    CreateSensorRequest:
-      type: object
-      required:
-        - name
-        - nameAr
-        - type
-        - deviceId
-        - unit
-        - unitAr
-      properties:
-        name:
-          type: string
-        nameAr:
-          type: string
-        type:
-          $ref: '#/components/schemas/SensorType'
-        deviceId:
-          type: string
-        unit:
-          type: string
-        unitAr:
-          type: string
-        location:
-          $ref: '#/components/schemas/Location'
-        metadata:
-          type: object
-          additionalProperties: true
-
-    UpdateSensorRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        nameAr:
-          type: string
-        status:
-          $ref: '#/components/schemas/SensorStatus'
-        location:
-          $ref: '#/components/schemas/Location'
-        metadata:
-          type: object
-          additionalProperties: true
-
-    CreateActuatorRequest:
-      type: object
-      required:
-        - name
-        - nameAr
-        - type
-        - deviceId
-        - controlMode
-      properties:
-        name:
-          type: string
-        nameAr:
-          type: string
-        type:
-          $ref: '#/components/schemas/ActuatorType'
-        deviceId:
-          type: string
-        location:
-          $ref: '#/components/schemas/Location'
-        controlMode:
-          type: string
-          enum: [manual, automatic, scheduled]
-        linkedSensorId:
-          type: string
-        metadata:
-          type: object
-          additionalProperties: true
-
-    UpdateActuatorRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        nameAr:
-          type: string
-        status:
-          $ref: '#/components/schemas/ActuatorStatus'
-        location:
-          $ref: '#/components/schemas/Location'
-        controlMode:
-          type: string
-          enum: [manual, automatic, scheduled]
-        linkedSensorId:
-          type: string
-        metadata:
-          type: object
-          additionalProperties: true
-
-    ActuatorControlRequest:
-      type: object
-      required:
-        - action
-      properties:
-        action:
-          type: string
-          enum: [on, off, toggle]
-        mode:
-          type: string
-          enum: [manual, automatic]
-        duration:
-          type: integer
-          description: Duration in seconds for temporary actions
-
-    CreateAlertRuleRequest:
-      type: object
-      required:
-        - name
-        - nameAr
-        - sensorId
-        - condition
-        - threshold
-        - severity
-        - enabled
-      properties:
-        name:
-          type: string
-        nameAr:
-          type: string
-        sensorId:
-          type: string
-        condition:
-          type: string
-          enum: [above, below, between, outside]
-        threshold:
-          type: number
-        thresholdMax:
-          type: number
-        severity:
-          type: string
-          enum: [info, warning, critical]
-        enabled:
-          type: boolean
-        actionType:
-          type: string
-          enum: [notification, actuator, both]
-        actuatorId:
-          type: string
-        actuatorAction:
-          type: string
-          enum: [turn_on, turn_off]
-
-    UpdateAlertRuleRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        nameAr:
-          type: string
-        condition:
-          type: string
-          enum: [above, below, between, outside]
-        threshold:
-          type: number
-        thresholdMax:
-          type: number
-        severity:
-          type: string
-          enum: [info, warning, critical]
-        enabled:
-          type: boolean
-        actionType:
-          type: string
-          enum: [notification, actuator, both]
-        actuatorId:
-          type: string
-        actuatorAction:
-          type: string
-          enum: [turn_on, turn_off]
+          description: Total number of pages | العدد الإجمالي للصفحات
+          example: 5
 
     Error:
       type: object
+      description: |
+        Error response
+        استجابة الخطأ
       required:
         - error
         - message
       properties:
         error:
           type: string
+          description: Error code | رمز الخطأ
+          example: "NOT_FOUND"
         message:
           type: string
+          description: Error message in English | رسالة الخطأ بالإنجليزية
+          example: "Device not found"
+        messageAr:
+          type: string
+          description: Error message in Arabic | رسالة الخطأ بالعربية
+          example: "الجهاز غير موجود"
         details:
           type: object
+          description: Additional error details | تفاصيل الخطأ الإضافية
           additionalProperties: true
+        requestId:
+          type: string
+          description: Request ID for tracking | معرف الطلب للتتبع
+          example: "req-uuid-12345"
 
   responses:
     BadRequestError:
-      description: Bad request - Invalid input data
+      description: |
+        Bad request - Invalid input data
+        طلب غير صالح - بيانات إدخال غير صالحة
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             error: "BAD_REQUEST"
-            message: "Invalid sensor type provided"
+            message: "Invalid device type provided"
+            messageAr: "نوع الجهاز المقدم غير صالح"
 
     UnauthorizedError:
-      description: Unauthorized - Missing or invalid authentication token
+      description: |
+        Unauthorized - Missing or invalid authentication token
+        غير مصرح - رمز المصادقة مفقود أو غير صالح
       content:
         application/json:
           schema:
@@ -1307,19 +1892,25 @@ components:
           example:
             error: "UNAUTHORIZED"
             message: "Authentication token is required"
+            messageAr: "رمز المصادقة مطلوب"
 
     NotFoundError:
-      description: Resource not found
+      description: |
+        Resource not found
+        المورد غير موجود
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             error: "NOT_FOUND"
-            message: "Sensor not found"
+            message: "Device not found"
+            messageAr: "الجهاز غير موجود"
 
     InternalServerError:
-      description: Internal server error
+      description: |
+        Internal server error
+        خطأ داخلي في الخادم
       content:
         application/json:
           schema:
@@ -1327,3 +1918,4 @@ components:
           example:
             error: "INTERNAL_SERVER_ERROR"
             message: "An unexpected error occurred"
+            messageAr: "حدث خطأ غير متوقع"

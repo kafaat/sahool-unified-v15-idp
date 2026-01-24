@@ -2,24 +2,27 @@ openapi: 3.0.3
 info:
   title: SAHOOL Marketplace Services API
   description: |
-    Agricultural Marketplace and E-Commerce API for the SAHOOL Platform
+    Agricultural Marketplace, Community, Research, and Disaster Assessment API for the SAHOOL Platform
+    واجهة برمجة تطبيقات السوق الزراعي والمجتمع والبحث وتقييم الكوارث لمنصة سهول
 
-    This API provides comprehensive marketplace functionality including product
-    listings, order management, shopping cart, payments, and seller profiles.
+    This API provides comprehensive marketplace and community functionality including:
+    - Product management (seeds, fertilizers, equipment, etc.) | إدارة المنتجات (البذور، الأسمدة، المعدات، إلخ)
+    - Order creation and tracking | إنشاء وتتبع الطلبات
+    - Community posts and discussions | المنشورات والنقاشات المجتمعية
+    - Agricultural research trials | التجارب البحثية الزراعية
+    - Disaster risk assessment | تقييم مخاطر الكوارث
 
-    Features:
-    - Product management (seeds, fertilizers, equipment, etc.)
-    - Order creation and tracking
-    - Shopping cart functionality
-    - Payment processing
-    - Product search and filtering
-    - Seller and buyer profiles
-    - Product reviews and ratings
-    - Category management
-    - Real-time order updates via WebSocket
+    ## Services | الخدمات
 
-    Arabic Support: جميع واجهات API تدعم اللغة العربية
-  version: 1.0.0
+    | Service | Port | Base Path | Description |
+    |---------|------|-----------|-------------|
+    | marketplace-service | 3010 | /api/v1/marketplace | Agricultural marketplace | السوق الزراعي |
+    | community-chat | 8097 | /api/v1/community | Community posts and discussions | المجتمع والنقاشات |
+    | research-core | 3015 | /api/v1/research | Research trials management | إدارة التجارب البحثية |
+    | disaster-assessment | 3020 | /api/v1/disaster | Disaster risk assessment | تقييم مخاطر الكوارث |
+
+    Arabic Support: جميع واجهات API تدعم اللغة العربية بشكل كامل
+  version: 16.0.0
   contact:
     name: SAHOOL Platform Support
     email: support@sahool.sa
@@ -28,91 +31,124 @@ info:
 
 servers:
   - url: https://api.sahool.sa/api/v1
-    description: Production server
+    description: Production server | خادم الإنتاج
   - url: https://staging-api.sahool.sa/api/v1
-    description: Staging server
-  - url: http://localhost:3000/api/v1
-    description: Local development server
+    description: Staging server | خادم التجريب
+  - url: http://localhost:3010/api/v1
+    description: Local marketplace-service | خدمة السوق المحلية
+  - url: http://localhost:8097/api/v1
+    description: Local community-chat | خدمة المجتمع المحلية
+  - url: http://localhost:3015/api/v1
+    description: Local research-core | خدمة البحث المحلية
+  - url: http://localhost:3020/api/v1
+    description: Local disaster-assessment | خدمة تقييم الكوارث المحلية
 
 tags:
   - name: Products
-    description: Product listing and management
+    description: |
+      Product listing and management
+      إدارة وعرض المنتجات
   - name: Categories
-    description: Product category operations
+    description: |
+      Product category operations
+      عمليات فئات المنتجات
   - name: Orders
-    description: Order creation and management
-  - name: Cart
-    description: Shopping cart operations
-  - name: Search
-    description: Product search functionality
-  - name: Reviews
-    description: Product reviews and ratings
-  - name: Sellers
-    description: Seller profile and product management
+    description: |
+      Order creation and management
+      إنشاء وإدارة الطلبات
+  - name: Community
+    description: |
+      Community posts and discussions
+      المنشورات والنقاشات المجتمعية
+  - name: Research
+    description: |
+      Agricultural research trials management
+      إدارة التجارب البحثية الزراعية
+  - name: Disaster
+    description: |
+      Disaster risk assessment and management
+      تقييم وإدارة مخاطر الكوارث
 
 security:
   - BearerAuth: []
 
 paths:
+  # ============================================
+  # MARKETPLACE SERVICE - Port 3010
+  # /api/v1/marketplace
+  # ============================================
+
   /marketplace/products:
     get:
       tags:
         - Products
-      summary: Get all products
+      summary: Get all products | جلب جميع المنتجات
       description: |
-        Retrieve a list of products with optional filtering and sorting
-        جلب جميع المنتجات مع إمكانية التصفية والترتيب
+        Retrieve a list of products with optional filtering and sorting.
+        جلب قائمة المنتجات مع إمكانية التصفية والترتيب.
       operationId: getProducts
       parameters:
         - name: category
           in: query
-          description: Filter by product category
+          description: |
+            Filter by product category
+            تصفية حسب فئة المنتج
           schema:
             $ref: '#/components/schemas/ProductCategory'
         - name: search
           in: query
-          description: Search by product name or description
+          description: |
+            Search by product name or description
+            البحث بالاسم أو الوصف
           schema:
             type: string
         - name: minPrice
           in: query
-          description: Minimum price filter
+          description: |
+            Minimum price filter
+            الحد الأدنى للسعر
           schema:
             type: number
             format: float
         - name: maxPrice
           in: query
-          description: Maximum price filter
+          description: |
+            Maximum price filter
+            الحد الأقصى للسعر
           schema:
             type: number
             format: float
         - name: status
           in: query
-          description: Filter by product status
+          description: |
+            Filter by product status
+            تصفية حسب حالة المنتج
           schema:
             $ref: '#/components/schemas/ProductStatus'
         - name: sellerId
           in: query
-          description: Filter by seller ID
+          description: |
+            Filter by seller ID
+            تصفية حسب معرف البائع
           schema:
             type: string
         - name: sortBy
           in: query
-          description: Sort order
+          description: Sort order | ترتيب النتائج
           schema:
             type: string
             enum: [price_asc, price_desc, name, newest, rating]
             default: newest
         - name: page
           in: query
-          description: Page number (1-based)
+          description: Page number (1-based) | رقم الصفحة
           schema:
             type: integer
             minimum: 1
             default: 1
         - name: limit
           in: query
-          description: Items per page
+          description: Items per page | عدد العناصر في الصفحة
           schema:
             type: integer
             minimum: 1
@@ -120,7 +156,7 @@ paths:
             default: 20
       responses:
         '200':
-          description: Products retrieved successfully
+          description: Products retrieved successfully | تم جلب المنتجات بنجاح
           content:
             application/json:
               schema:
@@ -139,8 +175,8 @@ paths:
                       - id: "prod-001"
                         name: "Organic Wheat Seeds"
                         nameAr: "بذور قمح عضوية"
-                        description: "High-quality organic wheat seeds"
-                        descriptionAr: "بذور قمح عضوية عالية الجودة"
+                        description: "High-quality organic wheat seeds for optimal yield"
+                        descriptionAr: "بذور قمح عضوية عالية الجودة لإنتاجية مثالية"
                         category: "seeds"
                         price: 150
                         currency: "SAR"
@@ -158,8 +194,8 @@ paths:
                           region: "Central"
                           regionAr: "الوسطى"
                         tags: ["organic", "wheat", "seeds"]
-                        createdAt: "2024-01-01T00:00:00Z"
-                        updatedAt: "2024-01-15T10:30:00Z"
+                        createdAt: "2026-01-01T00:00:00Z"
+                        updatedAt: "2026-01-15T10:30:00Z"
                     pagination:
                       page: 1
                       limit: 20
@@ -171,10 +207,10 @@ paths:
     post:
       tags:
         - Products
-      summary: Create a new product
+      summary: Create a new product | إنشاء منتج جديد
       description: |
-        Create a new product listing
-        إنشاء منتج جديد
+        Create a new product listing in the marketplace.
+        إنشاء منتج جديد في السوق.
       operationId: createProduct
       security:
         - BearerAuth: []
@@ -189,7 +225,7 @@ paths:
               nameAr: "سماد NPK 20-20-20"
               description: "Balanced NPK fertilizer for all crops"
               descriptionAr: "سماد NPK متوازن لجميع المحاصيل"
-              category: "fertilizers"
+              category: "fertilizer"
               price: 85
               currency: "SAR"
               unit: "bag (25kg)"
@@ -208,7 +244,7 @@ paths:
                 potassium: "20%"
       responses:
         '201':
-          description: Product created successfully
+          description: Product created successfully | تم إنشاء المنتج بنجاح
           content:
             application/json:
               schema:
@@ -225,19 +261,21 @@ paths:
     get:
       tags:
         - Products
-      summary: Get product by ID
-      description: Retrieve detailed information about a specific product
+      summary: Get product by ID | جلب المنتج بالمعرف
+      description: |
+        Retrieve detailed information about a specific product.
+        جلب معلومات تفصيلية عن منتج محدد.
       operationId: getProductById
       parameters:
         - name: productId
           in: path
           required: true
-          description: Product ID
+          description: Product ID | معرف المنتج
           schema:
             type: string
       responses:
         '200':
-          description: Product retrieved successfully
+          description: Product retrieved successfully | تم جلب المنتج بنجاح
           content:
             application/json:
               schema:
@@ -248,11 +286,13 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-    patch:
+    put:
       tags:
         - Products
-      summary: Update product
-      description: Update product information (seller only)
+      summary: Update product | تحديث المنتج
+      description: |
+        Update product information (seller only).
+        تحديث معلومات المنتج (للبائع فقط).
       operationId: updateProduct
       security:
         - BearerAuth: []
@@ -260,6 +300,7 @@ paths:
         - name: productId
           in: path
           required: true
+          description: Product ID | معرف المنتج
           schema:
             type: string
       requestBody:
@@ -270,7 +311,7 @@ paths:
               $ref: '#/components/schemas/UpdateProductRequest'
       responses:
         '200':
-          description: Product updated successfully
+          description: Product updated successfully | تم تحديث المنتج بنجاح
           content:
             application/json:
               schema:
@@ -286,8 +327,10 @@ paths:
     delete:
       tags:
         - Products
-      summary: Delete product
-      description: Remove a product listing (seller only)
+      summary: Delete product | حذف المنتج
+      description: |
+        Remove a product listing (seller only).
+        حذف منتج من السوق (للبائع فقط).
       operationId: deleteProduct
       security:
         - BearerAuth: []
@@ -295,95 +338,29 @@ paths:
         - name: productId
           in: path
           required: true
+          description: Product ID | معرف المنتج
           schema:
             type: string
       responses:
         '204':
-          description: Product deleted successfully
+          description: Product deleted successfully | تم حذف المنتج بنجاح
         '403':
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /marketplace/products/featured:
-    get:
-      tags:
-        - Products
-      summary: Get featured products
-      description: Retrieve featured/promoted products
-      operationId: getFeaturedProducts
-      parameters:
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            default: 10
-      responses:
-        '200':
-          description: Featured products retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Product'
-
-  /marketplace/products/search:
-    get:
-      tags:
-        - Search
-      summary: Search products
-      description: |
-        Full-text search across product names and descriptions
-        البحث الشامل في المنتجات
-      operationId: searchProducts
-      parameters:
-        - name: q
-          in: query
-          required: true
-          description: Search query
-          schema:
-            type: string
-        - name: category
-          in: query
-          description: Filter by category
-          schema:
-            $ref: '#/components/schemas/ProductCategory'
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            default: 20
-      responses:
-        '200':
-          description: Search results retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Product'
-                  query:
-                    type: string
-                  resultsCount:
-                    type: integer
-
   /marketplace/categories:
     get:
       tags:
         - Categories
-      summary: Get all categories
-      description: Retrieve all product categories with product counts
+      summary: Get all categories | جلب جميع الفئات
+      description: |
+        Retrieve all product categories with product counts.
+        جلب جميع فئات المنتجات مع عدد المنتجات في كل فئة.
       operationId: getCategories
       responses:
         '200':
-          description: Categories retrieved successfully
+          description: Categories retrieved successfully | تم جلب الفئات بنجاح
           content:
             application/json:
               schema:
@@ -400,53 +377,87 @@ paths:
                       - id: "seeds"
                         name: "Seeds"
                         nameAr: "البذور"
+                        description: "Agricultural seeds and planting materials"
+                        descriptionAr: "البذور الزراعية ومواد الزراعة"
                         count: 45
-                      - id: "fertilizers"
-                        name: "Fertilizers"
+                      - id: "fertilizer"
+                        name: "Fertilizer"
                         nameAr: "الأسمدة"
+                        description: "Organic and chemical fertilizers"
+                        descriptionAr: "الأسمدة العضوية والكيميائية"
                         count: 32
+                      - id: "pesticide"
+                        name: "Pesticide"
+                        nameAr: "المبيدات"
+                        description: "Pest and disease control products"
+                        descriptionAr: "منتجات مكافحة الآفات والأمراض"
+                        count: 28
                       - id: "equipment"
                         name: "Equipment"
                         nameAr: "المعدات"
+                        description: "Agricultural machinery and tools"
+                        descriptionAr: "الآلات والأدوات الزراعية"
                         count: 56
+                      - id: "produce"
+                        name: "Produce"
+                        nameAr: "المنتجات الزراعية"
+                        description: "Fresh agricultural produce"
+                        descriptionAr: "المنتجات الزراعية الطازجة"
+                        count: 120
+                      - id: "livestock"
+                        name: "Livestock"
+                        nameAr: "الماشية"
+                        description: "Farm animals and poultry"
+                        descriptionAr: "حيوانات المزرعة والدواجن"
+                        count: 35
 
   /marketplace/orders:
     get:
       tags:
         - Orders
-      summary: Get user orders
+      summary: Get user orders | جلب طلبات المستخدم
       description: |
-        Retrieve orders for the authenticated user
-        جلب طلبات المستخدم
+        Retrieve orders for the authenticated user.
+        جلب طلبات المستخدم الحالي.
       operationId: getUserOrders
       security:
         - BearerAuth: []
       parameters:
         - name: status
           in: query
-          description: Filter by order status
+          description: Filter by order status | تصفية حسب حالة الطلب
           schema:
             $ref: '#/components/schemas/OrderStatus'
-        - name: paymentStatus
-          in: query
-          description: Filter by payment status
-          schema:
-            $ref: '#/components/schemas/PaymentStatus'
         - name: dateFrom
           in: query
-          description: Start date filter (ISO 8601)
+          description: Start date filter (ISO 8601) | تاريخ البداية
           schema:
             type: string
             format: date
         - name: dateTo
           in: query
-          description: End date filter (ISO 8601)
+          description: End date filter (ISO 8601) | تاريخ النهاية
           schema:
             type: string
             format: date
+        - name: page
+          in: query
+          description: Page number | رقم الصفحة
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Items per page | عدد العناصر في الصفحة
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
       responses:
         '200':
-          description: Orders retrieved successfully
+          description: Orders retrieved successfully | تم جلب الطلبات بنجاح
           content:
             application/json:
               schema:
@@ -456,16 +467,18 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Order'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
 
     post:
       tags:
         - Orders
-      summary: Create order
+      summary: Create order | إنشاء طلب
       description: |
-        Create a new order from cart items
-        إنشاء طلب جديد
+        Create a new order from selected products.
+        إنشاء طلب جديد من المنتجات المختارة.
       operationId: createOrder
       security:
         - BearerAuth: []
@@ -482,17 +495,21 @@ paths:
                 - productId: "prod-002"
                   quantity: 5
               shippingAddress:
-                name: "Ahmed Al-Saud"
+                name: "أحمد السعود"
+                nameEn: "Ahmed Al-Saud"
                 phone: "+966501234567"
-                addressLine1: "123 King Fahd Road"
-                city: "Riyadh"
-                region: "Central"
+                addressLine1: "123 طريق الملك فهد"
+                addressLine1En: "123 King Fahd Road"
+                city: "الرياض"
+                cityEn: "Riyadh"
+                region: "الوسطى"
+                regionEn: "Central"
                 postalCode: "11564"
-                country: "Saudi Arabia"
-              notes: "Please deliver in the morning"
+                country: "المملكة العربية السعودية"
+              notes: "يرجى التوصيل صباحاً | Please deliver in the morning"
       responses:
         '201':
-          description: Order created successfully
+          description: Order created successfully | تم إنشاء الطلب بنجاح
           content:
             application/json:
               schema:
@@ -509,8 +526,10 @@ paths:
     get:
       tags:
         - Orders
-      summary: Get order by ID
-      description: Retrieve detailed information about a specific order
+      summary: Get order by ID | جلب الطلب بالمعرف
+      description: |
+        Retrieve detailed information about a specific order.
+        جلب معلومات تفصيلية عن طلب محدد.
       operationId: getOrderById
       security:
         - BearerAuth: []
@@ -518,11 +537,12 @@ paths:
         - name: orderId
           in: path
           required: true
+          description: Order ID | معرف الطلب
           schema:
             type: string
       responses:
         '200':
-          description: Order retrieved successfully
+          description: Order retrieved successfully | تم جلب الطلب بنجاح
           content:
             application/json:
               schema:
@@ -533,35 +553,334 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /marketplace/orders/{orderId}/cancel:
+  # ============================================
+  # COMMUNITY CHAT SERVICE - Port 8097
+  # /api/v1/community
+  # ============================================
+
+  /community/posts:
+    get:
+      tags:
+        - Community
+      summary: Get community posts | جلب المنشورات المجتمعية
+      description: |
+        Retrieve community posts with optional filtering.
+        جلب المنشورات المجتمعية مع إمكانية التصفية.
+      operationId: getCommunityPosts
+      parameters:
+        - name: category
+          in: query
+          description: Filter by post category | تصفية حسب فئة المنشور
+          schema:
+            $ref: '#/components/schemas/PostCategory'
+        - name: authorId
+          in: query
+          description: Filter by author ID | تصفية حسب معرف الكاتب
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search in post content | البحث في محتوى المنشورات
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          description: Sort order | ترتيب النتائج
+          schema:
+            type: string
+            enum: [newest, popular, most_commented]
+            default: newest
+        - name: page
+          in: query
+          description: Page number | رقم الصفحة
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Items per page | عدد العناصر في الصفحة
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        '200':
+          description: Posts retrieved successfully | تم جلب المنشورات بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CommunityPost'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+              examples:
+                success:
+                  value:
+                    data:
+                      - id: "post-001"
+                        title: "Best practices for wheat irrigation"
+                        titleAr: "أفضل ممارسات ري القمح"
+                        content: "I've found that drip irrigation works best for wheat..."
+                        contentAr: "وجدت أن الري بالتنقيط يعمل بشكل أفضل للقمح..."
+                        category: "advice"
+                        authorId: "user-001"
+                        authorName: "Mohammed Al-Rashid"
+                        authorNameAr: "محمد الراشد"
+                        authorAvatar: "https://cdn.sahool.sa/avatars/user-001.jpg"
+                        likesCount: 45
+                        commentsCount: 12
+                        tags: ["wheat", "irrigation", "drip"]
+                        images: []
+                        createdAt: "2026-01-20T10:00:00Z"
+                        updatedAt: "2026-01-20T10:00:00Z"
+                    pagination:
+                      page: 1
+                      limit: 20
+                      total: 150
+                      totalPages: 8
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+
     post:
       tags:
-        - Orders
-      summary: Cancel order
+        - Community
+      summary: Create community post | إنشاء منشور مجتمعي
       description: |
-        Cancel an order (if status allows)
-        إلغاء الطلب
-      operationId: cancelOrder
+        Create a new community post.
+        إنشاء منشور جديد في المجتمع.
+      operationId: createCommunityPost
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePostRequest'
+            example:
+              title: "Question about tomato disease"
+              titleAr: "سؤال عن مرض الطماطم"
+              content: "My tomato plants have yellow spots on leaves. What could be the cause?"
+              contentAr: "نباتات الطماطم لدي بها بقع صفراء على الأوراق. ما السبب المحتمل؟"
+              category: "question"
+              tags: ["tomato", "disease", "leaves"]
+              images: ["https://cdn.sahool.sa/uploads/tomato-issue.jpg"]
+      responses:
+        '201':
+          description: Post created successfully | تم إنشاء المنشور بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CommunityPost'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /community/posts/{postId}:
+    get:
+      tags:
+        - Community
+      summary: Get post by ID | جلب المنشور بالمعرف
+      description: |
+        Retrieve detailed information about a specific post.
+        جلب معلومات تفصيلية عن منشور محدد.
+      operationId: getCommunityPostById
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: Post ID | معرف المنشور
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Post retrieved successfully | تم جلب المنشور بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CommunityPost'
+                  comments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PostComment'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      tags:
+        - Community
+      summary: Update post | تحديث المنشور
+      description: |
+        Update a community post (author only).
+        تحديث منشور مجتمعي (للكاتب فقط).
+      operationId: updateCommunityPost
       security:
         - BearerAuth: []
       parameters:
-        - name: orderId
+        - name: postId
           in: path
           required: true
+          description: Post ID | معرف المنشور
           schema:
             type: string
       requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePostRequest'
+      responses:
+        '200':
+          description: Post updated successfully | تم تحديث المنشور بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CommunityPost'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - Community
+      summary: Delete post | حذف المنشور
+      description: |
+        Delete a community post (author or admin only).
+        حذف منشور مجتمعي (للكاتب أو المدير فقط).
+      operationId: deleteCommunityPost
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: Post ID | معرف المنشور
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Post deleted successfully | تم حذف المنشور بنجاح
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /community/posts/{postId}/comments:
+    post:
+      tags:
+        - Community
+      summary: Add comment to post | إضافة تعليق على المنشور
+      description: |
+        Add a comment to a community post.
+        إضافة تعليق على منشور مجتمعي.
+      operationId: addPostComment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: Post ID | معرف المنشور
+          schema:
+            type: string
+      requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - content
               properties:
-                reason:
+                content:
                   type: string
-                  description: Cancellation reason
+                  description: Comment content | محتوى التعليق
+                  minLength: 1
+                  maxLength: 2000
+                contentAr:
+                  type: string
+                  description: Arabic comment content | محتوى التعليق بالعربية
+                parentCommentId:
+                  type: string
+                  description: Parent comment ID for replies | معرف التعليق الأصلي للردود
+            example:
+              content: "Try using neem oil spray, it's effective against many tomato diseases."
+              contentAr: "جرب استخدام رذاذ زيت النيم، فهو فعال ضد العديد من أمراض الطماطم."
+      responses:
+        '201':
+          description: Comment added successfully | تم إضافة التعليق بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PostComment'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /community/posts/{postId}/reactions:
+    post:
+      tags:
+        - Community
+      summary: Add reaction to post | إضافة تفاعل على المنشور
+      description: |
+        Add or update a reaction (like/helpful/etc.) on a post.
+        إضافة أو تحديث تفاعل (إعجاب/مفيد/إلخ) على منشور.
+      operationId: addPostReaction
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: Post ID | معرف المنشور
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reactionType
+              properties:
+                reactionType:
+                  type: string
+                  enum: [like, helpful, insightful, celebrate]
+                  description: |
+                    Type of reaction
+                    like = إعجاب
+                    helpful = مفيد
+                    insightful = مفيد وقيم
+                    celebrate = احتفاء
+            example:
+              reactionType: "helpful"
       responses:
         '200':
-          description: Order cancelled successfully
+          description: Reaction added/updated successfully | تم إضافة/تحديث التفاعل بنجاح
           content:
             application/json:
               schema:
@@ -571,27 +890,54 @@ paths:
                     type: boolean
                   message:
                     type: string
-        '400':
-          description: Order cannot be cancelled
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+                  messageAr:
+                    type: string
+                  reactions:
+                    type: object
+                    properties:
+                      like:
+                        type: integer
+                      helpful:
+                        type: integer
+                      insightful:
+                        type: integer
+                      celebrate:
+                        type: integer
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
 
-  /marketplace/cart:
+  /community/feed:
     get:
       tags:
-        - Cart
-      summary: Get cart items
+        - Community
+      summary: Get personalized feed | جلب المحتوى المخصص
       description: |
-        Retrieve current shopping cart items
-        جلب محتويات السلة
-      operationId: getCart
+        Get personalized community feed based on user interests and location.
+        جلب محتوى مجتمعي مخصص بناءً على اهتمامات المستخدم وموقعه.
+      operationId: getCommunityFeed
       security:
         - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number | رقم الصفحة
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Items per page | عدد العناصر في الصفحة
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
       responses:
         '200':
-          description: Cart retrieved successfully
+          description: Feed retrieved successfully | تم جلب المحتوى بنجاح
           content:
             application/json:
               schema:
@@ -600,39 +946,137 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/CartItem'
-                  summary:
-                    $ref: '#/components/schemas/CartSummary'
+                      $ref: '#/components/schemas/CommunityPost'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  # ============================================
+  # RESEARCH CORE SERVICE - Port 3015
+  # /api/v1/research
+  # ============================================
+
+  /research/trials:
+    get:
+      tags:
+        - Research
+      summary: Get research trials | جلب التجارب البحثية
+      description: |
+        Retrieve agricultural research trials with optional filtering.
+        جلب التجارب البحثية الزراعية مع إمكانية التصفية.
+      operationId: getResearchTrials
+      parameters:
+        - name: cropType
+          in: query
+          description: Filter by crop type | تصفية حسب نوع المحصول
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by trial status | تصفية حسب حالة التجربة
+          schema:
+            $ref: '#/components/schemas/TrialStatus'
+        - name: researcherId
+          in: query
+          description: Filter by researcher ID | تصفية حسب معرف الباحث
+          schema:
+            type: string
+        - name: region
+          in: query
+          description: Filter by region | تصفية حسب المنطقة
+          schema:
+            type: string
+        - name: startDateFrom
+          in: query
+          description: Trial start date from | تاريخ بدء التجربة من
+          schema:
+            type: string
+            format: date
+        - name: startDateTo
+          in: query
+          description: Trial start date to | تاريخ بدء التجربة إلى
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          description: Page number | رقم الصفحة
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Items per page | عدد العناصر في الصفحة
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Trials retrieved successfully | تم جلب التجارب بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ResearchTrial'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
               examples:
                 success:
                   value:
                     data:
-                      - productId: "prod-001"
-                        product:
-                          id: "prod-001"
-                          name: "Organic Wheat Seeds"
-                          nameAr: "بذور قمح عضوية"
-                          price: 150
-                          currency: "SAR"
-                          imageUrl: "https://cdn.sahool.sa/products/wheat-seeds.jpg"
-                        quantity: 10
-                        addedAt: "2024-01-15T10:00:00Z"
-                    summary:
-                      subtotal: 1500
-                      tax: 225
-                      shipping: 50
-                      total: 1775
-                      currency: "SAR"
-                      itemCount: 1
+                      - id: "trial-001"
+                        title: "Wheat variety comparison trial 2026"
+                        titleAr: "تجربة مقارنة أصناف القمح 2026"
+                        description: "Comparing yield performance of 5 wheat varieties under drip irrigation"
+                        descriptionAr: "مقارنة أداء الإنتاجية لـ 5 أصناف من القمح تحت الري بالتنقيط"
+                        cropType: "wheat"
+                        cropTypeAr: "قمح"
+                        status: "in_progress"
+                        researcherId: "researcher-001"
+                        researcherName: "Dr. Khalid Al-Otaibi"
+                        researcherNameAr: "د. خالد العتيبي"
+                        institution: "King Saud University"
+                        institutionAr: "جامعة الملك سعود"
+                        location:
+                          city: "Riyadh"
+                          cityAr: "الرياض"
+                          region: "Central"
+                          regionAr: "الوسطى"
+                          coordinates:
+                            lat: 24.7136
+                            lng: 46.6753
+                        startDate: "2025-11-01"
+                        endDate: "2026-05-01"
+                        treatments: 5
+                        replications: 4
+                        plotSize: 25
+                        plotSizeUnit: "m2"
+                        createdAt: "2025-10-15T08:00:00Z"
+                        updatedAt: "2026-01-20T14:30:00Z"
+                    pagination:
+                      page: 1
+                      limit: 20
+                      total: 45
+                      totalPages: 3
+        '400':
+          $ref: '#/components/responses/BadRequestError'
 
     post:
       tags:
-        - Cart
-      summary: Add item to cart
+        - Research
+      summary: Create research trial | إنشاء تجربة بحثية
       description: |
-        Add a product to the shopping cart
-        إضافة منتج إلى السلة
-      operationId: addToCart
+        Create a new agricultural research trial.
+        إنشاء تجربة بحثية زراعية جديدة.
+      operationId: createResearchTrial
       security:
         - BearerAuth: []
       requestBody:
@@ -640,119 +1084,332 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - productId
-                - quantity
-              properties:
-                productId:
-                  type: string
-                quantity:
-                  type: integer
-                  minimum: 1
+              $ref: '#/components/schemas/CreateTrialRequest'
             example:
-              productId: "prod-001"
-              quantity: 5
+              title: "Tomato fertigation trial"
+              titleAr: "تجربة التسميد بالري للطماطم"
+              description: "Testing different NPK ratios for greenhouse tomato production"
+              descriptionAr: "اختبار نسب مختلفة من NPK لإنتاج الطماطم في البيوت المحمية"
+              cropType: "tomato"
+              cropTypeAr: "طماطم"
+              location:
+                city: "Tabuk"
+                cityAr: "تبوك"
+                region: "Northern"
+                regionAr: "الشمالية"
+                coordinates:
+                  lat: 28.3838
+                  lng: 36.5650
+              startDate: "2026-02-01"
+              expectedEndDate: "2026-07-01"
+              treatments: 4
+              replications: 3
+              plotSize: 20
+              plotSizeUnit: "m2"
+              methodology: "Randomized complete block design with 4 treatments and 3 replications"
+              methodologyAr: "تصميم القطاعات الكاملة العشوائية مع 4 معاملات و 3 مكررات"
       responses:
-        '200':
-          description: Item added to cart successfully
+        '201':
+          description: Trial created successfully | تم إنشاء التجربة بنجاح
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/CartItem'
+                    $ref: '#/components/schemas/ResearchTrial'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
 
-    delete:
-      tags:
-        - Cart
-      summary: Clear cart
-      description: Remove all items from the cart
-      operationId: clearCart
-      security:
-        - BearerAuth: []
-      responses:
-        '204':
-          description: Cart cleared successfully
-
-  /marketplace/cart/{itemId}:
-    patch:
-      tags:
-        - Cart
-      summary: Update cart item
-      description: Update quantity of a cart item
-      operationId: updateCartItem
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: itemId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - quantity
-              properties:
-                quantity:
-                  type: integer
-                  minimum: 1
-      responses:
-        '200':
-          description: Cart item updated successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/CartItem'
-
-    delete:
-      tags:
-        - Cart
-      summary: Remove cart item
-      description: Remove a specific item from the cart
-      operationId: removeFromCart
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: itemId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Item removed from cart successfully
-
-  /marketplace/products/{productId}/reviews:
+  /research/trials/{trialId}:
     get:
       tags:
-        - Reviews
-      summary: Get product reviews
-      description: Retrieve reviews for a specific product
-      operationId: getProductReviews
+        - Research
+      summary: Get trial by ID | جلب التجربة بالمعرف
+      description: |
+        Retrieve detailed information about a specific research trial.
+        جلب معلومات تفصيلية عن تجربة بحثية محددة.
+      operationId: getResearchTrialById
       parameters:
-        - name: productId
+        - name: trialId
           in: path
           required: true
+          description: Trial ID | معرف التجربة
           schema:
             type: string
-        - name: limit
+      responses:
+        '200':
+          description: Trial retrieved successfully | تم جلب التجربة بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ResearchTrial'
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TrialResult'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      tags:
+        - Research
+      summary: Update trial | تحديث التجربة
+      description: |
+        Update research trial information (researcher only).
+        تحديث معلومات التجربة البحثية (للباحث فقط).
+      operationId: updateResearchTrial
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: trialId
+          in: path
+          required: true
+          description: Trial ID | معرف التجربة
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTrialRequest'
+      responses:
+        '200':
+          description: Trial updated successfully | تم تحديث التجربة بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ResearchTrial'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /research/trials/{trialId}/results:
+    post:
+      tags:
+        - Research
+      summary: Add trial results | إضافة نتائج التجربة
+      description: |
+        Add results data to a research trial.
+        إضافة بيانات النتائج إلى تجربة بحثية.
+      operationId: addTrialResults
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: trialId
+          in: path
+          required: true
+          description: Trial ID | معرف التجربة
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddTrialResultsRequest'
+            example:
+              measurementDate: "2026-01-20"
+              treatmentId: "treatment-001"
+              replicationId: "rep-001"
+              metrics:
+                - name: "plant_height"
+                  nameAr: "ارتفاع النبات"
+                  value: 85.5
+                  unit: "cm"
+                  unitAr: "سم"
+                - name: "leaf_count"
+                  nameAr: "عدد الأوراق"
+                  value: 12
+                  unit: "count"
+                  unitAr: "عدد"
+                - name: "chlorophyll_content"
+                  nameAr: "محتوى الكلوروفيل"
+                  value: 45.2
+                  unit: "SPAD"
+                  unitAr: "سباد"
+              notes: "Plants showing healthy growth"
+              notesAr: "النباتات تظهر نمواً صحياً"
+              images: ["https://cdn.sahool.sa/trials/trial-001/measurement-20260120.jpg"]
+      responses:
+        '201':
+          description: Results added successfully | تم إضافة النتائج بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TrialResult'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /research/trials/{trialId}/analysis:
+    get:
+      tags:
+        - Research
+      summary: Get trial analysis | جلب تحليل التجربة
+      description: |
+        Get statistical analysis and insights for a research trial.
+        جلب التحليل الإحصائي والرؤى لتجربة بحثية.
+      operationId: getTrialAnalysis
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: trialId
+          in: path
+          required: true
+          description: Trial ID | معرف التجربة
+          schema:
+            type: string
+        - name: analysisType
           in: query
+          description: Type of analysis | نوع التحليل
+          schema:
+            type: string
+            enum: [summary, anova, comparison, trend]
+            default: summary
+      responses:
+        '200':
+          description: Analysis retrieved successfully | تم جلب التحليل بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TrialAnalysis'
+              examples:
+                success:
+                  value:
+                    data:
+                      trialId: "trial-001"
+                      analysisType: "summary"
+                      generatedAt: "2026-01-24T10:00:00Z"
+                      summary:
+                        totalMeasurements: 120
+                        treatmentsCompared: 5
+                        dateRange:
+                          start: "2025-11-15"
+                          end: "2026-01-20"
+                      statistics:
+                        - metric: "yield"
+                          metricAr: "الإنتاجية"
+                          mean: 4.85
+                          stdDev: 0.62
+                          min: 3.2
+                          max: 6.1
+                          unit: "t/ha"
+                          unitAr: "طن/هكتار"
+                        - metric: "plant_height"
+                          metricAr: "ارتفاع النبات"
+                          mean: 92.3
+                          stdDev: 8.5
+                          min: 75.0
+                          max: 108.0
+                          unit: "cm"
+                          unitAr: "سم"
+                      treatmentRankings:
+                        - rank: 1
+                          treatmentId: "treatment-003"
+                          treatmentName: "Variety C + Drip"
+                          treatmentNameAr: "صنف ج + تنقيط"
+                          meanYield: 5.8
+                        - rank: 2
+                          treatmentId: "treatment-001"
+                          treatmentName: "Variety A + Drip"
+                          treatmentNameAr: "صنف أ + تنقيط"
+                          meanYield: 5.2
+                      recommendations:
+                        - "Variety C shows significantly higher yield under drip irrigation"
+                        - "Consider further trials with Variety C in different regions"
+                      recommendationsAr:
+                        - "الصنف ج يظهر إنتاجية أعلى بشكل ملحوظ تحت الري بالتنقيط"
+                        - "ينصح بإجراء تجارب إضافية مع الصنف ج في مناطق مختلفة"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # ============================================
+  # DISASTER ASSESSMENT SERVICE - Port 3020
+  # /api/v1/disaster
+  # ============================================
+
+  /disaster/assessments:
+    get:
+      tags:
+        - Disaster
+      summary: Get disaster assessments | جلب تقييمات الكوارث
+      description: |
+        Retrieve disaster assessments with optional filtering.
+        جلب تقييمات الكوارث مع إمكانية التصفية.
+      operationId: getDisasterAssessments
+      parameters:
+        - name: type
+          in: query
+          description: Filter by disaster type | تصفية حسب نوع الكارثة
+          schema:
+            $ref: '#/components/schemas/DisasterType'
+        - name: severity
+          in: query
+          description: Filter by severity | تصفية حسب الخطورة
+          schema:
+            $ref: '#/components/schemas/Severity'
+        - name: region
+          in: query
+          description: Filter by region | تصفية حسب المنطقة
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by assessment status | تصفية حسب حالة التقييم
+          schema:
+            $ref: '#/components/schemas/AssessmentStatus'
+        - name: dateFrom
+          in: query
+          description: Assessment date from | تاريخ التقييم من
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          description: Assessment date to | تاريخ التقييم إلى
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          description: Page number | رقم الصفحة
           schema:
             type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Items per page | عدد العناصر في الصفحة
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
             default: 20
       responses:
         '200':
-          description: Reviews retrieved successfully
+          description: Assessments retrieved successfully | تم جلب التقييمات بنجاح
           content:
             application/json:
               schema:
@@ -761,29 +1418,155 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ProductReview'
-                  averageRating:
-                    type: number
-                    format: float
-                  totalReviews:
-                    type: integer
+                      $ref: '#/components/schemas/DisasterAssessment'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+              examples:
+                success:
+                  value:
+                    data:
+                      - id: "assessment-001"
+                        type: "frost"
+                        typeAr: "صقيع"
+                        severity: "high"
+                        severityAr: "عالية"
+                        title: "Late frost damage assessment - Al-Jouf region"
+                        titleAr: "تقييم أضرار الصقيع المتأخر - منطقة الجوف"
+                        description: "Assessment of frost damage to wheat and barley crops"
+                        descriptionAr: "تقييم أضرار الصقيع على محاصيل القمح والشعير"
+                        status: "completed"
+                        location:
+                          city: "Sakaka"
+                          cityAr: "سكاكا"
+                          region: "Al-Jouf"
+                          regionAr: "الجوف"
+                          coordinates:
+                            lat: 29.9697
+                            lng: 40.2064
+                        affectedArea: 1250
+                        affectedAreaUnit: "ha"
+                        estimatedLoss: 2500000
+                        estimatedLossCurrency: "SAR"
+                        assessorId: "user-001"
+                        assessorName: "Ibrahim Al-Shammari"
+                        assessorNameAr: "إبراهيم الشمري"
+                        assessmentDate: "2026-01-15"
+                        createdAt: "2026-01-15T08:00:00Z"
+                        updatedAt: "2026-01-18T14:30:00Z"
+                    pagination:
+                      page: 1
+                      limit: 20
+                      total: 25
+                      totalPages: 2
+        '400':
+          $ref: '#/components/responses/BadRequestError'
 
     post:
       tags:
-        - Reviews
-      summary: Add product review
+        - Disaster
+      summary: Create disaster assessment | إنشاء تقييم كارثة
       description: |
-        Add a review for a product (requires purchase)
-        إضافة تقييم للمنتج
-      operationId: addProductReview
+        Create a new disaster assessment report.
+        إنشاء تقرير تقييم كارثة جديد.
+      operationId: createDisasterAssessment
       security:
         - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAssessmentRequest'
+            example:
+              type: "drought"
+              severity: "critical"
+              title: "Severe drought impact assessment - Eastern Province"
+              titleAr: "تقييم تأثير الجفاف الشديد - المنطقة الشرقية"
+              description: "Assessment of prolonged drought impact on date palm groves"
+              descriptionAr: "تقييم تأثير الجفاف المطول على بساتين النخيل"
+              location:
+                city: "Al-Ahsa"
+                cityAr: "الأحساء"
+                region: "Eastern"
+                regionAr: "الشرقية"
+                coordinates:
+                  lat: 25.3794
+                  lng: 49.5866
+              affectedArea: 850
+              affectedAreaUnit: "ha"
+              affectedCrops:
+                - cropType: "date_palm"
+                  cropTypeAr: "نخيل"
+                  affectedArea: 750
+                  damagePercentage: 45
+                - cropType: "vegetables"
+                  cropTypeAr: "خضروات"
+                  affectedArea: 100
+                  damagePercentage: 70
+              estimatedLoss: 5000000
+              estimatedLossCurrency: "SAR"
+              images: ["https://cdn.sahool.sa/disasters/drought-eastern-001.jpg"]
+              notes: "Urgent need for emergency irrigation support"
+              notesAr: "حاجة ملحة لدعم الري الطارئ"
+      responses:
+        '201':
+          description: Assessment created successfully | تم إنشاء التقييم بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DisasterAssessment'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /disaster/assessments/{assessmentId}:
+    get:
+      tags:
+        - Disaster
+      summary: Get assessment by ID | جلب التقييم بالمعرف
+      description: |
+        Retrieve detailed information about a specific disaster assessment.
+        جلب معلومات تفصيلية عن تقييم كارثة محدد.
+      operationId: getDisasterAssessmentById
       parameters:
-        - name: productId
+        - name: assessmentId
           in: path
           required: true
+          description: Assessment ID | معرف التقييم
           schema:
             type: string
+      responses:
+        '200':
+          description: Assessment retrieved successfully | تم جلب التقييم بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DisasterAssessment'
+                  recommendations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DisasterRecommendation'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /disaster/risk:
+    post:
+      tags:
+        - Disaster
+      summary: Analyze disaster risk | تحليل مخاطر الكوارث
+      description: |
+        Perform risk analysis for a specific location and disaster types.
+        إجراء تحليل المخاطر لموقع محدد وأنواع الكوارث.
+      operationId: analyzeDisasterRisk
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -791,46 +1574,139 @@ paths:
             schema:
               type: object
               required:
-                - rating
-                - comment
+                - location
               properties:
-                rating:
-                  type: integer
-                  minimum: 1
-                  maximum: 5
-                comment:
+                location:
+                  type: object
+                  required:
+                    - coordinates
+                  properties:
+                    coordinates:
+                      type: object
+                      required:
+                        - lat
+                        - lng
+                      properties:
+                        lat:
+                          type: number
+                          format: double
+                          description: Latitude | خط العرض
+                        lng:
+                          type: number
+                          format: double
+                          description: Longitude | خط الطول
+                    radius:
+                      type: number
+                      description: Analysis radius in km | نطاق التحليل بالكيلومتر
+                      default: 10
+                disasterTypes:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DisasterType'
+                  description: Specific disaster types to analyze (all if empty) | أنواع الكوارث للتحليل
+                cropTypes:
+                  type: array
+                  items:
+                    type: string
+                  description: Crop types to consider | أنواع المحاصيل للاعتبار
+                timeframe:
                   type: string
-                  minLength: 10
+                  enum: [current, week, month, season]
+                  default: month
+                  description: Risk assessment timeframe | الإطار الزمني لتقييم المخاطر
             example:
-              rating: 5
-              comment: "Excellent quality seeds, highly recommended!"
+              location:
+                coordinates:
+                  lat: 24.7136
+                  lng: 46.6753
+                radius: 25
+              disasterTypes: ["drought", "frost", "pest"]
+              cropTypes: ["wheat", "barley", "date_palm"]
+              timeframe: "season"
       responses:
-        '201':
-          description: Review added successfully
+        '200':
+          description: Risk analysis completed | تم إكمال تحليل المخاطر
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/ProductReview'
+                    $ref: '#/components/schemas/RiskAnalysis'
+              examples:
+                success:
+                  value:
+                    data:
+                      analysisId: "risk-001"
+                      generatedAt: "2026-01-24T10:00:00Z"
+                      location:
+                        coordinates:
+                          lat: 24.7136
+                          lng: 46.6753
+                        radius: 25
+                        region: "Central"
+                        regionAr: "الوسطى"
+                      timeframe: "season"
+                      overallRiskLevel: "medium"
+                      overallRiskLevelAr: "متوسط"
+                      risks:
+                        - type: "drought"
+                          typeAr: "جفاف"
+                          probability: 0.35
+                          severity: "medium"
+                          severityAr: "متوسطة"
+                          riskScore: 45
+                          factors:
+                            - "Below average rainfall predicted"
+                            - "High temperatures expected"
+                          factorsAr:
+                            - "هطول أمطار أقل من المتوسط متوقع"
+                            - "درجات حرارة عالية متوقعة"
+                        - type: "frost"
+                          typeAr: "صقيع"
+                          probability: 0.15
+                          severity: "low"
+                          severityAr: "منخفضة"
+                          riskScore: 20
+                          factors:
+                            - "Early spring frost possible in January"
+                          factorsAr:
+                            - "احتمال صقيع ربيعي مبكر في يناير"
+                        - type: "pest"
+                          typeAr: "آفات"
+                          probability: 0.25
+                          severity: "medium"
+                          severityAr: "متوسطة"
+                          riskScore: 35
+                          factors:
+                            - "Aphid population increase reported in region"
+                          factorsAr:
+                            - "زيادة في أعداد المن تم الإبلاغ عنها في المنطقة"
+                      recommendations:
+                        - "Install soil moisture sensors for early drought detection"
+                        - "Prepare frost protection measures for vulnerable crops"
+                        - "Implement integrated pest management protocols"
+                      recommendationsAr:
+                        - "تركيب أجهزة استشعار رطوبة التربة للكشف المبكر عن الجفاف"
+                        - "إعداد تدابير الحماية من الصقيع للمحاصيل الحساسة"
+                        - "تطبيق بروتوكولات الإدارة المتكاملة للآفات"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
 
-  /marketplace/sellers/{sellerId}/products:
+  /disaster/types:
     get:
       tags:
-        - Sellers
-      summary: Get seller products
-      description: Retrieve all products from a specific seller
-      operationId: getSellerProducts
-      parameters:
-        - name: sellerId
-          in: path
-          required: true
-          schema:
-            type: string
+        - Disaster
+      summary: Get disaster types | جلب أنواع الكوارث
+      description: |
+        Retrieve all supported disaster types with descriptions.
+        جلب جميع أنواع الكوارث المدعومة مع الأوصاف.
+      operationId: getDisasterTypes
       responses:
         '200':
-          description: Seller products retrieved successfully
+          description: Disaster types retrieved successfully | تم جلب أنواع الكوارث بنجاح
           content:
             application/json:
               schema:
@@ -839,38 +1715,75 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Product'
-                  seller:
-                    $ref: '#/components/schemas/SellerInfo'
-
-  /marketplace/stats:
-    get:
-      tags:
-        - Products
-      summary: Get marketplace statistics
-      description: Retrieve overall marketplace statistics
-      operationId: getMarketplaceStats
-      responses:
-        '200':
-          description: Statistics retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      totalProducts:
-                        type: integer
-                      totalSellers:
-                        type: integer
-                      totalOrders:
-                        type: integer
-                      categoryCounts:
-                        type: object
-                        additionalProperties:
-                          type: integer
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        nameAr:
+                          type: string
+                        description:
+                          type: string
+                        descriptionAr:
+                          type: string
+                        icon:
+                          type: string
+                        color:
+                          type: string
+              examples:
+                success:
+                  value:
+                    data:
+                      - id: "flood"
+                        name: "Flood"
+                        nameAr: "فيضان"
+                        description: "Water overflow affecting agricultural land"
+                        descriptionAr: "طوفان المياه المؤثر على الأراضي الزراعية"
+                        icon: "water"
+                        color: "#2196F3"
+                      - id: "drought"
+                        name: "Drought"
+                        nameAr: "جفاف"
+                        description: "Extended period of water shortage"
+                        descriptionAr: "فترة طويلة من نقص المياه"
+                        icon: "wb_sunny"
+                        color: "#FF9800"
+                      - id: "frost"
+                        name: "Frost"
+                        nameAr: "صقيع"
+                        description: "Freezing temperatures damaging crops"
+                        descriptionAr: "درجات حرارة متجمدة تضر بالمحاصيل"
+                        icon: "ac_unit"
+                        color: "#00BCD4"
+                      - id: "hail"
+                        name: "Hail"
+                        nameAr: "برد"
+                        description: "Ice pellets causing physical damage"
+                        descriptionAr: "حبات الثلج المسببة للأضرار المادية"
+                        icon: "grain"
+                        color: "#9E9E9E"
+                      - id: "pest"
+                        name: "Pest Outbreak"
+                        nameAr: "انتشار الآفات"
+                        description: "Large-scale pest infestation"
+                        descriptionAr: "إصابة واسعة النطاق بالآفات"
+                        icon: "bug_report"
+                        color: "#795548"
+                      - id: "disease"
+                        name: "Crop Disease"
+                        nameAr: "مرض المحاصيل"
+                        description: "Widespread crop disease outbreak"
+                        descriptionAr: "انتشار واسع لأمراض المحاصيل"
+                        icon: "coronavirus"
+                        color: "#4CAF50"
+                      - id: "fire"
+                        name: "Fire"
+                        nameAr: "حريق"
+                        description: "Agricultural fires affecting crops or equipment"
+                        descriptionAr: "حرائق زراعية تؤثر على المحاصيل أو المعدات"
+                        icon: "local_fire_department"
+                        color: "#F44336"
 
 components:
   securitySchemes:
@@ -878,21 +1791,32 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: JWT authentication token
+      description: |
+        JWT authentication token
+        رمز مصادقة JWT
 
   schemas:
+    # ============================================
+    # ENUMS
+    # ============================================
+
     ProductCategory:
       type: string
       enum:
         - seeds
-        - fertilizers
-        - pesticides
+        - fertilizer
+        - pesticide
         - equipment
-        - tools
-        - irrigation
         - produce
-        - other
-      description: Product category
+        - livestock
+      description: |
+        Product category | فئة المنتج
+        - seeds: البذور
+        - fertilizer: الأسمدة
+        - pesticide: المبيدات
+        - equipment: المعدات
+        - produce: المنتجات الزراعية
+        - livestock: الماشية
 
     ProductStatus:
       type: string
@@ -900,39 +1824,158 @@ components:
         - available
         - out_of_stock
         - discontinued
-      description: Product availability status
+      description: |
+        Product availability status | حالة توفر المنتج
+        - available: متوفر
+        - out_of_stock: نفد من المخزون
+        - discontinued: متوقف
 
     OrderStatus:
       type: string
       enum:
         - pending
         - confirmed
-        - processing
         - shipped
         - delivered
         - cancelled
-      description: Order processing status
+      description: |
+        Order processing status | حالة معالجة الطلب
+        - pending: قيد الانتظار
+        - confirmed: مؤكد
+        - shipped: تم الشحن
+        - delivered: تم التسليم
+        - cancelled: ملغي
 
-    PaymentStatus:
+    PostCategory:
       type: string
       enum:
-        - pending
-        - paid
-        - failed
-        - refunded
-      description: Payment status
+        - question
+        - advice
+        - success_story
+        - marketplace
+        - weather
+        - pest
+      description: |
+        Community post category | فئة المنشور المجتمعي
+        - question: سؤال
+        - advice: نصيحة
+        - success_story: قصة نجاح
+        - marketplace: سوق
+        - weather: طقس
+        - pest: آفات
+
+    DisasterType:
+      type: string
+      enum:
+        - flood
+        - drought
+        - frost
+        - hail
+        - pest
+        - disease
+        - fire
+      description: |
+        Disaster type | نوع الكارثة
+        - flood: فيضان
+        - drought: جفاف
+        - frost: صقيع
+        - hail: برد
+        - pest: آفات
+        - disease: مرض
+        - fire: حريق
+
+    Severity:
+      type: string
+      enum:
+        - low
+        - medium
+        - high
+        - critical
+      description: |
+        Severity level | مستوى الخطورة
+        - low: منخفض
+        - medium: متوسط
+        - high: عالي
+        - critical: حرج
+
+    TrialStatus:
+      type: string
+      enum:
+        - planned
+        - in_progress
+        - completed
+        - cancelled
+      description: |
+        Research trial status | حالة التجربة البحثية
+        - planned: مخطط
+        - in_progress: جاري التنفيذ
+        - completed: مكتمل
+        - cancelled: ملغي
+
+    AssessmentStatus:
+      type: string
+      enum:
+        - draft
+        - in_progress
+        - completed
+        - verified
+      description: |
+        Assessment status | حالة التقييم
+        - draft: مسودة
+        - in_progress: جاري التنفيذ
+        - completed: مكتمل
+        - verified: تم التحقق
+
+    # ============================================
+    # COMMON SCHEMAS
+    # ============================================
 
     Location:
       type: object
       properties:
         city:
           type: string
+          description: City name (English)
         cityAr:
           type: string
+          description: City name (Arabic) | اسم المدينة
         region:
           type: string
+          description: Region name (English)
         regionAr:
           type: string
+          description: Region name (Arabic) | اسم المنطقة
+        coordinates:
+          type: object
+          properties:
+            lat:
+              type: number
+              format: double
+              description: Latitude | خط العرض
+            lng:
+              type: number
+              format: double
+              description: Longitude | خط الطول
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Current page number | رقم الصفحة الحالية
+        limit:
+          type: integer
+          description: Items per page | عدد العناصر في الصفحة
+        total:
+          type: integer
+          description: Total items | إجمالي العناصر
+        totalPages:
+          type: integer
+          description: Total pages | إجمالي الصفحات
+
+    # ============================================
+    # MARKETPLACE SCHEMAS
+    # ============================================
 
     Product:
       type: object
@@ -949,265 +1992,93 @@ components:
       properties:
         id:
           type: string
+          description: Product ID | معرف المنتج
         name:
           type: string
+          description: Product name (English)
         nameAr:
           type: string
+          description: Product name (Arabic) | اسم المنتج
         description:
           type: string
+          description: Product description (English)
         descriptionAr:
           type: string
+          description: Product description (Arabic) | وصف المنتج
         category:
           $ref: '#/components/schemas/ProductCategory'
         price:
           type: number
           format: float
+          description: Product price | سعر المنتج
         currency:
           type: string
           example: "SAR"
+          description: Currency code | رمز العملة
         unit:
           type: string
+          description: Unit of measurement (English)
         unitAr:
           type: string
+          description: Unit of measurement (Arabic) | وحدة القياس
         status:
           $ref: '#/components/schemas/ProductStatus'
         stock:
           type: integer
           minimum: 0
+          description: Available stock | المخزون المتاح
         imageUrl:
           type: string
           format: uri
+          description: Main product image URL | رابط صورة المنتج الرئيسية
         images:
           type: array
           items:
             type: string
             format: uri
+          description: Additional product images | صور المنتج الإضافية
         sellerId:
           type: string
+          description: Seller ID | معرف البائع
         sellerName:
           type: string
+          description: Seller name | اسم البائع
         sellerRating:
           type: number
           format: float
           minimum: 0
           maximum: 5
+          description: Seller rating | تقييم البائع
         location:
           $ref: '#/components/schemas/Location'
         specifications:
           type: object
           additionalProperties: true
+          description: Product specifications | مواصفات المنتج
         tags:
           type: array
           items:
             type: string
+          description: Product tags | وسوم المنتج
         discount:
           type: object
           properties:
             percentage:
               type: number
               format: float
+              description: Discount percentage | نسبة الخصم
             validUntil:
               type: string
               format: date-time
+              description: Discount validity | صلاحية الخصم
         createdAt:
           type: string
           format: date-time
+          description: Creation timestamp | وقت الإنشاء
         updatedAt:
           type: string
           format: date-time
-
-    ShippingAddress:
-      type: object
-      required:
-        - name
-        - phone
-        - addressLine1
-        - city
-        - region
-        - country
-      properties:
-        name:
-          type: string
-        phone:
-          type: string
-        addressLine1:
-          type: string
-        addressLine2:
-          type: string
-        city:
-          type: string
-        region:
-          type: string
-        postalCode:
-          type: string
-        country:
-          type: string
-
-    OrderItem:
-      type: object
-      properties:
-        productId:
-          type: string
-        productName:
-          type: string
-        productNameAr:
-          type: string
-        quantity:
-          type: integer
-        price:
-          type: number
-          format: float
-        subtotal:
-          type: number
-          format: float
-
-    Order:
-      type: object
-      properties:
-        id:
-          type: string
-        orderNumber:
-          type: string
-        userId:
-          type: string
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrderItem'
-        subtotal:
-          type: number
-          format: float
-        tax:
-          type: number
-          format: float
-        shipping:
-          type: number
-          format: float
-        total:
-          type: number
-          format: float
-        currency:
-          type: string
-        status:
-          $ref: '#/components/schemas/OrderStatus'
-        paymentStatus:
-          $ref: '#/components/schemas/PaymentStatus'
-        paymentMethod:
-          type: string
-        shippingAddress:
-          $ref: '#/components/schemas/ShippingAddress'
-        notes:
-          type: string
-        trackingNumber:
-          type: string
-        estimatedDelivery:
-          type: string
-          format: date-time
-        deliveredAt:
-          type: string
-          format: date-time
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-
-    CartItem:
-      type: object
-      properties:
-        productId:
-          type: string
-        product:
-          $ref: '#/components/schemas/Product'
-        quantity:
-          type: integer
-        addedAt:
-          type: string
-          format: date-time
-
-    CartSummary:
-      type: object
-      properties:
-        subtotal:
-          type: number
-          format: float
-        tax:
-          type: number
-          format: float
-        shipping:
-          type: number
-          format: float
-        total:
-          type: number
-          format: float
-        currency:
-          type: string
-        itemCount:
-          type: integer
-
-    ProductReview:
-      type: object
-      properties:
-        id:
-          type: string
-        userId:
-          type: string
-        userName:
-          type: string
-        rating:
-          type: integer
-          minimum: 1
-          maximum: 5
-        comment:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-
-    Category:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        nameAr:
-          type: string
-        count:
-          type: integer
-          description: Number of products in this category
-
-    SellerInfo:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        nameAr:
-          type: string
-        rating:
-          type: number
-          format: float
-        totalProducts:
-          type: integer
-        totalSales:
-          type: integer
-        location:
-          $ref: '#/components/schemas/Location'
-
-    Pagination:
-      type: object
-      properties:
-        page:
-          type: integer
-        limit:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
+          description: Last update timestamp | وقت آخر تحديث
 
     CreateProductRequest:
       type: object
@@ -1296,6 +2167,162 @@ components:
           items:
             type: string
 
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Category ID | معرف الفئة
+        name:
+          type: string
+          description: Category name (English)
+        nameAr:
+          type: string
+          description: Category name (Arabic) | اسم الفئة
+        description:
+          type: string
+          description: Category description (English)
+        descriptionAr:
+          type: string
+          description: Category description (Arabic) | وصف الفئة
+        count:
+          type: integer
+          description: Number of products in category | عدد المنتجات في الفئة
+
+    ShippingAddress:
+      type: object
+      required:
+        - name
+        - phone
+        - addressLine1
+        - city
+        - region
+        - country
+      properties:
+        name:
+          type: string
+          description: Recipient name (Arabic) | اسم المستلم
+        nameEn:
+          type: string
+          description: Recipient name (English)
+        phone:
+          type: string
+          description: Phone number | رقم الهاتف
+        addressLine1:
+          type: string
+          description: Address line 1 (Arabic) | العنوان السطر 1
+        addressLine1En:
+          type: string
+          description: Address line 1 (English)
+        addressLine2:
+          type: string
+          description: Address line 2 | العنوان السطر 2
+        city:
+          type: string
+          description: City (Arabic) | المدينة
+        cityEn:
+          type: string
+          description: City (English)
+        region:
+          type: string
+          description: Region (Arabic) | المنطقة
+        regionEn:
+          type: string
+          description: Region (English)
+        postalCode:
+          type: string
+          description: Postal code | الرمز البريدي
+        country:
+          type: string
+          description: Country | البلد
+
+    OrderItem:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: Product ID | معرف المنتج
+        productName:
+          type: string
+          description: Product name (English)
+        productNameAr:
+          type: string
+          description: Product name (Arabic) | اسم المنتج
+        quantity:
+          type: integer
+          description: Quantity ordered | الكمية المطلوبة
+        price:
+          type: number
+          format: float
+          description: Unit price | سعر الوحدة
+        subtotal:
+          type: number
+          format: float
+          description: Line item subtotal | المجموع الفرعي
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Order ID | معرف الطلب
+        orderNumber:
+          type: string
+          description: Order number | رقم الطلب
+        userId:
+          type: string
+          description: User ID | معرف المستخدم
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          description: Order items | عناصر الطلب
+        subtotal:
+          type: number
+          format: float
+          description: Subtotal before tax and shipping | المجموع قبل الضريبة والشحن
+        tax:
+          type: number
+          format: float
+          description: Tax amount | مبلغ الضريبة
+        shipping:
+          type: number
+          format: float
+          description: Shipping cost | تكلفة الشحن
+        total:
+          type: number
+          format: float
+          description: Total amount | المبلغ الإجمالي
+        currency:
+          type: string
+          description: Currency code | رمز العملة
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        shippingAddress:
+          $ref: '#/components/schemas/ShippingAddress'
+        notes:
+          type: string
+          description: Order notes | ملاحظات الطلب
+        trackingNumber:
+          type: string
+          description: Shipment tracking number | رقم تتبع الشحنة
+        estimatedDelivery:
+          type: string
+          format: date-time
+          description: Estimated delivery date | تاريخ التسليم المتوقع
+        deliveredAt:
+          type: string
+          format: date-time
+          description: Actual delivery date | تاريخ التسليم الفعلي
+        createdAt:
+          type: string
+          format: date-time
+          description: Order creation date | تاريخ إنشاء الطلب
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update date | تاريخ آخر تحديث
+
     CreateOrderRequest:
       type: object
       required:
@@ -1320,6 +2347,805 @@ components:
         notes:
           type: string
 
+    # ============================================
+    # COMMUNITY SCHEMAS
+    # ============================================
+
+    CommunityPost:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Post ID | معرف المنشور
+        title:
+          type: string
+          description: Post title (English)
+        titleAr:
+          type: string
+          description: Post title (Arabic) | عنوان المنشور
+        content:
+          type: string
+          description: Post content (English)
+        contentAr:
+          type: string
+          description: Post content (Arabic) | محتوى المنشور
+        category:
+          $ref: '#/components/schemas/PostCategory'
+        authorId:
+          type: string
+          description: Author ID | معرف الكاتب
+        authorName:
+          type: string
+          description: Author name (English)
+        authorNameAr:
+          type: string
+          description: Author name (Arabic) | اسم الكاتب
+        authorAvatar:
+          type: string
+          format: uri
+          description: Author avatar URL | صورة الكاتب
+        likesCount:
+          type: integer
+          description: Number of likes | عدد الإعجابات
+        commentsCount:
+          type: integer
+          description: Number of comments | عدد التعليقات
+        tags:
+          type: array
+          items:
+            type: string
+          description: Post tags | وسوم المنشور
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: Post images | صور المنشور
+        isPinned:
+          type: boolean
+          description: Is post pinned | هل المنشور مثبت
+        isResolved:
+          type: boolean
+          description: Is question resolved (for questions) | هل تم حل السؤال
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp | وقت الإنشاء
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp | وقت آخر تحديث
+
+    CreatePostRequest:
+      type: object
+      required:
+        - title
+        - content
+        - category
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 200
+        titleAr:
+          type: string
+        content:
+          type: string
+          minLength: 10
+          maxLength: 10000
+        contentAr:
+          type: string
+        category:
+          $ref: '#/components/schemas/PostCategory'
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+          maxItems: 5
+
+    UpdatePostRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 200
+        titleAr:
+          type: string
+        content:
+          type: string
+          minLength: 10
+          maxLength: 10000
+        contentAr:
+          type: string
+        category:
+          $ref: '#/components/schemas/PostCategory'
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+          maxItems: 5
+        isResolved:
+          type: boolean
+
+    PostComment:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Comment ID | معرف التعليق
+        postId:
+          type: string
+          description: Post ID | معرف المنشور
+        parentCommentId:
+          type: string
+          description: Parent comment ID (for replies) | معرف التعليق الأصلي
+        content:
+          type: string
+          description: Comment content (English)
+        contentAr:
+          type: string
+          description: Comment content (Arabic) | محتوى التعليق
+        authorId:
+          type: string
+          description: Author ID | معرف الكاتب
+        authorName:
+          type: string
+          description: Author name (English)
+        authorNameAr:
+          type: string
+          description: Author name (Arabic) | اسم الكاتب
+        authorAvatar:
+          type: string
+          format: uri
+          description: Author avatar URL | صورة الكاتب
+        likesCount:
+          type: integer
+          description: Number of likes | عدد الإعجابات
+        isAcceptedAnswer:
+          type: boolean
+          description: Is this the accepted answer | هل هذه الإجابة المقبولة
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp | وقت الإنشاء
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp | وقت آخر تحديث
+
+    # ============================================
+    # RESEARCH SCHEMAS
+    # ============================================
+
+    ResearchTrial:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Trial ID | معرف التجربة
+        title:
+          type: string
+          description: Trial title (English)
+        titleAr:
+          type: string
+          description: Trial title (Arabic) | عنوان التجربة
+        description:
+          type: string
+          description: Trial description (English)
+        descriptionAr:
+          type: string
+          description: Trial description (Arabic) | وصف التجربة
+        cropType:
+          type: string
+          description: Crop type (English)
+        cropTypeAr:
+          type: string
+          description: Crop type (Arabic) | نوع المحصول
+        status:
+          $ref: '#/components/schemas/TrialStatus'
+        researcherId:
+          type: string
+          description: Researcher ID | معرف الباحث
+        researcherName:
+          type: string
+          description: Researcher name (English)
+        researcherNameAr:
+          type: string
+          description: Researcher name (Arabic) | اسم الباحث
+        institution:
+          type: string
+          description: Research institution (English)
+        institutionAr:
+          type: string
+          description: Research institution (Arabic) | المؤسسة البحثية
+        location:
+          $ref: '#/components/schemas/Location'
+        startDate:
+          type: string
+          format: date
+          description: Trial start date | تاريخ بدء التجربة
+        endDate:
+          type: string
+          format: date
+          description: Trial end date | تاريخ انتهاء التجربة
+        treatments:
+          type: integer
+          description: Number of treatments | عدد المعاملات
+        replications:
+          type: integer
+          description: Number of replications | عدد المكررات
+        plotSize:
+          type: number
+          format: float
+          description: Plot size | حجم القطعة
+        plotSizeUnit:
+          type: string
+          description: Plot size unit | وحدة حجم القطعة
+        methodology:
+          type: string
+          description: Research methodology (English)
+        methodologyAr:
+          type: string
+          description: Research methodology (Arabic) | منهجية البحث
+        objectives:
+          type: array
+          items:
+            type: string
+          description: Trial objectives (English)
+        objectivesAr:
+          type: array
+          items:
+            type: string
+          description: Trial objectives (Arabic) | أهداف التجربة
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp | وقت الإنشاء
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp | وقت آخر تحديث
+
+    CreateTrialRequest:
+      type: object
+      required:
+        - title
+        - titleAr
+        - description
+        - descriptionAr
+        - cropType
+        - location
+        - startDate
+      properties:
+        title:
+          type: string
+        titleAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        cropType:
+          type: string
+        cropTypeAr:
+          type: string
+        location:
+          $ref: '#/components/schemas/Location'
+        startDate:
+          type: string
+          format: date
+        expectedEndDate:
+          type: string
+          format: date
+        treatments:
+          type: integer
+        replications:
+          type: integer
+        plotSize:
+          type: number
+          format: float
+        plotSizeUnit:
+          type: string
+        methodology:
+          type: string
+        methodologyAr:
+          type: string
+        objectives:
+          type: array
+          items:
+            type: string
+        objectivesAr:
+          type: array
+          items:
+            type: string
+
+    UpdateTrialRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        titleAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        status:
+          $ref: '#/components/schemas/TrialStatus'
+        endDate:
+          type: string
+          format: date
+        methodology:
+          type: string
+        methodologyAr:
+          type: string
+        objectives:
+          type: array
+          items:
+            type: string
+        objectivesAr:
+          type: array
+          items:
+            type: string
+
+    TrialResult:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Result ID | معرف النتيجة
+        trialId:
+          type: string
+          description: Trial ID | معرف التجربة
+        measurementDate:
+          type: string
+          format: date
+          description: Measurement date | تاريخ القياس
+        treatmentId:
+          type: string
+          description: Treatment ID | معرف المعاملة
+        replicationId:
+          type: string
+          description: Replication ID | معرف المكرر
+        metrics:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              nameAr:
+                type: string
+              value:
+                type: number
+              unit:
+                type: string
+              unitAr:
+                type: string
+          description: Measured metrics | المقاييس المسجلة
+        notes:
+          type: string
+          description: Notes (English)
+        notesAr:
+          type: string
+          description: Notes (Arabic) | الملاحظات
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: Result images | صور النتائج
+        recordedBy:
+          type: string
+          description: Recorded by user ID | سجل بواسطة
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp | وقت الإنشاء
+
+    AddTrialResultsRequest:
+      type: object
+      required:
+        - measurementDate
+        - metrics
+      properties:
+        measurementDate:
+          type: string
+          format: date
+        treatmentId:
+          type: string
+        replicationId:
+          type: string
+        metrics:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - value
+            properties:
+              name:
+                type: string
+              nameAr:
+                type: string
+              value:
+                type: number
+              unit:
+                type: string
+              unitAr:
+                type: string
+        notes:
+          type: string
+        notesAr:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+
+    TrialAnalysis:
+      type: object
+      properties:
+        trialId:
+          type: string
+          description: Trial ID | معرف التجربة
+        analysisType:
+          type: string
+          description: Analysis type | نوع التحليل
+        generatedAt:
+          type: string
+          format: date-time
+          description: Generation timestamp | وقت التوليد
+        summary:
+          type: object
+          properties:
+            totalMeasurements:
+              type: integer
+            treatmentsCompared:
+              type: integer
+            dateRange:
+              type: object
+              properties:
+                start:
+                  type: string
+                  format: date
+                end:
+                  type: string
+                  format: date
+        statistics:
+          type: array
+          items:
+            type: object
+            properties:
+              metric:
+                type: string
+              metricAr:
+                type: string
+              mean:
+                type: number
+              stdDev:
+                type: number
+              min:
+                type: number
+              max:
+                type: number
+              unit:
+                type: string
+              unitAr:
+                type: string
+        treatmentRankings:
+          type: array
+          items:
+            type: object
+            properties:
+              rank:
+                type: integer
+              treatmentId:
+                type: string
+              treatmentName:
+                type: string
+              treatmentNameAr:
+                type: string
+              meanYield:
+                type: number
+        recommendations:
+          type: array
+          items:
+            type: string
+          description: Recommendations (English)
+        recommendationsAr:
+          type: array
+          items:
+            type: string
+          description: Recommendations (Arabic) | التوصيات
+
+    # ============================================
+    # DISASTER SCHEMAS
+    # ============================================
+
+    DisasterAssessment:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Assessment ID | معرف التقييم
+        type:
+          $ref: '#/components/schemas/DisasterType'
+        typeAr:
+          type: string
+          description: Disaster type (Arabic) | نوع الكارثة
+        severity:
+          $ref: '#/components/schemas/Severity'
+        severityAr:
+          type: string
+          description: Severity (Arabic) | الخطورة
+        title:
+          type: string
+          description: Assessment title (English)
+        titleAr:
+          type: string
+          description: Assessment title (Arabic) | عنوان التقييم
+        description:
+          type: string
+          description: Assessment description (English)
+        descriptionAr:
+          type: string
+          description: Assessment description (Arabic) | وصف التقييم
+        status:
+          $ref: '#/components/schemas/AssessmentStatus'
+        location:
+          $ref: '#/components/schemas/Location'
+        affectedArea:
+          type: number
+          format: float
+          description: Affected area size | مساحة المنطقة المتضررة
+        affectedAreaUnit:
+          type: string
+          description: Area unit (ha, km2, etc.) | وحدة المساحة
+        affectedCrops:
+          type: array
+          items:
+            type: object
+            properties:
+              cropType:
+                type: string
+              cropTypeAr:
+                type: string
+              affectedArea:
+                type: number
+              damagePercentage:
+                type: number
+          description: Affected crops | المحاصيل المتضررة
+        estimatedLoss:
+          type: number
+          format: float
+          description: Estimated financial loss | الخسارة المالية المقدرة
+        estimatedLossCurrency:
+          type: string
+          description: Loss currency | عملة الخسارة
+        assessorId:
+          type: string
+          description: Assessor ID | معرف المقيم
+        assessorName:
+          type: string
+          description: Assessor name (English)
+        assessorNameAr:
+          type: string
+          description: Assessor name (Arabic) | اسم المقيم
+        assessmentDate:
+          type: string
+          format: date
+          description: Assessment date | تاريخ التقييم
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: Assessment images | صور التقييم
+        notes:
+          type: string
+          description: Notes (English)
+        notesAr:
+          type: string
+          description: Notes (Arabic) | الملاحظات
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp | وقت الإنشاء
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp | وقت آخر تحديث
+
+    CreateAssessmentRequest:
+      type: object
+      required:
+        - type
+        - severity
+        - title
+        - titleAr
+        - location
+      properties:
+        type:
+          $ref: '#/components/schemas/DisasterType'
+        severity:
+          $ref: '#/components/schemas/Severity'
+        title:
+          type: string
+        titleAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        location:
+          $ref: '#/components/schemas/Location'
+        affectedArea:
+          type: number
+          format: float
+        affectedAreaUnit:
+          type: string
+        affectedCrops:
+          type: array
+          items:
+            type: object
+            properties:
+              cropType:
+                type: string
+              cropTypeAr:
+                type: string
+              affectedArea:
+                type: number
+              damagePercentage:
+                type: number
+        estimatedLoss:
+          type: number
+          format: float
+        estimatedLossCurrency:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        notes:
+          type: string
+        notesAr:
+          type: string
+
+    DisasterRecommendation:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Recommendation ID | معرف التوصية
+        type:
+          type: string
+          enum: [immediate, short_term, long_term]
+          description: |
+            Recommendation type | نوع التوصية
+            - immediate: فوري
+            - short_term: قصير المدى
+            - long_term: طويل المدى
+        title:
+          type: string
+          description: Recommendation title (English)
+        titleAr:
+          type: string
+          description: Recommendation title (Arabic) | عنوان التوصية
+        description:
+          type: string
+          description: Recommendation description (English)
+        descriptionAr:
+          type: string
+          description: Recommendation description (Arabic) | وصف التوصية
+        priority:
+          $ref: '#/components/schemas/Severity'
+        estimatedCost:
+          type: number
+          format: float
+          description: Estimated implementation cost | التكلفة المقدرة للتنفيذ
+        costCurrency:
+          type: string
+          description: Cost currency | عملة التكلفة
+
+    RiskAnalysis:
+      type: object
+      properties:
+        analysisId:
+          type: string
+          description: Analysis ID | معرف التحليل
+        generatedAt:
+          type: string
+          format: date-time
+          description: Generation timestamp | وقت التوليد
+        location:
+          type: object
+          properties:
+            coordinates:
+              type: object
+              properties:
+                lat:
+                  type: number
+                lng:
+                  type: number
+            radius:
+              type: number
+            region:
+              type: string
+            regionAr:
+              type: string
+        timeframe:
+          type: string
+          description: Analysis timeframe | الإطار الزمني للتحليل
+        overallRiskLevel:
+          $ref: '#/components/schemas/Severity'
+        overallRiskLevelAr:
+          type: string
+          description: Overall risk level (Arabic) | مستوى الخطر العام
+        risks:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                $ref: '#/components/schemas/DisasterType'
+              typeAr:
+                type: string
+              probability:
+                type: number
+                format: float
+                minimum: 0
+                maximum: 1
+                description: Risk probability (0-1) | احتمالية الخطر
+              severity:
+                $ref: '#/components/schemas/Severity'
+              severityAr:
+                type: string
+              riskScore:
+                type: integer
+                minimum: 0
+                maximum: 100
+                description: Risk score (0-100) | درجة الخطر
+              factors:
+                type: array
+                items:
+                  type: string
+                description: Contributing factors (English)
+              factorsAr:
+                type: array
+                items:
+                  type: string
+                description: Contributing factors (Arabic) | العوامل المساهمة
+        recommendations:
+          type: array
+          items:
+            type: string
+          description: Risk mitigation recommendations (English)
+        recommendationsAr:
+          type: array
+          items:
+            type: string
+          description: Risk mitigation recommendations (Arabic) | توصيات التخفيف من المخاطر
+
+    # ============================================
+    # ERROR SCHEMA
+    # ============================================
+
     Error:
       type: object
       required:
@@ -1328,25 +3154,40 @@ components:
       properties:
         error:
           type: string
+          description: Error code | رمز الخطأ
         message:
           type: string
+          description: Error message (English)
+        messageAr:
+          type: string
+          description: Error message (Arabic) | رسالة الخطأ
         details:
           type: object
           additionalProperties: true
+          description: Additional error details | تفاصيل إضافية عن الخطأ
+
+  # ============================================
+  # RESPONSES
+  # ============================================
 
   responses:
     BadRequestError:
-      description: Bad request - Invalid input data
+      description: |
+        Bad request - Invalid input data
+        طلب غير صالح - بيانات الإدخال غير صحيحة
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             error: "BAD_REQUEST"
-            message: "Invalid product data provided"
+            message: "Invalid input data provided"
+            messageAr: "البيانات المدخلة غير صالحة"
 
     UnauthorizedError:
-      description: Unauthorized - Missing or invalid authentication token
+      description: |
+        Unauthorized - Missing or invalid authentication token
+        غير مصرح - رمز المصادقة مفقود أو غير صالح
       content:
         application/json:
           schema:
@@ -1354,9 +3195,12 @@ components:
           example:
             error: "UNAUTHORIZED"
             message: "Authentication token is required"
+            messageAr: "رمز المصادقة مطلوب"
 
     ForbiddenError:
-      description: Forbidden - Insufficient permissions
+      description: |
+        Forbidden - Insufficient permissions
+        محظور - صلاحيات غير كافية
       content:
         application/json:
           schema:
@@ -1364,13 +3208,17 @@ components:
           example:
             error: "FORBIDDEN"
             message: "You don't have permission to perform this action"
+            messageAr: "ليس لديك صلاحية لتنفيذ هذا الإجراء"
 
     NotFoundError:
-      description: Resource not found
+      description: |
+        Resource not found
+        المورد غير موجود
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             error: "NOT_FOUND"
-            message: "Product not found"
+            message: "The requested resource was not found"
+            messageAr: "المورد المطلوب غير موجود"

@@ -1,0 +1,2799 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Platform - AI Agent Services API
+  description: |
+    # SAHOOL AI Agent Services API Documentation
+    ## خدمات وكلاء الذكاء الاصطناعي في منصة سهول
+
+    This API provides AI agent management and orchestration capabilities for the SAHOOL agricultural platform including:
+    - **Agent Registry** (سجل الوكلاء): Register, deploy, and manage AI agents
+    - **AI Agents Core** (نواة الوكلاء): Invoke agents and query capabilities
+    - **Knowledge Graph** (الرسم البياني المعرفي): Agricultural knowledge entities and relationships
+    - **MCP Server** (خادم بروتوكول سياق النموذج): Model Context Protocol tools and resources
+    - **Skills Service** (خدمة المهارات): Farmer skill assessment and training recommendations
+
+    ## Authentication
+    All endpoints require JWT authentication via the `Authorization: Bearer <token>` header unless otherwise specified.
+
+    ## Rate Limiting
+    - Free tier: 30 requests/minute
+    - Standard tier: 60 requests/minute
+    - Premium tier: 120 requests/minute
+    - Internal: 1000 requests/minute
+
+    ## Multi-tenancy
+    Most endpoints require the `X-Tenant-ID` header for tenant isolation.
+
+    ## Event Architecture
+    Agent operations emit events via NATS with subject pattern: `sahool.{tenant_id}.agent.{event_type}`
+
+  version: 16.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.sa
+    url: https://sahool.sa
+  license:
+    name: Proprietary
+    url: https://sahool.sa/terms
+
+servers:
+  - url: https://api.sahool.sa/api/v1
+    description: Production server
+  - url: https://staging-api.sahool.sa/api/v1
+    description: Staging server
+  - url: http://localhost:8000
+    description: Development server (Kong Gateway)
+
+tags:
+  - name: Agent Registry
+    description: |
+      AI agent registration and lifecycle management
+      سجل الوكلاء - تسجيل وإدارة دورة حياة الوكلاء الذكية
+  - name: AI Agents Core
+    description: |
+      Core agent invocation and capabilities
+      نواة الوكلاء - استدعاء الوكلاء والقدرات الأساسية
+  - name: AI Agents Service
+    description: |
+      Agent orchestration and workflow management
+      خدمة الوكلاء - تنسيق الوكلاء وإدارة سير العمل
+  - name: Knowledge Graph
+    description: |
+      Agricultural knowledge entities and relationships
+      الرسم البياني المعرفي - الكيانات والعلاقات الزراعية
+  - name: MCP Server
+    description: |
+      Model Context Protocol tools and resources
+      خادم MCP - أدوات وموارد بروتوكول سياق النموذج
+  - name: Skills Service
+    description: |
+      Farmer skill assessment and training
+      خدمة المهارات - تقييم مهارات المزارعين والتدريب
+  - name: Health
+    description: Service health and readiness checks
+
+paths:
+  # ============================================================================
+  # AGENT REGISTRY ENDPOINTS (agent-registry - Port 8160)
+  # ============================================================================
+  /agents:
+    get:
+      tags: [Agent Registry]
+      summary: List registered agents
+      description: |
+        Get a paginated list of all registered AI agents.
+        الحصول على قائمة بجميع الوكلاء المسجلين.
+      operationId: listAgents
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: status
+          in: query
+          description: Filter by agent status - تصفية حسب حالة الوكيل
+          schema:
+            $ref: '#/components/schemas/AgentStatus'
+        - name: type
+          in: query
+          description: Filter by agent type - تصفية حسب نوع الوكيل
+          schema:
+            $ref: '#/components/schemas/AgentType'
+        - name: capability
+          in: query
+          description: Filter by capability - تصفية حسب القدرة
+          schema:
+            type: string
+            example: crop_advisory
+      responses:
+        '200':
+          description: List of registered agents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Agent Registry]
+      summary: Register a new agent
+      description: |
+        Register a new AI agent with capabilities and configuration.
+        تسجيل وكيل ذكاء اصطناعي جديد مع القدرات والإعدادات.
+      operationId: registerAgent
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAgentRequest'
+            examples:
+              cropAdvisor:
+                summary: Crop Advisory Agent
+                value:
+                  name: crop-advisor
+                  nameAr: مستشار المحاصيل
+                  description: AI agent for crop advisory and recommendations
+                  descriptionAr: وكيل ذكي لتقديم الاستشارات والتوصيات الزراعية
+                  type: advisory
+                  version: "1.0.0"
+                  capabilities:
+                    - crop_advisory
+                    - fertilizer_recommendation
+                    - irrigation_planning
+                  config:
+                    model: gpt-4-turbo
+                    temperature: 0.7
+                    maxTokens: 2048
+      responses:
+        '201':
+          description: Agent registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          description: Agent with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /agents/{agentId}:
+    get:
+      tags: [Agent Registry]
+      summary: Get agent by ID
+      description: |
+        Retrieve detailed information about a specific agent.
+        الحصول على معلومات تفصيلية حول وكيل محدد.
+      operationId: getAgent
+      parameters:
+        - $ref: '#/components/parameters/AgentId'
+      responses:
+        '200':
+          description: Agent details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+    put:
+      tags: [Agent Registry]
+      summary: Update agent
+      description: |
+        Update an existing agent's configuration and metadata.
+        تحديث إعدادات وبيانات الوكيل الموجود.
+      operationId: updateAgent
+      parameters:
+        - $ref: '#/components/parameters/AgentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAgentRequest'
+      responses:
+        '200':
+          description: Agent updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags: [Agent Registry]
+      summary: Deregister agent
+      description: |
+        Remove an agent from the registry. Active deployments must be stopped first.
+        إزالة الوكيل من السجل. يجب إيقاف النشرات النشطة أولاً.
+      operationId: deleteAgent
+      parameters:
+        - $ref: '#/components/parameters/AgentId'
+        - name: force
+          in: query
+          description: Force removal even if agent is deployed - فرض الإزالة حتى لو كان الوكيل منشوراً
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Agent deregistered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Agent is currently deployed and cannot be deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /agents/{agentId}/deploy:
+    post:
+      tags: [Agent Registry]
+      summary: Deploy agent
+      description: |
+        Deploy an agent to make it available for invocation.
+        نشر الوكيل لجعله متاحاً للاستدعاء.
+      operationId: deployAgent
+      parameters:
+        - $ref: '#/components/parameters/AgentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeployAgentRequest'
+            examples:
+              production:
+                summary: Production deployment
+                value:
+                  environment: production
+                  replicas: 3
+                  resources:
+                    cpu: "500m"
+                    memory: "1Gi"
+                  autoscaling:
+                    enabled: true
+                    minReplicas: 2
+                    maxReplicas: 10
+                    targetCpuUtilization: 70
+      responses:
+        '200':
+          description: Agent deployed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentDeployment'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Agent is already deployed in this environment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /agents/{agentId}/status:
+    get:
+      tags: [Agent Registry]
+      summary: Get agent status
+      description: |
+        Get the current operational status and health of an agent.
+        الحصول على الحالة التشغيلية الحالية وصحة الوكيل.
+      operationId: getAgentStatus
+      parameters:
+        - $ref: '#/components/parameters/AgentId'
+        - name: includeMetrics
+          in: query
+          description: Include performance metrics - تضمين مقاييس الأداء
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Agent status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentStatusResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # AI AGENTS CORE ENDPOINTS (ai-agents-core - Port 8122)
+  # ============================================================================
+  /ai-agents/invoke:
+    post:
+      tags: [AI Agents Core]
+      summary: Invoke an AI agent
+      description: |
+        Invoke a deployed AI agent with a specific prompt or task.
+        استدعاء وكيل ذكاء اصطناعي منشور بمهمة أو طلب محدد.
+      operationId: invokeAgent
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentInvokeRequest'
+            examples:
+              cropAdvisory:
+                summary: Crop advisory request
+                value:
+                  agentId: "agent-crop-advisor-001"
+                  prompt: "My wheat field in Riyadh is showing yellow leaves. What should I do?"
+                  promptAr: "حقل القمح الخاص بي في الرياض يظهر أوراقاً صفراء. ماذا يجب أن أفعل؟"
+                  context:
+                    fieldId: "field-123"
+                    cropType: wheat
+                    location: "Riyadh"
+                    soilMoisture: 35
+                    ndvi: 0.45
+                  options:
+                    language: ar
+                    maxTokens: 1024
+                    temperature: 0.7
+      responses:
+        '200':
+          description: Agent invocation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentInvokeResponse'
+        '202':
+          description: Agent invocation started (async)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncJobResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          description: Agent not found or not deployed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Agent is temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /ai-agents/capabilities:
+    get:
+      tags: [AI Agents Core]
+      summary: List agent capabilities
+      description: |
+        Get a list of all available agent capabilities across deployed agents.
+        الحصول على قائمة بجميع قدرات الوكلاء المتاحة عبر الوكلاء المنشورين.
+      operationId: listCapabilities
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: category
+          in: query
+          description: Filter by capability category - تصفية حسب فئة القدرة
+          schema:
+            $ref: '#/components/schemas/CapabilityCategory'
+      responses:
+        '200':
+          description: List of capabilities
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CapabilityListResponse'
+      security:
+        - bearerAuth: []
+
+  /ai-agents/batch:
+    post:
+      tags: [AI Agents Core]
+      summary: Batch invoke agents
+      description: |
+        Invoke multiple agents or the same agent with multiple inputs in a single request.
+        استدعاء وكلاء متعددين أو نفس الوكيل بمدخلات متعددة في طلب واحد.
+      operationId: batchInvokeAgents
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchInvokeRequest'
+            examples:
+              multipleFields:
+                summary: Batch advisory for multiple fields
+                value:
+                  agentId: "agent-crop-advisor-001"
+                  requests:
+                    - requestId: "req-001"
+                      prompt: "Analyze field FIELD-001 crop health"
+                      context:
+                        fieldId: "FIELD-001"
+                        cropType: wheat
+                    - requestId: "req-002"
+                      prompt: "Analyze field FIELD-002 crop health"
+                      context:
+                        fieldId: "FIELD-002"
+                        cropType: barley
+                  options:
+                    parallelism: 2
+                    timeoutMs: 30000
+      responses:
+        '200':
+          description: Batch invocation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchInvokeResponse'
+        '202':
+          description: Batch invocation started (async for large batches)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncJobResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # AI AGENTS SERVICE ENDPOINTS (ai-agents-service - Port 8130)
+  # ============================================================================
+  /ai-agents-service/workflows:
+    get:
+      tags: [AI Agents Service]
+      summary: List agent workflows
+      description: |
+        Get a list of defined agent workflows for orchestration.
+        الحصول على قائمة بسير عمل الوكلاء المحددة للتنسيق.
+      operationId: listWorkflows
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: List of workflows
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowListResponse'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [AI Agents Service]
+      summary: Create agent workflow
+      description: |
+        Create a new multi-agent workflow for coordinated task execution.
+        إنشاء سير عمل جديد متعدد الوكلاء للتنفيذ المنسق للمهام.
+      operationId: createWorkflow
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkflowRequest'
+      responses:
+        '201':
+          description: Workflow created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workflow'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth: []
+
+  /ai-agents-service/workflows/{workflowId}/execute:
+    post:
+      tags: [AI Agents Service]
+      summary: Execute agent workflow
+      description: |
+        Execute a defined workflow with input data.
+        تنفيذ سير عمل محدد مع بيانات الإدخال.
+      operationId: executeWorkflow
+      parameters:
+        - name: workflowId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecuteWorkflowRequest'
+      responses:
+        '200':
+          description: Workflow execution completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowExecutionResult'
+        '202':
+          description: Workflow execution started (async)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncJobResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # KNOWLEDGE GRAPH ENDPOINTS (knowledge-graph - Port 8140)
+  # ============================================================================
+  /knowledge/entities:
+    get:
+      tags: [Knowledge Graph]
+      summary: List knowledge entities
+      description: |
+        Get a list of agricultural knowledge entities (crops, diseases, pests, etc.).
+        الحصول على قائمة بكيانات المعرفة الزراعية (محاصيل، أمراض، آفات، إلخ).
+      operationId: listEntities
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: type
+          in: query
+          description: Filter by entity type - تصفية حسب نوع الكيان
+          schema:
+            $ref: '#/components/schemas/EntityType'
+        - name: search
+          in: query
+          description: Search by name (supports Arabic and English) - البحث بالاسم
+          schema:
+            type: string
+            example: "wheat"
+        - name: relatedTo
+          in: query
+          description: Filter entities related to a specific entity ID - الكيانات ذات الصلة
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of entities
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityListResponse'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Knowledge Graph]
+      summary: Create knowledge entity
+      description: |
+        Add a new entity to the agricultural knowledge graph.
+        إضافة كيان جديد إلى الرسم البياني للمعرفة الزراعية.
+      operationId: createEntity
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEntityRequest'
+            examples:
+              crop:
+                summary: Wheat crop entity
+                value:
+                  type: crop
+                  name: "Wheat"
+                  nameAr: "قمح"
+                  description: "Cereal grain crop widely cultivated in Saudi Arabia"
+                  descriptionAr: "محصول حبوب يُزرع على نطاق واسع في المملكة العربية السعودية"
+                  attributes:
+                    scientificName: "Triticum aestivum"
+                    family: "Poaceae"
+                    growingSeason: "winter"
+                    waterRequirement: "medium"
+                    optimalTemperature:
+                      min: 15
+                      max: 25
+                  tags: ["cereal", "winter_crop", "staple"]
+              disease:
+                summary: Wheat rust disease
+                value:
+                  type: disease
+                  name: "Wheat Rust"
+                  nameAr: "صدأ القمح"
+                  description: "Fungal disease affecting wheat crops"
+                  descriptionAr: "مرض فطري يصيب محاصيل القمح"
+                  attributes:
+                    pathogen: "Puccinia triticina"
+                    symptoms:
+                      - "Orange-red pustules on leaves"
+                      - "Yellowing of leaves"
+                    treatment:
+                      - "Fungicide application"
+                      - "Resistant varieties"
+                  tags: ["fungal", "foliar_disease"]
+      responses:
+        '201':
+          description: Entity created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeEntity'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          description: Entity with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /knowledge/entities/{entityId}:
+    get:
+      tags: [Knowledge Graph]
+      summary: Get entity by ID
+      description: |
+        Retrieve detailed information about a specific knowledge entity.
+        الحصول على معلومات تفصيلية حول كيان معرفي محدد.
+      operationId: getEntity
+      parameters:
+        - $ref: '#/components/parameters/EntityId'
+        - name: includeRelationships
+          in: query
+          description: Include related entities - تضمين الكيانات ذات الصلة
+          schema:
+            type: boolean
+            default: false
+        - name: depth
+          in: query
+          description: Depth of relationship traversal - عمق تتبع العلاقات
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 3
+            default: 1
+      responses:
+        '200':
+          description: Entity details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeEntityDetailed'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  /knowledge/query:
+    post:
+      tags: [Knowledge Graph]
+      summary: Query knowledge graph
+      description: |
+        Execute a structured query against the knowledge graph.
+        تنفيذ استعلام منظم على الرسم البياني المعرفي.
+      operationId: queryKnowledgeGraph
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeQueryRequest'
+            examples:
+              findDiseases:
+                summary: Find diseases affecting wheat
+                value:
+                  query: "MATCH (c:Crop {name: 'Wheat'})-[:AFFECTED_BY]->(d:Disease) RETURN d"
+                  language: cypher
+                  parameters:
+                    cropName: "Wheat"
+              naturalLanguage:
+                summary: Natural language query
+                value:
+                  query: "ما هي الأمراض التي تصيب القمح؟"
+                  language: natural
+                  options:
+                    responseLanguage: ar
+      responses:
+        '200':
+          description: Query results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeQueryResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth: []
+
+  /knowledge/relationships:
+    get:
+      tags: [Knowledge Graph]
+      summary: List relationship types
+      description: |
+        Get a list of all relationship types in the knowledge graph.
+        الحصول على قائمة بجميع أنواع العلاقات في الرسم البياني المعرفي.
+      operationId: listRelationships
+      parameters:
+        - name: sourceType
+          in: query
+          description: Filter by source entity type - تصفية حسب نوع الكيان المصدر
+          schema:
+            $ref: '#/components/schemas/EntityType'
+        - name: targetType
+          in: query
+          description: Filter by target entity type - تصفية حسب نوع الكيان الهدف
+          schema:
+            $ref: '#/components/schemas/EntityType'
+      responses:
+        '200':
+          description: List of relationship types
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipListResponse'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Knowledge Graph]
+      summary: Create relationship
+      description: |
+        Create a new relationship between two entities.
+        إنشاء علاقة جديدة بين كيانين.
+      operationId: createRelationship
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRelationshipRequest'
+            examples:
+              cropDisease:
+                summary: Crop affected by disease
+                value:
+                  sourceEntityId: "entity-wheat-001"
+                  targetEntityId: "entity-rust-001"
+                  relationshipType: "AFFECTED_BY"
+                  attributes:
+                    severity: "high"
+                    seasonality: "spring"
+      responses:
+        '201':
+          description: Relationship created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          description: Source or target entity not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # MCP SERVER ENDPOINTS (mcp-server - Port 8200)
+  # ============================================================================
+  /mcp/tools:
+    get:
+      tags: [MCP Server]
+      summary: List available tools
+      description: |
+        Get a list of all tools available through the Model Context Protocol server.
+        الحصول على قائمة بجميع الأدوات المتاحة عبر خادم بروتوكول سياق النموذج.
+      operationId: listMcpTools
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: category
+          in: query
+          description: Filter by tool category - تصفية حسب فئة الأداة
+          schema:
+            $ref: '#/components/schemas/ToolCategory'
+        - name: enabled
+          in: query
+          description: Filter by enabled status - تصفية حسب حالة التفعيل
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of MCP tools
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/McpToolListResponse'
+      security:
+        - bearerAuth: []
+
+  /mcp/execute:
+    post:
+      tags: [MCP Server]
+      summary: Execute MCP tool
+      description: |
+        Execute a specific tool with provided parameters.
+        تنفيذ أداة محددة مع المعلمات المقدمة.
+      operationId: executeMcpTool
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/McpExecuteRequest'
+            examples:
+              weatherForecast:
+                summary: Get weather forecast
+                value:
+                  toolName: "get_weather_forecast"
+                  parameters:
+                    location: "Riyadh"
+                    days: 7
+                  context:
+                    fieldId: "field-123"
+              soilAnalysis:
+                summary: Analyze soil data
+                value:
+                  toolName: "analyze_soil"
+                  parameters:
+                    sampleId: "sample-001"
+                    testTypes: ["ph", "nitrogen", "phosphorus", "potassium"]
+      responses:
+        '200':
+          description: Tool execution result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/McpExecuteResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          description: Tool not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Tool execution failed or timed out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /mcp/resources:
+    get:
+      tags: [MCP Server]
+      summary: List MCP resources
+      description: |
+        Get a list of all resources available through MCP.
+        الحصول على قائمة بجميع الموارد المتاحة عبر MCP.
+      operationId: listMcpResources
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: type
+          in: query
+          description: Filter by resource type - تصفية حسب نوع المورد
+          schema:
+            $ref: '#/components/schemas/ResourceType'
+      responses:
+        '200':
+          description: List of MCP resources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/McpResourceListResponse'
+      security:
+        - bearerAuth: []
+
+  /mcp/resources/{resourceUri}:
+    get:
+      tags: [MCP Server]
+      summary: Get MCP resource
+      description: |
+        Retrieve a specific resource by its URI.
+        استرداد مورد محدد عن طريق URI الخاص به.
+      operationId: getMcpResource
+      parameters:
+        - name: resourceUri
+          in: path
+          required: true
+          description: Resource URI (URL encoded) - معرف المورد
+          schema:
+            type: string
+            example: "sahool://fields/field-123"
+      responses:
+        '200':
+          description: Resource content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/McpResource'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # SKILLS SERVICE ENDPOINTS (skills-service - Port 8121)
+  # ============================================================================
+  /skills/assess:
+    post:
+      tags: [Skills Service]
+      summary: Assess farmer skills
+      description: |
+        Assess a farmer's agricultural skills based on quiz responses or historical data.
+        تقييم مهارات المزارع الزراعية بناءً على إجابات الاختبار أو البيانات التاريخية.
+      operationId: assessSkills
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SkillAssessmentRequest'
+            examples:
+              quizBased:
+                summary: Quiz-based assessment
+                value:
+                  farmerId: "farmer-001"
+                  assessmentType: quiz
+                  categories:
+                    - irrigation
+                    - pest_management
+                    - fertilization
+                  responses:
+                    - questionId: "q-irr-001"
+                      answer: "drip_irrigation"
+                    - questionId: "q-pest-001"
+                      answer: "integrated_pest_management"
+              historyBased:
+                summary: History-based assessment
+                value:
+                  farmerId: "farmer-001"
+                  assessmentType: history
+                  evaluationPeriodDays: 365
+      responses:
+        '200':
+          description: Skill assessment result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillAssessmentResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          description: Farmer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /skills/training:
+    post:
+      tags: [Skills Service]
+      summary: Generate training recommendations
+      description: |
+        Generate personalized training recommendations based on skill gaps.
+        إنشاء توصيات تدريبية مخصصة بناءً على الفجوات في المهارات.
+      operationId: generateTrainingRecommendations
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingRecommendationRequest'
+            examples:
+              basic:
+                summary: Basic training recommendation
+                value:
+                  farmerId: "farmer-001"
+                  assessmentId: "assessment-001"
+                  preferredLanguage: ar
+                  availableTimeWeeklyHours: 5
+                  preferredFormats:
+                    - video
+                    - interactive
+      responses:
+        '200':
+          description: Training recommendations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingRecommendationResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          description: Farmer or assessment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /skills/farmer/{farmerId}:
+    get:
+      tags: [Skills Service]
+      summary: Get farmer skill profile
+      description: |
+        Get the complete skill profile for a specific farmer including assessments and progress.
+        الحصول على ملف المهارات الكامل لمزارع محدد بما في ذلك التقييمات والتقدم.
+      operationId: getFarmerSkillProfile
+      parameters:
+        - name: farmerId
+          in: path
+          required: true
+          description: Farmer ID - معرف المزارع
+          schema:
+            type: string
+        - name: includeHistory
+          in: query
+          description: Include assessment history - تضمين سجل التقييمات
+          schema:
+            type: boolean
+            default: false
+        - name: includeRecommendations
+          in: query
+          description: Include current training recommendations - تضمين توصيات التدريب الحالية
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Farmer skill profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FarmerSkillProfile'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  /skills/categories:
+    get:
+      tags: [Skills Service]
+      summary: List skill categories
+      description: |
+        Get all available skill categories with descriptions and question counts.
+        الحصول على جميع فئات المهارات المتاحة مع الأوصاف وعدد الأسئلة.
+      operationId: listSkillCategories
+      parameters:
+        - name: includeQuestions
+          in: query
+          description: Include sample questions for each category - تضمين أسئلة نموذجية
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: List of skill categories
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillCategoryListResponse'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # HEALTH ENDPOINTS
+  # ============================================================================
+  /health:
+    get:
+      tags: [Health]
+      summary: Combined health check
+      description: Get combined health status of all agent services
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Services are healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+      security: []
+
+  /healthz:
+    get:
+      tags: [Health]
+      summary: Liveness probe
+      description: Kubernetes liveness probe endpoint
+      operationId: livenessProbe
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+      security: []
+
+  /readyz:
+    get:
+      tags: [Health]
+      summary: Readiness probe
+      description: Kubernetes readiness probe endpoint
+      operationId: readinessProbe
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+      security: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token
+
+  parameters:
+    TenantId:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      description: Tenant identifier for multi-tenancy - معرف المستأجر
+      schema:
+        type: string
+        format: uuid
+
+    AgentId:
+      name: agentId
+      in: path
+      required: true
+      description: Agent unique identifier - معرف الوكيل
+      schema:
+        type: string
+        format: uuid
+
+    EntityId:
+      name: entityId
+      in: path
+      required: true
+      description: Knowledge entity identifier - معرف الكيان
+      schema:
+        type: string
+        format: uuid
+
+    Limit:
+      name: limit
+      in: query
+      description: Maximum number of items to return - الحد الأقصى للعناصر
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    Offset:
+      name: offset
+      in: query
+      description: Number of items to skip - عدد العناصر المراد تخطيها
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+  schemas:
+    # ========== Agent Registry Schemas ==========
+    AgentStatus:
+      type: string
+      enum: [registered, deploying, deployed, stopping, stopped, failed, deprecated]
+      description: |
+        Agent lifecycle status:
+        - registered: Agent is registered but not deployed
+        - deploying: Agent deployment in progress
+        - deployed: Agent is active and ready for invocation
+        - stopping: Agent is being stopped
+        - stopped: Agent is stopped
+        - failed: Agent deployment or execution failed
+        - deprecated: Agent is marked for removal
+
+    AgentType:
+      type: string
+      enum: [advisory, diagnostic, predictive, automation, conversational, analysis]
+      description: |
+        Type of AI agent:
+        - advisory: Provides recommendations (نصائح وتوصيات)
+        - diagnostic: Identifies problems (تشخيص المشاكل)
+        - predictive: Forecasts outcomes (التنبؤ بالنتائج)
+        - automation: Automates tasks (أتمتة المهام)
+        - conversational: Handles chat interactions (المحادثات)
+        - analysis: Analyzes data (تحليل البيانات)
+
+    Agent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: Unique agent name
+          example: crop-advisor
+        nameAr:
+          type: string
+          description: Arabic name - الاسم بالعربية
+          example: مستشار المحاصيل
+        description:
+          type: string
+          description: Agent description
+        descriptionAr:
+          type: string
+          description: Arabic description - الوصف بالعربية
+        type:
+          $ref: '#/components/schemas/AgentType'
+        version:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+          example: "1.0.0"
+        status:
+          $ref: '#/components/schemas/AgentStatus'
+        capabilities:
+          type: array
+          items:
+            type: string
+          example: ["crop_advisory", "fertilizer_recommendation", "irrigation_planning"]
+        config:
+          type: object
+          description: Agent configuration
+          additionalProperties: true
+        metadata:
+          type: object
+          description: Additional metadata
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        deployedAt:
+          type: string
+          format: date-time
+
+    CreateAgentRequest:
+      type: object
+      required: [name, type, version, capabilities]
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+          pattern: '^[a-z][a-z0-9-]*$'
+          description: Unique agent name (lowercase, alphanumeric with hyphens)
+        nameAr:
+          type: string
+          maxLength: 100
+          description: Arabic name - الاسم بالعربية
+        description:
+          type: string
+          maxLength: 1000
+        descriptionAr:
+          type: string
+          maxLength: 1000
+          description: Arabic description - الوصف بالعربية
+        type:
+          $ref: '#/components/schemas/AgentType'
+        version:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+        capabilities:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        config:
+          type: object
+          additionalProperties: true
+        metadata:
+          type: object
+          additionalProperties: true
+
+    UpdateAgentRequest:
+      type: object
+      properties:
+        nameAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        version:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+        capabilities:
+          type: array
+          items:
+            type: string
+        config:
+          type: object
+          additionalProperties: true
+        metadata:
+          type: object
+          additionalProperties: true
+
+    AgentListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agent'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        deployedCount:
+          type: integer
+          description: Number of currently deployed agents
+
+    DeployAgentRequest:
+      type: object
+      required: [environment]
+      properties:
+        environment:
+          type: string
+          enum: [development, staging, production]
+          description: Target environment - البيئة المستهدفة
+        replicas:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 1
+          description: Number of replicas - عدد النسخ
+        resources:
+          type: object
+          properties:
+            cpu:
+              type: string
+              pattern: '^\d+m?$'
+              example: "500m"
+            memory:
+              type: string
+              pattern: '^\d+(Mi|Gi)$'
+              example: "1Gi"
+        autoscaling:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+              default: false
+            minReplicas:
+              type: integer
+              minimum: 1
+            maxReplicas:
+              type: integer
+              minimum: 1
+            targetCpuUtilization:
+              type: integer
+              minimum: 10
+              maximum: 100
+        environmentVariables:
+          type: object
+          additionalProperties:
+            type: string
+
+    AgentDeployment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        agentId:
+          type: string
+          format: uuid
+        environment:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, failed, stopped]
+        replicas:
+          type: integer
+        readyReplicas:
+          type: integer
+        endpoint:
+          type: string
+          format: uri
+          description: Agent endpoint URL
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AgentStatusResponse:
+      type: object
+      properties:
+        agentId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        status:
+          $ref: '#/components/schemas/AgentStatus'
+        health:
+          type: string
+          enum: [healthy, degraded, unhealthy, unknown]
+        deployments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentDeployment'
+        metrics:
+          type: object
+          description: Performance metrics (if requested)
+          properties:
+            invocationsTotal:
+              type: integer
+              description: Total invocations
+            invocationsLast24h:
+              type: integer
+              description: Invocations in last 24 hours
+            averageLatencyMs:
+              type: number
+              description: Average response latency in milliseconds
+            errorRate:
+              type: number
+              description: Error rate (0-1)
+            successRate:
+              type: number
+              description: Success rate (0-1)
+        lastInvokedAt:
+          type: string
+          format: date-time
+
+    # ========== AI Agents Core Schemas ==========
+    AgentInvokeRequest:
+      type: object
+      required: [agentId, prompt]
+      properties:
+        agentId:
+          type: string
+          description: ID of the agent to invoke
+        prompt:
+          type: string
+          maxLength: 10000
+          description: Prompt or query for the agent
+        promptAr:
+          type: string
+          maxLength: 10000
+          description: Arabic prompt - الطلب بالعربية
+        context:
+          type: object
+          description: Contextual data for the agent
+          additionalProperties: true
+        options:
+          type: object
+          properties:
+            language:
+              type: string
+              enum: [ar, en]
+              default: ar
+              description: Response language - لغة الاستجابة
+            maxTokens:
+              type: integer
+              minimum: 100
+              maximum: 8000
+              default: 2048
+            temperature:
+              type: number
+              minimum: 0
+              maximum: 2
+              default: 0.7
+            stream:
+              type: boolean
+              default: false
+              description: Stream response - استجابة متدفقة
+            timeout:
+              type: integer
+              minimum: 1000
+              maximum: 120000
+              default: 30000
+              description: Timeout in milliseconds
+        sessionId:
+          type: string
+          format: uuid
+          description: Session ID for conversation context
+
+    AgentInvokeResponse:
+      type: object
+      properties:
+        invocationId:
+          type: string
+          format: uuid
+        agentId:
+          type: string
+        response:
+          type: string
+          description: Agent response text
+        responseAr:
+          type: string
+          description: Arabic response (if applicable)
+        structuredOutput:
+          type: object
+          description: Structured output data
+          additionalProperties: true
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Response confidence score
+        sources:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              reference:
+                type: string
+              relevance:
+                type: number
+          description: Sources used for the response
+        tokens:
+          type: object
+          properties:
+            input:
+              type: integer
+            output:
+              type: integer
+            total:
+              type: integer
+        latencyMs:
+          type: integer
+          description: Response latency in milliseconds
+        timestamp:
+          type: string
+          format: date-time
+
+    CapabilityCategory:
+      type: string
+      enum: [crop_management, irrigation, pest_control, soil_analysis, weather, market, equipment, planning]
+      description: |
+        Capability categories:
+        - crop_management: إدارة المحاصيل
+        - irrigation: الري
+        - pest_control: مكافحة الآفات
+        - soil_analysis: تحليل التربة
+        - weather: الطقس
+        - market: السوق
+        - equipment: المعدات
+        - planning: التخطيط
+
+    Capability:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nameAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        category:
+          $ref: '#/components/schemas/CapabilityCategory'
+        supportedAgents:
+          type: array
+          items:
+            type: string
+          description: Agent IDs that support this capability
+
+    CapabilityListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Capability'
+        total:
+          type: integer
+
+    BatchInvokeRequest:
+      type: object
+      required: [agentId, requests]
+      properties:
+        agentId:
+          type: string
+          description: Agent to invoke for all requests
+        requests:
+          type: array
+          items:
+            type: object
+            required: [requestId, prompt]
+            properties:
+              requestId:
+                type: string
+                description: Unique identifier for this request in the batch
+              prompt:
+                type: string
+              promptAr:
+                type: string
+              context:
+                type: object
+                additionalProperties: true
+          minItems: 1
+          maxItems: 100
+        options:
+          type: object
+          properties:
+            parallelism:
+              type: integer
+              minimum: 1
+              maximum: 10
+              default: 5
+              description: Number of parallel executions
+            timeoutMs:
+              type: integer
+              minimum: 5000
+              maximum: 300000
+              default: 60000
+            continueOnError:
+              type: boolean
+              default: true
+              description: Continue processing if one request fails
+
+    BatchInvokeResponse:
+      type: object
+      properties:
+        batchId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [completed, partial, failed]
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              requestId:
+                type: string
+              status:
+                type: string
+                enum: [success, error]
+              response:
+                $ref: '#/components/schemas/AgentInvokeResponse'
+              error:
+                type: string
+        summary:
+          type: object
+          properties:
+            total:
+              type: integer
+            successful:
+              type: integer
+            failed:
+              type: integer
+            totalLatencyMs:
+              type: integer
+
+    AsyncJobResponse:
+      type: object
+      properties:
+        jobId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        statusUrl:
+          type: string
+          format: uri
+          description: URL to check job status
+        estimatedCompletionSeconds:
+          type: integer
+
+    # ========== AI Agents Service Schemas ==========
+    Workflow:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        nameAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowStep'
+        status:
+          type: string
+          enum: [draft, active, paused, archived]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    WorkflowStep:
+      type: object
+      properties:
+        stepId:
+          type: string
+        name:
+          type: string
+        nameAr:
+          type: string
+        agentId:
+          type: string
+        inputMapping:
+          type: object
+          additionalProperties:
+            type: string
+        outputMapping:
+          type: object
+          additionalProperties:
+            type: string
+        condition:
+          type: string
+          description: Condition for executing this step
+        onError:
+          type: string
+          enum: [fail, skip, retry]
+
+    WorkflowListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workflow'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    CreateWorkflowRequest:
+      type: object
+      required: [name, steps]
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowStep'
+          minItems: 1
+
+    ExecuteWorkflowRequest:
+      type: object
+      required: [input]
+      properties:
+        input:
+          type: object
+          additionalProperties: true
+        options:
+          type: object
+          properties:
+            async:
+              type: boolean
+              default: false
+            timeoutMs:
+              type: integer
+
+    WorkflowExecutionResult:
+      type: object
+      properties:
+        executionId:
+          type: string
+          format: uuid
+        workflowId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [completed, failed, partial]
+        stepResults:
+          type: array
+          items:
+            type: object
+            properties:
+              stepId:
+                type: string
+              status:
+                type: string
+              output:
+                type: object
+              error:
+                type: string
+              latencyMs:
+                type: integer
+        finalOutput:
+          type: object
+          additionalProperties: true
+        totalLatencyMs:
+          type: integer
+        timestamp:
+          type: string
+          format: date-time
+
+    # ========== Knowledge Graph Schemas ==========
+    EntityType:
+      type: string
+      enum: [crop, disease, pest, fertilizer, pesticide, soil_type, irrigation_method, growth_stage, region, equipment, practice]
+      description: |
+        Types of knowledge entities:
+        - crop: محصول
+        - disease: مرض
+        - pest: آفة
+        - fertilizer: سماد
+        - pesticide: مبيد
+        - soil_type: نوع التربة
+        - irrigation_method: طريقة الري
+        - growth_stage: مرحلة النمو
+        - region: منطقة
+        - equipment: معدات
+        - practice: ممارسة زراعية
+
+    KnowledgeEntity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/EntityType'
+        name:
+          type: string
+        nameAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        attributes:
+          type: object
+          additionalProperties: true
+        tags:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    KnowledgeEntityDetailed:
+      allOf:
+        - $ref: '#/components/schemas/KnowledgeEntity'
+        - type: object
+          properties:
+            relationships:
+              type: array
+              items:
+                $ref: '#/components/schemas/Relationship'
+            relatedEntities:
+              type: array
+              items:
+                $ref: '#/components/schemas/KnowledgeEntity'
+
+    CreateEntityRequest:
+      type: object
+      required: [type, name]
+      properties:
+        type:
+          $ref: '#/components/schemas/EntityType'
+        name:
+          type: string
+          minLength: 2
+          maxLength: 200
+        nameAr:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+        descriptionAr:
+          type: string
+          maxLength: 2000
+        attributes:
+          type: object
+          additionalProperties: true
+        tags:
+          type: array
+          items:
+            type: string
+
+    EntityListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgeEntity'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    RelationshipType:
+      type: string
+      enum:
+        - AFFECTS
+        - AFFECTED_BY
+        - TREATS
+        - TREATED_BY
+        - REQUIRES
+        - REQUIRED_BY
+        - COMPATIBLE_WITH
+        - INCOMPATIBLE_WITH
+        - FOLLOWS
+        - PRECEDES
+        - PART_OF
+        - CONTAINS
+        - GROWS_IN
+        - SUITABLE_FOR
+        - PREVENTS
+        - CAUSES
+      description: |
+        Relationship types between entities:
+        - AFFECTS/AFFECTED_BY: يؤثر على / يتأثر بـ
+        - TREATS/TREATED_BY: يعالج / يعالج بواسطة
+        - REQUIRES/REQUIRED_BY: يتطلب / مطلوب بواسطة
+        - COMPATIBLE_WITH/INCOMPATIBLE_WITH: متوافق مع / غير متوافق مع
+        - FOLLOWS/PRECEDES: يتبع / يسبق
+        - PART_OF/CONTAINS: جزء من / يحتوي على
+        - GROWS_IN/SUITABLE_FOR: ينمو في / مناسب لـ
+        - PREVENTS/CAUSES: يمنع / يسبب
+
+    Relationship:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        sourceEntityId:
+          type: string
+          format: uuid
+        targetEntityId:
+          type: string
+          format: uuid
+        relationshipType:
+          $ref: '#/components/schemas/RelationshipType'
+        attributes:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateRelationshipRequest:
+      type: object
+      required: [sourceEntityId, targetEntityId, relationshipType]
+      properties:
+        sourceEntityId:
+          type: string
+          format: uuid
+        targetEntityId:
+          type: string
+          format: uuid
+        relationshipType:
+          $ref: '#/components/schemas/RelationshipType'
+        attributes:
+          type: object
+          additionalProperties: true
+
+    RelationshipListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                $ref: '#/components/schemas/RelationshipType'
+              name:
+                type: string
+              nameAr:
+                type: string
+              description:
+                type: string
+              descriptionAr:
+                type: string
+              validSourceTypes:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntityType'
+              validTargetTypes:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntityType'
+        total:
+          type: integer
+
+    KnowledgeQueryRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+          maxLength: 5000
+          description: Query string (Cypher or natural language)
+        language:
+          type: string
+          enum: [cypher, natural]
+          default: natural
+          description: Query language type
+        parameters:
+          type: object
+          additionalProperties: true
+          description: Query parameters (for Cypher)
+        options:
+          type: object
+          properties:
+            responseLanguage:
+              type: string
+              enum: [ar, en]
+              default: ar
+            limit:
+              type: integer
+              default: 20
+            includeRelationships:
+              type: boolean
+              default: true
+
+    KnowledgeQueryResponse:
+      type: object
+      properties:
+        queryId:
+          type: string
+          format: uuid
+        results:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgeEntity'
+        relationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/Relationship'
+        summary:
+          type: string
+          description: Natural language summary (for natural language queries)
+        summaryAr:
+          type: string
+          description: Arabic summary - الملخص بالعربية
+        total:
+          type: integer
+        executionTimeMs:
+          type: integer
+
+    # ========== MCP Server Schemas ==========
+    ToolCategory:
+      type: string
+      enum: [data_retrieval, analysis, prediction, action, notification, external]
+      description: |
+        Tool categories:
+        - data_retrieval: استرداد البيانات
+        - analysis: التحليل
+        - prediction: التنبؤ
+        - action: الإجراء
+        - notification: الإشعارات
+        - external: الخارجية
+
+    McpTool:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Tool name (used for invocation)
+        nameAr:
+          type: string
+          description: Arabic name - الاسم بالعربية
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        category:
+          $ref: '#/components/schemas/ToolCategory'
+        inputSchema:
+          type: object
+          description: JSON Schema for tool input
+        outputSchema:
+          type: object
+          description: JSON Schema for tool output
+        enabled:
+          type: boolean
+        requiresAuth:
+          type: boolean
+        rateLimit:
+          type: object
+          properties:
+            requestsPerMinute:
+              type: integer
+            requestsPerHour:
+              type: integer
+
+    McpToolListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/McpTool'
+        total:
+          type: integer
+
+    McpExecuteRequest:
+      type: object
+      required: [toolName, parameters]
+      properties:
+        toolName:
+          type: string
+          description: Name of the tool to execute
+        parameters:
+          type: object
+          additionalProperties: true
+          description: Tool-specific parameters
+        context:
+          type: object
+          additionalProperties: true
+          description: Additional context for the tool
+        options:
+          type: object
+          properties:
+            timeout:
+              type: integer
+              minimum: 1000
+              maximum: 60000
+              default: 10000
+            cache:
+              type: boolean
+              default: true
+
+    McpExecuteResponse:
+      type: object
+      properties:
+        executionId:
+          type: string
+          format: uuid
+        toolName:
+          type: string
+        status:
+          type: string
+          enum: [success, error, timeout]
+        result:
+          type: object
+          additionalProperties: true
+        error:
+          type: string
+        metadata:
+          type: object
+          properties:
+            executionTimeMs:
+              type: integer
+            cached:
+              type: boolean
+            cacheHit:
+              type: boolean
+        timestamp:
+          type: string
+          format: date-time
+
+    ResourceType:
+      type: string
+      enum: [field, crop, weather, sensor, document, image, model]
+      description: |
+        Resource types:
+        - field: حقل
+        - crop: محصول
+        - weather: طقس
+        - sensor: مستشعر
+        - document: مستند
+        - image: صورة
+        - model: نموذج
+
+    McpResource:
+      type: object
+      properties:
+        uri:
+          type: string
+          description: Resource URI (e.g., sahool://fields/field-123)
+        type:
+          $ref: '#/components/schemas/ResourceType'
+        name:
+          type: string
+        nameAr:
+          type: string
+        description:
+          type: string
+        mimeType:
+          type: string
+        content:
+          type: object
+          additionalProperties: true
+        metadata:
+          type: object
+          additionalProperties: true
+
+    McpResourceListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/McpResource'
+        total:
+          type: integer
+
+    # ========== Skills Service Schemas ==========
+    SkillCategory:
+      type: string
+      enum:
+        - irrigation
+        - pest_management
+        - fertilization
+        - soil_management
+        - crop_rotation
+        - harvest_management
+        - post_harvest
+        - farm_management
+        - technology_usage
+        - market_awareness
+      description: |
+        Skill categories:
+        - irrigation: الري
+        - pest_management: إدارة الآفات
+        - fertilization: التسميد
+        - soil_management: إدارة التربة
+        - crop_rotation: الدورة الزراعية
+        - harvest_management: إدارة الحصاد
+        - post_harvest: ما بعد الحصاد
+        - farm_management: إدارة المزرعة
+        - technology_usage: استخدام التكنولوجيا
+        - market_awareness: الوعي بالسوق
+
+    SkillLevel:
+      type: string
+      enum: [beginner, intermediate, advanced, expert]
+      description: |
+        Skill proficiency levels:
+        - beginner: مبتدئ
+        - intermediate: متوسط
+        - advanced: متقدم
+        - expert: خبير
+
+    SkillAssessmentRequest:
+      type: object
+      required: [farmerId, assessmentType]
+      properties:
+        farmerId:
+          type: string
+        assessmentType:
+          type: string
+          enum: [quiz, history, combined]
+          description: |
+            Assessment method:
+            - quiz: Based on quiz responses
+            - history: Based on farming history
+            - combined: Both methods
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillCategory'
+          description: Categories to assess (all if not specified)
+        responses:
+          type: array
+          items:
+            type: object
+            required: [questionId, answer]
+            properties:
+              questionId:
+                type: string
+              answer:
+                type: string
+          description: Quiz responses (for quiz assessment type)
+        evaluationPeriodDays:
+          type: integer
+          minimum: 30
+          maximum: 730
+          default: 365
+          description: Period for history-based evaluation
+
+    SkillAssessmentResponse:
+      type: object
+      properties:
+        assessmentId:
+          type: string
+          format: uuid
+        farmerId:
+          type: string
+        assessmentType:
+          type: string
+        overallLevel:
+          $ref: '#/components/schemas/SkillLevel'
+        overallScore:
+          type: number
+          minimum: 0
+          maximum: 100
+        categoryScores:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                $ref: '#/components/schemas/SkillCategory'
+              categoryNameAr:
+                type: string
+              level:
+                $ref: '#/components/schemas/SkillLevel'
+              score:
+                type: number
+              strengths:
+                type: array
+                items:
+                  type: string
+              strengthsAr:
+                type: array
+                items:
+                  type: string
+              improvements:
+                type: array
+                items:
+                  type: string
+              improvementsAr:
+                type: array
+                items:
+                  type: string
+        recommendations:
+          type: array
+          items:
+            type: string
+        recommendationsAr:
+          type: array
+          items:
+            type: string
+        assessedAt:
+          type: string
+          format: date-time
+
+    TrainingRecommendationRequest:
+      type: object
+      required: [farmerId]
+      properties:
+        farmerId:
+          type: string
+        assessmentId:
+          type: string
+          format: uuid
+          description: Optional specific assessment to base recommendations on
+        preferredLanguage:
+          type: string
+          enum: [ar, en]
+          default: ar
+        availableTimeWeeklyHours:
+          type: number
+          minimum: 1
+          maximum: 40
+        preferredFormats:
+          type: array
+          items:
+            type: string
+            enum: [video, text, interactive, audio, in_person]
+        focusCategories:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillCategory'
+
+    TrainingRecommendationResponse:
+      type: object
+      properties:
+        farmerId:
+          type: string
+        recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              titleAr:
+                type: string
+              description:
+                type: string
+              descriptionAr:
+                type: string
+              category:
+                $ref: '#/components/schemas/SkillCategory'
+              format:
+                type: string
+              durationMinutes:
+                type: integer
+              difficulty:
+                $ref: '#/components/schemas/SkillLevel'
+              priority:
+                type: string
+                enum: [high, medium, low]
+              resourceUrl:
+                type: string
+                format: uri
+              expectedOutcome:
+                type: string
+              expectedOutcomeAr:
+                type: string
+        totalTrainingHours:
+          type: number
+        learningPath:
+          type: array
+          items:
+            type: object
+            properties:
+              week:
+                type: integer
+              modules:
+                type: array
+                items:
+                  type: string
+        generatedAt:
+          type: string
+          format: date-time
+
+    FarmerSkillProfile:
+      type: object
+      properties:
+        farmerId:
+          type: string
+        name:
+          type: string
+        nameAr:
+          type: string
+        currentLevel:
+          $ref: '#/components/schemas/SkillLevel'
+        overallScore:
+          type: number
+        skillsByCategory:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              level:
+                $ref: '#/components/schemas/SkillLevel'
+              score:
+                type: number
+              trend:
+                type: string
+                enum: [improving, stable, declining]
+        assessmentHistory:
+          type: array
+          items:
+            type: object
+            properties:
+              assessmentId:
+                type: string
+              date:
+                type: string
+                format: date
+              overallScore:
+                type: number
+        currentRecommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              titleAr:
+                type: string
+              category:
+                $ref: '#/components/schemas/SkillCategory'
+              priority:
+                type: string
+        badges:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              nameAr:
+                type: string
+              awardedAt:
+                type: string
+                format: date-time
+        lastAssessedAt:
+          type: string
+          format: date-time
+        memberSince:
+          type: string
+          format: date-time
+
+    SkillCategoryDetail:
+      type: object
+      properties:
+        category:
+          $ref: '#/components/schemas/SkillCategory'
+        name:
+          type: string
+        nameAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        questionCount:
+          type: integer
+        subSkills:
+          type: array
+          items:
+            type: string
+        subSkillsAr:
+          type: array
+          items:
+            type: string
+        sampleQuestions:
+          type: array
+          items:
+            type: object
+            properties:
+              questionId:
+                type: string
+              question:
+                type: string
+              questionAr:
+                type: string
+              options:
+                type: array
+                items:
+                  type: string
+
+    SkillCategoryListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillCategoryDetail'
+        total:
+          type: integer
+
+    # ========== Health & Common Schemas ==========
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        services:
+          type: object
+          properties:
+            agentRegistry:
+              type: string
+            aiAgentsCore:
+              type: string
+            aiAgentsService:
+              type: string
+            knowledgeGraph:
+              type: string
+            mcpServer:
+              type: string
+            skillsService:
+              type: string
+        version:
+          type: string
+          example: "16.0.0"
+        uptime:
+          type: integer
+          description: Uptime in seconds
+
+    ReadinessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        database:
+          type: boolean
+        nats:
+          type: boolean
+        redis:
+          type: boolean
+        ollama:
+          type: boolean
+          description: Local LLM service status
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        messageAr:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message in English
+        messageAr:
+          type: string
+          description: Error message in Arabic - رسالة الخطأ بالعربية
+        details:
+          type: object
+          additionalProperties: true
+        requestId:
+          type: string
+          format: uuid
+
+  responses:
+    Unauthorized:
+      description: Authentication required or token invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: UNAUTHORIZED
+            message: Invalid or expired token
+            messageAr: الرمز غير صالح أو منتهي الصلاحية
+
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: FORBIDDEN
+            message: You do not have permission to perform this action
+            messageAr: ليس لديك صلاحية لتنفيذ هذا الإجراء
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: NOT_FOUND
+            message: Resource not found
+            messageAr: المورد غير موجود
+
+    ValidationError:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: VALIDATION_ERROR
+            message: Invalid request parameters
+            messageAr: معلمات الطلب غير صالحة
+            details:
+              name: Name must be at least 3 characters
+
+    TooManyRequests:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: RATE_LIMIT_EXCEEDED
+            message: Too many requests. Please try again later.
+            messageAr: طلبات كثيرة جداً. يرجى المحاولة لاحقاً.
+      headers:
+        X-RateLimit-Limit-Minute:
+          schema:
+            type: integer
+        X-RateLimit-Remaining-Minute:
+          schema:
+            type: integer
+        Retry-After:
+          schema:
+            type: integer

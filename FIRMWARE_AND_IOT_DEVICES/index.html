@@ -1,0 +1,2548 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Firmware and IoT Devices Guide | دليل الفريم وير وأجهزة إنترنت الأشياء - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-firmware-and-iot-devices-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Firmware and IoT Devices Guide | دليل الفريم وير وأجهزة إنترنت الأشياء
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-firmware-and-iot-devices-guide">SAHOOL Firmware and IoT Devices Guide | دليل الفريم وير وأجهزة إنترنت الأشياء<a class="headerlink" href="#sahool-firmware-and-iot-devices-guide" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Comprehensive documentation for IoT device firmware, hardware specifications, and device management</p>
+</blockquote>
+<p><a href="apps/services/iot-gateway"><img alt="IoT Gateway" src="https://img.shields.io/badge/IoT_Gateway-Port_8106-blue.svg" /></a>
+<a href="apps/services/iot-service"><img alt="IoT Service" src="https://img.shields.io/badge/IoT_Service-Port_8117-green.svg" /></a>
+<a href=""><img alt="Protocols" src="https://img.shields.io/badge/Protocols-MQTT_CoAP_LoRaWAN-orange.svg" /></a></p>
+<hr />
+<h2 id="table-of-contents">Table of Contents | جدول المحتويات<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#overview--نظرة-عامة">Overview | نظرة عامة</a></li>
+<li><a href="#supported-device-models--نماذج-الأجهزة-المدعومة">Supported Device Models | نماذج الأجهزة المدعومة</a></li>
+<li><a href="#firmware-versions--إصدارات-الفريم-وير">Firmware Versions | إصدارات الفريم وير</a></li>
+<li><a href="#sensor-specifications--مواصفات-المستشعرات">Sensor Specifications | مواصفات المستشعرات</a></li>
+<li><a href="#actuator-types--أنواع-المشغلات">Actuator Types | أنواع المشغلات</a></li>
+<li><a href="#device-registration--تسجيل-الأجهزة">Device Registration | تسجيل الأجهزة</a></li>
+<li><a href="#communication-protocols--بروتوكولات-الاتصال">Communication Protocols | بروتوكولات الاتصال</a></li>
+<li><a href="#device-commands--أوامر-الأجهزة">Device Commands | أوامر الأجهزة</a></li>
+<li><a href="#ota-updates--التحديثات-اللاسلكية">OTA Updates | التحديثات اللاسلكية</a></li>
+<li><a href="#device-health-monitoring--مراقبة-صحة-الأجهزة">Device Health Monitoring | مراقبة صحة الأجهزة</a></li>
+<li><a href="#alert-thresholds--عتبات-التنبيه">Alert Thresholds | عتبات التنبيه</a></li>
+<li><a href="#api-reference--مرجع-api">API Reference | مرجع API</a></li>
+</ol>
+<hr />
+<h2 id="overview">Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>SAHOOL platform provides comprehensive IoT device management infrastructure for agricultural operations. The system supports multiple communication protocols, automatic device registration, firmware tracking, and Over-The-Air (OTA) updates.</p>
+<p>منصة سهول توفر بنية تحتية شاملة لإدارة أجهزة إنترنت الأشياء للعمليات الزراعية. يدعم النظام بروتوكولات اتصال متعددة، تسجيل تلقائي للأجهزة، تتبع الفريم وير، والتحديثات اللاسلكية.</p>
+<h3 id="architecture">Architecture | الهندسة المعمارية<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────┐
+│                        SAHOOL IoT Architecture                       │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │
+│  │ Soil Sensors │  │Weather       │  │ Irrigation   │               │
+│  │ SM-100/200   │  │Stations      │  │ Controllers  │               │
+│  │ FW: 2.3.1+   │  │WS-3000       │  │ IC-2000      │               │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘               │
+│         │                 │                 │                        │
+│         └────────────┬────┴─────────────────┘                        │
+│                      ▼                                               │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │                    Communication Layer                        │    │
+│  │  ┌──────┐  ┌──────┐  ┌───────┐  ┌─────────┐                 │    │
+│  │  │ MQTT │  │ HTTP │  │ CoAP  │  │ LoRaWAN │                 │    │
+│  │  │:1883 │  │:8106 │  │:5683  │  │         │                 │    │
+│  │  └──────┘  └──────┘  └───────┘  └─────────┘                 │    │
+│  └─────────────────────────────────────────────────────────────┘    │
+│                      │                                               │
+│                      ▼                                               │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │                IoT Gateway (Port 8106)                        │    │
+│  │  • Device Registry    • Data Normalization                   │    │
+│  │  • Protocol Handling  • Firmware Management                  │    │
+│  │  • Health Monitoring  • Command Dispatch                     │    │
+│  └─────────────────────────────────────────────────────────────┘    │
+│                      │                                               │
+│                      ▼                                               │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │                IoT Service (Port 8117)                        │    │
+│  │  • Device CRUD        • Data Persistence                     │    │
+│  │  • Event Publishing   • Analytics Integration                │    │
+│  └─────────────────────────────────────────────────────────────┘    │
+│                                                                       │
+└─────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="supported-device-models">Supported Device Models | نماذج الأجهزة المدعومة<a class="headerlink" href="#supported-device-models" title="Permanent link">&para;</a></h2>
+<h3 id="soil-moisture-sensors">Soil Moisture Sensors | مستشعرات رطوبة التربة<a class="headerlink" href="#soil-moisture-sensors" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Manufacturer</th>
+<th>Firmware</th>
+<th>Accuracy</th>
+<th>Technology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SM-100</strong></td>
+<td>SoilTech</td>
+<td>2.3.1</td>
+<td>±3%</td>
+<td>Capacitive</td>
+</tr>
+<tr>
+<td><strong>SM-200-PRO</strong></td>
+<td>SoilTech</td>
+<td>3.0.0</td>
+<td>±2%</td>
+<td>FDR</td>
+</tr>
+<tr>
+<td><strong>MS-500</strong></td>
+<td>AgriSense</td>
+<td>1.5.2</td>
+<td>±2.5%</td>
+<td>TDR</td>
+</tr>
+</tbody>
+</table>
+<h3 id="weather-stations">Weather Stations | محطات الطقس<a class="headerlink" href="#weather-stations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Manufacturer</th>
+<th>Firmware</th>
+<th>Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>WS-3000</strong></td>
+<td>WeatherPro</td>
+<td>4.1.0</td>
+<td>Temp, Humidity, Wind, Rain, Solar</td>
+</tr>
+<tr>
+<td><strong>AWS-100</strong></td>
+<td>AgriWeather</td>
+<td>2.0.5</td>
+<td>Temp, Humidity, Pressure, UV</td>
+</tr>
+</tbody>
+</table>
+<h3 id="irrigation-controllers">Irrigation Controllers | أجهزة التحكم بالري<a class="headerlink" href="#irrigation-controllers" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Manufacturer</th>
+<th>Firmware</th>
+<th>Zones</th>
+<th>Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>IC-2000</strong></td>
+<td>IrriControl</td>
+<td>3.2.1</td>
+<td>8</td>
+<td>Scheduling, Flow Meter</td>
+</tr>
+<tr>
+<td><strong>SmartDrip-500</strong></td>
+<td>HydroSystems</td>
+<td>1.8.0</td>
+<td>4</td>
+<td>Drip Irrigation, EC Control</td>
+</tr>
+</tbody>
+</table>
+<h3 id="gps-trackers-gps">GPS Trackers | أجهزة تتبع GPS<a class="headerlink" href="#gps-trackers-gps" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Manufacturer</th>
+<th>Firmware</th>
+<th>Accuracy</th>
+<th>Battery</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GT-100</strong></td>
+<td>TrackPro</td>
+<td>2.1.0</td>
+<td>±2m</td>
+<td>30 days</td>
+</tr>
+<tr>
+<td><strong>FieldTracker-X</strong></td>
+<td>AgriTrack</td>
+<td>1.2.3</td>
+<td>±1m</td>
+<td>45 days</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="firmware-versions">Firmware Versions | إصدارات الفريم وير<a class="headerlink" href="#firmware-versions" title="Permanent link">&para;</a></h2>
+<h3 id="current-firmware-matrix">Current Firmware Matrix | مصفوفة الفريم وير الحالية<a class="headerlink" href="#current-firmware-matrix" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Device Type</th>
+<th>Model</th>
+<th>Current Version</th>
+<th>Latest Version</th>
+<th>Update Available</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Soil Sensor</td>
+<td>SM-100</td>
+<td>2.3.1</td>
+<td>2.4.0</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Soil Sensor</td>
+<td>SM-200-PRO</td>
+<td>3.0.0</td>
+<td>3.0.0</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Soil Sensor</td>
+<td>MS-500</td>
+<td>1.5.2</td>
+<td>1.6.0</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Weather Station</td>
+<td>WS-3000</td>
+<td>4.1.0</td>
+<td>4.2.0</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Weather Station</td>
+<td>AWS-100</td>
+<td>2.0.5</td>
+<td>2.0.5</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Irrigation</td>
+<td>IC-2000</td>
+<td>3.2.1</td>
+<td>3.3.0</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Irrigation</td>
+<td>SmartDrip-500</td>
+<td>1.8.0</td>
+<td>1.8.0</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>GPS Tracker</td>
+<td>GT-100</td>
+<td>2.1.0</td>
+<td>2.1.0</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>GPS Tracker</td>
+<td>FieldTracker-X</td>
+<td>1.2.3</td>
+<td>1.3.0</td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="version-numbering">Version Numbering | ترقيم الإصدارات<a class="headerlink" href="#version-numbering" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>MAJOR.MINOR.PATCH
+  │     │     └── Bug fixes, security patches
+  │     └── New features, backward compatible
+  └── Breaking changes, major updates
+</code></pre></div>
+
+<hr />
+<h2 id="sensor-specifications">Sensor Specifications | مواصفات المستشعرات<a class="headerlink" href="#sensor-specifications" title="Permanent link">&para;</a></h2>
+<h3 id="soil-moisture-sensor">Soil Moisture Sensor | مستشعر رطوبة التربة<a class="headerlink" href="#soil-moisture-sensor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>±2% volumetric water content</td>
+</tr>
+<tr>
+<td><strong>Range</strong></td>
+<td>0-100% VWC</td>
+</tr>
+<tr>
+<td><strong>Technology</strong></td>
+<td>FDR (Frequency Domain Reflectometry)</td>
+</tr>
+<tr>
+<td><strong>Operating Temp</strong></td>
+<td>-20°C to 60°C</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
+<td>IP68 (waterproof, dustproof)</td>
+</tr>
+<tr>
+<td><strong>Response Time</strong></td>
+<td>30 seconds</td>
+</tr>
+<tr>
+<td><strong>Power</strong></td>
+<td>3.3V - 5V DC</td>
+</tr>
+</tbody>
+</table>
+<h3 id="soil-ec-electrical-conductivity">Soil EC (Electrical Conductivity) | الموصلية الكهربائية للتربة<a class="headerlink" href="#soil-ec-electrical-conductivity" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>±0.01 mS/cm or ±2%</td>
+</tr>
+<tr>
+<td><strong>Range</strong></td>
+<td>0-20 mS/cm</td>
+</tr>
+<tr>
+<td><strong>Temperature Compensation</strong></td>
+<td>Auto (0-50°C)</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
+<td>IP68</td>
+</tr>
+<tr>
+<td><strong>Probe Material</strong></td>
+<td>Stainless Steel 316L</td>
+</tr>
+</tbody>
+</table>
+<h3 id="soil-ph-sensor">Soil pH Sensor | مستشعر درجة حموضة التربة<a class="headerlink" href="#soil-ph-sensor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>±0.02 pH</td>
+</tr>
+<tr>
+<td><strong>Range</strong></td>
+<td>0-14 pH</td>
+</tr>
+<tr>
+<td><strong>Temperature Compensation</strong></td>
+<td>Auto (0-80°C)</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
+<td>IP68</td>
+</tr>
+<tr>
+<td><strong>Electrode Type</strong></td>
+<td>Glass membrane</td>
+</tr>
+<tr>
+<td><strong>Reference</strong></td>
+<td>Ag/AgCl</td>
+</tr>
+</tbody>
+</table>
+<h3 id="air-temperature-sensor">Air Temperature Sensor | مستشعر درجة حرارة الهواء<a class="headerlink" href="#air-temperature-sensor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>±0.2°C</td>
+</tr>
+<tr>
+<td><strong>Range</strong></td>
+<td>-40°C to 85°C</td>
+</tr>
+<tr>
+<td><strong>Resolution</strong></td>
+<td>0.01°C</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
+<td>IP65</td>
+</tr>
+<tr>
+<td><strong>Response Time</strong></td>
+<td>10 seconds</td>
+</tr>
+<tr>
+<td><strong>Sensor Type</strong></td>
+<td>PT1000 RTD</td>
+</tr>
+</tbody>
+</table>
+<h3 id="air-humidity-sensor">Air Humidity Sensor | مستشعر رطوبة الهواء<a class="headerlink" href="#air-humidity-sensor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>±2% RH</td>
+</tr>
+<tr>
+<td><strong>Range</strong></td>
+<td>0-100% RH</td>
+</tr>
+<tr>
+<td><strong>Technology</strong></td>
+<td>Capacitive</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
+<td>IP65</td>
+</tr>
+<tr>
+<td><strong>Response Time</strong></td>
+<td>8 seconds</td>
+</tr>
+</tbody>
+</table>
+<h3 id="light-intensity-par-sensor">Light Intensity (PAR) Sensor | مستشعر شدة الضوء<a class="headerlink" href="#light-intensity-par-sensor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>±5%</td>
+</tr>
+<tr>
+<td><strong>Range</strong></td>
+<td>0-2500 µmol/m²/s</td>
+</tr>
+<tr>
+<td><strong>Spectral Response</strong></td>
+<td>400-700 nm (PAR)</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
+<td>IP65</td>
+</tr>
+<tr>
+<td><strong>Cosine Correction</strong></td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="co2-concentration-sensor">CO2 Concentration Sensor | مستشعر تركيز ثاني أكسيد الكربون<a class="headerlink" href="#co2-concentration-sensor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>±50 ppm + 3% reading</td>
+</tr>
+<tr>
+<td><strong>Range</strong></td>
+<td>0-5000 ppm</td>
+</tr>
+<tr>
+<td><strong>Technology</strong></td>
+<td>NDIR (Non-Dispersive Infrared)</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
+<td>IP54</td>
+</tr>
+<tr>
+<td><strong>Warm-up Time</strong></td>
+<td>30 seconds</td>
+</tr>
+</tbody>
+</table>
+<h3 id="water-flow-meter">Water Flow Meter | عداد تدفق المياه<a class="headerlink" href="#water-flow-meter" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>±1% full scale</td>
+</tr>
+<tr>
+<td><strong>Range</strong></td>
+<td>0-200 L/min (depends on size)</td>
+</tr>
+<tr>
+<td><strong>Technology</strong></td>
+<td>Electromagnetic</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
+<td>IP68</td>
+</tr>
+<tr>
+<td><strong>Features</strong></td>
+<td>Anti-clogging filter, pulse output</td>
+</tr>
+</tbody>
+</table>
+<h3 id="chlorophyll-meter">Chlorophyll Meter | مقياس الكلوروفيل<a class="headerlink" href="#chlorophyll-meter" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>±1 SPAD unit</td>
+</tr>
+<tr>
+<td><strong>Range</strong></td>
+<td>0-99 SPAD</td>
+</tr>
+<tr>
+<td><strong>Measurement Area</strong></td>
+<td>2mm × 3mm</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
+<td>IP54</td>
+</tr>
+<tr>
+<td><strong>Light Source</strong></td>
+<td>Red (650nm) + Infrared (940nm)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="leaf-wetness-sensor">Leaf Wetness Sensor | مستشعر رطوبة الأوراق<a class="headerlink" href="#leaf-wetness-sensor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>±2% RH equivalent</td>
+</tr>
+<tr>
+<td><strong>Detection</strong></td>
+<td>Wet/Dry threshold</td>
+</tr>
+<tr>
+<td><strong>Technology</strong></td>
+<td>Resistive sensing</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
+<td>IP65</td>
+</tr>
+</tbody>
+</table>
+<h3 id="soil-npk-sensor-npk">Soil NPK Sensor | مستشعر NPK للتربة<a class="headerlink" href="#soil-npk-sensor-npk" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>±5% full scale</td>
+</tr>
+<tr>
+<td><strong>Range</strong></td>
+<td>N: 0-1999 mg/kg, P: 0-1999 mg/kg, K: 0-1999 mg/kg</td>
+</tr>
+<tr>
+<td><strong>Technology</strong></td>
+<td>Ion-selective electrodes</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
+<td>IP68</td>
+</tr>
+<tr>
+<td><strong>Calibration</strong></td>
+<td>Factory calibrated</td>
+</tr>
+</tbody>
+</table>
+<h3 id="wind-speed-sensor">Wind Speed Sensor | مستشعر سرعة الرياح<a class="headerlink" href="#wind-speed-sensor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>±0.3 m/s or ±2%</td>
+</tr>
+<tr>
+<td><strong>Range</strong></td>
+<td>0-60 m/s</td>
+</tr>
+<tr>
+<td><strong>Technology</strong></td>
+<td>Ultrasonic</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
+<td>IP65</td>
+</tr>
+<tr>
+<td><strong>Features</strong></td>
+<td>Sandstorm-resistant design</td>
+</tr>
+<tr>
+<td><strong>Starting Threshold</strong></td>
+<td>0.5 m/s</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rain-gauge">Rain Gauge | مقياس الأمطار<a class="headerlink" href="#rain-gauge" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>±0.2 mm</td>
+</tr>
+<tr>
+<td><strong>Resolution</strong></td>
+<td>0.2 mm per tip</td>
+</tr>
+<tr>
+<td><strong>Technology</strong></td>
+<td>Tipping bucket</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
+<td>IP68</td>
+</tr>
+<tr>
+<td><strong>Collection Area</strong></td>
+<td>200 cm²</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="actuator-types">Actuator Types | أنواع المشغلات<a class="headerlink" href="#actuator-types" title="Permanent link">&para;</a></h2>
+<h3 id="supported-actuators">Supported Actuators | المشغلات المدعومة<a class="headerlink" href="#supported-actuators" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+<th>Control</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PUMP</strong></td>
+<td>Water/fertilizer pump</td>
+<td>ON/OFF, Speed</td>
+<td>مضخة مياه/أسمدة</td>
+</tr>
+<tr>
+<td><strong>VALVE</strong></td>
+<td>Solenoid valve</td>
+<td>OPEN/CLOSE</td>
+<td>صمام ملف لولبي</td>
+</tr>
+<tr>
+<td><strong>MOTOR</strong></td>
+<td>General purpose motor</td>
+<td>ON/OFF, Direction</td>
+<td>محرك عام</td>
+</tr>
+<tr>
+<td><strong>SPRINKLER</strong></td>
+<td>Irrigation sprinkler</td>
+<td>ON/OFF, Zone</td>
+<td>رشاش ري</td>
+</tr>
+<tr>
+<td><strong>FAN</strong></td>
+<td>Ventilation fan</td>
+<td>ON/OFF, Speed</td>
+<td>مروحة تهوية</td>
+</tr>
+</tbody>
+</table>
+<h3 id="valve-controller-specifications">Valve Controller Specifications | مواصفات التحكم بالصمامات<a class="headerlink" href="#valve-controller-specifications" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">valve_controller</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">operating_voltage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24V AC/DC</span>
+<span class="w">  </span><span class="nt">max_current</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5A per zone</span>
+<span class="w">  </span><span class="nt">zones</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="w">  </span><span class="nt">control_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">latching or non-latching</span>
+<span class="w">  </span><span class="nt">protection</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IP66</span>
+<span class="w">  </span><span class="nt">wire_gauge</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">18-22 AWG</span>
+</code></pre></div>
+
+<hr />
+<h2 id="device-registration">Device Registration | تسجيل الأجهزة<a class="headerlink" href="#device-registration" title="Permanent link">&para;</a></h2>
+<h3 id="device-types">Device Types | أنواع الأجهزة<a class="headerlink" href="#device-types" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DeviceType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">SOIL_SENSOR</span> <span class="o">=</span> <span class="s2">&quot;soil_sensor&quot;</span>           <span class="c1"># مستشعر تربة</span>
+    <span class="n">WEATHER_STATION</span> <span class="o">=</span> <span class="s2">&quot;weather_station&quot;</span>   <span class="c1"># محطة طقس</span>
+    <span class="n">WATER_SENSOR</span> <span class="o">=</span> <span class="s2">&quot;water_sensor&quot;</span>         <span class="c1"># مستشعر مياه</span>
+    <span class="n">FLOW_METER</span> <span class="o">=</span> <span class="s2">&quot;flow_meter&quot;</span>             <span class="c1"># عداد تدفق</span>
+    <span class="n">VALVE_CONTROLLER</span> <span class="o">=</span> <span class="s2">&quot;valve_controller&quot;</span> <span class="c1"># التحكم بالصمام</span>
+    <span class="n">GATEWAY</span> <span class="o">=</span> <span class="s2">&quot;gateway&quot;</span>                   <span class="c1"># بوابة</span>
+    <span class="n">CAMERA</span> <span class="o">=</span> <span class="s2">&quot;camera&quot;</span>                     <span class="c1"># كاميرا</span>
+    <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>                   <span class="c1"># غير معروف</span>
+</code></pre></div>
+
+<h3 id="registration-process">Registration Process | عملية التسجيل<a class="headerlink" href="#registration-process" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Manual Registration</strong> | التسجيل اليدوي
+   ```http
+   POST /api/v1/devices
+   Content-Type: application/json
+   X-Tenant-ID: {tenant_id}</li>
+</ol>
+<p>{
+     "device_id": "SM-100-001",
+     "device_type": "soil_sensor",
+     "model": "SM-100",
+     "manufacturer": "SoilTech",
+     "firmware_version": "2.3.1",
+     "field_id": "FIELD-003",
+     "location": {
+       "latitude": 24.7136,
+       "longitude": 46.6753
+     }
+   }
+   ```</p>
+<ol>
+<li><strong>Auto Registration</strong> | التسجيل التلقائي</li>
+<li>Enable with <code>IOT_AUTO_REGISTER=true</code></li>
+<li>Device auto-registers on first data transmission</li>
+<li>Device type inferred from sensor type</li>
+</ol>
+<h3 id="device-data-model">Device Data Model | نموذج بيانات الجهاز<a class="headerlink" href="#device-data-model" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Device</span><span class="p">:</span>
+    <span class="n">device_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">device_type</span><span class="p">:</span> <span class="n">DeviceType</span>
+    <span class="n">status</span><span class="p">:</span> <span class="n">DeviceStatus</span> <span class="o">=</span> <span class="n">DeviceStatus</span><span class="o">.</span><span class="n">OFFLINE</span>
+    <span class="n">last_seen</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">battery_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">signal_strength</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">firmware_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">last_reading</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_online</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_seen</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">UTC</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_seen</span><span class="p">)</span><span class="o">.</span><span class="n">seconds</span> <span class="o">&lt;</span> <span class="mi">300</span>
+</code></pre></div>
+
+<hr />
+<h2 id="communication-protocols">Communication Protocols | بروتوكولات الاتصال<a class="headerlink" href="#communication-protocols" title="Permanent link">&para;</a></h2>
+<h3 id="mqtt-primary-mqtt">MQTT (Primary) | MQTT (الرئيسي)<a class="headerlink" href="#mqtt-primary-mqtt" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">mqtt</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">broker</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mqtt.sahool.sa</span>
+<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1883</span><span class="w">            </span><span class="c1"># Non-TLS</span>
+<span class="w">  </span><span class="nt">tls_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8883</span><span class="w">        </span><span class="c1"># TLS enabled</span>
+<span class="w">  </span><span class="nt">qos</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w">                </span><span class="c1"># At least once</span>
+<span class="w">  </span><span class="nt">topics</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">sensor_data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool/sensors/{tenant_id}/{device_id}/data</span>
+<span class="w">    </span><span class="nt">commands</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool/devices/{tenant_id}/{device_id}/commands</span>
+<span class="w">    </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool/devices/{tenant_id}/{device_id}/status</span>
+<span class="w">    </span><span class="nt">firmware</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool/devices/{tenant_id}/{device_id}/firmware</span>
+</code></pre></div>
+
+<h3 id="httprest-httprest">HTTP/REST | HTTP/REST<a class="headerlink" href="#httprest-httprest" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">http</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://iot-gateway.sahool.sa</span>
+<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8106</span>
+<span class="w">  </span><span class="nt">endpoints</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">POST /api/v1/readings</span>
+<span class="w">    </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">POST /api/v1/devices/{device_id}/status</span>
+<span class="w">    </span><span class="nt">commands</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GET /api/v1/devices/{device_id}/commands</span>
+</code></pre></div>
+
+<h3 id="coap-constrained-devices-coap">CoAP (Constrained Devices) | CoAP (للأجهزة المحدودة)<a class="headerlink" href="#coap-constrained-devices-coap" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">coap</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5683</span>
+<span class="w">  </span><span class="nt">dtls_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5684</span>
+<span class="w">  </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">sensor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/sensor</span>
+<span class="w">    </span><span class="nt">actuator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/actuator</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/config</span>
+</code></pre></div>
+
+<h3 id="lorawan-long-range-lorawan">LoRaWAN (Long Range) | LoRaWAN (المدى الطويل)<a class="headerlink" href="#lorawan-long-range-lorawan" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">lorawan</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">frequency</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">868 MHz (EU) / 915 MHz (US)</span>
+<span class="w">  </span><span class="nt">spreading_factor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SF7-SF12</span>
+<span class="w">  </span><span class="nt">bandwidth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">125 kHz</span>
+<span class="w">  </span><span class="nt">max_payload</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">51-242 bytes</span>
+</code></pre></div>
+
+<h3 id="protocol-selection-guide">Protocol Selection Guide | دليل اختيار البروتوكول<a class="headerlink" href="#protocol-selection-guide" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Recommended Protocol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>High-speed WiFi</td>
+<td>MQTT</td>
+</tr>
+<tr>
+<td>Cellular (4G/LTE)</td>
+<td>HTTP</td>
+</tr>
+<tr>
+<td>Battery-powered, low data</td>
+<td>CoAP</td>
+</tr>
+<tr>
+<td>Remote areas, no cellular</td>
+<td>LoRaWAN</td>
+</tr>
+<tr>
+<td>Real-time control</td>
+<td>MQTT with QoS 1</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="device-commands">Device Commands | أوامر الأجهزة<a class="headerlink" href="#device-commands" title="Permanent link">&para;</a></h2>
+<h3 id="supported-commands">Supported Commands | الأوامر المدعومة<a class="headerlink" href="#supported-commands" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reboot</code></td>
+<td>Restart device</td>
+<td>إعادة تشغيل الجهاز</td>
+</tr>
+<tr>
+<td><code>calibrate</code></td>
+<td>Sensor calibration</td>
+<td>معايرة المستشعر</td>
+</tr>
+<tr>
+<td><code>set_interval</code></td>
+<td>Set reporting interval</td>
+<td>تعيين فترة الإبلاغ</td>
+</tr>
+<tr>
+<td><code>update_firmware</code></td>
+<td>OTA firmware update</td>
+<td>تحديث الفريم وير</td>
+</tr>
+<tr>
+<td><code>open_valve</code></td>
+<td>Open irrigation valve</td>
+<td>فتح صمام الري</td>
+</tr>
+<tr>
+<td><code>close_valve</code></td>
+<td>Close irrigation valve</td>
+<td>إغلاق صمام الري</td>
+</tr>
+<tr>
+<td><code>take_photo</code></td>
+<td>Capture image (camera)</td>
+<td>التقاط صورة</td>
+</tr>
+<tr>
+<td><code>reset</code></td>
+<td>Factory reset</td>
+<td>إعادة ضبط المصنع</td>
+</tr>
+</tbody>
+</table>
+<h3 id="command-api-api">Command API | واجهة أوامر API<a class="headerlink" href="#command-api-api" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">POST /api/v1/devices/{device_id}/commands</span>
+<span class="err">Content-Type: application/json</span>
+<span class="err">X-Tenant-ID: {tenant_id}</span>
+
+<span class="err">{</span>
+<span class="err">  &quot;command&quot;: &quot;set_interval&quot;,</span>
+<span class="err">  &quot;parameters&quot;: {</span>
+<span class="err">    &quot;interval_seconds&quot;: 300</span>
+<span class="err">  }</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<h3 id="command-response">Command Response | استجابة الأوامر<a class="headerlink" href="#command-response" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;command_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cmd_a1b2c3d4&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;device_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SM-100-001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;set_interval&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pending&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;sent_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-24T10:30:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;acknowledged_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;completed_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;result&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="ota-updates">OTA Updates | التحديثات اللاسلكية<a class="headerlink" href="#ota-updates" title="Permanent link">&para;</a></h2>
+<h3 id="update-process">Update Process | عملية التحديث<a class="headerlink" href="#update-process" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">┌─────────────┐</span><span class="w">     </span><span class="err">┌─────────────┐</span><span class="w">     </span><span class="err">┌─────────────┐</span>
+<span class="err">│</span><span class="w">   </span><span class="n">Check</span><span class="w">     </span><span class="err">│</span><span class="w">     </span><span class="err">│</span><span class="w">  </span><span class="n">Download</span><span class="w">   </span><span class="err">│</span><span class="w">     </span><span class="err">│</span><span class="w">   </span><span class="n">Verify</span><span class="w">    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">Available</span><span class="w">  </span><span class="err">│────▶│</span><span class="w">  </span><span class="n">Firmware</span><span class="w">   </span><span class="err">│────▶│</span><span class="w">  </span><span class="n">Signature</span><span class="w">  </span><span class="err">│</span>
+<span class="err">└─────────────┘</span><span class="w">     </span><span class="err">└─────────────┘</span><span class="w">     </span><span class="err">└─────────────┘</span>
+<span class="w">                                               </span><span class="err">│</span>
+<span class="w">       </span><span class="err">┌───────────────────────────────────────┘</span>
+<span class="w">       </span><span class="err">▼</span>
+<span class="err">┌─────────────┐</span><span class="w">     </span><span class="err">┌─────────────┐</span><span class="w">     </span><span class="err">┌─────────────┐</span>
+<span class="err">│</span><span class="w">   </span><span class="n">Apply</span><span class="w">     </span><span class="err">│</span><span class="w">     </span><span class="err">│</span><span class="w">   </span><span class="n">Reboot</span><span class="w">    </span><span class="err">│</span><span class="w">     </span><span class="err">│</span><span class="w">   </span><span class="n">Report</span><span class="w">    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="n">Update</span><span class="w">    </span><span class="err">│────▶│</span><span class="w">   </span><span class="n">Device</span><span class="w">    </span><span class="err">│────▶│</span><span class="w">   </span><span class="n">Status</span><span class="w">    </span><span class="err">│</span>
+<span class="err">└─────────────┘</span><span class="w">     </span><span class="err">└─────────────┘</span><span class="w">     </span><span class="err">└─────────────┘</span>
+</code></pre></div>
+
+<h3 id="firmware-update-api">Firmware Update API | واجهة تحديث الفريم وير<a class="headerlink" href="#firmware-update-api" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">POST /api/v1/devices/{device_id}/commands</span>
+<span class="err">Content-Type: application/json</span>
+
+<span class="err">{</span>
+<span class="err">  &quot;command&quot;: &quot;update_firmware&quot;,</span>
+<span class="err">  &quot;parameters&quot;: {</span>
+<span class="err">    &quot;version&quot;: &quot;2.4.0&quot;,</span>
+<span class="err">    &quot;url&quot;: &quot;https://firmware.sahool.sa/SM-100/2.4.0.bin&quot;,</span>
+<span class="err">    &quot;checksum&quot;: &quot;sha256:abc123...&quot;,</span>
+<span class="err">    &quot;force&quot;: false</span>
+<span class="err">  }</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<h3 id="update-status">Update Status | حالة التحديث<a class="headerlink" href="#update-status" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;firmware&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.3.1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;updateAvailable&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;latestVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.4.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;updateStatus&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;downloading&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;progress&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="device-health-monitoring">Device Health Monitoring | مراقبة صحة الأجهزة<a class="headerlink" href="#device-health-monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="health-metrics">Health Metrics | مقاييس الصحة<a class="headerlink" href="#health-metrics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Threshold</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>battery_level</code></td>
+<td>Battery percentage</td>
+<td>مستوى البطارية</td>
+<td>&lt; 20% warning</td>
+</tr>
+<tr>
+<td><code>signal_strength</code></td>
+<td>RSSI in dBm</td>
+<td>قوة الإشارة</td>
+<td>&lt; -80 dBm warning</td>
+</tr>
+<tr>
+<td><code>uptime_percentage</code></td>
+<td>Device availability</td>
+<td>نسبة التشغيل</td>
+<td>&lt; 95% alert</td>
+</tr>
+<tr>
+<td><code>drift_detected</code></td>
+<td>Sensor drift</td>
+<td>انحراف المستشعر</td>
+<td>Boolean</td>
+</tr>
+<tr>
+<td><code>last_successful_reading</code></td>
+<td>Last good reading</td>
+<td>آخر قراءة ناجحة</td>
+<td>&gt; 1 hour warning</td>
+</tr>
+</tbody>
+</table>
+<h3 id="health-response">Health Response | استجابة الصحة<a class="headerlink" href="#health-response" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;device_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SM-100-001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;online&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;battery_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">85</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;signal_strength&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">-65</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;uptime_percentage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">99.5</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;drift_detected&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;last_successful_reading&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-24T10:25:00Z&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;firmware&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.3.1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;updateAvailable&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="sensor-health-model">Sensor Health Model | نموذج صحة المستشعر<a class="headerlink" href="#sensor-health-model" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SensorHealth</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">sensor_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">sensor_type</span><span class="p">:</span> <span class="n">SensorType</span>
+    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+    <span class="n">battery_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>      <span class="c1"># 0-100%</span>
+    <span class="n">signal_strength</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>      <span class="c1"># dBm</span>
+    <span class="n">last_reading_time</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">reading_count_24h</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">error_count_24h</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">drift_detected</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">calibration_due</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">uptime_percentage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">last_successful_reading</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">last_error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">data_quality_score</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+
+<hr />
+<h2 id="alert-thresholds">Alert Thresholds | عتبات التنبيه<a class="headerlink" href="#alert-thresholds" title="Permanent link">&para;</a></h2>
+<h3 id="yemen-climate-thresholds">Yemen Climate Thresholds | عتبات مناخ اليمن<a class="headerlink" href="#yemen-climate-thresholds" title="Permanent link">&para;</a></h3>
+<p>These thresholds are optimized for agricultural operations in Yemen's climate:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Warning Low</th>
+<th>Warning High</th>
+<th>Critical Low</th>
+<th>Critical High</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Soil Moisture</strong></td>
+<td>25%</td>
+<td>80%</td>
+<td>15%</td>
+<td>90%</td>
+</tr>
+<tr>
+<td><strong>Air Temperature</strong></td>
+<td>5°C</td>
+<td>40°C</td>
+<td>0°C</td>
+<td>45°C</td>
+</tr>
+<tr>
+<td><strong>Soil Temperature</strong></td>
+<td>10°C</td>
+<td>35°C</td>
+<td>5°C</td>
+<td>40°C</td>
+</tr>
+<tr>
+<td><strong>Air Humidity</strong></td>
+<td>20%</td>
+<td>85%</td>
+<td>10%</td>
+<td>95%</td>
+</tr>
+<tr>
+<td><strong>Soil EC</strong></td>
+<td>0.5 mS/cm</td>
+<td>4.0 mS/cm</td>
+<td>0.2 mS/cm</td>
+<td>6.0 mS/cm</td>
+</tr>
+<tr>
+<td><strong>Soil pH</strong></td>
+<td>5.5</td>
+<td>7.5</td>
+<td>5.0</td>
+<td>8.0</td>
+</tr>
+<tr>
+<td><strong>Daily Rainfall</strong></td>
+<td>-</td>
+<td>50 mm</td>
+<td>-</td>
+<td>100 mm</td>
+</tr>
+<tr>
+<td><strong>Wind Speed</strong></td>
+<td>-</td>
+<td>15 m/s</td>
+<td>-</td>
+<td>25 m/s</td>
+</tr>
+</tbody>
+</table>
+<h3 id="alert-configuration">Alert Configuration | تكوين التنبيهات<a class="headerlink" href="#alert-configuration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">YEMEN_ALERT_THRESHOLDS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;soil_moisture&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;warning_low&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+        <span class="s2">&quot;warning_high&quot;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
+        <span class="s2">&quot;critical_low&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+        <span class="s2">&quot;critical_high&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;%&quot;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;air_temperature&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;warning_low&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;warning_high&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+        <span class="s2">&quot;critical_low&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;critical_high&quot;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;°C&quot;</span>
+    <span class="p">}</span>
+    <span class="c1"># ... additional thresholds</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="api-reference-api">API Reference | مرجع API<a class="headerlink" href="#api-reference-api" title="Permanent link">&para;</a></h2>
+<h3 id="iot-gateway-endpoints-port-8106">IoT Gateway Endpoints (Port 8106)<a class="headerlink" href="#iot-gateway-endpoints-port-8106" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/healthz</code></td>
+<td>Liveness check</td>
+<td>فحص الحياة</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/readyz</code></td>
+<td>Readiness check</td>
+<td>فحص الجاهزية</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/readings</code></td>
+<td>Submit sensor reading</td>
+<td>إرسال قراءة مستشعر</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/readings/batch</code></td>
+<td>Submit batch readings</td>
+<td>إرسال قراءات متعددة</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/devices</code></td>
+<td>List registered devices</td>
+<td>قائمة الأجهزة المسجلة</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/devices/{device_id}</code></td>
+<td>Get device details</td>
+<td>تفاصيل الجهاز</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/devices/{device_id}/status</code></td>
+<td>Get device status</td>
+<td>حالة الجهاز</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/devices/{device_id}/commands</code></td>
+<td>Send command</td>
+<td>إرسال أمر</td>
+</tr>
+</tbody>
+</table>
+<h3 id="iot-service-endpoints-port-8117">IoT Service Endpoints (Port 8117)<a class="headerlink" href="#iot-service-endpoints-port-8117" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/devices</code></td>
+<td>List all devices</td>
+<td>جميع الأجهزة</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/devices</code></td>
+<td>Register device</td>
+<td>تسجيل جهاز</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/devices/{id}</code></td>
+<td>Get device by ID</td>
+<td>الجهاز حسب المعرف</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/api/v1/devices/{id}</code></td>
+<td>Update device</td>
+<td>تحديث الجهاز</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/v1/devices/{id}</code></td>
+<td>Delete device</td>
+<td>حذف الجهاز</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/sensors</code></td>
+<td>List sensors</td>
+<td>قائمة المستشعرات</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/actuators</code></td>
+<td>List actuators</td>
+<td>قائمة المشغلات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="request-headers">Request Headers | رؤوس الطلب<a class="headerlink" href="#request-headers" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">X-Tenant-ID: {tenant_id}</span>
+<span class="err">X-Device-ID: {device_id}</span>
+<span class="err">X-Device-Firmware: {firmware_version}</span>
+<span class="err">X-Device-Model: {model_name}</span>
+<span class="err">X-Device-Manufacturer: {manufacturer}</span>
+<span class="err">X-Device-Type: {device_type}</span>
+<span class="err">Authorization: Bearer {api_token}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="environment-variables">Environment Variables | متغيرات البيئة<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
+<h3 id="iot-gateway-configuration">IoT Gateway Configuration<a class="headerlink" href="#iot-gateway-configuration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># MQTT Configuration</span>
+<span class="nv">MQTT_BROKER</span><span class="o">=</span>mqtt
+<span class="nv">MQTT_PORT</span><span class="o">=</span><span class="m">1883</span>
+<span class="nv">MQTT_TOPIC</span><span class="o">=</span>sahool/sensors/#
+<span class="nv">MQTT_USER</span><span class="o">=</span>
+<span class="nv">MQTT_PASSWORD</span><span class="o">=</span>
+
+<span class="c1"># Service Configuration</span>
+<span class="nv">PORT</span><span class="o">=</span><span class="m">8106</span>
+<span class="nv">IOT_AUTO_REGISTER</span><span class="o">=</span><span class="nb">false</span>
+<span class="nv">LOG_LEVEL</span><span class="o">=</span>INFO
+
+<span class="c1"># Database</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span>postgresql://...
+
+<span class="c1"># NATS</span>
+<span class="nv">NATS_URL</span><span class="o">=</span>nats://nats:4222
+</code></pre></div>
+
+<h3 id="iot-service-configuration">IoT Service Configuration<a class="headerlink" href="#iot-service-configuration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">PORT</span><span class="o">=</span><span class="m">8117</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span>postgresql://...
+<span class="nv">NATS_URL</span><span class="o">=</span>nats://nats:4222
+</code></pre></div>
+
+<hr />
+<h2 id="device-distribution-for-load-testing">Device Distribution for Load Testing | توزيع الأجهزة لاختبار الحمل<a class="headerlink" href="#device-distribution-for-load-testing" title="Permanent link">&para;</a></h2>
+<p>Default device distribution for simulation:</p>
+<table>
+<thead>
+<tr>
+<th>Device Type</th>
+<th>Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Soil Moisture Sensors</td>
+<td>40%</td>
+</tr>
+<tr>
+<td>Weather Stations</td>
+<td>25%</td>
+</tr>
+<tr>
+<td>Irrigation Controllers</td>
+<td>20%</td>
+</tr>
+<tr>
+<td>GPS Trackers</td>
+<td>15%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="related-documentation">Related Documentation | التوثيق ذو الصلة<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../apps/services/iot-gateway/README.md">IoT Gateway README</a></li>
+<li><a href="../apps/services/iot-service/README.md">IoT Service README</a></li>
+<li><a href="../apps/services/virtual-sensors/README.md">Virtual Sensors README</a></li>
+<li><a href="../api/openapi/iot-services.yaml">API OpenAPI Specification</a></li>
+<li><a href="../shared/events/schemas/">NATS Event Schemas</a></li>
+</ul>
+<hr />
+<h2 id="license">License | الترخيص<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
+<p>Proprietary - KAFAAT © 2026</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

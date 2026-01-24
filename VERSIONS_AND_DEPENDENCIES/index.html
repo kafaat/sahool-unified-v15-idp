@@ -1,0 +1,3250 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Platform - Versions & Dependencies | الإصدارات والاعتماديات - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-versions-dependencies" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Platform - Versions &amp; Dependencies | الإصدارات والاعتماديات
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-versions-dependencies">SAHOOL Platform - Versions &amp; Dependencies | الإصدارات والاعتماديات<a class="headerlink" href="#sahool-platform-versions-dependencies" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Comprehensive documentation of all platform versions, libraries, and dependencies</p>
+</blockquote>
+<p><strong>Platform Version</strong>: 16.0.0
+<strong>Last Updated</strong>: January 2026</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents | جدول المحتويات<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#platform-overview">Platform Overview</a></li>
+<li><a href="#infrastructure-versions">Infrastructure Versions</a></li>
+<li><a href="#python-dependencies">Python Dependencies</a></li>
+<li><a href="#nodejs-dependencies">Node.js Dependencies</a></li>
+<li><a href="#flutterdart-dependencies">Flutter/Dart Dependencies</a></li>
+<li><a href="#development-tools">Development Tools</a></li>
+<li><a href="#critical-constraints">Critical Constraints</a></li>
+<li><a href="#version-matrix">Version Matrix</a></li>
+</ol>
+<hr />
+<h2 id="platform-overview">Platform Overview | نظرة عامة على المنصة<a class="headerlink" href="#platform-overview" title="Permanent link">&para;</a></h2>
+<h3 id="runtime-requirements">Runtime Requirements | متطلبات التشغيل<a class="headerlink" href="#runtime-requirements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Version</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Python</strong></td>
+<td>3.11+</td>
+<td>Required for all backend services</td>
+</tr>
+<tr>
+<td><strong>Node.js</strong></td>
+<td>20.0.0+</td>
+<td>LTS version required</td>
+</tr>
+<tr>
+<td><strong>Flutter</strong></td>
+<td>3.27.x</td>
+<td>With Dart SDK &gt;=3.2.0</td>
+</tr>
+<tr>
+<td><strong>npm</strong></td>
+<td>10.9.0</td>
+<td>Package manager</td>
+</tr>
+<tr>
+<td><strong>Docker</strong></td>
+<td>v2+</td>
+<td>Container runtime</td>
+</tr>
+</tbody>
+</table>
+<h3 id="platform-statistics">Platform Statistics | إحصائيات المنصة<a class="headerlink" href="#platform-statistics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python Services</td>
+<td>50+</td>
+</tr>
+<tr>
+<td>Node.js Services</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Flutter Apps</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Shared Packages</td>
+<td>15+</td>
+</tr>
+<tr>
+<td>Total Dependencies</td>
+<td>250+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="infrastructure-versions">Infrastructure Versions | إصدارات البنية التحتية<a class="headerlink" href="#infrastructure-versions" title="Permanent link">&para;</a></h2>
+<h3 id="database-storage">Database &amp; Storage | قواعد البيانات والتخزين<a class="headerlink" href="#database-storage" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Version</th>
+<th>Image</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PostgreSQL</strong></td>
+<td>16</td>
+<td><code>postgis/postgis:16-3.4</code></td>
+<td>Primary database with PostGIS</td>
+</tr>
+<tr>
+<td><strong>PostGIS</strong></td>
+<td>3.4</td>
+<td>(included)</td>
+<td>Geospatial extension</td>
+</tr>
+<tr>
+<td><strong>PgBouncer</strong></td>
+<td>latest</td>
+<td><code>edoburu/pgbouncer</code></td>
+<td>Connection pooling</td>
+</tr>
+<tr>
+<td><strong>Redis</strong></td>
+<td>7.4</td>
+<td><code>redis:7.4-alpine</code></td>
+<td>Caching &amp; sessions</td>
+</tr>
+<tr>
+<td><strong>MinIO</strong></td>
+<td>2024-01-16</td>
+<td><code>minio/minio:RELEASE.2024-01-16T16-07-38Z</code></td>
+<td>Object storage</td>
+</tr>
+</tbody>
+</table>
+<h3 id="messaging-events">Messaging &amp; Events | الرسائل والأحداث<a class="headerlink" href="#messaging-events" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Version</th>
+<th>Image</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NATS</strong></td>
+<td>2.10.24</td>
+<td><code>nats:2.10.24-alpine</code></td>
+<td>Event streaming</td>
+</tr>
+<tr>
+<td><strong>NATS Exporter</strong></td>
+<td>0.14.0</td>
+<td><code>natsio/prometheus-nats-exporter:0.14.0</code></td>
+<td>Metrics export</td>
+</tr>
+</tbody>
+</table>
+<h3 id="api-gateway-api">API Gateway | بوابة API<a class="headerlink" href="#api-gateway-api" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Version</th>
+<th>Image</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Kong</strong></td>
+<td>3.5</td>
+<td><code>kong:3.5-alpine</code></td>
+<td>API Gateway</td>
+</tr>
+<tr>
+<td><strong>Konga</strong></td>
+<td>0.14.9</td>
+<td><code>pantsel/konga:0.14.9</code></td>
+<td>Kong Admin UI</td>
+</tr>
+</tbody>
+</table>
+<h3 id="monitoring">Monitoring | المراقبة<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Version</th>
+<th>Image</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PostgreSQL Exporter</strong></td>
+<td>0.15.0</td>
+<td><code>prometheuscommunity/postgres-exporter:v0.15.0</code></td>
+<td>DB metrics</td>
+</tr>
+<tr>
+<td><strong>Redis Exporter</strong></td>
+<td>1.55.0</td>
+<td><code>oliver006/redis_exporter:v1.55.0</code></td>
+<td>Redis metrics</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kubernetes-orchestration-kubernetes">Kubernetes &amp; Orchestration | Kubernetes والتنسيق<a class="headerlink" href="#kubernetes-orchestration-kubernetes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Version</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Kubernetes (EKS)</strong></td>
+<td>1.28</td>
+<td>AWS managed</td>
+</tr>
+<tr>
+<td><strong>Helm</strong></td>
+<td>3.x</td>
+<td>Chart deployment</td>
+</tr>
+<tr>
+<td><strong>Terraform</strong></td>
+<td>&gt;= 1.5.0</td>
+<td>Infrastructure as Code</td>
+</tr>
+<tr>
+<td><strong>AWS Provider</strong></td>
+<td>~&gt; 5.0</td>
+<td>Terraform provider</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="python-dependencies-python">Python Dependencies | اعتماديات Python<a class="headerlink" href="#python-dependencies-python" title="Permanent link">&para;</a></h2>
+<h3 id="core-framework">Core Framework | الإطار الأساسي<a class="headerlink" href="#core-framework" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fastapi</code></td>
+<td>0.126.0</td>
+<td>Web framework</td>
+<td>إطار الويب</td>
+</tr>
+<tr>
+<td><code>starlette</code></td>
+<td>&gt;=0.49.1</td>
+<td>ASGI toolkit</td>
+<td>أدوات ASGI</td>
+</tr>
+<tr>
+<td><code>uvicorn[standard]</code></td>
+<td>&gt;=0.27.0,&lt;1.0.0</td>
+<td>ASGI server</td>
+<td>خادم ASGI</td>
+</tr>
+<tr>
+<td><code>pydantic</code></td>
+<td>2.9.2</td>
+<td>Data validation</td>
+<td>التحقق من البيانات</td>
+</tr>
+<tr>
+<td><code>pydantic-settings</code></td>
+<td>2.7.1</td>
+<td>Settings management</td>
+<td>إدارة الإعدادات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="database-orm-orm">Database &amp; ORM | قاعدة البيانات و ORM<a class="headerlink" href="#database-orm-orm" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>asyncpg</code></td>
+<td>0.30.0</td>
+<td>Async PostgreSQL driver</td>
+<td>تشغيل PostgreSQL غير متزامن</td>
+</tr>
+<tr>
+<td><code>tortoise-orm</code></td>
+<td>0.21.7</td>
+<td>Async ORM</td>
+<td>ORM غير متزامن</td>
+</tr>
+<tr>
+<td><code>sqlalchemy</code></td>
+<td>&gt;=2.0.0</td>
+<td>SQL toolkit</td>
+<td>أدوات SQL</td>
+</tr>
+<tr>
+<td><code>psycopg2-binary</code></td>
+<td>2.9.10</td>
+<td>PostgreSQL adapter</td>
+<td>محول PostgreSQL</td>
+</tr>
+<tr>
+<td><code>alembic</code></td>
+<td>1.14.0</td>
+<td>Database migrations</td>
+<td>ترحيل قواعد البيانات</td>
+</tr>
+<tr>
+<td><code>aerich</code></td>
+<td>0.7.2</td>
+<td>Tortoise migrations</td>
+<td>ترحيل Tortoise</td>
+</tr>
+</tbody>
+</table>
+<h3 id="messaging-caching">Messaging &amp; Caching | الرسائل والتخزين المؤقت<a class="headerlink" href="#messaging-caching" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nats-py</code></td>
+<td>2.9.0</td>
+<td>NATS client</td>
+<td>عميل NATS</td>
+</tr>
+<tr>
+<td><code>redis[hiredis]</code></td>
+<td>5.2.1</td>
+<td>Redis client</td>
+<td>عميل Redis</td>
+</tr>
+<tr>
+<td><code>celery</code></td>
+<td>5.4.0</td>
+<td>Task queue</td>
+<td>قائمة المهام</td>
+</tr>
+<tr>
+<td><code>kombu</code></td>
+<td>5.4.2</td>
+<td>Messaging library</td>
+<td>مكتبة الرسائل</td>
+</tr>
+<tr>
+<td><code>aiomqtt</code></td>
+<td>2.3.0</td>
+<td>MQTT client (IoT)</td>
+<td>عميل MQTT</td>
+</tr>
+</tbody>
+</table>
+<h3 id="http-networking-http">HTTP &amp; Networking | HTTP والشبكات<a class="headerlink" href="#http-networking-http" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>httpx</code></td>
+<td>0.28.1</td>
+<td>Async HTTP client</td>
+<td>عميل HTTP غير متزامن</td>
+</tr>
+<tr>
+<td><code>aiohttp</code></td>
+<td>&gt;=3.11.12</td>
+<td>Async HTTP</td>
+<td>HTTP غير متزامن</td>
+</tr>
+<tr>
+<td><code>python-multipart</code></td>
+<td>0.0.18</td>
+<td>File uploads</td>
+<td>رفع الملفات</td>
+</tr>
+<tr>
+<td><code>aiofiles</code></td>
+<td>&gt;=24.1.0</td>
+<td>Async file I/O</td>
+<td>ملفات غير متزامنة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="authentication-security">Authentication &amp; Security | المصادقة والأمان<a class="headerlink" href="#authentication-security" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>python-jose[cryptography]</code></td>
+<td>3.4.0</td>
+<td>JWT handling</td>
+<td>معالجة JWT</td>
+</tr>
+<tr>
+<td><code>passlib[bcrypt]</code></td>
+<td>1.7.4</td>
+<td>Password hashing</td>
+<td>تشفير كلمات المرور</td>
+</tr>
+<tr>
+<td><code>PyJWT</code></td>
+<td>2.10.1</td>
+<td>JWT tokens</td>
+<td>رموز JWT</td>
+</tr>
+<tr>
+<td><code>bcrypt</code></td>
+<td>4.2.1</td>
+<td>Password encryption</td>
+<td>تشفير كلمات المرور</td>
+</tr>
+<tr>
+<td><code>cryptography</code></td>
+<td>&gt;=41.0.0</td>
+<td>Cryptographic primitives</td>
+<td>التشفير الأساسي</td>
+</tr>
+</tbody>
+</table>
+<h3 id="observability">Observability | المراقبة<a class="headerlink" href="#observability" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>prometheus-client</code></td>
+<td>0.21.1</td>
+<td>Metrics export</td>
+<td>تصدير المقاييس</td>
+</tr>
+<tr>
+<td><code>structlog</code></td>
+<td>24.4.0</td>
+<td>Structured logging</td>
+<td>التسجيل المنظم</td>
+</tr>
+<tr>
+<td><code>opentelemetry-api</code></td>
+<td>1.29.0</td>
+<td>Tracing API</td>
+<td>API التتبع</td>
+</tr>
+<tr>
+<td><code>opentelemetry-sdk</code></td>
+<td>1.29.0</td>
+<td>Tracing SDK</td>
+<td>SDK التتبع</td>
+</tr>
+<tr>
+<td><code>opentelemetry-instrumentation-fastapi</code></td>
+<td>0.50b0</td>
+<td>FastAPI tracing</td>
+<td>تتبع FastAPI</td>
+</tr>
+<tr>
+<td><code>python-json-logger</code></td>
+<td>&gt;=2.0.7</td>
+<td>JSON logging</td>
+<td>تسجيل JSON</td>
+</tr>
+</tbody>
+</table>
+<h3 id="aiml-stack">AI/ML Stack | مكدس الذكاء الاصطناعي<a class="headerlink" href="#aiml-stack" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tensorflow-cpu</code></td>
+<td>2.18.0</td>
+<td>Machine learning</td>
+<td>التعلم الآلي</td>
+</tr>
+<tr>
+<td><code>numpy</code></td>
+<td>&gt;=1.26.0,&lt;2.0.0</td>
+<td>Numerical computing</td>
+<td>الحوسبة العددية</td>
+</tr>
+<tr>
+<td><code>Pillow</code></td>
+<td>11.0.0</td>
+<td>Image processing</td>
+<td>معالجة الصور</td>
+</tr>
+<tr>
+<td><code>scikit-learn</code></td>
+<td>&gt;=1.0.0</td>
+<td>ML algorithms</td>
+<td>خوارزميات التعلم</td>
+</tr>
+<tr>
+<td><code>pandas</code></td>
+<td>&gt;=2.0.0</td>
+<td>Data analysis</td>
+<td>تحليل البيانات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="geospatial">Geospatial | الجغرافيا المكانية<a class="headerlink" href="#geospatial" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shapely</code></td>
+<td>2.0.6</td>
+<td>Geometric objects</td>
+<td>الكائنات الهندسية</td>
+</tr>
+<tr>
+<td><code>rasterio</code></td>
+<td>1.4.3</td>
+<td>Raster data</td>
+<td>بيانات النقطية</td>
+</tr>
+<tr>
+<td><code>pyproj</code></td>
+<td>3.7.0</td>
+<td>Coordinate transformation</td>
+<td>تحويل الإحداثيات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="notifications">Notifications | الإشعارات<a class="headerlink" href="#notifications" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>firebase-admin</code></td>
+<td>6.6.0</td>
+<td>Firebase integration</td>
+<td>تكامل Firebase</td>
+</tr>
+<tr>
+<td><code>twilio</code></td>
+<td>9.3.7</td>
+<td>SMS gateway</td>
+<td>بوابة SMS</td>
+</tr>
+<tr>
+<td><code>sendgrid</code></td>
+<td>6.11.0</td>
+<td>Email service</td>
+<td>خدمة البريد</td>
+</tr>
+</tbody>
+</table>
+<h3 id="testing">Testing | الاختبارات<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pytest</code></td>
+<td>8.3.4</td>
+<td>Test framework</td>
+<td>إطار الاختبار</td>
+</tr>
+<tr>
+<td><code>pytest-asyncio</code></td>
+<td>0.24.0</td>
+<td>Async testing</td>
+<td>اختبار غير متزامن</td>
+</tr>
+<tr>
+<td><code>pytest-cov</code></td>
+<td>4.1.0</td>
+<td>Code coverage</td>
+<td>تغطية الكود</td>
+</tr>
+<tr>
+<td><code>pytest-mock</code></td>
+<td>3.12.0</td>
+<td>Mocking</td>
+<td>المحاكاة</td>
+</tr>
+<tr>
+<td><code>pytest-xdist</code></td>
+<td>3.5.0</td>
+<td>Parallel testing</td>
+<td>اختبار متوازي</td>
+</tr>
+</tbody>
+</table>
+<h3 id="development-tools">Development Tools | أدوات التطوير<a class="headerlink" href="#development-tools" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ruff</code></td>
+<td>0.8.4</td>
+<td>Linting &amp; formatting</td>
+<td>التنسيق والفحص</td>
+</tr>
+<tr>
+<td><code>black</code></td>
+<td>24.10.0</td>
+<td>Code formatting</td>
+<td>تنسيق الكود</td>
+</tr>
+<tr>
+<td><code>isort</code></td>
+<td>5.13.2</td>
+<td>Import sorting</td>
+<td>ترتيب الاستيرادات</td>
+</tr>
+<tr>
+<td><code>mypy</code></td>
+<td>&gt;=1.14.0</td>
+<td>Type checking</td>
+<td>فحص الأنواع</td>
+</tr>
+<tr>
+<td><code>pre-commit</code></td>
+<td>4.0.1</td>
+<td>Git hooks</td>
+<td>خطافات Git</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="nodejs-dependencies-nodejs">Node.js Dependencies | اعتماديات Node.js<a class="headerlink" href="#nodejs-dependencies-nodejs" title="Permanent link">&para;</a></h2>
+<h3 id="core-frameworks">Core Frameworks | الأطر الأساسية<a class="headerlink" href="#core-frameworks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>next</code></td>
+<td>^15.5.9 / ^16.1.4</td>
+<td>React framework</td>
+<td>إطار React</td>
+</tr>
+<tr>
+<td><code>react</code></td>
+<td>^19.0.0</td>
+<td>UI library</td>
+<td>مكتبة واجهة المستخدم</td>
+</tr>
+<tr>
+<td><code>react-dom</code></td>
+<td>^19.0.0</td>
+<td>React renderer</td>
+<td>عارض React</td>
+</tr>
+<tr>
+<td><code>@nestjs/core</code></td>
+<td>^10.4.15</td>
+<td>NestJS framework</td>
+<td>إطار NestJS</td>
+</tr>
+<tr>
+<td><code>@nestjs/common</code></td>
+<td>^10.4.15</td>
+<td>NestJS common</td>
+<td>NestJS المشترك</td>
+</tr>
+<tr>
+<td><code>@nestjs/platform-express</code></td>
+<td>^10.4.15</td>
+<td>Express adapter</td>
+<td>محول Express</td>
+</tr>
+<tr>
+<td><code>express</code></td>
+<td>^4.21.2</td>
+<td>Web server</td>
+<td>خادم الويب</td>
+</tr>
+<tr>
+<td><code>typescript</code></td>
+<td>5.7.2</td>
+<td>TypeScript language</td>
+<td>لغة TypeScript</td>
+</tr>
+</tbody>
+</table>
+<h3 id="database-orm-orm_1">Database &amp; ORM | قاعدة البيانات و ORM<a class="headerlink" href="#database-orm-orm_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@prisma/client</code></td>
+<td>^5.22.0</td>
+<td>Prisma ORM client</td>
+<td>عميل Prisma ORM</td>
+</tr>
+<tr>
+<td><code>prisma</code></td>
+<td>^5.22.0</td>
+<td>Prisma CLI</td>
+<td>أداة Prisma</td>
+</tr>
+<tr>
+<td><code>typeorm</code></td>
+<td>^0.3.20</td>
+<td>TypeORM</td>
+<td>TypeORM</td>
+</tr>
+<tr>
+<td><code>pg</code></td>
+<td>^8.13.1</td>
+<td>PostgreSQL driver</td>
+<td>تشغيل PostgreSQL</td>
+</tr>
+</tbody>
+</table>
+<h3 id="http-api-http-api">HTTP &amp; API | HTTP و API<a class="headerlink" href="#http-api-http-api" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>axios</code></td>
+<td>^1.7.9</td>
+<td>HTTP client</td>
+<td>عميل HTTP</td>
+</tr>
+<tr>
+<td><code>@nestjs/swagger</code></td>
+<td>^8.1.0</td>
+<td>API documentation</td>
+<td>توثيق API</td>
+</tr>
+<tr>
+<td><code>nats</code></td>
+<td>^2.28.2</td>
+<td>NATS client</td>
+<td>عميل NATS</td>
+</tr>
+<tr>
+<td><code>socket.io</code></td>
+<td>^4.8.1</td>
+<td>WebSocket server</td>
+<td>خادم WebSocket</td>
+</tr>
+</tbody>
+</table>
+<h3 id="authentication">Authentication | المصادقة<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>jsonwebtoken</code></td>
+<td>^9.0.2</td>
+<td>JWT tokens</td>
+<td>رموز JWT</td>
+</tr>
+<tr>
+<td><code>passport</code></td>
+<td>^0.7.0</td>
+<td>Auth middleware</td>
+<td>وسيط المصادقة</td>
+</tr>
+<tr>
+<td><code>passport-jwt</code></td>
+<td>^4.0.1</td>
+<td>JWT strategy</td>
+<td>استراتيجية JWT</td>
+</tr>
+<tr>
+<td><code>@nestjs/jwt</code></td>
+<td>^10.2.0</td>
+<td>NestJS JWT</td>
+<td>NestJS JWT</td>
+</tr>
+<tr>
+<td><code>bcryptjs</code></td>
+<td>^2.4.3</td>
+<td>Password hashing</td>
+<td>تشفير كلمات المرور</td>
+</tr>
+<tr>
+<td><code>jose</code></td>
+<td>^5.9.6</td>
+<td>JWT utilities</td>
+<td>أدوات JWT</td>
+</tr>
+</tbody>
+</table>
+<h3 id="validation">Validation | التحقق<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class-validator</code></td>
+<td>^0.14.1</td>
+<td>Validation decorators</td>
+<td>مصممات التحقق</td>
+</tr>
+<tr>
+<td><code>class-transformer</code></td>
+<td>^0.5.1</td>
+<td>Object transformation</td>
+<td>تحويل الكائنات</td>
+</tr>
+<tr>
+<td><code>zod</code></td>
+<td>^3.23.8</td>
+<td>Schema validation</td>
+<td>التحقق من المخطط</td>
+</tr>
+</tbody>
+</table>
+<h3 id="state-data-fetching">State &amp; Data Fetching | الحالة وجلب البيانات<a class="headerlink" href="#state-data-fetching" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@tanstack/react-query</code></td>
+<td>^5.90.14</td>
+<td>Data fetching</td>
+<td>جلب البيانات</td>
+</tr>
+<tr>
+<td><code>rxjs</code></td>
+<td>^7.8.1</td>
+<td>Reactive programming</td>
+<td>البرمجة التفاعلية</td>
+</tr>
+</tbody>
+</table>
+<h3 id="caching">Caching | التخزين المؤقت<a class="headerlink" href="#caching" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ioredis</code></td>
+<td>^5.4.2</td>
+<td>Redis client</td>
+<td>عميل Redis</td>
+</tr>
+<tr>
+<td><code>redis</code></td>
+<td>^4.7.0</td>
+<td>Redis client</td>
+<td>عميل Redis</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ui-components">UI Components | مكونات واجهة المستخدم<a class="headerlink" href="#ui-components" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tailwindcss</code></td>
+<td>^3.4.17</td>
+<td>Utility CSS</td>
+<td>CSS الأدوات</td>
+</tr>
+<tr>
+<td><code>tailwind-merge</code></td>
+<td>^2.6.0</td>
+<td>CSS utilities</td>
+<td>أدوات CSS</td>
+</tr>
+<tr>
+<td><code>lucide-react</code></td>
+<td>^0.468.0</td>
+<td>Icons</td>
+<td>الأيقونات</td>
+</tr>
+<tr>
+<td><code>recharts</code></td>
+<td>^2.14.1</td>
+<td>Charts</td>
+<td>الرسوم البيانية</td>
+</tr>
+<tr>
+<td><code>leaflet</code></td>
+<td>^1.9.4</td>
+<td>Maps</td>
+<td>الخرائط</td>
+</tr>
+<tr>
+<td><code>react-leaflet</code></td>
+<td>^4.2.1</td>
+<td>React maps</td>
+<td>خرائط React</td>
+</tr>
+<tr>
+<td><code>maplibre-gl</code></td>
+<td>^4.7.1</td>
+<td>Vector maps</td>
+<td>خرائط متجهة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="testing_1">Testing | الاختبارات<a class="headerlink" href="#testing_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vitest</code></td>
+<td>^3.2.4</td>
+<td>Test runner</td>
+<td>منفذ الاختبارات</td>
+</tr>
+<tr>
+<td><code>jest</code></td>
+<td>^29.7.0</td>
+<td>Test framework</td>
+<td>إطار الاختبار</td>
+</tr>
+<tr>
+<td><code>@testing-library/react</code></td>
+<td>^16.3.0</td>
+<td>Component testing</td>
+<td>اختبار المكونات</td>
+</tr>
+<tr>
+<td><code>@playwright/test</code></td>
+<td>^1.57.0</td>
+<td>E2E testing</td>
+<td>اختبار E2E</td>
+</tr>
+<tr>
+<td><code>supertest</code></td>
+<td>^7.1.4</td>
+<td>HTTP testing</td>
+<td>اختبار HTTP</td>
+</tr>
+</tbody>
+</table>
+<h3 id="build-tools">Build Tools | أدوات البناء<a class="headerlink" href="#build-tools" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vite</code></td>
+<td>^6.4.1</td>
+<td>Build tool</td>
+<td>أداة البناء</td>
+</tr>
+<tr>
+<td><code>@vitejs/plugin-react</code></td>
+<td>^4.5.2</td>
+<td>Vite React plugin</td>
+<td>إضافة Vite React</td>
+</tr>
+<tr>
+<td><code>tsup</code></td>
+<td>^8.0.1</td>
+<td>TypeScript bundler</td>
+<td>حزم TypeScript</td>
+</tr>
+<tr>
+<td><code>tsx</code></td>
+<td>^4.19.0</td>
+<td>TS executor</td>
+<td>منفذ TypeScript</td>
+</tr>
+</tbody>
+</table>
+<h3 id="code-quality">Code Quality | جودة الكود<a class="headerlink" href="#code-quality" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@biomejs/biome</code></td>
+<td>^1.9.4</td>
+<td>Linter/Formatter</td>
+<td>المنسق والفاحص</td>
+</tr>
+<tr>
+<td><code>eslint</code></td>
+<td>^9.39.2</td>
+<td>Linting</td>
+<td>الفحص</td>
+</tr>
+<tr>
+<td><code>oxlint</code></td>
+<td>^0.12.0</td>
+<td>Fast linting</td>
+<td>فحص سريع</td>
+</tr>
+<tr>
+<td><code>knip</code></td>
+<td>^5.40.0</td>
+<td>Dead code finder</td>
+<td>كشف الكود الميت</td>
+</tr>
+<tr>
+<td><code>madge</code></td>
+<td>^8.0.0</td>
+<td>Circular deps</td>
+<td>التبعيات الدائرية</td>
+</tr>
+<tr>
+<td><code>typedoc</code></td>
+<td>^0.27.6</td>
+<td>Documentation</td>
+<td>التوثيق</td>
+</tr>
+</tbody>
+</table>
+<h3 id="utilities">Utilities | الأدوات المساعدة<a class="headerlink" href="#utilities" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uuid</code></td>
+<td>^11.0.3</td>
+<td>UUID generation</td>
+<td>توليد UUID</td>
+</tr>
+<tr>
+<td><code>date-fns</code></td>
+<td>^4.1.0</td>
+<td>Date utilities</td>
+<td>أدوات التاريخ</td>
+</tr>
+<tr>
+<td><code>js-cookie</code></td>
+<td>^3.0.5</td>
+<td>Cookie management</td>
+<td>إدارة الكوكيز</td>
+</tr>
+<tr>
+<td><code>next-intl</code></td>
+<td>^3.26.3</td>
+<td>Internationalization</td>
+<td>التدويل</td>
+</tr>
+<tr>
+<td><code>clsx</code></td>
+<td>^2.1.1</td>
+<td>Class composition</td>
+<td>تركيب الفئات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="monitoring_1">Monitoring | المراقبة<a class="headerlink" href="#monitoring_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@sentry/nextjs</code></td>
+<td>^8.0.0</td>
+<td>Error tracking</td>
+<td>تتبع الأخطاء</td>
+</tr>
+<tr>
+<td><code>nestjs-pino</code></td>
+<td>^4.1.0</td>
+<td>Logging</td>
+<td>التسجيل</td>
+</tr>
+<tr>
+<td><code>pino-http</code></td>
+<td>^10.3.0</td>
+<td>HTTP logging</td>
+<td>تسجيل HTTP</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="flutterdart-dependencies-flutterdart">Flutter/Dart Dependencies | اعتماديات Flutter/Dart<a class="headerlink" href="#flutterdart-dependencies-flutterdart" title="Permanent link">&para;</a></h2>
+<h3 id="sdk-requirements-sdk">SDK Requirements | متطلبات SDK<a class="headerlink" href="#sdk-requirements-sdk" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Version</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Flutter SDK</strong></td>
+<td>3.27.x</td>
+<td>إطار Flutter</td>
+</tr>
+<tr>
+<td><strong>Dart SDK</strong></td>
+<td>&gt;=3.2.0 &lt;4.0.0</td>
+<td>لغة Dart</td>
+</tr>
+</tbody>
+</table>
+<h3 id="state-management">State Management | إدارة الحالة<a class="headerlink" href="#state-management" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>flutter_riverpod</code></td>
+<td>^2.6.1</td>
+<td>State management</td>
+<td>إدارة الحالة</td>
+</tr>
+<tr>
+<td><code>riverpod_annotation</code></td>
+<td>^2.6.1</td>
+<td>Riverpod codegen</td>
+<td>توليد كود Riverpod</td>
+</tr>
+<tr>
+<td><code>riverpod_generator</code></td>
+<td>^2.6.1</td>
+<td>Generator</td>
+<td>المولد</td>
+</tr>
+</tbody>
+</table>
+<h3 id="local-database">Local Database | قاعدة البيانات المحلية<a class="headerlink" href="#local-database" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>drift</code></td>
+<td>^2.24.0</td>
+<td>SQL database</td>
+<td>قاعدة بيانات SQL</td>
+</tr>
+<tr>
+<td><code>drift_dev</code></td>
+<td>^2.24.0</td>
+<td>Drift generator</td>
+<td>مولد Drift</td>
+</tr>
+<tr>
+<td><code>sqlcipher_flutter_libs</code></td>
+<td>^0.6.1</td>
+<td>Encrypted SQLite</td>
+<td>SQLite مشفر</td>
+</tr>
+<tr>
+<td><code>sqlite3</code></td>
+<td>^2.4.6</td>
+<td>SQLite bindings</td>
+<td>ربط SQLite</td>
+</tr>
+</tbody>
+</table>
+<h3 id="networking">Networking | الشبكات<a class="headerlink" href="#networking" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dio</code></td>
+<td>^5.7.0</td>
+<td>HTTP client</td>
+<td>عميل HTTP</td>
+</tr>
+<tr>
+<td><code>http</code></td>
+<td>^1.2.2</td>
+<td>HTTP client</td>
+<td>عميل HTTP</td>
+</tr>
+<tr>
+<td><code>connectivity_plus</code></td>
+<td>^6.1.1</td>
+<td>Network detection</td>
+<td>كشف الشبكة</td>
+</tr>
+<tr>
+<td><code>socket_io_client</code></td>
+<td>^2.0.3+1</td>
+<td>WebSocket</td>
+<td>WebSocket</td>
+</tr>
+</tbody>
+</table>
+<h3 id="security">Security | الأمان<a class="headerlink" href="#security" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>flutter_secure_storage</code></td>
+<td>^9.2.2</td>
+<td>Secure storage</td>
+<td>تخزين آمن</td>
+</tr>
+<tr>
+<td><code>local_auth</code></td>
+<td>^2.3.0</td>
+<td>Biometric auth</td>
+<td>المصادقة البيومترية</td>
+</tr>
+<tr>
+<td><code>crypto</code></td>
+<td>^3.0.6</td>
+<td>Encryption</td>
+<td>التشفير</td>
+</tr>
+<tr>
+<td><code>safe_device</code></td>
+<td>^1.1.7</td>
+<td>Root detection</td>
+<td>كشف الروت</td>
+</tr>
+<tr>
+<td><code>secure_application</code></td>
+<td>^4.1.0</td>
+<td>Screenshot prevention</td>
+<td>منع لقطات الشاشة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="maps-location">Maps &amp; Location | الخرائط والموقع<a class="headerlink" href="#maps-location" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>flutter_map</code></td>
+<td>^8.1.1</td>
+<td>Map rendering</td>
+<td>عرض الخرائط</td>
+</tr>
+<tr>
+<td><code>flutter_map_cache</code></td>
+<td>^2.0.0</td>
+<td>Offline maps</td>
+<td>خرائط أوفلاين</td>
+</tr>
+<tr>
+<td><code>geolocator</code></td>
+<td>^13.0.2</td>
+<td>GPS location</td>
+<td>موقع GPS</td>
+</tr>
+<tr>
+<td><code>latlong2</code></td>
+<td>^0.9.1</td>
+<td>Coordinates</td>
+<td>الإحداثيات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ui-components_1">UI Components | مكونات واجهة المستخدم<a class="headerlink" href="#ui-components_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>flutter_svg</code></td>
+<td>^2.0.16</td>
+<td>SVG rendering</td>
+<td>عرض SVG</td>
+</tr>
+<tr>
+<td><code>cached_network_image</code></td>
+<td>^3.4.1</td>
+<td>Image caching</td>
+<td>تخزين الصور</td>
+</tr>
+<tr>
+<td><code>fl_chart</code></td>
+<td>^0.69.2</td>
+<td>Charts</td>
+<td>الرسوم البيانية</td>
+</tr>
+<tr>
+<td><code>table_calendar</code></td>
+<td>^3.0.9</td>
+<td>Calendar widget</td>
+<td>أداة التقويم</td>
+</tr>
+<tr>
+<td><code>cupertino_icons</code></td>
+<td>^1.0.8</td>
+<td>iOS icons</td>
+<td>أيقونات iOS</td>
+</tr>
+</tbody>
+</table>
+<h3 id="camera-media">Camera &amp; Media | الكاميرا والوسائط<a class="headerlink" href="#camera-media" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>image_picker</code></td>
+<td>^1.1.2</td>
+<td>Image selection</td>
+<td>اختيار الصور</td>
+</tr>
+<tr>
+<td><code>camera</code></td>
+<td>^0.11.0+2</td>
+<td>Camera capture</td>
+<td>التقاط الكاميرا</td>
+</tr>
+<tr>
+<td><code>mobile_scanner</code></td>
+<td>^6.0.2</td>
+<td>QR/Barcode scanner</td>
+<td>ماسح QR</td>
+</tr>
+<tr>
+<td><code>image</code></td>
+<td>^4.3.0</td>
+<td>Image processing</td>
+<td>معالجة الصور</td>
+</tr>
+<tr>
+<td><code>record</code></td>
+<td>5.0.5</td>
+<td>Audio recording</td>
+<td>تسجيل الصوت</td>
+</tr>
+</tbody>
+</table>
+<h3 id="audio-speech">Audio &amp; Speech | الصوت والكلام<a class="headerlink" href="#audio-speech" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>speech_to_text</code></td>
+<td>^7.0.0</td>
+<td>Voice recognition</td>
+<td>التعرف على الصوت</td>
+</tr>
+<tr>
+<td><code>flutter_tts</code></td>
+<td>^4.2.0</td>
+<td>Text-to-speech</td>
+<td>النص إلى كلام</td>
+</tr>
+</tbody>
+</table>
+<h3 id="firebase-firebase">Firebase | Firebase<a class="headerlink" href="#firebase-firebase" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>firebase_core</code></td>
+<td>^3.8.1</td>
+<td>Firebase core</td>
+<td>نواة Firebase</td>
+</tr>
+<tr>
+<td><code>firebase_messaging</code></td>
+<td>^15.1.6</td>
+<td>Cloud messaging</td>
+<td>الرسائل السحابية</td>
+</tr>
+</tbody>
+</table>
+<h3 id="navigation">Navigation | التنقل<a class="headerlink" href="#navigation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>go_router</code></td>
+<td>^14.6.2</td>
+<td>Routing</td>
+<td>التوجيه</td>
+</tr>
+<tr>
+<td><code>app_links</code></td>
+<td>^3.5.1</td>
+<td>Deep linking</td>
+<td>الروابط العميقة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="utilities_1">Utilities | الأدوات المساعدة<a class="headerlink" href="#utilities_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uuid</code></td>
+<td>^4.5.1</td>
+<td>UUID generation</td>
+<td>توليد UUID</td>
+</tr>
+<tr>
+<td><code>intl</code></td>
+<td>^0.19.0</td>
+<td>Internationalization</td>
+<td>التدويل</td>
+</tr>
+<tr>
+<td><code>equatable</code></td>
+<td>^2.0.7</td>
+<td>Value equality</td>
+<td>المساواة بالقيمة</td>
+</tr>
+<tr>
+<td><code>jiffy</code></td>
+<td>^6.3.1</td>
+<td>Date/time</td>
+<td>التاريخ والوقت</td>
+</tr>
+<tr>
+<td><code>flutter_dotenv</code></td>
+<td>^5.2.1</td>
+<td>Environment vars</td>
+<td>متغيرات البيئة</td>
+</tr>
+<tr>
+<td><code>shared_preferences</code></td>
+<td>^2.3.3</td>
+<td>Key-value storage</td>
+<td>تخزين مفتاح-قيمة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="background-notifications">Background &amp; Notifications | الخلفية والإشعارات<a class="headerlink" href="#background-notifications" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>workmanager</code></td>
+<td>^0.6.0</td>
+<td>Background tasks</td>
+<td>مهام الخلفية</td>
+</tr>
+<tr>
+<td><code>flutter_local_notifications</code></td>
+<td>^18.0.1</td>
+<td>Local notifications</td>
+<td>الإشعارات المحلية</td>
+</tr>
+</tbody>
+</table>
+<h3 id="monitoring_2">Monitoring | المراقبة<a class="headerlink" href="#monitoring_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sentry_flutter</code></td>
+<td>^8.11.0</td>
+<td>Crash reporting</td>
+<td>تقارير الأعطال</td>
+</tr>
+</tbody>
+</table>
+<h3 id="code-generation">Code Generation | توليد الكود<a class="headerlink" href="#code-generation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>build_runner</code></td>
+<td>^2.4.13</td>
+<td>Code generator</td>
+<td>مولد الكود</td>
+</tr>
+<tr>
+<td><code>freezed</code></td>
+<td>2.5.8</td>
+<td>Immutable classes</td>
+<td>فئات غير قابلة للتغيير</td>
+</tr>
+<tr>
+<td><code>freezed_annotation</code></td>
+<td>^2.4.4</td>
+<td>Freezed annotations</td>
+<td>تعليقات Freezed</td>
+</tr>
+<tr>
+<td><code>json_serializable</code></td>
+<td>^6.9.0</td>
+<td>JSON serialization</td>
+<td>تسلسل JSON</td>
+</tr>
+<tr>
+<td><code>json_annotation</code></td>
+<td>^4.9.0</td>
+<td>JSON annotations</td>
+<td>تعليقات JSON</td>
+</tr>
+</tbody>
+</table>
+<h3 id="testing_2">Testing | الاختبارات<a class="headerlink" href="#testing_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>flutter_test</code></td>
+<td>SDK</td>
+<td>Testing framework</td>
+<td>إطار الاختبار</td>
+</tr>
+<tr>
+<td><code>integration_test</code></td>
+<td>SDK</td>
+<td>Integration tests</td>
+<td>اختبارات التكامل</td>
+</tr>
+<tr>
+<td><code>mocktail</code></td>
+<td>^1.0.4</td>
+<td>Mocking</td>
+<td>المحاكاة</td>
+</tr>
+<tr>
+<td><code>fake_async</code></td>
+<td>^1.3.1</td>
+<td>Async testing</td>
+<td>اختبار غير متزامن</td>
+</tr>
+<tr>
+<td><code>flutter_lints</code></td>
+<td>^5.0.0</td>
+<td>Linting rules</td>
+<td>قواعد الفحص</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="development-tools_1">Development Tools | أدوات التطوير<a class="headerlink" href="#development-tools_1" title="Permanent link">&para;</a></h2>
+<h3 id="cicd-pipeline-cicd">CI/CD Pipeline | خط أنابيب CI/CD<a class="headerlink" href="#cicd-pipeline-cicd" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GitHub Actions</strong></td>
+<td>v4</td>
+<td>CI/CD automation</td>
+</tr>
+<tr>
+<td><strong>Docker Buildx</strong></td>
+<td>v3</td>
+<td>Multi-platform builds</td>
+</tr>
+<tr>
+<td><strong>BuildKit</strong></td>
+<td>0.12.5</td>
+<td>Docker build</td>
+</tr>
+<tr>
+<td><strong>Trivy</strong></td>
+<td>0.28.0</td>
+<td>Security scanning</td>
+</tr>
+<tr>
+<td><strong>CodeQL</strong></td>
+<td>v3</td>
+<td>Code analysis</td>
+</tr>
+</tbody>
+</table>
+<h3 id="linting-formatting">Linting &amp; Formatting | الفحص والتنسيق<a class="headerlink" href="#linting-formatting" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Language</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ruff</strong></td>
+<td>Python</td>
+<td>0.8.4</td>
+</tr>
+<tr>
+<td><strong>Black</strong></td>
+<td>Python</td>
+<td>24.10.0</td>
+</tr>
+<tr>
+<td><strong>isort</strong></td>
+<td>Python</td>
+<td>5.13.2</td>
+</tr>
+<tr>
+<td><strong>Biome</strong></td>
+<td>JS/TS</td>
+<td>1.9.4</td>
+</tr>
+<tr>
+<td><strong>ESLint</strong></td>
+<td>JS/TS</td>
+<td>9.39.2</td>
+</tr>
+<tr>
+<td><strong>Oxlint</strong></td>
+<td>JS/TS</td>
+<td>0.12.0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="documentation">Documentation | التوثيق<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Language</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TypeDoc</strong></td>
+<td>TypeScript</td>
+<td>0.27.6</td>
+</tr>
+<tr>
+<td><strong>MkDocs</strong></td>
+<td>Python</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="critical-constraints">Critical Constraints | القيود الحرجة<a class="headerlink" href="#critical-constraints" title="Permanent link">&para;</a></h2>
+<h3 id="version-pinning">⚠️ Version Pinning | تثبيت الإصدارات<a class="headerlink" href="#version-pinning" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Constraint</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NumPy</strong></td>
+<td>&lt;2.0.0</td>
+<td>TensorFlow 2.18 compatibility</td>
+</tr>
+<tr>
+<td><strong>Freezed</strong></td>
+<td>2.5.8</td>
+<td>Dart 3.6.0 compatibility</td>
+</tr>
+<tr>
+<td><strong>Record</strong></td>
+<td>5.0.5</td>
+<td>record_linux compatibility</td>
+</tr>
+<tr>
+<td><strong>build_runner</strong></td>
+<td>2.4.13</td>
+<td>Dart 3.6.0 compatibility</td>
+</tr>
+</tbody>
+</table>
+<h3 id="security-updates">🔒 Security Updates | تحديثات الأمان<a class="headerlink" href="#security-updates" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CVE</th>
+<th>Package</th>
+<th>Fixed Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CVE-2025-53643</td>
+<td>aiohttp</td>
+<td>&gt;=3.11.12</td>
+</tr>
+<tr>
+<td>CVE-2024-33663</td>
+<td>python-jose</td>
+<td>3.4.0</td>
+</tr>
+<tr>
+<td>CVE-2024-33664</td>
+<td>python-jose</td>
+<td>3.4.0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="incompatible-packages">❌ Incompatible Packages | الحزم غير المتوافقة<a class="headerlink" href="#incompatible-packages" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Issue</th>
+<th>Alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MapLibre GL (Flutter)</td>
+<td>Requires Java 21, NDK 28</td>
+<td>flutter_map</td>
+</tr>
+<tr>
+<td>Mockito (Dart)</td>
+<td>Requires Dart 3.7.0+</td>
+<td>mocktail</td>
+</tr>
+<tr>
+<td>Google Fonts (Flutter)</td>
+<td>Large APK, slow startup</td>
+<td>Local fonts</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="version-matrix">Version Matrix | مصفوفة الإصدارات<a class="headerlink" href="#version-matrix" title="Permanent link">&para;</a></h2>
+<h3 id="complete-stack">Complete Stack | المكدس الكامل<a class="headerlink" href="#complete-stack" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Technology</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Platform</strong></td>
+<td>SAHOOL</td>
+<td>16.0.0</td>
+</tr>
+<tr>
+<td><strong>Database</strong></td>
+<td>PostgreSQL + PostGIS</td>
+<td>16 + 3.4</td>
+</tr>
+<tr>
+<td><strong>Cache</strong></td>
+<td>Redis</td>
+<td>7.4</td>
+</tr>
+<tr>
+<td><strong>Events</strong></td>
+<td>NATS</td>
+<td>2.10.24</td>
+</tr>
+<tr>
+<td><strong>Gateway</strong></td>
+<td>Kong</td>
+<td>3.5</td>
+</tr>
+<tr>
+<td><strong>Backend (Python)</strong></td>
+<td>FastAPI</td>
+<td>0.126.0</td>
+</tr>
+<tr>
+<td><strong>Backend (Node.js)</strong></td>
+<td>NestJS</td>
+<td>10.4.15</td>
+</tr>
+<tr>
+<td><strong>Frontend</strong></td>
+<td>Next.js + React</td>
+<td>15.5.9 + 19.0.0</td>
+</tr>
+<tr>
+<td><strong>Mobile</strong></td>
+<td>Flutter</td>
+<td>3.27.x</td>
+</tr>
+<tr>
+<td><strong>ORM (Python)</strong></td>
+<td>Tortoise/SQLAlchemy</td>
+<td>0.21.7/2.0+</td>
+</tr>
+<tr>
+<td><strong>ORM (Node.js)</strong></td>
+<td>Prisma</td>
+<td>5.22.0</td>
+</tr>
+<tr>
+<td><strong>ORM (Flutter)</strong></td>
+<td>Drift + SQLCipher</td>
+<td>2.24.0 + 0.6.1</td>
+</tr>
+<tr>
+<td><strong>ML</strong></td>
+<td>TensorFlow</td>
+<td>2.18.0</td>
+</tr>
+<tr>
+<td><strong>Kubernetes</strong></td>
+<td>EKS</td>
+<td>1.28</td>
+</tr>
+<tr>
+<td><strong>IaC</strong></td>
+<td>Terraform</td>
+<td>&gt;=1.5.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="upgrade-guidelines">Upgrade Guidelines | إرشادات الترقية<a class="headerlink" href="#upgrade-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="before-upgrading">Before Upgrading | قبل الترقية<a class="headerlink" href="#before-upgrading" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Check compatibility matrix</strong> - تحقق من مصفوفة التوافق</li>
+<li><strong>Review breaking changes</strong> - راجع التغييرات الجذرية</li>
+<li><strong>Test in staging first</strong> - اختبر في البيئة التجريبية أولاً</li>
+<li><strong>Backup database</strong> - انسخ قاعدة البيانات احتياطياً</li>
+</ol>
+<h3 id="critical-dependencies">Critical Dependencies | الاعتماديات الحرجة<a class="headerlink" href="#critical-dependencies" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Python - Do NOT upgrade NumPy to 2.x</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;numpy&gt;=1.26.0,&lt;2.0.0&quot;</span>
+
+<span class="c1"># Flutter - Pin freezed version</span>
+flutter<span class="w"> </span>pub<span class="w"> </span>add<span class="w"> </span>freezed:2.5.8<span class="w"> </span>--dev
+
+<span class="c1"># Node.js - Use exact TypeScript version</span>
+npm<span class="w"> </span>install<span class="w"> </span>typescript@5.7.2<span class="w"> </span>--save-exact
+</code></pre></div>
+
+<hr />
+<p><strong>Document Version</strong>: 1.0
+<strong>Last Updated</strong>: January 2026
+<strong>Maintained By</strong>: SAHOOL Platform Team</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

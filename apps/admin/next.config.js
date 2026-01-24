@@ -74,14 +74,19 @@ const nextConfig = {
     // Do NOT ignore build errors - ensures type safety
     ignoreBuildErrors: false,
   },
-  eslint: {
-    // Ignore ESLint warnings during build - lint job checks separately
-    ignoreDuringBuilds: true,
+
+  // Note: eslint configuration moved to .eslintrc.json or eslint.config.js
+  // See: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
+
+  // Note: swcMinify is enabled by default in Next.js 15+
+
+  // Turbopack configuration (Next.js 16 default bundler)
+  turbopack: {
+    // Empty config to acknowledge Turbopack usage and silence warnings
+    // Turbopack handles module resolution automatically for workspace dependencies
   },
 
-  // Note: swcMinify is enabled by default in Next.js 15
-
-  // Configure webpack for better error handling
+  // Configure webpack for better error handling (fallback when using --webpack flag)
   webpack: (config, { isServer }) => {
     // Handle potential module resolution issues
     config.resolve.fallback = {

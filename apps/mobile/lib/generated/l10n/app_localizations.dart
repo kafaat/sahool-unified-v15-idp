@@ -5052,7 +5052,7 @@ abstract class AppLocalizations {
   /// No description provided for @maintenanceCost.
   ///
   /// In en, this message translates to:
-  /// **'Maintenance Cost'**
+  /// **'Cost (Riyal)'**
   String get maintenanceCost;
 
   /// No description provided for @rentCost.
@@ -7266,7 +7266,7 @@ abstract class AppLocalizations {
   /// No description provided for @underMaintenance.
   ///
   /// In en, this message translates to:
-  /// **'Under Maintenance'**
+  /// **'Maintenance'**
   String get underMaintenance;
 
   /// No description provided for @outOfService.
@@ -7428,7 +7428,7 @@ abstract class AppLocalizations {
   /// No description provided for @fuelLevel.
   ///
   /// In en, this message translates to:
-  /// **'Fuel Level'**
+  /// **'Fuel'**
   String get fuelLevel;
 
   /// No description provided for @refuel.
@@ -9438,7 +9438,7 @@ abstract class AppLocalizations {
   /// No description provided for @noResults.
   ///
   /// In en, this message translates to:
-  /// **'No Results'**
+  /// **'No results'**
   String get noResults;
 
   /// No description provided for @noResultsFound.
@@ -10910,6 +10910,2094 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Accessibility'**
   String get accessibility;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navMarketplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Marketplace'**
+  String get navMarketplace;
+
+  /// No description provided for @navWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get navWallet;
+
+  /// No description provided for @navCommunity.
+  ///
+  /// In en, this message translates to:
+  /// **'Community'**
+  String get navCommunity;
+
+  /// No description provided for @navMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get navMore;
+
+  /// No description provided for @navFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Fields'**
+  String get navFields;
+
+  /// No description provided for @navMyFields.
+  ///
+  /// In en, this message translates to:
+  /// **'My Fields'**
+  String get navMyFields;
+
+  /// No description provided for @navSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get navSettings;
+
+  /// No description provided for @navHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get navHelp;
+
+  /// No description provided for @navAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get navAbout;
+
+  /// No description provided for @navLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get navLogout;
+
+  /// No description provided for @quickAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Action'**
+  String get quickAction;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get takePhoto;
+
+  /// No description provided for @newField.
+  ///
+  /// In en, this message translates to:
+  /// **'New Field'**
+  String get newField;
+
+  /// No description provided for @addTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Task'**
+  String get addTask;
+
+  /// No description provided for @logIrrigation.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Irrigation'**
+  String get logIrrigation;
+
+  /// No description provided for @logFertilization.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Fertilization'**
+  String get logFertilization;
+
+  /// No description provided for @reportIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Issue'**
+  String get reportIssue;
+
+  /// No description provided for @sellMyCrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell My Crop'**
+  String get sellMyCrop;
+
+  /// No description provided for @errorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get errorGeneric;
+
+  /// No description provided for @errorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Network error. Please check your connection.'**
+  String get errorNetwork;
+
+  /// No description provided for @errorTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Request timed out. Please try again.'**
+  String get errorTimeout;
+
+  /// No description provided for @errorServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Server error. Please try again later.'**
+  String get errorServer;
+
+  /// No description provided for @errorUnauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired. Please login again.'**
+  String get errorUnauthorized;
+
+  /// No description provided for @errorForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'\'t have permission to perform this action.'**
+  String get errorForbidden;
+
+  /// No description provided for @errorNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Resource not found.'**
+  String get errorNotFound;
+
+  /// No description provided for @errorValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your input and try again.'**
+  String get errorValidation;
+
+  /// No description provided for @errorLoadingData.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading data'**
+  String get errorLoadingData;
+
+  /// No description provided for @errorLoadingStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading statistics'**
+  String get errorLoadingStats;
+
+  /// No description provided for @errorSavingData.
+  ///
+  /// In en, this message translates to:
+  /// **'Error saving data. Please try again.'**
+  String get errorSavingData;
+
+  /// No description provided for @errorDeletingData.
+  ///
+  /// In en, this message translates to:
+  /// **'Error deleting data. Please try again.'**
+  String get errorDeletingData;
+
+  /// No description provided for @errorUploadingFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Error uploading file. Please try again.'**
+  String get errorUploadingFile;
+
+  /// No description provided for @errorDownloadingFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Error downloading file. Please try again.'**
+  String get errorDownloadingFile;
+
+  /// No description provided for @errorLocationServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services unavailable.'**
+  String get errorLocationServices;
+
+  /// No description provided for @errorCameraAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access denied.'**
+  String get errorCameraAccess;
+
+  /// No description provided for @errorStorageAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage access denied.'**
+  String get errorStorageAccess;
+
+  /// No description provided for @errorNoInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection.'**
+  String get errorNoInternet;
+
+  /// No description provided for @errorOfflineMode.
+  ///
+  /// In en, this message translates to:
+  /// **'You are in offline mode.'**
+  String get errorOfflineMode;
+
+  /// No description provided for @errorSyncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed. Data saved locally.'**
+  String get errorSyncFailed;
+
+  /// No description provided for @errorInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email or password.'**
+  String get errorInvalidCredentials;
+
+  /// No description provided for @errorAccountLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Account locked. Please contact support.'**
+  String get errorAccountLocked;
+
+  /// No description provided for @errorEmailExists.
+  ///
+  /// In en, this message translates to:
+  /// **'Email already registered.'**
+  String get errorEmailExists;
+
+  /// No description provided for @errorWeakPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is too weak.'**
+  String get errorWeakPassword;
+
+  /// No description provided for @errorPasswordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get errorPasswordMismatch;
+
+  /// No description provided for @errorFieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required.'**
+  String get errorFieldRequired;
+
+  /// No description provided for @errorInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address.'**
+  String get errorInvalidEmail;
+
+  /// No description provided for @errorInvalidPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid phone number.'**
+  String get errorInvalidPhone;
+
+  /// No description provided for @errorInvalidDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid date.'**
+  String get errorInvalidDate;
+
+  /// No description provided for @errorInvalidNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid number.'**
+  String get errorInvalidNumber;
+
+  /// No description provided for @errorMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be at least {count} characters.'**
+  String errorMinLength(int count);
+
+  /// No description provided for @errorMaxLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be at most {count} characters.'**
+  String errorMaxLength(int count);
+
+  /// No description provided for @errorMinValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value must be at least {value}.'**
+  String errorMinValue(String value);
+
+  /// No description provided for @errorMaxValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value must be at most {value}.'**
+  String errorMaxValue(String value);
+
+  /// No description provided for @btnSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get btnSave;
+
+  /// No description provided for @btnCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get btnCancel;
+
+  /// No description provided for @btnClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get btnClose;
+
+  /// No description provided for @btnConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get btnConfirm;
+
+  /// No description provided for @btnApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get btnApply;
+
+  /// No description provided for @btnSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get btnSubmit;
+
+  /// No description provided for @btnContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get btnContinue;
+
+  /// No description provided for @btnNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get btnNext;
+
+  /// No description provided for @btnPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get btnPrevious;
+
+  /// No description provided for @btnBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get btnBack;
+
+  /// No description provided for @btnDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get btnDone;
+
+  /// No description provided for @btnOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get btnOk;
+
+  /// No description provided for @btnYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get btnYes;
+
+  /// No description provided for @btnNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get btnNo;
+
+  /// No description provided for @btnRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get btnRetry;
+
+  /// No description provided for @btnTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get btnTryAgain;
+
+  /// No description provided for @btnRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get btnRefresh;
+
+  /// No description provided for @btnReload.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload'**
+  String get btnReload;
+
+  /// No description provided for @btnEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get btnEdit;
+
+  /// No description provided for @btnDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get btnDelete;
+
+  /// No description provided for @btnRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get btnRemove;
+
+  /// No description provided for @btnAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get btnAdd;
+
+  /// No description provided for @btnCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get btnCreate;
+
+  /// No description provided for @btnUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get btnUpdate;
+
+  /// No description provided for @btnView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get btnView;
+
+  /// No description provided for @btnViewDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'View Details'**
+  String get btnViewDetails;
+
+  /// No description provided for @btnViewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View All'**
+  String get btnViewAll;
+
+  /// No description provided for @btnSeeMore.
+  ///
+  /// In en, this message translates to:
+  /// **'See More'**
+  String get btnSeeMore;
+
+  /// No description provided for @btnShowLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Less'**
+  String get btnShowLess;
+
+  /// No description provided for @btnExpand.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand'**
+  String get btnExpand;
+
+  /// No description provided for @btnCollapse.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse'**
+  String get btnCollapse;
+
+  /// No description provided for @btnShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get btnShare;
+
+  /// No description provided for @btnDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get btnDownload;
+
+  /// No description provided for @btnUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload'**
+  String get btnUpload;
+
+  /// No description provided for @btnExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get btnExport;
+
+  /// No description provided for @btnImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get btnImport;
+
+  /// No description provided for @btnPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get btnPrint;
+
+  /// No description provided for @btnCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get btnCopy;
+
+  /// No description provided for @btnPaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get btnPaste;
+
+  /// No description provided for @btnCut.
+  ///
+  /// In en, this message translates to:
+  /// **'Cut'**
+  String get btnCut;
+
+  /// No description provided for @btnSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get btnSelect;
+
+  /// No description provided for @btnSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select All'**
+  String get btnSelectAll;
+
+  /// No description provided for @btnDeselect.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect'**
+  String get btnDeselect;
+
+  /// No description provided for @btnClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get btnClear;
+
+  /// No description provided for @btnReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get btnReset;
+
+  /// No description provided for @btnFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get btnFilter;
+
+  /// No description provided for @btnSort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get btnSort;
+
+  /// No description provided for @btnSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get btnSearch;
+
+  /// No description provided for @btnFind.
+  ///
+  /// In en, this message translates to:
+  /// **'Find'**
+  String get btnFind;
+
+  /// No description provided for @btnLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get btnLogin;
+
+  /// No description provided for @btnLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get btnLogout;
+
+  /// No description provided for @btnSignUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get btnSignUp;
+
+  /// No description provided for @btnRegister.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get btnRegister;
+
+  /// No description provided for @btnForgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password?'**
+  String get btnForgotPassword;
+
+  /// No description provided for @btnResetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get btnResetPassword;
+
+  /// No description provided for @btnChangePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get btnChangePassword;
+
+  /// No description provided for @btnSendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Code'**
+  String get btnSendCode;
+
+  /// No description provided for @btnVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get btnVerify;
+
+  /// No description provided for @btnResendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend Code'**
+  String get btnResendCode;
+
+  /// No description provided for @btnSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get btnSkip;
+
+  /// No description provided for @btnGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get btnGetStarted;
+
+  /// No description provided for @btnLearnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn More'**
+  String get btnLearnMore;
+
+  /// No description provided for @btnAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get btnAccept;
+
+  /// No description provided for @btnDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get btnDecline;
+
+  /// No description provided for @btnAgree.
+  ///
+  /// In en, this message translates to:
+  /// **'Agree'**
+  String get btnAgree;
+
+  /// No description provided for @btnDisagree.
+  ///
+  /// In en, this message translates to:
+  /// **'Disagree'**
+  String get btnDisagree;
+
+  /// No description provided for @btnEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable'**
+  String get btnEnable;
+
+  /// No description provided for @btnDisable.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable'**
+  String get btnDisable;
+
+  /// No description provided for @btnStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get btnStart;
+
+  /// No description provided for @btnStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get btnStop;
+
+  /// No description provided for @btnPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get btnPause;
+
+  /// No description provided for @btnResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get btnResume;
+
+  /// No description provided for @btnSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get btnSend;
+
+  /// No description provided for @btnReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive'**
+  String get btnReceive;
+
+  /// No description provided for @btnSyncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Now'**
+  String get btnSyncNow;
+
+  /// No description provided for @btnContinueAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Anyway'**
+  String get btnContinueAnyway;
+
+  /// No description provided for @formEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get formEmail;
+
+  /// No description provided for @formEmailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email'**
+  String get formEmailHint;
+
+  /// No description provided for @formPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get formPassword;
+
+  /// No description provided for @formPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password'**
+  String get formPasswordHint;
+
+  /// No description provided for @formConfirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get formConfirmPassword;
+
+  /// No description provided for @formConfirmPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-enter your password'**
+  String get formConfirmPasswordHint;
+
+  /// No description provided for @formFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get formFullName;
+
+  /// No description provided for @formFullNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name'**
+  String get formFullNameHint;
+
+  /// No description provided for @formPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get formPhone;
+
+  /// No description provided for @formPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number'**
+  String get formPhoneHint;
+
+  /// No description provided for @formAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get formAddress;
+
+  /// No description provided for @formAddressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your address'**
+  String get formAddressHint;
+
+  /// No description provided for @formCity.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get formCity;
+
+  /// No description provided for @formCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get formCountry;
+
+  /// No description provided for @formZipCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Zip Code'**
+  String get formZipCode;
+
+  /// No description provided for @formDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get formDate;
+
+  /// No description provided for @formTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get formTime;
+
+  /// No description provided for @formDateTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Date & Time'**
+  String get formDateTime;
+
+  /// No description provided for @formNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get formNotes;
+
+  /// No description provided for @formNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter any notes...'**
+  String get formNotesHint;
+
+  /// No description provided for @formDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get formDescription;
+
+  /// No description provided for @formDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter description...'**
+  String get formDescriptionHint;
+
+  /// No description provided for @formAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get formAmount;
+
+  /// No description provided for @formQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get formQuantity;
+
+  /// No description provided for @formPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get formPrice;
+
+  /// No description provided for @formCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get formCurrency;
+
+  /// No description provided for @formSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search...'**
+  String get formSearchHint;
+
+  /// No description provided for @formSearchFieldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a field...'**
+  String get formSearchFieldHint;
+
+  /// No description provided for @formSelectOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an option'**
+  String get formSelectOption;
+
+  /// No description provided for @formSelectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get formSelectDate;
+
+  /// No description provided for @formSelectTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Select time'**
+  String get formSelectTime;
+
+  /// No description provided for @formOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get formOptional;
+
+  /// No description provided for @formRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get formRequired;
+
+  /// No description provided for @tooltipRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh data'**
+  String get tooltipRefresh;
+
+  /// No description provided for @tooltipFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter results'**
+  String get tooltipFilter;
+
+  /// No description provided for @tooltipSort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort results'**
+  String get tooltipSort;
+
+  /// No description provided for @tooltipSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get tooltipSearch;
+
+  /// No description provided for @tooltipSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get tooltipSettings;
+
+  /// No description provided for @tooltipNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get tooltipNotifications;
+
+  /// No description provided for @tooltipHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get tooltipHelp;
+
+  /// No description provided for @tooltipInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'More information'**
+  String get tooltipInfo;
+
+  /// No description provided for @tooltipEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get tooltipEdit;
+
+  /// No description provided for @tooltipDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get tooltipDelete;
+
+  /// No description provided for @tooltipShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get tooltipShare;
+
+  /// No description provided for @tooltipDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get tooltipDownload;
+
+  /// No description provided for @tooltipUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload'**
+  String get tooltipUpload;
+
+  /// No description provided for @tooltipClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get tooltipClose;
+
+  /// No description provided for @tooltipExpand.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand'**
+  String get tooltipExpand;
+
+  /// No description provided for @tooltipCollapse.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse'**
+  String get tooltipCollapse;
+
+  /// No description provided for @tooltipViewList.
+  ///
+  /// In en, this message translates to:
+  /// **'View as list'**
+  String get tooltipViewList;
+
+  /// No description provided for @tooltipViewGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'View as grid'**
+  String get tooltipViewGrid;
+
+  /// No description provided for @tooltipAddEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add equipment'**
+  String get tooltipAddEquipment;
+
+  /// No description provided for @tooltipScanQR.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan QR code'**
+  String get tooltipScanQR;
+
+  /// No description provided for @tooltipShowMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on map'**
+  String get tooltipShowMap;
+
+  /// No description provided for @tooltipZoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get tooltipZoomIn;
+
+  /// No description provided for @tooltipZoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get tooltipZoomOut;
+
+  /// No description provided for @tooltipMyLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'My location'**
+  String get tooltipMyLocation;
+
+  /// No description provided for @tooltipLayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Map layers'**
+  String get tooltipLayers;
+
+  /// No description provided for @a11yNavigateHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate to home'**
+  String get a11yNavigateHome;
+
+  /// No description provided for @a11yNavigateBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go back'**
+  String get a11yNavigateBack;
+
+  /// No description provided for @a11yOpenMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Open menu'**
+  String get a11yOpenMenu;
+
+  /// No description provided for @a11yCloseMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Close menu'**
+  String get a11yCloseMenu;
+
+  /// No description provided for @a11yOpenSidebar.
+  ///
+  /// In en, this message translates to:
+  /// **'Open sidebar'**
+  String get a11yOpenSidebar;
+
+  /// No description provided for @a11yCloseSidebar.
+  ///
+  /// In en, this message translates to:
+  /// **'Close sidebar'**
+  String get a11yCloseSidebar;
+
+  /// No description provided for @a11yLoadingContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading content'**
+  String get a11yLoadingContent;
+
+  /// No description provided for @a11yContentLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Content loaded'**
+  String get a11yContentLoaded;
+
+  /// No description provided for @a11yErrorOccurred.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred'**
+  String get a11yErrorOccurred;
+
+  /// No description provided for @a11yFieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get a11yFieldRequired;
+
+  /// No description provided for @a11yFieldOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is optional'**
+  String get a11yFieldOptional;
+
+  /// No description provided for @a11ySelectedItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get a11ySelectedItem;
+
+  /// No description provided for @a11yUnselectedItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Not selected'**
+  String get a11yUnselectedItem;
+
+  /// No description provided for @a11yExpandSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand section'**
+  String get a11yExpandSection;
+
+  /// No description provided for @a11yCollapseSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse section'**
+  String get a11yCollapseSection;
+
+  /// No description provided for @a11yImageDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get a11yImageDescription;
+
+  /// No description provided for @a11yMapView.
+  ///
+  /// In en, this message translates to:
+  /// **'Map view'**
+  String get a11yMapView;
+
+  /// No description provided for @a11yChartView.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart view'**
+  String get a11yChartView;
+
+  /// No description provided for @a11yListView.
+  ///
+  /// In en, this message translates to:
+  /// **'List view'**
+  String get a11yListView;
+
+  /// No description provided for @a11yGridView.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid view'**
+  String get a11yGridView;
+
+  /// No description provided for @a11ySwipeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe left for more options'**
+  String get a11ySwipeLeft;
+
+  /// No description provided for @a11ySwipeRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe right for more options'**
+  String get a11ySwipeRight;
+
+  /// No description provided for @a11yDoubleTap.
+  ///
+  /// In en, this message translates to:
+  /// **'Double tap to open'**
+  String get a11yDoubleTap;
+
+  /// No description provided for @a11yLongPress.
+  ///
+  /// In en, this message translates to:
+  /// **'Long press for more options'**
+  String get a11yLongPress;
+
+  /// No description provided for @a11yCurrentPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Current page: {page} of {total}'**
+  String a11yCurrentPage(int page, int total);
+
+  /// No description provided for @successGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation completed successfully.'**
+  String get successGeneric;
+
+  /// No description provided for @successSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes saved successfully.'**
+  String get successSaved;
+
+  /// No description provided for @successDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Item deleted successfully.'**
+  String get successDeleted;
+
+  /// No description provided for @successUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Item updated successfully.'**
+  String get successUpdated;
+
+  /// No description provided for @successCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Item created successfully.'**
+  String get successCreated;
+
+  /// No description provided for @successSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent successfully.'**
+  String get successSent;
+
+  /// No description provided for @successCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard.'**
+  String get successCopied;
+
+  /// No description provided for @successDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Download completed.'**
+  String get successDownloaded;
+
+  /// No description provided for @successUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload completed.'**
+  String get successUploaded;
+
+  /// No description provided for @successSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Data synced successfully.'**
+  String get successSynced;
+
+  /// No description provided for @successLoggedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back!'**
+  String get successLoggedIn;
+
+  /// No description provided for @successLoggedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged out successfully.'**
+  String get successLoggedOut;
+
+  /// No description provided for @successPasswordChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed successfully.'**
+  String get successPasswordChanged;
+
+  /// No description provided for @successProfileUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully.'**
+  String get successProfileUpdated;
+
+  /// No description provided for @dataRefreshed.
+  ///
+  /// In en, this message translates to:
+  /// **'Data refreshed'**
+  String get dataRefreshed;
+
+  /// No description provided for @itemAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Item added'**
+  String get itemAdded;
+
+  /// No description provided for @itemRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Item removed'**
+  String get itemRemoved;
+
+  /// No description provided for @settingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings saved'**
+  String get settingsSaved;
+
+  /// No description provided for @operationPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation pending...'**
+  String get operationPending;
+
+  /// No description provided for @operationInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait...'**
+  String get operationInProgress;
+
+  /// No description provided for @processingRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing your request...'**
+  String get processingRequest;
+
+  /// No description provided for @savingChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving changes...'**
+  String get savingChanges;
+
+  /// No description provided for @loadingData.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading data...'**
+  String get loadingData;
+
+  /// No description provided for @syncingData.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing data...'**
+  String get syncingData;
+
+  /// No description provided for @uploadingFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading file...'**
+  String get uploadingFile;
+
+  /// No description provided for @downloadingFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading file...'**
+  String get downloadingFile;
+
+  /// No description provided for @equipmentAndAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment & Assets'**
+  String get equipmentAndAssets;
+
+  /// No description provided for @equipmentFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment Fleet'**
+  String get equipmentFleet;
+
+  /// No description provided for @equipmentCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment'**
+  String get equipmentCount;
+
+  /// No description provided for @operationalReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get operationalReady;
+
+  /// No description provided for @allCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get allCategories;
+
+  /// No description provided for @tractors.
+  ///
+  /// In en, this message translates to:
+  /// **'Tractors'**
+  String get tractors;
+
+  /// No description provided for @pumps.
+  ///
+  /// In en, this message translates to:
+  /// **'Pumps'**
+  String get pumps;
+
+  /// No description provided for @drones.
+  ///
+  /// In en, this message translates to:
+  /// **'Drones'**
+  String get drones;
+
+  /// No description provided for @harvesters.
+  ///
+  /// In en, this message translates to:
+  /// **'Harvesters'**
+  String get harvesters;
+
+  /// No description provided for @pivots.
+  ///
+  /// In en, this message translates to:
+  /// **'Pivots'**
+  String get pivots;
+
+  /// No description provided for @sprayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Sprayers'**
+  String get sprayers;
+
+  /// No description provided for @sensors.
+  ///
+  /// In en, this message translates to:
+  /// **'Sensors'**
+  String get sensors;
+
+  /// No description provided for @noEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'No equipment'**
+  String get noEquipment;
+
+  /// No description provided for @addNewEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Equipment'**
+  String get addNewEquipment;
+
+  /// No description provided for @equipmentNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: John Deere 8R'**
+  String get equipmentNameHint;
+
+  /// No description provided for @serialNumber_equipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Serial Number'**
+  String get serialNumber_equipment;
+
+  /// No description provided for @currentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Location'**
+  String get currentLocation;
+
+  /// No description provided for @notSpecified.
+  ///
+  /// In en, this message translates to:
+  /// **'Not specified'**
+  String get notSpecified;
+
+  /// No description provided for @viewOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'View on Map'**
+  String get viewOnMap;
+
+  /// No description provided for @maintenanceAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance Alerts'**
+  String get maintenanceAlerts;
+
+  /// No description provided for @addMaintenanceRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Maintenance Record'**
+  String get addMaintenanceRecord;
+
+  /// No description provided for @upcomingMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming Maintenance'**
+  String get upcomingMaintenance;
+
+  /// No description provided for @maintenanceDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance Date'**
+  String get maintenanceDate;
+
+  /// No description provided for @maintenanceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance Description'**
+  String get maintenanceDescription;
+
+  /// No description provided for @maintenanceDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Engine oil change and air filter'**
+  String get maintenanceDescriptionHint;
+
+  /// No description provided for @technicianName.
+  ///
+  /// In en, this message translates to:
+  /// **'Technician Name'**
+  String get technicianName;
+
+  /// No description provided for @technicianNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Technician name'**
+  String get technicianNameHint;
+
+  /// No description provided for @additionalNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional Notes'**
+  String get additionalNotes;
+
+  /// No description provided for @additionalNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Any other notes...'**
+  String get additionalNotesHint;
+
+  /// No description provided for @saveMaintenanceRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Maintenance Record'**
+  String get saveMaintenanceRecord;
+
+  /// No description provided for @savingRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get savingRecord;
+
+  /// No description provided for @maintenanceRecordAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance record added successfully'**
+  String get maintenanceRecordAdded;
+
+  /// No description provided for @pleaseEnterDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter maintenance description'**
+  String get pleaseEnterDescription;
+
+  /// No description provided for @yearManufactured.
+  ///
+  /// In en, this message translates to:
+  /// **'Year Manufactured'**
+  String get yearManufactured;
+
+  /// No description provided for @horsepower.
+  ///
+  /// In en, this message translates to:
+  /// **'Horsepower'**
+  String get horsepower;
+
+  /// No description provided for @hp.
+  ///
+  /// In en, this message translates to:
+  /// **'HP'**
+  String get hp;
+
+  /// No description provided for @maintenanceType.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance Type'**
+  String get maintenanceType;
+
+  /// No description provided for @oilChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Oil Change'**
+  String get oilChange;
+
+  /// No description provided for @filterChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter Change'**
+  String get filterChange;
+
+  /// No description provided for @tireCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Tire Check'**
+  String get tireCheck;
+
+  /// No description provided for @batteryCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery Check'**
+  String get batteryCheck;
+
+  /// No description provided for @calibration.
+  ///
+  /// In en, this message translates to:
+  /// **'Calibration'**
+  String get calibration;
+
+  /// No description provided for @generalService.
+  ///
+  /// In en, this message translates to:
+  /// **'General Service'**
+  String get generalService;
+
+  /// No description provided for @repair_maintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Repair'**
+  String get repair_maintenance;
+
+  /// No description provided for @overdueByDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue {days} days'**
+  String overdueByDays(int days);
+
+  /// No description provided for @dueInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Due in {days} days'**
+  String dueInDays(int days);
+
+  /// No description provided for @noMaintenanceHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No maintenance history'**
+  String get noMaintenanceHistory;
+
+  /// No description provided for @maintenanceRecordsWillAppear.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance records will appear here when added'**
+  String get maintenanceRecordsWillAppear;
+
+  /// No description provided for @startEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get startEquipment;
+
+  /// No description provided for @stopEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get stopEquipment;
+
+  /// No description provided for @viewHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get viewHistory;
+
+  /// No description provided for @performMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance'**
+  String get performMaintenance;
+
+  /// No description provided for @equipmentAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment added successfully'**
+  String get equipmentAdded;
+
+  /// No description provided for @failedToAddEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add equipment'**
+  String get failedToAddEquipment;
+
+  /// No description provided for @pleaseEnterEquipmentName.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter equipment name'**
+  String get pleaseEnterEquipmentName;
+
+  /// No description provided for @scanEquipmentCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Equipment Code'**
+  String get scanEquipmentCode;
+
+  /// No description provided for @pointCameraAtQR.
+  ///
+  /// In en, this message translates to:
+  /// **'Point camera at QR code or barcode on the equipment'**
+  String get pointCameraAtQR;
+
+  /// No description provided for @scanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned'**
+  String get scanned;
+
+  /// No description provided for @fieldsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fields'**
+  String get fieldsTitle;
+
+  /// No description provided for @searchFieldsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a field...'**
+  String get searchFieldsHint;
+
+  /// No description provided for @sortByName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get sortByName;
+
+  /// No description provided for @sortByArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Area'**
+  String get sortByArea;
+
+  /// No description provided for @sortByHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Health'**
+  String get sortByHealth;
+
+  /// No description provided for @sortTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get sortTooltip;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @fieldsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Fields'**
+  String get fieldsCount;
+
+  /// No description provided for @totalAreaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Area'**
+  String get totalAreaLabel;
+
+  /// No description provided for @hectareAbbrev.
+  ///
+  /// In en, this message translates to:
+  /// **'ha'**
+  String get hectareAbbrev;
+
+  /// No description provided for @averageHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Health'**
+  String get averageHealth;
+
+  /// No description provided for @noFields.
+  ///
+  /// In en, this message translates to:
+  /// **'No fields'**
+  String get noFields;
+
+  /// No description provided for @addFieldToStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a field to get started'**
+  String get addFieldToStart;
+
+  /// No description provided for @addNewField.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Field'**
+  String get addNewField;
+
+  /// No description provided for @fieldCreatedComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Add new field - Coming soon'**
+  String get fieldCreatedComingSoon;
+
+  /// No description provided for @corn.
+  ///
+  /// In en, this message translates to:
+  /// **'Corn'**
+  String get corn;
+
+  /// No description provided for @datePalm.
+  ///
+  /// In en, this message translates to:
+  /// **'Date Palm'**
+  String get datePalm;
+
+  /// No description provided for @statusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get statusActive;
+
+  /// No description provided for @statusInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get statusInactive;
+
+  /// No description provided for @statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get statusPending;
+
+  /// No description provided for @statusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get statusCompleted;
+
+  /// No description provided for @statusInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In Progress'**
+  String get statusInProgress;
+
+  /// No description provided for @statusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get statusCancelled;
+
+  /// No description provided for @statusScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get statusScheduled;
+
+  /// No description provided for @statusOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get statusOverdue;
+
+  /// No description provided for @statusUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get statusUpcoming;
+
+  /// No description provided for @statusOperational.
+  ///
+  /// In en, this message translates to:
+  /// **'Operational'**
+  String get statusOperational;
+
+  /// No description provided for @statusMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance'**
+  String get statusMaintenance;
+
+  /// No description provided for @statusRepair.
+  ///
+  /// In en, this message translates to:
+  /// **'Repair'**
+  String get statusRepair;
+
+  /// No description provided for @highTemperatureWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'High temperature - Early irrigation recommended'**
+  String get highTemperatureWarning;
+
+  /// No description provided for @updateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Required'**
+  String get updateRequired;
+
+  /// No description provided for @newUpdateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'New Update Available'**
+  String get newUpdateAvailable;
+
+  /// No description provided for @majorUpdateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Major Update Available'**
+  String get majorUpdateAvailable;
+
+  /// No description provided for @minorUpdateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'New Update Available'**
+  String get minorUpdateAvailable;
+
+  /// No description provided for @patchUpdateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Patch Update Available'**
+  String get patchUpdateAvailable;
+
+  /// No description provided for @appIsUpToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'App is Up to Date'**
+  String get appIsUpToDate;
+
+  /// No description provided for @remindLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind Later'**
+  String get remindLater;
+
+  /// No description provided for @skipThisVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip This Version'**
+  String get skipThisVersion;
+
+  /// No description provided for @whatsNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'\'s New:'**
+  String get whatsNewTitle;
+
+  /// No description provided for @updateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version of SAHOOL is available.'**
+  String get updateDescription;
+
+  /// No description provided for @forceUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'You must update the app to continue using it. This update includes important improvements and security fixes.'**
+  String get forceUpdateDescription;
+
+  /// No description provided for @majorUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A new major version is available with significant improvements and new features. We highly recommend updating.'**
+  String get majorUpdateDescription;
+
+  /// No description provided for @minorUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A new update is available with additional features and improvements.'**
+  String get minorUpdateDescription;
+
+  /// No description provided for @patchUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A patch update is available with bug fixes and performance improvements.'**
+  String get patchUpdateDescription;
+
+  /// No description provided for @versionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get versionLabel;
+
+  /// No description provided for @currentVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Version'**
+  String get currentVersionLabel;
+
+  /// No description provided for @latestVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest Version'**
+  String get latestVersionLabel;
+
+  /// No description provided for @checkingForUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for updates...'**
+  String get checkingForUpdates;
+
+  /// No description provided for @updateCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to check for updates'**
+  String get updateCheckFailed;
+
+  /// No description provided for @noInternetForUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Cannot check for updates.'**
+  String get noInternetForUpdate;
+
+  /// No description provided for @updateSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Update skipped'**
+  String get updateSkipped;
+
+  /// No description provided for @updateRemindLaterSet.
+  ///
+  /// In en, this message translates to:
+  /// **'You will be reminded about this update later'**
+  String get updateRemindLaterSet;
 }
 
 class _AppLocalizationsDelegate

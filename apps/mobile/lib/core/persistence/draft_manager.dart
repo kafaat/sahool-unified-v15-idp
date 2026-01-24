@@ -120,7 +120,8 @@ class DraftMetadata {
   }
 
   @override
-  String toString() => 'DraftMetadata(id: $id, type: ${type.name}, title: $title)';
+  String toString() =>
+      'DraftMetadata(id: $id, type: ${type.name}, title: $title)';
 }
 
 /// Complete draft with data
@@ -141,7 +142,8 @@ class Draft {
 
   factory Draft.fromJson(Map<String, dynamic> json) {
     return Draft(
-      metadata: DraftMetadata.fromJson(json['metadata'] as Map<String, dynamic>),
+      metadata:
+          DraftMetadata.fromJson(json['metadata'] as Map<String, dynamic>),
       data: json['data'] as Map<String, dynamic>,
     );
   }
@@ -171,7 +173,8 @@ class Draft {
   }
 
   @override
-  String toString() => 'Draft(${metadata.type.name}, ${metadata.title ?? metadata.id})';
+  String toString() =>
+      'Draft(${metadata.type.name}, ${metadata.title ?? metadata.id})';
 }
 
 // ============================================================
@@ -208,7 +211,8 @@ class DraftManager {
 
   void _ensureInitialized() {
     if (!_isInitialized) {
-      throw StateError('DraftManager not initialized. Call initialize() first.');
+      throw StateError(
+          'DraftManager not initialized. Call initialize() first.');
     }
   }
 
@@ -304,7 +308,8 @@ class DraftManager {
     if (metaJson == null) return null;
 
     try {
-      return DraftMetadata.fromJson(jsonDecode(metaJson) as Map<String, dynamic>);
+      return DraftMetadata.fromJson(
+          jsonDecode(metaJson) as Map<String, dynamic>);
     } catch (e) {
       return null;
     }
@@ -407,14 +412,16 @@ class DraftManager {
   }
 
   Future<List<DraftMetadata>> _getAllDraftMetadata() async {
-    final keys = _prefs.getKeys().where((k) => k.startsWith(_keyDraftMetaPrefix));
+    final keys =
+        _prefs.getKeys().where((k) => k.startsWith(_keyDraftMetaPrefix));
     final metadata = <DraftMetadata>[];
 
     for (final key in keys) {
       final json = _prefs.getString(key);
       if (json != null) {
         try {
-          metadata.add(DraftMetadata.fromJson(jsonDecode(json) as Map<String, dynamic>));
+          metadata.add(
+              DraftMetadata.fromJson(jsonDecode(json) as Map<String, dynamic>));
         } catch (_) {
           // Skip invalid metadata
         }
@@ -444,7 +451,8 @@ class DraftManager {
     final drafts = await getDraftsByType(type);
     await Future.wait(drafts.map((d) => deleteDraft(d.metadata.id)));
 
-    AppLogger.d('Deleted all ${type.name} drafts: ${drafts.length}', tag: 'Drafts');
+    AppLogger.d('Deleted all ${type.name} drafts: ${drafts.length}',
+        tag: 'Drafts');
   }
 
   /// Delete all drafts
@@ -453,7 +461,9 @@ class DraftManager {
     _ensureInitialized();
 
     final keys = _prefs.getKeys().where(
-          (k) => k.startsWith(_keyDraftPrefix) || k.startsWith(_keyDraftMetaPrefix),
+          (k) =>
+              k.startsWith(_keyDraftPrefix) ||
+              k.startsWith(_keyDraftMetaPrefix),
         );
 
     await Future.wait(keys.map((k) => _prefs.remove(k)));
@@ -547,7 +557,8 @@ class DraftManager {
     }
 
     if (expiredDrafts.isNotEmpty) {
-      AppLogger.i('Cleaned up ${expiredDrafts.length} expired drafts', tag: 'Drafts');
+      AppLogger.i('Cleaned up ${expiredDrafts.length} expired drafts',
+          tag: 'Drafts');
     }
 
     return expiredDrafts.length;
@@ -584,7 +595,8 @@ class DraftManager {
     }
 
     if (deletedCount > 0) {
-      AppLogger.i('Cleaned up $deletedCount old auto-save drafts', tag: 'Drafts');
+      AppLogger.i('Cleaned up $deletedCount old auto-save drafts',
+          tag: 'Drafts');
     }
 
     return deletedCount;
@@ -745,7 +757,7 @@ extension DraftManagerFormHelpers on DraftManager {
   Future<Draft> saveHarvestDraft({
     required String? fieldId,
     required String? cropType,
-    required double? harvestYield,
+    required double? yieldAmount,
     required String? yieldUnit,
     required String? quality,
     required DateTime? date,
@@ -756,7 +768,7 @@ extension DraftManagerFormHelpers on DraftManager {
       data: {
         'fieldId': fieldId,
         'cropType': cropType,
-        'yield': harvestYield,
+        'yieldAmount': yieldAmount,
         'yieldUnit': yieldUnit,
         'quality': quality,
         'date': date?.toIso8601String(),
@@ -817,7 +829,8 @@ final draftCountProvider = FutureProvider<int>((ref) async {
 });
 
 /// Provider for drafts by type
-final draftsByTypeProvider = FutureProvider.family<List<Draft>, DraftType>((ref, type) async {
+final draftsByTypeProvider =
+    FutureProvider.family<List<Draft>, DraftType>((ref, type) async {
   final manager = ref.watch(draftManagerProvider);
   await manager.initialize();
   return manager.getDraftsByType(type);
@@ -831,7 +844,8 @@ final allDraftsProvider = FutureProvider<List<Draft>>((ref) async {
 });
 
 /// Provider for specific draft
-final draftProvider = FutureProvider.family<Draft?, String>((ref, draftId) async {
+final draftProvider =
+    FutureProvider.family<Draft?, String>((ref, draftId) async {
   final manager = ref.watch(draftManagerProvider);
   await manager.initialize();
   return manager.getDraft(draftId);
@@ -892,7 +906,8 @@ class DraftFormNotifier extends StateNotifier<Draft?> {
 }
 
 /// Provider factory for draft form notifier
-final draftFormNotifierProvider = StateNotifierProvider.family<DraftFormNotifier, Draft?, (DraftType, String?)>(
+final draftFormNotifierProvider = StateNotifierProvider.family<
+    DraftFormNotifier, Draft?, (DraftType, String?)>(
   (ref, params) {
     final (type, entityId) = params;
     final manager = ref.watch(draftManagerProvider);

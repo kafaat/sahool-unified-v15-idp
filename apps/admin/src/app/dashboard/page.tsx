@@ -559,13 +559,7 @@ export default function DashboardPage() {
             </Link>
           </div>
           <div className="h-[400px]">
-            <FarmsMap
-              key="dashboard-farms-map"
-              farms={farms}
-              onFarmClick={handleFarmClick}
-              selectedFarmId={selectedFarm?.id}
-              showHealthOverlay={true}
-            />
+
           </div>
         </div>
 

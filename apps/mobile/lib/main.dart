@@ -8,7 +8,7 @@ import 'core/sync/sync_engine.dart';
 import 'core/sync/background_sync_task.dart';
 import 'core/storage/database.dart';
 import 'core/config/env_config.dart';
-import 'core/services/crash_reporting_service.dart';
+import 'core/services/crash_reporting_service.dart' as legacy_crash;
 import 'core/security/device_integrity_service.dart';
 import 'core/security/device_security_screen.dart';
 import 'core/security/security_config.dart';
@@ -22,7 +22,7 @@ import 'core/persistence/preferences_manager.dart';
 import 'core/persistence/draft_manager.dart';
 
 // Global crash reporting instance (legacy - kept for compatibility)
-final crashReporting = CrashReportingService();
+final crashReporting = legacy_crash.CrashReportingService();
 
 void main() async {
   // Ensure Flutter bindings are initialized first
@@ -50,7 +50,7 @@ void main() async {
     crashReporting.reportError(
       details.exception,
       details.stack,
-      severity: ErrorSeverity.error,
+      severity: legacy_crash.ErrorSeverity.error,
       reason: details.context?.toString(),
       customData: {
         'library': details.library ?? 'unknown',
@@ -76,7 +76,8 @@ void main() async {
   // This catches errors that occur outside the Flutter framework
   // مُعالج أخطاء منصة التشغيل للأخطاء غير المتزامنة
   PlatformDispatcher.instance.onError = (error, stack) {
-    AppLogger.critical('Platform Dispatcher Error: $error', tag: 'Main', error: error, stackTrace: stack);
+    AppLogger.critical('Platform Dispatcher Error: $error',
+        tag: 'Main', error: error, stackTrace: stack);
 
     // Report to new CrashReporter (with Sentry integration)
     crashReporter.reportError(
@@ -91,7 +92,7 @@ void main() async {
     crashReporting.reportError(
       error,
       stack,
-      severity: ErrorSeverity.fatal,
+      severity: legacy_crash.ErrorSeverity.fatal,
       reason: 'Platform Dispatcher Error',
       fatal: true,
     );
@@ -133,7 +134,9 @@ void main() async {
         'platform': defaultTargetPlatform.name,
       });
 
-      AppLogger.i('New CrashReporter initialized (Sentry: ${crashConfig.hasSentryDsn})', tag: 'Main');
+      AppLogger.i(
+          'New CrashReporter initialized (Sentry: ${crashConfig.hasSentryDsn})',
+          tag: 'Main');
     } catch (e) {
       AppLogger.w('CrashReporter init failed (non-critical): $e', tag: 'Main');
     }
@@ -149,7 +152,7 @@ void main() async {
       crashReporting.recordBreadcrumb(
         message: 'App started',
         category: 'lifecycle',
-        level: BreadcrumbLevel.info,
+        level: legacy_crash.BreadcrumbLevel.info,
       );
 
       AppLogger.i('Legacy crash reporting initialized', tag: 'Main');
@@ -158,7 +161,8 @@ void main() async {
       await errorReporter.initialize();
       AppLogger.i('ErrorReporter initialized', tag: 'Main');
     } catch (e) {
-      AppLogger.w('Legacy crash reporting init failed (non-critical): $e', tag: 'Main');
+      AppLogger.w('Legacy crash reporting init failed (non-critical): $e',
+          tag: 'Main');
     }
 
     // Device Integrity Check - Security Feature
@@ -167,14 +171,15 @@ void main() async {
     AppLogger.d('Security config: $securityConfig', tag: 'Security');
 
     // Perform device integrity check if enabled
-    if (securityConfig.deviceIntegrityPolicy != DeviceIntegrityPolicy.disabled) {
+    if (securityConfig.deviceIntegrityPolicy !=
+        DeviceIntegrityPolicy.disabled) {
       try {
         // Record breadcrumbs in both systems
         breadcrumbService.recordSystem('device_integrity_check_starting');
         crashReporting.recordBreadcrumb(
           message: 'Starting device integrity check',
           category: 'security',
-          level: BreadcrumbLevel.info,
+          level: legacy_crash.BreadcrumbLevel.info,
         );
 
         final deviceIntegrity = DeviceIntegrityService();
@@ -183,7 +188,7 @@ void main() async {
         crashReporting.recordBreadcrumb(
           message: 'Device integrity check completed',
           category: 'security',
-          level: BreadcrumbLevel.info,
+          level: legacy_crash.BreadcrumbLevel.info,
           data: {
             'compromised': securityResult.isCompromised,
             'threatLevel': securityResult.threatLevel.toString(),
@@ -197,17 +202,19 @@ void main() async {
         }
 
         // Check if app should be blocked
-        final shouldBlock = deviceIntegrity.shouldBlockApp(securityResult, securityConfig);
+        final shouldBlock =
+            deviceIntegrity.shouldBlockApp(securityResult, securityConfig);
 
         if (shouldBlock ||
-            (securityConfig.deviceIntegrityPolicy == DeviceIntegrityPolicy.warn &&
-             securityResult.hasSecurityIssues)) {
-
-          AppLogger.w('Security check failed - showing security screen', tag: 'Security');
+            (securityConfig.deviceIntegrityPolicy ==
+                    DeviceIntegrityPolicy.warn &&
+                securityResult.hasSecurityIssues)) {
+          AppLogger.w('Security check failed - showing security screen',
+              tag: 'Security');
           crashReporting.recordBreadcrumb(
             message: 'Security check failed - blocking app',
             category: 'security',
-            level: BreadcrumbLevel.warning,
+            level: legacy_crash.BreadcrumbLevel.warning,
           );
 
           // Show security screen
@@ -221,11 +228,12 @@ void main() async {
                     ? null
                     : () {
                         // User chose to continue anyway
-                        AppLogger.w('User bypassed security warning', tag: 'Security');
+                        AppLogger.w('User bypassed security warning',
+                            tag: 'Security');
                         crashReporting.recordBreadcrumb(
                           message: 'User bypassed security warning',
                           category: 'security',
-                          level: BreadcrumbLevel.warning,
+                          level: legacy_crash.BreadcrumbLevel.warning,
                         );
                         // Restart app initialization
                         main();
@@ -240,15 +248,16 @@ void main() async {
         crashReporting.recordBreadcrumb(
           message: 'Device security check passed',
           category: 'security',
-          level: BreadcrumbLevel.info,
+          level: legacy_crash.BreadcrumbLevel.info,
         );
       } catch (e, stackTrace) {
-        AppLogger.w('Device integrity check failed (non-critical): $e', tag: 'Security');
+        AppLogger.w('Device integrity check failed (non-critical): $e',
+            tag: 'Security');
         // Continue anyway - don't block app if security check fails
         crashReporting.reportError(
           e,
           stackTrace,
-          severity: ErrorSeverity.warning,
+          severity: legacy_crash.ErrorSeverity.warning,
           reason: 'Device integrity check failed',
           fatal: false,
         );
@@ -258,7 +267,7 @@ void main() async {
       crashReporting.recordBreadcrumb(
         message: 'Device integrity checks disabled',
         category: 'security',
-        level: BreadcrumbLevel.info,
+        level: legacy_crash.BreadcrumbLevel.info,
       );
     }
 
@@ -268,20 +277,21 @@ void main() async {
       crashReporting.recordBreadcrumb(
         message: 'Initializing database',
         category: 'lifecycle',
-        level: BreadcrumbLevel.info,
+        level: legacy_crash.BreadcrumbLevel.info,
       );
       database = AppDatabase();
       crashReporting.recordBreadcrumb(
         message: 'Database initialized successfully',
         category: 'lifecycle',
-        level: BreadcrumbLevel.info,
+        level: legacy_crash.BreadcrumbLevel.info,
       );
     } catch (e, stackTrace) {
-      AppLogger.critical('Database initialization failed: $e', tag: 'Main', error: e, stackTrace: stackTrace);
+      AppLogger.critical('Database initialization failed: $e',
+          tag: 'Main', error: e, stackTrace: stackTrace);
       crashReporting.reportError(
         e,
         stackTrace,
-        severity: ErrorSeverity.fatal,
+        severity: legacy_crash.ErrorSeverity.fatal,
         reason: 'Database initialization failed',
         fatal: true,
       );
@@ -294,20 +304,21 @@ void main() async {
       crashReporting.recordBreadcrumb(
         message: 'Initializing sync engine',
         category: 'lifecycle',
-        level: BreadcrumbLevel.info,
+        level: legacy_crash.BreadcrumbLevel.info,
       );
       syncEngine = SyncEngine(database: database);
       crashReporting.recordBreadcrumb(
         message: 'Sync engine initialized successfully',
         category: 'lifecycle',
-        level: BreadcrumbLevel.info,
+        level: legacy_crash.BreadcrumbLevel.info,
       );
     } catch (e, stackTrace) {
-      AppLogger.critical('SyncEngine initialization failed: $e', tag: 'Main', error: e, stackTrace: stackTrace);
+      AppLogger.critical('SyncEngine initialization failed: $e',
+          tag: 'Main', error: e, stackTrace: stackTrace);
       crashReporting.reportError(
         e,
         stackTrace,
-        severity: ErrorSeverity.fatal,
+        severity: legacy_crash.ErrorSeverity.fatal,
         reason: 'SyncEngine initialization failed',
         fatal: true,
       );
@@ -319,7 +330,7 @@ void main() async {
       crashReporting.recordBreadcrumb(
         message: 'Initializing background sync',
         category: 'lifecycle',
-        level: BreadcrumbLevel.info,
+        level: legacy_crash.BreadcrumbLevel.info,
       );
       await BackgroundSyncManager.initialize();
       await BackgroundSyncManager.registerPeriodicSync();
@@ -327,15 +338,16 @@ void main() async {
       crashReporting.recordBreadcrumb(
         message: 'Background sync initialized successfully',
         category: 'lifecycle',
-        level: BreadcrumbLevel.info,
+        level: legacy_crash.BreadcrumbLevel.info,
       );
     } catch (e, stackTrace) {
       // Non-critical - app can work without background sync
-      AppLogger.w('Background sync init failed (non-critical): $e', tag: 'Main');
+      AppLogger.w('Background sync init failed (non-critical): $e',
+          tag: 'Main');
       crashReporting.reportError(
         e,
         stackTrace,
-        severity: ErrorSeverity.warning,
+        severity: legacy_crash.ErrorSeverity.warning,
         reason: 'Background sync initialization failed (non-critical)',
         fatal: false,
       );
@@ -351,7 +363,7 @@ void main() async {
       crashReporting.recordBreadcrumb(
         message: 'Initializing persistence managers',
         category: 'lifecycle',
-        level: BreadcrumbLevel.info,
+        level: legacy_crash.BreadcrumbLevel.info,
       );
 
       await Future.wait([
@@ -364,15 +376,16 @@ void main() async {
       crashReporting.recordBreadcrumb(
         message: 'Persistence managers initialized successfully',
         category: 'lifecycle',
-        level: BreadcrumbLevel.info,
+        level: legacy_crash.BreadcrumbLevel.info,
       );
     } catch (e, stackTrace) {
       // Non-critical - app can work without persistence
-      AppLogger.w('Persistence managers init failed (non-critical): $e', tag: 'Main');
+      AppLogger.w('Persistence managers init failed (non-critical): $e',
+          tag: 'Main');
       crashReporting.reportError(
         e,
         stackTrace,
-        severity: ErrorSeverity.warning,
+        severity: legacy_crash.ErrorSeverity.warning,
         reason: 'Persistence managers initialization failed (non-critical)',
         fatal: false,
       );
@@ -382,7 +395,7 @@ void main() async {
     crashReporting.recordBreadcrumb(
       message: 'Starting Flutter app',
       category: 'lifecycle',
-      level: BreadcrumbLevel.info,
+      level: legacy_crash.BreadcrumbLevel.info,
     );
 
     runApp(
@@ -408,7 +421,7 @@ void main() async {
       crashReporting.recordBreadcrumb(
         message: 'Starting foreground sync',
         category: 'lifecycle',
-        level: BreadcrumbLevel.info,
+        level: legacy_crash.BreadcrumbLevel.info,
       );
       syncEngine.startPeriodic();
     } catch (e, stackTrace) {
@@ -424,14 +437,15 @@ void main() async {
       crashReporting.reportError(
         e,
         stackTrace,
-        severity: ErrorSeverity.warning,
+        severity: legacy_crash.ErrorSeverity.warning,
         reason: 'Foreground sync start failed (non-critical)',
         fatal: false,
       );
     }
   }, (error, stackTrace) {
     // Global zone error handler - catches all uncaught async errors
-    AppLogger.critical('Uncaught error: $error', tag: 'Main', error: error, stackTrace: stackTrace);
+    AppLogger.critical('Uncaught error: $error',
+        tag: 'Main', error: error, stackTrace: stackTrace);
 
     // Report to new CrashReporter (with Sentry integration)
     crashReporter.reportError(
@@ -446,7 +460,7 @@ void main() async {
     crashReporting.reportError(
       error,
       stackTrace,
-      severity: ErrorSeverity.fatal,
+      severity: legacy_crash.ErrorSeverity.fatal,
       reason: 'Uncaught zone error',
       fatal: true,
     );
@@ -465,8 +479,9 @@ final syncEngineProvider = Provider<SyncEngine>((ref) {
   throw UnimplementedError('SyncEngine not initialized');
 });
 
-final crashReportingProvider = Provider<CrashReportingService>((ref) {
-  return CrashReportingService();
+final crashReportingProvider =
+    Provider<legacy_crash.CrashReportingService>((ref) {
+  return legacy_crash.CrashReportingService();
 });
 
 // New Crash Reporter provider (with Sentry integration)
@@ -552,7 +567,7 @@ class _SahoolAppWithLifecycleState extends State<SahoolAppWithLifecycle>
     crashReporting.recordBreadcrumb(
       message: 'App paused',
       category: 'lifecycle',
-      level: BreadcrumbLevel.info,
+      level: legacy_crash.BreadcrumbLevel.info,
     );
 
     // Save app state when going to background
@@ -574,15 +589,17 @@ class _SahoolAppWithLifecycleState extends State<SahoolAppWithLifecycle>
     crashReporting.recordBreadcrumb(
       message: 'App resumed',
       category: 'lifecycle',
-      level: BreadcrumbLevel.info,
+      level: legacy_crash.BreadcrumbLevel.info,
     );
 
     // Restore app state when coming to foreground
     widget.appStateManager.onAppResumed();
 
     // Check if session expired (optional - for security)
-    if (widget.appStateManager.isSessionExpired(timeout: const Duration(hours: 24))) {
-      AppLogger.w('Session may be expired - consider re-authentication', tag: 'Lifecycle');
+    if (widget.appStateManager
+        .isSessionExpired(timeout: const Duration(hours: 24))) {
+      AppLogger.w('Session may be expired - consider re-authentication',
+          tag: 'Lifecycle');
       breadcrumbService.recordSystem('session_expired_warning');
     }
   }

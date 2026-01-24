@@ -11,7 +11,7 @@ plugins {
 android {
     namespace = "io.sahool.sahool_field_app"
     compileSdk = 36
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
             isCoreLibraryDesugaringEnabled = true
@@ -27,7 +27,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         // Camera libraries (camera_android_camerax) require API 23+
-        minSdk = 23  // Required by record_android plugin
+        minSdk = flutter.minSdkVersion  // Required by record_android plugin
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

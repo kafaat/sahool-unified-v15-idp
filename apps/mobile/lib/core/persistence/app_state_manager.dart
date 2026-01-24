@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' as ui;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,16 +71,6 @@ class NavigationState {
       'NavigationState(route: $routeName, navIndex: $bottomNavIndex)';
 }
 
-/// App lifecycle state enumeration
-/// حالة دورة حياة التطبيق
-enum AppLifecycleState {
-  active,
-  inactive,
-  paused,
-  detached,
-  hidden,
-}
-
 // ============================================================
 // App State Manager Service
 // ============================================================
@@ -104,7 +95,8 @@ class AppStateManager {
       _isInitialized = true;
       AppLogger.i('AppStateManager initialized', tag: 'AppState');
     } catch (e) {
-      AppLogger.e('Failed to initialize AppStateManager', tag: 'AppState', error: e);
+      AppLogger.e('Failed to initialize AppStateManager',
+          tag: 'AppState', error: e);
       rethrow;
     }
   }
@@ -244,7 +236,8 @@ class AppStateManager {
     try {
       final jsonList = stack.map((s) => s.toJson()).toList();
       await _prefs.setString(_keyNavigationStack, jsonEncode(jsonList));
-      AppLogger.d('Saved navigation stack: ${stack.length} items', tag: 'AppState');
+      AppLogger.d('Saved navigation stack: ${stack.length} items',
+          tag: 'AppState');
     } catch (e) {
       AppLogger.e('Failed to save navigation stack', tag: 'AppState', error: e);
     }
@@ -278,7 +271,8 @@ class AppStateManager {
       await _prefs.remove(_keyNavigationStack);
       AppLogger.d('Cleared navigation stack', tag: 'AppState');
     } catch (e) {
-      AppLogger.e('Failed to clear navigation stack', tag: 'AppState', error: e);
+      AppLogger.e('Failed to clear navigation stack',
+          tag: 'AppState', error: e);
     }
   }
 
@@ -443,19 +437,19 @@ class AppLifecycleObserver with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(ui.AppLifecycleState state) {
     AppLogger.d('App lifecycle state changed: $state', tag: 'AppState');
 
     switch (state) {
-      case AppLifecycleState.paused:
-      case AppLifecycleState.inactive:
+      case ui.AppLifecycleState.paused:
+      case ui.AppLifecycleState.inactive:
         _handleAppBackground();
         break;
-      case AppLifecycleState.resumed:
+      case ui.AppLifecycleState.resumed:
         _handleAppForeground();
         break;
-      case AppLifecycleState.detached:
-      case AppLifecycleState.hidden:
+      case ui.AppLifecycleState.detached:
+      case ui.AppLifecycleState.hidden:
         // App is being destroyed or hidden
         break;
     }
@@ -488,7 +482,8 @@ final appStateManagerProvider = Provider<AppStateManager>((ref) {
 });
 
 /// Provider for last navigation state
-final lastNavigationStateProvider = FutureProvider<NavigationState?>((ref) async {
+final lastNavigationStateProvider =
+    FutureProvider<NavigationState?>((ref) async {
   final manager = ref.watch(appStateManagerProvider);
   await manager.initialize();
   return manager.getLastScreen();

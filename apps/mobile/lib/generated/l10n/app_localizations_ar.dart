@@ -1219,7 +1219,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get lemon => 'ليمون';
 
   @override
-  String get alfalfa => 'برسيم حجازي';
+  String get alfalfa => 'برسيم';
 
   @override
   String get clover => 'برسيم';
@@ -2488,7 +2488,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fuelCost => 'تكلفة الوقود';
 
   @override
-  String get maintenanceCost => 'تكلفة الصيانة';
+  String get maintenanceCost => 'التكلفة (ريال)';
 
   @override
   String get rentCost => 'تكلفة الإيجار';
@@ -3451,7 +3451,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get upcomingTasks => 'المهام القادمة';
 
   @override
-  String get overdueTasks => 'Overdue Tasks';
+  String get overdueTasks => 'المهام المتأخرة';
 
   @override
   String get completedTasks => 'المهام المكتملة';
@@ -3595,7 +3595,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get operationalEquipment => 'معدة تشغيلية';
 
   @override
-  String get underMaintenance => 'تحت الصيانة';
+  String get underMaintenance => 'صيانة';
 
   @override
   String get outOfService => 'خارج الخدمة';
@@ -3658,7 +3658,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get equipmentHours => 'ساعات التشغيل';
 
   @override
-  String get operatingHours => 'ساعات العمل';
+  String get operatingHours => 'ساعات التشغيل';
 
   @override
   String get totalHours => 'إجمالي الساعات';
@@ -3676,7 +3676,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fuelType => 'نوع الوقود';
 
   @override
-  String get fuelLevel => 'مستوى الوقود';
+  String get fuelLevel => 'الوقود';
 
   @override
   String get refuel => 'تزويد بالوقود';
@@ -5380,7 +5380,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get checkForUpdates => 'التحقق من التحديثات';
 
   @override
-  String get updateAvailable => 'يوجد تحديث متاح';
+  String get updateAvailable => 'تحديث متاح';
 
   @override
   String get updateNow => 'تحديث الآن';
@@ -5420,4 +5420,1074 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get accessibility => 'إمكانية الوصول';
+
+  @override
+  String get navHome => 'الرئيسية';
+
+  @override
+  String get navMarketplace => 'السوق';
+
+  @override
+  String get navWallet => 'المحفظة';
+
+  @override
+  String get navCommunity => 'المجتمع';
+
+  @override
+  String get navMore => 'المزيد';
+
+  @override
+  String get navFields => 'الحقول';
+
+  @override
+  String get navMyFields => 'حقولي';
+
+  @override
+  String get navSettings => 'الإعدادات';
+
+  @override
+  String get navHelp => 'المساعدة';
+
+  @override
+  String get navAbout => 'حول التطبيق';
+
+  @override
+  String get navLogout => 'تسجيل الخروج';
+
+  @override
+  String get quickAction => 'إجراء سريع';
+
+  @override
+  String get takePhoto => 'تصوير';
+
+  @override
+  String get newField => 'حقل جديد';
+
+  @override
+  String get addTask => 'إضافة مهمة';
+
+  @override
+  String get logIrrigation => 'تسجيل ري';
+
+  @override
+  String get logFertilization => 'تسجيل تسميد';
+
+  @override
+  String get reportIssue => 'تقرير مشكلة';
+
+  @override
+  String get sellMyCrop => 'بيع محصولي';
+
+  @override
+  String get errorGeneric => 'حدث خطأ ما. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get errorNetwork => 'خطأ في الشبكة. يرجى التحقق من اتصالك.';
+
+  @override
+  String get errorTimeout => 'انتهت مهلة الطلب. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get errorServer => 'خطأ في الخادم. يرجى المحاولة لاحقًا.';
+
+  @override
+  String get errorUnauthorized => 'انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.';
+
+  @override
+  String get errorForbidden => 'ليس لديك صلاحية لتنفيذ هذا الإجراء.';
+
+  @override
+  String get errorNotFound => 'المورد غير موجود.';
+
+  @override
+  String get errorValidation => 'يرجى التحقق من المدخلات والمحاولة مرة أخرى.';
+
+  @override
+  String get errorLoadingData => 'خطأ في تحميل البيانات';
+
+  @override
+  String get errorLoadingStats => 'خطأ في تحميل الإحصائيات';
+
+  @override
+  String get errorSavingData => 'خطأ في حفظ البيانات. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get errorDeletingData =>
+      'خطأ في حذف البيانات. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get errorUploadingFile => 'خطأ في رفع الملف. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get errorDownloadingFile =>
+      'خطأ في تنزيل الملف. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get errorLocationServices => 'خدمات الموقع غير متاحة.';
+
+  @override
+  String get errorCameraAccess => 'تم رفض الوصول إلى الكاميرا.';
+
+  @override
+  String get errorStorageAccess => 'تم رفض الوصول إلى التخزين.';
+
+  @override
+  String get errorNoInternet => 'لا يوجد اتصال بالإنترنت.';
+
+  @override
+  String get errorOfflineMode => 'أنت في وضع عدم الاتصال.';
+
+  @override
+  String get errorSyncFailed => 'فشلت المزامنة. تم حفظ البيانات محليًا.';
+
+  @override
+  String get errorInvalidCredentials =>
+      'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+
+  @override
+  String get errorAccountLocked => 'الحساب مقفل. يرجى التواصل مع الدعم.';
+
+  @override
+  String get errorEmailExists => 'البريد الإلكتروني مسجل بالفعل.';
+
+  @override
+  String get errorWeakPassword => 'كلمة المرور ضعيفة جدًا.';
+
+  @override
+  String get errorPasswordMismatch => 'كلمات المرور غير متطابقة.';
+
+  @override
+  String get errorFieldRequired => 'هذا الحقل مطلوب.';
+
+  @override
+  String get errorInvalidEmail => 'يرجى إدخال بريد إلكتروني صالح.';
+
+  @override
+  String get errorInvalidPhone => 'يرجى إدخال رقم هاتف صالح.';
+
+  @override
+  String get errorInvalidDate => 'يرجى إدخال تاريخ صالح.';
+
+  @override
+  String get errorInvalidNumber => 'يرجى إدخال رقم صالح.';
+
+  @override
+  String errorMinLength(int count) {
+    return 'يجب أن يكون $count أحرف على الأقل.';
+  }
+
+  @override
+  String errorMaxLength(int count) {
+    return 'يجب ألا يتجاوز $count أحرف.';
+  }
+
+  @override
+  String errorMinValue(String value) {
+    return 'القيمة يجب أن تكون $value على الأقل.';
+  }
+
+  @override
+  String errorMaxValue(String value) {
+    return 'القيمة يجب ألا تتجاوز $value.';
+  }
+
+  @override
+  String get btnSave => 'حفظ';
+
+  @override
+  String get btnCancel => 'إلغاء';
+
+  @override
+  String get btnClose => 'إغلاق';
+
+  @override
+  String get btnConfirm => 'تأكيد';
+
+  @override
+  String get btnApply => 'تطبيق';
+
+  @override
+  String get btnSubmit => 'إرسال';
+
+  @override
+  String get btnContinue => 'متابعة';
+
+  @override
+  String get btnNext => 'التالي';
+
+  @override
+  String get btnPrevious => 'السابق';
+
+  @override
+  String get btnBack => 'رجوع';
+
+  @override
+  String get btnDone => 'تم';
+
+  @override
+  String get btnOk => 'موافق';
+
+  @override
+  String get btnYes => 'نعم';
+
+  @override
+  String get btnNo => 'لا';
+
+  @override
+  String get btnRetry => 'إعادة المحاولة';
+
+  @override
+  String get btnTryAgain => 'حاول مرة أخرى';
+
+  @override
+  String get btnRefresh => 'تحديث';
+
+  @override
+  String get btnReload => 'إعادة تحميل';
+
+  @override
+  String get btnEdit => 'تعديل';
+
+  @override
+  String get btnDelete => 'حذف';
+
+  @override
+  String get btnRemove => 'إزالة';
+
+  @override
+  String get btnAdd => 'إضافة';
+
+  @override
+  String get btnCreate => 'إنشاء';
+
+  @override
+  String get btnUpdate => 'تحديث';
+
+  @override
+  String get btnView => 'عرض';
+
+  @override
+  String get btnViewDetails => 'عرض التفاصيل';
+
+  @override
+  String get btnViewAll => 'عرض الكل';
+
+  @override
+  String get btnSeeMore => 'مشاهدة المزيد';
+
+  @override
+  String get btnShowLess => 'عرض أقل';
+
+  @override
+  String get btnExpand => 'توسيع';
+
+  @override
+  String get btnCollapse => 'طي';
+
+  @override
+  String get btnShare => 'مشاركة';
+
+  @override
+  String get btnDownload => 'تنزيل';
+
+  @override
+  String get btnUpload => 'رفع';
+
+  @override
+  String get btnExport => 'تصدير';
+
+  @override
+  String get btnImport => 'استيراد';
+
+  @override
+  String get btnPrint => 'طباعة';
+
+  @override
+  String get btnCopy => 'نسخ';
+
+  @override
+  String get btnPaste => 'لصق';
+
+  @override
+  String get btnCut => 'قص';
+
+  @override
+  String get btnSelect => 'اختيار';
+
+  @override
+  String get btnSelectAll => 'تحديد الكل';
+
+  @override
+  String get btnDeselect => 'إلغاء التحديد';
+
+  @override
+  String get btnClear => 'مسح';
+
+  @override
+  String get btnReset => 'إعادة تعيين';
+
+  @override
+  String get btnFilter => 'تصفية';
+
+  @override
+  String get btnSort => 'ترتيب';
+
+  @override
+  String get btnSearch => 'بحث';
+
+  @override
+  String get btnFind => 'بحث';
+
+  @override
+  String get btnLogin => 'تسجيل الدخول';
+
+  @override
+  String get btnLogout => 'تسجيل الخروج';
+
+  @override
+  String get btnSignUp => 'إنشاء حساب';
+
+  @override
+  String get btnRegister => 'تسجيل';
+
+  @override
+  String get btnForgotPassword => 'نسيت كلمة المرور؟';
+
+  @override
+  String get btnResetPassword => 'إعادة تعيين كلمة المرور';
+
+  @override
+  String get btnChangePassword => 'تغيير كلمة المرور';
+
+  @override
+  String get btnSendCode => 'إرسال الرمز';
+
+  @override
+  String get btnVerify => 'تحقق';
+
+  @override
+  String get btnResendCode => 'إعادة إرسال الرمز';
+
+  @override
+  String get btnSkip => 'تخطي';
+
+  @override
+  String get btnGetStarted => 'ابدأ الآن';
+
+  @override
+  String get btnLearnMore => 'اعرف المزيد';
+
+  @override
+  String get btnAccept => 'قبول';
+
+  @override
+  String get btnDecline => 'رفض';
+
+  @override
+  String get btnAgree => 'موافق';
+
+  @override
+  String get btnDisagree => 'غير موافق';
+
+  @override
+  String get btnEnable => 'تفعيل';
+
+  @override
+  String get btnDisable => 'تعطيل';
+
+  @override
+  String get btnStart => 'بدء';
+
+  @override
+  String get btnStop => 'إيقاف';
+
+  @override
+  String get btnPause => 'إيقاف مؤقت';
+
+  @override
+  String get btnResume => 'استئناف';
+
+  @override
+  String get btnSend => 'إرسال';
+
+  @override
+  String get btnReceive => 'استلام';
+
+  @override
+  String get btnSyncNow => 'مزامنة الآن';
+
+  @override
+  String get btnContinueAnyway => 'المتابعة على أي حال';
+
+  @override
+  String get formEmail => 'البريد الإلكتروني';
+
+  @override
+  String get formEmailHint => 'أدخل بريدك الإلكتروني';
+
+  @override
+  String get formPassword => 'كلمة المرور';
+
+  @override
+  String get formPasswordHint => 'أدخل كلمة المرور';
+
+  @override
+  String get formConfirmPassword => 'تأكيد كلمة المرور';
+
+  @override
+  String get formConfirmPasswordHint => 'أعد إدخال كلمة المرور';
+
+  @override
+  String get formFullName => 'الاسم الكامل';
+
+  @override
+  String get formFullNameHint => 'أدخل اسمك الكامل';
+
+  @override
+  String get formPhone => 'رقم الهاتف';
+
+  @override
+  String get formPhoneHint => 'أدخل رقم هاتفك';
+
+  @override
+  String get formAddress => 'العنوان';
+
+  @override
+  String get formAddressHint => 'أدخل عنوانك';
+
+  @override
+  String get formCity => 'المدينة';
+
+  @override
+  String get formCountry => 'الدولة';
+
+  @override
+  String get formZipCode => 'الرمز البريدي';
+
+  @override
+  String get formDate => 'التاريخ';
+
+  @override
+  String get formTime => 'الوقت';
+
+  @override
+  String get formDateTime => 'التاريخ والوقت';
+
+  @override
+  String get formNotes => 'ملاحظات';
+
+  @override
+  String get formNotesHint => 'أدخل أي ملاحظات...';
+
+  @override
+  String get formDescription => 'الوصف';
+
+  @override
+  String get formDescriptionHint => 'أدخل الوصف...';
+
+  @override
+  String get formAmount => 'المبلغ';
+
+  @override
+  String get formQuantity => 'الكمية';
+
+  @override
+  String get formPrice => 'السعر';
+
+  @override
+  String get formCurrency => 'العملة';
+
+  @override
+  String get formSearchHint => 'بحث...';
+
+  @override
+  String get formSearchFieldHint => 'ابحث عن حقل...';
+
+  @override
+  String get formSelectOption => 'اختر خيارًا';
+
+  @override
+  String get formSelectDate => 'اختر التاريخ';
+
+  @override
+  String get formSelectTime => 'اختر الوقت';
+
+  @override
+  String get formOptional => 'اختياري';
+
+  @override
+  String get formRequired => 'مطلوب';
+
+  @override
+  String get tooltipRefresh => 'تحديث البيانات';
+
+  @override
+  String get tooltipFilter => 'تصفية النتائج';
+
+  @override
+  String get tooltipSort => 'ترتيب النتائج';
+
+  @override
+  String get tooltipSearch => 'بحث';
+
+  @override
+  String get tooltipSettings => 'الإعدادات';
+
+  @override
+  String get tooltipNotifications => 'الإشعارات';
+
+  @override
+  String get tooltipHelp => 'المساعدة';
+
+  @override
+  String get tooltipInfo => 'مزيد من المعلومات';
+
+  @override
+  String get tooltipEdit => 'تعديل';
+
+  @override
+  String get tooltipDelete => 'حذف';
+
+  @override
+  String get tooltipShare => 'مشاركة';
+
+  @override
+  String get tooltipDownload => 'تنزيل';
+
+  @override
+  String get tooltipUpload => 'رفع';
+
+  @override
+  String get tooltipClose => 'إغلاق';
+
+  @override
+  String get tooltipExpand => 'توسيع';
+
+  @override
+  String get tooltipCollapse => 'طي';
+
+  @override
+  String get tooltipViewList => 'عرض كقائمة';
+
+  @override
+  String get tooltipViewGrid => 'عرض كشبكة';
+
+  @override
+  String get tooltipAddEquipment => 'إضافة معدة';
+
+  @override
+  String get tooltipScanQR => 'مسح QR';
+
+  @override
+  String get tooltipShowMap => 'عرض على الخريطة';
+
+  @override
+  String get tooltipZoomIn => 'تكبير';
+
+  @override
+  String get tooltipZoomOut => 'تصغير';
+
+  @override
+  String get tooltipMyLocation => 'موقعي';
+
+  @override
+  String get tooltipLayers => 'طبقات الخريطة';
+
+  @override
+  String get a11yNavigateHome => 'الانتقال للرئيسية';
+
+  @override
+  String get a11yNavigateBack => 'الرجوع';
+
+  @override
+  String get a11yOpenMenu => 'فتح القائمة';
+
+  @override
+  String get a11yCloseMenu => 'إغلاق القائمة';
+
+  @override
+  String get a11yOpenSidebar => 'فتح الشريط الجانبي';
+
+  @override
+  String get a11yCloseSidebar => 'إغلاق الشريط الجانبي';
+
+  @override
+  String get a11yLoadingContent => 'جاري تحميل المحتوى';
+
+  @override
+  String get a11yContentLoaded => 'تم تحميل المحتوى';
+
+  @override
+  String get a11yErrorOccurred => 'حدث خطأ';
+
+  @override
+  String get a11yFieldRequired => 'هذا الحقل مطلوب';
+
+  @override
+  String get a11yFieldOptional => 'هذا الحقل اختياري';
+
+  @override
+  String get a11ySelectedItem => 'محدد';
+
+  @override
+  String get a11yUnselectedItem => 'غير محدد';
+
+  @override
+  String get a11yExpandSection => 'توسيع القسم';
+
+  @override
+  String get a11yCollapseSection => 'طي القسم';
+
+  @override
+  String get a11yImageDescription => 'صورة';
+
+  @override
+  String get a11yMapView => 'عرض الخريطة';
+
+  @override
+  String get a11yChartView => 'عرض الرسم البياني';
+
+  @override
+  String get a11yListView => 'عرض القائمة';
+
+  @override
+  String get a11yGridView => 'عرض الشبكة';
+
+  @override
+  String get a11ySwipeLeft => 'اسحب لليسار للمزيد من الخيارات';
+
+  @override
+  String get a11ySwipeRight => 'اسحب لليمين للمزيد من الخيارات';
+
+  @override
+  String get a11yDoubleTap => 'انقر مرتين للفتح';
+
+  @override
+  String get a11yLongPress => 'اضغط مطولاً للمزيد من الخيارات';
+
+  @override
+  String a11yCurrentPage(int page, int total) {
+    return 'الصفحة الحالية: $page من $total';
+  }
+
+  @override
+  String get successGeneric => 'تمت العملية بنجاح.';
+
+  @override
+  String get successSaved => 'تم حفظ التغييرات بنجاح.';
+
+  @override
+  String get successDeleted => 'تم حذف العنصر بنجاح.';
+
+  @override
+  String get successUpdated => 'تم تحديث العنصر بنجاح.';
+
+  @override
+  String get successCreated => 'تم إنشاء العنصر بنجاح.';
+
+  @override
+  String get successSent => 'تم الإرسال بنجاح.';
+
+  @override
+  String get successCopied => 'تم النسخ إلى الحافظة.';
+
+  @override
+  String get successDownloaded => 'اكتمل التنزيل.';
+
+  @override
+  String get successUploaded => 'اكتمل الرفع.';
+
+  @override
+  String get successSynced => 'تمت مزامنة البيانات بنجاح.';
+
+  @override
+  String get successLoggedIn => 'مرحبًا بعودتك!';
+
+  @override
+  String get successLoggedOut => 'تم تسجيل الخروج بنجاح.';
+
+  @override
+  String get successPasswordChanged => 'تم تغيير كلمة المرور بنجاح.';
+
+  @override
+  String get successProfileUpdated => 'تم تحديث الملف الشخصي بنجاح.';
+
+  @override
+  String get dataRefreshed => 'تم تحديث البيانات';
+
+  @override
+  String get itemAdded => 'تم إضافة العنصر';
+
+  @override
+  String get itemRemoved => 'تم إزالة العنصر';
+
+  @override
+  String get settingsSaved => 'تم حفظ الإعدادات';
+
+  @override
+  String get operationPending => 'العملية قيد الانتظار...';
+
+  @override
+  String get operationInProgress => 'يرجى الانتظار...';
+
+  @override
+  String get processingRequest => 'جاري معالجة طلبك...';
+
+  @override
+  String get savingChanges => 'جاري حفظ التغييرات...';
+
+  @override
+  String get loadingData => 'جاري تحميل البيانات...';
+
+  @override
+  String get syncingData => 'جاري مزامنة البيانات...';
+
+  @override
+  String get uploadingFile => 'جاري رفع الملف...';
+
+  @override
+  String get downloadingFile => 'جاري تنزيل الملف...';
+
+  @override
+  String get equipmentAndAssets => 'المعدات والأصول';
+
+  @override
+  String get equipmentFleet => 'أسطول المعدات';
+
+  @override
+  String get equipmentCount => 'معدات';
+
+  @override
+  String get operationalReady => 'جاهزة';
+
+  @override
+  String get allCategories => 'الكل';
+
+  @override
+  String get tractors => 'جرارات';
+
+  @override
+  String get pumps => 'مضخات';
+
+  @override
+  String get drones => 'درونز';
+
+  @override
+  String get harvesters => 'حاصدات';
+
+  @override
+  String get pivots => 'رشاشات';
+
+  @override
+  String get sprayers => 'رشاشات';
+
+  @override
+  String get sensors => 'حساسات';
+
+  @override
+  String get noEquipment => 'لا توجد معدات';
+
+  @override
+  String get addNewEquipment => 'إضافة معدة جديدة';
+
+  @override
+  String get equipmentNameHint => 'مثال: John Deere 8R';
+
+  @override
+  String get serialNumber_equipment => 'الرقم التسلسلي';
+
+  @override
+  String get currentLocation => 'الموقع الحالي';
+
+  @override
+  String get notSpecified => 'غير محدد';
+
+  @override
+  String get viewOnMap => 'عرض على الخريطة';
+
+  @override
+  String get maintenanceAlerts => 'تنبيهات الصيانة';
+
+  @override
+  String get addMaintenanceRecord => 'إضافة سجل صيانة';
+
+  @override
+  String get upcomingMaintenance => 'صيانة قادمة';
+
+  @override
+  String get maintenanceDate => 'تاريخ الصيانة';
+
+  @override
+  String get maintenanceDescription => 'وصف الصيانة';
+
+  @override
+  String get maintenanceDescriptionHint =>
+      'مثال: تغيير زيت المحرك وفلتر الهواء';
+
+  @override
+  String get technicianName => 'اسم الفني';
+
+  @override
+  String get technicianNameHint => 'اسم فني الصيانة';
+
+  @override
+  String get additionalNotes => 'ملاحظات إضافية';
+
+  @override
+  String get additionalNotesHint => 'أي ملاحظات أخرى...';
+
+  @override
+  String get saveMaintenanceRecord => 'حفظ سجل الصيانة';
+
+  @override
+  String get savingRecord => 'جاري الحفظ...';
+
+  @override
+  String get maintenanceRecordAdded => 'تم إضافة سجل الصيانة بنجاح';
+
+  @override
+  String get pleaseEnterDescription => 'الرجاء إدخال وصف الصيانة';
+
+  @override
+  String get yearManufactured => 'سنة الصنع';
+
+  @override
+  String get horsepower => 'حصان';
+
+  @override
+  String get hp => 'حصان';
+
+  @override
+  String get maintenanceType => 'نوع الصيانة';
+
+  @override
+  String get oilChange => 'تغيير الزيت';
+
+  @override
+  String get filterChange => 'تغيير الفلتر';
+
+  @override
+  String get tireCheck => 'فحص الإطارات';
+
+  @override
+  String get batteryCheck => 'فحص البطارية';
+
+  @override
+  String get calibration => 'معايرة';
+
+  @override
+  String get generalService => 'صيانة عامة';
+
+  @override
+  String get repair_maintenance => 'إصلاح';
+
+  @override
+  String overdueByDays(int days) {
+    return 'متأخر $days يوم';
+  }
+
+  @override
+  String dueInDays(int days) {
+    return 'بعد $days يوم';
+  }
+
+  @override
+  String get noMaintenanceHistory => 'لا يوجد سجل صيانة';
+
+  @override
+  String get maintenanceRecordsWillAppear =>
+      'ستظهر هنا سجلات الصيانة عند إضافتها';
+
+  @override
+  String get startEquipment => 'تشغيل';
+
+  @override
+  String get stopEquipment => 'إيقاف';
+
+  @override
+  String get viewHistory => 'السجل';
+
+  @override
+  String get performMaintenance => 'صيانة';
+
+  @override
+  String get equipmentAdded => 'تم إضافة المعدة بنجاح';
+
+  @override
+  String get failedToAddEquipment => 'فشل في إضافة المعدة';
+
+  @override
+  String get pleaseEnterEquipmentName => 'الرجاء إدخال اسم المعدة';
+
+  @override
+  String get scanEquipmentCode => 'مسح رمز المعدة';
+
+  @override
+  String get pointCameraAtQR =>
+      'وجّه الكاميرا نحو رمز QR أو الباركود الموجود على المعدة';
+
+  @override
+  String get scanned => 'تم المسح';
+
+  @override
+  String get fieldsTitle => 'الحقول';
+
+  @override
+  String get searchFieldsHint => 'ابحث عن حقل...';
+
+  @override
+  String get sortByName => 'الاسم';
+
+  @override
+  String get sortByArea => 'المساحة';
+
+  @override
+  String get sortByHealth => 'الصحة';
+
+  @override
+  String get sortTooltip => 'ترتيب';
+
+  @override
+  String get filterAll => 'الكل';
+
+  @override
+  String get fieldsCount => 'الحقول';
+
+  @override
+  String get totalAreaLabel => 'المساحة';
+
+  @override
+  String get hectareAbbrev => 'هـ';
+
+  @override
+  String get averageHealth => 'متوسط الصحة';
+
+  @override
+  String get noFields => 'لا توجد حقول';
+
+  @override
+  String get addFieldToStart => 'أضف حقلاً جديداً للبدء';
+
+  @override
+  String get addNewField => 'حقل جديد';
+
+  @override
+  String get fieldCreatedComingSoon => 'إضافة حقل جديد - قريباً';
+
+  @override
+  String get corn => 'ذرة';
+
+  @override
+  String get datePalm => 'نخيل';
+
+  @override
+  String get statusActive => 'نشط';
+
+  @override
+  String get statusInactive => 'غير نشط';
+
+  @override
+  String get statusPending => 'قيد الانتظار';
+
+  @override
+  String get statusCompleted => 'مكتمل';
+
+  @override
+  String get statusInProgress => 'قيد التنفيذ';
+
+  @override
+  String get statusCancelled => 'ملغي';
+
+  @override
+  String get statusScheduled => 'مجدول';
+
+  @override
+  String get statusOverdue => 'متأخر';
+
+  @override
+  String get statusUpcoming => 'قادم';
+
+  @override
+  String get statusOperational => 'يعمل';
+
+  @override
+  String get statusMaintenance => 'صيانة';
+
+  @override
+  String get statusRepair => 'إصلاح';
+
+  @override
+  String get highTemperatureWarning =>
+      'ارتفاع درجات الحرارة - ينصح بالري المبكر';
+
+  @override
+  String get updateRequired => 'تحديث مطلوب';
+
+  @override
+  String get newUpdateAvailable => 'تحديث جديد متاح';
+
+  @override
+  String get majorUpdateAvailable => 'تحديث رئيسي متاح';
+
+  @override
+  String get minorUpdateAvailable => 'تحديث جديد متاح';
+
+  @override
+  String get patchUpdateAvailable => 'تحديث تصحيحي متاح';
+
+  @override
+  String get appIsUpToDate => 'التطبيق محدث';
+
+  @override
+  String get remindLater => 'ذكرني لاحقاً';
+
+  @override
+  String get skipThisVersion => 'تخطي هذا الإصدار';
+
+  @override
+  String get whatsNewTitle => 'ما الجديد:';
+
+  @override
+  String get updateDescription => 'يتوفر إصدار جديد من سهول.';
+
+  @override
+  String get forceUpdateDescription =>
+      'يجب تحديث التطبيق للاستمرار في الاستخدام. يتضمن هذا التحديث تحسينات هامة وإصلاحات أمنية.';
+
+  @override
+  String get majorUpdateDescription =>
+      'يتوفر إصدار جديد رئيسي مع تحسينات كبيرة وميزات جديدة. ننصح بشدة بالتحديث.';
+
+  @override
+  String get minorUpdateDescription =>
+      'يتوفر تحديث جديد مع ميزات وتحسينات إضافية.';
+
+  @override
+  String get patchUpdateDescription =>
+      'يتوفر تحديث تصحيحي مع إصلاحات للأخطاء وتحسينات في الأداء.';
+
+  @override
+  String get versionLabel => 'الإصدار';
+
+  @override
+  String get currentVersionLabel => 'الإصدار الحالي';
+
+  @override
+  String get latestVersionLabel => 'أحدث إصدار';
+
+  @override
+  String get checkingForUpdates => 'جارٍ التحقق من التحديثات...';
+
+  @override
+  String get updateCheckFailed => 'فشل التحقق من التحديثات';
+
+  @override
+  String get noInternetForUpdate =>
+      'لا يوجد اتصال بالإنترنت. لا يمكن التحقق من التحديثات.';
+
+  @override
+  String get updateSkipped => 'تم تخطي التحديث';
+
+  @override
+  String get updateRemindLaterSet => 'سيتم تذكيرك بهذا التحديث لاحقاً';
 }

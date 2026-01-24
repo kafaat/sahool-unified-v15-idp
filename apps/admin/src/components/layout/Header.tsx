@@ -31,7 +31,7 @@ export default function Header({ title, subtitle }: HeaderProps) {
       {/* Right side - Actions */}
       <div className="flex items-center gap-4">
         {/* Search */}
-        <div className="relative">
+        <div className="relative" suppressHydrationWarning>
           <input
             type="text"
             placeholder="بحث..."
@@ -48,6 +48,7 @@ export default function Header({ title, subtitle }: HeaderProps) {
         <button
           aria-label="التنبيهات"
           className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          suppressHydrationWarning
         >
           <Bell className="w-5 h-5" aria-hidden="true" />
           <span
@@ -64,6 +65,7 @@ export default function Header({ title, subtitle }: HeaderProps) {
             aria-haspopup="true"
             aria-label="قائمة المستخدم"
             className="flex items-center gap-2 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            suppressHydrationWarning
           >
             <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
               <User className="w-4 h-4 text-green-600" aria-hidden="true" />
@@ -92,6 +94,7 @@ export default function Header({ title, subtitle }: HeaderProps) {
                 onClick={handleLogout}
                 role="menuitem"
                 className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                suppressHydrationWarning
               >
                 <LogOut className="w-4 h-4" aria-hidden="true" />
                 <span>تسجيل الخروج</span>

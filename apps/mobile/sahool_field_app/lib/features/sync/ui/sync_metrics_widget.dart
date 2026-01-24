@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import '../../../core/sync/sync_metrics_service.dart';
+import '../../../core/sync/sync_metrics_providers.dart';
 
 /// Sync Metrics Widget - Displays comprehensive sync health and metrics
 /// واجهة عرض إحصائيات المزامنة
@@ -19,7 +20,7 @@ class SyncMetricsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final metricsAsync = ref.watch(syncMetricsProvider);
+    final metricsAsync = ref.watch(syncMetricsStreamProvider);
 
     return metricsAsync.when(
       data: (metrics) => isCompact

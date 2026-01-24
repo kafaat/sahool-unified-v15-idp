@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/sync/sync_metrics_service.dart';
+import '../../core/sync/sync_metrics_providers.dart';
 import 'ui/sync_metrics_widget.dart';
 
 /// Demo screen showing how to use sync metrics

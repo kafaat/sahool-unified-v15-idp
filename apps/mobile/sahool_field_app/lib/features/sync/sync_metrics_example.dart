@@ -141,7 +141,7 @@ class QueueHealthIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final metricsAsync = ref.watch(syncMetricsProvider);
+    final metricsAsync = ref.watch(syncMetricsStreamProvider);
 
     return metricsAsync.when(
       data: (metrics) {
@@ -223,7 +223,7 @@ class RealtimeMetricsDisplay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // This will automatically update when metrics change
-    final metricsAsync = ref.watch(syncMetricsProvider);
+    final metricsAsync = ref.watch(syncMetricsStreamProvider);
 
     return metricsAsync.when(
       data: (metrics) {

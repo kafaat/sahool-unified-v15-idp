@@ -1,0 +1,6617 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Database Schema Mapping | توثيق مخطط قاعدة البيانات - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#database-schema-mapping" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Database Schema Mapping | توثيق مخطط قاعدة البيانات
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="database-schema-mapping">Database Schema Mapping | توثيق مخطط قاعدة البيانات<a class="headerlink" href="#database-schema-mapping" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>الإصدار</strong>: 16.0.0
+<strong>تاريخ التحديث</strong>: 2026-01-24
+<strong>قاعدة البيانات</strong>: PostgreSQL 16+ with PostGIS 3.4
+<strong>إجمالي الجداول</strong>: 60+ جدول</p>
+</blockquote>
+<hr />
+<h2 id="table-of-contents">جدول المحتويات | Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#نظرة-عامة--overview">نظرة عامة | Overview</a></li>
+<li><a href="#خدمات-prisma-orm--prisma-orm-services">خدمات Prisma ORM | Prisma ORM Services</a></li>
+<li><a href="#خدمات-sqlalchemy--sqlalchemy-services">خدمات SQLAlchemy | SQLAlchemy Services</a></li>
+<li><a href="#خدمات-tortoise-orm--tortoise-orm-services">خدمات Tortoise ORM | Tortoise ORM Services</a></li>
+<li><a href="#العلاقات-الرئيسية--key-relationships">العلاقات الرئيسية | Key Relationships</a></li>
+<li><a href="#ملخص-الإحصائيات--statistics-summary">ملخص الإحصائيات | Statistics Summary</a></li>
+</ol>
+<hr />
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                     PostgreSQL 16+ with PostGIS 3.4                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐              │
+│  │   Prisma ORM    │  │   SQLAlchemy    │  │  Tortoise ORM   │              │
+│  │   (Node.js)     │  │    (Python)     │  │    (Python)     │              │
+│  │   8 خدمات       │  │   4 خدمات       │  │   1 خدمة        │              │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘              │
+│           │                    │                    │                        │
+│           ▼                    ▼                    ▼                        │
+│  ┌─────────────────────────────────────────────────────────────────┐        │
+│  │                     Database Tables (60+)                        │        │
+│  └─────────────────────────────────────────────────────────────────┘        │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="orm-orm-technologies">تقنيات ORM المستخدمة | ORM Technologies<a class="headerlink" href="#orm-orm-technologies" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التقنية</th>
+<th>الخدمات</th>
+<th>اللغة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prisma</td>
+<td>user-service, field-management, marketplace, chat, iot, inventory, weather, research</td>
+<td>Node.js/TypeScript</td>
+</tr>
+<tr>
+<td>SQLAlchemy</td>
+<td>alert-service, billing-core, equipment-service, task-service</td>
+<td>Python</td>
+</tr>
+<tr>
+<td>Tortoise ORM</td>
+<td>notification-service</td>
+<td>Python</td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-patterns">الأنماط الشائعة | Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النمط</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Multi-Tenancy</td>
+<td>جميع الجداول تحتوي على <code>tenant_id</code> لعزل البيانات</td>
+</tr>
+<tr>
+<td>Soft Deletes</td>
+<td><code>deleted_at</code>, <code>deleted_by</code> للحذف الناعم</td>
+</tr>
+<tr>
+<td>Bilingual</td>
+<td>أعمدة <code>*_ar</code> للنصوص العربية</td>
+</tr>
+<tr>
+<td>Optimistic Locking</td>
+<td><code>version</code> لمنع التضاربات</td>
+</tr>
+<tr>
+<td>Audit Trail</td>
+<td><code>created_at</code>, <code>updated_at</code> مع timezone</td>
+</tr>
+<tr>
+<td>PostGIS</td>
+<td>دعم البيانات الجغرافية (Point, Polygon)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="prisma-orm-prisma-orm-services">خدمات Prisma ORM | Prisma ORM Services<a class="headerlink" href="#prisma-orm-prisma-orm-services" title="Permanent link">&para;</a></h2>
+<h3 id="1-user-service">1. User Service | خدمة المستخدمين<a class="headerlink" href="#1-user-service" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>apps/services/user-service/prisma/schema.prisma</code></p>
+<h4 id="users">users | المستخدمون<a class="headerlink" href="#users" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>Column</th>
+<th>النوع</th>
+<th>Type</th>
+<th>المفتاح</th>
+<th>Key</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>email</td>
+<td>String</td>
+<td>UNIQUE</td>
+<td>البريد الإلكتروني</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>phone</td>
+<td>String?</td>
+<td>-</td>
+<td>الهاتف (اختياري)</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>password_hash</td>
+<td>String</td>
+<td>-</td>
+<td>كلمة المرور المشفرة</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>first_name</td>
+<td>String</td>
+<td>-</td>
+<td>الاسم الأول</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>last_name</td>
+<td>String</td>
+<td>-</td>
+<td>اسم العائلة</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>role</td>
+<td>UserRole</td>
+<td>-</td>
+<td>ADMIN, MANAGER, FARMER, WORKER, VIEWER</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>status</td>
+<td>UserStatus</td>
+<td>-</td>
+<td>ACTIVE, INACTIVE, SUSPENDED, PENDING</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>email_verified</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>phone_verified</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>last_login_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>آخر تسجيل دخول</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>failed_login_attempts</td>
+<td>Int</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>lockout_until</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>قفل الحساب حتى</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>password_reset_token</td>
+<td>String?</td>
+<td>-</td>
+<td>توكن إعادة التعيين</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>password_reset_expiry</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>انتهاء صلاحية التوكن</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>DateTime</td>
+<td>-</td>
+<td>تاريخ الإنشاء</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>updated_at</td>
+<td>DateTime</td>
+<td>-</td>
+<td>تاريخ التحديث</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>العلاقات</strong>: <code>sessions[]</code>, <code>refreshTokens[]</code>, <code>profile</code>, <code>roles[]</code>
+<strong>الفهارس</strong>: <code>tenant_id</code>, <code>email</code>, <code>status</code>, <code>role</code></p>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="w"> </span><span class="k">User</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w">                    </span><span class="n">String</span><span class="w">        </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">tenantId</span><span class="w">             </span><span class="n">String</span><span class="w">        </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;tenant_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">email</span><span class="w">                </span><span class="n">String</span><span class="w">        </span><span class="nv">@unique</span>
+<span class="w">  </span><span class="n">phone</span><span class="w">                </span><span class="n">String</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">passwordHash</span><span class="w">         </span><span class="n">String</span><span class="w">        </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;password_hash&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">firstName</span><span class="w">            </span><span class="n">String</span><span class="w">        </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;first_name&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">lastName</span><span class="w">             </span><span class="n">String</span><span class="w">        </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;last_name&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="k">role</span><span class="w">                 </span><span class="n">UserRole</span><span class="w">      </span><span class="nv">@default</span><span class="p">(</span><span class="n">FARMER</span><span class="p">)</span>
+<span class="w">  </span><span class="n">status</span><span class="w">               </span><span class="n">UserStatus</span><span class="w">    </span><span class="nv">@default</span><span class="p">(</span><span class="n">ACTIVE</span><span class="p">)</span>
+<span class="w">  </span><span class="n">emailVerified</span><span class="w">        </span><span class="k">Boolean</span><span class="w">       </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;email_verified&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">phoneVerified</span><span class="w">        </span><span class="k">Boolean</span><span class="w">       </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;phone_verified&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">lastLoginAt</span><span class="w">          </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w">     </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;last_login_at&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">failedLoginAttempts</span><span class="w">  </span><span class="nc">Int</span><span class="w">           </span><span class="nv">@default</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;failed_login_attempts&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">lockoutUntil</span><span class="w">         </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w">     </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;lockout_until&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">passwordResetToken</span><span class="w">   </span><span class="n">String</span><span class="vm">?</span><span class="w">       </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;password_reset_token&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">passwordResetExpiry</span><span class="w">  </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w">     </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;password_reset_expiry&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">createdAt</span><span class="w">            </span><span class="nc">DateTime</span><span class="w">      </span><span class="nv">@default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;created_at&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">updatedAt</span><span class="w">            </span><span class="nc">DateTime</span><span class="w">      </span><span class="nv">@updatedAt</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;updated_at&quot;</span><span class="p">)</span>
+
+<span class="w">  </span><span class="n">sessions</span><span class="w">      </span><span class="n">UserSession</span><span class="err">[]</span>
+<span class="w">  </span><span class="n">refreshTokens</span><span class="w"> </span><span class="n">RefreshToken</span><span class="err">[]</span>
+<span class="w">  </span><span class="n">profile</span><span class="w">       </span><span class="n">UserProfile</span><span class="vm">?</span>
+
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">tenantId</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">email</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">status</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">role</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;users&quot;</span><span class="p">)</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<h4 id="user_profiles">user_profiles | ملفات المستخدمين<a class="headerlink" href="#user_profiles" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>UUID</td>
+<td>FK, UNIQUE</td>
+<td>مرجع المستخدم</td>
+</tr>
+<tr>
+<td>national_id</td>
+<td>String?</td>
+<td>-</td>
+<td>الهوية الوطنية</td>
+</tr>
+<tr>
+<td>date_of_birth</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>تاريخ الميلاد</td>
+</tr>
+<tr>
+<td>address</td>
+<td>String?</td>
+<td>-</td>
+<td>العنوان</td>
+</tr>
+<tr>
+<td>city</td>
+<td>String?</td>
+<td>-</td>
+<td>المدينة</td>
+</tr>
+<tr>
+<td>region</td>
+<td>String?</td>
+<td>-</td>
+<td>المنطقة</td>
+</tr>
+<tr>
+<td>country</td>
+<td>String</td>
+<td>-</td>
+<td>"SA" افتراضياً</td>
+</tr>
+<tr>
+<td>avatar_url</td>
+<td>String?</td>
+<td>-</td>
+<td>صورة الملف الشخصي</td>
+</tr>
+</tbody>
+</table>
+<h4 id="user_sessions">user_sessions | جلسات المستخدمين<a class="headerlink" href="#user_sessions" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع المستخدم</td>
+</tr>
+<tr>
+<td>token</td>
+<td>String</td>
+<td>UNIQUE</td>
+<td>توكن الجلسة</td>
+</tr>
+<tr>
+<td>ip_address</td>
+<td>String?</td>
+<td>-</td>
+<td>عنوان IP</td>
+</tr>
+<tr>
+<td>user_agent</td>
+<td>String?</td>
+<td>-</td>
+<td>معلومات المتصفح</td>
+</tr>
+<tr>
+<td>expires_at</td>
+<td>DateTime</td>
+<td>-</td>
+<td>انتهاء الصلاحية</td>
+</tr>
+</tbody>
+</table>
+<h4 id="refresh_tokens">refresh_tokens | توكنات التجديد<a class="headerlink" href="#refresh_tokens" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع المستخدم</td>
+</tr>
+<tr>
+<td>jti</td>
+<td>String</td>
+<td>UNIQUE</td>
+<td>معرف JWT</td>
+</tr>
+<tr>
+<td>family</td>
+<td>String</td>
+<td>-</td>
+<td>عائلة التوكن للتدوير</td>
+</tr>
+<tr>
+<td>token</td>
+<td>String</td>
+<td>UNIQUE</td>
+<td>توكن التجديد</td>
+</tr>
+<tr>
+<td>expires_at</td>
+<td>DateTime</td>
+<td>-</td>
+<td>انتهاء الصلاحية</td>
+</tr>
+<tr>
+<td>revoked</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+</tr>
+<tr>
+<td>used</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+</tr>
+<tr>
+<td>replaced_by</td>
+<td>String?</td>
+<td>-</td>
+<td>JTI البديل</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="2-field-management-service">2. Field Management Service | خدمة إدارة الحقول<a class="headerlink" href="#2-field-management-service" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>apps/services/field-management-service/prisma/schema.prisma</code></p>
+<h4 id="farms">farms | المزارع<a class="headerlink" href="#farms" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String(255)</td>
+<td>-</td>
+<td>اسم المزرعة</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String(100)</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>owner_id</td>
+<td>UUID?</td>
+<td>-</td>
+<td>المالك</td>
+</tr>
+<tr>
+<td>location</td>
+<td>Geometry</td>
+<td>-</td>
+<td>PostGIS Point(4326)</td>
+</tr>
+<tr>
+<td>boundary</td>
+<td>Geometry</td>
+<td>-</td>
+<td>PostGIS Polygon(4326)</td>
+</tr>
+<tr>
+<td>total_area_hectares</td>
+<td>Decimal(10,4)?</td>
+<td>-</td>
+<td>المساحة الإجمالية</td>
+</tr>
+<tr>
+<td>address</td>
+<td>String?</td>
+<td>-</td>
+<td>العنوان</td>
+</tr>
+<tr>
+<td>phone</td>
+<td>String?</td>
+<td>-</td>
+<td>الهاتف</td>
+</tr>
+<tr>
+<td>email</td>
+<td>String?</td>
+<td>-</td>
+<td>البريد الإلكتروني</td>
+</tr>
+<tr>
+<td>is_deleted</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>DateTime</td>
+<td>-</td>
+<td>timestamptz</td>
+</tr>
+<tr>
+<td>updated_at</td>
+<td>DateTime</td>
+<td>-</td>
+<td>timestamptz</td>
+</tr>
+</tbody>
+</table>
+<p><strong>العلاقات</strong>: <code>fields[]</code></p>
+<h4 id="fields">fields | الحقول<a class="headerlink" href="#fields" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>version</td>
+<td>Int</td>
+<td>-</td>
+<td>1 افتراضياً (Optimistic Locking)</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String(255)</td>
+<td>-</td>
+<td>اسم الحقل</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String(100)</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>crop_type</td>
+<td>String(100)</td>
+<td>-</td>
+<td>نوع المحصول</td>
+</tr>
+<tr>
+<td>owner_id</td>
+<td>UUID?</td>
+<td>-</td>
+<td>المالك</td>
+</tr>
+<tr>
+<td>farm_id</td>
+<td>UUID?</td>
+<td>FK</td>
+<td>مرجع المزرعة</td>
+</tr>
+<tr>
+<td>boundary</td>
+<td>Geometry</td>
+<td>-</td>
+<td>PostGIS Polygon(4326)</td>
+</tr>
+<tr>
+<td>centroid</td>
+<td>Geometry</td>
+<td>-</td>
+<td>PostGIS Point(4326)</td>
+</tr>
+<tr>
+<td>area_hectares</td>
+<td>Decimal(10,4)?</td>
+<td>-</td>
+<td>المساحة</td>
+</tr>
+<tr>
+<td>health_score</td>
+<td>Decimal(3,2)?</td>
+<td>-</td>
+<td>درجة الصحة</td>
+</tr>
+<tr>
+<td>ndvi_value</td>
+<td>Decimal(4,3)?</td>
+<td>-</td>
+<td>قيمة NDVI</td>
+</tr>
+<tr>
+<td>status</td>
+<td>FieldStatus</td>
+<td>-</td>
+<td>active, fallow, harvested, preparing, inactive</td>
+</tr>
+<tr>
+<td>planting_date</td>
+<td>Date?</td>
+<td>-</td>
+<td>تاريخ الزراعة</td>
+</tr>
+<tr>
+<td>expected_harvest</td>
+<td>Date?</td>
+<td>-</td>
+<td>الحصاد المتوقع</td>
+</tr>
+<tr>
+<td>irrigation_type</td>
+<td>String(50)?</td>
+<td>-</td>
+<td>نوع الري</td>
+</tr>
+<tr>
+<td>soil_type</td>
+<td>String(100)?</td>
+<td>-</td>
+<td>نوع التربة</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>بيانات إضافية</td>
+</tr>
+<tr>
+<td>is_deleted</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+</tr>
+<tr>
+<td>server_updated_at</td>
+<td>DateTime</td>
+<td>-</td>
+<td>آخر تحديث الخادم</td>
+</tr>
+<tr>
+<td>etag</td>
+<td>String(64)?</td>
+<td>-</td>
+<td>للتحكم بالتخزين المؤقت</td>
+</tr>
+</tbody>
+</table>
+<p><strong>العلاقات</strong>: <code>farm</code>, <code>boundaryHistory[]</code>, <code>tasks[]</code>, <code>ndviReadings[]</code>
+<strong>الفهارس</strong>: <code>tenant_id</code>, <code>server_updated_at</code>, <code>status</code>, <code>crop_type</code></p>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="w"> </span><span class="n">Field</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w">                </span><span class="n">String</span><span class="w">         </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">version</span><span class="w">           </span><span class="nc">Int</span><span class="w">            </span><span class="nv">@default</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">  </span><span class="n">name</span><span class="w">              </span><span class="n">String</span><span class="w">         </span><span class="nv">@db</span><span class="p">.</span><span class="nc">VarChar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
+<span class="w">  </span><span class="n">tenantId</span><span class="w">          </span><span class="n">String</span><span class="w">         </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;tenant_id&quot;</span><span class="p">)</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="nc">VarChar</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="w">  </span><span class="n">cropType</span><span class="w">          </span><span class="n">String</span><span class="w">         </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;crop_type&quot;</span><span class="p">)</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="nc">VarChar</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="w">  </span><span class="n">ownerId</span><span class="w">           </span><span class="n">String</span><span class="vm">?</span><span class="w">        </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;owner_id&quot;</span><span class="p">)</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="n">Uuid</span>
+<span class="w">  </span><span class="n">farmId</span><span class="w">            </span><span class="n">String</span><span class="vm">?</span><span class="w">        </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;farm_id&quot;</span><span class="p">)</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="n">Uuid</span>
+<span class="w">  </span><span class="n">boundary</span><span class="w">          </span><span class="n">Unsupported</span><span class="p">(</span><span class="ss">&quot;geometry(Polygon,4326)&quot;</span><span class="p">)</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">centroid</span><span class="w">          </span><span class="n">Unsupported</span><span class="p">(</span><span class="ss">&quot;geometry(Point,4326)&quot;</span><span class="p">)</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">areaHectares</span><span class="w">      </span><span class="nc">Decimal</span><span class="vm">?</span><span class="w">       </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;area_hectares&quot;</span><span class="p">)</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="nc">Decimal</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span>
+<span class="w">  </span><span class="n">healthScore</span><span class="w">       </span><span class="nc">Decimal</span><span class="vm">?</span><span class="w">       </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;health_score&quot;</span><span class="p">)</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="nc">Decimal</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+<span class="w">  </span><span class="n">ndviValue</span><span class="w">         </span><span class="nc">Decimal</span><span class="vm">?</span><span class="w">       </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;ndvi_value&quot;</span><span class="p">)</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="nc">Decimal</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span>
+<span class="w">  </span><span class="n">status</span><span class="w">            </span><span class="n">FieldStatus</span><span class="w">    </span><span class="nv">@default</span><span class="p">(</span><span class="n">active</span><span class="p">)</span>
+<span class="w">  </span><span class="n">plantingDate</span><span class="w">      </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w">      </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;planting_date&quot;</span><span class="p">)</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="nc">Date</span>
+<span class="w">  </span><span class="n">expectedHarvest</span><span class="w">   </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w">      </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;expected_harvest&quot;</span><span class="p">)</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="nc">Date</span>
+<span class="w">  </span><span class="n">irrigationType</span><span class="w">    </span><span class="n">String</span><span class="vm">?</span><span class="w">        </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;irrigation_type&quot;</span><span class="p">)</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="nc">VarChar</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<span class="w">  </span><span class="n">soilType</span><span class="w">          </span><span class="n">String</span><span class="vm">?</span><span class="w">        </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;soil_type&quot;</span><span class="p">)</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="nc">VarChar</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="w">  </span><span class="n">metadata</span><span class="w">          </span><span class="n">Json</span><span class="vm">?</span><span class="w">          </span><span class="nv">@db</span><span class="p">.</span><span class="n">JsonB</span>
+<span class="w">  </span><span class="n">isDeleted</span><span class="w">         </span><span class="k">Boolean</span><span class="w">        </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;is_deleted&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">serverUpdatedAt</span><span class="w">   </span><span class="nc">DateTime</span><span class="w">       </span><span class="nv">@default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;server_updated_at&quot;</span><span class="p">)</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="n">Timestamptz</span>
+<span class="w">  </span><span class="n">etag</span><span class="w">              </span><span class="n">String</span><span class="vm">?</span><span class="w">        </span><span class="nv">@db</span><span class="p">.</span><span class="nc">VarChar</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
+<span class="w">  </span><span class="n">createdAt</span><span class="w">         </span><span class="nc">DateTime</span><span class="w">       </span><span class="nv">@default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;created_at&quot;</span><span class="p">)</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="n">Timestamptz</span>
+<span class="w">  </span><span class="n">updatedAt</span><span class="w">         </span><span class="nc">DateTime</span><span class="w">       </span><span class="nv">@updatedAt</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;updated_at&quot;</span><span class="p">)</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="n">Timestamptz</span>
+
+<span class="w">  </span><span class="n">farm</span><span class="w">              </span><span class="n">Farm</span><span class="vm">?</span><span class="w">          </span><span class="nv">@relation</span><span class="p">(</span><span class="nl">fields</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">farmId</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="k">references</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">id</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="n">boundaryHistory</span><span class="w">   </span><span class="n">FieldBoundaryHistory</span><span class="err">[]</span>
+<span class="w">  </span><span class="n">tasks</span><span class="w">             </span><span class="n">Task</span><span class="err">[]</span>
+<span class="w">  </span><span class="n">ndviReadings</span><span class="w">      </span><span class="n">NdviReading</span><span class="err">[]</span>
+
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">tenantId</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">serverUpdatedAt</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">status</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">cropType</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;fields&quot;</span><span class="p">)</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<h4 id="sync_status">sync_status | حالة المزامنة<a class="headerlink" href="#sync_status" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>device_id</td>
+<td>String(100)</td>
+<td>UNIQUE مع user_id</td>
+<td>معرف الجهاز</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>String(100)</td>
+<td>-</td>
+<td>معرف المستخدم</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String(100)</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>last_sync_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>آخر مزامنة</td>
+</tr>
+<tr>
+<td>last_sync_version</td>
+<td>BigInt</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>status</td>
+<td>SyncState</td>
+<td>-</td>
+<td>idle, syncing, error, conflict</td>
+</tr>
+<tr>
+<td>pending_uploads</td>
+<td>Int</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>pending_downloads</td>
+<td>Int</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>conflicts_count</td>
+<td>Int</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>last_error</td>
+<td>Text?</td>
+<td>-</td>
+<td>آخر خطأ</td>
+</tr>
+<tr>
+<td>device_info</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>معلومات الجهاز</td>
+</tr>
+</tbody>
+</table>
+<h4 id="tasks">tasks | المهام<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>title</td>
+<td>String(255)</td>
+<td>-</td>
+<td>العنوان بالإنجليزية</td>
+</tr>
+<tr>
+<td>title_ar</td>
+<td>String(255)?</td>
+<td>-</td>
+<td>العنوان بالعربية</td>
+</tr>
+<tr>
+<td>description</td>
+<td>Text?</td>
+<td>-</td>
+<td>الوصف</td>
+</tr>
+<tr>
+<td>task_type</td>
+<td>TaskType</td>
+<td>-</td>
+<td>irrigation, fertilization, spraying, etc.</td>
+</tr>
+<tr>
+<td>priority</td>
+<td>Priority</td>
+<td>-</td>
+<td>low, medium, high, urgent</td>
+</tr>
+<tr>
+<td>status</td>
+<td>TaskState</td>
+<td>-</td>
+<td>pending, in_progress, completed, cancelled, overdue</td>
+</tr>
+<tr>
+<td>due_date</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>تاريخ الاستحقاق</td>
+</tr>
+<tr>
+<td>scheduled_time</td>
+<td>String(10)?</td>
+<td>-</td>
+<td>HH:MM</td>
+</tr>
+<tr>
+<td>completed_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>تاريخ الإكمال</td>
+</tr>
+<tr>
+<td>assigned_to</td>
+<td>String(100)?</td>
+<td>-</td>
+<td>المكلف</td>
+</tr>
+<tr>
+<td>created_by</td>
+<td>String(100)</td>
+<td>-</td>
+<td>المنشئ</td>
+</tr>
+<tr>
+<td>field_id</td>
+<td>UUID?</td>
+<td>FK</td>
+<td>مرجع الحقل</td>
+</tr>
+<tr>
+<td>estimated_minutes</td>
+<td>Int?</td>
+<td>-</td>
+<td>الوقت المقدر</td>
+</tr>
+<tr>
+<td>actual_minutes</td>
+<td>Int?</td>
+<td>-</td>
+<td>الوقت الفعلي</td>
+</tr>
+<tr>
+<td>completion_notes</td>
+<td>Text?</td>
+<td>-</td>
+<td>ملاحظات الإكمال</td>
+</tr>
+<tr>
+<td>evidence</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>الأدلة (صور، ملاحظات)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="ndvi_readings-ndvi">ndvi_readings | قراءات NDVI<a class="headerlink" href="#ndvi_readings-ndvi" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>field_id</td>
+<td>UUID</td>
+<td>FK</td>
+<td>مرجع الحقل</td>
+</tr>
+<tr>
+<td>value</td>
+<td>Decimal(4,3)</td>
+<td>-</td>
+<td>-1.000 إلى 1.000</td>
+</tr>
+<tr>
+<td>captured_at</td>
+<td>DateTime</td>
+<td>-</td>
+<td>وقت الالتقاط</td>
+</tr>
+<tr>
+<td>source</td>
+<td>String(50)</td>
+<td>-</td>
+<td>"satellite" افتراضياً</td>
+</tr>
+<tr>
+<td>cloud_cover</td>
+<td>Decimal(5,2)?</td>
+<td>-</td>
+<td>0-100%</td>
+</tr>
+<tr>
+<td>quality</td>
+<td>String(20)?</td>
+<td>-</td>
+<td>good, moderate, poor</td>
+</tr>
+<tr>
+<td>satellite_name</td>
+<td>String(50)?</td>
+<td>-</td>
+<td>اسم القمر الصناعي</td>
+</tr>
+<tr>
+<td>band_info</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>معلومات النطاق</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="3-marketplace-service">3. Marketplace Service | خدمة السوق<a class="headerlink" href="#3-marketplace-service" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>apps/services/marketplace-service/prisma/schema.prisma</code></p>
+<h4 id="products">products | المنتجات<a class="headerlink" href="#products" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>-</td>
+<td>اسم المنتج بالإنجليزية</td>
+</tr>
+<tr>
+<td>name_ar</td>
+<td>String</td>
+<td>-</td>
+<td>اسم المنتج بالعربية</td>
+</tr>
+<tr>
+<td>category</td>
+<td>ProductCategory</td>
+<td>-</td>
+<td>HARVEST, SEEDS, FERTILIZER, PESTICIDE, EQUIPMENT, IRRIGATION, OTHER</td>
+</tr>
+<tr>
+<td>price</td>
+<td>Float</td>
+<td>-</td>
+<td>السعر بالريال</td>
+</tr>
+<tr>
+<td>stock</td>
+<td>Float</td>
+<td>-</td>
+<td>الكمية</td>
+</tr>
+<tr>
+<td>unit</td>
+<td>String</td>
+<td>-</td>
+<td>ton, kg, unit</td>
+</tr>
+<tr>
+<td>description</td>
+<td>String?</td>
+<td>-</td>
+<td>الوصف بالإنجليزية</td>
+</tr>
+<tr>
+<td>description_ar</td>
+<td>String?</td>
+<td>-</td>
+<td>الوصف بالعربية</td>
+</tr>
+<tr>
+<td>image_url</td>
+<td>String?</td>
+<td>-</td>
+<td>رابط الصورة</td>
+</tr>
+<tr>
+<td>seller_id</td>
+<td>String</td>
+<td>-</td>
+<td>معرف البائع</td>
+</tr>
+<tr>
+<td>seller_type</td>
+<td>SellerType</td>
+<td>-</td>
+<td>FARMER, COMPANY, COOPERATIVE</td>
+</tr>
+<tr>
+<td>seller_name</td>
+<td>String?</td>
+<td>-</td>
+<td>اسم البائع</td>
+</tr>
+<tr>
+<td>governorate</td>
+<td>String?</td>
+<td>-</td>
+<td>المحافظة</td>
+</tr>
+<tr>
+<td>district</td>
+<td>String?</td>
+<td>-</td>
+<td>المديرية</td>
+</tr>
+<tr>
+<td>crop_type</td>
+<td>String?</td>
+<td>-</td>
+<td>نوع المحصول</td>
+</tr>
+<tr>
+<td>harvest_date</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>تاريخ الحصاد</td>
+</tr>
+<tr>
+<td>quality_grade</td>
+<td>String?</td>
+<td>-</td>
+<td>A, B, C</td>
+</tr>
+<tr>
+<td>status</td>
+<td>ProductStatus</td>
+<td>-</td>
+<td>AVAILABLE, SOLD_OUT, RESERVED, PENDING</td>
+</tr>
+<tr>
+<td>featured</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+</tr>
+<tr>
+<td>deleted_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>الحذف الناعم</td>
+</tr>
+<tr>
+<td>deleted_by</td>
+<td>String?</td>
+<td>-</td>
+<td>من حذف</td>
+</tr>
+</tbody>
+</table>
+<p><strong>العلاقات</strong>: <code>orderItems[]</code></p>
+<h4 id="orders">orders | الطلبات<a class="headerlink" href="#orders" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>order_number</td>
+<td>String</td>
+<td>UNIQUE</td>
+<td>رقم الطلب</td>
+</tr>
+<tr>
+<td>buyer_id</td>
+<td>String</td>
+<td>-</td>
+<td>معرف المشتري</td>
+</tr>
+<tr>
+<td>buyer_name</td>
+<td>String?</td>
+<td>-</td>
+<td>اسم المشتري</td>
+</tr>
+<tr>
+<td>buyer_phone</td>
+<td>String?</td>
+<td>-</td>
+<td>هاتف المشتري</td>
+</tr>
+<tr>
+<td>subtotal</td>
+<td>Float</td>
+<td>-</td>
+<td>المجموع الفرعي</td>
+</tr>
+<tr>
+<td>delivery_fee</td>
+<td>Float</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>service_fee</td>
+<td>Float</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>total_amount</td>
+<td>Float</td>
+<td>-</td>
+<td>المجموع الكلي</td>
+</tr>
+<tr>
+<td>status</td>
+<td>OrderStatus</td>
+<td>-</td>
+<td>PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED</td>
+</tr>
+<tr>
+<td>payment_status</td>
+<td>PaymentStatus</td>
+<td>-</td>
+<td>UNPAID, PARTIAL, PAID, REFUNDED</td>
+</tr>
+<tr>
+<td>payment_method</td>
+<td>String?</td>
+<td>-</td>
+<td>wallet, cash, bank_transfer</td>
+</tr>
+<tr>
+<td>delivery_address</td>
+<td>String?</td>
+<td>-</td>
+<td>عنوان التوصيل</td>
+</tr>
+<tr>
+<td>delivery_date</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>تاريخ التوصيل</td>
+</tr>
+<tr>
+<td>delivery_notes</td>
+<td>String?</td>
+<td>-</td>
+<td>ملاحظات التوصيل</td>
+</tr>
+<tr>
+<td>deleted_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>الحذف الناعم</td>
+</tr>
+</tbody>
+</table>
+<p><strong>العلاقات</strong>: <code>items[]</code>, <code>transactions[]</code></p>
+<h4 id="wallets">wallets | المحافظ<a class="headerlink" href="#wallets" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>String</td>
+<td>UNIQUE</td>
+<td>معرف المستخدم</td>
+</tr>
+<tr>
+<td>user_type</td>
+<td>String</td>
+<td>-</td>
+<td>farmer, company, buyer</td>
+</tr>
+<tr>
+<td>balance</td>
+<td>Float</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>escrow_balance</td>
+<td>Float</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>currency</td>
+<td>String</td>
+<td>-</td>
+<td>"YER" افتراضياً</td>
+</tr>
+<tr>
+<td>credit_score</td>
+<td>Int</td>
+<td>-</td>
+<td>300 افتراضياً (300-850)</td>
+</tr>
+<tr>
+<td>credit_tier</td>
+<td>CreditTier</td>
+<td>-</td>
+<td>BRONZE, SILVER, GOLD, PLATINUM</td>
+</tr>
+<tr>
+<td>loan_limit</td>
+<td>Float</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>current_loan</td>
+<td>Float</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>daily_withdraw_limit</td>
+<td>Float</td>
+<td>-</td>
+<td>10000 افتراضياً</td>
+</tr>
+<tr>
+<td>single_transaction_limit</td>
+<td>Float</td>
+<td>-</td>
+<td>50000 افتراضياً</td>
+</tr>
+<tr>
+<td>requires_pin_for_amount</td>
+<td>Float</td>
+<td>-</td>
+<td>5000 افتراضياً</td>
+</tr>
+<tr>
+<td>daily_withdrawn_today</td>
+<td>Float</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>version</td>
+<td>Int</td>
+<td>-</td>
+<td>0 افتراضياً (Optimistic Locking)</td>
+</tr>
+<tr>
+<td>is_verified</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+</tr>
+<tr>
+<td>kyc_status</td>
+<td>String?</td>
+<td>-</td>
+<td>pending, approved, rejected</td>
+</tr>
+<tr>
+<td>pin</td>
+<td>String?</td>
+<td>-</td>
+<td>مشفر</td>
+</tr>
+</tbody>
+</table>
+<p><strong>العلاقات</strong>: <code>transactions[]</code>, <code>loans[]</code>, <code>escrows[]</code>, <code>scheduledPayments[]</code></p>
+<h4 id="transactions">transactions | المعاملات<a class="headerlink" href="#transactions" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>wallet_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع المحفظة</td>
+</tr>
+<tr>
+<td>type</td>
+<td>TransactionType</td>
+<td>-</td>
+<td>DEPOSIT, WITHDRAWAL, PURCHASE, SALE, LOAN, REPAYMENT, FEE, REFUND</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>Float</td>
+<td>-</td>
+<td>المبلغ</td>
+</tr>
+<tr>
+<td>balance_after</td>
+<td>Float</td>
+<td>-</td>
+<td>الرصيد بعد</td>
+</tr>
+<tr>
+<td>balance_before</td>
+<td>Float?</td>
+<td>-</td>
+<td>الرصيد قبل</td>
+</tr>
+<tr>
+<td>reference_id</td>
+<td>String?</td>
+<td>-</td>
+<td>order_id, loan_id</td>
+</tr>
+<tr>
+<td>reference_type</td>
+<td>String?</td>
+<td>-</td>
+<td>نوع المرجع</td>
+</tr>
+<tr>
+<td>description</td>
+<td>String?</td>
+<td>-</td>
+<td>الوصف بالإنجليزية</td>
+</tr>
+<tr>
+<td>description_ar</td>
+<td>String?</td>
+<td>-</td>
+<td>الوصف بالعربية</td>
+</tr>
+<tr>
+<td>status</td>
+<td>TransactionStatus</td>
+<td>-</td>
+<td>PENDING, COMPLETED, FAILED, CANCELLED</td>
+</tr>
+<tr>
+<td>idempotency_key</td>
+<td>String?</td>
+<td>UNIQUE</td>
+<td>لمنع التكرار</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>String?</td>
+<td>-</td>
+<td>معرف المستخدم</td>
+</tr>
+<tr>
+<td>ip_address</td>
+<td>String?</td>
+<td>-</td>
+<td>عنوان IP</td>
+</tr>
+</tbody>
+</table>
+<h4 id="loans">loans | القروض<a class="headerlink" href="#loans" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>wallet_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع المحفظة</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>Float</td>
+<td>-</td>
+<td>مبلغ القرض</td>
+</tr>
+<tr>
+<td>interest_rate</td>
+<td>Float</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>total_due</td>
+<td>Float</td>
+<td>-</td>
+<td>الإجمالي المستحق</td>
+</tr>
+<tr>
+<td>paid_amount</td>
+<td>Float</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>term_months</td>
+<td>Int</td>
+<td>-</td>
+<td>مدة القرض</td>
+</tr>
+<tr>
+<td>start_date</td>
+<td>DateTime</td>
+<td>-</td>
+<td>تاريخ البدء</td>
+</tr>
+<tr>
+<td>due_date</td>
+<td>DateTime</td>
+<td>-</td>
+<td>تاريخ الاستحقاق</td>
+</tr>
+<tr>
+<td>purpose</td>
+<td>LoanPurpose</td>
+<td>-</td>
+<td>SEEDS, FERTILIZER, EQUIPMENT, IRRIGATION, EXPANSION, EMERGENCY, OTHER</td>
+</tr>
+<tr>
+<td>purpose_details</td>
+<td>String?</td>
+<td>-</td>
+<td>تفاصيل الغرض</td>
+</tr>
+<tr>
+<td>collateral_type</td>
+<td>String?</td>
+<td>-</td>
+<td>crop, equipment, land</td>
+</tr>
+<tr>
+<td>collateral_value</td>
+<td>Float?</td>
+<td>-</td>
+<td>قيمة الضمان</td>
+</tr>
+<tr>
+<td>status</td>
+<td>LoanStatus</td>
+<td>-</td>
+<td>PENDING, APPROVED, ACTIVE, PAID, DEFAULTED, REJECTED</td>
+</tr>
+</tbody>
+</table>
+<h4 id="escrows">escrows | الضمانات<a class="headerlink" href="#escrows" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>order_id</td>
+<td>String</td>
+<td>UNIQUE, FK</td>
+<td>مرجع الطلب</td>
+</tr>
+<tr>
+<td>buyer_wallet_id</td>
+<td>String</td>
+<td>FK</td>
+<td>محفظة المشتري</td>
+</tr>
+<tr>
+<td>seller_wallet_id</td>
+<td>String</td>
+<td>FK</td>
+<td>محفظة البائع</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>Float</td>
+<td>-</td>
+<td>مبلغ الضمان</td>
+</tr>
+<tr>
+<td>status</td>
+<td>EscrowStatus</td>
+<td>-</td>
+<td>HELD, RELEASED, REFUNDED, DISPUTED, CANCELLED</td>
+</tr>
+<tr>
+<td>notes</td>
+<td>String?</td>
+<td>-</td>
+<td>ملاحظات</td>
+</tr>
+<tr>
+<td>dispute_reason</td>
+<td>String?</td>
+<td>-</td>
+<td>سبب النزاع</td>
+</tr>
+<tr>
+<td>released_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>تاريخ التحرير</td>
+</tr>
+<tr>
+<td>refunded_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>تاريخ الاسترداد</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="4-chat-service">4. Chat Service | خدمة المحادثة<a class="headerlink" href="#4-chat-service" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>apps/services/chat-service/prisma/schema.prisma</code></p>
+<h4 id="conversations">conversations | المحادثات<a class="headerlink" href="#conversations" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>participant_ids</td>
+<td>String[]</td>
+<td>-</td>
+<td>مصفوفة معرفات المشاركين</td>
+</tr>
+<tr>
+<td>product_id</td>
+<td>String?</td>
+<td>-</td>
+<td>مرجع المنتج</td>
+</tr>
+<tr>
+<td>order_id</td>
+<td>String?</td>
+<td>-</td>
+<td>مرجع الطلب</td>
+</tr>
+<tr>
+<td>last_message</td>
+<td>String?</td>
+<td>-</td>
+<td>آخر رسالة</td>
+</tr>
+<tr>
+<td>last_message_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت آخر رسالة</td>
+</tr>
+<tr>
+<td>is_active</td>
+<td>Boolean</td>
+<td>-</td>
+<td>true افتراضياً</td>
+</tr>
+</tbody>
+</table>
+<p><strong>العلاقات</strong>: <code>messages[]</code>, <code>participants[]</code></p>
+<h4 id="messages">messages | الرسائل<a class="headerlink" href="#messages" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>conversation_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع المحادثة</td>
+</tr>
+<tr>
+<td>sender_id</td>
+<td>String</td>
+<td>-</td>
+<td>معرف المرسل</td>
+</tr>
+<tr>
+<td>content</td>
+<td>String</td>
+<td>-</td>
+<td>محتوى الرسالة</td>
+</tr>
+<tr>
+<td>message_type</td>
+<td>MessageType</td>
+<td>-</td>
+<td>TEXT, IMAGE, OFFER, SYSTEM</td>
+</tr>
+<tr>
+<td>attachment_url</td>
+<td>String?</td>
+<td>-</td>
+<td>رابط المرفق</td>
+</tr>
+<tr>
+<td>offer_amount</td>
+<td>Float?</td>
+<td>-</td>
+<td>مبلغ العرض</td>
+</tr>
+<tr>
+<td>offer_currency</td>
+<td>String</td>
+<td>-</td>
+<td>"YER" افتراضياً</td>
+</tr>
+<tr>
+<td>is_read</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+</tr>
+<tr>
+<td>read_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت القراءة</td>
+</tr>
+</tbody>
+</table>
+<h4 id="participants">participants | المشاركون<a class="headerlink" href="#participants" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>conversation_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع المحادثة</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>String</td>
+<td>-</td>
+<td>معرف المستخدم</td>
+</tr>
+<tr>
+<td>role</td>
+<td>ParticipantRole</td>
+<td>-</td>
+<td>BUYER, SELLER</td>
+</tr>
+<tr>
+<td>last_read_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>آخر قراءة</td>
+</tr>
+<tr>
+<td>unread_count</td>
+<td>Int</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>is_online</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+</tr>
+<tr>
+<td>last_seen_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>آخر ظهور</td>
+</tr>
+<tr>
+<td>is_typing</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+</tr>
+</tbody>
+</table>
+<p><strong>القيود</strong>: UNIQUE(conversation_id, user_id)</p>
+<hr />
+<h3 id="5-iot-service">5. IoT Service | خدمة إنترنت الأشياء<a class="headerlink" href="#5-iot-service" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>apps/services/iot-service/prisma/schema.prisma</code></p>
+<h4 id="devices">devices | الأجهزة<a class="headerlink" href="#devices" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>device_id</td>
+<td>String</td>
+<td>UNIQUE مع tenant_id</td>
+<td>معرف الجهاز الفيزيائي</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>-</td>
+<td>اسم الجهاز</td>
+</tr>
+<tr>
+<td>type</td>
+<td>DeviceType</td>
+<td>-</td>
+<td>SOIL_MOISTURE_SENSOR, TEMPERATURE_SENSOR, etc.</td>
+</tr>
+<tr>
+<td>status</td>
+<td>DeviceStatus</td>
+<td>-</td>
+<td>ONLINE, OFFLINE, MAINTENANCE, ERROR, INACTIVE</td>
+</tr>
+<tr>
+<td>last_seen</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>آخر اتصال</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>بيانات إضافية</td>
+</tr>
+<tr>
+<td>field_id</td>
+<td>String?</td>
+<td>-</td>
+<td>مرجع الحقل</td>
+</tr>
+</tbody>
+</table>
+<p><strong>العلاقات</strong>: <code>sensors[]</code>, <code>sensorReadings[]</code>, <code>actuators[]</code>, <code>alerts[]</code></p>
+<h4 id="sensors">sensors | المستشعرات<a class="headerlink" href="#sensors" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>device_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع الجهاز</td>
+</tr>
+<tr>
+<td>sensor_type</td>
+<td>SensorType</td>
+<td>-</td>
+<td>SOIL_MOISTURE, TEMPERATURE, etc.</td>
+</tr>
+<tr>
+<td>unit</td>
+<td>String</td>
+<td>-</td>
+<td>%, °C, L/min</td>
+</tr>
+<tr>
+<td>calibration_data</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>بيانات المعايرة</td>
+</tr>
+<tr>
+<td>last_reading</td>
+<td>Float?</td>
+<td>-</td>
+<td>آخر قراءة</td>
+</tr>
+<tr>
+<td>last_reading_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت آخر قراءة</td>
+</tr>
+</tbody>
+</table>
+<h4 id="sensor_readings">sensor_readings | قراءات المستشعرات<a class="headerlink" href="#sensor_readings" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>sensor_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع المستشعر</td>
+</tr>
+<tr>
+<td>device_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع الجهاز</td>
+</tr>
+<tr>
+<td>value</td>
+<td>Float</td>
+<td>-</td>
+<td>القيمة</td>
+</tr>
+<tr>
+<td>unit</td>
+<td>String</td>
+<td>-</td>
+<td>وحدة القياس</td>
+</tr>
+<tr>
+<td>timestamp</td>
+<td>DateTime</td>
+<td>-</td>
+<td>الوقت</td>
+</tr>
+<tr>
+<td>quality</td>
+<td>Float?</td>
+<td>-</td>
+<td>0-1, null=unknown</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>بيانات إضافية</td>
+</tr>
+</tbody>
+</table>
+<h4 id="actuators">actuators | المشغلات<a class="headerlink" href="#actuators" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>device_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع الجهاز</td>
+</tr>
+<tr>
+<td>actuator_type</td>
+<td>ActuatorType</td>
+<td>-</td>
+<td>VALVE, PUMP, MOTOR, RELAY, SWITCH, SERVO, CUSTOM</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String?</td>
+<td>-</td>
+<td>الاسم</td>
+</tr>
+<tr>
+<td>current_state</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>{position, enabled}</td>
+</tr>
+<tr>
+<td>last_command</td>
+<td>String?</td>
+<td>-</td>
+<td>آخر أمر</td>
+</tr>
+<tr>
+<td>last_command_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت آخر أمر</td>
+</tr>
+</tbody>
+</table>
+<h4 id="actuator_commands">actuator_commands | أوامر المشغلات<a class="headerlink" href="#actuator_commands" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>actuator_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع المشغل</td>
+</tr>
+<tr>
+<td>command</td>
+<td>String</td>
+<td>-</td>
+<td>open, close, set_position</td>
+</tr>
+<tr>
+<td>parameters</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>معاملات إضافية</td>
+</tr>
+<tr>
+<td>status</td>
+<td>CommandStatus</td>
+<td>-</td>
+<td>PENDING, EXECUTING, COMPLETED, FAILED, TIMEOUT, CANCELLED</td>
+</tr>
+<tr>
+<td>requested_at</td>
+<td>DateTime</td>
+<td>-</td>
+<td>وقت الطلب</td>
+</tr>
+<tr>
+<td>executed_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت التنفيذ</td>
+</tr>
+<tr>
+<td>completed_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت الإكمال</td>
+</tr>
+<tr>
+<td>error_message</td>
+<td>String?</td>
+<td>-</td>
+<td>رسالة الخطأ</td>
+</tr>
+</tbody>
+</table>
+<h4 id="device_alerts">device_alerts | تنبيهات الأجهزة<a class="headerlink" href="#device_alerts" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>device_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع الجهاز</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String</td>
+<td>-</td>
+<td>للتصفية السريع</td>
+</tr>
+<tr>
+<td>alert_type</td>
+<td>String</td>
+<td>-</td>
+<td>offline, battery_low, sensor_error</td>
+</tr>
+<tr>
+<td>severity</td>
+<td>AlertSeverity</td>
+<td>-</td>
+<td>INFO, WARNING, ERROR, CRITICAL</td>
+</tr>
+<tr>
+<td>message</td>
+<td>String</td>
+<td>-</td>
+<td>رسالة التنبيه</td>
+</tr>
+<tr>
+<td>acknowledged</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+</tr>
+<tr>
+<td>acknowledged_by</td>
+<td>String?</td>
+<td>-</td>
+<td>من أقرّ</td>
+</tr>
+<tr>
+<td>acknowledged_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت الإقرار</td>
+</tr>
+<tr>
+<td>resolved_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت الحل</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="6-inventory-service">6. Inventory Service | خدمة المخزون<a class="headerlink" href="#6-inventory-service" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>apps/services/inventory-service/prisma/schema.prisma</code></p>
+<h4 id="inventory_items">inventory_items | عناصر المخزون<a class="headerlink" href="#inventory_items" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>-</td>
+<td>الاسم بالإنجليزية</td>
+</tr>
+<tr>
+<td>name_ar</td>
+<td>String</td>
+<td>-</td>
+<td>الاسم بالعربية</td>
+</tr>
+<tr>
+<td>sku</td>
+<td>String?</td>
+<td>UNIQUE</td>
+<td>رمز المنتج</td>
+</tr>
+<tr>
+<td>category</td>
+<td>ItemCategory</td>
+<td>-</td>
+<td>SEEDS, FERTILIZER, PESTICIDE, HERBICIDE, FUNGICIDE, etc.</td>
+</tr>
+<tr>
+<td>description</td>
+<td>String?</td>
+<td>-</td>
+<td>الوصف بالإنجليزية</td>
+</tr>
+<tr>
+<td>description_ar</td>
+<td>String?</td>
+<td>-</td>
+<td>الوصف بالعربية</td>
+</tr>
+<tr>
+<td>quantity</td>
+<td>Float</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>unit</td>
+<td>String</td>
+<td>-</td>
+<td>kg, liter, bag, bottle</td>
+</tr>
+<tr>
+<td>reorder_level</td>
+<td>Float</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>reorder_point</td>
+<td>Float?</td>
+<td>-</td>
+<td>نقطة إعادة الطلب</td>
+</tr>
+<tr>
+<td>max_stock</td>
+<td>Float?</td>
+<td>-</td>
+<td>الحد الأقصى</td>
+</tr>
+<tr>
+<td>unit_cost</td>
+<td>Float?</td>
+<td>-</td>
+<td>تكلفة الوحدة</td>
+</tr>
+<tr>
+<td>selling_price</td>
+<td>Float?</td>
+<td>-</td>
+<td>سعر البيع</td>
+</tr>
+<tr>
+<td>location</td>
+<td>String?</td>
+<td>-</td>
+<td>موقع المستودع</td>
+</tr>
+<tr>
+<td>batch_number</td>
+<td>String?</td>
+<td>-</td>
+<td>رقم الدفعة</td>
+</tr>
+<tr>
+<td>expiry_date</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>تاريخ الانتهاء</td>
+</tr>
+<tr>
+<td>min_temperature</td>
+<td>Float?</td>
+<td>-</td>
+<td>الحرارة الدنيا</td>
+</tr>
+<tr>
+<td>max_temperature</td>
+<td>Float?</td>
+<td>-</td>
+<td>الحرارة القصوى</td>
+</tr>
+<tr>
+<td>min_humidity</td>
+<td>Float?</td>
+<td>-</td>
+<td>الرطوبة الدنيا</td>
+</tr>
+<tr>
+<td>max_humidity</td>
+<td>Float?</td>
+<td>-</td>
+<td>الرطوبة القصوى</td>
+</tr>
+<tr>
+<td>supplier</td>
+<td>String?</td>
+<td>-</td>
+<td>المورد</td>
+</tr>
+<tr>
+<td>barcode</td>
+<td>String?</td>
+<td>-</td>
+<td>الباركود</td>
+</tr>
+<tr>
+<td>image_url</td>
+<td>String?</td>
+<td>-</td>
+<td>رابط الصورة</td>
+</tr>
+</tbody>
+</table>
+<p><strong>العلاقات</strong>: <code>movements[]</code>, <code>alerts[]</code></p>
+<h4 id="inventory_movements">inventory_movements | حركات المخزون<a class="headerlink" href="#inventory_movements" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>item_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع العنصر</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>type</td>
+<td>MovementType</td>
+<td>-</td>
+<td>PURCHASE, SALE, RETURN, ADJUSTMENT, TRANSFER, WASTE, USAGE, PRODUCTION, RESTOCK</td>
+</tr>
+<tr>
+<td>quantity</td>
+<td>Float</td>
+<td>-</td>
+<td>الكمية</td>
+</tr>
+<tr>
+<td>unit_cost</td>
+<td>Float?</td>
+<td>-</td>
+<td>تكلفة الوحدة</td>
+</tr>
+<tr>
+<td>reference_id</td>
+<td>String?</td>
+<td>-</td>
+<td>مرجع خارجي</td>
+</tr>
+<tr>
+<td>reference_type</td>
+<td>String?</td>
+<td>-</td>
+<td>purchase_order, sale, waste, adjustment</td>
+</tr>
+<tr>
+<td>from_location</td>
+<td>String?</td>
+<td>-</td>
+<td>من موقع</td>
+</tr>
+<tr>
+<td>to_location</td>
+<td>String?</td>
+<td>-</td>
+<td>إلى موقع</td>
+</tr>
+<tr>
+<td>notes</td>
+<td>String?</td>
+<td>-</td>
+<td>الملاحظات بالإنجليزية</td>
+</tr>
+<tr>
+<td>notes_ar</td>
+<td>String?</td>
+<td>-</td>
+<td>الملاحظات بالعربية</td>
+</tr>
+<tr>
+<td>performed_by</td>
+<td>String</td>
+<td>-</td>
+<td>المنفذ</td>
+</tr>
+</tbody>
+</table>
+<h4 id="warehouses">warehouses | المستودعات<a class="headerlink" href="#warehouses" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>-</td>
+<td>الاسم بالإنجليزية</td>
+</tr>
+<tr>
+<td>name_ar</td>
+<td>String</td>
+<td>-</td>
+<td>الاسم بالعربية</td>
+</tr>
+<tr>
+<td>warehouse_type</td>
+<td>WarehouseType</td>
+<td>-</td>
+<td>MAIN, FIELD, COLD, CHEMICAL, SEED, FUEL</td>
+</tr>
+<tr>
+<td>latitude</td>
+<td>Float?</td>
+<td>-</td>
+<td>خط العرض</td>
+</tr>
+<tr>
+<td>longitude</td>
+<td>Float?</td>
+<td>-</td>
+<td>خط الطول</td>
+</tr>
+<tr>
+<td>address</td>
+<td>String?</td>
+<td>-</td>
+<td>العنوان</td>
+</tr>
+<tr>
+<td>governorate</td>
+<td>String?</td>
+<td>-</td>
+<td>المحافظة</td>
+</tr>
+<tr>
+<td>capacity_value</td>
+<td>Float</td>
+<td>-</td>
+<td>السعة</td>
+</tr>
+<tr>
+<td>capacity_unit</td>
+<td>String</td>
+<td>-</td>
+<td>"cubic_meter" افتراضياً</td>
+</tr>
+<tr>
+<td>current_usage</td>
+<td>Float</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>storage_condition</td>
+<td>StorageCondition</td>
+<td>-</td>
+<td>AMBIENT, COOL, COLD, FROZEN, DRY, CONTROLLED</td>
+</tr>
+<tr>
+<td>temp_min</td>
+<td>Float?</td>
+<td>-</td>
+<td>الحرارة الدنيا</td>
+</tr>
+<tr>
+<td>temp_max</td>
+<td>Float?</td>
+<td>-</td>
+<td>الحرارة القصوى</td>
+</tr>
+<tr>
+<td>humidity_min</td>
+<td>Float?</td>
+<td>-</td>
+<td>الرطوبة الدنيا</td>
+</tr>
+<tr>
+<td>humidity_max</td>
+<td>Float?</td>
+<td>-</td>
+<td>الرطوبة القصوى</td>
+</tr>
+<tr>
+<td>is_active</td>
+<td>Boolean</td>
+<td>-</td>
+<td>true افتراضياً</td>
+</tr>
+<tr>
+<td>manager_id</td>
+<td>String?</td>
+<td>-</td>
+<td>معرف المدير</td>
+</tr>
+<tr>
+<td>manager_name</td>
+<td>String?</td>
+<td>-</td>
+<td>اسم المدير</td>
+</tr>
+</tbody>
+</table>
+<p><strong>العلاقات</strong>: <code>zones[]</code>, <code>transfersFrom[]</code>, <code>transfersTo[]</code></p>
+<hr />
+<h3 id="7-weather-service">7. Weather Service | خدمة الطقس<a class="headerlink" href="#7-weather-service" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>apps/services/weather-service/prisma/schema.prisma</code></p>
+<h4 id="weather_observations">weather_observations | رصدات الطقس<a class="headerlink" href="#weather_observations" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>location_id</td>
+<td>String</td>
+<td>-</td>
+<td>مرجع الموقع</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String?</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>latitude</td>
+<td>Float</td>
+<td>-</td>
+<td>خط العرض</td>
+</tr>
+<tr>
+<td>longitude</td>
+<td>Float</td>
+<td>-</td>
+<td>خط الطول</td>
+</tr>
+<tr>
+<td>timestamp</td>
+<td>DateTime</td>
+<td>-</td>
+<td>الوقت</td>
+</tr>
+<tr>
+<td>temperature</td>
+<td>Float</td>
+<td>-</td>
+<td>الحرارة (سلزيوس)</td>
+</tr>
+<tr>
+<td>humidity</td>
+<td>Float</td>
+<td>-</td>
+<td>الرطوبة (%)</td>
+</tr>
+<tr>
+<td>pressure</td>
+<td>Float</td>
+<td>-</td>
+<td>الضغط (hPa)</td>
+</tr>
+<tr>
+<td>wind_speed</td>
+<td>Float</td>
+<td>-</td>
+<td>سرعة الرياح (m/s)</td>
+</tr>
+<tr>
+<td>wind_direction</td>
+<td>Float</td>
+<td>-</td>
+<td>اتجاه الرياح (درجات)</td>
+</tr>
+<tr>
+<td>rainfall</td>
+<td>Float?</td>
+<td>-</td>
+<td>هطول الأمطار (mm)</td>
+</tr>
+<tr>
+<td>uv_index</td>
+<td>Float?</td>
+<td>-</td>
+<td>مؤشر الأشعة فوق البنفسجية</td>
+</tr>
+<tr>
+<td>cloud_cover</td>
+<td>Float?</td>
+<td>-</td>
+<td>تغطية السحب (%)</td>
+</tr>
+<tr>
+<td>visibility</td>
+<td>Float?</td>
+<td>-</td>
+<td>الرؤية (متر)</td>
+</tr>
+<tr>
+<td>source</td>
+<td>String</td>
+<td>-</td>
+<td>open-meteo, openweathermap, weatherapi</td>
+</tr>
+<tr>
+<td>raw_data</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>البيانات الخام</td>
+</tr>
+</tbody>
+</table>
+<h4 id="weather_forecasts">weather_forecasts | توقعات الطقس<a class="headerlink" href="#weather_forecasts" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>location_id</td>
+<td>String</td>
+<td>-</td>
+<td>مرجع الموقع</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String?</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>forecast_for</td>
+<td>DateTime</td>
+<td>-</td>
+<td>التاريخ المتوقع</td>
+</tr>
+<tr>
+<td>fetched_at</td>
+<td>DateTime</td>
+<td>-</td>
+<td>وقت الجلب</td>
+</tr>
+<tr>
+<td>provider</td>
+<td>String</td>
+<td>-</td>
+<td>مزود التوقع</td>
+</tr>
+<tr>
+<td>hourly_data</td>
+<td>JSONB</td>
+<td>-</td>
+<td>توقع 48 ساعة</td>
+</tr>
+<tr>
+<td>daily_data</td>
+<td>JSONB</td>
+<td>-</td>
+<td>توقع 7-14 يوم</td>
+</tr>
+</tbody>
+</table>
+<p><strong>القيود</strong>: UNIQUE(location_id, forecast_for, provider)</p>
+<h4 id="weather_alerts">weather_alerts | تنبيهات الطقس<a class="headerlink" href="#weather_alerts" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>location_id</td>
+<td>String</td>
+<td>-</td>
+<td>مرجع الموقع</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String?</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>alert_type</td>
+<td>AlertType</td>
+<td>-</td>
+<td>HEAT_STRESS, FROST, HEAVY_RAIN, DROUGHT, STRONG_WIND, STORM, DISEASE_RISK, OTHER</td>
+</tr>
+<tr>
+<td>severity</td>
+<td>AlertSeverity</td>
+<td>-</td>
+<td>INFO, MINOR, MODERATE, SEVERE, EXTREME</td>
+</tr>
+<tr>
+<td>headline</td>
+<td>String</td>
+<td>-</td>
+<td>العنوان</td>
+</tr>
+<tr>
+<td>description</td>
+<td>Text</td>
+<td>-</td>
+<td>الوصف</td>
+</tr>
+<tr>
+<td>start_time</td>
+<td>DateTime</td>
+<td>-</td>
+<td>وقت البدء</td>
+</tr>
+<tr>
+<td>end_time</td>
+<td>DateTime</td>
+<td>-</td>
+<td>وقت الانتهاء</td>
+</tr>
+<tr>
+<td>source</td>
+<td>String</td>
+<td>-</td>
+<td>المصدر</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="8-research-core-service">8. Research Core Service | خدمة البحث العلمي<a class="headerlink" href="#8-research-core-service" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>apps/services/research-core/prisma/schema.prisma</code></p>
+<h4 id="experiments">experiments | التجارب<a class="headerlink" href="#experiments" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>title</td>
+<td>String</td>
+<td>-</td>
+<td>العنوان بالإنجليزية</td>
+</tr>
+<tr>
+<td>title_ar</td>
+<td>String?</td>
+<td>-</td>
+<td>العنوان بالعربية</td>
+</tr>
+<tr>
+<td>description</td>
+<td>Text?</td>
+<td>-</td>
+<td>الوصف بالإنجليزية</td>
+</tr>
+<tr>
+<td>description_ar</td>
+<td>Text?</td>
+<td>-</td>
+<td>الوصف بالعربية</td>
+</tr>
+<tr>
+<td>hypothesis</td>
+<td>Text?</td>
+<td>-</td>
+<td>الفرضية بالإنجليزية</td>
+</tr>
+<tr>
+<td>hypothesis_ar</td>
+<td>Text?</td>
+<td>-</td>
+<td>الفرضية بالعربية</td>
+</tr>
+<tr>
+<td>start_date</td>
+<td>Date</td>
+<td>-</td>
+<td>تاريخ البدء</td>
+</tr>
+<tr>
+<td>end_date</td>
+<td>Date?</td>
+<td>-</td>
+<td>تاريخ الانتهاء</td>
+</tr>
+<tr>
+<td>status</td>
+<td>ExperimentStatus</td>
+<td>-</td>
+<td>draft, active, locked, completed, archived</td>
+</tr>
+<tr>
+<td>locked_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت القفل</td>
+</tr>
+<tr>
+<td>locked_by</td>
+<td>String?</td>
+<td>-</td>
+<td>من قفل</td>
+</tr>
+<tr>
+<td>principal_researcher_id</td>
+<td>String</td>
+<td>-</td>
+<td>الباحث الرئيسي</td>
+</tr>
+<tr>
+<td>organization_id</td>
+<td>String?</td>
+<td>-</td>
+<td>المنظمة</td>
+</tr>
+<tr>
+<td>farm_id</td>
+<td>String?</td>
+<td>-</td>
+<td>المزرعة</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>بيانات إضافية</td>
+</tr>
+<tr>
+<td>tags</td>
+<td>String[]?</td>
+<td>-</td>
+<td>الوسوم</td>
+</tr>
+<tr>
+<td>version</td>
+<td>Int</td>
+<td>-</td>
+<td>1 افتراضياً</td>
+</tr>
+</tbody>
+</table>
+<p><strong>العلاقات</strong>: <code>protocols[]</code>, <code>plots[]</code>, <code>treatments[]</code>, <code>logs[]</code>, <code>samples[]</code>, <code>collaborators[]</code>, <code>auditLogs[]</code>, <code>plantings[]</code></p>
+<h4 id="germplasm">germplasm | الأصول الوراثية<a class="headerlink" href="#germplasm" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>accession_number</td>
+<td>String</td>
+<td>UNIQUE</td>
+<td>رقم الانضمام</td>
+</tr>
+<tr>
+<td>common_name</td>
+<td>String</td>
+<td>-</td>
+<td>الاسم الشائع بالإنجليزية</td>
+</tr>
+<tr>
+<td>common_name_ar</td>
+<td>String?</td>
+<td>-</td>
+<td>الاسم الشائع بالعربية</td>
+</tr>
+<tr>
+<td>scientific_name</td>
+<td>String?</td>
+<td>-</td>
+<td>الاسم العلمي</td>
+</tr>
+<tr>
+<td>genus</td>
+<td>String?</td>
+<td>-</td>
+<td>الجنس</td>
+</tr>
+<tr>
+<td>species</td>
+<td>String?</td>
+<td>-</td>
+<td>النوع</td>
+</tr>
+<tr>
+<td>subspecies</td>
+<td>String?</td>
+<td>-</td>
+<td>تحت النوع</td>
+</tr>
+<tr>
+<td>cultivar</td>
+<td>String?</td>
+<td>-</td>
+<td>الصنف</td>
+</tr>
+<tr>
+<td>variety</td>
+<td>String?</td>
+<td>-</td>
+<td>الصنف الفرعي</td>
+</tr>
+<tr>
+<td>pedigree</td>
+<td>Text?</td>
+<td>-</td>
+<td>سلسلة النسب</td>
+</tr>
+<tr>
+<td>type</td>
+<td>GermplasmType</td>
+<td>-</td>
+<td>seed, cutting, tissue, pollen, other</td>
+</tr>
+<tr>
+<td>country_of_origin</td>
+<td>String?</td>
+<td>-</td>
+<td>بلد المنشأ</td>
+</tr>
+<tr>
+<td>region_of_origin</td>
+<td>String?</td>
+<td>-</td>
+<td>منطقة المنشأ</td>
+</tr>
+<tr>
+<td>collection_site</td>
+<td>String?</td>
+<td>-</td>
+<td>موقع الجمع</td>
+</tr>
+<tr>
+<td>collection_date</td>
+<td>Date?</td>
+<td>-</td>
+<td>تاريخ الجمع</td>
+</tr>
+<tr>
+<td>collected_by</td>
+<td>String?</td>
+<td>-</td>
+<td>من جمع</td>
+</tr>
+<tr>
+<td>donor_institution</td>
+<td>String?</td>
+<td>-</td>
+<td>المؤسسة المانحة</td>
+</tr>
+<tr>
+<td>donor_accession_number</td>
+<td>String?</td>
+<td>-</td>
+<td>رقم انضمام المانح</td>
+</tr>
+<tr>
+<td>growth_habit</td>
+<td>String?</td>
+<td>-</td>
+<td>عادة النمو</td>
+</tr>
+<tr>
+<td>maturity_days</td>
+<td>Int?</td>
+<td>-</td>
+<td>أيام النضج</td>
+</tr>
+<tr>
+<td>yield_potential</td>
+<td>String?</td>
+<td>-</td>
+<td>إمكانية الإنتاجية</td>
+</tr>
+<tr>
+<td>drought_tolerance</td>
+<td>String?</td>
+<td>-</td>
+<td>تحمل الجفاف</td>
+</tr>
+<tr>
+<td>disease_resistance</td>
+<td>JSONB</td>
+<td>-</td>
+<td>{} افتراضياً</td>
+</tr>
+<tr>
+<td>pest_resistance</td>
+<td>JSONB</td>
+<td>-</td>
+<td>{} افتراضياً</td>
+</tr>
+<tr>
+<td>quality_traits</td>
+<td>JSONB</td>
+<td>-</td>
+<td>{} افتراضياً</td>
+</tr>
+<tr>
+<td>storage_location</td>
+<td>String?</td>
+<td>-</td>
+<td>موقع التخزين</td>
+</tr>
+<tr>
+<td>storage_conditions</td>
+<td>String?</td>
+<td>-</td>
+<td>ظروف التخزين</td>
+</tr>
+<tr>
+<td>storage_temperature</td>
+<td>Decimal(5,2)?</td>
+<td>-</td>
+<td>حرارة التخزين</td>
+</tr>
+<tr>
+<td>storage_humidity</td>
+<td>Decimal(5,2)?</td>
+<td>-</td>
+<td>رطوبة التخزين</td>
+</tr>
+<tr>
+<td>is_available</td>
+<td>Boolean</td>
+<td>-</td>
+<td>true افتراضياً</td>
+</tr>
+<tr>
+<td>quantity_available</td>
+<td>Decimal(10,3)?</td>
+<td>-</td>
+<td>الكمية المتاحة</td>
+</tr>
+<tr>
+<td>quantity_unit</td>
+<td>String?</td>
+<td>-</td>
+<td>وحدة الكمية</td>
+</tr>
+<tr>
+<td>photos</td>
+<td>String[]</td>
+<td>-</td>
+<td>[] افتراضياً</td>
+</tr>
+<tr>
+<td>documents</td>
+<td>String[]</td>
+<td>-</td>
+<td>[] افتراضياً</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSONB</td>
+<td>-</td>
+<td>{} افتراضياً</td>
+</tr>
+</tbody>
+</table>
+<p><strong>العلاقات</strong>: <code>seedLots[]</code>, <code>plantings[]</code></p>
+<h4 id="seed_lots">seed_lots | دفعات البذور<a class="headerlink" href="#seed_lots" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>germplasm_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع الأصل الوراثي</td>
+</tr>
+<tr>
+<td>lot_number</td>
+<td>String</td>
+<td>UNIQUE</td>
+<td>رقم الدفعة</td>
+</tr>
+<tr>
+<td>initial_quantity</td>
+<td>Decimal(10,3)</td>
+<td>-</td>
+<td>الكمية الأولية</td>
+</tr>
+<tr>
+<td>current_quantity</td>
+<td>Decimal(10,3)</td>
+<td>-</td>
+<td>الكمية الحالية</td>
+</tr>
+<tr>
+<td>quantity_unit</td>
+<td>String</td>
+<td>-</td>
+<td>وحدة الكمية</td>
+</tr>
+<tr>
+<td>seed_count</td>
+<td>Int?</td>
+<td>-</td>
+<td>عدد البذور</td>
+</tr>
+<tr>
+<td>thousand_seed_weight</td>
+<td>Decimal(8,3)?</td>
+<td>-</td>
+<td>وزن 1000 بذرة</td>
+</tr>
+<tr>
+<td>quality_grade</td>
+<td>SeedQualityGrade</td>
+<td>-</td>
+<td>certified, foundation, registered, breeder, commercial, farmer_saved</td>
+</tr>
+<tr>
+<td>germination_rate</td>
+<td>Decimal(5,2)?</td>
+<td>-</td>
+<td>معدل الإنبات</td>
+</tr>
+<tr>
+<td>germination_test_date</td>
+<td>Date?</td>
+<td>-</td>
+<td>تاريخ اختبار الإنبات</td>
+</tr>
+<tr>
+<td>purity_percentage</td>
+<td>Decimal(5,2)?</td>
+<td>-</td>
+<td>نسبة النقاء</td>
+</tr>
+<tr>
+<td>moisture_content</td>
+<td>Decimal(5,2)?</td>
+<td>-</td>
+<td>محتوى الرطوبة</td>
+</tr>
+<tr>
+<td>vigor_index</td>
+<td>Decimal(5,2)?</td>
+<td>-</td>
+<td>مؤشر الحيوية</td>
+</tr>
+<tr>
+<td>production_date</td>
+<td>Date?</td>
+<td>-</td>
+<td>تاريخ الإنتاج</td>
+</tr>
+<tr>
+<td>harvest_date</td>
+<td>Date?</td>
+<td>-</td>
+<td>تاريخ الحصاد</td>
+</tr>
+<tr>
+<td>production_location</td>
+<td>String?</td>
+<td>-</td>
+<td>موقع الإنتاج</td>
+</tr>
+<tr>
+<td>production_season</td>
+<td>String?</td>
+<td>-</td>
+<td>موسم الإنتاج</td>
+</tr>
+<tr>
+<td>produced_by</td>
+<td>String?</td>
+<td>-</td>
+<td>المنتج</td>
+</tr>
+<tr>
+<td>certification_number</td>
+<td>String?</td>
+<td>-</td>
+<td>رقم الشهادة</td>
+</tr>
+<tr>
+<td>certified_by</td>
+<td>String?</td>
+<td>-</td>
+<td>المُعتمِد</td>
+</tr>
+<tr>
+<td>certification_date</td>
+<td>Date?</td>
+<td>-</td>
+<td>تاريخ الاعتماد</td>
+</tr>
+<tr>
+<td>expiry_date</td>
+<td>Date?</td>
+<td>-</td>
+<td>تاريخ الانتهاء</td>
+</tr>
+<tr>
+<td>is_treated</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+</tr>
+<tr>
+<td>treatment_type</td>
+<td>String?</td>
+<td>-</td>
+<td>نوع المعالجة</td>
+</tr>
+<tr>
+<td>treatment_product</td>
+<td>String?</td>
+<td>-</td>
+<td>منتج المعالجة</td>
+</tr>
+<tr>
+<td>treatment_date</td>
+<td>Date?</td>
+<td>-</td>
+<td>تاريخ المعالجة</td>
+</tr>
+<tr>
+<td>storage_location</td>
+<td>String?</td>
+<td>-</td>
+<td>موقع التخزين</td>
+</tr>
+<tr>
+<td>storage_conditions</td>
+<td>String?</td>
+<td>-</td>
+<td>ظروف التخزين</td>
+</tr>
+<tr>
+<td>photos</td>
+<td>String[]</td>
+<td>-</td>
+<td>[] افتراضياً</td>
+</tr>
+<tr>
+<td>documents</td>
+<td>String[]</td>
+<td>-</td>
+<td>[] افتراضياً</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSONB</td>
+<td>-</td>
+<td>{} افتراضياً</td>
+</tr>
+</tbody>
+</table>
+<h4 id="research_daily_logs">research_daily_logs | السجلات اليومية<a class="headerlink" href="#research_daily_logs" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>experiment_id</td>
+<td>String</td>
+<td>FK</td>
+<td>مرجع التجربة</td>
+</tr>
+<tr>
+<td>plot_id</td>
+<td>String?</td>
+<td>FK</td>
+<td>مرجع القطعة</td>
+</tr>
+<tr>
+<td>treatment_id</td>
+<td>String?</td>
+<td>FK</td>
+<td>مرجع المعالجة</td>
+</tr>
+<tr>
+<td>log_date</td>
+<td>Date</td>
+<td>-</td>
+<td>تاريخ السجل</td>
+</tr>
+<tr>
+<td>log_time</td>
+<td>String?</td>
+<td>-</td>
+<td>HH:MM</td>
+</tr>
+<tr>
+<td>category</td>
+<td>LogCategory</td>
+<td>-</td>
+<td>observation, measurement, treatment, harvest, weather, pest, planting, germination, other</td>
+</tr>
+<tr>
+<td>title</td>
+<td>String</td>
+<td>-</td>
+<td>العنوان بالإنجليزية</td>
+</tr>
+<tr>
+<td>title_ar</td>
+<td>String?</td>
+<td>-</td>
+<td>العنوان بالعربية</td>
+</tr>
+<tr>
+<td>notes</td>
+<td>Text?</td>
+<td>-</td>
+<td>الملاحظات بالإنجليزية</td>
+</tr>
+<tr>
+<td>notes_ar</td>
+<td>Text?</td>
+<td>-</td>
+<td>الملاحظات بالعربية</td>
+</tr>
+<tr>
+<td>measurements</td>
+<td>JSONB</td>
+<td>-</td>
+<td>{} افتراضياً</td>
+</tr>
+<tr>
+<td>weather_conditions</td>
+<td>JSONB</td>
+<td>-</td>
+<td>{} افتراضياً</td>
+</tr>
+<tr>
+<td>photos</td>
+<td>String[]</td>
+<td>-</td>
+<td>[] افتراضياً</td>
+</tr>
+<tr>
+<td>attachments</td>
+<td>String[]</td>
+<td>-</td>
+<td>[] افتراضياً</td>
+</tr>
+<tr>
+<td>recorded_by</td>
+<td>String</td>
+<td>-</td>
+<td>المسجل</td>
+</tr>
+<tr>
+<td>device_id</td>
+<td>String?</td>
+<td>-</td>
+<td>معرف الجهاز</td>
+</tr>
+<tr>
+<td>offline_id</td>
+<td>String?</td>
+<td>UNIQUE</td>
+<td>معرف للعمل بدون اتصال</td>
+</tr>
+<tr>
+<td>hash</td>
+<td>String?</td>
+<td>-</td>
+<td>للتحقق</td>
+</tr>
+<tr>
+<td>synced_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت المزامنة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sqlalchemy-sqlalchemy-services">خدمات SQLAlchemy | SQLAlchemy Services<a class="headerlink" href="#sqlalchemy-sqlalchemy-services" title="Permanent link">&para;</a></h2>
+<h3 id="9-alert-service">9. Alert Service | خدمة التنبيهات<a class="headerlink" href="#9-alert-service" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>apps/services/alert-service/src/db_models.py</code></p>
+<h4 id="alerts">alerts | التنبيهات<a class="headerlink" href="#alerts" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>UUID?</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>field_id</td>
+<td>String</td>
+<td>-</td>
+<td>مرجع الحقل</td>
+</tr>
+<tr>
+<td>type</td>
+<td>String(40)</td>
+<td>-</td>
+<td>نوع التنبيه</td>
+</tr>
+<tr>
+<td>severity</td>
+<td>String(20)</td>
+<td>-</td>
+<td>الشدة</td>
+</tr>
+<tr>
+<td>status</td>
+<td>String</td>
+<td>-</td>
+<td>active, acknowledged, dismissed, resolved, expired</td>
+</tr>
+<tr>
+<td>title</td>
+<td>String</td>
+<td>-</td>
+<td>العنوان بالعربية</td>
+</tr>
+<tr>
+<td>title_en</td>
+<td>String?</td>
+<td>-</td>
+<td>العنوان بالإنجليزية</td>
+</tr>
+<tr>
+<td>message</td>
+<td>Text</td>
+<td>-</td>
+<td>الرسالة بالعربية</td>
+</tr>
+<tr>
+<td>message_en</td>
+<td>Text?</td>
+<td>-</td>
+<td>الرسالة بالإنجليزية</td>
+</tr>
+<tr>
+<td>recommendations</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>التوصيات (مصفوفة)</td>
+</tr>
+<tr>
+<td>recommendations_en</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>التوصيات بالإنجليزية</td>
+</tr>
+<tr>
+<td>extra_metadata</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>بيانات إضافية</td>
+</tr>
+<tr>
+<td>source_service</td>
+<td>String(80)?</td>
+<td>-</td>
+<td>الخدمة المصدر</td>
+</tr>
+<tr>
+<td>correlation_id</td>
+<td>String(100)?</td>
+<td>-</td>
+<td>معرف الارتباط</td>
+</tr>
+<tr>
+<td>expires_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>تاريخ الانتهاء</td>
+</tr>
+<tr>
+<td>acknowledged_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت الإقرار</td>
+</tr>
+<tr>
+<td>acknowledged_by</td>
+<td>String?</td>
+<td>-</td>
+<td>من أقرّ</td>
+</tr>
+<tr>
+<td>dismissed_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت الرفض</td>
+</tr>
+<tr>
+<td>dismissed_by</td>
+<td>String?</td>
+<td>-</td>
+<td>من رفض</td>
+</tr>
+<tr>
+<td>resolved_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت الحل</td>
+</tr>
+<tr>
+<td>resolved_by</td>
+<td>String?</td>
+<td>-</td>
+<td>من حل</td>
+</tr>
+<tr>
+<td>resolution_note</td>
+<td>Text?</td>
+<td>-</td>
+<td>ملاحظة الحل</td>
+</tr>
+</tbody>
+</table>
+<h4 id="alert_rules">alert_rules | قواعد التنبيه<a class="headerlink" href="#alert_rules" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>UUID?</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>field_id</td>
+<td>String</td>
+<td>-</td>
+<td>مرجع الحقل</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>-</td>
+<td>اسم القاعدة بالعربية</td>
+</tr>
+<tr>
+<td>name_en</td>
+<td>String?</td>
+<td>-</td>
+<td>اسم القاعدة بالإنجليزية</td>
+</tr>
+<tr>
+<td>enabled</td>
+<td>Boolean</td>
+<td>-</td>
+<td>هل القاعدة مفعلة</td>
+</tr>
+<tr>
+<td>condition</td>
+<td>JSONB</td>
+<td>-</td>
+<td>{metric, operator, value, duration_minutes}</td>
+</tr>
+<tr>
+<td>alert_config</td>
+<td>JSONB</td>
+<td>-</td>
+<td>{type, severity, title, message_template}</td>
+</tr>
+<tr>
+<td>cooldown_hours</td>
+<td>Int</td>
+<td>-</td>
+<td>ساعات الانتظار</td>
+</tr>
+<tr>
+<td>last_triggered_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>آخر تفعيل</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="10-billing-core-service">10. Billing Core Service | خدمة الفوترة<a class="headerlink" href="#10-billing-core-service" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>apps/services/billing-core/src/models.py</code></p>
+<h4 id="plans">plans | الخطط<a class="headerlink" href="#plans" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>plan_id</td>
+<td>String</td>
+<td>UNIQUE</td>
+<td>معرف الخطة</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>-</td>
+<td>الاسم بالإنجليزية</td>
+</tr>
+<tr>
+<td>name_ar</td>
+<td>String</td>
+<td>-</td>
+<td>الاسم بالعربية</td>
+</tr>
+<tr>
+<td>description</td>
+<td>Text</td>
+<td>-</td>
+<td>الوصف بالإنجليزية</td>
+</tr>
+<tr>
+<td>description_ar</td>
+<td>Text</td>
+<td>-</td>
+<td>الوصف بالعربية</td>
+</tr>
+<tr>
+<td>tier</td>
+<td>PlanTier</td>
+<td>-</td>
+<td>free, starter, professional, enterprise</td>
+</tr>
+<tr>
+<td>pricing</td>
+<td>JSONB</td>
+<td>-</td>
+<td>monthly_usd, quarterly_usd, yearly_usd, setup_fee_usd</td>
+</tr>
+<tr>
+<td>features</td>
+<td>JSONB</td>
+<td>-</td>
+<td>الميزات</td>
+</tr>
+<tr>
+<td>limits</td>
+<td>JSONB</td>
+<td>-</td>
+<td>الحدود</td>
+</tr>
+<tr>
+<td>is_active</td>
+<td>Boolean</td>
+<td>-</td>
+<td>true افتراضياً</td>
+</tr>
+<tr>
+<td>trial_days</td>
+<td>Int</td>
+<td>-</td>
+<td>14 افتراضياً</td>
+</tr>
+</tbody>
+</table>
+<h4 id="tenants">tenants | المستأجرون<a class="headerlink" href="#tenants" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String</td>
+<td>UNIQUE</td>
+<td>معرف المستأجر الخارجي</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>-</td>
+<td>الاسم بالإنجليزية</td>
+</tr>
+<tr>
+<td>name_ar</td>
+<td>String</td>
+<td>-</td>
+<td>الاسم بالعربية</td>
+</tr>
+<tr>
+<td>contact</td>
+<td>JSONB</td>
+<td>-</td>
+<td>{name, email, phone, address}</td>
+</tr>
+<tr>
+<td>tax_id</td>
+<td>String?</td>
+<td>-</td>
+<td>الرقم الضريبي</td>
+</tr>
+<tr>
+<td>is_active</td>
+<td>Boolean</td>
+<td>-</td>
+<td>true افتراضياً</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>بيانات إضافية</td>
+</tr>
+</tbody>
+</table>
+<h4 id="subscriptions">subscriptions | الاشتراكات<a class="headerlink" href="#subscriptions" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String</td>
+<td>-</td>
+<td>مرجع المستأجر</td>
+</tr>
+<tr>
+<td>plan_id</td>
+<td>String</td>
+<td>-</td>
+<td>مرجع الخطة</td>
+</tr>
+<tr>
+<td>status</td>
+<td>SubscriptionStatus</td>
+<td>-</td>
+<td>active, trial, past_due, canceled, suspended, expired</td>
+</tr>
+<tr>
+<td>billing_cycle</td>
+<td>BillingCycle</td>
+<td>-</td>
+<td>monthly, quarterly, yearly</td>
+</tr>
+<tr>
+<td>currency</td>
+<td>Currency</td>
+<td>-</td>
+<td>USD, YER</td>
+</tr>
+<tr>
+<td>start_date</td>
+<td>Date</td>
+<td>-</td>
+<td>تاريخ البدء</td>
+</tr>
+<tr>
+<td>end_date</td>
+<td>Date</td>
+<td>-</td>
+<td>تاريخ الانتهاء</td>
+</tr>
+<tr>
+<td>trial_end_date</td>
+<td>Date?</td>
+<td>-</td>
+<td>نهاية الفترة التجريبية</td>
+</tr>
+<tr>
+<td>canceled_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت الإلغاء</td>
+</tr>
+<tr>
+<td>next_billing_date</td>
+<td>Date</td>
+<td>-</td>
+<td>تاريخ الفوترة التالي</td>
+</tr>
+<tr>
+<td>last_billing_date</td>
+<td>Date?</td>
+<td>-</td>
+<td>آخر فوترة</td>
+</tr>
+<tr>
+<td>payment_method</td>
+<td>PaymentMethod?</td>
+<td>-</td>
+<td>طريقة الدفع</td>
+</tr>
+<tr>
+<td>stripe_subscription_id</td>
+<td>String?</td>
+<td>-</td>
+<td>مرجع Stripe</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>بيانات إضافية</td>
+</tr>
+</tbody>
+</table>
+<p><strong>العلاقات</strong>: <code>invoices[]</code>, <code>usage_records[]</code></p>
+<h4 id="invoices">invoices | الفواتير<a class="headerlink" href="#invoices" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>invoice_number</td>
+<td>String</td>
+<td>UNIQUE</td>
+<td>رقم الفاتورة</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String</td>
+<td>-</td>
+<td>مرجع المستأجر</td>
+</tr>
+<tr>
+<td>subscription_id</td>
+<td>UUID</td>
+<td>FK</td>
+<td>مرجع الاشتراك</td>
+</tr>
+<tr>
+<td>status</td>
+<td>InvoiceStatus</td>
+<td>-</td>
+<td>draft, pending, paid, overdue, canceled, refunded</td>
+</tr>
+<tr>
+<td>currency</td>
+<td>Currency</td>
+<td>-</td>
+<td>USD, YER</td>
+</tr>
+<tr>
+<td>issue_date</td>
+<td>Date</td>
+<td>-</td>
+<td>تاريخ الإصدار</td>
+</tr>
+<tr>
+<td>due_date</td>
+<td>Date</td>
+<td>-</td>
+<td>تاريخ الاستحقاق</td>
+</tr>
+<tr>
+<td>paid_date</td>
+<td>Date?</td>
+<td>-</td>
+<td>تاريخ الدفع</td>
+</tr>
+<tr>
+<td>subtotal</td>
+<td>Numeric(12,2)</td>
+<td>-</td>
+<td>المجموع الفرعي</td>
+</tr>
+<tr>
+<td>tax_rate</td>
+<td>Numeric(5,2)</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>tax_amount</td>
+<td>Numeric(12,2)</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>discount_amount</td>
+<td>Numeric(12,2)</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>total</td>
+<td>Numeric(12,2)</td>
+<td>-</td>
+<td>الإجمالي</td>
+</tr>
+<tr>
+<td>amount_paid</td>
+<td>Numeric(12,2)</td>
+<td>-</td>
+<td>0 افتراضياً</td>
+</tr>
+<tr>
+<td>amount_due</td>
+<td>Numeric(12,2)</td>
+<td>-</td>
+<td>المستحق</td>
+</tr>
+<tr>
+<td>line_items</td>
+<td>JSONB</td>
+<td>-</td>
+<td>بنود الفاتورة</td>
+</tr>
+<tr>
+<td>notes</td>
+<td>Text?</td>
+<td>-</td>
+<td>ملاحظات بالإنجليزية</td>
+</tr>
+<tr>
+<td>notes_ar</td>
+<td>Text?</td>
+<td>-</td>
+<td>ملاحظات بالعربية</td>
+</tr>
+<tr>
+<td>stripe_invoice_id</td>
+<td>String?</td>
+<td>-</td>
+<td>مرجع Stripe</td>
+</tr>
+</tbody>
+</table>
+<p><strong>العلاقات</strong>: <code>subscription</code>, <code>payments[]</code></p>
+<h4 id="payments">payments | المدفوعات<a class="headerlink" href="#payments" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>invoice_id</td>
+<td>UUID</td>
+<td>FK</td>
+<td>مرجع الفاتورة</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String</td>
+<td>-</td>
+<td>مرجع المستأجر</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>Numeric(12,2)</td>
+<td>-</td>
+<td>المبلغ</td>
+</tr>
+<tr>
+<td>currency</td>
+<td>Currency</td>
+<td>-</td>
+<td>USD, YER</td>
+</tr>
+<tr>
+<td>status</td>
+<td>PaymentStatus</td>
+<td>-</td>
+<td>pending, processing, succeeded, failed, refunded</td>
+</tr>
+<tr>
+<td>method</td>
+<td>PaymentMethod</td>
+<td>-</td>
+<td>credit_card, bank_transfer, mobile_money, cash, tharwatt</td>
+</tr>
+<tr>
+<td>paid_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت الدفع</td>
+</tr>
+<tr>
+<td>processed_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت المعالجة</td>
+</tr>
+<tr>
+<td>failure_reason</td>
+<td>Text?</td>
+<td>-</td>
+<td>سبب الفشل</td>
+</tr>
+<tr>
+<td>stripe_payment_id</td>
+<td>String?</td>
+<td>-</td>
+<td>مرجع Stripe</td>
+</tr>
+<tr>
+<td>tharwatt_transaction_id</td>
+<td>String?</td>
+<td>-</td>
+<td>مرجع Tharwatt</td>
+</tr>
+<tr>
+<td>receipt_url</td>
+<td>String?</td>
+<td>-</td>
+<td>رابط الإيصال</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>بيانات إضافية</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage_records">usage_records | سجلات الاستخدام<a class="headerlink" href="#usage_records" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>subscription_id</td>
+<td>UUID</td>
+<td>FK</td>
+<td>مرجع الاشتراك</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String</td>
+<td>-</td>
+<td>مرجع المستأجر</td>
+</tr>
+<tr>
+<td>metric_type</td>
+<td>String</td>
+<td>-</td>
+<td>satellite_analyses, api_calls</td>
+</tr>
+<tr>
+<td>quantity</td>
+<td>Int</td>
+<td>-</td>
+<td>1 افتراضياً</td>
+</tr>
+<tr>
+<td>recorded_at</td>
+<td>DateTime</td>
+<td>-</td>
+<td>وقت التسجيل</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>{resource_id, user_id}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="11-equipment-service">11. Equipment Service | خدمة المعدات<a class="headerlink" href="#11-equipment-service" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>apps/services/equipment-service/src/db_models.py</code></p>
+<h4 id="equipment">equipment | المعدات<a class="headerlink" href="#equipment" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>equipment_id</td>
+<td>String</td>
+<td>PK</td>
+<td>معرف المعدة</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>-</td>
+<td>الاسم بالإنجليزية</td>
+</tr>
+<tr>
+<td>name_ar</td>
+<td>String?</td>
+<td>-</td>
+<td>الاسم بالعربية</td>
+</tr>
+<tr>
+<td>equipment_type</td>
+<td>String</td>
+<td>-</td>
+<td>tractor, pump, drone, harvester, sprayer, pivot, sensor, vehicle, other</td>
+</tr>
+<tr>
+<td>status</td>
+<td>String</td>
+<td>-</td>
+<td>operational, maintenance, inactive, repair</td>
+</tr>
+<tr>
+<td>brand</td>
+<td>String?</td>
+<td>-</td>
+<td>العلامة التجارية</td>
+</tr>
+<tr>
+<td>model</td>
+<td>String?</td>
+<td>-</td>
+<td>الموديل</td>
+</tr>
+<tr>
+<td>serial_number</td>
+<td>String?</td>
+<td>UNIQUE</td>
+<td>الرقم التسلسلي</td>
+</tr>
+<tr>
+<td>year</td>
+<td>Int?</td>
+<td>-</td>
+<td>سنة الصنع</td>
+</tr>
+<tr>
+<td>purchase_date</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>تاريخ الشراء</td>
+</tr>
+<tr>
+<td>purchase_price</td>
+<td>Numeric(12,2)?</td>
+<td>-</td>
+<td>سعر الشراء</td>
+</tr>
+<tr>
+<td>field_id</td>
+<td>String?</td>
+<td>-</td>
+<td>مرجع الحقل</td>
+</tr>
+<tr>
+<td>location_name</td>
+<td>String?</td>
+<td>-</td>
+<td>اسم الموقع</td>
+</tr>
+<tr>
+<td>horsepower</td>
+<td>Int?</td>
+<td>-</td>
+<td>القوة الحصانية</td>
+</tr>
+<tr>
+<td>fuel_capacity_liters</td>
+<td>Numeric(8,2)?</td>
+<td>-</td>
+<td>سعة الوقود</td>
+</tr>
+<tr>
+<td>current_fuel_percent</td>
+<td>Numeric(5,2)?</td>
+<td>-</td>
+<td>نسبة الوقود الحالية</td>
+</tr>
+<tr>
+<td>current_hours</td>
+<td>Numeric(10,2)?</td>
+<td>-</td>
+<td>ساعات التشغيل الحالية</td>
+</tr>
+<tr>
+<td>current_lat</td>
+<td>Numeric(10,7)?</td>
+<td>-</td>
+<td>خط العرض الحالي</td>
+</tr>
+<tr>
+<td>current_lon</td>
+<td>Numeric(10,7)?</td>
+<td>-</td>
+<td>خط الطول الحالي</td>
+</tr>
+<tr>
+<td>last_maintenance_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>آخر صيانة</td>
+</tr>
+<tr>
+<td>next_maintenance_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>الصيانة التالية</td>
+</tr>
+<tr>
+<td>next_maintenance_hours</td>
+<td>Numeric(10,2)?</td>
+<td>-</td>
+<td>ساعات الصيانة التالية</td>
+</tr>
+<tr>
+<td>qr_code</td>
+<td>String?</td>
+<td>UNIQUE</td>
+<td>رمز QR</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSONB?</td>
+<td>-</td>
+<td>بيانات إضافية</td>
+</tr>
+</tbody>
+</table>
+<h4 id="equipment_maintenance">equipment_maintenance | صيانة المعدات<a class="headerlink" href="#equipment_maintenance" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>record_id</td>
+<td>String</td>
+<td>PK</td>
+<td>معرف السجل</td>
+</tr>
+<tr>
+<td>equipment_id</td>
+<td>String</td>
+<td>-</td>
+<td>مرجع المعدة</td>
+</tr>
+<tr>
+<td>maintenance_type</td>
+<td>String</td>
+<td>-</td>
+<td>oil_change, filter_change, tire_check, battery_check, calibration, general_service, repair, other</td>
+</tr>
+<tr>
+<td>description</td>
+<td>Text</td>
+<td>-</td>
+<td>الوصف بالإنجليزية</td>
+</tr>
+<tr>
+<td>description_ar</td>
+<td>Text?</td>
+<td>-</td>
+<td>الوصف بالعربية</td>
+</tr>
+<tr>
+<td>performed_by</td>
+<td>String?</td>
+<td>-</td>
+<td>المنفذ</td>
+</tr>
+<tr>
+<td>performed_at</td>
+<td>DateTime</td>
+<td>-</td>
+<td>وقت التنفيذ</td>
+</tr>
+<tr>
+<td>cost</td>
+<td>Numeric(10,2)?</td>
+<td>-</td>
+<td>التكلفة</td>
+</tr>
+<tr>
+<td>notes</td>
+<td>Text?</td>
+<td>-</td>
+<td>ملاحظات</td>
+</tr>
+<tr>
+<td>parts_replaced</td>
+<td>String[]?</td>
+<td>-</td>
+<td>القطع المستبدلة</td>
+</tr>
+</tbody>
+</table>
+<h4 id="equipment_alerts">equipment_alerts | تنبيهات المعدات<a class="headerlink" href="#equipment_alerts" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>alert_id</td>
+<td>String</td>
+<td>PK</td>
+<td>معرف التنبيه</td>
+</tr>
+<tr>
+<td>equipment_id</td>
+<td>String</td>
+<td>-</td>
+<td>مرجع المعدة</td>
+</tr>
+<tr>
+<td>equipment_name</td>
+<td>String</td>
+<td>-</td>
+<td>اسم المعدة</td>
+</tr>
+<tr>
+<td>maintenance_type</td>
+<td>String</td>
+<td>-</td>
+<td>نوع الصيانة المطلوبة</td>
+</tr>
+<tr>
+<td>description</td>
+<td>Text</td>
+<td>-</td>
+<td>الوصف بالإنجليزية</td>
+</tr>
+<tr>
+<td>description_ar</td>
+<td>Text?</td>
+<td>-</td>
+<td>الوصف بالعربية</td>
+</tr>
+<tr>
+<td>priority</td>
+<td>String</td>
+<td>-</td>
+<td>low, medium, high, critical</td>
+</tr>
+<tr>
+<td>due_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>تاريخ الاستحقاق</td>
+</tr>
+<tr>
+<td>due_hours</td>
+<td>Numeric(10,2)?</td>
+<td>-</td>
+<td>ساعات الاستحقاق</td>
+</tr>
+<tr>
+<td>is_overdue</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="tortoise-orm-tortoise-orm-services">خدمات Tortoise ORM | Tortoise ORM Services<a class="headerlink" href="#tortoise-orm-tortoise-orm-services" title="Permanent link">&para;</a></h2>
+<h3 id="12-notification-service">12. Notification Service | خدمة الإشعارات<a class="headerlink" href="#12-notification-service" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>apps/services/notification-service/src/models.py</code></p>
+<h4 id="notifications">notifications | الإشعارات<a class="headerlink" href="#notifications" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String(100)?</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>String(100)</td>
+<td>-</td>
+<td>معرف المستخدم</td>
+</tr>
+<tr>
+<td>title</td>
+<td>String</td>
+<td>-</td>
+<td>العنوان بالإنجليزية</td>
+</tr>
+<tr>
+<td>title_ar</td>
+<td>String?</td>
+<td>-</td>
+<td>العنوان بالعربية</td>
+</tr>
+<tr>
+<td>body</td>
+<td>Text</td>
+<td>-</td>
+<td>المحتوى بالإنجليزية</td>
+</tr>
+<tr>
+<td>body_ar</td>
+<td>Text?</td>
+<td>-</td>
+<td>المحتوى بالعربية</td>
+</tr>
+<tr>
+<td>type</td>
+<td>String(50)</td>
+<td>-</td>
+<td>weather_alert, pest_outbreak, irrigation_reminder</td>
+</tr>
+<tr>
+<td>priority</td>
+<td>String</td>
+<td>-</td>
+<td>low, medium, high, critical</td>
+</tr>
+<tr>
+<td>channel</td>
+<td>String</td>
+<td>-</td>
+<td>push, sms, in_app, email</td>
+</tr>
+<tr>
+<td>status</td>
+<td>String</td>
+<td>-</td>
+<td>pending, sent, failed, read</td>
+</tr>
+<tr>
+<td>sent_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت الإرسال</td>
+</tr>
+<tr>
+<td>read_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت القراءة</td>
+</tr>
+<tr>
+<td>data</td>
+<td>JSON?</td>
+<td>-</td>
+<td>بيانات إضافية</td>
+</tr>
+<tr>
+<td>action_url</td>
+<td>String?</td>
+<td>-</td>
+<td>رابط الإجراء</td>
+</tr>
+<tr>
+<td>target_governorates</td>
+<td>JSON?</td>
+<td>-</td>
+<td>المحافظات المستهدفة</td>
+</tr>
+<tr>
+<td>target_crops</td>
+<td>JSON?</td>
+<td>-</td>
+<td>المحاصيل المستهدفة</td>
+</tr>
+<tr>
+<td>expires_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>تاريخ الانتهاء</td>
+</tr>
+</tbody>
+</table>
+<h4 id="notification_templates">notification_templates | قوالب الإشعارات<a class="headerlink" href="#notification_templates" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String?</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>UNIQUE</td>
+<td>اسم/رمز القالب</td>
+</tr>
+<tr>
+<td>description</td>
+<td>String?</td>
+<td>-</td>
+<td>الوصف</td>
+</tr>
+<tr>
+<td>title_template</td>
+<td>String</td>
+<td>-</td>
+<td>قالب العنوان مع {{variables}}</td>
+</tr>
+<tr>
+<td>title_template_ar</td>
+<td>String?</td>
+<td>-</td>
+<td>قالب العنوان بالعربية</td>
+</tr>
+<tr>
+<td>body_template</td>
+<td>Text</td>
+<td>-</td>
+<td>قالب المحتوى مع {{variables}}</td>
+</tr>
+<tr>
+<td>body_template_ar</td>
+<td>Text?</td>
+<td>-</td>
+<td>قالب المحتوى بالعربية</td>
+</tr>
+<tr>
+<td>type</td>
+<td>String</td>
+<td>-</td>
+<td>نوع الإشعار الافتراضي</td>
+</tr>
+<tr>
+<td>priority</td>
+<td>String</td>
+<td>-</td>
+<td>medium افتراضياً</td>
+</tr>
+<tr>
+<td>channel</td>
+<td>String</td>
+<td>-</td>
+<td>in_app افتراضياً</td>
+</tr>
+<tr>
+<td>variables</td>
+<td>JSON?</td>
+<td>-</td>
+<td>المتغيرات المتاحة</td>
+</tr>
+<tr>
+<td>default_data</td>
+<td>JSON?</td>
+<td>-</td>
+<td>البيانات الافتراضية</td>
+</tr>
+<tr>
+<td>is_active</td>
+<td>Boolean</td>
+<td>-</td>
+<td>true افتراضياً</td>
+</tr>
+</tbody>
+</table>
+<h4 id="notification_channels">notification_channels | قنوات الإشعارات<a class="headerlink" href="#notification_channels" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String?</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>String</td>
+<td>-</td>
+<td>معرف المستخدم</td>
+</tr>
+<tr>
+<td>channel</td>
+<td>ChannelType</td>
+<td>-</td>
+<td>EMAIL, SMS, PUSH, WHATSAPP, IN_APP</td>
+</tr>
+<tr>
+<td>address</td>
+<td>String</td>
+<td>-</td>
+<td>البريد، الهاتف، توكن FCM</td>
+</tr>
+<tr>
+<td>verified</td>
+<td>Boolean</td>
+<td>-</td>
+<td>false افتراضياً</td>
+</tr>
+<tr>
+<td>verified_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>وقت التحقق</td>
+</tr>
+<tr>
+<td>verification_code</td>
+<td>String?</td>
+<td>-</td>
+<td>رمز التحقق</td>
+</tr>
+<tr>
+<td>enabled</td>
+<td>Boolean</td>
+<td>-</td>
+<td>true افتراضياً</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSON?</td>
+<td>-</td>
+<td>بيانات إضافية</td>
+</tr>
+</tbody>
+</table>
+<p><strong>القيود</strong>: UNIQUE(user_id, channel, address)</p>
+<h4 id="notification_preferences">notification_preferences | تفضيلات الإشعارات<a class="headerlink" href="#notification_preferences" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String?</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>String</td>
+<td>-</td>
+<td>معرف المستخدم</td>
+</tr>
+<tr>
+<td>event_type</td>
+<td>String</td>
+<td>-</td>
+<td>weather_alert, pest_outbreak, etc.</td>
+</tr>
+<tr>
+<td>channels</td>
+<td>JSON</td>
+<td>-</td>
+<td>['email', 'sms', 'push']</td>
+</tr>
+<tr>
+<td>enabled</td>
+<td>Boolean</td>
+<td>-</td>
+<td>true افتراضياً</td>
+</tr>
+<tr>
+<td>quiet_hours_start</td>
+<td>Time?</td>
+<td>-</td>
+<td>مثال: 22:00</td>
+</tr>
+<tr>
+<td>quiet_hours_end</td>
+<td>Time?</td>
+<td>-</td>
+<td>مثال: 06:00</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSON?</td>
+<td>-</td>
+<td>بيانات إضافية</td>
+</tr>
+</tbody>
+</table>
+<p><strong>القيود</strong>: UNIQUE(user_id, event_type)</p>
+<h4 id="farmer_profiles">farmer_profiles | ملفات المزارعين<a class="headerlink" href="#farmer_profiles" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>tenant_id</td>
+<td>String?</td>
+<td>-</td>
+<td>معرف المستأجر</td>
+</tr>
+<tr>
+<td>farmer_id</td>
+<td>String</td>
+<td>UNIQUE</td>
+<td>معرف المزارع</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>-</td>
+<td>الاسم بالإنجليزية</td>
+</tr>
+<tr>
+<td>name_ar</td>
+<td>String?</td>
+<td>-</td>
+<td>الاسم بالعربية</td>
+</tr>
+<tr>
+<td>governorate</td>
+<td>String</td>
+<td>-</td>
+<td>المحافظة</td>
+</tr>
+<tr>
+<td>district</td>
+<td>String?</td>
+<td>-</td>
+<td>المديرية</td>
+</tr>
+<tr>
+<td>phone</td>
+<td>String?</td>
+<td>-</td>
+<td>للرسائل القصيرة/واتساب</td>
+</tr>
+<tr>
+<td>email</td>
+<td>String?</td>
+<td>-</td>
+<td>البريد الإلكتروني</td>
+</tr>
+<tr>
+<td>fcm_token</td>
+<td>String?</td>
+<td>-</td>
+<td>توكن Firebase</td>
+</tr>
+<tr>
+<td>language</td>
+<td>String</td>
+<td>-</td>
+<td>"ar" افتراضياً (ar, en)</td>
+</tr>
+<tr>
+<td>is_active</td>
+<td>Boolean</td>
+<td>-</td>
+<td>true افتراضياً</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>JSON?</td>
+<td>-</td>
+<td>بيانات إضافية</td>
+</tr>
+<tr>
+<td>last_login_at</td>
+<td>DateTime?</td>
+<td>-</td>
+<td>آخر تسجيل دخول</td>
+</tr>
+</tbody>
+</table>
+<h4 id="farmer_crops">farmer_crops | محاصيل المزارعين<a class="headerlink" href="#farmer_crops" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>farmer_id</td>
+<td>UUID</td>
+<td>FK</td>
+<td>مرجع المزارع</td>
+</tr>
+<tr>
+<td>crop_type</td>
+<td>String</td>
+<td>-</td>
+<td>tomato, wheat, coffee, etc.</td>
+</tr>
+<tr>
+<td>area_hectares</td>
+<td>Float?</td>
+<td>-</td>
+<td>المساحة</td>
+</tr>
+<tr>
+<td>planting_date</td>
+<td>Date?</td>
+<td>-</td>
+<td>تاريخ الزراعة</td>
+</tr>
+<tr>
+<td>harvest_date</td>
+<td>Date?</td>
+<td>-</td>
+<td>تاريخ الحصاد</td>
+</tr>
+<tr>
+<td>is_active</td>
+<td>Boolean</td>
+<td>-</td>
+<td>true افتراضياً</td>
+</tr>
+</tbody>
+</table>
+<p><strong>القيود</strong>: UNIQUE(farmer_id, crop_type)</p>
+<h4 id="farmer_fields">farmer_fields | حقول المزارعين<a class="headerlink" href="#farmer_fields" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العمود</th>
+<th>النوع</th>
+<th>المفتاح</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>UUID</td>
+<td>PK</td>
+<td>مُولّد تلقائياً</td>
+</tr>
+<tr>
+<td>farmer_id</td>
+<td>UUID</td>
+<td>FK</td>
+<td>مرجع المزارع</td>
+</tr>
+<tr>
+<td>field_id</td>
+<td>String</td>
+<td>-</td>
+<td>معرف الحقل</td>
+</tr>
+<tr>
+<td>field_name</td>
+<td>String?</td>
+<td>-</td>
+<td>اسم/تسمية الحقل</td>
+</tr>
+<tr>
+<td>latitude</td>
+<td>Float?</td>
+<td>-</td>
+<td>خط العرض</td>
+</tr>
+<tr>
+<td>longitude</td>
+<td>Float?</td>
+<td>-</td>
+<td>خط الطول</td>
+</tr>
+<tr>
+<td>is_active</td>
+<td>Boolean</td>
+<td>-</td>
+<td>true افتراضياً</td>
+</tr>
+</tbody>
+</table>
+<p><strong>القيود</strong>: UNIQUE(farmer_id, field_id)</p>
+<hr />
+<h2 id="key-relationships">العلاقات الرئيسية | Key Relationships<a class="headerlink" href="#key-relationships" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                          Entity Relationship Diagram                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────┐      ┌─────────┐      ┌─────────┐                             │
+│  │  Users  │──1:N─│Sessions │      │ Wallets │──1:N─┌───────────────┐      │
+│  └────┬────┘      └─────────┘      └────┬────┘      │  Transactions │      │
+│       │                                  │          └───────────────┘      │
+│       │ 1:N                              │ 1:N                              │
+│       ▼                                  ▼                                  │
+│  ┌─────────┐                        ┌─────────┐                             │
+│  │ Fields  │──1:N─┌─────────┐       │  Loans  │                             │
+│  └────┬────┘      │  Tasks  │       └─────────┘                             │
+│       │           └─────────┘                                               │
+│       │ 1:N                                                                 │
+│       ▼                                                                     │
+│  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐                │
+│  │ NDVI Readings│     │   Products   │──1:N│ Order Items  │                │
+│  └──────────────┘     └──────────────┘     └──────────────┘                │
+│                                                     │                       │
+│                                                     │ N:1                   │
+│                                                     ▼                       │
+│  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐                │
+│  │   Devices    │──1:N│   Sensors    │     │    Orders    │                │
+│  └──────────────┘     └──────────────┘     └──────────────┘                │
+│         │                    │                                              │
+│         │ 1:N                │ 1:N                                          │
+│         ▼                    ▼                                              │
+│  ┌──────────────┐     ┌──────────────┐                                     │
+│  │  Actuators   │     │   Readings   │                                     │
+│  └──────────────┘     └──────────────┘                                     │
+│                                                                             │
+│  ┌───────────────┐     ┌───────────────┐     ┌───────────────┐             │
+│  │  Experiments  │──1:N│     Plots     │──1:N│  Daily Logs   │             │
+│  └───────┬───────┘     └───────────────┘     └───────────────┘             │
+│          │                                                                  │
+│          │ 1:N                                                              │
+│          ▼                                                                  │
+│  ┌───────────────┐     ┌───────────────┐                                   │
+│  │   Germplasm   │──1:N│   Seed Lots   │                                   │
+│  └───────────────┘     └───────────────┘                                   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="statistics-summary">ملخص الإحصائيات | Statistics Summary<a class="headerlink" href="#statistics-summary" title="Permanent link">&para;</a></h2>
+<h3 id="total-tables">إجمالي الجداول | Total Tables<a class="headerlink" href="#total-tables" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التقنية</th>
+<th>Technology</th>
+<th>الجداول</th>
+<th>Tables</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prisma ORM</td>
+<td>Node.js</td>
+<td>45+</td>
+<td>جداول</td>
+</tr>
+<tr>
+<td>SQLAlchemy</td>
+<td>Python</td>
+<td>12+</td>
+<td>جداول</td>
+</tr>
+<tr>
+<td>Tortoise ORM</td>
+<td>Python</td>
+<td>6+</td>
+<td>جداول</td>
+</tr>
+<tr>
+<td><strong>الإجمالي</strong></td>
+<td><strong>Total</strong></td>
+<td><strong>60+</strong></td>
+<td><strong>جداول</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="orm-services-by-orm">الخدمات حسب ORM | Services by ORM<a class="headerlink" href="#orm-services-by-orm" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ORM</th>
+<th>الخدمات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prisma</td>
+<td>user-service, field-management, marketplace, chat, iot, inventory, weather, research</td>
+</tr>
+<tr>
+<td>SQLAlchemy</td>
+<td>alert-service, billing-core, equipment-service, task-service</td>
+</tr>
+<tr>
+<td>Tortoise</td>
+<td>notification-service</td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-data-types">أنواع البيانات الشائعة | Common Data Types<a class="headerlink" href="#common-data-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النوع</th>
+<th>الاستخدام</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UUID</td>
+<td>المفاتيح الأساسية</td>
+</tr>
+<tr>
+<td>JSONB</td>
+<td>البيانات المرنة (metadata, features)</td>
+</tr>
+<tr>
+<td>Geometry</td>
+<td>PostGIS (Point, Polygon)</td>
+</tr>
+<tr>
+<td>Numeric/Decimal</td>
+<td>القيم المالية والإحداثيات</td>
+</tr>
+<tr>
+<td>Enum</td>
+<td>الحالات والأنواع</td>
+</tr>
+<tr>
+<td>DateTime(TZ)</td>
+<td>الطوابع الزمنية مع timezone</td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-indexes">الفهارس الشائعة | Common Indexes<a class="headerlink" href="#common-indexes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النوع</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tenant_id</td>
+<td>عزل البيانات متعدد المستأجرين</td>
+</tr>
+<tr>
+<td>status + created_at</td>
+<td>فلترة الحالة والترتيب</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>البحث بالمستخدم</td>
+</tr>
+<tr>
+<td>field_id</td>
+<td>ربط بيانات الحقول</td>
+</tr>
+<tr>
+<td>timestamp DESC</td>
+<td>ترتيب تنازلي بالوقت</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="references">المراجع | References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../kong-backend-services-api-mapping/">Kong Backend API Mapping</a></li>
+<li><a href="../CLAUDE.md">CLAUDE.md</a> - Project Guidelines</li>
+<li><a href="../apps/services/*/prisma/schema.prisma">Prisma Schema Files</a></li>
+<li><a href="../apps/services/*/src/models.py">SQLAlchemy Models</a></li>
+</ul>
+<hr />
+<blockquote>
+<p><strong>آخر تحديث</strong>: 2026-01-24
+<strong>الإصدار</strong>: 16.0.0
+<strong>المسؤول</strong>: KAFAAT Development Team</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

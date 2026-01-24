@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -10,7 +14,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
       {
@@ -18,18 +22,40 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@sahool/api-client": ["../../packages/api-client/src"],
-      "@sahool/shared-ui": ["../../packages/shared-ui/src"],
-      "@sahool/shared-utils": ["../../packages/shared-utils/src"],
-      "@sahool/shared-hooks": ["../../packages/shared-hooks/src"],
-      "@sahool/i18n": ["../../packages/i18n/src"],
-      "@sahool/shared-types": ["../../packages/shared-types/src"],
-      "@sahool/shared-types/*": ["../../packages/shared-types/src/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@sahool/api-client": [
+        "../../packages/api-client/src"
+      ],
+      "@sahool/shared-ui": [
+        "../../packages/shared-ui/src"
+      ],
+      "@sahool/shared-utils": [
+        "../../packages/shared-utils/src"
+      ],
+      "@sahool/shared-hooks": [
+        "../../packages/shared-hooks/src"
+      ],
+      "@sahool/i18n": [
+        "../../packages/i18n/src"
+      ],
+      "@sahool/shared-types": [
+        "../../packages/shared-types/src"
+      ],
+      "@sahool/shared-types/*": [
+        "../../packages/shared-types/src/*"
+      ]
     },
     "target": "ES2017"
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules",
     "vitest.config.ts",

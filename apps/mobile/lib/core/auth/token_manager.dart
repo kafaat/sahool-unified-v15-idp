@@ -303,7 +303,7 @@ class TokenManager {
       AppLogger.i('Performing background token refresh', tag: 'TOKEN_MANAGER');
       await refreshToken();
     } catch (e) {
-      AppLogger.w('Background token refresh failed', tag: 'TOKEN_MANAGER', error: e);
+      AppLogger.w('Background token refresh failed', tag: 'TOKEN_MANAGER');
       // Don't call handleRefreshFailure for background refresh
       // Let the next API call trigger proper error handling
     } finally {

@@ -28,19 +28,19 @@ class AtmosphereColors {
   // ─────────────────────────────────────────────────────────────────────────────
   // Bio-Luminescent Accents - لمسات نيون نباتية
   // ─────────────────────────────────────────────────────────────────────────────
-  static const Color success = Color(0xFF4ADE80);      // Neon Green - حيوي
+  static const Color success = Color(0xFF4ADE80); // Neon Green - حيوي
   static const Color successGlow = Color(0x4D4ADE80); // 30% opacity
   static const Color successLight = Color(0xFF86EFAC);
 
-  static const Color warning = Color(0xFFFBBF24);      // Amber - شمس/حرارة
+  static const Color warning = Color(0xFFFBBF24); // Amber - شمس/حرارة
   static const Color warningGlow = Color(0x4DFBBF24);
   static const Color warningLight = Color(0xFFFCD34D);
 
-  static const Color alert = Color(0xFFF87171);        // Soft Red - دافئ
+  static const Color alert = Color(0xFFF87171); // Soft Red - دافئ
   static const Color alertGlow = Color(0x4DF87171);
   static const Color alertLight = Color(0xFFFCA5A5);
 
-  static const Color info = Color(0xFF60A5FA);         // Sky Blue - معلومات
+  static const Color info = Color(0xFF60A5FA); // Sky Blue - معلومات
   static const Color infoGlow = Color(0x4D60A5FA);
   static const Color infoLight = Color(0xFF93C5FD);
 
@@ -55,8 +55,8 @@ class AtmosphereColors {
   // ─────────────────────────────────────────────────────────────────────────────
   // Glassmorphism - تأثير الزجاج
   // ─────────────────────────────────────────────────────────────────────────────
-  static const Color glassBg = Color(0x0DFFFFFF);        // 5% white
-  static const Color glassBorder = Color(0x1AFFFFFF);    // 10% white
+  static const Color glassBg = Color(0x0DFFFFFF); // 5% white
+  static const Color glassBorder = Color(0x1AFFFFFF); // 10% white
   static const Color glassHighlight = Color(0x14FFFFFF); // 8% white
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -129,6 +129,13 @@ class AtmosphereTypography {
   static const TextStyle headlineMedium = TextStyle(
     fontFamily: fontBody,
     fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AtmosphereColors.textPrimary,
+  );
+
+  static const TextStyle headlineSmall = TextStyle(
+    fontFamily: fontBody,
+    fontSize: 14,
     fontWeight: FontWeight.w600,
     color: AtmosphereColors.textPrimary,
   );
@@ -242,19 +249,19 @@ class AtmosphereLightColors {
   static const Color bgCard = Color(0xFFFFFFFF);
 
   // Status Colors - Light Mode (slightly adjusted for contrast)
-  static const Color success = Color(0xFF22C55E);      // Vibrant Green
+  static const Color success = Color(0xFF22C55E); // Vibrant Green
   static const Color successGlow = Color(0x3322C55E);
   static const Color successLight = Color(0xFFDCFCE7);
 
-  static const Color warning = Color(0xFFEAB308);      // Amber
+  static const Color warning = Color(0xFFEAB308); // Amber
   static const Color warningGlow = Color(0x33EAB308);
   static const Color warningLight = Color(0xFFFEF3C7);
 
-  static const Color alert = Color(0xFFEF4444);        // Red
+  static const Color alert = Color(0xFFEF4444); // Red
   static const Color alertGlow = Color(0x33EF4444);
   static const Color alertLight = Color(0xFFFEE2E2);
 
-  static const Color info = Color(0xFF3B82F6);         // Blue
+  static const Color info = Color(0xFF3B82F6); // Blue
   static const Color infoGlow = Color(0x333B82F6);
   static const Color infoLight = Color(0xFFDBEAFE);
 
@@ -301,6 +308,12 @@ class AtmosphereLightTypography {
 
   static const TextStyle headlineMedium = TextStyle(
     fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AtmosphereLightColors.textPrimary,
+  );
+
+  static const TextStyle headlineSmall = TextStyle(
+    fontSize: 14,
     fontWeight: FontWeight.w600,
     color: AtmosphereLightColors.textPrimary,
   );
@@ -373,7 +386,7 @@ class AtmosphereTheme {
       ),
 
       // Cards
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AtmosphereColors.bgCard,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -494,12 +507,13 @@ class AtmosphereTheme {
         elevation: 0,
         centerTitle: true,
         titleTextStyle: AtmosphereLightTypography.displaySmall,
-        iconTheme: const IconThemeData(color: AtmosphereLightColors.textPrimary),
+        iconTheme:
+            const IconThemeData(color: AtmosphereLightColors.textPrimary),
         surfaceTintColor: Colors.transparent,
       ),
 
       // Cards
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AtmosphereLightColors.bgCard,
         elevation: 2,
         shadowColor: Colors.black.withOpacity(0.05),
@@ -521,7 +535,8 @@ class AtmosphereTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AtmosphereRadius.md),
           ),
-          textStyle: AtmosphereLightTypography.labelLarge.copyWith(color: Colors.white),
+          textStyle: AtmosphereLightTypography.labelLarge
+              .copyWith(color: Colors.white),
         ),
       ),
 
@@ -568,7 +583,8 @@ class AtmosphereTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AtmosphereRadius.md),
-          borderSide: const BorderSide(color: AtmosphereLightColors.success, width: 2),
+          borderSide:
+              const BorderSide(color: AtmosphereLightColors.success, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AtmosphereSpacing.md,

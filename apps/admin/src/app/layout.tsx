@@ -35,38 +35,23 @@ export default async function RootLayout({
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head suppressHydrationWarning>
         {/*
-          Conditional rendering: only add nonce attribute when nonce exists
-          This prevents hydration mismatch when nonce is empty on initial SSR
+          Always render nonce attribute to prevent hydration mismatch.
+          The nonce value may be empty string on client, but the attribute must be present.
         */}
-        {nonce ? (
-          <>
-            <link
-              href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
-              rel="stylesheet"
-              nonce={nonce}
-            />
-            <link
-              rel="stylesheet"
-              href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-              integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-              crossOrigin=""
-              nonce={nonce}
-            />
-          </>
-        ) : (
-          <>
-            <link
-              href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
-              rel="stylesheet"
-            />
-            <link
-              rel="stylesheet"
-              href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-              integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-              crossOrigin=""
-            />
-          </>
-        )}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
+          rel="stylesheet"
+          nonce={nonce}
+          suppressHydrationWarning
+        />
+        <link
+          rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossOrigin=""
+          nonce={nonce}
+          suppressHydrationWarning
+        />
       </head>
       <body className="font-tajawal bg-gray-50 min-h-screen" suppressHydrationWarning>
         <Providers>{children}</Providers>

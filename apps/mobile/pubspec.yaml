@@ -195,11 +195,9 @@ flutter:
   generate: true
 
   assets:
-    # Environment configuration files
-    - .env.example
-    - .env.development
-    - .env.staging
-    - .env.production
+    # Environment configuration - copy appropriate env file to .env before build
+    # Example: cp .env.development .env
+    - .env
     # Static assets
     - assets/images/
     - assets/icons/

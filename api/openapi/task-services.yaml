@@ -1,0 +1,2677 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Platform - Task & Equipment Services API
+  description: |
+    # SAHOOL Task, Equipment & Inventory Services API
+    ## خدمات المهام والمعدات والمخزون
+
+    This API provides task management, equipment tracking, and inventory management capabilities for the SAHOOL agricultural platform:
+    - Task Management (إدارة المهام)
+    - Equipment Tracking & Maintenance (تتبع المعدات والصيانة)
+    - Inventory Management (إدارة المخزون)
+    - Stock Transactions (معاملات المخزون)
+
+    ## Services
+
+    | Service | Port | Description |
+    |---------|------|-------------|
+    | task-service | 8103 | Task creation, assignment, and tracking - خدمة المهام |
+    | equipment-service | 8101 | Equipment management and maintenance - خدمة المعدات |
+    | inventory-service | 8116 | Inventory and stock management - خدمة المخزون |
+
+    ## Authentication
+    All endpoints require JWT authentication via the `Authorization: Bearer <token>` header unless otherwise specified.
+
+    ## Rate Limiting
+    - Free tier: 30 requests/minute
+    - Standard tier: 60 requests/minute
+    - Premium tier: 120 requests/minute
+    - Internal: 1000 requests/minute
+
+    ## Multi-tenancy
+    Most endpoints require the `X-Tenant-ID` header for tenant isolation.
+
+  version: 16.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.sa
+    url: https://sahool.sa
+  license:
+    name: Proprietary
+    url: https://sahool.sa/terms
+
+servers:
+  - url: https://api.sahool.sa/api/v1
+    description: Production server
+  - url: https://staging-api.sahool.sa/api/v1
+    description: Staging server
+  - url: http://localhost:8000
+    description: Development server (Kong Gateway)
+
+tags:
+  - name: Tasks
+    description: Task management operations - إدارة المهام الزراعية
+  - name: Equipment
+    description: Equipment tracking and maintenance - تتبع المعدات والصيانة
+  - name: Inventory
+    description: Inventory and stock management - إدارة المخزون
+  - name: Health
+    description: Service health endpoints
+
+paths:
+  # ============================================================================
+  # TASK MANAGEMENT ENDPOINTS (task-service - Port 8103)
+  # ============================================================================
+  /tasks:
+    get:
+      tags: [Tasks]
+      summary: List all tasks
+      description: |
+        Get paginated list of tasks for the tenant.
+        قائمة المهام للمستأجر.
+      operationId: listTasks
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: status
+          in: query
+          description: Filter by task status - تصفية حسب حالة المهمة
+          schema:
+            $ref: '#/components/schemas/TaskStatus'
+        - name: type
+          in: query
+          description: Filter by task type - تصفية حسب نوع المهمة
+          schema:
+            $ref: '#/components/schemas/TaskType'
+        - name: priority
+          in: query
+          description: Filter by priority - تصفية حسب الأولوية
+          schema:
+            $ref: '#/components/schemas/Priority'
+        - name: assigneeId
+          in: query
+          description: Filter by assigned user - تصفية حسب المسؤول
+          schema:
+            type: string
+            format: uuid
+        - name: fieldId
+          in: query
+          description: Filter by field - تصفية حسب الحقل
+          schema:
+            type: string
+            format: uuid
+        - name: startDate
+          in: query
+          description: Filter tasks scheduled after this date
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: Filter tasks scheduled before this date
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Tasks]
+      summary: Create a new task
+      description: |
+        Create a new agricultural task.
+        إنشاء مهمة زراعية جديدة.
+      operationId: createTask
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreate'
+            examples:
+              irrigation_task:
+                summary: Irrigation task example - مثال مهمة ري
+                value:
+                  title: "Morning irrigation"
+                  titleAr: "ري الصباح"
+                  description: "Complete drip irrigation for wheat field"
+                  descriptionAr: "إتمام الري بالتنقيط لحقل القمح"
+                  type: irrigation
+                  priority: high
+                  fieldId: "123e4567-e89b-12d3-a456-426614174000"
+                  scheduledDate: "2026-01-25"
+                  scheduledTime: "06:00"
+                  estimatedDuration: 120
+                  assigneeId: "123e4567-e89b-12d3-a456-426614174001"
+              spraying_task:
+                summary: Spraying task example - مثال مهمة رش
+                value:
+                  title: "Pesticide application"
+                  titleAr: "تطبيق المبيدات"
+                  description: "Apply neem oil for aphid control"
+                  descriptionAr: "تطبيق زيت النيم لمكافحة المن"
+                  type: spraying
+                  priority: urgent
+                  fieldId: "123e4567-e89b-12d3-a456-426614174002"
+                  scheduledDate: "2026-01-26"
+                  scheduledTime: "05:30"
+                  estimatedDuration: 180
+                  equipmentIds: ["123e4567-e89b-12d3-a456-426614174003"]
+      responses:
+        '201':
+          description: Task created successfully - تم إنشاء المهمة بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /tasks/{taskId}:
+    get:
+      tags: [Tasks]
+      summary: Get task by ID
+      description: |
+        Get detailed task information.
+        الحصول على تفاصيل المهمة.
+      operationId: getTask
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    put:
+      tags: [Tasks]
+      summary: Update task
+      description: |
+        Update task information.
+        تحديث معلومات المهمة.
+      operationId: updateTask
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdate'
+      responses:
+        '200':
+          description: Task updated successfully - تم تحديث المهمة بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags: [Tasks]
+      summary: Delete task
+      description: |
+        Delete a task (soft delete).
+        حذف المهمة.
+      operationId: deleteTask
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '204':
+          description: Task deleted successfully - تم حذف المهمة بنجاح
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /tasks/{taskId}/status:
+    patch:
+      tags: [Tasks]
+      summary: Update task status
+      description: |
+        Update the status of a task.
+        تحديث حالة المهمة.
+      operationId: updateTaskStatus
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskStatusUpdate'
+            examples:
+              start_task:
+                summary: Start task - بدء المهمة
+                value:
+                  status: in_progress
+                  notes: "Starting irrigation now"
+                  notesAr: "بدء الري الآن"
+              complete_task:
+                summary: Complete task - إنهاء المهمة
+                value:
+                  status: completed
+                  completedAt: "2026-01-25T08:30:00Z"
+                  actualDuration: 150
+                  notes: "Completed successfully, used 500 liters"
+                  notesAr: "تم بنجاح، استخدمنا 500 لتر"
+      responses:
+        '200':
+          description: Task status updated - تم تحديث حالة المهمة
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  /tasks/{taskId}/assign:
+    patch:
+      tags: [Tasks]
+      summary: Assign task to user
+      description: |
+        Assign or reassign a task to a user.
+        تعيين أو إعادة تعيين المهمة لمستخدم.
+      operationId: assignTask
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskAssignment'
+            example:
+              assigneeId: "123e4567-e89b-12d3-a456-426614174001"
+              notes: "Reassigned due to availability"
+              notesAr: "إعادة التعيين بسبب التوفر"
+              notifyAssignee: true
+      responses:
+        '200':
+          description: Task assigned successfully - تم تعيين المهمة بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  /tasks/overdue:
+    get:
+      tags: [Tasks]
+      summary: Get overdue tasks
+      description: |
+        Get list of overdue tasks.
+        قائمة المهام المتأخرة.
+      operationId: getOverdueTasks
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: assigneeId
+          in: query
+          description: Filter by assigned user
+          schema:
+            type: string
+            format: uuid
+        - name: priority
+          in: query
+          description: Filter by priority
+          schema:
+            $ref: '#/components/schemas/Priority'
+      responses:
+        '200':
+          description: List of overdue tasks - قائمة المهام المتأخرة
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # EQUIPMENT MANAGEMENT ENDPOINTS (equipment-service - Port 8101)
+  # ============================================================================
+  /equipment:
+    get:
+      tags: [Equipment]
+      summary: List all equipment
+      description: |
+        Get paginated list of equipment for the tenant.
+        قائمة المعدات للمستأجر.
+      operationId: listEquipment
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: type
+          in: query
+          description: Filter by equipment type - تصفية حسب نوع المعدات
+          schema:
+            $ref: '#/components/schemas/EquipmentType'
+        - name: condition
+          in: query
+          description: Filter by condition - تصفية حسب الحالة
+          schema:
+            $ref: '#/components/schemas/EquipmentCondition'
+        - name: available
+          in: query
+          description: Filter by availability - تصفية حسب التوفر
+          schema:
+            type: boolean
+        - name: fieldId
+          in: query
+          description: Filter by assigned field - تصفية حسب الحقل المعين
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Equipment]
+      summary: Register new equipment
+      description: |
+        Register new equipment in the system.
+        تسجيل معدات جديدة في النظام.
+      operationId: createEquipment
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentCreate'
+            examples:
+              tractor:
+                summary: Tractor registration - تسجيل جرار
+                value:
+                  name: "John Deere 5075E"
+                  nameAr: "جون ديري 5075E"
+                  type: tractor
+                  serialNumber: "JD5075E-2024-001"
+                  manufacturer: "John Deere"
+                  model: "5075E"
+                  yearManufactured: 2024
+                  purchaseDate: "2024-03-15"
+                  purchasePrice: 150000.00
+                  condition: excellent
+                  specifications:
+                    horsepower: 75
+                    fuelType: "diesel"
+                    transmission: "12F/12R PowerReverser"
+              sprayer:
+                summary: Sprayer registration - تسجيل رشاش
+                value:
+                  name: "Boom Sprayer 500L"
+                  nameAr: "رشاش بوم 500 لتر"
+                  type: sprayer
+                  serialNumber: "SPR-2024-042"
+                  manufacturer: "AgriSpray"
+                  model: "BS-500"
+                  yearManufactured: 2023
+                  condition: good
+                  specifications:
+                    tankCapacity: 500
+                    boomWidth: 12
+                    pumpType: "diaphragm"
+      responses:
+        '201':
+          description: Equipment registered successfully - تم تسجيل المعدات بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /equipment/{equipmentId}:
+    get:
+      tags: [Equipment]
+      summary: Get equipment by ID
+      description: |
+        Get detailed equipment information.
+        الحصول على تفاصيل المعدات.
+      operationId: getEquipment
+      parameters:
+        - $ref: '#/components/parameters/EquipmentId'
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    put:
+      tags: [Equipment]
+      summary: Update equipment
+      description: |
+        Update equipment information.
+        تحديث معلومات المعدات.
+      operationId: updateEquipment
+      parameters:
+        - $ref: '#/components/parameters/EquipmentId'
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentUpdate'
+      responses:
+        '200':
+          description: Equipment updated successfully - تم تحديث المعدات بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags: [Equipment]
+      summary: Delete equipment
+      description: |
+        Delete equipment record (soft delete).
+        حذف سجل المعدات.
+      operationId: deleteEquipment
+      parameters:
+        - $ref: '#/components/parameters/EquipmentId'
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '204':
+          description: Equipment deleted successfully - تم حذف المعدات بنجاح
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /equipment/{equipmentId}/maintenance:
+    post:
+      tags: [Equipment]
+      summary: Record maintenance
+      description: |
+        Record a maintenance activity for equipment.
+        تسجيل نشاط صيانة للمعدات.
+      operationId: recordMaintenance
+      parameters:
+        - $ref: '#/components/parameters/EquipmentId'
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceRecord'
+            examples:
+              oil_change:
+                summary: Oil change - تغيير الزيت
+                value:
+                  type: preventive
+                  description: "Regular oil change and filter replacement"
+                  descriptionAr: "تغيير زيت دوري واستبدال الفلتر"
+                  performedBy: "Ahmed Hassan"
+                  performedAt: "2026-01-20T10:00:00Z"
+                  cost: 350.00
+                  currency: "SAR"
+                  partsUsed:
+                    - name: "Engine Oil 15W-40"
+                      nameAr: "زيت محرك 15W-40"
+                      quantity: 10
+                      unit: "liters"
+                      cost: 200.00
+                    - name: "Oil Filter"
+                      nameAr: "فلتر زيت"
+                      quantity: 1
+                      unit: "piece"
+                      cost: 50.00
+                  nextMaintenanceDate: "2026-04-20"
+                  nextMaintenanceHours: 250
+              repair:
+                summary: Repair - إصلاح
+                value:
+                  type: corrective
+                  description: "Hydraulic pump replacement"
+                  descriptionAr: "استبدال مضخة هيدروليكية"
+                  performedBy: "Service Center"
+                  performedAt: "2026-01-18T14:00:00Z"
+                  cost: 2500.00
+                  currency: "SAR"
+                  conditionAfter: good
+      responses:
+        '201':
+          description: Maintenance recorded successfully - تم تسجيل الصيانة بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaintenanceResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  /equipment/{equipmentId}/assign:
+    post:
+      tags: [Equipment]
+      summary: Assign equipment
+      description: |
+        Assign equipment to a field or task.
+        تعيين المعدات لحقل أو مهمة.
+      operationId: assignEquipment
+      parameters:
+        - $ref: '#/components/parameters/EquipmentId'
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentAssignment'
+            example:
+              fieldId: "123e4567-e89b-12d3-a456-426614174000"
+              taskId: "123e4567-e89b-12d3-a456-426614174001"
+              operatorId: "123e4567-e89b-12d3-a456-426614174002"
+              assignedFrom: "2026-01-25T06:00:00Z"
+              assignedUntil: "2026-01-25T18:00:00Z"
+              notes: "Assigned for morning irrigation"
+              notesAr: "معين للري الصباحي"
+      responses:
+        '200':
+          description: Equipment assigned successfully - تم تعيين المعدات بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Equipment not available - المعدات غير متوفرة
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /equipment/{equipmentId}/history:
+    get:
+      tags: [Equipment]
+      summary: Get equipment history
+      description: |
+        Get usage and maintenance history for equipment.
+        الحصول على سجل الاستخدام والصيانة للمعدات.
+      operationId: getEquipmentHistory
+      parameters:
+        - $ref: '#/components/parameters/EquipmentId'
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: type
+          in: query
+          description: Filter by history type
+          schema:
+            type: string
+            enum: [maintenance, assignment, usage, all]
+            default: all
+        - name: startDate
+          in: query
+          description: Start date for history
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: End date for history
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Equipment history retrieved - تم استرجاع سجل المعدات
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentHistoryResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # INVENTORY MANAGEMENT ENDPOINTS (inventory-service - Port 8116)
+  # ============================================================================
+  /inventory/items:
+    get:
+      tags: [Inventory]
+      summary: List inventory items
+      description: |
+        Get paginated list of inventory items.
+        قائمة عناصر المخزون.
+      operationId: listInventoryItems
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: category
+          in: query
+          description: Filter by category - تصفية حسب الفئة
+          schema:
+            $ref: '#/components/schemas/ItemCategory'
+        - name: search
+          in: query
+          description: Search by name or SKU - البحث بالاسم أو الرمز
+          schema:
+            type: string
+        - name: lowStock
+          in: query
+          description: Filter low stock items only - عرض المخزون المنخفض فقط
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Inventory]
+      summary: Add inventory item
+      description: |
+        Add a new item to inventory.
+        إضافة عنصر جديد للمخزون.
+      operationId: createInventoryItem
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItemCreate'
+            examples:
+              fertilizer:
+                summary: Fertilizer item - سماد
+                value:
+                  name: "Urea 46%"
+                  nameAr: "يوريا 46%"
+                  sku: "FERT-UREA-46-50"
+                  category: fertilizer
+                  description: "Nitrogen fertilizer, 50kg bags"
+                  descriptionAr: "سماد نيتروجين، أكياس 50 كجم"
+                  unit: "kg"
+                  quantity: 500
+                  minimumQuantity: 100
+                  unitCost: 2.50
+                  currency: "SAR"
+                  location: "Warehouse A - Shelf 3"
+                  locationAr: "المستودع أ - الرف 3"
+                  expiryDate: "2027-06-30"
+              seeds:
+                summary: Seeds item - بذور
+                value:
+                  name: "Wheat Seeds - Sakha 95"
+                  nameAr: "بذور قمح - سخا 95"
+                  sku: "SEED-WHT-S95-25"
+                  category: seeds
+                  description: "High-yield wheat variety, 25kg bags"
+                  descriptionAr: "صنف قمح عالي الإنتاجية، أكياس 25 كجم"
+                  unit: "kg"
+                  quantity: 200
+                  minimumQuantity: 50
+                  unitCost: 15.00
+                  currency: "SAR"
+                  attributes:
+                    variety: "Sakha 95"
+                    germinationRate: 95
+                    purityRate: 99.5
+      responses:
+        '201':
+          description: Item added successfully - تم إضافة العنصر بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /inventory/items/{itemId}:
+    get:
+      tags: [Inventory]
+      summary: Get inventory item by ID
+      description: |
+        Get detailed inventory item information.
+        الحصول على تفاصيل عنصر المخزون.
+      operationId: getInventoryItem
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    put:
+      tags: [Inventory]
+      summary: Update inventory item
+      description: |
+        Update inventory item information.
+        تحديث معلومات عنصر المخزون.
+      operationId: updateInventoryItem
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItemUpdate'
+      responses:
+        '200':
+          description: Item updated successfully - تم تحديث العنصر بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags: [Inventory]
+      summary: Delete inventory item
+      description: |
+        Delete an inventory item (soft delete).
+        حذف عنصر من المخزون.
+      operationId: deleteInventoryItem
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '204':
+          description: Item deleted successfully - تم حذف العنصر بنجاح
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /inventory/items/{itemId}/adjust:
+    post:
+      tags: [Inventory]
+      summary: Adjust inventory quantity
+      description: |
+        Adjust inventory quantity (add/remove stock or correction).
+        تعديل كمية المخزون.
+      operationId: adjustInventory
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryAdjustment'
+            examples:
+              stock_in:
+                summary: Stock in - إدخال مخزون
+                value:
+                  adjustmentType: in
+                  quantity: 100
+                  reason: "New shipment received"
+                  reasonAr: "استلام شحنة جديدة"
+                  reference: "PO-2026-0125"
+                  unitCost: 2.45
+              stock_out:
+                summary: Stock out - إخراج مخزون
+                value:
+                  adjustmentType: out
+                  quantity: 50
+                  reason: "Used for field F003"
+                  reasonAr: "استخدم للحقل F003"
+                  fieldId: "123e4567-e89b-12d3-a456-426614174000"
+                  taskId: "123e4567-e89b-12d3-a456-426614174001"
+              correction:
+                summary: Inventory correction - تصحيح المخزون
+                value:
+                  adjustmentType: adjustment
+                  quantity: -5
+                  reason: "Stock count correction"
+                  reasonAr: "تصحيح جرد المخزون"
+      responses:
+        '200':
+          description: Inventory adjusted successfully - تم تعديل المخزون بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  /inventory/low-stock:
+    get:
+      tags: [Inventory]
+      summary: Get low stock items
+      description: |
+        Get list of items with quantity below minimum threshold.
+        قائمة العناصر التي انخفض مخزونها عن الحد الأدنى.
+      operationId: getLowStockItems
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: category
+          in: query
+          description: Filter by category
+          schema:
+            $ref: '#/components/schemas/ItemCategory'
+        - name: critical
+          in: query
+          description: Show only critical (below 25% of minimum)
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Low stock items retrieved - تم استرجاع العناصر منخفضة المخزون
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LowStockResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /inventory/transactions:
+    post:
+      tags: [Inventory]
+      summary: Record inventory transaction
+      description: |
+        Record a batch inventory transaction (multiple items).
+        تسجيل معاملة مخزون (عناصر متعددة).
+      operationId: recordTransaction
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryTransaction'
+            examples:
+              task_usage:
+                summary: Task usage transaction - معاملة استخدام مهمة
+                value:
+                  type: out
+                  reference: "TASK-2026-0125-001"
+                  referenceType: task
+                  taskId: "123e4567-e89b-12d3-a456-426614174000"
+                  fieldId: "123e4567-e89b-12d3-a456-426614174001"
+                  performedBy: "123e4567-e89b-12d3-a456-426614174002"
+                  notes: "Fertilizer application for wheat field"
+                  notesAr: "تطبيق سماد لحقل القمح"
+                  items:
+                    - itemId: "123e4567-e89b-12d3-a456-426614174003"
+                      quantity: 25
+                    - itemId: "123e4567-e89b-12d3-a456-426614174004"
+                      quantity: 10
+              transfer:
+                summary: Transfer between locations - نقل بين المواقع
+                value:
+                  type: transfer
+                  reference: "TRF-2026-0125-001"
+                  referenceType: internal
+                  fromLocation: "Warehouse A"
+                  fromLocationAr: "المستودع أ"
+                  toLocation: "Field Storage B"
+                  toLocationAr: "مخزن الحقل ب"
+                  notes: "Transfer to field for upcoming tasks"
+                  notesAr: "نقل للحقل للمهام القادمة"
+                  items:
+                    - itemId: "123e4567-e89b-12d3-a456-426614174003"
+                      quantity: 100
+      responses:
+        '201':
+          description: Transaction recorded successfully - تم تسجيل المعاملة بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          description: One or more items not found
+      security:
+        - bearerAuth: []
+
+    get:
+      tags: [Inventory]
+      summary: List inventory transactions
+      description: |
+        Get paginated list of inventory transactions.
+        قائمة معاملات المخزون.
+      operationId: listTransactions
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: type
+          in: query
+          description: Filter by transaction type
+          schema:
+            $ref: '#/components/schemas/TransactionType'
+        - name: itemId
+          in: query
+          description: Filter by item ID
+          schema:
+            type: string
+            format: uuid
+        - name: startDate
+          in: query
+          description: Filter transactions after this date
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: Filter transactions before this date
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Transactions list retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # HEALTH ENDPOINTS
+  # ============================================================================
+  /health:
+    get:
+      tags: [Health]
+      summary: Combined health check
+      description: Get combined health status
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+      security: []
+
+  /healthz:
+    get:
+      tags: [Health]
+      summary: Liveness probe
+      description: Kubernetes liveness probe endpoint
+      operationId: livenessProbe
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+      security: []
+
+  /readyz:
+    get:
+      tags: [Health]
+      summary: Readiness probe
+      description: Kubernetes readiness probe endpoint
+      operationId: readinessProbe
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+      security: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token obtained from authentication service
+
+  parameters:
+    TenantId:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      description: Tenant identifier for multi-tenancy - معرف المستأجر
+      schema:
+        type: string
+        format: uuid
+
+    TaskId:
+      name: taskId
+      in: path
+      required: true
+      description: Task identifier - معرف المهمة
+      schema:
+        type: string
+        format: uuid
+
+    EquipmentId:
+      name: equipmentId
+      in: path
+      required: true
+      description: Equipment identifier - معرف المعدات
+      schema:
+        type: string
+        format: uuid
+
+    ItemId:
+      name: itemId
+      in: path
+      required: true
+      description: Inventory item identifier - معرف عنصر المخزون
+      schema:
+        type: string
+        format: uuid
+
+    Limit:
+      name: limit
+      in: query
+      description: Maximum number of items to return
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    Offset:
+      name: offset
+      in: query
+      description: Number of items to skip
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+  schemas:
+    # ========== Enums ==========
+    TaskType:
+      type: string
+      description: |
+        Type of agricultural task - نوع المهمة الزراعية
+        - irrigation: Watering crops - الري
+        - fertilization: Applying fertilizers - التسميد
+        - spraying: Pesticide/herbicide application - الرش
+        - scouting: Field inspection - الاستكشاف
+        - maintenance: Equipment/infrastructure maintenance - الصيانة
+        - sampling: Soil/plant sampling - أخذ العينات
+        - harvest: Crop harvesting - الحصاد
+        - planting: Seed planting - الزراعة
+      enum:
+        - irrigation
+        - fertilization
+        - spraying
+        - scouting
+        - maintenance
+        - sampling
+        - harvest
+        - planting
+
+    TaskStatus:
+      type: string
+      description: |
+        Status of the task - حالة المهمة
+        - pending: Not started - قيد الانتظار
+        - in_progress: Currently being worked on - قيد التنفيذ
+        - completed: Successfully finished - مكتملة
+        - cancelled: Task was cancelled - ملغاة
+        - overdue: Past scheduled date - متأخرة
+      enum:
+        - pending
+        - in_progress
+        - completed
+        - cancelled
+        - overdue
+
+    Priority:
+      type: string
+      description: |
+        Task priority level - مستوى أولوية المهمة
+        - low: Can be done when convenient - منخفضة
+        - medium: Should be done soon - متوسطة
+        - high: Needs attention today - عالية
+        - urgent: Requires immediate action - عاجلة
+      enum:
+        - low
+        - medium
+        - high
+        - urgent
+
+    EquipmentType:
+      type: string
+      description: |
+        Type of agricultural equipment - نوع المعدات الزراعية
+        - tractor: Agricultural tractor - جرار
+        - harvester: Combine harvester - حصادة
+        - sprayer: Pesticide/fertilizer sprayer - رشاش
+        - irrigation_pump: Water pump for irrigation - مضخة ري
+        - seeder: Seed planting machine - بذارة
+        - plow: Soil preparation plow - محراث
+      enum:
+        - tractor
+        - harvester
+        - sprayer
+        - irrigation_pump
+        - seeder
+        - plow
+
+    EquipmentCondition:
+      type: string
+      description: |
+        Current condition of equipment - حالة المعدات الحالية
+        - excellent: Like new, fully operational - ممتازة
+        - good: Minor wear, fully operational - جيدة
+        - fair: Moderate wear, operational with limitations - مقبولة
+        - poor: Significant wear, limited use - ضعيفة
+        - needs_repair: Not operational, requires repair - تحتاج إصلاح
+      enum:
+        - excellent
+        - good
+        - fair
+        - poor
+        - needs_repair
+
+    ItemCategory:
+      type: string
+      description: |
+        Category of inventory item - فئة عنصر المخزون
+        - seeds: Planting seeds - بذور
+        - fertilizer: Fertilizers and nutrients - أسمدة
+        - pesticide: Pest control products - مبيدات
+        - equipment: Small equipment and tools - معدات
+        - fuel: Diesel, gasoline, etc. - وقود
+        - other: Other materials - أخرى
+      enum:
+        - seeds
+        - fertilizer
+        - pesticide
+        - equipment
+        - fuel
+        - other
+
+    TransactionType:
+      type: string
+      description: |
+        Type of inventory transaction - نوع معاملة المخزون
+        - in: Stock received/added - إدخال
+        - out: Stock used/removed - إخراج
+        - adjustment: Inventory correction - تعديل
+        - transfer: Transfer between locations - نقل
+      enum:
+        - in
+        - out
+        - adjustment
+        - transfer
+
+    # ========== Task Schemas ==========
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 200
+        titleAr:
+          type: string
+          maxLength: 200
+          description: Arabic title - العنوان بالعربية
+        description:
+          type: string
+          maxLength: 2000
+        descriptionAr:
+          type: string
+          maxLength: 2000
+          description: Arabic description - الوصف بالعربية
+        type:
+          $ref: '#/components/schemas/TaskType'
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        priority:
+          $ref: '#/components/schemas/Priority'
+        fieldId:
+          type: string
+          format: uuid
+          description: Associated field ID - معرف الحقل
+        fieldName:
+          type: string
+          description: Field name for display - اسم الحقل
+        assigneeId:
+          type: string
+          format: uuid
+          description: Assigned user ID - معرف المسؤول
+        assigneeName:
+          type: string
+          description: Assignee name for display - اسم المسؤول
+        createdById:
+          type: string
+          format: uuid
+          description: Creator user ID - معرف المنشئ
+        scheduledDate:
+          type: string
+          format: date
+          description: Scheduled date - التاريخ المحدد
+        scheduledTime:
+          type: string
+          pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]$'
+          description: Scheduled time (HH:MM) - الوقت المحدد
+        dueDate:
+          type: string
+          format: date-time
+          description: Due date and time - تاريخ الاستحقاق
+        startedAt:
+          type: string
+          format: date-time
+          description: When task was started - وقت البدء
+        completedAt:
+          type: string
+          format: date-time
+          description: When task was completed - وقت الإنهاء
+        estimatedDuration:
+          type: integer
+          description: Estimated duration in minutes - المدة المقدرة بالدقائق
+        actualDuration:
+          type: integer
+          description: Actual duration in minutes - المدة الفعلية بالدقائق
+        equipmentIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Required equipment IDs - معرفات المعدات المطلوبة
+        inventoryItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskInventoryItem'
+          description: Inventory items used - عناصر المخزون المستخدمة
+        notes:
+          type: string
+          description: Additional notes - ملاحظات إضافية
+        notesAr:
+          type: string
+          description: Arabic notes - ملاحظات بالعربية
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+        attachments:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: Attached files/images - المرفقات
+        recurrence:
+          $ref: '#/components/schemas/TaskRecurrence'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TaskInventoryItem:
+      type: object
+      properties:
+        itemId:
+          type: string
+          format: uuid
+        itemName:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+
+    TaskRecurrence:
+      type: object
+      properties:
+        frequency:
+          type: string
+          enum: [daily, weekly, biweekly, monthly]
+        interval:
+          type: integer
+          minimum: 1
+        endDate:
+          type: string
+          format: date
+        daysOfWeek:
+          type: array
+          items:
+            type: integer
+            minimum: 0
+            maximum: 6
+
+    GeoLocation:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+
+    TaskCreate:
+      type: object
+      required:
+        - title
+        - type
+        - priority
+        - scheduledDate
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        titleAr:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+        descriptionAr:
+          type: string
+          maxLength: 2000
+        type:
+          $ref: '#/components/schemas/TaskType'
+        priority:
+          $ref: '#/components/schemas/Priority'
+        fieldId:
+          type: string
+          format: uuid
+        assigneeId:
+          type: string
+          format: uuid
+        scheduledDate:
+          type: string
+          format: date
+        scheduledTime:
+          type: string
+          pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]$'
+        dueDate:
+          type: string
+          format: date-time
+        estimatedDuration:
+          type: integer
+          minimum: 1
+          description: Duration in minutes
+        equipmentIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        inventoryItems:
+          type: array
+          items:
+            type: object
+            required: [itemId, quantity]
+            properties:
+              itemId:
+                type: string
+                format: uuid
+              quantity:
+                type: number
+                minimum: 0
+        notes:
+          type: string
+        notesAr:
+          type: string
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+        recurrence:
+          $ref: '#/components/schemas/TaskRecurrence'
+
+    TaskUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 200
+        titleAr:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+        descriptionAr:
+          type: string
+          maxLength: 2000
+        type:
+          $ref: '#/components/schemas/TaskType'
+        priority:
+          $ref: '#/components/schemas/Priority'
+        fieldId:
+          type: string
+          format: uuid
+        assigneeId:
+          type: string
+          format: uuid
+        scheduledDate:
+          type: string
+          format: date
+        scheduledTime:
+          type: string
+        dueDate:
+          type: string
+          format: date-time
+        estimatedDuration:
+          type: integer
+        equipmentIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        notes:
+          type: string
+        notesAr:
+          type: string
+
+    TaskStatusUpdate:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        completedAt:
+          type: string
+          format: date-time
+        actualDuration:
+          type: integer
+          description: Actual duration in minutes
+        notes:
+          type: string
+        notesAr:
+          type: string
+        inventoryUsed:
+          type: array
+          items:
+            type: object
+            properties:
+              itemId:
+                type: string
+                format: uuid
+              quantityUsed:
+                type: number
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+
+    TaskAssignment:
+      type: object
+      required:
+        - assigneeId
+      properties:
+        assigneeId:
+          type: string
+          format: uuid
+        notes:
+          type: string
+        notesAr:
+          type: string
+        notifyAssignee:
+          type: boolean
+          default: true
+
+    TaskResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Task'
+        message:
+          type: string
+        messageAr:
+          type: string
+
+    TaskListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        summary:
+          type: object
+          properties:
+            totalTasks:
+              type: integer
+            pendingCount:
+              type: integer
+            inProgressCount:
+              type: integer
+            completedCount:
+              type: integer
+            overdueCount:
+              type: integer
+
+    # ========== Equipment Schemas ==========
+    Equipment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 200
+        nameAr:
+          type: string
+          maxLength: 200
+          description: Arabic name - الاسم بالعربية
+        type:
+          $ref: '#/components/schemas/EquipmentType'
+        serialNumber:
+          type: string
+          maxLength: 100
+          description: Serial/identification number - الرقم التسلسلي
+        manufacturer:
+          type: string
+          maxLength: 100
+          description: Manufacturer name - الشركة المصنعة
+        model:
+          type: string
+          maxLength: 100
+          description: Model name/number - الموديل
+        yearManufactured:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+        purchaseDate:
+          type: string
+          format: date
+        purchasePrice:
+          type: number
+          format: double
+        currentValue:
+          type: number
+          format: double
+          description: Current estimated value - القيمة الحالية
+        condition:
+          $ref: '#/components/schemas/EquipmentCondition'
+        available:
+          type: boolean
+          description: Currently available for use - متوفر للاستخدام
+        assignedFieldId:
+          type: string
+          format: uuid
+          description: Currently assigned field - الحقل المعين حاليا
+        assignedFieldName:
+          type: string
+        currentOperatorId:
+          type: string
+          format: uuid
+          description: Current operator - المشغل الحالي
+        currentOperatorName:
+          type: string
+        specifications:
+          type: object
+          additionalProperties: true
+          description: Technical specifications - المواصفات الفنية
+        lastMaintenanceDate:
+          type: string
+          format: date
+        nextMaintenanceDate:
+          type: string
+          format: date
+        totalOperatingHours:
+          type: number
+          description: Total hours of operation - إجمالي ساعات التشغيل
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        notes:
+          type: string
+        notesAr:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    EquipmentCreate:
+      type: object
+      required:
+        - name
+        - type
+        - serialNumber
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        nameAr:
+          type: string
+          maxLength: 200
+        type:
+          $ref: '#/components/schemas/EquipmentType'
+        serialNumber:
+          type: string
+          minLength: 1
+          maxLength: 100
+        manufacturer:
+          type: string
+          maxLength: 100
+        model:
+          type: string
+          maxLength: 100
+        yearManufactured:
+          type: integer
+        purchaseDate:
+          type: string
+          format: date
+        purchasePrice:
+          type: number
+        condition:
+          $ref: '#/components/schemas/EquipmentCondition'
+          default: good
+        specifications:
+          type: object
+          additionalProperties: true
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        notes:
+          type: string
+        notesAr:
+          type: string
+
+    EquipmentUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 200
+        nameAr:
+          type: string
+          maxLength: 200
+        condition:
+          $ref: '#/components/schemas/EquipmentCondition'
+        available:
+          type: boolean
+        currentValue:
+          type: number
+        specifications:
+          type: object
+          additionalProperties: true
+        nextMaintenanceDate:
+          type: string
+          format: date
+        totalOperatingHours:
+          type: number
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+        notes:
+          type: string
+        notesAr:
+          type: string
+
+    MaintenanceRecord:
+      type: object
+      required:
+        - type
+        - description
+        - performedBy
+        - performedAt
+      properties:
+        type:
+          type: string
+          enum:
+            - preventive
+            - corrective
+            - inspection
+            - calibration
+          description: |
+            Type of maintenance:
+            - preventive: Regular scheduled maintenance - صيانة وقائية
+            - corrective: Repair due to failure - صيانة تصحيحية
+            - inspection: Routine inspection - فحص دوري
+            - calibration: Equipment calibration - معايرة
+        description:
+          type: string
+          maxLength: 2000
+        descriptionAr:
+          type: string
+          maxLength: 2000
+        performedBy:
+          type: string
+          maxLength: 200
+          description: Person/company who performed maintenance
+        performedAt:
+          type: string
+          format: date-time
+        cost:
+          type: number
+          format: double
+        currency:
+          type: string
+          default: SAR
+          maxLength: 3
+        partsUsed:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              nameAr:
+                type: string
+              quantity:
+                type: number
+              unit:
+                type: string
+              cost:
+                type: number
+        laborHours:
+          type: number
+        conditionBefore:
+          $ref: '#/components/schemas/EquipmentCondition'
+        conditionAfter:
+          $ref: '#/components/schemas/EquipmentCondition'
+        nextMaintenanceDate:
+          type: string
+          format: date
+        nextMaintenanceHours:
+          type: integer
+          description: Hours until next maintenance
+        attachments:
+          type: array
+          items:
+            type: string
+            format: uri
+        notes:
+          type: string
+        notesAr:
+          type: string
+
+    MaintenanceResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          allOf:
+            - $ref: '#/components/schemas/MaintenanceRecord'
+            - type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                equipmentId:
+                  type: string
+                  format: uuid
+                createdAt:
+                  type: string
+                  format: date-time
+        message:
+          type: string
+        messageAr:
+          type: string
+
+    EquipmentAssignment:
+      type: object
+      properties:
+        fieldId:
+          type: string
+          format: uuid
+        taskId:
+          type: string
+          format: uuid
+        operatorId:
+          type: string
+          format: uuid
+        assignedFrom:
+          type: string
+          format: date-time
+        assignedUntil:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        notesAr:
+          type: string
+
+    EquipmentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Equipment'
+        message:
+          type: string
+        messageAr:
+          type: string
+
+    EquipmentListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Equipment'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        summary:
+          type: object
+          properties:
+            totalEquipment:
+              type: integer
+            availableCount:
+              type: integer
+            needsRepairCount:
+              type: integer
+            byType:
+              type: object
+              additionalProperties:
+                type: integer
+
+    EquipmentHistoryEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [maintenance, assignment, usage]
+        timestamp:
+          type: string
+          format: date-time
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+        performedBy:
+          type: string
+        cost:
+          type: number
+
+    EquipmentHistoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/EquipmentHistoryEntry'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        summary:
+          type: object
+          properties:
+            totalMaintenanceCost:
+              type: number
+            totalMaintenanceCount:
+              type: integer
+            totalOperatingHours:
+              type: number
+            totalAssignments:
+              type: integer
+
+    # ========== Inventory Schemas ==========
+    InventoryItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 200
+        nameAr:
+          type: string
+          maxLength: 200
+          description: Arabic name - الاسم بالعربية
+        sku:
+          type: string
+          maxLength: 50
+          description: Stock Keeping Unit - رمز المنتج
+        category:
+          $ref: '#/components/schemas/ItemCategory'
+        description:
+          type: string
+          maxLength: 2000
+        descriptionAr:
+          type: string
+          maxLength: 2000
+        unit:
+          type: string
+          maxLength: 20
+          description: Unit of measurement - وحدة القياس
+        quantity:
+          type: number
+          description: Current quantity - الكمية الحالية
+        minimumQuantity:
+          type: number
+          description: Minimum stock level - الحد الأدنى للمخزون
+        maximumQuantity:
+          type: number
+          description: Maximum stock level - الحد الأقصى للمخزون
+        unitCost:
+          type: number
+          format: double
+          description: Cost per unit - التكلفة لكل وحدة
+        totalValue:
+          type: number
+          format: double
+          description: Total inventory value - القيمة الإجمالية للمخزون
+        currency:
+          type: string
+          default: SAR
+          maxLength: 3
+        location:
+          type: string
+          maxLength: 200
+          description: Storage location - موقع التخزين
+        locationAr:
+          type: string
+          maxLength: 200
+        expiryDate:
+          type: string
+          format: date
+          description: Expiry date if applicable - تاريخ الانتهاء
+        supplier:
+          type: string
+          maxLength: 200
+        supplierAr:
+          type: string
+          maxLength: 200
+        attributes:
+          type: object
+          additionalProperties: true
+          description: Additional item attributes - خصائص إضافية
+        lowStockAlert:
+          type: boolean
+          description: Whether item is below minimum - تنبيه المخزون المنخفض
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    InventoryItemCreate:
+      type: object
+      required:
+        - name
+        - category
+        - unit
+        - quantity
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        nameAr:
+          type: string
+          maxLength: 200
+        sku:
+          type: string
+          maxLength: 50
+        category:
+          $ref: '#/components/schemas/ItemCategory'
+        description:
+          type: string
+          maxLength: 2000
+        descriptionAr:
+          type: string
+          maxLength: 2000
+        unit:
+          type: string
+          minLength: 1
+          maxLength: 20
+        quantity:
+          type: number
+          minimum: 0
+        minimumQuantity:
+          type: number
+          minimum: 0
+        maximumQuantity:
+          type: number
+          minimum: 0
+        unitCost:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+          default: SAR
+        location:
+          type: string
+          maxLength: 200
+        locationAr:
+          type: string
+          maxLength: 200
+        expiryDate:
+          type: string
+          format: date
+        supplier:
+          type: string
+        supplierAr:
+          type: string
+        attributes:
+          type: object
+          additionalProperties: true
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+
+    InventoryItemUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 200
+        nameAr:
+          type: string
+          maxLength: 200
+        sku:
+          type: string
+          maxLength: 50
+        category:
+          $ref: '#/components/schemas/ItemCategory'
+        description:
+          type: string
+          maxLength: 2000
+        descriptionAr:
+          type: string
+          maxLength: 2000
+        unit:
+          type: string
+          maxLength: 20
+        minimumQuantity:
+          type: number
+        maximumQuantity:
+          type: number
+        unitCost:
+          type: number
+        location:
+          type: string
+        locationAr:
+          type: string
+        expiryDate:
+          type: string
+          format: date
+        supplier:
+          type: string
+        supplierAr:
+          type: string
+        attributes:
+          type: object
+          additionalProperties: true
+
+    InventoryAdjustment:
+      type: object
+      required:
+        - adjustmentType
+        - quantity
+        - reason
+      properties:
+        adjustmentType:
+          type: string
+          enum: [in, out, adjustment]
+          description: |
+            Type of adjustment:
+            - in: Add stock - إضافة
+            - out: Remove stock - سحب
+            - adjustment: Correction - تعديل
+        quantity:
+          type: number
+          description: Quantity to adjust (positive for in, negative for adjustment)
+        reason:
+          type: string
+          maxLength: 500
+        reasonAr:
+          type: string
+          maxLength: 500
+        reference:
+          type: string
+          maxLength: 100
+          description: Reference number (PO, invoice, etc.)
+        fieldId:
+          type: string
+          format: uuid
+          description: Associated field if applicable
+        taskId:
+          type: string
+          format: uuid
+          description: Associated task if applicable
+        unitCost:
+          type: number
+          description: Cost per unit for this adjustment
+
+    InventoryTransaction:
+      type: object
+      required:
+        - type
+        - items
+      properties:
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        reference:
+          type: string
+          maxLength: 100
+        referenceType:
+          type: string
+          enum: [task, purchase, sale, internal, adjustment]
+        taskId:
+          type: string
+          format: uuid
+        fieldId:
+          type: string
+          format: uuid
+        performedBy:
+          type: string
+          format: uuid
+        fromLocation:
+          type: string
+          description: Source location for transfers
+        fromLocationAr:
+          type: string
+        toLocation:
+          type: string
+          description: Destination location for transfers
+        toLocationAr:
+          type: string
+        notes:
+          type: string
+          maxLength: 1000
+        notesAr:
+          type: string
+          maxLength: 1000
+        items:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [itemId, quantity]
+            properties:
+              itemId:
+                type: string
+                format: uuid
+              quantity:
+                type: number
+                minimum: 0
+              unitCost:
+                type: number
+
+    TransactionRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        reference:
+          type: string
+        referenceType:
+          type: string
+        taskId:
+          type: string
+          format: uuid
+        fieldId:
+          type: string
+          format: uuid
+        performedBy:
+          type: string
+          format: uuid
+        performedByName:
+          type: string
+        fromLocation:
+          type: string
+        toLocation:
+          type: string
+        notes:
+          type: string
+        notesAr:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              itemId:
+                type: string
+                format: uuid
+              itemName:
+                type: string
+              itemNameAr:
+                type: string
+              quantity:
+                type: number
+              unit:
+                type: string
+              unitCost:
+                type: number
+              totalCost:
+                type: number
+        totalValue:
+          type: number
+          description: Total transaction value
+        createdAt:
+          type: string
+          format: date-time
+
+    InventoryItemResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/InventoryItem'
+        message:
+          type: string
+        messageAr:
+          type: string
+
+    InventoryItemListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InventoryItem'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        summary:
+          type: object
+          properties:
+            totalItems:
+              type: integer
+            totalValue:
+              type: number
+            lowStockCount:
+              type: integer
+            byCategory:
+              type: object
+              additionalProperties:
+                type: integer
+
+    LowStockResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/InventoryItem'
+              - type: object
+                properties:
+                  stockLevel:
+                    type: string
+                    enum: [low, critical]
+                    description: |
+                      Stock level severity:
+                      - low: Below minimum - منخفض
+                      - critical: Below 25% of minimum - حرج
+                  percentageOfMinimum:
+                    type: number
+                    description: Percentage of minimum quantity
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        summary:
+          type: object
+          properties:
+            lowStockCount:
+              type: integer
+            criticalCount:
+              type: integer
+            estimatedRestockCost:
+              type: number
+
+    TransactionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/TransactionRecord'
+        message:
+          type: string
+        messageAr:
+          type: string
+
+    TransactionListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionRecord'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        summary:
+          type: object
+          properties:
+            totalTransactions:
+              type: integer
+            totalInValue:
+              type: number
+            totalOutValue:
+              type: number
+            byType:
+              type: object
+              additionalProperties:
+                type: integer
+
+    # ========== Common Schemas ==========
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of items
+        limit:
+          type: integer
+        offset:
+          type: integer
+        hasMore:
+          type: boolean
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        service:
+          type: string
+        version:
+          type: string
+          example: "16.0.0"
+        uptime:
+          type: integer
+          description: Uptime in seconds
+
+    ReadinessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        database:
+          type: boolean
+        nats:
+          type: boolean
+        redis:
+          type: boolean
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+        errorAr:
+          type: string
+          description: Arabic error message - رسالة الخطأ بالعربية
+        code:
+          type: string
+          description: Error code for client handling
+        details:
+          type: object
+          additionalProperties: true
+
+  responses:
+    Unauthorized:
+      description: Authentication required or token invalid - المصادقة مطلوبة
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: Unauthorized
+            errorAr: غير مصرح
+            code: UNAUTHORIZED
+
+    Forbidden:
+      description: Insufficient permissions - صلاحيات غير كافية
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: Forbidden
+            errorAr: ممنوع
+            code: FORBIDDEN
+
+    NotFound:
+      description: Resource not found - المورد غير موجود
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: Resource not found
+            errorAr: المورد غير موجود
+            code: NOT_FOUND
+
+    ValidationError:
+      description: Invalid request parameters - معلمات الطلب غير صالحة
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: Validation failed
+            errorAr: فشل التحقق من البيانات
+            code: VALIDATION_ERROR
+            details:
+              title: "Title is required"
+
+    TooManyRequests:
+      description: Rate limit exceeded - تم تجاوز حد الطلبات
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: Rate limit exceeded
+            errorAr: تم تجاوز حد الطلبات
+            code: RATE_LIMIT_EXCEEDED
+      headers:
+        X-RateLimit-Limit-Minute:
+          schema:
+            type: integer
+          description: Request limit per minute
+        X-RateLimit-Remaining-Minute:
+          schema:
+            type: integer
+          description: Remaining requests this minute
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retry
+
+security:
+  - bearerAuth: []

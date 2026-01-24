@@ -1,0 +1,2025 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Platform - Billing Services API
+  description: |
+    # SAHOOL Billing Services API Documentation
+    ## خدمات الفوترة لمنصة SAHOOL
+
+    This API provides comprehensive billing and subscription management functionality for the SAHOOL agricultural platform including:
+    - Plan Management (إدارة الخطط)
+    - Subscription Management (إدارة الاشتراكات)
+    - Invoice Generation & Management (إصدار وإدارة الفواتير)
+    - Payment Processing (معالجة المدفوعات)
+    - Usage Tracking & Metering (تتبع وقياس الاستخدام)
+
+    ## Supported Payment Methods | طرق الدفع المدعومة
+    - Credit Card (بطاقة ائتمان)
+    - Bank Transfer (تحويل بنكي)
+    - Mobile Money (الدفع عبر الهاتف)
+    - Cash (نقداً)
+    - Tharwatt (ثروات - المحفظة الإلكترونية اليمنية)
+
+    ## Plan Tiers | مستويات الخطط
+    - **FREE**: Basic features with limited usage (مجاني)
+    - **STARTER**: For small farms (للمزارع الصغيرة)
+    - **PROFESSIONAL**: For medium farms (للمزارع المتوسطة)
+    - **ENTERPRISE**: Full features for large operations (للمؤسسات الكبيرة)
+
+    ## Authentication
+    All endpoints require JWT authentication via the `Authorization: Bearer <token>` header unless otherwise specified.
+
+    ## Rate Limiting
+    - Free tier: 30 requests/minute
+    - Standard tier: 60 requests/minute
+    - Premium tier: 120 requests/minute
+    - Internal: 1000 requests/minute
+
+    ## Multi-tenancy
+    Most endpoints require the `X-Tenant-ID` header for tenant isolation.
+
+  version: 16.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.sa
+    url: https://sahool.sa
+  license:
+    name: Proprietary
+    url: https://sahool.sa/terms
+
+servers:
+  - url: https://api.sahool.sa/api/v1/billing
+    description: Production server (الخادم الإنتاجي)
+  - url: https://staging-api.sahool.sa/api/v1/billing
+    description: Staging server (خادم التجربة)
+  - url: http://localhost:8089
+    description: Local development server (billing-core service direct)
+  - url: http://localhost:8000/api/v1/billing
+    description: Local development via Kong Gateway
+
+tags:
+  - name: Plans
+    description: |
+      Subscription plan management - إدارة خطط الاشتراك
+
+      Retrieve available subscription plans with pricing and features.
+  - name: Subscriptions
+    description: |
+      Customer subscription management - إدارة اشتراكات العملاء
+
+      Create, update, and manage tenant subscriptions.
+  - name: Invoices
+    description: |
+      Invoice management - إدارة الفواتير
+
+      Generate, retrieve, and manage billing invoices.
+  - name: Payments
+    description: |
+      Payment processing - معالجة المدفوعات
+
+      Process and track payments for invoices.
+  - name: Usage
+    description: |
+      Usage tracking and metering - تتبع وقياس الاستخدام
+
+      Record and retrieve usage metrics for usage-based billing.
+  - name: Health
+    description: Service health and readiness checks - فحص صحة الخدمة
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ============================================================================
+  # PLAN ENDPOINTS
+  # ============================================================================
+  /plans:
+    get:
+      tags: [Plans]
+      summary: List all subscription plans
+      description: |
+        Retrieve a list of all available subscription plans with pricing and features.
+        جلب قائمة بجميع خطط الاشتراك المتاحة مع الأسعار والميزات.
+      operationId: listPlans
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: tier
+          in: query
+          description: Filter by plan tier (تصفية حسب مستوى الخطة)
+          schema:
+            $ref: '#/components/schemas/PlanTier'
+        - name: active
+          in: query
+          description: Filter by active status (تصفية حسب حالة التفعيل)
+          schema:
+            type: boolean
+            default: true
+        - name: currency
+          in: query
+          description: Display prices in specified currency (عرض الأسعار بالعملة المحددة)
+          schema:
+            $ref: '#/components/schemas/Currency'
+      responses:
+        '200':
+          description: List of subscription plans
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanListResponse'
+              examples:
+                success:
+                  summary: Successful response with plans
+                  value:
+                    data:
+                      - id: "550e8400-e29b-41d4-a716-446655440001"
+                        planId: "free"
+                        name: "Free Plan"
+                        nameAr: "الخطة المجانية"
+                        description: "Basic features for getting started"
+                        descriptionAr: "الميزات الأساسية للبدء"
+                        tier: "FREE"
+                        pricing:
+                          monthlyUsd: 0
+                          quarterlyUsd: 0
+                          yearlyUsd: 0
+                          setupFeeUsd: 0
+                        features:
+                          maxFields: 5
+                          maxUsers: 2
+                          satelliteAnalyses: 10
+                          apiCallsPerMonth: 1000
+                          supportLevel: "community"
+                        limits:
+                          storageGb: 1
+                          exportFormats: ["csv"]
+                        trialDays: 0
+                        isActive: true
+                        createdAt: "2025-01-01T00:00:00Z"
+                        updatedAt: "2025-01-15T10:30:00Z"
+                      - id: "550e8400-e29b-41d4-a716-446655440002"
+                        planId: "starter"
+                        name: "Starter Plan"
+                        nameAr: "خطة البداية"
+                        description: "Essential features for small farms"
+                        descriptionAr: "الميزات الأساسية للمزارع الصغيرة"
+                        tier: "STARTER"
+                        pricing:
+                          monthlyUsd: 29
+                          quarterlyUsd: 79
+                          yearlyUsd: 290
+                          setupFeeUsd: 0
+                        features:
+                          maxFields: 20
+                          maxUsers: 5
+                          satelliteAnalyses: 50
+                          apiCallsPerMonth: 10000
+                          supportLevel: "email"
+                        limits:
+                          storageGb: 10
+                          exportFormats: ["csv", "pdf"]
+                        trialDays: 14
+                        isActive: true
+                        createdAt: "2025-01-01T00:00:00Z"
+                        updatedAt: "2025-01-15T10:30:00Z"
+                    total: 4
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /plans/{planId}:
+    get:
+      tags: [Plans]
+      summary: Get plan by ID
+      description: |
+        Retrieve detailed information about a specific subscription plan.
+        جلب معلومات تفصيلية عن خطة اشتراك محددة.
+      operationId: getPlanById
+      parameters:
+        - $ref: '#/components/parameters/PlanIdPath'
+      responses:
+        '200':
+          description: Plan details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Plan'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================================================
+  # SUBSCRIPTION ENDPOINTS
+  # ============================================================================
+  /subscriptions:
+    get:
+      tags: [Subscriptions]
+      summary: List subscriptions
+      description: |
+        Retrieve a list of subscriptions for the authenticated tenant or all subscriptions (admin).
+        جلب قائمة الاشتراكات للمستأجر الحالي أو جميع الاشتراكات (للمدير).
+      operationId: listSubscriptions
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: status
+          in: query
+          description: Filter by subscription status (تصفية حسب حالة الاشتراك)
+          schema:
+            $ref: '#/components/schemas/SubscriptionStatus'
+        - name: planId
+          in: query
+          description: Filter by plan ID (تصفية حسب معرف الخطة)
+          schema:
+            type: string
+        - name: billingCycle
+          in: query
+          description: Filter by billing cycle (تصفية حسب دورة الفوترة)
+          schema:
+            $ref: '#/components/schemas/BillingCycle'
+      responses:
+        '200':
+          description: List of subscriptions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Subscriptions]
+      summary: Create subscription
+      description: |
+        Create a new subscription for a tenant. Automatically generates a trial period if the plan supports it.
+        إنشاء اشتراك جديد للمستأجر. يتم إنشاء فترة تجريبية تلقائياً إذا كانت الخطة تدعمها.
+      operationId: createSubscription
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubscriptionRequest'
+            examples:
+              monthly:
+                summary: Monthly subscription
+                value:
+                  planId: "starter"
+                  billingCycle: "MONTHLY"
+                  currency: "USD"
+                  paymentMethod: "CREDIT_CARD"
+                  startDate: "2025-02-01"
+              yearly:
+                summary: Yearly subscription with discount
+                value:
+                  planId: "professional"
+                  billingCycle: "YEARLY"
+                  currency: "USD"
+                  paymentMethod: "BANK_TRANSFER"
+                  startDate: "2025-02-01"
+                  metadata:
+                    promotionCode: "FARM2025"
+      responses:
+        '201':
+          description: Subscription created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Subscription'
+                  message:
+                    type: string
+                    example: "Subscription created successfully"
+                  messageAr:
+                    type: string
+                    example: "تم إنشاء الاشتراك بنجاح"
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Subscription already exists for this tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: SUBSCRIPTION_EXISTS
+                message: "Active subscription already exists for this tenant"
+                messageAr: "يوجد اشتراك نشط بالفعل لهذا المستأجر"
+
+  /subscriptions/{subscriptionId}:
+    get:
+      tags: [Subscriptions]
+      summary: Get subscription by ID
+      description: |
+        Retrieve detailed information about a specific subscription.
+        جلب معلومات تفصيلية عن اشتراك محدد.
+      operationId: getSubscriptionById
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionIdPath'
+      responses:
+        '200':
+          description: Subscription details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Subscription'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Subscriptions]
+      summary: Update subscription
+      description: |
+        Update an existing subscription (change plan, billing cycle, payment method).
+        تحديث اشتراك موجود (تغيير الخطة، دورة الفوترة، طريقة الدفع).
+      operationId: updateSubscription
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSubscriptionRequest'
+            examples:
+              upgradePlan:
+                summary: Upgrade to higher plan
+                value:
+                  planId: "professional"
+                  billingCycle: "YEARLY"
+              changePayment:
+                summary: Change payment method
+                value:
+                  paymentMethod: "BANK_TRANSFER"
+      responses:
+        '200':
+          description: Subscription updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Subscription'
+                  message:
+                    type: string
+                    example: "Subscription updated successfully"
+                  messageAr:
+                    type: string
+                    example: "تم تحديث الاشتراك بنجاح"
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Subscriptions]
+      summary: Cancel subscription
+      description: |
+        Cancel a subscription. The subscription will remain active until the end of the current billing period.
+        إلغاء الاشتراك. سيبقى الاشتراك نشطاً حتى نهاية فترة الفوترة الحالية.
+      operationId: cancelSubscription
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionIdPath'
+        - name: immediate
+          in: query
+          description: Cancel immediately without waiting for billing period end (الإلغاء فوراً دون انتظار نهاية الفترة)
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: Cancellation reason (سبب الإلغاء)
+                  maxLength: 500
+                reasonAr:
+                  type: string
+                  description: Cancellation reason in Arabic (سبب الإلغاء بالعربية)
+                  maxLength: 500
+                feedback:
+                  type: string
+                  description: Additional feedback (ملاحظات إضافية)
+            example:
+              reason: "Switching to a different solution"
+              reasonAr: "الانتقال إلى حل آخر"
+              feedback: "The satellite analysis feature was great but pricing is too high"
+      responses:
+        '200':
+          description: Subscription canceled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Subscription'
+                  message:
+                    type: string
+                    example: "Subscription will be canceled at the end of the billing period"
+                  messageAr:
+                    type: string
+                    example: "سيتم إلغاء الاشتراك في نهاية فترة الفوترة"
+                  effectiveDate:
+                    type: string
+                    format: date
+                    description: Date when cancellation takes effect
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Subscription already canceled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ============================================================================
+  # INVOICE ENDPOINTS
+  # ============================================================================
+  /invoices:
+    get:
+      tags: [Invoices]
+      summary: List invoices
+      description: |
+        Retrieve a list of invoices for the authenticated tenant.
+        جلب قائمة الفواتير للمستأجر الحالي.
+      operationId: listInvoices
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: status
+          in: query
+          description: Filter by invoice status (تصفية حسب حالة الفاتورة)
+          schema:
+            $ref: '#/components/schemas/InvoiceStatus'
+        - name: subscriptionId
+          in: query
+          description: Filter by subscription ID (تصفية حسب معرف الاشتراك)
+          schema:
+            type: string
+            format: uuid
+        - name: dateFrom
+          in: query
+          description: Start date filter (ISO 8601) - تصفية من تاريخ
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          description: End date filter (ISO 8601) - تصفية إلى تاريخ
+          schema:
+            type: string
+            format: date
+        - name: minAmount
+          in: query
+          description: Minimum invoice amount (الحد الأدنى للمبلغ)
+          schema:
+            type: number
+            format: float
+        - name: maxAmount
+          in: query
+          description: Maximum invoice amount (الحد الأقصى للمبلغ)
+          schema:
+            type: number
+            format: float
+      responses:
+        '200':
+          description: List of invoices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceListResponse'
+              examples:
+                success:
+                  summary: Successful response
+                  value:
+                    data:
+                      - id: "550e8400-e29b-41d4-a716-446655440010"
+                        invoiceNumber: "SAH-2025-0001"
+                        tenantId: "tenant-001"
+                        subscriptionId: "550e8400-e29b-41d4-a716-446655440005"
+                        status: "PAID"
+                        currency: "USD"
+                        issueDate: "2025-01-01"
+                        dueDate: "2025-01-15"
+                        paidDate: "2025-01-10"
+                        subtotal: 29.00
+                        taxRate: 15.00
+                        taxAmount: 4.35
+                        discountAmount: 0.00
+                        total: 33.35
+                        amountPaid: 33.35
+                        amountDue: 0.00
+                        lineItems:
+                          - description: "Starter Plan - Monthly"
+                            descriptionAr: "خطة البداية - شهري"
+                            quantity: 1
+                            unitPrice: 29.00
+                            amount: 29.00
+                        createdAt: "2025-01-01T00:00:00Z"
+                    total: 12
+                    limit: 20
+                    offset: 0
+                    totalAmount: 399.35
+                    paidAmount: 366.00
+                    pendingAmount: 33.35
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /invoices/{invoiceId}:
+    get:
+      tags: [Invoices]
+      summary: Get invoice by ID
+      description: |
+        Retrieve detailed information about a specific invoice including line items.
+        جلب معلومات تفصيلية عن فاتورة محددة بما في ذلك البنود.
+      operationId: getInvoiceById
+      parameters:
+        - $ref: '#/components/parameters/InvoiceIdPath'
+      responses:
+        '200':
+          description: Invoice details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Invoice'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /invoices/{invoiceId}/pay:
+    post:
+      tags: [Invoices]
+      summary: Pay invoice
+      description: |
+        Process payment for an invoice. Creates a payment record and updates invoice status.
+        معالجة الدفع لفاتورة. ينشئ سجل دفع ويحدث حالة الفاتورة.
+      operationId: payInvoice
+      parameters:
+        - $ref: '#/components/parameters/InvoiceIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayInvoiceRequest'
+            examples:
+              creditCard:
+                summary: Pay with credit card
+                value:
+                  paymentMethod: "CREDIT_CARD"
+                  amount: 33.35
+                  paymentDetails:
+                    cardToken: "tok_visa_4242"
+                    saveCard: true
+              bankTransfer:
+                summary: Pay via bank transfer
+                value:
+                  paymentMethod: "BANK_TRANSFER"
+                  amount: 33.35
+                  paymentDetails:
+                    referenceNumber: "BT-2025-001234"
+                    bankName: "Yemen Kuwait Bank"
+              tharwatt:
+                summary: Pay with Tharwatt wallet
+                value:
+                  paymentMethod: "THARWATT"
+                  amount: 33.35
+                  paymentDetails:
+                    phoneNumber: "+967771234567"
+      responses:
+        '200':
+          description: Payment processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Payment'
+                  invoice:
+                    $ref: '#/components/schemas/Invoice'
+                  message:
+                    type: string
+                    example: "Payment processed successfully"
+                  messageAr:
+                    type: string
+                    example: "تمت معالجة الدفع بنجاح"
+        '400':
+          description: Invalid payment details or amount mismatch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                amountMismatch:
+                  value:
+                    error: AMOUNT_MISMATCH
+                    message: "Payment amount does not match invoice amount due"
+                    messageAr: "مبلغ الدفع لا يتطابق مع المبلغ المستحق للفاتورة"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Invoice already paid or canceled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: INVOICE_NOT_PAYABLE
+                message: "Invoice is already paid or canceled"
+                messageAr: "الفاتورة مدفوعة بالفعل أو ملغاة"
+
+  /invoices/{invoiceId}/download:
+    get:
+      tags: [Invoices]
+      summary: Download invoice PDF
+      description: |
+        Download invoice as PDF document.
+        تحميل الفاتورة كمستند PDF.
+      operationId: downloadInvoicePdf
+      parameters:
+        - $ref: '#/components/parameters/InvoiceIdPath'
+        - name: language
+          in: query
+          description: Invoice language (لغة الفاتورة)
+          schema:
+            type: string
+            enum: [en, ar, both]
+            default: both
+      responses:
+        '200':
+          description: Invoice PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================================================
+  # PAYMENT ENDPOINTS
+  # ============================================================================
+  /payments:
+    get:
+      tags: [Payments]
+      summary: List payments
+      description: |
+        Retrieve a list of payments for the authenticated tenant.
+        جلب قائمة المدفوعات للمستأجر الحالي.
+      operationId: listPayments
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: status
+          in: query
+          description: Filter by payment status (تصفية حسب حالة الدفع)
+          schema:
+            $ref: '#/components/schemas/PaymentStatus'
+        - name: method
+          in: query
+          description: Filter by payment method (تصفية حسب طريقة الدفع)
+          schema:
+            $ref: '#/components/schemas/PaymentMethod'
+        - name: invoiceId
+          in: query
+          description: Filter by invoice ID (تصفية حسب معرف الفاتورة)
+          schema:
+            type: string
+            format: uuid
+        - name: dateFrom
+          in: query
+          description: Start date filter (ISO 8601)
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          description: End date filter (ISO 8601)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: List of payments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /payments/{paymentId}:
+    get:
+      tags: [Payments]
+      summary: Get payment by ID
+      description: |
+        Retrieve detailed information about a specific payment.
+        جلب معلومات تفصيلية عن دفعة محددة.
+      operationId: getPaymentById
+      parameters:
+        - $ref: '#/components/parameters/PaymentIdPath'
+      responses:
+        '200':
+          description: Payment details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Payment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /payments/{paymentId}/refund:
+    post:
+      tags: [Payments]
+      summary: Refund payment
+      description: |
+        Process a refund for a payment. Full or partial refunds are supported.
+        معالجة استرداد للدفعة. يدعم الاسترداد الكامل أو الجزئي.
+      operationId: refundPayment
+      parameters:
+        - $ref: '#/components/parameters/PaymentIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundPaymentRequest'
+            examples:
+              fullRefund:
+                summary: Full refund
+                value:
+                  reason: "Customer requested cancellation"
+                  reasonAr: "طلب العميل الإلغاء"
+              partialRefund:
+                summary: Partial refund
+                value:
+                  amount: 15.00
+                  reason: "Service credit adjustment"
+                  reasonAr: "تعديل رصيد الخدمة"
+      responses:
+        '200':
+          description: Refund processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Payment'
+                  message:
+                    type: string
+                    example: "Refund processed successfully"
+                  messageAr:
+                    type: string
+                    example: "تمت معالجة الاسترداد بنجاح"
+        '400':
+          description: Invalid refund request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================================================
+  # USAGE ENDPOINTS
+  # ============================================================================
+  /usage:
+    post:
+      tags: [Usage]
+      summary: Record usage
+      description: |
+        Record a usage event for usage-based billing. Used internally by other services.
+        تسجيل حدث استخدام للفوترة المستندة إلى الاستخدام. يُستخدم داخلياً من قبل الخدمات الأخرى.
+      operationId: recordUsage
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordUsageRequest'
+            examples:
+              satelliteAnalysis:
+                summary: Satellite analysis usage
+                value:
+                  subscriptionId: "550e8400-e29b-41d4-a716-446655440005"
+                  metricType: "satellite_analyses"
+                  quantity: 1
+                  metadata:
+                    fieldId: "field-001"
+                    analysisType: "ndvi"
+              apiCalls:
+                summary: API calls usage
+                value:
+                  subscriptionId: "550e8400-e29b-41d4-a716-446655440005"
+                  metricType: "api_calls"
+                  quantity: 100
+                  metadata:
+                    endpoint: "/api/v1/weather"
+      responses:
+        '201':
+          description: Usage recorded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UsageRecord'
+                  message:
+                    type: string
+                    example: "Usage recorded successfully"
+                  messageAr:
+                    type: string
+                    example: "تم تسجيل الاستخدام بنجاح"
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          description: Subscription not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /usage/{tenantId}:
+    get:
+      tags: [Usage]
+      summary: Get usage by tenant
+      description: |
+        Retrieve usage records and summary for a specific tenant.
+        جلب سجلات الاستخدام والملخص لمستأجر محدد.
+      operationId: getUsageByTenant
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          description: Tenant ID (معرف المستأجر)
+          schema:
+            type: string
+        - name: subscriptionId
+          in: query
+          description: Filter by subscription ID (تصفية حسب معرف الاشتراك)
+          schema:
+            type: string
+            format: uuid
+        - name: metricType
+          in: query
+          description: Filter by metric type (تصفية حسب نوع المقياس)
+          schema:
+            type: string
+            enum:
+              - satellite_analyses
+              - api_calls
+              - storage_gb
+              - fields_created
+              - reports_generated
+              - sms_sent
+              - exports
+        - name: dateFrom
+          in: query
+          description: Start date filter (ISO 8601)
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          description: End date filter (ISO 8601)
+          schema:
+            type: string
+            format: date
+        - name: aggregation
+          in: query
+          description: Aggregation period (فترة التجميع)
+          schema:
+            type: string
+            enum: [daily, weekly, monthly]
+            default: daily
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Usage records and summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageResponse'
+              examples:
+                success:
+                  summary: Usage summary with records
+                  value:
+                    data:
+                      - id: "550e8400-e29b-41d4-a716-446655440020"
+                        subscriptionId: "550e8400-e29b-41d4-a716-446655440005"
+                        tenantId: "tenant-001"
+                        metricType: "satellite_analyses"
+                        quantity: 5
+                        recordedAt: "2025-01-15T10:30:00Z"
+                        metadata:
+                          fieldIds: ["field-001", "field-002"]
+                    summary:
+                      satellite_analyses:
+                        total: 45
+                        limit: 50
+                        remaining: 5
+                        percentUsed: 90
+                      api_calls:
+                        total: 8500
+                        limit: 10000
+                        remaining: 1500
+                        percentUsed: 85
+                      storage_gb:
+                        total: 7.5
+                        limit: 10
+                        remaining: 2.5
+                        percentUsed: 75
+                    total: 156
+                    limit: 20
+                    offset: 0
+                    billingPeriod:
+                      start: "2025-01-01"
+                      end: "2025-01-31"
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================================================
+  # HEALTH ENDPOINTS
+  # ============================================================================
+  /health:
+    get:
+      tags: [Health]
+      summary: Combined health check
+      description: Get combined health status of the billing service
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+      security: []
+
+  /healthz:
+    get:
+      tags: [Health]
+      summary: Liveness probe
+      description: Kubernetes liveness probe endpoint
+      operationId: livenessProbe
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: billing-core
+                  version:
+                    type: string
+                    example: "16.0.0"
+      security: []
+
+  /readyz:
+    get:
+      tags: [Health]
+      summary: Readiness probe
+      description: Kubernetes readiness probe endpoint
+      operationId: readinessProbe
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+      security: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token (رمز الوصول JWT)
+
+  parameters:
+    TenantId:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      description: Tenant identifier for multi-tenancy (معرف المستأجر)
+      schema:
+        type: string
+        format: uuid
+
+    PlanIdPath:
+      name: planId
+      in: path
+      required: true
+      description: Plan identifier (معرف الخطة)
+      schema:
+        type: string
+
+    SubscriptionIdPath:
+      name: subscriptionId
+      in: path
+      required: true
+      description: Subscription ID (معرف الاشتراك)
+      schema:
+        type: string
+        format: uuid
+
+    InvoiceIdPath:
+      name: invoiceId
+      in: path
+      required: true
+      description: Invoice ID (معرف الفاتورة)
+      schema:
+        type: string
+        format: uuid
+
+    PaymentIdPath:
+      name: paymentId
+      in: path
+      required: true
+      description: Payment ID (معرف الدفعة)
+      schema:
+        type: string
+        format: uuid
+
+    Limit:
+      name: limit
+      in: query
+      description: Maximum number of items to return (الحد الأقصى للعناصر)
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    Offset:
+      name: offset
+      in: query
+      description: Number of items to skip (عدد العناصر المراد تخطيها)
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+  schemas:
+    # ========== Enums ==========
+    SubscriptionStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - TRIAL
+        - PAST_DUE
+        - CANCELED
+        - SUSPENDED
+        - EXPIRED
+      description: |
+        Subscription status - حالة الاشتراك:
+        - ACTIVE: Active subscription (نشط)
+        - TRIAL: In trial period (فترة تجريبية)
+        - PAST_DUE: Payment overdue (متأخر عن الدفع)
+        - CANCELED: Canceled by user (ملغى)
+        - SUSPENDED: Suspended by admin (موقوف)
+        - EXPIRED: Subscription expired (منتهي)
+
+    InvoiceStatus:
+      type: string
+      enum:
+        - DRAFT
+        - PENDING
+        - PAID
+        - OVERDUE
+        - CANCELED
+        - REFUNDED
+      description: |
+        Invoice status - حالة الفاتورة:
+        - DRAFT: Draft invoice (مسودة)
+        - PENDING: Pending payment (قيد الانتظار)
+        - PAID: Fully paid (مدفوعة)
+        - OVERDUE: Payment overdue (متأخرة)
+        - CANCELED: Invoice canceled (ملغاة)
+        - REFUNDED: Fully refunded (مستردة)
+
+    PaymentStatus:
+      type: string
+      enum:
+        - PENDING
+        - PROCESSING
+        - SUCCEEDED
+        - FAILED
+        - REFUNDED
+      description: |
+        Payment status - حالة الدفع:
+        - PENDING: Awaiting processing (قيد الانتظار)
+        - PROCESSING: Being processed (قيد المعالجة)
+        - SUCCEEDED: Payment successful (ناجحة)
+        - FAILED: Payment failed (فاشلة)
+        - REFUNDED: Payment refunded (مستردة)
+
+    PaymentMethod:
+      type: string
+      enum:
+        - CREDIT_CARD
+        - BANK_TRANSFER
+        - MOBILE_MONEY
+        - CASH
+        - THARWATT
+      description: |
+        Payment method - طريقة الدفع:
+        - CREDIT_CARD: Credit/Debit card (بطاقة ائتمان)
+        - BANK_TRANSFER: Bank transfer (تحويل بنكي)
+        - MOBILE_MONEY: Mobile money (الدفع عبر الهاتف)
+        - CASH: Cash payment (نقداً)
+        - THARWATT: Tharwatt wallet (محفظة ثروات)
+
+    Currency:
+      type: string
+      enum:
+        - USD
+        - YER
+      description: |
+        Currency - العملة:
+        - USD: US Dollar (دولار أمريكي)
+        - YER: Yemeni Rial (ريال يمني)
+
+    BillingCycle:
+      type: string
+      enum:
+        - MONTHLY
+        - QUARTERLY
+        - YEARLY
+      description: |
+        Billing cycle - دورة الفوترة:
+        - MONTHLY: Monthly billing (شهري)
+        - QUARTERLY: Quarterly billing (ربع سنوي)
+        - YEARLY: Yearly billing (سنوي)
+
+    PlanTier:
+      type: string
+      enum:
+        - FREE
+        - STARTER
+        - PROFESSIONAL
+        - ENTERPRISE
+      description: |
+        Plan tier - مستوى الخطة:
+        - FREE: Free tier (مجاني)
+        - STARTER: Starter tier (البداية)
+        - PROFESSIONAL: Professional tier (احترافي)
+        - ENTERPRISE: Enterprise tier (مؤسسي)
+
+    # ========== Plan Schemas ==========
+    Plan:
+      type: object
+      required:
+        - id
+        - planId
+        - name
+        - nameAr
+        - tier
+        - pricing
+        - isActive
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Internal UUID (المعرف الداخلي)
+        planId:
+          type: string
+          description: Plan identifier (e.g., "free", "starter") - معرف الخطة
+          example: starter
+        name:
+          type: string
+          description: Plan name in English
+          example: Starter Plan
+        nameAr:
+          type: string
+          description: Plan name in Arabic (اسم الخطة بالعربية)
+          example: خطة البداية
+        description:
+          type: string
+          description: Plan description in English
+        descriptionAr:
+          type: string
+          description: Plan description in Arabic (وصف الخطة بالعربية)
+        tier:
+          $ref: '#/components/schemas/PlanTier'
+        pricing:
+          $ref: '#/components/schemas/PlanPricing'
+        features:
+          $ref: '#/components/schemas/PlanFeatures'
+        limits:
+          $ref: '#/components/schemas/PlanLimits'
+        trialDays:
+          type: integer
+          description: Number of trial days (أيام الفترة التجريبية)
+          minimum: 0
+          default: 14
+        isActive:
+          type: boolean
+          description: Whether the plan is active (هل الخطة نشطة)
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PlanPricing:
+      type: object
+      description: Plan pricing in USD (تسعير الخطة بالدولار)
+      properties:
+        monthlyUsd:
+          type: number
+          format: float
+          description: Monthly price in USD
+          example: 29.00
+        quarterlyUsd:
+          type: number
+          format: float
+          description: Quarterly price in USD (usually with discount)
+          example: 79.00
+        yearlyUsd:
+          type: number
+          format: float
+          description: Yearly price in USD (usually with discount)
+          example: 290.00
+        setupFeeUsd:
+          type: number
+          format: float
+          description: One-time setup fee in USD
+          example: 0.00
+
+    PlanFeatures:
+      type: object
+      description: Plan feature flags and limits (ميزات الخطة)
+      properties:
+        maxFields:
+          type: integer
+          description: Maximum number of fields (الحد الأقصى للحقول)
+        maxUsers:
+          type: integer
+          description: Maximum number of users (الحد الأقصى للمستخدمين)
+        satelliteAnalyses:
+          type: integer
+          description: Monthly satellite analyses limit (حد التحليلات الفضائية الشهرية)
+        apiCallsPerMonth:
+          type: integer
+          description: Monthly API calls limit (حد استدعاءات API الشهرية)
+        supportLevel:
+          type: string
+          enum: [community, email, priority, dedicated]
+          description: Support level (مستوى الدعم)
+        offlineMode:
+          type: boolean
+          description: Offline mode support (دعم وضع عدم الاتصال)
+        customReports:
+          type: boolean
+          description: Custom reports feature (تقارير مخصصة)
+        aiAdvisory:
+          type: boolean
+          description: AI-powered advisory (الاستشارات المدعومة بالذكاء الاصطناعي)
+        iotIntegration:
+          type: boolean
+          description: IoT device integration (تكامل أجهزة IoT)
+        whiteLabeling:
+          type: boolean
+          description: White labeling support (العلامة البيضاء)
+
+    PlanLimits:
+      type: object
+      description: Resource limits for the plan (حدود الموارد للخطة)
+      properties:
+        storageGb:
+          type: number
+          format: float
+          description: Storage limit in GB (حد التخزين بالجيجابايت)
+        exportFormats:
+          type: array
+          items:
+            type: string
+          description: Allowed export formats (صيغ التصدير المسموحة)
+          example: ["csv", "pdf", "xlsx"]
+        retentionDays:
+          type: integer
+          description: Data retention period in days (فترة الاحتفاظ بالبيانات بالأيام)
+
+    PlanListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Plan'
+        total:
+          type: integer
+          description: Total number of plans
+
+    # ========== Subscription Schemas ==========
+    Subscription:
+      type: object
+      required:
+        - id
+        - tenantId
+        - planId
+        - status
+        - billingCycle
+        - currency
+        - startDate
+        - endDate
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Subscription ID (معرف الاشتراك)
+        tenantId:
+          type: string
+          description: Tenant ID (معرف المستأجر)
+        planId:
+          type: string
+          description: Plan ID (معرف الخطة)
+        plan:
+          $ref: '#/components/schemas/Plan'
+        status:
+          $ref: '#/components/schemas/SubscriptionStatus'
+        billingCycle:
+          $ref: '#/components/schemas/BillingCycle'
+        currency:
+          $ref: '#/components/schemas/Currency'
+        startDate:
+          type: string
+          format: date
+          description: Subscription start date (تاريخ بدء الاشتراك)
+        endDate:
+          type: string
+          format: date
+          description: Subscription end date (تاريخ انتهاء الاشتراك)
+        trialEndDate:
+          type: string
+          format: date
+          description: Trial period end date (تاريخ انتهاء الفترة التجريبية)
+        canceledAt:
+          type: string
+          format: date-time
+          description: Cancellation timestamp (تاريخ الإلغاء)
+        nextBillingDate:
+          type: string
+          format: date
+          description: Next billing date (تاريخ الفوترة التالي)
+        lastBillingDate:
+          type: string
+          format: date
+          description: Last billing date (تاريخ آخر فوترة)
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+        stripeSubscriptionId:
+          type: string
+          description: External Stripe subscription ID
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Additional metadata (بيانات إضافية)
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateSubscriptionRequest:
+      type: object
+      required:
+        - planId
+        - billingCycle
+      properties:
+        planId:
+          type: string
+          description: Plan ID to subscribe to (معرف الخطة للاشتراك)
+          example: starter
+        billingCycle:
+          $ref: '#/components/schemas/BillingCycle'
+        currency:
+          $ref: '#/components/schemas/Currency'
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+        startDate:
+          type: string
+          format: date
+          description: Subscription start date (default: today)
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Additional metadata (promotionCode, referralCode, etc.)
+
+    UpdateSubscriptionRequest:
+      type: object
+      properties:
+        planId:
+          type: string
+          description: New plan ID (upgrade/downgrade)
+        billingCycle:
+          $ref: '#/components/schemas/BillingCycle'
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+        metadata:
+          type: object
+          additionalProperties: true
+
+    SubscriptionListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    # ========== Invoice Schemas ==========
+    Invoice:
+      type: object
+      required:
+        - id
+        - invoiceNumber
+        - tenantId
+        - subscriptionId
+        - status
+        - currency
+        - issueDate
+        - dueDate
+        - subtotal
+        - total
+        - amountDue
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Invoice ID (معرف الفاتورة)
+        invoiceNumber:
+          type: string
+          description: Human-readable invoice number (رقم الفاتورة)
+          example: SAH-2025-0001
+        tenantId:
+          type: string
+          description: Tenant ID (معرف المستأجر)
+        subscriptionId:
+          type: string
+          format: uuid
+          description: Associated subscription ID (معرف الاشتراك)
+        status:
+          $ref: '#/components/schemas/InvoiceStatus'
+        currency:
+          $ref: '#/components/schemas/Currency'
+        issueDate:
+          type: string
+          format: date
+          description: Invoice issue date (تاريخ الإصدار)
+        dueDate:
+          type: string
+          format: date
+          description: Payment due date (تاريخ الاستحقاق)
+        paidDate:
+          type: string
+          format: date
+          description: Date when invoice was paid (تاريخ الدفع)
+        subtotal:
+          type: number
+          format: float
+          description: Subtotal before tax and discounts (المجموع الفرعي)
+          example: 29.00
+        taxRate:
+          type: number
+          format: float
+          description: Tax rate percentage (معدل الضريبة)
+          example: 15.00
+        taxAmount:
+          type: number
+          format: float
+          description: Tax amount (مبلغ الضريبة)
+          example: 4.35
+        discountAmount:
+          type: number
+          format: float
+          description: Discount amount (مبلغ الخصم)
+          example: 0.00
+        total:
+          type: number
+          format: float
+          description: Total amount (المجموع الكلي)
+          example: 33.35
+        amountPaid:
+          type: number
+          format: float
+          description: Amount already paid (المبلغ المدفوع)
+          example: 33.35
+        amountDue:
+          type: number
+          format: float
+          description: Amount still due (المبلغ المستحق)
+          example: 0.00
+        lineItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceLineItem'
+          description: Invoice line items (بنود الفاتورة)
+        notes:
+          type: string
+          description: Invoice notes in English
+        notesAr:
+          type: string
+          description: Invoice notes in Arabic (ملاحظات الفاتورة بالعربية)
+        stripeInvoiceId:
+          type: string
+          description: External Stripe invoice ID
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+
+    InvoiceLineItem:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Line item description
+          example: Starter Plan - Monthly
+        descriptionAr:
+          type: string
+          description: Line item description in Arabic
+          example: خطة البداية - شهري
+        quantity:
+          type: integer
+          description: Quantity
+          example: 1
+        unitPrice:
+          type: number
+          format: float
+          description: Unit price
+          example: 29.00
+        amount:
+          type: number
+          format: float
+          description: Line item total
+          example: 29.00
+        metricType:
+          type: string
+          description: Usage metric type (if applicable)
+
+    PayInvoiceRequest:
+      type: object
+      required:
+        - paymentMethod
+        - amount
+      properties:
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+        amount:
+          type: number
+          format: float
+          description: Payment amount (مبلغ الدفع)
+          minimum: 0.01
+        paymentDetails:
+          type: object
+          description: Payment method specific details
+          properties:
+            cardToken:
+              type: string
+              description: Tokenized card for credit card payments
+            saveCard:
+              type: boolean
+              description: Save card for future payments
+            referenceNumber:
+              type: string
+              description: Bank transfer reference number
+            bankName:
+              type: string
+              description: Bank name for transfers
+            phoneNumber:
+              type: string
+              description: Phone number for mobile money/Tharwatt
+
+    InvoiceListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        totalAmount:
+          type: number
+          format: float
+          description: Sum of all invoice totals
+        paidAmount:
+          type: number
+          format: float
+          description: Sum of paid amounts
+        pendingAmount:
+          type: number
+          format: float
+          description: Sum of pending amounts
+
+    # ========== Payment Schemas ==========
+    Payment:
+      type: object
+      required:
+        - id
+        - invoiceId
+        - tenantId
+        - amount
+        - currency
+        - status
+        - method
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Payment ID (معرف الدفعة)
+        invoiceId:
+          type: string
+          format: uuid
+          description: Associated invoice ID (معرف الفاتورة)
+        tenantId:
+          type: string
+          description: Tenant ID (معرف المستأجر)
+        amount:
+          type: number
+          format: float
+          description: Payment amount (مبلغ الدفع)
+          example: 33.35
+        currency:
+          $ref: '#/components/schemas/Currency'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+        paidAt:
+          type: string
+          format: date-time
+          description: Actual payment timestamp (تاريخ الدفع الفعلي)
+        processedAt:
+          type: string
+          format: date-time
+          description: Processing timestamp (تاريخ المعالجة)
+        failureReason:
+          type: string
+          description: Failure reason if payment failed (سبب الفشل)
+        stripePaymentId:
+          type: string
+          description: External Stripe payment ID
+        tharwattTransactionId:
+          type: string
+          description: Tharwatt transaction ID (معرف معاملة ثروات)
+        receiptUrl:
+          type: string
+          format: uri
+          description: Receipt download URL (رابط الإيصال)
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+
+    RefundPaymentRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: float
+          description: Refund amount (if partial refund). Full refund if not specified.
+          minimum: 0.01
+        reason:
+          type: string
+          description: Refund reason in English (سبب الاسترداد)
+          maxLength: 500
+        reasonAr:
+          type: string
+          description: Refund reason in Arabic (سبب الاسترداد بالعربية)
+          maxLength: 500
+
+    PaymentListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        totalAmount:
+          type: number
+          format: float
+          description: Sum of all payment amounts
+        successfulAmount:
+          type: number
+          format: float
+          description: Sum of successful payments
+
+    # ========== Usage Schemas ==========
+    UsageRecord:
+      type: object
+      required:
+        - id
+        - subscriptionId
+        - tenantId
+        - metricType
+        - quantity
+        - recordedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Usage record ID (معرف سجل الاستخدام)
+        subscriptionId:
+          type: string
+          format: uuid
+          description: Associated subscription ID (معرف الاشتراك)
+        tenantId:
+          type: string
+          description: Tenant ID (معرف المستأجر)
+        metricType:
+          type: string
+          description: Usage metric type (نوع المقياس)
+          enum:
+            - satellite_analyses
+            - api_calls
+            - storage_gb
+            - fields_created
+            - reports_generated
+            - sms_sent
+            - exports
+          example: satellite_analyses
+        quantity:
+          type: integer
+          description: Usage quantity (الكمية)
+          minimum: 1
+          example: 1
+        recordedAt:
+          type: string
+          format: date-time
+          description: Recording timestamp (تاريخ التسجيل)
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Additional context (fieldId, analysisType, etc.)
+
+    RecordUsageRequest:
+      type: object
+      required:
+        - subscriptionId
+        - metricType
+        - quantity
+      properties:
+        subscriptionId:
+          type: string
+          format: uuid
+          description: Subscription ID (معرف الاشتراك)
+        metricType:
+          type: string
+          description: Usage metric type (نوع المقياس)
+          enum:
+            - satellite_analyses
+            - api_calls
+            - storage_gb
+            - fields_created
+            - reports_generated
+            - sms_sent
+            - exports
+        quantity:
+          type: integer
+          description: Usage quantity (الكمية)
+          minimum: 1
+          default: 1
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Additional context data
+
+    UsageSummary:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          total:
+            type: number
+            description: Total usage for the billing period
+          limit:
+            type: number
+            description: Plan limit for this metric
+          remaining:
+            type: number
+            description: Remaining usage
+          percentUsed:
+            type: number
+            description: Percentage of limit used
+
+    UsageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UsageRecord'
+        summary:
+          $ref: '#/components/schemas/UsageSummary'
+        total:
+          type: integer
+          description: Total number of usage records
+        limit:
+          type: integer
+        offset:
+          type: integer
+        billingPeriod:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date
+            end:
+              type: string
+              format: date
+
+    # ========== Health & Common Schemas ==========
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        service:
+          type: string
+          example: billing-core
+        version:
+          type: string
+          example: "16.0.0"
+        uptime:
+          type: integer
+          description: Uptime in seconds
+
+    ReadinessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        database:
+          type: boolean
+          description: Database connection status
+        nats:
+          type: boolean
+          description: NATS connection status
+        redis:
+          type: boolean
+          description: Redis connection status
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message in English
+        messageAr:
+          type: string
+          description: Error message in Arabic (رسالة الخطأ بالعربية)
+        details:
+          type: object
+          additionalProperties: true
+          description: Additional error details
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        messageAr:
+          type: string
+
+  responses:
+    Unauthorized:
+      description: Authentication required or token invalid (المصادقة مطلوبة أو الرمز غير صالح)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: UNAUTHORIZED
+            message: Invalid or expired token
+            messageAr: الرمز غير صالح أو منتهي الصلاحية
+
+    Forbidden:
+      description: Insufficient permissions (صلاحيات غير كافية)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: FORBIDDEN
+            message: You do not have permission to perform this action
+            messageAr: ليس لديك صلاحية لتنفيذ هذا الإجراء
+
+    NotFound:
+      description: Resource not found (المورد غير موجود)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: NOT_FOUND
+            message: Resource not found
+            messageAr: المورد غير موجود
+
+    ValidationError:
+      description: Invalid request parameters (معاملات الطلب غير صالحة)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: VALIDATION_ERROR
+            message: Invalid request parameters
+            messageAr: معاملات الطلب غير صالحة
+            details:
+              planId: Plan ID is required
+              billingCycle: Invalid billing cycle
+
+    TooManyRequests:
+      description: Rate limit exceeded (تم تجاوز حد الطلبات)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: RATE_LIMIT_EXCEEDED
+            message: Too many requests. Please try again later.
+            messageAr: طلبات كثيرة جداً. يرجى المحاولة لاحقاً.
+      headers:
+        X-RateLimit-Limit-Minute:
+          schema:
+            type: integer
+          description: Rate limit per minute
+        X-RateLimit-Remaining-Minute:
+          schema:
+            type: integer
+          description: Remaining requests this minute

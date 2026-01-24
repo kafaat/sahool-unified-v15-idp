@@ -1,0 +1,1718 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Mobile Voice Commands System - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-mobile-voice-commands-system" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Mobile Voice Commands System
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-mobile-voice-commands-system">SAHOOL Mobile Voice Commands System<a class="headerlink" href="#sahool-mobile-voice-commands-system" title="Permanent link">&para;</a></h1>
+<h2 id="_1">دليل الأوامر الصوتية لتطبيق سهول<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>A comprehensive voice command system for the SAHOOL mobile app, enabling hands-free operation for farmers in the field.</p>
+<hr />
+<h2 id="overview">Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The Voice Commands system allows farmers to control the SAHOOL app using voice commands in both Arabic and English. This is especially useful when working in the field with dirty hands or while operating equipment.</p>
+<p>نظام الأوامر الصوتية يتيح للمزارعين التحكم في تطبيق سهول باستخدام الأوامر الصوتية بالعربية والإنجليزية.</p>
+<h3 id="key-features">Key Features | الميزات الرئيسية<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Bilingual Support</strong>: Arabic (Yemeni, Saudi, Egyptian) and English</li>
+<li><strong>Offline Capable</strong>: Works without internet when device supports on-device recognition</li>
+<li><strong>Fuzzy Matching</strong>: Understands variations of commands</li>
+<li><strong>Audio Feedback</strong>: Text-to-speech responses</li>
+<li><strong>Visual Feedback</strong>: Animated UI indicators</li>
+</ul>
+<hr />
+<h2 id="available-commands">Available Commands | الأوامر المتاحة<a class="headerlink" href="#available-commands" title="Permanent link">&para;</a></h2>
+<h3 id="navigation-commands">Navigation Commands | أوامر التنقل<a class="headerlink" href="#navigation-commands" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Arabic</th>
+<th>English</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"افتح الحقول"</td>
+<td>"Open fields"</td>
+<td>Navigate to fields list</td>
+</tr>
+<tr>
+<td>"أظهر الطقس"</td>
+<td>"Show weather"</td>
+<td>View weather information</td>
+</tr>
+<tr>
+<td>"فحص NDVI"</td>
+<td>"Check NDVI"</td>
+<td>View vegetation health map</td>
+</tr>
+<tr>
+<td>"افتح المهام"</td>
+<td>"Open tasks"</td>
+<td>Navigate to task list</td>
+</tr>
+<tr>
+<td>"افتح المستشار"</td>
+<td>"Open advisor"</td>
+<td>Open agricultural advisor</td>
+</tr>
+<tr>
+<td>"افتح الإعدادات"</td>
+<td>"Open settings"</td>
+<td>Open app settings</td>
+</tr>
+<tr>
+<td>"الرئيسية"</td>
+<td>"Go home"</td>
+<td>Return to home screen</td>
+</tr>
+<tr>
+<td>"رجوع"</td>
+<td>"Go back"</td>
+<td>Go to previous screen</td>
+</tr>
+</tbody>
+</table>
+<h3 id="field-operations">Field Operations | عمليات الحقل<a class="headerlink" href="#field-operations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Arabic</th>
+<th>English</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"افتح حقل 1"</td>
+<td>"Open field 1"</td>
+<td>Select specific field</td>
+</tr>
+<tr>
+<td>"الحقل الأول"</td>
+<td>"Field number one"</td>
+<td>Select first field</td>
+</tr>
+<tr>
+<td>"تفاصيل الحقل"</td>
+<td>"Field details"</td>
+<td>View field information</td>
+</tr>
+<tr>
+<td>"صحة المحصول"</td>
+<td>"Crop health"</td>
+<td>Check crop health status</td>
+</tr>
+</tbody>
+</table>
+<h3 id="irrigation-commands">Irrigation Commands | أوامر الري<a class="headerlink" href="#irrigation-commands" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Arabic</th>
+<th>English</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"جدول الري"</td>
+<td>"Schedule irrigation"</td>
+<td>Open irrigation scheduler</td>
+</tr>
+<tr>
+<td>"سجل ري"</td>
+<td>"Record irrigation"</td>
+<td>Log irrigation activity</td>
+</tr>
+<tr>
+<td>"أوقف الري"</td>
+<td>"Stop irrigation"</td>
+<td>Stop ongoing irrigation</td>
+</tr>
+<tr>
+<td>"حالة الري"</td>
+<td>"Irrigation status"</td>
+<td>Check irrigation status</td>
+</tr>
+</tbody>
+</table>
+<h3 id="task-management">Task Management | إدارة المهام<a class="headerlink" href="#task-management" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Arabic</th>
+<th>English</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"إنشاء مهمة"</td>
+<td>"Create task"</td>
+<td>Create new task</td>
+</tr>
+<tr>
+<td>"مهام اليوم"</td>
+<td>"Today's tasks"</td>
+<td>View today's tasks</td>
+</tr>
+<tr>
+<td>"أكمل المهمة"</td>
+<td>"Complete task"</td>
+<td>Mark task as complete</td>
+</tr>
+<tr>
+<td>"المهام المتأخرة"</td>
+<td>"Overdue tasks"</td>
+<td>Show overdue tasks</td>
+</tr>
+</tbody>
+</table>
+<h3 id="weather-commands">Weather Commands | أوامر الطقس<a class="headerlink" href="#weather-commands" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Arabic</th>
+<th>English</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"كيف الطقس"</td>
+<td>"How's the weather"</td>
+<td>Current conditions</td>
+</tr>
+<tr>
+<td>"توقعات الطقس"</td>
+<td>"Weather forecast"</td>
+<td>Multi-day forecast</td>
+</tr>
+<tr>
+<td>"هل ستمطر"</td>
+<td>"Will it rain"</td>
+<td>Rain probability</td>
+</tr>
+</tbody>
+</table>
+<h3 id="scouting-reports">Scouting &amp; Reports | الفحص والتقارير<a class="headerlink" href="#scouting-reports" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Arabic</th>
+<th>English</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"ابدأ الفحص"</td>
+<td>"Start scouting"</td>
+<td>Begin field scouting</td>
+</tr>
+<tr>
+<td>"التقط صورة"</td>
+<td>"Take photo"</td>
+<td>Capture documentation photo</td>
+</tr>
+<tr>
+<td>"بلغ عن مشكلة"</td>
+<td>"Report problem"</td>
+<td>Report field issue</td>
+</tr>
+<tr>
+<td>"عرض التقارير"</td>
+<td>"View reports"</td>
+<td>See scouting reports</td>
+</tr>
+</tbody>
+</table>
+<h3 id="utility-commands">Utility Commands | أوامر المساعدة<a class="headerlink" href="#utility-commands" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Arabic</th>
+<th>English</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"مساعدة"</td>
+<td>"Help"</td>
+<td>Show available commands</td>
+</tr>
+<tr>
+<td>"إلغاء"</td>
+<td>"Cancel"</td>
+<td>Cancel current operation</td>
+</tr>
+<tr>
+<td>"كرر"</td>
+<td>"Repeat"</td>
+<td>Repeat last response</td>
+</tr>
+<tr>
+<td>"ملخص اليوم"</td>
+<td>"Daily summary"</td>
+<td>Get farm summary</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="usage-guide">Usage Guide | دليل الاستخدام<a class="headerlink" href="#usage-guide" title="Permanent link">&para;</a></h2>
+<h3 id="starting-voice-recognition">Starting Voice Recognition<a class="headerlink" href="#starting-voice-recognition" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Tap the microphone button</strong> (green button, usually floating at bottom-right)</li>
+<li><strong>Wait for the listening indicator</strong> (button turns red, pulsing animation)</li>
+<li><strong>Speak your command clearly</strong></li>
+<li><strong>Wait for confirmation</strong> (audio feedback confirms the command)</li>
+</ol>
+<h3 id="tips-for-better-recognition">Tips for Better Recognition | نصائح للتعرف الأفضل<a class="headerlink" href="#tips-for-better-recognition" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Speak clearly and naturally</strong> - لا تتحدث بسرعة كبيرة</li>
+<li><strong>Reduce background noise</strong> - قلل الضوضاء المحيطة</li>
+<li><strong>Use exact command phrases</strong> - استخدم العبارات المحددة</li>
+<li><strong>Wait for the indicator</strong> before speaking - انتظر مؤشر الاستماع</li>
+</ol>
+<h3 id="command-variations">Command Variations<a class="headerlink" href="#command-variations" title="Permanent link">&para;</a></h3>
+<p>The system supports fuzzy matching, so variations work:</p>
+<p><strong>Arabic Examples:</strong>
+- "افتح الحقول" = "اعرض الحقول" = "شوف الحقول"
+- "كيف الطقس" = "شو الجو" = "أحوال الطقس"</p>
+<p><strong>English Examples:</strong>
+- "Open fields" = "Show fields" = "View fields"
+- "How's the weather" = "Weather" = "What's the weather"</p>
+<hr />
+<h2 id="technical-architecture">Technical Architecture | البنية التقنية<a class="headerlink" href="#technical-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">lib</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">voice</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">voice</span><span class="o">.</span><span class="n">dart</span><span class="w">                  </span><span class="c1"># Barrel file (exports)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">voice_service</span><span class="o">.</span><span class="n">dart</span><span class="w">          </span><span class="c1"># Speech recognition (speech_to_text)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">voice_commands</span><span class="o">.</span><span class="n">dart</span><span class="w">         </span><span class="c1"># Command definitions &amp; parsing</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">voice_feedback</span><span class="o">.</span><span class="n">dart</span><span class="w">         </span><span class="c1"># TTS feedback (flutter_tts)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">voice_command_handler</span><span class="o">.</span><span class="n">dart</span><span class="w">  </span><span class="c1"># Command execution</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">voice_ui</span><span class="o">.</span><span class="n">dart</span><span class="w">              </span><span class="c1"># UI widgets</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">voice_command_service</span><span class="o">.</span><span class="n">dart</span><span class="w">  </span><span class="c1"># Legacy service (backward compatibility)</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">voice_button_widget</span><span class="o">.</span><span class="n">dart</span><span class="w">   </span><span class="c1"># Legacy widget (backward compatibility)</span>
+</code></pre></div>
+
+<h3 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># pubspec.yaml</span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">speech_to_text</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^7.0.0</span><span class="w">   </span><span class="c1"># Speech recognition</span>
+<span class="w">  </span><span class="nt">flutter_tts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^4.2.0</span><span class="w">      </span><span class="c1"># Text-to-speech</span>
+</code></pre></div>
+
+<h3 id="supported-languages">Supported Languages<a class="headerlink" href="#supported-languages" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Locale</th>
+<th>Name</th>
+<th>Dialect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ar-YE</td>
+<td>Arabic (Yemen)</td>
+<td>Primary</td>
+</tr>
+<tr>
+<td>ar-SA</td>
+<td>Arabic (Saudi Arabia)</td>
+<td>Fallback</td>
+</tr>
+<tr>
+<td>ar-EG</td>
+<td>Arabic (Egypt)</td>
+<td>Fallback</td>
+</tr>
+<tr>
+<td>ar</td>
+<td>Arabic (General)</td>
+<td>Fallback</td>
+</tr>
+<tr>
+<td>en-US</td>
+<td>English (US)</td>
+<td>Alternative</td>
+</tr>
+<tr>
+<td>en-GB</td>
+<td>English (UK)</td>
+<td>Alternative</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="integration-guide">Integration Guide | دليل التكامل<a class="headerlink" href="#integration-guide" title="Permanent link">&para;</a></h2>
+<h3 id="adding-voice-button-to-a-screen">Adding Voice Button to a Screen<a class="headerlink" href="#adding-voice-button-to-a-screen" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="s1">&#39;package:sahool_field_app/core/voice/voice.dart&#39;</span><span class="p">;</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">MyScreen</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">ConsumerWidget</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nd">@override</span>
+<span class="w">  </span><span class="n">Widget</span><span class="w"> </span><span class="n">build</span><span class="p">(</span><span class="n">BuildContext</span><span class="w"> </span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">WidgetRef</span><span class="w"> </span><span class="n">ref</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Scaffold</span><span class="p">(</span>
+<span class="w">      </span><span class="nl">body:</span><span class="w"> </span><span class="n">Stack</span><span class="p">(</span>
+<span class="w">        </span><span class="nl">children:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="c1">// Your content</span>
+<span class="w">          </span><span class="n">YourContent</span><span class="p">(),</span>
+
+<span class="w">          </span><span class="c1">// Add floating voice button</span>
+<span class="w">          </span><span class="n">FloatingVoiceButton</span><span class="p">(</span>
+<span class="w">            </span><span class="nl">onCommand:</span><span class="w"> </span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="c1">// Handle command result</span>
+<span class="w">              </span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;Command: </span><span class="si">${</span><span class="n">command</span><span class="p">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">);</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">          </span><span class="p">),</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">      </span><span class="p">),</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="using-voice-control-mixin">Using Voice Control Mixin<a class="headerlink" href="#using-voice-control-mixin" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">MyScreen</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">ConsumerStatefulWidget</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nd">@override</span>
+<span class="w">  </span><span class="n">ConsumerState</span><span class="o">&lt;</span><span class="n">MyScreen</span><span class="o">&gt;</span><span class="w"> </span><span class="n">createState</span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">_MyScreenState</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">_MyScreenState</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">ConsumerState</span><span class="o">&lt;</span><span class="n">MyScreen</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="kd">with</span><span class="w"> </span><span class="n">VoiceControlMixin</span><span class="o">&lt;</span><span class="n">MyScreen</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="nd">@override</span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="n">setupVoiceHandlers</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Register custom handler for this screen</span>
+<span class="w">    </span><span class="n">registerVoiceHandler</span><span class="p">(</span>
+<span class="w">      </span><span class="n">VoiceCommandType</span><span class="p">.</span><span class="n">selectField</span><span class="p">,</span>
+<span class="w">      </span><span class="p">(</span><span class="n">command</span><span class="p">,</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">fieldId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">command</span><span class="p">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;fieldId&#39;</span><span class="p">];</span>
+<span class="w">        </span><span class="c1">// Custom handling</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">CommandHandlerResult</span><span class="p">(</span>
+<span class="w">          </span><span class="nl">command:</span><span class="w"> </span><span class="n">command</span><span class="p">,</span>
+<span class="w">          </span><span class="nl">status:</span><span class="w"> </span><span class="n">CommandExecutionStatus</span><span class="p">.</span><span class="n">success</span><span class="p">,</span>
+<span class="w">          </span><span class="nl">messageAr:</span><span class="w"> </span><span class="s1">&#39;تم تحديد الحقل&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nl">messageEn:</span><span class="w"> </span><span class="s1">&#39;Field selected&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">);</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nd">@override</span>
+<span class="w">  </span><span class="n">Widget</span><span class="w"> </span><span class="n">build</span><span class="p">(</span><span class="n">BuildContext</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Scaffold</span><span class="p">(</span>
+<span class="w">      </span><span class="nl">body:</span><span class="w"> </span><span class="cm">/* your content */</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">floatingActionButton:</span><span class="w"> </span><span class="n">VoiceButton</span><span class="p">(),</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="listening-to-command-results">Listening to Command Results<a class="headerlink" href="#listening-to-command-results" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">MyWidget</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">ConsumerWidget</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nd">@override</span>
+<span class="w">  </span><span class="n">Widget</span><span class="w"> </span><span class="n">build</span><span class="p">(</span><span class="n">BuildContext</span><span class="w"> </span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">WidgetRef</span><span class="w"> </span><span class="n">ref</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Listen to command results</span>
+<span class="w">    </span><span class="n">ref</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span><span class="n">commandResultProvider</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">prev</span><span class="p">,</span><span class="w"> </span><span class="n">next</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">next</span><span class="p">.</span><span class="n">whenData</span><span class="p">((</span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">isSuccess</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="n">ScaffoldMessenger</span><span class="p">.</span><span class="n">of</span><span class="p">(</span><span class="n">context</span><span class="p">).</span><span class="n">showSnackBar</span><span class="p">(</span>
+<span class="w">            </span><span class="n">SnackBar</span><span class="p">(</span><span class="nl">content:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">messageAr</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)),</span>
+<span class="w">          </span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">});</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="cm">/* your widget */</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="adding-new-commands">Adding New Commands | إضافة أوامر جديدة<a class="headerlink" href="#adding-new-commands" title="Permanent link">&para;</a></h2>
+<h3 id="1-add-command-type">1. Add Command Type<a class="headerlink" href="#1-add-command-type" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// In voice_commands.dart</span>
+<span class="n">enum</span><span class="w"> </span><span class="n">VoiceCommandType</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// ... existing commands</span>
+
+<span class="w">  </span><span class="n">myNewCommand</span><span class="p">(</span><span class="s1">&#39;my_new_command&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Category&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;التصنيف&#39;</span><span class="p">),</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="2-add-command-definition">2. Add Command Definition<a class="headerlink" href="#2-add-command-definition" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// In VoiceCommandRegistry.commands</span>
+<span class="n">VoiceCommandDefinition</span><span class="p">(</span>
+<span class="w">  </span><span class="nl">type:</span><span class="w"> </span><span class="n">VoiceCommandType</span><span class="p">.</span><span class="n">myNewCommand</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">nameEn:</span><span class="w"> </span><span class="s1">&#39;My New Command&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">nameAr:</span><span class="w"> </span><span class="s1">&#39;أمري الجديد&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">descriptionEn:</span><span class="w"> </span><span class="s1">&#39;Description of what this command does&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">descriptionAr:</span><span class="w"> </span><span class="s1">&#39;وصف ما يفعله هذا الأمر&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">patternsEn:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;my new command&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;do my thing&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;execute new&#39;</span><span class="p">],</span>
+<span class="w">  </span><span class="nl">patternsAr:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;أمري الجديد&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;نفذ أمري&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;شغل الجديد&#39;</span><span class="p">],</span>
+<span class="w">  </span><span class="nl">examplesEn:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;My new command&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Do my thing&#39;</span><span class="p">],</span>
+<span class="w">  </span><span class="nl">examplesAr:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;أمري الجديد&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;نفذ أمري&#39;</span><span class="p">],</span>
+<span class="p">),</span>
+</code></pre></div>
+
+<h3 id="3-add-handler">3. Add Handler<a class="headerlink" href="#3-add-handler" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// In voice_command_handler.dart _defaultCommandHandler</span>
+<span class="k">case</span><span class="w"> </span><span class="n">VoiceCommandType</span><span class="p">.</span><span class="nl">myNewCommand:</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">_navigateTo</span><span class="p">(</span><span class="n">command</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/my-route&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">messageAr:</span><span class="w"> </span><span class="s1">&#39;جاري تنفيذ الأمر&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">messageEn:</span><span class="w"> </span><span class="s1">&#39;Executing command&#39;</span><span class="p">);</span>
+</code></pre></div>
+
+<h3 id="4-add-feedback-response-optional">4. Add Feedback Response (Optional)<a class="headerlink" href="#4-add-feedback-response-optional" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// In voice_feedback.dart _predefinedResponses</span>
+<span class="n">VoiceCommandType</span><span class="p">.</span><span class="nl">myNewCommand:</span><span class="w"> </span><span class="n">VoiceFeedbackResponse</span><span class="p">(</span>
+<span class="w">  </span><span class="nl">arabicText:</span><span class="w"> </span><span class="s1">&#39;جاري تنفيذ الأمر الجديد&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">englishText:</span><span class="w"> </span><span class="s1">&#39;Executing new command&#39;</span><span class="p">,</span>
+<span class="p">),</span>
+</code></pre></div>
+
+<hr />
+<h2 id="troubleshooting">Troubleshooting | استكشاف الأخطاء<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
+<h4 id="speech-recognition-not-available">"Speech recognition not available"<a class="headerlink" href="#speech-recognition-not-available" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Cause</strong>: Device doesn't support speech recognition</li>
+<li><strong>Solution</strong>: Install Google Speech services (Android) or check iOS settings</li>
+</ul>
+<h4 id="microphone-permission-denied">"Microphone permission denied"<a class="headerlink" href="#microphone-permission-denied" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Cause</strong>: App doesn't have microphone permission</li>
+<li><strong>Solution</strong>: Go to Settings &gt; Apps &gt; SAHOOL &gt; Permissions &gt; Microphone</li>
+</ul>
+<h4 id="command-not-recognized">"Command not recognized"<a class="headerlink" href="#command-not-recognized" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Cause</strong>: Speech wasn't clear or command not in registry</li>
+<li><strong>Solution</strong>:</li>
+<li>Speak more clearly</li>
+<li>Use exact command phrases</li>
+<li>Say "مساعدة" to see available commands</li>
+</ul>
+<h4 id="no-arabic-voice-available">"No Arabic voice available"<a class="headerlink" href="#no-arabic-voice-available" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Cause</strong>: Arabic TTS voice not installed</li>
+<li><strong>Solution</strong>:</li>
+<li>Android: Settings &gt; Accessibility &gt; Text-to-speech &gt; Install Arabic</li>
+<li>iOS: Settings &gt; Accessibility &gt; Spoken Content &gt; Voices</li>
+</ul>
+<h3 id="debug-logging">Debug Logging<a class="headerlink" href="#debug-logging" title="Permanent link">&para;</a></h3>
+<p>Enable debug logging to troubleshoot:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">AppLogger</span><span class="p">.</span><span class="n">configure</span><span class="p">(</span>
+<span class="w">  </span><span class="nl">enabled:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">minLevel:</span><span class="w"> </span><span class="n">LogLevel</span><span class="p">.</span><span class="n">debug</span><span class="p">,</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<p>Check logs with tag <code>VOICE</code>, <code>VOICE_CMD</code>, <code>VOICE_TTS</code>, <code>VOICE_HANDLER</code>.</p>
+<hr />
+<h2 id="platform-specific-notes">Platform-Specific Notes<a class="headerlink" href="#platform-specific-notes" title="Permanent link">&para;</a></h2>
+<h3 id="android">Android<a class="headerlink" href="#android" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Requires Google Speech Services for best recognition</li>
+<li>Arabic voices may need manual download from TTS settings</li>
+<li>Minimum SDK 23 (Android 6.0)</li>
+</ul>
+<h3 id="ios">iOS<a class="headerlink" href="#ios" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Uses built-in speech recognition</li>
+<li>Arabic language pack may need download in Settings</li>
+<li>Works well with Siri Arabic voice</li>
+</ul>
+<hr />
+<h2 id="future-enhancements">Future Enhancements | تحسينات مستقبلية<a class="headerlink" href="#future-enhancements" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Wake Word Detection</strong> - Hands-free activation ("Hey Sahool" / "يا سهول")</li>
+<li><strong>Continuous Listening Mode</strong> - Always-on voice mode</li>
+<li><strong>Voice Dictation</strong> - Free-form text input for notes</li>
+<li><strong>Conversation Mode</strong> - Multi-turn dialogues with advisor</li>
+<li><strong>Offline Training</strong> - Improved offline recognition</li>
+</ol>
+<hr />
+<h2 id="support">Support | الدعم<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
+<p>For issues with voice commands:</p>
+<ol>
+<li>Check this documentation first</li>
+<li>Enable debug logging and capture logs</li>
+<li>Report issues with:</li>
+<li>Device model</li>
+<li>OS version</li>
+<li>Language settings</li>
+<li>Steps to reproduce</li>
+</ol>
+<hr />
+<p><em>Last Updated: January 2026</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

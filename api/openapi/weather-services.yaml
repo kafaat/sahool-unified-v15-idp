@@ -3,21 +3,36 @@ info:
   title: SAHOOL Weather Services API
   description: |
     Weather and Climate Services API for the SAHOOL Agricultural Platform
+    واجهة برمجة تطبيقات خدمات الطقس والمناخ لمنصة سهول الزراعية
 
     This API provides comprehensive weather data, forecasting, and agricultural
     weather assessments for informed farming decisions.
 
-    Features:
-    - Real-time current weather data
-    - Multi-day weather forecasts (up to 16 days)
-    - Weather-based irrigation recommendations
-    - Agricultural risk assessments (heat stress, frost, etc.)
-    - Historical weather data
-    - Weather alerts and notifications
-    - Multi-provider support (Open-Meteo, OpenWeatherMap, WeatherAPI)
+    توفر هذه الواجهة البرمجية بيانات شاملة عن الطقس، والتنبؤات، وتقييمات
+    الطقس الزراعية لاتخاذ قرارات زراعية مستنيرة.
+
+    ## Features | الميزات
+
+    - Real-time current weather data | بيانات الطقس الحالية في الوقت الفعلي
+    - Multi-day weather forecasts (up to 16 days) | توقعات الطقس لعدة أيام (حتى 16 يومًا)
+    - Evapotranspiration (ET0) calculation using FAO-56 Penman-Monteith | حساب التبخر النتح باستخدام طريقة بنمان مونتيث
+    - Growing Degree Days (GDD) calculation | حساب درجات يوم النمو
+    - Spray window assessment | تقييم نافذة الرش
+    - Frost risk assessment | تقييم خطر الصقيع
+    - Heat stress index calculation | حساب مؤشر الإجهاد الحراري
+    - Chill hours calculation for fruit trees | حساب ساعات التبريد لأشجار الفاكهة
+    - Drought stress index | مؤشر الإجهاد الجفافي
+    - Comprehensive agricultural weather reports | تقارير الطقس الزراعية الشاملة
+    - Weather alerts and notifications | تنبيهات الطقس والإشعارات
+    - Multi-provider support (Open-Meteo, OpenWeatherMap, WeatherAPI) | دعم متعدد المزودين
+
+    ## Services | الخدمات
+
+    - **weather-service**: Primary weather service (port 8092) | خدمة الطقس الأساسية
+    - **weather-core**: Core weather processing (port 8108) | معالجة الطقس الأساسية
 
     Arabic Support: جميع واجهات API تدعم اللغة العربية
-  version: 1.0.0
+  version: 16.0.0
   contact:
     name: SAHOOL Platform Support
     email: support@sahool.sa
@@ -26,43 +41,141 @@ info:
 
 servers:
   - url: https://api.sahool.sa/api/v1
-    description: Production server
+    description: Production server | خادم الإنتاج
   - url: https://staging-api.sahool.sa/api/v1
-    description: Staging server
+    description: Staging server | خادم التجربة
+  - url: http://localhost:8092
+    description: Local weather-service development | خدمة الطقس المحلية
   - url: http://localhost:8108
-    description: Local development server
+    description: Local weather-core development | معالجة الطقس المحلية
 
 tags:
   - name: Current Weather
-    description: Real-time weather data retrieval
+    description: |
+      Real-time weather data retrieval
+      جلب بيانات الطقس في الوقت الفعلي
   - name: Forecasts
-    description: Weather forecast endpoints
+    description: |
+      Weather forecast endpoints
+      نقاط نهاية توقعات الطقس
   - name: Agricultural Assessments
-    description: Weather-based agricultural recommendations
+    description: |
+      Weather-based agricultural recommendations and risk assessments
+      التوصيات الزراعية القائمة على الطقس وتقييمات المخاطر
+  - name: Evapotranspiration
+    description: |
+      Evapotranspiration calculations for irrigation planning
+      حسابات التبخر النتح للتخطيط للري
+  - name: Crop Metrics
+    description: |
+      Growing Degree Days and crop-related weather metrics
+      درجات يوم النمو ومقاييس الطقس المتعلقة بالمحاصيل
+  - name: Risk Assessment
+    description: |
+      Weather-related risk assessments (frost, heat stress, drought)
+      تقييمات المخاطر المتعلقة بالطقس (الصقيع، الإجهاد الحراري، الجفاف)
+  - name: Spray Operations
+    description: |
+      Spray window and application suitability assessments
+      تقييمات نافذة الرش وملاءمة التطبيق
+  - name: Reports
+    description: |
+      Comprehensive agricultural weather reports
+      تقارير الطقس الزراعية الشاملة
   - name: Historical Data
-    description: Historical weather data access
+    description: |
+      Historical weather data access
+      الوصول إلى البيانات التاريخية للطقس
   - name: Alerts
-    description: Weather alerts and warnings
+    description: |
+      Weather alerts and warnings
+      تنبيهات وتحذيرات الطقس
   - name: Providers
-    description: Weather data provider management
+    description: |
+      Weather data provider management
+      إدارة مزودي بيانات الطقس
 
 security:
   - BearerAuth: []
 
 paths:
+  /weather/assess:
+    post:
+      tags:
+        - Agricultural Assessments
+      summary: Assess weather conditions | تقييم الظروف الجوية
+      description: |
+        Assess weather conditions and generate agricultural alerts based on manual input.
+        تقييم الظروف الجوية وإنشاء تنبيهات زراعية بناءً على المدخلات اليدوية.
+
+        This endpoint allows manual weather data input for assessment when sensor
+        data is unavailable or for scenario planning.
+
+        تسمح نقطة النهاية هذه بإدخال بيانات الطقس يدويًا للتقييم عندما تكون بيانات
+        المستشعرات غير متاحة أو للتخطيط للسيناريوهات.
+      operationId: assessWeather
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeatherAssessRequest'
+            example:
+              tenant_id: "tenant-001"
+              field_id: "field-001"
+              temp_c: 38
+              humidity_pct: 25
+              wind_speed_kmh: 30
+              precipitation_mm: 0
+              uv_index: 10
+      responses:
+        '200':
+          description: Assessment completed successfully | اكتمل التقييم بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeatherAssessResponse'
+              examples:
+                highTemperature:
+                  summary: High temperature alert | تنبيه درجة حرارة مرتفعة
+                  value:
+                    field_id: "field-001"
+                    alerts:
+                      - alert_type: "EXTREME_HEAT"
+                        severity: "critical"
+                        title_en: "Extreme Heat Warning"
+                        title_ar: "تحذير من الحرارة الشديدة"
+                        window_hours: 12
+                      - alert_type: "HIGH_WIND"
+                        severity: "warning"
+                        title_en: "High Wind Alert"
+                        title_ar: "تنبيه الرياح القوية"
+                        window_hours: 6
+                    alert_count: 2
+                    event_ids: ["event-001", "event-002"]
+                    published: true
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+
   /weather/current:
     post:
       tags:
         - Current Weather
-      summary: Get current weather
+      summary: Get current weather by location | الحصول على الطقس الحالي حسب الموقع
       description: |
-        Retrieve current weather conditions for a specific location
-        الحصول على بيانات الطقس الحالية
+        Retrieve current weather conditions for a specific location.
+        الحصول على بيانات الطقس الحالية لموقع محدد.
 
         Uses multi-provider service with automatic fallback:
-        - Open-Meteo (free, no API key required)
-        - OpenWeatherMap (if OPENWEATHERMAP_API_KEY configured)
-        - WeatherAPI (if WEATHERAPI_KEY configured)
+        يستخدم خدمة متعددة المزودين مع التراجع التلقائي:
+
+        - Open-Meteo (free, no API key required) | مفتوح، لا يتطلب مفتاح API
+        - OpenWeatherMap (if OPENWEATHERMAP_API_KEY configured) | إذا تم تكوين مفتاح API
+        - WeatherAPI (if WEATHERAPI_KEY configured) | إذا تم تكوين مفتاح API
       operationId: getCurrentWeather
       requestBody:
         required: true
@@ -77,13 +190,14 @@ paths:
               lon: 46.6753
       responses:
         '200':
-          description: Current weather retrieved successfully
+          description: Current weather retrieved successfully | تم جلب الطقس الحالي بنجاح
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CurrentWeatherResponse'
               examples:
                 success:
+                  summary: Successful response | استجابة ناجحة
                   value:
                     field_id: "field-001"
                     location:
@@ -121,35 +235,36 @@ paths:
     post:
       tags:
         - Forecasts
-      summary: Get weather forecast
+      summary: Get weather forecast (1-16 days) | الحصول على توقعات الطقس (1-16 يوم)
       description: |
-        Retrieve multi-day weather forecast
-        الحصول على توقعات الطقس
+        Retrieve multi-day weather forecast for a specific location.
+        الحصول على توقعات الطقس لعدة أيام لموقع محدد.
+
+        Supports forecasts from 1 to 16 days ahead.
+        يدعم التنبؤات من يوم واحد إلى 16 يومًا مقدمًا.
       operationId: getWeatherForecast
-      parameters:
-        - name: days
-          in: query
-          description: Number of forecast days (1-16)
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 16
-            default: 7
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LocationRequest'
+              $ref: '#/components/schemas/ForecastRequest'
+            example:
+              tenant_id: "tenant-001"
+              field_id: "field-001"
+              lat: 24.7136
+              lon: 46.6753
+              days: 7
       responses:
         '200':
-          description: Forecast retrieved successfully
+          description: Forecast retrieved successfully | تم جلب التوقعات بنجاح
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForecastResponse'
               examples:
                 success:
+                  summary: 7-day forecast | توقعات 7 أيام
                   value:
                     field_id: "field-001"
                     location:
@@ -179,69 +294,930 @@ paths:
                         condition_ar: "غائم جزئياً"
                         sunrise: "06:45"
                         sunset: "17:31"
-                    days: 2
+                    days: 7
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
 
-  /weather/assess:
+  /weather/evapotranspiration:
     post:
       tags:
-        - Agricultural Assessments
-      summary: Assess weather conditions
+        - Evapotranspiration
+      summary: Calculate ET0 (FAO-56 Penman-Monteith) | حساب التبخر النتح المرجعي
       description: |
-        Assess weather conditions and generate agricultural alerts
-        تقييم الظروف الجوية وإنشاء تنبيهات زراعية
+        Calculate reference evapotranspiration (ET0) using the FAO-56 Penman-Monteith equation.
+        حساب التبخر النتح المرجعي باستخدام معادلة بنمان مونتيث FAO-56.
 
-        Manual weather data input for assessment
-      operationId: assessWeather
+        This is the standard method for calculating crop water requirements.
+        هذه هي الطريقة القياسية لحساب احتياجات المياه للمحاصيل.
+
+        ## Formula | المعادلة
+        The FAO-56 Penman-Monteith equation considers:
+        تأخذ معادلة FAO-56 بنمان مونتيث في الاعتبار:
+
+        - Temperature (°C) | درجة الحرارة
+        - Relative humidity (%) | الرطوبة النسبية
+        - Wind speed (km/h) | سرعة الرياح
+        - Solar radiation (MJ/m²/day) | الإشعاع الشمسي
+      operationId: calculateEvapotranspiration
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WeatherAssessRequest'
+              $ref: '#/components/schemas/ETRequest'
+            example:
+              tenant_id: "tenant-001"
+              field_id: "field-001"
+              temp_c: 28.5
+              humidity_pct: 45
+              wind_speed_kmh: 12
+              solar_radiation_mj: 22.5
+      responses:
+        '200':
+          description: ET0 calculated successfully | تم حساب التبخر النتح بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ETResponse'
+              examples:
+                success:
+                  summary: ET0 calculation result | نتيجة حساب التبخر النتح
+                  value:
+                    field_id: "field-001"
+                    et0_mm_day: 5.8
+                    method: "FAO-56 Penman-Monteith"
+                    method_ar: "بنمان مونتيث FAO-56"
+                    input_data:
+                      temp_c: 28.5
+                      humidity_pct: 45
+                      wind_speed_kmh: 12
+                      solar_radiation_mj: 22.5
+                    recommendation_en: "High evapotranspiration rate. Consider increasing irrigation."
+                    recommendation_ar: "معدل تبخر نتح عالي. يُنصح بزيادة الري."
+                    timestamp: "2024-01-15T10:30:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /weather/gdd:
+    post:
+      tags:
+        - Crop Metrics
+      summary: Calculate Growing Degree Days | حساب درجات يوم النمو
+      description: |
+        Calculate Growing Degree Days (GDD) for crop development tracking.
+        حساب درجات يوم النمو لتتبع تطور المحاصيل.
+
+        GDD is a measure of heat accumulation used to predict crop development stages.
+        درجات يوم النمو هي مقياس لتراكم الحرارة يُستخدم للتنبؤ بمراحل نمو المحاصيل.
+
+        ## Formula | المعادلة
+        GDD = ((Tmax + Tmin) / 2) - Tbase
+
+        Where temperatures below base are set to base, and above upper threshold are capped.
+        حيث تُعيَّن درجات الحرارة الأقل من القاعدة إلى القاعدة، والأعلى من الحد الأعلى تُحدد عنده.
+      operationId: calculateGDD
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GDDRequest'
+            example:
+              tenant_id: "tenant-001"
+              field_id: "field-001"
+              temp_max_c: 32
+              temp_min_c: 18
+              base_temp_c: 10
+              upper_temp_c: 30
+      responses:
+        '200':
+          description: GDD calculated successfully | تم حساب درجات يوم النمو بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GDDResponse'
+              examples:
+                success:
+                  summary: GDD calculation result | نتيجة حساب درجات يوم النمو
+                  value:
+                    field_id: "field-001"
+                    gdd: 15.0
+                    gdd_unit: "degree-days"
+                    gdd_unit_ar: "درجة-يوم"
+                    input_data:
+                      temp_max_c: 32
+                      temp_min_c: 18
+                      base_temp_c: 10
+                      upper_temp_c: 30
+                    effective_temp_max_c: 30
+                    effective_temp_min_c: 18
+                    notes_en: "Upper temperature cap applied (32°C → 30°C)"
+                    notes_ar: "تم تطبيق الحد الأعلى لدرجة الحرارة (32° → 30°)"
+                    timestamp: "2024-01-15T10:30:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /weather/spray-window:
+    post:
+      tags:
+        - Spray Operations
+      summary: Assess spray application suitability | تقييم ملاءمة تطبيق الرش
+      description: |
+        Assess weather conditions for pesticide/fertilizer spray application.
+        تقييم الظروف الجوية لتطبيق رش المبيدات/الأسمدة.
+
+        Evaluates wind speed, humidity, temperature, and precipitation risk.
+        يُقيِّم سرعة الرياح والرطوبة ودرجة الحرارة وخطر هطول الأمطار.
+
+        ## Optimal Conditions | الظروف المثلى
+        - Wind speed: 3-15 km/h | سرعة الرياح: 3-15 كم/س
+        - Humidity: 40-90% | الرطوبة: 40-90%
+        - Temperature: 10-30°C | درجة الحرارة: 10-30°م
+        - No precipitation expected | عدم توقع هطول أمطار
+      operationId: assessSprayWindow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SprayWindowRequest'
+            example:
+              tenant_id: "tenant-001"
+              field_id: "field-001"
+              temp_c: 22
+              humidity_pct: 65
+              wind_speed_kmh: 8
+              precipitation_probability: 5
+      responses:
+        '200':
+          description: Spray window assessed successfully | تم تقييم نافذة الرش بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SprayWindowResponse'
+              examples:
+                suitable:
+                  summary: Suitable spray conditions | ظروف رش مناسبة
+                  value:
+                    field_id: "field-001"
+                    suitable: true
+                    suitability_score: 92
+                    recommendation_en: "Excellent conditions for spray application"
+                    recommendation_ar: "ظروف ممتازة لتطبيق الرش"
+                    factors:
+                      - factor: "wind_speed"
+                        factor_ar: "سرعة الرياح"
+                        status: "optimal"
+                        status_ar: "مثالي"
+                        value: 8
+                        unit: "km/h"
+                      - factor: "humidity"
+                        factor_ar: "الرطوبة"
+                        status: "optimal"
+                        status_ar: "مثالي"
+                        value: 65
+                        unit: "%"
+                      - factor: "temperature"
+                        factor_ar: "درجة الحرارة"
+                        status: "optimal"
+                        status_ar: "مثالي"
+                        value: 22
+                        unit: "°C"
+                      - factor: "precipitation_risk"
+                        factor_ar: "خطر الهطول"
+                        status: "low"
+                        status_ar: "منخفض"
+                        value: 5
+                        unit: "%"
+                    optimal_window_hours: 6
+                    timestamp: "2024-01-15T06:00:00Z"
+                unsuitable:
+                  summary: Unsuitable spray conditions | ظروف رش غير مناسبة
+                  value:
+                    field_id: "field-001"
+                    suitable: false
+                    suitability_score: 35
+                    recommendation_en: "Avoid spraying due to high wind speed"
+                    recommendation_ar: "تجنب الرش بسبب سرعة الرياح العالية"
+                    factors:
+                      - factor: "wind_speed"
+                        factor_ar: "سرعة الرياح"
+                        status: "critical"
+                        status_ar: "حرج"
+                        value: 28
+                        unit: "km/h"
+                    optimal_window_hours: 0
+                    timestamp: "2024-01-15T14:00:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /weather/frost-risk:
+    post:
+      tags:
+        - Risk Assessment
+      summary: Assess frost risk | تقييم خطر الصقيع
+      description: |
+        Assess frost risk based on temperature, humidity, wind, and cloud cover.
+        تقييم خطر الصقيع بناءً على درجة الحرارة والرطوبة والرياح والغطاء السحابي.
+
+        ## Risk Factors | عوامل الخطر
+        - Low temperature near or below freezing | درجة حرارة منخفضة قريبة من التجمد أو أقل
+        - Clear skies (radiative cooling) | سماء صافية (تبريد إشعاعي)
+        - Low wind speed (calm conditions) | سرعة رياح منخفضة (ظروف هادئة)
+        - High humidity with low dew point | رطوبة عالية مع نقطة ندى منخفضة
+      operationId: assessFrostRisk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FrostRiskRequest'
+            example:
+              tenant_id: "tenant-001"
+              field_id: "field-001"
+              temp_c: 3
+              humidity_pct: 85
+              wind_speed_kmh: 5
+              cloud_cover_pct: 10
+              dew_point_c: 1
+      responses:
+        '200':
+          description: Frost risk assessed successfully | تم تقييم خطر الصقيع بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FrostRiskResponse'
+              examples:
+                highRisk:
+                  summary: High frost risk | خطر صقيع مرتفع
+                  value:
+                    field_id: "field-001"
+                    frost_risk_level: "high"
+                    frost_risk_level_ar: "مرتفع"
+                    frost_probability_pct: 85
+                    minimum_expected_temp_c: -2
+                    frost_type: "radiation"
+                    frost_type_ar: "صقيع إشعاعي"
+                    recommendation_en: "High frost risk tonight. Protect sensitive crops with covers or irrigation."
+                    recommendation_ar: "خطر صقيع مرتفع الليلة. احمِ المحاصيل الحساسة بالأغطية أو الري."
+                    protective_measures:
+                      - measure_en: "Apply protective irrigation before sunset"
+                        measure_ar: "قم بالري الوقائي قبل غروب الشمس"
+                      - measure_en: "Cover sensitive plants with frost cloth"
+                        measure_ar: "غطِّ النباتات الحساسة بقماش الصقيع"
+                    window_hours: 8
+                    timestamp: "2024-01-15T18:00:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /weather/heat-stress:
+    post:
+      tags:
+        - Risk Assessment
+      summary: Calculate heat stress index | حساب مؤشر الإجهاد الحراري
+      description: |
+        Calculate comprehensive heat stress index for crops and livestock.
+        حساب مؤشر الإجهاد الحراري الشامل للمحاصيل والماشية.
+
+        Considers temperature, humidity, solar radiation, and wind speed.
+        يأخذ في الاعتبار درجة الحرارة والرطوبة والإشعاع الشمسي وسرعة الرياح.
+
+        ## Heat Stress Categories | فئات الإجهاد الحراري
+        - None (THI < 72) | لا يوجد
+        - Mild (THI 72-79) | خفيف
+        - Moderate (THI 80-89) | معتدل
+        - Severe (THI 90-99) | شديد
+        - Critical (THI ≥ 100) | حرج
+      operationId: calculateHeatStress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeatStressRequest'
             example:
               tenant_id: "tenant-001"
               field_id: "field-001"
               temp_c: 38
-              humidity_pct: 25
-              wind_speed_kmh: 30
-              precipitation_mm: 0
-              uv_index: 10
+              humidity_pct: 60
+              solar_radiation_mj: 28
+              wind_speed_kmh: 5
       responses:
         '200':
-          description: Assessment completed successfully
+          description: Heat stress calculated successfully | تم حساب الإجهاد الحراري بنجاح
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WeatherAssessResponse'
+                $ref: '#/components/schemas/HeatStressCalculatedResponse'
               examples:
-                highTemperature:
+                severeHeat:
+                  summary: Severe heat stress | إجهاد حراري شديد
                   value:
                     field_id: "field-001"
-                    alerts:
-                      - alert_type: "EXTREME_HEAT"
-                        severity: "critical"
-                        title_en: "Extreme Heat Warning"
-                        title_ar: "تحذير من الحرارة الشديدة"
-                        window_hours: 12
-                      - alert_type: "HIGH_WIND"
+                    temperature_humidity_index: 92
+                    heat_stress_level: "severe"
+                    heat_stress_level_ar: "شديد"
+                    apparent_temperature_c: 45
+                    crop_impact:
+                      severity: "high"
+                      severity_ar: "عالي"
+                      description_en: "Significant yield reduction expected. Photosynthesis severely impaired."
+                      description_ar: "متوقع انخفاض كبير في المحصول. التمثيل الضوئي متأثر بشدة."
+                    livestock_impact:
+                      severity: "critical"
+                      severity_ar: "حرج"
+                      description_en: "Dangerous conditions for livestock. Provide shade and cooling immediately."
+                      description_ar: "ظروف خطيرة للماشية. وفر الظل والتبريد فوراً."
+                    recommendations:
+                      - recommendation_en: "Irrigate during early morning or evening"
+                        recommendation_ar: "قم بالري في الصباح الباكر أو المساء"
+                      - recommendation_en: "Provide shade for heat-sensitive crops"
+                        recommendation_ar: "وفر الظل للمحاصيل الحساسة للحرارة"
+                      - recommendation_en: "Increase water availability for livestock"
+                        recommendation_ar: "زد توفير المياه للماشية"
+                    timestamp: "2024-01-15T14:00:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /weather/chill-hours:
+    post:
+      tags:
+        - Crop Metrics
+      summary: Calculate chill hours for fruit trees | حساب ساعات التبريد لأشجار الفاكهة
+      description: |
+        Calculate accumulated chill hours for fruit tree dormancy requirements.
+        حساب ساعات التبريد المتراكمة لمتطلبات سكون أشجار الفاكهة.
+
+        ## Chill Hour Models | نماذج ساعات التبريد
+        - **Utah Model**: Standard chill unit calculation | نموذج يوتا القياسي
+        - **Positive Utah Model**: Modified for mild winters | معدل للشتاء المعتدل
+        - **Dynamic Model**: Most accurate for warm regions | الأكثر دقة للمناطق الدافئة
+
+        ## Common Requirements | المتطلبات الشائعة
+        - Apples: 800-1200 hours | التفاح
+        - Peaches: 600-900 hours | الخوخ
+        - Almonds: 300-600 hours | اللوز
+        - Figs: 100-300 hours | التين
+      operationId: calculateChillHours
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChillHoursRequest'
+            example:
+              tenant_id: "tenant-001"
+              field_id: "field-001"
+              start_date: "2024-11-01"
+              end_date: "2024-01-15"
+              model: "utah"
+              crop_type: "apple"
+      responses:
+        '200':
+          description: Chill hours calculated successfully | تم حساب ساعات التبريد بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChillHoursResponse'
+              examples:
+                success:
+                  summary: Chill hours calculation | حساب ساعات التبريد
+                  value:
+                    field_id: "field-001"
+                    chill_hours: 650
+                    chill_portions: 45.2
+                    model_used: "utah"
+                    model_used_ar: "نموذج يوتا"
+                    period:
+                      start_date: "2024-11-01"
+                      end_date: "2024-01-15"
+                      days: 76
+                    crop_requirement:
+                      crop_type: "apple"
+                      crop_type_ar: "تفاح"
+                      minimum_hours: 800
+                      maximum_hours: 1200
+                      status: "below_requirement"
+                      status_ar: "أقل من المتطلب"
+                      progress_pct: 81
+                    recommendation_en: "150 more chill hours needed. Monitor forecast for cold nights."
+                    recommendation_ar: "يلزم 150 ساعة تبريد إضافية. راقب التوقعات لليالي الباردة."
+                    timestamp: "2024-01-15T10:30:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /weather/drought-index:
+    post:
+      tags:
+        - Risk Assessment
+      summary: Calculate drought stress index | حساب مؤشر الإجهاد الجفافي
+      description: |
+        Calculate drought stress index based on precipitation, evapotranspiration, and soil moisture.
+        حساب مؤشر الإجهاد الجفافي بناءً على هطول الأمطار والتبخر النتح ورطوبة التربة.
+
+        ## Drought Categories | فئات الجفاف
+        - D0: Abnormally Dry | جفاف غير طبيعي
+        - D1: Moderate Drought | جفاف معتدل
+        - D2: Severe Drought | جفاف شديد
+        - D3: Extreme Drought | جفاف شديد جداً
+        - D4: Exceptional Drought | جفاف استثنائي
+      operationId: calculateDroughtIndex
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DroughtIndexRequest'
+            example:
+              tenant_id: "tenant-001"
+              field_id: "field-001"
+              precipitation_mm_30d: 5
+              et0_mm_30d: 180
+              soil_moisture_pct: 15
+              days_since_rain: 45
+      responses:
+        '200':
+          description: Drought index calculated successfully | تم حساب مؤشر الجفاف بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DroughtIndexResponse'
+              examples:
+                severeDrought:
+                  summary: Severe drought conditions | ظروف جفاف شديدة
+                  value:
+                    field_id: "field-001"
+                    drought_category: "D2"
+                    drought_category_name: "Severe Drought"
+                    drought_category_name_ar: "جفاف شديد"
+                    drought_index: -2.5
+                    water_deficit_mm: 175
+                    soil_moisture_status: "critically_low"
+                    soil_moisture_status_ar: "منخفضة بشكل حرج"
+                    crop_impact:
+                      yield_reduction_pct: 30
+                      description_en: "Significant crop stress expected. Water conservation measures critical."
+                      description_ar: "متوقع إجهاد كبير للمحاصيل. إجراءات الحفاظ على المياه ضرورية."
+                    recommendations:
+                      - recommendation_en: "Implement deficit irrigation strategies"
+                        recommendation_ar: "طبق استراتيجيات الري بالعجز"
+                      - recommendation_en: "Apply mulch to reduce soil evaporation"
+                        recommendation_ar: "ضع المهاد لتقليل تبخر التربة"
+                      - recommendation_en: "Consider drought-tolerant crop varieties"
+                        recommendation_ar: "فكر في أصناف المحاصيل المقاومة للجفاف"
+                    timestamp: "2024-01-15T10:30:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /weather/agricultural-report:
+    post:
+      tags:
+        - Reports
+      summary: Generate comprehensive agricultural weather report | إنشاء تقرير شامل للطقس الزراعي
+      description: |
+        Generate a comprehensive agricultural weather report including current conditions,
+        forecasts, and agricultural recommendations.
+        إنشاء تقرير شامل للطقس الزراعي يتضمن الظروف الحالية والتوقعات والتوصيات الزراعية.
+
+        ## Report Contents | محتويات التقرير
+        - Current weather conditions | الظروف الجوية الحالية
+        - 7-day forecast summary | ملخص توقعات 7 أيام
+        - ET0 and irrigation recommendations | التبخر النتح وتوصيات الري
+        - Heat stress assessment | تقييم الإجهاد الحراري
+        - Frost risk assessment | تقييم خطر الصقيع
+        - Spray window assessment | تقييم نافذة الرش
+        - Growing degree days | درجات يوم النمو
+      operationId: generateAgriculturalReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgriculturalReportRequest'
+            example:
+              tenant_id: "tenant-001"
+              field_id: "field-001"
+              lat: 24.7136
+              lon: 46.6753
+              crop_type: "wheat"
+              crop_stage: "tillering"
+      responses:
+        '200':
+          description: Report generated successfully | تم إنشاء التقرير بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgriculturalReportResponse'
+              examples:
+                success:
+                  summary: Complete agricultural report | تقرير زراعي كامل
+                  value:
+                    field_id: "field-001"
+                    report_date: "2024-01-15"
+                    crop_info:
+                      type: "wheat"
+                      type_ar: "قمح"
+                      stage: "tillering"
+                      stage_ar: "التفريع"
+                    current_weather:
+                      temperature_c: 18
+                      humidity_pct: 55
+                      wind_speed_kmh: 12
+                      condition: "Partly Cloudy"
+                      condition_ar: "غائم جزئياً"
+                    forecast_summary:
+                      next_7_days:
+                        temp_max_avg_c: 22
+                        temp_min_avg_c: 12
+                        total_precipitation_mm: 15
+                        rain_days: 2
+                    agricultural_metrics:
+                      et0_mm_day: 3.2
+                      gdd_accumulated: 450
+                      gdd_target: 1200
+                      gdd_progress_pct: 37.5
+                    risk_assessments:
+                      frost_risk: "low"
+                      frost_risk_ar: "منخفض"
+                      heat_stress: "none"
+                      heat_stress_ar: "لا يوجد"
+                      drought_risk: "moderate"
+                      drought_risk_ar: "معتدل"
+                    spray_window:
+                      suitable: true
+                      best_time: "06:00-10:00"
+                      suitability_score: 85
+                    recommendations:
+                      - priority: "high"
+                        priority_ar: "عالية"
+                        category: "irrigation"
+                        category_ar: "الري"
+                        recommendation_en: "Apply 25mm irrigation in the next 48 hours"
+                        recommendation_ar: "قم بري 25 مم خلال الـ 48 ساعة القادمة"
+                      - priority: "medium"
+                        priority_ar: "متوسطة"
+                        category: "fertilizer"
+                        category_ar: "التسميد"
+                        recommendation_en: "Ideal conditions for nitrogen application"
+                        recommendation_ar: "ظروف مثالية لتطبيق النيتروجين"
+                    timestamp: "2024-01-15T10:30:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+
+  /weather/comprehensive-stress-report:
+    post:
+      tags:
+        - Reports
+      summary: Generate combined stress assessment report | إنشاء تقرير تقييم الإجهاد المجمع
+      description: |
+        Generate a comprehensive stress assessment combining all weather-related risks.
+        إنشاء تقييم شامل للإجهاد يجمع جميع المخاطر المتعلقة بالطقس.
+
+        ## Assessment Components | مكونات التقييم
+        - Heat stress index | مؤشر الإجهاد الحراري
+        - Cold stress / frost risk | الإجهاد البارد / خطر الصقيع
+        - Drought stress index | مؤشر الإجهاد الجفافي
+        - Wind stress assessment | تقييم إجهاد الرياح
+        - UV stress index | مؤشر إجهاد الأشعة فوق البنفسجية
+        - Combined stress score | درجة الإجهاد المجمعة
+      operationId: generateComprehensiveStressReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComprehensiveStressRequest'
+            example:
+              tenant_id: "tenant-001"
+              field_id: "field-001"
+              lat: 24.7136
+              lon: 46.6753
+              crop_type: "tomato"
+              include_forecast: true
+      responses:
+        '200':
+          description: Stress report generated successfully | تم إنشاء تقرير الإجهاد بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComprehensiveStressResponse'
+              examples:
+                success:
+                  summary: Comprehensive stress assessment | تقييم الإجهاد الشامل
+                  value:
+                    field_id: "field-001"
+                    report_date: "2024-01-15"
+                    overall_stress_score: 65
+                    overall_stress_level: "moderate"
+                    overall_stress_level_ar: "معتدل"
+                    stress_components:
+                      heat_stress:
+                        score: 75
+                        level: "moderate"
+                        level_ar: "معتدل"
+                        thi: 82
+                      cold_stress:
+                        score: 10
+                        level: "none"
+                        level_ar: "لا يوجد"
+                        frost_risk: false
+                      drought_stress:
+                        score: 80
+                        level: "high"
+                        level_ar: "مرتفع"
+                        water_deficit_mm: 45
+                      wind_stress:
+                        score: 40
+                        level: "low"
+                        level_ar: "منخفض"
+                        max_wind_kmh: 18
+                      uv_stress:
+                        score: 70
+                        level: "moderate"
+                        level_ar: "معتدل"
+                        uv_index: 8
+                    forecast_stress:
+                      - date: "2024-01-16"
+                        predicted_score: 70
+                        predicted_level: "moderate"
+                      - date: "2024-01-17"
+                        predicted_score: 55
+                        predicted_level: "low"
+                    priority_actions:
+                      - priority: 1
+                        action_en: "Address drought stress with immediate irrigation (30mm)"
+                        action_ar: "عالج الإجهاد الجفافي بالري الفوري (30 مم)"
+                      - priority: 2
+                        action_en: "Provide shade during peak UV hours (11:00-15:00)"
+                        action_ar: "وفر الظل خلال ساعات الذروة للأشعة فوق البنفسجية (11:00-15:00)"
+                    timestamp: "2024-01-15T10:30:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+
+  /weather/providers:
+    get:
+      tags:
+        - Providers
+      summary: List available weather providers | قائمة مزودي الطقس المتاحين
+      description: |
+        Get list of available and configured weather data providers.
+        الحصول على قائمة مزودي بيانات الطقس المتاحين والمُكوَّنين.
+      operationId: getWeatherProviders
+      responses:
+        '200':
+          description: Providers list retrieved successfully | تم جلب قائمة المزودين بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvidersResponse'
+              examples:
+                multiProvider:
+                  summary: Multiple providers | مزودون متعددون
+                  value:
+                    multi_provider_enabled: true
+                    providers:
+                      - name: "Open-Meteo"
+                        name_ar: "أوبن ميتيو"
+                        configured: true
+                        type: "OpenMeteoProvider"
+                        requires_api_key: false
+                        features:
+                          - "current"
+                          - "forecast"
+                          - "historical"
+                      - name: "OpenWeatherMap"
+                        name_ar: "أوبن ويذر ماب"
+                        configured: true
+                        type: "OpenWeatherMapProvider"
+                        requires_api_key: true
+                        features:
+                          - "current"
+                          - "forecast"
+                          - "alerts"
+                      - name: "WeatherAPI"
+                        name_ar: "ويذر API"
+                        configured: false
+                        type: "WeatherAPIProvider"
+                        requires_api_key: true
+                        features:
+                          - "current"
+                          - "forecast"
+                          - "historical"
+                          - "marine"
+                    total: 3
+                    configured: 2
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /weather/heat-stress/{temp_c}:
+    get:
+      tags:
+        - Risk Assessment
+      summary: Quick heat stress check | فحص سريع للإجهاد الحراري
+      description: |
+        Quick heat stress check for a given temperature (simplified endpoint).
+        فحص سريع للإجهاد الحراري لدرجة حرارة معينة (نقطة نهاية مبسطة).
+
+        For comprehensive heat stress assessment, use POST /weather/heat-stress.
+        للحصول على تقييم شامل للإجهاد الحراري، استخدم POST /weather/heat-stress.
+      operationId: checkHeatStress
+      parameters:
+        - name: temp_c
+          in: path
+          required: true
+          description: Temperature in Celsius | درجة الحرارة بالدرجة المئوية
+          schema:
+            type: number
+            format: float
+            minimum: -50
+            maximum: 60
+      responses:
+        '200':
+          description: Heat stress assessment completed | اكتمل تقييم الإجهاد الحراري
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeatStressResponse'
+              examples:
+                criticalHeat:
+                  summary: Critical heat stress | إجهاد حراري حرج
+                  value:
+                    temperature_c: 42
+                    alert_type: "EXTREME_HEAT"
+                    severity: "critical"
+                    severity_ar: "حرج"
+                    at_risk: true
+                    message_en: "Extreme heat conditions. Protect crops and livestock immediately."
+                    message_ar: "ظروف حرارة شديدة. احمِ المحاصيل والماشية فوراً."
+                normalTemp:
+                  summary: Normal temperature | درجة حرارة طبيعية
+                  value:
+                    temperature_c: 25
+                    alert_type: null
+                    severity: "none"
+                    severity_ar: "لا يوجد"
+                    at_risk: false
+                    message_en: "Temperature within normal range for most crops."
+                    message_ar: "درجة الحرارة ضمن النطاق الطبيعي لمعظم المحاصيل."
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+
+  /weather/alerts:
+    get:
+      tags:
+        - Alerts
+      summary: Get weather alerts | الحصول على تنبيهات الطقس
+      description: |
+        Retrieve active weather alerts for a specific field or area.
+        جلب التنبيهات الجوية النشطة لحقل أو منطقة محددة.
+      operationId: getWeatherAlerts
+      parameters:
+        - name: field_id
+          in: query
+          description: Filter by field ID | تصفية حسب معرف الحقل
+          schema:
+            type: string
+        - name: severity
+          in: query
+          description: Filter by severity level | تصفية حسب مستوى الخطورة
+          schema:
+            type: string
+            enum: [info, warning, critical]
+        - name: active_only
+          in: query
+          description: Show only active alerts | إظهار التنبيهات النشطة فقط
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Alerts retrieved successfully | تم جلب التنبيهات بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WeatherAlert'
+              examples:
+                alerts:
+                  summary: Active alerts | التنبيهات النشطة
+                  value:
+                    data:
+                      - id: "alert-001"
+                        type: "HIGH_TEMPERATURE"
                         severity: "warning"
-                        title_en: "High Wind Alert"
-                        title_ar: "تنبيه الرياح القوية"
-                        window_hours: 6
-                    alert_count: 2
-                    event_ids: ["event-001", "event-002"]
-                    published: true
+                        title: "High Temperature Alert"
+                        title_ar: "تنبيه ارتفاع درجة الحرارة"
+                        description: "Temperature expected to exceed 38°C"
+                        description_ar: "من المتوقع أن تتجاوز درجة الحرارة 38 درجة مئوية"
+                        affected_areas: ["field-001", "field-002"]
+                        affected_areas_ar: ["الحقل-001", "الحقل-002"]
+                        start_time: "2024-01-15T10:00:00Z"
+                        end_time: "2024-01-15T18:00:00Z"
+                        is_active: true
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /weather/historical:
+    get:
+      tags:
+        - Historical Data
+      summary: Get historical weather data | الحصول على البيانات التاريخية للطقس
+      description: |
+        Retrieve historical weather data for a location.
+        جلب البيانات التاريخية للطقس لموقع محدد.
+      operationId: getHistoricalWeather
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          description: Latitude | خط العرض
+          schema:
+            type: number
+            format: double
+            minimum: -90
+            maximum: 90
+        - name: lon
+          in: query
+          required: true
+          description: Longitude | خط الطول
+          schema:
+            type: number
+            format: double
+            minimum: -180
+            maximum: 180
+        - name: start_date
+          in: query
+          required: true
+          description: Start date (YYYY-MM-DD) | تاريخ البدء
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: true
+          description: End date (YYYY-MM-DD) | تاريخ الانتهاء
+          schema:
+            type: string
+            format: date
+        - name: metrics
+          in: query
+          description: Comma-separated list of metrics | قائمة المقاييس مفصولة بفواصل
+          schema:
+            type: string
+            example: "temperature,precipitation,humidity"
+      responses:
+        '200':
+          description: Historical data retrieved successfully | تم جلب البيانات التاريخية بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoricalWeatherResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
 
   /weather/irrigation:
     post:
       tags:
         - Agricultural Assessments
-      summary: Get irrigation adjustment
+      summary: Get irrigation adjustment | الحصول على تعديل الري
       description: |
-        Calculate irrigation adjustment based on weather conditions
-        حساب تعديل الري بناءً على الظروف الجوية
+        Calculate irrigation adjustment based on weather conditions.
+        حساب تعديل الري بناءً على الظروف الجوية.
 
-        Returns adjustment factor and recommendations
+        Returns adjustment factor and recommendations.
+        يُرجع عامل التعديل والتوصيات.
       operationId: getIrrigationAdjustment
       requestBody:
         required: true
@@ -258,13 +1234,14 @@ paths:
               precipitation_mm: 0
       responses:
         '200':
-          description: Irrigation adjustment calculated successfully
+          description: Irrigation adjustment calculated successfully | تم حساب تعديل الري بنجاح
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/IrrigationResponse'
               examples:
                 increaseIrrigation:
+                  summary: Increase irrigation | زيادة الري
                   value:
                     field_id: "field-001"
                     weather_input:
@@ -277,187 +1254,10 @@ paths:
                     recommendation_ar: "زيادة الري بنسبة 25% بسبب الظروف الحارة والجافة والرياح"
                     event_id: "event-001"
                     published: true
-
-  /weather/heat-stress/{temp_c}:
-    get:
-      tags:
-        - Agricultural Assessments
-      summary: Check heat stress risk
-      description: |
-        Quick heat stress check for a given temperature
-        فحص سريع لخطر الإجهاد الحراري
-      operationId: checkHeatStress
-      parameters:
-        - name: temp_c
-          in: path
-          required: true
-          description: Temperature in Celsius
-          schema:
-            type: number
-            format: float
-      responses:
-        '200':
-          description: Heat stress assessment completed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HeatStressResponse'
-              examples:
-                criticalHeat:
-                  value:
-                    temperature_c: 42
-                    alert_type: "EXTREME_HEAT"
-                    severity: "critical"
-                    at_risk: true
-                normalTemp:
-                  value:
-                    temperature_c: 25
-                    alert_type: null
-                    severity: "none"
-                    at_risk: false
-
-  /weather/providers:
-    get:
-      tags:
-        - Providers
-      summary: Get weather providers
-      description: |
-        Get list of available weather data providers
-        الحصول على قائمة مزودي بيانات الطقس المتاحين
-      operationId: getWeatherProviders
-      responses:
-        '200':
-          description: Providers list retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProvidersResponse'
-              examples:
-                multiProvider:
-                  value:
-                    multi_provider_enabled: true
-                    providers:
-                      - name: "Open-Meteo"
-                        configured: true
-                        type: "OpenMeteoProvider"
-                        requires_api_key: false
-                      - name: "OpenWeatherMap"
-                        configured: true
-                        type: "OpenWeatherMapProvider"
-                        requires_api_key: true
-                      - name: "WeatherAPI"
-                        configured: false
-                        type: "WeatherAPIProvider"
-                        requires_api_key: true
-                    total: 3
-                    configured: 2
-
-  /weather/alerts:
-    get:
-      tags:
-        - Alerts
-      summary: Get weather alerts
-      description: |
-        Retrieve active weather alerts for a specific field or area
-        جلب التنبيهات الجوية النشطة
-      operationId: getWeatherAlerts
-      parameters:
-        - name: field_id
-          in: query
-          description: Filter by field ID
-          schema:
-            type: string
-        - name: severity
-          in: query
-          description: Filter by severity level
-          schema:
-            type: string
-            enum: [info, warning, critical]
-        - name: active_only
-          in: query
-          description: Show only active alerts
-          schema:
-            type: boolean
-            default: true
-      responses:
-        '200':
-          description: Alerts retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/WeatherAlert'
-              examples:
-                alerts:
-                  value:
-                    data:
-                      - id: "alert-001"
-                        type: "HIGH_TEMPERATURE"
-                        severity: "warning"
-                        title: "High Temperature Alert"
-                        titleAr: "تنبيه ارتفاع درجة الحرارة"
-                        description: "Temperature expected to exceed 38°C"
-                        descriptionAr: "من المتوقع أن تتجاوز درجة الحرارة 38 درجة مئوية"
-                        affectedAreas: ["field-001", "field-002"]
-                        startTime: "2024-01-15T10:00:00Z"
-                        endTime: "2024-01-15T18:00:00Z"
-                        isActive: true
-
-  /weather/historical:
-    get:
-      tags:
-        - Historical Data
-      summary: Get historical weather data
-      description: |
-        Retrieve historical weather data for a location
-        جلب البيانات التاريخية للطقس
-      operationId: getHistoricalWeather
-      parameters:
-        - name: lat
-          in: query
-          required: true
-          description: Latitude
-          schema:
-            type: number
-            format: double
-        - name: lon
-          in: query
-          required: true
-          description: Longitude
-          schema:
-            type: number
-            format: double
-        - name: start_date
-          in: query
-          required: true
-          description: Start date (YYYY-MM-DD)
-          schema:
-            type: string
-            format: date
-        - name: end_date
-          in: query
-          required: true
-          description: End date (YYYY-MM-DD)
-          schema:
-            type: string
-            format: date
-        - name: metrics
-          in: query
-          description: Comma-separated list of metrics to retrieve
-          schema:
-            type: string
-            example: "temperature,precipitation,humidity"
-      responses:
-        '200':
-          description: Historical data retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HistoricalWeatherResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
 
 components:
   securitySchemes:
@@ -465,11 +1265,68 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: JWT authentication token
+      description: JWT authentication token | رمز مصادقة JWT
 
   schemas:
+    # Request Schemas
+    WeatherAssessRequest:
+      type: object
+      description: |
+        Request for weather condition assessment
+        طلب تقييم الظروف الجوية
+      required:
+        - tenant_id
+        - field_id
+        - temp_c
+      properties:
+        tenant_id:
+          type: string
+          description: Tenant identifier | معرف المستأجر
+          example: "tenant-001"
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+          example: "field-001"
+        temp_c:
+          type: number
+          format: float
+          description: Temperature in Celsius | درجة الحرارة بالدرجة المئوية
+          example: 38
+        humidity_pct:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Humidity percentage | نسبة الرطوبة
+          example: 25
+        wind_speed_kmh:
+          type: number
+          format: float
+          minimum: 0
+          description: Wind speed in km/h | سرعة الرياح بالكيلومتر/ساعة
+          example: 30
+        precipitation_mm:
+          type: number
+          format: float
+          minimum: 0
+          description: Precipitation in mm | هطول الأمطار بالمليمتر
+          example: 0
+        uv_index:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 15
+          description: UV index | مؤشر الأشعة فوق البنفسجية
+          example: 10
+        correlation_id:
+          type: string
+          description: Optional correlation ID for request tracking | معرف الارتباط الاختياري
+
     LocationRequest:
       type: object
+      description: |
+        Request with geographic location
+        طلب مع الموقع الجغرافي
       required:
         - tenant_id
         - field_id
@@ -478,67 +1335,173 @@ components:
       properties:
         tenant_id:
           type: string
+          description: Tenant identifier | معرف المستأجر
           example: "tenant-001"
         field_id:
           type: string
+          description: Field identifier | معرف الحقل
           example: "field-001"
         lat:
           type: number
           format: double
           minimum: -90
           maximum: 90
+          description: Latitude (-90 to 90) | خط العرض
           example: 24.7136
         lon:
           type: number
           format: double
           minimum: -180
           maximum: 180
+          description: Longitude (-180 to 180) | خط الطول
           example: 46.6753
         correlation_id:
           type: string
-          description: Optional correlation ID for request tracking
+          description: Optional correlation ID for request tracking | معرف الارتباط الاختياري
 
-    WeatherAssessRequest:
+    ForecastRequest:
       type: object
+      description: |
+        Request for weather forecast
+        طلب توقعات الطقس
+      required:
+        - tenant_id
+        - field_id
+        - lat
+        - lon
+      properties:
+        tenant_id:
+          type: string
+          description: Tenant identifier | معرف المستأجر
+          example: "tenant-001"
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+          example: "field-001"
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: Latitude (-90 to 90) | خط العرض
+          example: 24.7136
+        lon:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: Longitude (-180 to 180) | خط الطول
+          example: 46.6753
+        days:
+          type: integer
+          minimum: 1
+          maximum: 16
+          default: 7
+          description: Number of forecast days (1-16) | عدد أيام التوقعات
+          example: 7
+        correlation_id:
+          type: string
+          description: Optional correlation ID for request tracking | معرف الارتباط الاختياري
+
+    ETRequest:
+      type: object
+      description: |
+        Request for evapotranspiration calculation (FAO-56 Penman-Monteith)
+        طلب حساب التبخر النتح
       required:
         - tenant_id
         - field_id
         - temp_c
+        - humidity_pct
+        - wind_speed_kmh
+        - solar_radiation_mj
       properties:
         tenant_id:
           type: string
+          description: Tenant identifier | معرف المستأجر
+          example: "tenant-001"
         field_id:
           type: string
+          description: Field identifier | معرف الحقل
+          example: "field-001"
         temp_c:
           type: number
           format: float
-          description: Temperature in Celsius
+          description: Temperature in Celsius | درجة الحرارة بالدرجة المئوية
+          example: 28.5
         humidity_pct:
           type: number
           format: float
           minimum: 0
           maximum: 100
-          description: Humidity percentage
+          description: Humidity percentage | نسبة الرطوبة
+          example: 45
         wind_speed_kmh:
           type: number
           format: float
           minimum: 0
-          description: Wind speed in km/h
-        precipitation_mm:
+          description: Wind speed in km/h | سرعة الرياح بالكيلومتر/ساعة
+          example: 12
+        solar_radiation_mj:
           type: number
           format: float
           minimum: 0
-          description: Precipitation in mm
-        uv_index:
-          type: number
-          format: float
-          minimum: 0
-          description: UV index
+          maximum: 50
+          description: Solar radiation in MJ/m²/day | الإشعاع الشمسي
+          example: 22.5
         correlation_id:
           type: string
+          description: Optional correlation ID for request tracking | معرف الارتباط الاختياري
 
-    IrrigationRequest:
+    GDDRequest:
       type: object
+      description: |
+        Request for Growing Degree Days calculation
+        طلب حساب درجات يوم النمو
+      required:
+        - tenant_id
+        - field_id
+        - temp_max_c
+        - temp_min_c
+        - base_temp_c
+      properties:
+        tenant_id:
+          type: string
+          description: Tenant identifier | معرف المستأجر
+          example: "tenant-001"
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+          example: "field-001"
+        temp_max_c:
+          type: number
+          format: float
+          description: Maximum temperature in Celsius | درجة الحرارة القصوى
+          example: 32
+        temp_min_c:
+          type: number
+          format: float
+          description: Minimum temperature in Celsius | درجة الحرارة الدنيا
+          example: 18
+        base_temp_c:
+          type: number
+          format: float
+          description: Base temperature for GDD calculation | درجة الحرارة الأساسية
+          example: 10
+        upper_temp_c:
+          type: number
+          format: float
+          description: Upper temperature threshold (optional cap) | الحد الأعلى لدرجة الحرارة
+          example: 30
+        correlation_id:
+          type: string
+          description: Optional correlation ID for request tracking | معرف الارتباط الاختياري
+
+    SprayWindowRequest:
+      type: object
+      description: |
+        Request for spray window assessment
+        طلب تقييم نافذة الرش
       required:
         - tenant_id
         - field_id
@@ -548,112 +1511,473 @@ components:
       properties:
         tenant_id:
           type: string
+          description: Tenant identifier | معرف المستأجر
+          example: "tenant-001"
         field_id:
           type: string
+          description: Field identifier | معرف الحقل
+          example: "field-001"
         temp_c:
           type: number
           format: float
+          description: Temperature in Celsius | درجة الحرارة بالدرجة المئوية
+          example: 22
         humidity_pct:
           type: number
           format: float
+          minimum: 0
+          maximum: 100
+          description: Humidity percentage | نسبة الرطوبة
+          example: 65
         wind_speed_kmh:
           type: number
           format: float
+          minimum: 0
+          description: Wind speed in km/h | سرعة الرياح بالكيلومتر/ساعة
+          example: 8
+        precipitation_probability:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Precipitation probability percentage | احتمالية الهطول
+          example: 5
+        correlation_id:
+          type: string
+          description: Optional correlation ID for request tracking | معرف الارتباط الاختياري
+
+    FrostRiskRequest:
+      type: object
+      description: |
+        Request for frost risk assessment
+        طلب تقييم خطر الصقيع
+      required:
+        - tenant_id
+        - field_id
+        - temp_c
+        - humidity_pct
+      properties:
+        tenant_id:
+          type: string
+          description: Tenant identifier | معرف المستأجر
+          example: "tenant-001"
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+          example: "field-001"
+        temp_c:
+          type: number
+          format: float
+          description: Temperature in Celsius | درجة الحرارة بالدرجة المئوية
+          example: 3
+        humidity_pct:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Humidity percentage | نسبة الرطوبة
+          example: 85
+        wind_speed_kmh:
+          type: number
+          format: float
+          minimum: 0
+          description: Wind speed in km/h | سرعة الرياح بالكيلومتر/ساعة
+          example: 5
+        cloud_cover_pct:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Cloud cover percentage | نسبة الغطاء السحابي
+          example: 10
+        dew_point_c:
+          type: number
+          format: float
+          description: Dew point temperature in Celsius | درجة حرارة نقطة الندى
+          example: 1
+        correlation_id:
+          type: string
+          description: Optional correlation ID for request tracking | معرف الارتباط الاختياري
+
+    HeatStressRequest:
+      type: object
+      description: |
+        Request for heat stress index calculation
+        طلب حساب مؤشر الإجهاد الحراري
+      required:
+        - tenant_id
+        - field_id
+        - temp_c
+        - humidity_pct
+      properties:
+        tenant_id:
+          type: string
+          description: Tenant identifier | معرف المستأجر
+          example: "tenant-001"
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+          example: "field-001"
+        temp_c:
+          type: number
+          format: float
+          description: Temperature in Celsius | درجة الحرارة بالدرجة المئوية
+          example: 38
+        humidity_pct:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Humidity percentage | نسبة الرطوبة
+          example: 60
+        solar_radiation_mj:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 50
+          description: Solar radiation in MJ/m²/day | الإشعاع الشمسي
+          example: 28
+        wind_speed_kmh:
+          type: number
+          format: float
+          minimum: 0
+          description: Wind speed in km/h | سرعة الرياح بالكيلومتر/ساعة
+          example: 5
+        correlation_id:
+          type: string
+          description: Optional correlation ID for request tracking | معرف الارتباط الاختياري
+
+    ChillHoursRequest:
+      type: object
+      description: |
+        Request for chill hours calculation
+        طلب حساب ساعات التبريد
+      required:
+        - tenant_id
+        - field_id
+        - start_date
+        - end_date
+      properties:
+        tenant_id:
+          type: string
+          description: Tenant identifier | معرف المستأجر
+          example: "tenant-001"
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+          example: "field-001"
+        start_date:
+          type: string
+          format: date
+          description: Start date for calculation | تاريخ بدء الحساب
+          example: "2024-11-01"
+        end_date:
+          type: string
+          format: date
+          description: End date for calculation | تاريخ انتهاء الحساب
+          example: "2024-01-15"
+        model:
+          type: string
+          enum: [utah, positive_utah, dynamic]
+          default: utah
+          description: Chill hour calculation model | نموذج حساب ساعات التبريد
+          example: "utah"
+        crop_type:
+          type: string
+          description: Crop type for requirement comparison | نوع المحصول للمقارنة
+          example: "apple"
+        correlation_id:
+          type: string
+          description: Optional correlation ID for request tracking | معرف الارتباط الاختياري
+
+    DroughtIndexRequest:
+      type: object
+      description: |
+        Request for drought index calculation
+        طلب حساب مؤشر الجفاف
+      required:
+        - tenant_id
+        - field_id
+      properties:
+        tenant_id:
+          type: string
+          description: Tenant identifier | معرف المستأجر
+          example: "tenant-001"
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+          example: "field-001"
+        precipitation_mm_30d:
+          type: number
+          format: float
+          minimum: 0
+          description: Total precipitation in last 30 days (mm) | إجمالي الهطول في آخر 30 يومًا
+          example: 5
+        et0_mm_30d:
+          type: number
+          format: float
+          minimum: 0
+          description: Total ET0 in last 30 days (mm) | إجمالي التبخر النتح في آخر 30 يومًا
+          example: 180
+        soil_moisture_pct:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Current soil moisture percentage | نسبة رطوبة التربة الحالية
+          example: 15
+        days_since_rain:
+          type: integer
+          minimum: 0
+          description: Days since last significant rainfall | الأيام منذ آخر هطول كبير
+          example: 45
+        correlation_id:
+          type: string
+          description: Optional correlation ID for request tracking | معرف الارتباط الاختياري
+
+    AgriculturalReportRequest:
+      type: object
+      description: |
+        Request for comprehensive agricultural weather report
+        طلب تقرير الطقس الزراعي الشامل
+      required:
+        - tenant_id
+        - field_id
+        - lat
+        - lon
+      properties:
+        tenant_id:
+          type: string
+          description: Tenant identifier | معرف المستأجر
+          example: "tenant-001"
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+          example: "field-001"
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: Latitude | خط العرض
+          example: 24.7136
+        lon:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: Longitude | خط الطول
+          example: 46.6753
+        crop_type:
+          type: string
+          description: Crop type | نوع المحصول
+          example: "wheat"
+        crop_stage:
+          type: string
+          description: Current crop growth stage | مرحلة نمو المحصول الحالية
+          example: "tillering"
+        correlation_id:
+          type: string
+          description: Optional correlation ID for request tracking | معرف الارتباط الاختياري
+
+    ComprehensiveStressRequest:
+      type: object
+      description: |
+        Request for comprehensive stress assessment
+        طلب تقييم الإجهاد الشامل
+      required:
+        - tenant_id
+        - field_id
+        - lat
+        - lon
+      properties:
+        tenant_id:
+          type: string
+          description: Tenant identifier | معرف المستأجر
+          example: "tenant-001"
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+          example: "field-001"
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: Latitude | خط العرض
+          example: 24.7136
+        lon:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: Longitude | خط الطول
+          example: 46.6753
+        crop_type:
+          type: string
+          description: Crop type | نوع المحصول
+          example: "tomato"
+        include_forecast:
+          type: boolean
+          default: true
+          description: Include stress forecast | تضمين توقعات الإجهاد
+          example: true
+        correlation_id:
+          type: string
+          description: Optional correlation ID for request tracking | معرف الارتباط الاختياري
+
+    IrrigationRequest:
+      type: object
+      description: |
+        Request for irrigation adjustment calculation
+        طلب حساب تعديل الري
+      required:
+        - tenant_id
+        - field_id
+        - temp_c
+        - humidity_pct
+        - wind_speed_kmh
+      properties:
+        tenant_id:
+          type: string
+          description: Tenant identifier | معرف المستأجر
+          example: "tenant-001"
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+          example: "field-001"
+        temp_c:
+          type: number
+          format: float
+          description: Temperature in Celsius | درجة الحرارة بالدرجة المئوية
+          example: 35
+        humidity_pct:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Humidity percentage | نسبة الرطوبة
+          example: 30
+        wind_speed_kmh:
+          type: number
+          format: float
+          minimum: 0
+          description: Wind speed in km/h | سرعة الرياح بالكيلومتر/ساعة
+          example: 20
         precipitation_mm:
           type: number
           format: float
+          minimum: 0
           default: 0
+          description: Precipitation in mm | هطول الأمطار بالمليمتر
+          example: 0
         correlation_id:
           type: string
+          description: Optional correlation ID for request tracking | معرف الارتباط الاختياري
 
+    # Response Schemas
     CurrentWeather:
       type: object
+      description: Current weather data | بيانات الطقس الحالية
       properties:
         temperature_c:
           type: number
           format: float
-          description: Temperature in Celsius
+          description: Temperature in Celsius | درجة الحرارة
         humidity_pct:
           type: number
           format: float
-          description: Humidity percentage
+          description: Humidity percentage | نسبة الرطوبة
         wind_speed_kmh:
           type: number
           format: float
-          description: Wind speed in km/h
+          description: Wind speed in km/h | سرعة الرياح
         wind_direction_deg:
           type: number
           format: float
-          description: Wind direction in degrees
+          description: Wind direction in degrees | اتجاه الرياح بالدرجات
         wind_direction:
           type: string
-          description: Wind direction (N, S, E, W, etc.)
+          description: Wind direction (N, S, E, W, etc.) | اتجاه الرياح
         precipitation_mm:
           type: number
           format: float
-          description: Precipitation in mm
+          description: Precipitation in mm | هطول الأمطار
         cloud_cover_pct:
           type: number
           format: float
-          description: Cloud cover percentage
+          description: Cloud cover percentage | نسبة الغطاء السحابي
         pressure_hpa:
           type: number
           format: float
-          description: Atmospheric pressure in hPa
+          description: Atmospheric pressure in hPa | الضغط الجوي
         uv_index:
           type: number
           format: float
-          description: UV index
+          description: UV index | مؤشر الأشعة فوق البنفسجية
         condition:
           type: string
-          description: Weather condition in English
+          description: Weather condition in English | الحالة الجوية بالإنجليزية
         condition_ar:
           type: string
-          description: Weather condition in Arabic
+          description: Weather condition in Arabic | الحالة الجوية بالعربية
         timestamp:
           type: string
           format: date-time
+          description: Data timestamp | الطابع الزمني للبيانات
 
     DailyForecast:
       type: object
+      description: Daily forecast data | بيانات التوقعات اليومية
       properties:
         date:
           type: string
           format: date
+          description: Forecast date | تاريخ التوقعات
         temp_max_c:
           type: number
           format: float
+          description: Maximum temperature | درجة الحرارة القصوى
         temp_min_c:
           type: number
           format: float
+          description: Minimum temperature | درجة الحرارة الدنيا
         precipitation_mm:
           type: number
           format: float
+          description: Expected precipitation | الهطول المتوقع
         precipitation_probability_pct:
           type: number
           format: float
+          description: Precipitation probability | احتمالية الهطول
         wind_speed_max_kmh:
           type: number
           format: float
+          description: Maximum wind speed | سرعة الرياح القصوى
         uv_index_max:
           type: number
           format: float
+          description: Maximum UV index | أقصى مؤشر للأشعة فوق البنفسجية
         condition:
           type: string
+          description: Weather condition | الحالة الجوية
         condition_ar:
           type: string
+          description: Weather condition in Arabic | الحالة الجوية بالعربية
         sunrise:
           type: string
-          format: time
+          description: Sunrise time | وقت شروق الشمس
         sunset:
           type: string
-          format: time
+          description: Sunset time | وقت غروب الشمس
 
     WeatherAlert:
       type: object
+      description: Weather alert | تنبيه الطقس
       properties:
         id:
           type: string
+          description: Alert ID | معرف التنبيه
         type:
           type: string
           enum:
@@ -664,51 +1988,68 @@ components:
             - HIGH_WIND
             - DROUGHT
             - HAIL
+            - LOW_HUMIDITY
+            - HIGH_UV
+          description: Alert type | نوع التنبيه
         severity:
           type: string
           enum: [info, warning, critical]
+          description: Severity level | مستوى الخطورة
         title:
           type: string
-        titleAr:
+          description: Alert title (English) | عنوان التنبيه
+        title_ar:
           type: string
+          description: Alert title (Arabic) | عنوان التنبيه بالعربية
         description:
           type: string
-        descriptionAr:
+          description: Alert description (English) | وصف التنبيه
+        description_ar:
           type: string
-        affectedAreas:
+          description: Alert description (Arabic) | وصف التنبيه بالعربية
+        affected_areas:
           type: array
           items:
             type: string
-        affectedAreasAr:
+          description: Affected field IDs | الحقول المتأثرة
+        affected_areas_ar:
           type: array
           items:
             type: string
-        startTime:
+          description: Affected areas (Arabic names) | المناطق المتأثرة
+        start_time:
           type: string
           format: date-time
-        endTime:
+          description: Alert start time | وقت بدء التنبيه
+        end_time:
           type: string
           format: date-time
-        isActive:
+          description: Alert end time | وقت انتهاء التنبيه
+        is_active:
           type: boolean
+          description: Whether alert is currently active | هل التنبيه نشط حاليًا
 
     CurrentWeatherResponse:
       type: object
+      description: Current weather response | استجابة الطقس الحالي
       properties:
         field_id:
           type: string
+          description: Field identifier | معرف الحقل
         location:
           type: object
           properties:
             lat:
               type: number
               format: double
+              description: Latitude | خط العرض
             lon:
               type: number
               format: double
+              description: Longitude | خط الطول
         provider:
           type: string
-          description: Weather data provider used
+          description: Weather data provider used | مزود بيانات الطقس المستخدم
         current:
           $ref: '#/components/schemas/CurrentWeather'
         alerts:
@@ -730,12 +2071,15 @@ components:
           type: array
           items:
             type: string
+          description: Generated event IDs | معرفات الأحداث المُنشأة
 
     ForecastResponse:
       type: object
+      description: Forecast response | استجابة التوقعات
       properties:
         field_id:
           type: string
+          description: Field identifier | معرف الحقل
         location:
           type: object
           properties:
@@ -745,18 +2089,22 @@ components:
               type: number
         provider:
           type: string
+          description: Weather data provider | مزود بيانات الطقس
         forecast:
           type: array
           items:
             $ref: '#/components/schemas/DailyForecast'
         days:
           type: integer
+          description: Number of forecast days | عدد أيام التوقعات
 
     WeatherAssessResponse:
       type: object
+      description: Weather assessment response | استجابة تقييم الطقس
       properties:
         field_id:
           type: string
+          description: Field identifier | معرف الحقل
         alerts:
           type: array
           items:
@@ -774,18 +2122,615 @@ components:
                 type: integer
         alert_count:
           type: integer
+          description: Number of alerts generated | عدد التنبيهات المُنشأة
         event_ids:
           type: array
           items:
             type: string
         published:
           type: boolean
+          description: Whether events were published | هل تم نشر الأحداث
 
-    IrrigationResponse:
+    ETResponse:
       type: object
+      description: Evapotranspiration response | استجابة التبخر النتح
       properties:
         field_id:
           type: string
+          description: Field identifier | معرف الحقل
+        et0_mm_day:
+          type: number
+          format: float
+          description: Reference ET0 in mm/day | التبخر النتح المرجعي
+        method:
+          type: string
+          description: Calculation method used | طريقة الحساب المستخدمة
+        method_ar:
+          type: string
+          description: Calculation method (Arabic) | طريقة الحساب بالعربية
+        input_data:
+          type: object
+          properties:
+            temp_c:
+              type: number
+            humidity_pct:
+              type: number
+            wind_speed_kmh:
+              type: number
+            solar_radiation_mj:
+              type: number
+        recommendation_en:
+          type: string
+          description: Irrigation recommendation (English) | توصية الري
+        recommendation_ar:
+          type: string
+          description: Irrigation recommendation (Arabic) | توصية الري بالعربية
+        timestamp:
+          type: string
+          format: date-time
+
+    GDDResponse:
+      type: object
+      description: Growing Degree Days response | استجابة درجات يوم النمو
+      properties:
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+        gdd:
+          type: number
+          format: float
+          description: Calculated GDD value | قيمة درجات يوم النمو المحسوبة
+        gdd_unit:
+          type: string
+          description: GDD unit | وحدة درجات يوم النمو
+        gdd_unit_ar:
+          type: string
+          description: GDD unit (Arabic) | وحدة درجات يوم النمو بالعربية
+        input_data:
+          type: object
+          properties:
+            temp_max_c:
+              type: number
+            temp_min_c:
+              type: number
+            base_temp_c:
+              type: number
+            upper_temp_c:
+              type: number
+        effective_temp_max_c:
+          type: number
+          format: float
+          description: Effective maximum temperature after capping | درجة الحرارة القصوى الفعلية
+        effective_temp_min_c:
+          type: number
+          format: float
+          description: Effective minimum temperature after adjustment | درجة الحرارة الدنيا الفعلية
+        notes_en:
+          type: string
+          description: Calculation notes (English) | ملاحظات الحساب
+        notes_ar:
+          type: string
+          description: Calculation notes (Arabic) | ملاحظات الحساب بالعربية
+        timestamp:
+          type: string
+          format: date-time
+
+    SprayWindowResponse:
+      type: object
+      description: Spray window assessment response | استجابة تقييم نافذة الرش
+      properties:
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+        suitable:
+          type: boolean
+          description: Whether conditions are suitable for spraying | هل الظروف مناسبة للرش
+        suitability_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Suitability score (0-100) | درجة الملاءمة
+        recommendation_en:
+          type: string
+          description: Recommendation (English) | التوصية
+        recommendation_ar:
+          type: string
+          description: Recommendation (Arabic) | التوصية بالعربية
+        factors:
+          type: array
+          items:
+            type: object
+            properties:
+              factor:
+                type: string
+              factor_ar:
+                type: string
+              status:
+                type: string
+                enum: [optimal, acceptable, marginal, critical]
+              status_ar:
+                type: string
+              value:
+                type: number
+              unit:
+                type: string
+        optimal_window_hours:
+          type: integer
+          description: Optimal spray window duration | مدة نافذة الرش المثلى
+        timestamp:
+          type: string
+          format: date-time
+
+    FrostRiskResponse:
+      type: object
+      description: Frost risk assessment response | استجابة تقييم خطر الصقيع
+      properties:
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+        frost_risk_level:
+          type: string
+          enum: [none, low, moderate, high, critical]
+          description: Frost risk level | مستوى خطر الصقيع
+        frost_risk_level_ar:
+          type: string
+          description: Frost risk level (Arabic) | مستوى خطر الصقيع بالعربية
+        frost_probability_pct:
+          type: number
+          format: float
+          description: Frost probability percentage | احتمالية الصقيع
+        minimum_expected_temp_c:
+          type: number
+          format: float
+          description: Minimum expected temperature | درجة الحرارة الدنيا المتوقعة
+        frost_type:
+          type: string
+          enum: [radiation, advection, mixed]
+          description: Expected frost type | نوع الصقيع المتوقع
+        frost_type_ar:
+          type: string
+          description: Frost type (Arabic) | نوع الصقيع بالعربية
+        recommendation_en:
+          type: string
+          description: Recommendation (English) | التوصية
+        recommendation_ar:
+          type: string
+          description: Recommendation (Arabic) | التوصية بالعربية
+        protective_measures:
+          type: array
+          items:
+            type: object
+            properties:
+              measure_en:
+                type: string
+              measure_ar:
+                type: string
+        window_hours:
+          type: integer
+          description: Time window for frost risk | نافذة خطر الصقيع
+        timestamp:
+          type: string
+          format: date-time
+
+    HeatStressResponse:
+      type: object
+      description: Simple heat stress response | استجابة الإجهاد الحراري البسيطة
+      properties:
+        temperature_c:
+          type: number
+          format: float
+          description: Input temperature | درجة الحرارة المدخلة
+        alert_type:
+          type: string
+          nullable: true
+          description: Alert type if triggered | نوع التنبيه إن وُجد
+        severity:
+          type: string
+          enum: [none, info, warning, critical]
+          description: Severity level | مستوى الخطورة
+        severity_ar:
+          type: string
+          description: Severity level (Arabic) | مستوى الخطورة بالعربية
+        at_risk:
+          type: boolean
+          description: Whether crops/livestock are at risk | هل هناك خطر على المحاصيل/الماشية
+        message_en:
+          type: string
+          description: Status message (English) | رسالة الحالة
+        message_ar:
+          type: string
+          description: Status message (Arabic) | رسالة الحالة بالعربية
+
+    HeatStressCalculatedResponse:
+      type: object
+      description: Comprehensive heat stress response | استجابة الإجهاد الحراري الشاملة
+      properties:
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+        temperature_humidity_index:
+          type: number
+          format: float
+          description: Temperature-Humidity Index (THI) | مؤشر درجة الحرارة والرطوبة
+        heat_stress_level:
+          type: string
+          enum: [none, mild, moderate, severe, critical]
+          description: Heat stress level | مستوى الإجهاد الحراري
+        heat_stress_level_ar:
+          type: string
+          description: Heat stress level (Arabic) | مستوى الإجهاد الحراري بالعربية
+        apparent_temperature_c:
+          type: number
+          format: float
+          description: Apparent/feels-like temperature | درجة الحرارة الظاهرية
+        crop_impact:
+          type: object
+          properties:
+            severity:
+              type: string
+            severity_ar:
+              type: string
+            description_en:
+              type: string
+            description_ar:
+              type: string
+        livestock_impact:
+          type: object
+          properties:
+            severity:
+              type: string
+            severity_ar:
+              type: string
+            description_en:
+              type: string
+            description_ar:
+              type: string
+        recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              recommendation_en:
+                type: string
+              recommendation_ar:
+                type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    ChillHoursResponse:
+      type: object
+      description: Chill hours response | استجابة ساعات التبريد
+      properties:
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+        chill_hours:
+          type: number
+          format: float
+          description: Accumulated chill hours | ساعات التبريد المتراكمة
+        chill_portions:
+          type: number
+          format: float
+          description: Chill portions (Dynamic Model) | أجزاء التبريد
+        model_used:
+          type: string
+          description: Calculation model used | نموذج الحساب المستخدم
+        model_used_ar:
+          type: string
+          description: Calculation model (Arabic) | نموذج الحساب بالعربية
+        period:
+          type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+            end_date:
+              type: string
+              format: date
+            days:
+              type: integer
+        crop_requirement:
+          type: object
+          properties:
+            crop_type:
+              type: string
+            crop_type_ar:
+              type: string
+            minimum_hours:
+              type: integer
+            maximum_hours:
+              type: integer
+            status:
+              type: string
+              enum: [below_requirement, met, exceeded]
+            status_ar:
+              type: string
+            progress_pct:
+              type: number
+        recommendation_en:
+          type: string
+          description: Recommendation (English) | التوصية
+        recommendation_ar:
+          type: string
+          description: Recommendation (Arabic) | التوصية بالعربية
+        timestamp:
+          type: string
+          format: date-time
+
+    DroughtIndexResponse:
+      type: object
+      description: Drought index response | استجابة مؤشر الجفاف
+      properties:
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+        drought_category:
+          type: string
+          enum: [D0, D1, D2, D3, D4]
+          description: Drought category | فئة الجفاف
+        drought_category_name:
+          type: string
+          description: Category name (English) | اسم الفئة
+        drought_category_name_ar:
+          type: string
+          description: Category name (Arabic) | اسم الفئة بالعربية
+        drought_index:
+          type: number
+          format: float
+          description: Calculated drought index | مؤشر الجفاف المحسوب
+        water_deficit_mm:
+          type: number
+          format: float
+          description: Water deficit in mm | عجز المياه بالمليمتر
+        soil_moisture_status:
+          type: string
+          description: Soil moisture status | حالة رطوبة التربة
+        soil_moisture_status_ar:
+          type: string
+          description: Soil moisture status (Arabic) | حالة رطوبة التربة بالعربية
+        crop_impact:
+          type: object
+          properties:
+            yield_reduction_pct:
+              type: number
+            description_en:
+              type: string
+            description_ar:
+              type: string
+        recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              recommendation_en:
+                type: string
+              recommendation_ar:
+                type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    AgriculturalReportResponse:
+      type: object
+      description: Agricultural weather report response | استجابة تقرير الطقس الزراعي
+      properties:
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+        report_date:
+          type: string
+          format: date
+          description: Report date | تاريخ التقرير
+        crop_info:
+          type: object
+          properties:
+            type:
+              type: string
+            type_ar:
+              type: string
+            stage:
+              type: string
+            stage_ar:
+              type: string
+        current_weather:
+          type: object
+          properties:
+            temperature_c:
+              type: number
+            humidity_pct:
+              type: number
+            wind_speed_kmh:
+              type: number
+            condition:
+              type: string
+            condition_ar:
+              type: string
+        forecast_summary:
+          type: object
+          properties:
+            next_7_days:
+              type: object
+              properties:
+                temp_max_avg_c:
+                  type: number
+                temp_min_avg_c:
+                  type: number
+                total_precipitation_mm:
+                  type: number
+                rain_days:
+                  type: integer
+        agricultural_metrics:
+          type: object
+          properties:
+            et0_mm_day:
+              type: number
+            gdd_accumulated:
+              type: number
+            gdd_target:
+              type: number
+            gdd_progress_pct:
+              type: number
+        risk_assessments:
+          type: object
+          properties:
+            frost_risk:
+              type: string
+            frost_risk_ar:
+              type: string
+            heat_stress:
+              type: string
+            heat_stress_ar:
+              type: string
+            drought_risk:
+              type: string
+            drought_risk_ar:
+              type: string
+        spray_window:
+          type: object
+          properties:
+            suitable:
+              type: boolean
+            best_time:
+              type: string
+            suitability_score:
+              type: integer
+        recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              priority:
+                type: string
+              priority_ar:
+                type: string
+              category:
+                type: string
+              category_ar:
+                type: string
+              recommendation_en:
+                type: string
+              recommendation_ar:
+                type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    ComprehensiveStressResponse:
+      type: object
+      description: Comprehensive stress assessment response | استجابة تقييم الإجهاد الشامل
+      properties:
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
+        report_date:
+          type: string
+          format: date
+          description: Report date | تاريخ التقرير
+        overall_stress_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Overall stress score (0-100) | درجة الإجهاد الكلية
+        overall_stress_level:
+          type: string
+          enum: [none, low, moderate, high, critical]
+          description: Overall stress level | مستوى الإجهاد الكلي
+        overall_stress_level_ar:
+          type: string
+          description: Overall stress level (Arabic) | مستوى الإجهاد الكلي بالعربية
+        stress_components:
+          type: object
+          properties:
+            heat_stress:
+              type: object
+              properties:
+                score:
+                  type: integer
+                level:
+                  type: string
+                level_ar:
+                  type: string
+                thi:
+                  type: number
+            cold_stress:
+              type: object
+              properties:
+                score:
+                  type: integer
+                level:
+                  type: string
+                level_ar:
+                  type: string
+                frost_risk:
+                  type: boolean
+            drought_stress:
+              type: object
+              properties:
+                score:
+                  type: integer
+                level:
+                  type: string
+                level_ar:
+                  type: string
+                water_deficit_mm:
+                  type: number
+            wind_stress:
+              type: object
+              properties:
+                score:
+                  type: integer
+                level:
+                  type: string
+                level_ar:
+                  type: string
+                max_wind_kmh:
+                  type: number
+            uv_stress:
+              type: object
+              properties:
+                score:
+                  type: integer
+                level:
+                  type: string
+                level_ar:
+                  type: string
+                uv_index:
+                  type: number
+        forecast_stress:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              predicted_score:
+                type: integer
+              predicted_level:
+                type: string
+        priority_actions:
+          type: array
+          items:
+            type: object
+            properties:
+              priority:
+                type: integer
+              action_en:
+                type: string
+              action_ar:
+                type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    IrrigationResponse:
+      type: object
+      description: Irrigation adjustment response | استجابة تعديل الري
+      properties:
+        field_id:
+          type: string
+          description: Field identifier | معرف الحقل
         weather_input:
           type: object
           properties:
@@ -800,36 +2745,27 @@ components:
         adjustment_factor:
           type: number
           format: float
-          description: Multiplier for irrigation amount (e.g., 1.25 = increase by 25%)
+          description: Multiplier for irrigation amount (e.g., 1.25 = increase by 25%) | معامل تعديل كمية الري
         recommendation_en:
           type: string
+          description: Recommendation (English) | التوصية
         recommendation_ar:
           type: string
+          description: Recommendation (Arabic) | التوصية بالعربية
         event_id:
           type: string
+          description: Generated event ID | معرف الحدث المُنشأ
         published:
           type: boolean
-
-    HeatStressResponse:
-      type: object
-      properties:
-        temperature_c:
-          type: number
-          format: float
-        alert_type:
-          type: string
-          nullable: true
-        severity:
-          type: string
-          enum: [none, info, warning, critical]
-        at_risk:
-          type: boolean
+          description: Whether event was published | هل تم نشر الحدث
 
     ProvidersResponse:
       type: object
+      description: Weather providers response | استجابة مزودي الطقس
       properties:
         multi_provider_enabled:
           type: boolean
+          description: Whether multi-provider mode is enabled | هل وضع المزودين المتعددين مفعل
         providers:
           type: array
           items:
@@ -837,19 +2773,34 @@ components:
             properties:
               name:
                 type: string
+                description: Provider name | اسم المزود
+              name_ar:
+                type: string
+                description: Provider name (Arabic) | اسم المزود بالعربية
               configured:
                 type: boolean
+                description: Whether provider is configured | هل المزود مُكوَّن
               type:
                 type: string
+                description: Provider type class | فئة نوع المزود
               requires_api_key:
                 type: boolean
+                description: Whether API key is required | هل يتطلب مفتاح API
+              features:
+                type: array
+                items:
+                  type: string
+                description: Supported features | الميزات المدعومة
         total:
           type: integer
+          description: Total number of providers | إجمالي عدد المزودين
         configured:
           type: integer
+          description: Number of configured providers | عدد المزودين المُكوَّنين
 
     HistoricalWeatherResponse:
       type: object
+      description: Historical weather response | استجابة الطقس التاريخي
       properties:
         location:
           type: object
@@ -885,21 +2836,28 @@ components:
 
     Error:
       type: object
+      description: Error response | استجابة الخطأ
       required:
         - error
         - message
       properties:
         error:
           type: string
+          description: Error code | رمز الخطأ
         message:
           type: string
+          description: Error message | رسالة الخطأ
+        message_ar:
+          type: string
+          description: Error message (Arabic) | رسالة الخطأ بالعربية
         details:
           type: object
           additionalProperties: true
+          description: Additional error details | تفاصيل إضافية عن الخطأ
 
   responses:
     BadRequestError:
-      description: Bad request - Invalid input data
+      description: Bad request - Invalid input data | طلب غير صالح - بيانات إدخال غير صالحة
       content:
         application/json:
           schema:
@@ -907,9 +2865,10 @@ components:
           example:
             error: "BAD_REQUEST"
             message: "Invalid coordinates provided"
+            message_ar: "الإحداثيات المقدمة غير صالحة"
 
     UnauthorizedError:
-      description: Unauthorized - Missing or invalid authentication token
+      description: Unauthorized - Missing or invalid authentication token | غير مصرح - رمز المصادقة مفقود أو غير صالح
       content:
         application/json:
           schema:
@@ -917,9 +2876,10 @@ components:
           example:
             error: "UNAUTHORIZED"
             message: "Authentication token is required"
+            message_ar: "رمز المصادقة مطلوب"
 
     ServiceUnavailableError:
-      description: Service unavailable - Weather provider error
+      description: Service unavailable - Weather provider error | الخدمة غير متاحة - خطأ في مزود الطقس
       content:
         application/json:
           schema:
@@ -927,5 +2887,6 @@ components:
           example:
             error: "SERVICE_UNAVAILABLE"
             message: "Weather service temporarily unavailable"
+            message_ar: "خدمة الطقس غير متاحة مؤقتًا"
             details:
               failed_providers: ["OpenWeatherMap", "WeatherAPI"]

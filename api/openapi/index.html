@@ -23,7 +23,7 @@
     
     
       
-        <title>SAHOOL AI/ML API Documentation - SAHOOL Developer Documentation</title>
+        <title>SAHOOL Platform API Documentation | توثيق واجهات برمجة تطبيقات منصة سهول - SAHOOL Developer Documentation</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#sahool-aiml-api-documentation" class="md-skip">
+        <a href="#sahool-platform-api-documentation" class="md-skip">
           Skip to content
         </a>
       
@@ -106,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              SAHOOL AI/ML API Documentation
+              SAHOOL Platform API Documentation | توثيق واجهات برمجة تطبيقات منصة سهول
             
           </span>
         </div>
@@ -1116,36 +1116,97 @@
 
 
 
-<h1 id="sahool-aiml-api-documentation">SAHOOL AI/ML API Documentation<a class="headerlink" href="#sahool-aiml-api-documentation" title="Permanent link">&para;</a></h1>
-<p>OpenAPI 3.0 specifications for SAHOOL's AI/ML and Analysis services.</p>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>This directory contains comprehensive OpenAPI/Swagger documentation for SAHOOL's agricultural AI and remote sensing APIs.</p>
-<h3 id="api-specifications">API Specifications<a class="headerlink" href="#api-specifications" title="Permanent link">&para;</a></h3>
-<ol>
-<li><strong><a href="ai-services.yaml">ai-services.yaml</a></strong> - AI/ML Services API</li>
-<li>Crop Intelligence &amp; Disease Detection</li>
-<li>Fertilizer Advisor &amp; NPK Recommendations</li>
-<li>
-<p>Yield Prediction with ML Models</p>
-</li>
-<li>
-<p><strong><a href="analysis-services.yaml">analysis-services.yaml</a></strong> - Analysis Services API</p>
-</li>
-<li>NDVI Analysis &amp; Vegetation Monitoring</li>
-<li>Satellite Imagery (Sentinel-2, Landsat, MODIS)</li>
-<li>LAI Estimation &amp; Time Series Analysis</li>
-</ol>
-<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
-<h3 id="viewing-the-documentation">Viewing the Documentation<a class="headerlink" href="#viewing-the-documentation" title="Permanent link">&para;</a></h3>
+<h1 id="sahool-platform-api-documentation">SAHOOL Platform API Documentation | توثيق واجهات برمجة تطبيقات منصة سهول<a class="headerlink" href="#sahool-platform-api-documentation" title="Permanent link">&para;</a></h1>
+<p>OpenAPI 3.0.3 specifications for all SAHOOL platform services.</p>
+<blockquote>
+<p><strong>Version</strong>: 16.0.0
+<strong>Last Updated</strong>: 2026-01-24</p>
+</blockquote>
+<h2 id="overview">Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This directory contains comprehensive OpenAPI/Swagger documentation for all SAHOOL agricultural platform APIs, organized by service category.</p>
+<h2 id="api-specifications">API Specifications | مواصفات واجهات البرمجة<a class="headerlink" href="#api-specifications" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Services</th>
+<th>Description</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><a href="core-services.yaml">core-services.yaml</a></strong></td>
+<td>user-service, notification-service, alert-service, audit-service</td>
+<td>Authentication, Users, Notifications, Alerts, Audit</td>
+<td>المصادقة، المستخدمين، الإشعارات، التنبيهات، التدقيق</td>
+</tr>
+<tr>
+<td><strong><a href="field-services.yaml">field-services.yaml</a></strong></td>
+<td>field-management-service</td>
+<td>Field CRUD, Boundaries, NDVI, Geospatial</td>
+<td>إدارة الحقول، الحدود، مؤشر الغطاء النباتي</td>
+</tr>
+<tr>
+<td><strong><a href="weather-services.yaml">weather-services.yaml</a></strong></td>
+<td>weather-service, weather-core</td>
+<td>Weather Assessment, Forecasts, ET0, GDD, Frost/Heat Risk</td>
+<td>تقييم الطقس، التنبؤات، البخر-نتح، مخاطر الصقيع والحرارة</td>
+</tr>
+<tr>
+<td><strong><a href="ai-services.yaml">ai-services.yaml</a></strong></td>
+<td>advisory-service, crop-intelligence-service, ai-advisor, agro-advisor</td>
+<td>Disease Detection, Fertilizer Recommendations, Crop Health AI</td>
+<td>اكتشاف الأمراض، توصيات الأسمدة، ذكاء صحة المحاصيل</td>
+</tr>
+<tr>
+<td><strong><a href="analysis-services.yaml">analysis-services.yaml</a></strong></td>
+<td>vegetation-analysis-service, indicators-service, field-intelligence, virtual-sensors</td>
+<td>NDVI Analysis, Satellite Imagery, LAI Estimation, Virtual Sensors</td>
+<td>تحليل الغطاء النباتي، صور الأقمار الصناعية، المستشعرات الافتراضية</td>
+</tr>
+<tr>
+<td><strong><a href="iot-services.yaml">iot-services.yaml</a></strong></td>
+<td>iot-service, iot-gateway, ws-gateway</td>
+<td>Device Management, Sensor Data, WebSocket Events</td>
+<td>إدارة الأجهزة، بيانات المستشعرات، أحداث WebSocket</td>
+</tr>
+<tr>
+<td><strong><a href="marketplace-services.yaml">marketplace-services.yaml</a></strong></td>
+<td>marketplace-service, community-chat, research-core, disaster-assessment</td>
+<td>Products, Orders, Community Posts, Research Trials, Disaster Assessment</td>
+<td>المنتجات، الطلبات، منشورات المجتمع، التجارب البحثية، تقييم الكوارث</td>
+</tr>
+<tr>
+<td><strong><a href="billing-services.yaml">billing-services.yaml</a></strong></td>
+<td>billing-core</td>
+<td>Plans, Subscriptions, Invoices, Payments, Usage</td>
+<td>الخطط، الاشتراكات، الفواتير، المدفوعات، الاستخدام</td>
+</tr>
+<tr>
+<td><strong><a href="task-services.yaml">task-services.yaml</a></strong></td>
+<td>task-service, equipment-service, inventory-service</td>
+<td>Tasks, Equipment, Inventory, Maintenance</td>
+<td>المهام، المعدات، المخزون، الصيانة</td>
+</tr>
+<tr>
+<td><strong><a href="agent-services.yaml">agent-services.yaml</a></strong></td>
+<td>agent-registry, ai-agents-core, ai-agents-service, knowledge-graph, mcp-server, skills-service</td>
+<td>AI Agents, Knowledge Graph, MCP Tools, Skills</td>
+<td>وكلاء الذكاء الاصطناعي، رسم المعرفة، أدوات MCP، المهارات</td>
+</tr>
+</tbody>
+</table>
+<h2 id="quick-start">Quick Start | البدء السريع<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="viewing-the-documentation">Viewing the Documentation | عرض التوثيق<a class="headerlink" href="#viewing-the-documentation" title="Permanent link">&para;</a></h3>
 <h4 id="option-1-swagger-ui-recommended">Option 1: Swagger UI (Recommended)<a class="headerlink" href="#option-1-swagger-ui-recommended" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Install swagger-ui</span>
 npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>swagger-ui-watcher
 
-<span class="c1"># View AI Services API</span>
-swagger-ui-watcher<span class="w"> </span>docs/api/openapi/ai-services.yaml
-
-<span class="c1"># View Analysis Services API</span>
-swagger-ui-watcher<span class="w"> </span>docs/api/openapi/analysis-services.yaml
+<span class="c1"># View any specification</span>
+swagger-ui-watcher<span class="w"> </span>docs/api/openapi/core-services.yaml
+swagger-ui-watcher<span class="w"> </span>docs/api/openapi/field-services.yaml
+swagger-ui-watcher<span class="w"> </span>docs/api/openapi/weather-services.yaml
 </code></pre></div>
 
 <p>Open your browser to <code>http://localhost:8000</code></p>
@@ -1154,8 +1215,8 @@ swagger-ui-watcher<span class="w"> </span>docs/api/openapi/analysis-services.yam
 npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>redoc-cli
 
 <span class="c1"># Generate HTML documentation</span>
+redoc-cli<span class="w"> </span>bundle<span class="w"> </span>docs/api/openapi/core-services.yaml<span class="w"> </span>-o<span class="w"> </span>core-services.html
 redoc-cli<span class="w"> </span>bundle<span class="w"> </span>docs/api/openapi/ai-services.yaml<span class="w"> </span>-o<span class="w"> </span>ai-services.html
-redoc-cli<span class="w"> </span>bundle<span class="w"> </span>docs/api/openapi/analysis-services.yaml<span class="w"> </span>-o<span class="w"> </span>analysis-services.html
 </code></pre></div>
 
 <h4 id="option-3-online-swagger-editor">Option 3: Online Swagger Editor<a class="headerlink" href="#option-3-online-swagger-editor" title="Permanent link">&para;</a></h4>
@@ -1163,160 +1224,84 @@ redoc-cli<span class="w"> </span>bundle<span class="w"> </span>docs/api/openapi/
 <li>Go to https://editor.swagger.io/</li>
 <li>File → Import file → Select the YAML file</li>
 </ol>
-<h3 id="generating-client-sdks">Generating Client SDKs<a class="headerlink" href="#generating-client-sdks" title="Permanent link">&para;</a></h3>
+<h3 id="generating-client-sdks">Generating Client SDKs | إنشاء مكتبات العملاء<a class="headerlink" href="#generating-client-sdks" title="Permanent link">&para;</a></h3>
 <h4 id="python-client">Python Client<a class="headerlink" href="#python-client" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Install OpenAPI Generator</span>
 npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>@openapitools/openapi-generator-cli
 
-<span class="c1"># Generate Python client for AI Services</span>
+<span class="c1"># Generate Python client</span>
 openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-i<span class="w"> </span>docs/api/openapi/ai-services.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-i<span class="w"> </span>docs/api/openapi/core-services.yaml<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-g<span class="w"> </span>python<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-o<span class="w"> </span>clients/python/sahool-ai-client<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--additional-properties<span class="o">=</span><span class="nv">packageName</span><span class="o">=</span>sahool_ai
+<span class="w">  </span>-o<span class="w"> </span>clients/python/sahool-core-client<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--additional-properties<span class="o">=</span><span class="nv">packageName</span><span class="o">=</span>sahool_core
 
-<span class="c1"># Generate Python client for Analysis Services</span>
-openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-i<span class="w"> </span>docs/api/openapi/analysis-services.yaml<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-g<span class="w"> </span>python<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-o<span class="w"> </span>clients/python/sahool-analysis-client<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--additional-properties<span class="o">=</span><span class="nv">packageName</span><span class="o">=</span>sahool_analysis
+<span class="c1"># Generate for all services</span>
+<span class="k">for</span><span class="w"> </span>spec<span class="w"> </span><span class="k">in</span><span class="w"> </span>core-services<span class="w"> </span>field-services<span class="w"> </span>weather-services<span class="w"> </span>ai-services<span class="w"> </span>analysis-services<span class="w"> </span>iot-services<span class="w"> </span>marketplace-services<span class="w"> </span>billing-services<span class="w"> </span>task-services<span class="w"> </span>agent-services<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-i<span class="w"> </span>docs/api/openapi/<span class="si">${</span><span class="nv">spec</span><span class="si">}</span>.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-g<span class="w"> </span>python<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-o<span class="w"> </span>clients/python/sahool-<span class="si">${</span><span class="nv">spec</span><span class="p">%-services</span><span class="si">}</span>-client<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--additional-properties<span class="o">=</span><span class="nv">packageName</span><span class="o">=</span>sahool_<span class="si">${</span><span class="nv">spec</span><span class="p">%-services</span><span class="si">}</span>
+<span class="k">done</span>
 </code></pre></div>
 
-<h4 id="javascripttypescript-client">JavaScript/TypeScript Client<a class="headerlink" href="#javascripttypescript-client" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Generate TypeScript client for AI Services</span>
+<h4 id="typescriptjavascript-client">TypeScript/JavaScript Client<a class="headerlink" href="#typescriptjavascript-client" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate TypeScript Axios client</span>
 openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-i<span class="w"> </span>docs/api/openapi/ai-services.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-i<span class="w"> </span>docs/api/openapi/core-services.yaml<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-g<span class="w"> </span>typescript-axios<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-o<span class="w"> </span>clients/typescript/sahool-ai-client
-
-<span class="c1"># Generate TypeScript client for Analysis Services</span>
-openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-i<span class="w"> </span>docs/api/openapi/analysis-services.yaml<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-g<span class="w"> </span>typescript-axios<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-o<span class="w"> </span>clients/typescript/sahool-analysis-client
+<span class="w">  </span>-o<span class="w"> </span>clients/typescript/sahool-core-client
 </code></pre></div>
 
-<h4 id="java-client">Java Client<a class="headerlink" href="#java-client" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-i<span class="w"> </span>docs/api/openapi/ai-services.yaml<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-g<span class="w"> </span>java<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-o<span class="w"> </span>clients/java/sahool-ai-client<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--additional-properties<span class="o">=</span><span class="nv">groupId</span><span class="o">=</span>io.sahool,artifactId<span class="o">=</span>sahool-ai-client
+<h2 id="service-architecture">Service Architecture | معمارية الخدمات<a class="headerlink" href="#service-architecture" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="err">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                      </span><span class="n">API</span><span class="w"> </span><span class="n">Gateway</span><span class="w"> </span><span class="p">(</span><span class="n">Kong</span><span class="w"> </span><span class="o">:</span><span class="mh">8000</span><span class="p">)</span><span class="w">                        </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                     </span><span class="nl">https:</span><span class="c1">//api.sahool.sa/api/v1                     │</span>
+<span class="err">└─────────────────────────────────────────────────────────────────────┘</span>
+<span class="w">                                    </span><span class="err">│</span>
+<span class="w">        </span><span class="err">┌───────────────────────────┼───────────────────────────┐</span>
+<span class="w">        </span><span class="err">│</span><span class="w">                           </span><span class="err">│</span><span class="w">                           </span><span class="err">│</span>
+<span class="w">        </span><span class="err">▼</span><span class="w">                           </span><span class="err">▼</span><span class="w">                           </span><span class="err">▼</span>
+<span class="err">┌──────────────────┐</span><span class="w">    </span><span class="err">┌──────────────────┐</span><span class="w">    </span><span class="err">┌──────────────────┐</span>
+<span class="err">│</span><span class="w">  </span><span class="n">Core</span><span class="w"> </span><span class="n">Services</span><span class="w">   </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">  </span><span class="n">Field</span><span class="w"> </span><span class="n">Services</span><span class="w">  </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="n">Weather</span><span class="w"> </span><span class="n">Services</span><span class="w"> </span><span class="err">│</span>
+<span class="err">│</span><span class="w">    </span><span class="p">(</span><span class="n">Node</span><span class="p">.</span><span class="n">js</span><span class="p">)</span><span class="w">     </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">    </span><span class="p">(</span><span class="n">Node</span><span class="p">.</span><span class="n">js</span><span class="p">)</span><span class="w">     </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">    </span><span class="p">(</span><span class="n">Python</span><span class="p">)</span><span class="w">      </span><span class="err">│</span>
+<span class="err">└──────────────────┘</span><span class="w">    </span><span class="err">└──────────────────┘</span><span class="w">    </span><span class="err">└──────────────────┘</span>
+<span class="err">│</span><span class="w"> </span><span class="n">user</span><span class="o">-</span><span class="nl">service:</span><span class="mh">3025</span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="n">field</span><span class="o">-</span><span class="nl">mgmt:</span><span class="mh">3000</span><span class="w">   </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="nl">weather:</span><span class="mh">8092</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="nl">alert:</span><span class="mh">8113</span><span class="w">       </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">                  </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="n">weather</span><span class="o">-</span><span class="nl">core:</span><span class="mh">8108</span><span class="w"> </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="nl">notification:</span><span class="mh">8110</span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">                  </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">                  </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="nl">audit:</span><span class="mh">8114</span><span class="w">       </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">                  </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">                  </span><span class="err">│</span>
+<span class="err">└──────────────────┘</span><span class="w">    </span><span class="err">└──────────────────┘</span><span class="w">    </span><span class="err">└──────────────────┘</span>
+<span class="w">        </span><span class="err">│</span><span class="w">                           </span><span class="err">│</span><span class="w">                           </span><span class="err">│</span>
+<span class="w">        </span><span class="err">▼</span><span class="w">                           </span><span class="err">▼</span><span class="w">                           </span><span class="err">▼</span>
+<span class="err">┌──────────────────┐</span><span class="w">    </span><span class="err">┌──────────────────┐</span><span class="w">    </span><span class="err">┌──────────────────┐</span>
+<span class="err">│</span><span class="w">   </span><span class="n">AI</span><span class="w"> </span><span class="n">Services</span><span class="w">    </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="n">Analysis</span><span class="w"> </span><span class="n">Services</span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">   </span><span class="n">IoT</span><span class="w"> </span><span class="n">Services</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">    </span><span class="p">(</span><span class="n">Python</span><span class="p">)</span><span class="w">      </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">    </span><span class="p">(</span><span class="n">Python</span><span class="p">)</span><span class="w">      </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">  </span><span class="p">(</span><span class="n">Python</span><span class="o">/</span><span class="n">Node</span><span class="p">)</span><span class="w">   </span><span class="err">│</span>
+<span class="err">└──────────────────┘</span><span class="w">    </span><span class="err">└──────────────────┘</span><span class="w">    </span><span class="err">└──────────────────┘</span>
+<span class="err">│</span><span class="w"> </span><span class="nl">advisory:</span><span class="mh">8093</span><span class="w">    </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="nl">vegetation:</span><span class="mh">8090</span><span class="w">  </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="n">iot</span><span class="o">-</span><span class="nl">service:</span><span class="mh">8117</span><span class="w"> </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="n">crop</span><span class="o">-</span><span class="nl">intel:</span><span class="mh">8095</span><span class="w">  </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="nl">indicators:</span><span class="mh">8091</span><span class="w">  </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="n">iot</span><span class="o">-</span><span class="nl">gateway:</span><span class="mh">8106</span><span class="w"> </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="n">ai</span><span class="o">-</span><span class="nl">advisor:</span><span class="mh">8112</span><span class="w">  </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="n">field</span><span class="o">-</span><span class="nl">intel:</span><span class="mh">8120</span><span class="w"> </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="n">ws</span><span class="o">-</span><span class="nl">gateway:</span><span class="mh">8081</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="n">agro</span><span class="o">-</span><span class="nl">advisor:</span><span class="mh">8105</span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="n">virtual</span><span class="o">-</span><span class="nl">sens:</span><span class="mh">8119</span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">                  </span><span class="err">│</span>
+<span class="err">└──────────────────┘</span><span class="w">    </span><span class="err">└──────────────────┘</span><span class="w">    </span><span class="err">└──────────────────┘</span>
+<span class="w">        </span><span class="err">│</span><span class="w">                           </span><span class="err">│</span><span class="w">                           </span><span class="err">│</span>
+<span class="w">        </span><span class="err">▼</span><span class="w">                           </span><span class="err">▼</span><span class="w">                           </span><span class="err">▼</span>
+<span class="err">┌──────────────────┐</span><span class="w">    </span><span class="err">┌──────────────────┐</span><span class="w">    </span><span class="err">┌──────────────────┐</span>
+<span class="err">│</span><span class="w">  </span><span class="n">Agent</span><span class="w"> </span><span class="n">Services</span><span class="w">  </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="n">Business</span><span class="w"> </span><span class="n">Services</span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">  </span><span class="n">Task</span><span class="w"> </span><span class="n">Services</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">    </span><span class="p">(</span><span class="n">Python</span><span class="p">)</span><span class="w">      </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">    </span><span class="p">(</span><span class="n">Node</span><span class="p">.</span><span class="n">js</span><span class="p">)</span><span class="w">     </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">    </span><span class="p">(</span><span class="n">Python</span><span class="p">)</span><span class="w">      </span><span class="err">│</span>
+<span class="err">└──────────────────┘</span><span class="w">    </span><span class="err">└──────────────────┘</span><span class="w">    </span><span class="err">└──────────────────┘</span>
+<span class="err">│</span><span class="w"> </span><span class="n">agent</span><span class="o">-</span><span class="kt">reg</span><span class="o">:</span><span class="mh">8160</span><span class="w">   </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="nl">marketplace:</span><span class="mh">3010</span><span class="w"> </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="k">task</span><span class="o">:</span><span class="mh">8103</span><span class="w">        </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="n">ai</span><span class="o">-</span><span class="nl">agents:</span><span class="mh">8122</span><span class="w">   </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="nl">community:</span><span class="mh">8097</span><span class="w">   </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="nl">equipment:</span><span class="mh">8101</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="nl">knowledge:</span><span class="mh">8140</span><span class="w">   </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="nl">research:</span><span class="mh">3015</span><span class="w">    </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="nl">inventory:</span><span class="mh">8116</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="n">mcp</span><span class="o">-</span><span class="nl">server:</span><span class="mh">8200</span><span class="w">  </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="nl">disaster:</span><span class="mh">3020</span><span class="w">    </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">                  </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="nl">skills:</span><span class="mh">8121</span><span class="w">      </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="nl">billing:</span><span class="mh">8089</span><span class="w">     </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">                  </span><span class="err">│</span>
+<span class="err">└──────────────────┘</span><span class="w">    </span><span class="err">└──────────────────┘</span><span class="w">    </span><span class="err">└──────────────────┘</span>
 </code></pre></div>
 
-<h2 id="api-services">API Services<a class="headerlink" href="#api-services" title="Permanent link">&para;</a></h2>
-<h3 id="1-ai-services-api">1. AI Services API<a class="headerlink" href="#1-ai-services-api" title="Permanent link">&para;</a></h3>
-<p><strong>Base URL</strong>: <code>https://api.sahool.io/v1</code></p>
-<h4 id="crop-intelligence">Crop Intelligence<a class="headerlink" href="#crop-intelligence" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Disease detection using deep learning</li>
-<li>Crop health diagnostics</li>
-<li>Zone-based field analysis</li>
-<li>VRT export for precision agriculture</li>
-</ul>
-<p><strong>Key Endpoints</strong>:</p>
-<ul>
-<li><code>POST /crop-intelligence/disease-detection</code> - Detect diseases from images</li>
-<li><code>GET /crop-intelligence/fields/{field_id}/diagnosis</code> - Complete field diagnosis</li>
-<li><code>POST /crop-intelligence/fields/{field_id}/zones/{zone_id}/observations</code> - Submit observations</li>
-</ul>
-<h4 id="fertilizer-advisor">Fertilizer Advisor<a class="headerlink" href="#fertilizer-advisor" title="Permanent link">&para;</a></h4>
-<ul>
-<li>NPK recommendations</li>
-<li>Soil analysis interpretation</li>
-<li>Crop-specific fertilization plans</li>
-<li>Nutrient deficiency diagnosis</li>
-</ul>
-<p><strong>Key Endpoints</strong>:</p>
-<ul>
-<li><code>POST /fertilizer/recommend</code> - Get fertilizer recommendations</li>
-<li><code>POST /fertilizer/soil-analysis/interpret</code> - Interpret soil test results</li>
-<li><code>GET /fertilizer/deficiency-symptoms/{crop}</code> - Get deficiency information</li>
-</ul>
-<h4 id="yield-prediction">Yield Prediction<a class="headerlink" href="#yield-prediction" title="Permanent link">&para;</a></h4>
-<ul>
-<li>ML-powered yield forecasting</li>
-<li>Revenue estimation</li>
-<li>Weather and soil integration</li>
-<li>30+ Yemen crops supported</li>
-</ul>
-<p><strong>Key Endpoints</strong>:</p>
-<ul>
-<li><code>POST /yield/predict</code> - Predict crop yield</li>
-<li><code>GET /yield/crops</code> - List supported crops</li>
-<li><code>GET /yield/price/{crop_type}</code> - Get current prices</li>
-</ul>
-<h3 id="2-analysis-services-api">2. Analysis Services API<a class="headerlink" href="#2-analysis-services-api" title="Permanent link">&para;</a></h3>
-<p><strong>Base URL</strong>: <code>https://api.sahool.io/v1</code></p>
-<h4 id="ndvi-analysis">NDVI Analysis<a class="headerlink" href="#ndvi-analysis" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Vegetation health monitoring</li>
-<li>Anomaly detection</li>
-<li>Zone-based analysis</li>
-<li>Statistical trend analysis</li>
-</ul>
-<p><strong>Key Endpoints</strong>:</p>
-<ul>
-<li><code>POST /ndvi/compute</code> - Compute NDVI for field</li>
-<li><code>POST /ndvi/anomaly</code> - Detect NDVI anomalies</li>
-<li><code>POST /ndvi/zones</code> - Analyze NDVI zones</li>
-</ul>
-<h4 id="vegetation-analysis">Vegetation Analysis<a class="headerlink" href="#vegetation-analysis" title="Permanent link">&para;</a></h4>
-<ul>
-<li>17+ vegetation indices (NDVI, EVI, SAVI, LAI, NDRE, etc.)</li>
-<li>Chlorophyll and nitrogen assessment</li>
-<li>Water stress detection</li>
-<li>Crop-specific interpretation</li>
-</ul>
-<p><strong>Key Endpoints</strong>:</p>
-<ul>
-<li><code>POST /vegetation/indices</code> - Calculate all indices</li>
-<li><code>POST /vegetation/interpret</code> - Interpret index values</li>
-</ul>
-<h4 id="satellite-imagery">Satellite Imagery<a class="headerlink" href="#satellite-imagery" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Multi-source support (Sentinel-2, Landsat-8/9, MODIS)</li>
-<li>Automatic cloud filtering</li>
-<li>Band-level data access</li>
-<li>Temporal compositing</li>
-</ul>
-<p><strong>Key Endpoints</strong>:</p>
-<ul>
-<li><code>POST /satellite/imagery</code> - Acquire satellite imagery</li>
-<li><code>POST /satellite/analyze</code> - Complete field analysis</li>
-<li><code>GET /satellite/sources</code> - List available sources</li>
-</ul>
-<h4 id="lai-estimation">LAI Estimation<a class="headerlink" href="#lai-estimation" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Leaf Area Index calculation</li>
-<li>Growth monitoring</li>
-<li>Canopy development tracking</li>
-<li>Time series analysis</li>
-</ul>
-<p><strong>Key Endpoints</strong>:</p>
-<ul>
-<li><code>POST /lai/estimate</code> - Estimate LAI from indices</li>
-<li><code>POST /lai/timeseries</code> - Get LAI time series</li>
-</ul>
-<h4 id="time-series">Time Series<a class="headerlink" href="#time-series" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Historical vegetation data</li>
-<li>Multi-index time series</li>
-<li>Trend analysis</li>
-<li>Data export (CSV, GeoJSON, NetCDF)</li>
-</ul>
-<p><strong>Key Endpoints</strong>:</p>
-<ul>
-<li><code>POST /timeseries/vegetation</code> - Get vegetation time series</li>
-<li><code>POST /timeseries/export</code> - Export data</li>
-<li><code>POST /timeseries/compare</code> - Compare multiple fields</li>
-</ul>
-<h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
-<p>All API endpoints require authentication using JWT Bearer tokens.</p>
-<h3 id="getting-a-token">Getting a Token<a class="headerlink" href="#getting-a-token" title="Permanent link">&para;</a></h3>
+<h2 id="authentication">Authentication | المصادقة<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
+<p>All API endpoints require JWT authentication via the <code>Authorization</code> header unless otherwise specified.</p>
+<h3 id="getting-a-token">Getting a Token | الحصول على رمز<a class="headerlink" href="#getting-a-token" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Login to get access token</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://api.sahool.io/v1/auth/login<span class="w"> </span><span class="se">\</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://api.sahool.sa/api/v1/auth/login<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
 <span class="s1">    &quot;email&quot;: &quot;farmer@example.com&quot;,</span>
@@ -1324,230 +1309,278 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 <span class="s1">  }&#39;</span>
 </code></pre></div>
 
-<h3 id="using-the-token">Using the Token<a class="headerlink" href="#using-the-token" title="Permanent link">&para;</a></h3>
+<h3 id="using-the-token">Using the Token | استخدام الرمز<a class="headerlink" href="#using-the-token" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Include token in Authorization header</span>
-curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>https://api.sahool.io/v1/crop-intelligence/fields/field_123/diagnosis?date<span class="o">=</span><span class="m">2025</span>-12-14<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span>
+curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">&quot;https://api.sahool.sa/api/v1/fields&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-ID: your-tenant-id&quot;</span>
 </code></pre></div>
 
-<h2 id="rate-limits">Rate Limits<a class="headerlink" href="#rate-limits" title="Permanent link">&para;</a></h2>
-<h3 id="ai-services">AI Services<a class="headerlink" href="#ai-services" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Analysis Endpoints</strong>: 100 requests/minute per user</li>
-<li><strong>Prediction Endpoints</strong>: 50 requests/minute per user</li>
-<li><strong>Batch Operations</strong>: 1000 requests/hour per tenant</li>
-</ul>
-<h3 id="analysis-services">Analysis Services<a class="headerlink" href="#analysis-services" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Real-time Analysis</strong>: 50 requests/minute per user</li>
-<li><strong>Time Series (Cached)</strong>: 500 requests/minute per user</li>
-<li><strong>Data Export</strong>: 20 requests/minute per user</li>
-</ul>
-<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<h2 id="rate-limiting">Rate Limiting | حدود الطلبات<a class="headerlink" href="#rate-limiting" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Requests/min</th>
+<th>Requests/hour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Free</td>
+<td>30</td>
+<td>500</td>
+</tr>
+<tr>
+<td>Standard</td>
+<td>60</td>
+<td>2000</td>
+</tr>
+<tr>
+<td>Premium</td>
+<td>120</td>
+<td>5000</td>
+</tr>
+<tr>
+<td>Internal</td>
+<td>1000</td>
+<td>50000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="common-headers">Common Headers | الرؤوس الشائعة<a class="headerlink" href="#common-headers" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Authorization</code></td>
+<td>Yes*</td>
+<td><code>Bearer &lt;JWT_TOKEN&gt;</code></td>
+</tr>
+<tr>
+<td><code>X-Tenant-ID</code></td>
+<td>Yes</td>
+<td>Tenant identifier (UUID)</td>
+</tr>
+<tr>
+<td><code>X-Correlation-Id</code></td>
+<td>No</td>
+<td>Request correlation ID for tracing</td>
+</tr>
+<tr>
+<td><code>Content-Type</code></td>
+<td>Yes</td>
+<td><code>application/json</code></td>
+</tr>
+<tr>
+<td><code>Accept-Language</code></td>
+<td>No</td>
+<td><code>ar</code> or <code>en</code> for response language</td>
+</tr>
+</tbody>
+</table>
+<p>*Public endpoints (login, register, health) don't require Authorization</p>
+<h2 id="error-responses">Error Responses | استجابات الأخطاء<a class="headerlink" href="#error-responses" title="Permanent link">&para;</a></h2>
 <p>All APIs use standard HTTP status codes and return errors in this format:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;INVALID_REQUEST&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Invalid crop type specified&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VALIDATION_ERROR&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Invalid request parameters&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;معاملات الطلب غير صالحة&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;field&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;crop_type&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;allowed_values&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;corn&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">...</span><span class="p">]</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">    </span><span class="nt">&quot;field&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;email&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Must be a valid email address&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;request_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;550e8400-e29b-41d4-a716-446655440000&quot;</span>
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="common-error-codes">Common Error Codes<a class="headerlink" href="#common-error-codes" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>400</code> - Bad Request (invalid parameters)</li>
-<li><code>401</code> - Unauthorized (missing or invalid token)</li>
-<li><code>403</code> - Forbidden (insufficient permissions)</li>
-<li><code>404</code> - Not Found (resource doesn't exist)</li>
-<li><code>429</code> - Too Many Requests (rate limit exceeded)</li>
-<li><code>500</code> - Internal Server Error</li>
-<li><code>503</code> - Service Unavailable</li>
-</ul>
-<h2 id="async-job-handling">Async Job Handling<a class="headerlink" href="#async-job-handling" title="Permanent link">&para;</a></h2>
-<p>Long-running ML operations (e.g., disease detection on large images) return a job ID:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;job_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;550e8400-e29b-41d4-a716-446655440000&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pending&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-12-14T10:00:00Z&quot;</span>
-<span class="p">}</span>
+<h3 id="common-error-codes">Common Error Codes | رموز الأخطاء الشائعة<a class="headerlink" href="#common-error-codes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>400</code></td>
+<td>Bad Request (invalid parameters)</td>
+<td>طلب غير صالح</td>
+</tr>
+<tr>
+<td><code>401</code></td>
+<td>Unauthorized (missing/invalid token)</td>
+<td>غير مصرح</td>
+</tr>
+<tr>
+<td><code>403</code></td>
+<td>Forbidden (insufficient permissions)</td>
+<td>ممنوع</td>
+</tr>
+<tr>
+<td><code>404</code></td>
+<td>Not Found</td>
+<td>غير موجود</td>
+</tr>
+<tr>
+<td><code>409</code></td>
+<td>Conflict (duplicate resource)</td>
+<td>تعارض</td>
+</tr>
+<tr>
+<td><code>429</code></td>
+<td>Too Many Requests (rate limit)</td>
+<td>طلبات كثيرة جداً</td>
+</tr>
+<tr>
+<td><code>500</code></td>
+<td>Internal Server Error</td>
+<td>خطأ في الخادم</td>
+</tr>
+<tr>
+<td><code>503</code></td>
+<td>Service Unavailable</td>
+<td>الخدمة غير متاحة</td>
+</tr>
+</tbody>
+</table>
+<h2 id="websocket-events-websocket">WebSocket Events | أحداث WebSocket<a class="headerlink" href="#websocket-events-websocket" title="Permanent link">&para;</a></h2>
+<p>Connect to real-time events via WebSocket:</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span><span class="s1">&#39;wss://api.sahool.sa/ws&#39;</span><span class="p">);</span>
+
+<span class="c1">// Authenticate</span>
+<span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;auth&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;YOUR_JWT_TOKEN&#39;</span>
+<span class="p">}));</span>
+
+<span class="c1">// Subscribe to channels</span>
+<span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;subscribe&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">channels</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;field.updates&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;alert.created&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;sensor.reading&#39;</span><span class="p">]</span>
+<span class="p">}));</span>
+
+<span class="c1">// Handle events</span>
+<span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Event: </span><span class="si">${</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">payload</span><span class="p">);</span>
+<span class="p">};</span>
 </code></pre></div>
 
-<p>Poll for job status:</p>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>https://api.sahool.io/v1/jobs/550e8400-e29b-41d4-a716-446655440000<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
-</code></pre></div>
-
-<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
-<h3 id="example-1-get-field-diagnosis">Example 1: Get Field Diagnosis<a class="headerlink" href="#example-1-get-field-diagnosis" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">&quot;https://api.sahool.io/v1/crop-intelligence/fields/field_123/diagnosis?date=2025-12-14&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span>
-</code></pre></div>
-
-<h3 id="example-2-get-fertilizer-recommendations">Example 2: Get Fertilizer Recommendations<a class="headerlink" href="#example-2-get-fertilizer-recommendations" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://api.sahool.io/v1/fertilizer/recommend<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;field_id&quot;: &quot;field_123&quot;,</span>
-<span class="s1">    &quot;crop&quot;: &quot;tomato&quot;,</span>
-<span class="s1">    &quot;growth_stage&quot;: &quot;flowering&quot;,</span>
-<span class="s1">    &quot;area_hectares&quot;: 2.5,</span>
-<span class="s1">    &quot;soil_type&quot;: &quot;loamy&quot;,</span>
-<span class="s1">    &quot;target_yield_kg_ha&quot;: 40000</span>
-<span class="s1">  }&#39;</span>
-</code></pre></div>
-
-<h3 id="example-3-predict-crop-yield">Example 3: Predict Crop Yield<a class="headerlink" href="#example-3-predict-crop-yield" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://api.sahool.io/v1/yield/predict<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;field_id&quot;: &quot;field_123&quot;,</span>
-<span class="s1">    &quot;area_hectares&quot;: 5.0,</span>
-<span class="s1">    &quot;crop_type&quot;: &quot;wheat&quot;,</span>
-<span class="s1">    &quot;avg_rainfall&quot;: 450,</span>
-<span class="s1">    &quot;avg_temperature&quot;: 20,</span>
-<span class="s1">    &quot;soil_quality&quot;: &quot;good&quot;,</span>
-<span class="s1">    &quot;irrigation_type&quot;: &quot;drip&quot;</span>
-<span class="s1">  }&#39;</span>
-</code></pre></div>
-
-<h3 id="example-4-calculate-vegetation-indices">Example 4: Calculate Vegetation Indices<a class="headerlink" href="#example-4-calculate-vegetation-indices" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://api.sahool.io/v1/vegetation/indices<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;red&quot;: 0.08,</span>
-<span class="s1">    &quot;nir&quot;: 0.45,</span>
-<span class="s1">    &quot;blue&quot;: 0.05,</span>
-<span class="s1">    &quot;green&quot;: 0.06,</span>
-<span class="s1">    &quot;swir&quot;: 0.15</span>
-<span class="s1">  }&#39;</span>
-</code></pre></div>
-
-<h3 id="example-5-get-ndvi-time-series">Example 5: Get NDVI Time Series<a class="headerlink" href="#example-5-get-ndvi-time-series" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://api.sahool.io/v1/timeseries/vegetation<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;field_id&quot;: &quot;field_123&quot;,</span>
-<span class="s1">    &quot;start_date&quot;: &quot;2025-01-01&quot;,</span>
-<span class="s1">    &quot;end_date&quot;: &quot;2025-12-14&quot;,</span>
-<span class="s1">    &quot;indices&quot;: [&quot;ndvi&quot;, &quot;evi&quot;, &quot;lai&quot;],</span>
-<span class="s1">    &quot;interval&quot;: &quot;weekly&quot;</span>
-<span class="s1">  }&#39;</span>
-</code></pre></div>
-
-<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<h3 id="available-channels">Available Channels | القنوات المتاحة<a class="headerlink" href="#available-channels" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Channel</th>
+<th>Description</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field.updates</code></td>
+<td>Field data changes</td>
+<td>تحديثات بيانات الحقل</td>
+</tr>
+<tr>
+<td><code>alert.created</code></td>
+<td>New alerts</td>
+<td>تنبيهات جديدة</td>
+</tr>
+<tr>
+<td><code>sensor.reading</code></td>
+<td>Sensor data</td>
+<td>قراءات المستشعرات</td>
+</tr>
+<tr>
+<td><code>device.status</code></td>
+<td>Device status changes</td>
+<td>تغييرات حالة الأجهزة</td>
+</tr>
+<tr>
+<td><code>irrigation.event</code></td>
+<td>Irrigation events</td>
+<td>أحداث الري</td>
+</tr>
+</tbody>
+</table>
+<h2 id="validation">Validation | التحقق<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
 <p>Validate your OpenAPI specs:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Install validator</span>
 npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>@apidevtools/swagger-cli
 
-<span class="c1"># Validate specs</span>
-swagger-cli<span class="w"> </span>validate<span class="w"> </span>docs/api/openapi/ai-services.yaml
-swagger-cli<span class="w"> </span>validate<span class="w"> </span>docs/api/openapi/analysis-services.yaml
+<span class="c1"># Validate all specs</span>
+<span class="k">for</span><span class="w"> </span>spec<span class="w"> </span><span class="k">in</span><span class="w"> </span>docs/api/openapi/*.yaml<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Validating </span><span class="nv">$spec</span><span class="s2">...&quot;</span>
+<span class="w">  </span>swagger-cli<span class="w"> </span>validate<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$spec</span><span class="s2">&quot;</span>
+<span class="k">done</span>
 </code></pre></div>
 
-<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
-<h3 id="using-postman">Using Postman<a class="headerlink" href="#using-postman" title="Permanent link">&para;</a></h3>
-<ol>
-<li>Import the OpenAPI spec into Postman:</li>
-<li>Click "Import" → "Upload Files"</li>
-<li>Select the YAML file</li>
-<li>
-<p>Postman will create a collection with all endpoints</p>
-</li>
-<li>
-<p>Set up environment variables:</p>
-</li>
-<li><code>base_url</code>: <code>https://api.sahool.io/v1</code></li>
-<li><code>access_token</code>: Your JWT token</li>
-</ol>
-<h3 id="using-curl">Using curl<a class="headerlink" href="#using-curl" title="Permanent link">&para;</a></h3>
-<p>See the examples above.</p>
-<h3 id="using-python">Using Python<a class="headerlink" href="#using-python" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
-
-<span class="c1"># Setup</span>
-<span class="n">base_url</span> <span class="o">=</span> <span class="s2">&quot;https://api.sahool.io/v1&quot;</span>
-<span class="n">token</span> <span class="o">=</span> <span class="s2">&quot;YOUR_ACCESS_TOKEN&quot;</span>
-<span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span>
-<span class="p">}</span>
-
-<span class="c1"># Get field diagnosis</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/crop-intelligence/fields/field_123/diagnosis&quot;</span><span class="p">,</span>
-    <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-    <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;2025-12-14&quot;</span><span class="p">}</span>
-<span class="p">)</span>
-<span class="n">diagnosis</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Critical zones: </span><span class="si">{</span><span class="n">diagnosis</span><span class="p">[</span><span class="s1">&#39;summary&#39;</span><span class="p">][</span><span class="s1">&#39;zones_critical&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="c1"># Predict yield</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/yield/predict&quot;</span><span class="p">,</span>
-    <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-    <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="s2">&quot;field_123&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;area_hectares&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
-        <span class="s2">&quot;crop_type&quot;</span><span class="p">:</span> <span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;avg_rainfall&quot;</span><span class="p">:</span> <span class="mi">450</span><span class="p">,</span>
-        <span class="s2">&quot;avg_temperature&quot;</span><span class="p">:</span> <span class="mi">24</span><span class="p">,</span>
-        <span class="s2">&quot;soil_quality&quot;</span><span class="p">:</span> <span class="s2">&quot;good&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;irrigation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;drip&quot;</span>
-    <span class="p">}</span>
-<span class="p">)</span>
-<span class="n">prediction</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Predicted yield: </span><span class="si">{</span><span class="n">prediction</span><span class="p">[</span><span class="s1">&#39;predicted_yield_tons&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> tons&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Revenue: $</span><span class="si">{</span><span class="n">prediction</span><span class="p">[</span><span class="s1">&#39;estimated_revenue_usd&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<h2 id="examples">Examples | أمثلة<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<h3 id="create-a-field">Create a Field | إنشاء حقل<a class="headerlink" href="#create-a-field" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;https://api.sahool.sa/api/v1/fields&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-ID: </span><span class="nv">$TENANT_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;name&quot;: &quot;حقل القمح الشمالي&quot;,</span>
+<span class="s1">    &quot;cropType&quot;: &quot;wheat&quot;,</span>
+<span class="s1">    &quot;areaHectares&quot;: 5.5,</span>
+<span class="s1">    &quot;irrigationType&quot;: &quot;drip&quot;,</span>
+<span class="s1">    &quot;boundary&quot;: {</span>
+<span class="s1">      &quot;type&quot;: &quot;Polygon&quot;,</span>
+<span class="s1">      &quot;coordinates&quot;: [[[46.7, 24.6], [46.8, 24.6], [46.8, 24.7], [46.7, 24.7], [46.7, 24.6]]]</span>
+<span class="s1">    }</span>
+<span class="s1">  }&#39;</span>
 </code></pre></div>
 
-<h2 id="service-architecture">Service Architecture<a class="headerlink" href="#service-architecture" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────┐
-│                    API Gateway (Kong)                        │
-│                  https://api.sahool.io                       │
-└─────────────────────────────────────────────────────────────┘
-                            │
-        ┌───────────────────┴───────────────────┐
-        │                                       │
-        ▼                                       ▼
-┌──────────────────────┐              ┌──────────────────────┐
-│   AI Services API    │              │ Analysis Services API│
-│   (Port 8080)        │              │   (Port 8090)        │
-└──────────────────────┘              └──────────────────────┘
-        │                                       │
-        │                                       │
-   ┌────┴────┐                          ┌──────┴──────┐
-   │         │                          │             │
-   ▼         ▼                          ▼             ▼
-┌────────┐ ┌─────────┐         ┌─────────┐    ┌──────────┐
-│  Crop  │ │Fertilizer│         │  NDVI   │    │Satellite │
-│Intell. │ │ Advisor  │         │ Engine  │    │ Service  │
-│  :8095 │ │  :8093   │         │  :8097  │    │  :8090   │
-└────────┘ └─────────┘         └─────────┘    └──────────┘
-     │           │                    │              │
-     ▼           ▼                    ▼              ▼
-┌────────┐ ┌─────────┐         ┌─────────┐    ┌──────────┐
-│ Yield  │ │  Soil   │         │  Veg.   │    │   LAI    │
-│ Engine │ │Analysis │         │Analysis │    │Estimator │
-│  :8098 │ │         │         │         │    │          │
-└────────┘ └─────────┘         └─────────┘    └──────────┘
+<h3 id="get-weather-forecast">Get Weather Forecast | الحصول على توقعات الطقس<a class="headerlink" href="#get-weather-forecast" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;https://api.sahool.sa/api/v1/weather/forecast&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-ID: </span><span class="nv">$TENANT_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;fieldId&quot;: &quot;field-123&quot;,</span>
+<span class="s1">    &quot;lat&quot;: 24.7136,</span>
+<span class="s1">    &quot;lon&quot;: 46.6753,</span>
+<span class="s1">    &quot;days&quot;: 7</span>
+<span class="s1">  }&#39;</span>
 </code></pre></div>
 
-<h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
+<h3 id="get-fertilizer-recommendation">Get Fertilizer Recommendation | الحصول على توصية الأسمدة<a class="headerlink" href="#get-fertilizer-recommendation" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;https://api.sahool.sa/api/v1/advisory/fertilizer/plan&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-ID: </span><span class="nv">$TENANT_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;fieldId&quot;: &quot;field-123&quot;,</span>
+<span class="s1">    &quot;crop&quot;: &quot;wheat&quot;,</span>
+<span class="s1">    &quot;stage&quot;: &quot;tillering&quot;,</span>
+<span class="s1">    &quot;fieldSizeHa&quot;: 5.5,</span>
+<span class="s1">    &quot;soilFertility&quot;: &quot;medium&quot;,</span>
+<span class="s1">    &quot;irrigationType&quot;: &quot;drip&quot;</span>
+<span class="s1">  }&#39;</span>
+</code></pre></div>
+
+<h2 id="support">Support | الدعم<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
 <p>For API support and questions:</p>
 <ul>
-<li>Email: support@sahool.io</li>
-<li>Documentation: https://docs.sahool.io</li>
-<li>GitHub Issues: https://github.com/sahool/platform/issues</li>
+<li><strong>Documentation</strong>: https://docs.sahool.sa</li>
+<li><strong>GitHub Issues</strong>: https://github.com/kafaat/sahool-unified-v15-idp/issues</li>
+<li><strong>Email</strong>: support@sahool.sa</li>
 </ul>
-<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
-<p>Proprietary - Copyright (c) 2025 SAHOOL Platform</p>
+<h2 id="license">License | الترخيص<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
+<p>Proprietary - Copyright (c) 2026 KAFAAT / SAHOOL Platform</p>
+<hr />
+<p><em>Last Updated: 2026-01-24</em></p>
 
 
 

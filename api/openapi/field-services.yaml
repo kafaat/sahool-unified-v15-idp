@@ -7,6 +7,8 @@ info:
 
     This API provides comprehensive field management and geospatial capabilities for the SAHOOL agricultural platform:
     - Field CRUD operations (عمليات إدارة الحقول)
+    - Field Boundary Management (إدارة حدود الحقول)
+    - Boundary Change History (سجل تغييرات الحدود)
     - NDVI & Vegetation Index Data (بيانات مؤشر الغطاء النباتي)
     - Pest Management (إدارة الآفات)
     - Field Health Monitoring (مراقبة صحة الحقول)
@@ -23,7 +25,12 @@ info:
     - Standard: 60 requests/minute
     - Premium: 120 requests/minute
 
-  version: 15.3.0
+    ## Kong Gateway Configuration
+    - Service: field-management-service
+    - Port: 3000
+    - Paths: /api/v1/fields, /api/v1/field, /field
+
+  version: 16.0.0
   contact:
     name: SAHOOL Field Services Support
     email: support@sahool.sa
@@ -33,28 +40,40 @@ info:
     url: https://sahool.sa/terms
 
 servers:
-  - url: https://api.sahool.sa/v1
-    description: Production server
-  - url: https://staging-api.sahool.sa/v1
-    description: Staging server
-  - url: http://localhost:3001
-    description: Development server (Field Core)
+  - url: https://api.sahool.sa/api/v1
+    description: Production server (الخادم الإنتاجي)
+  - url: https://staging-api.sahool.sa/api/v1
+    description: Staging server (خادم الاختبار)
+  - url: http://localhost:3000
+    description: Development server - Field Management Service (خادم التطوير)
 
 tags:
   - name: Fields
-    description: Field management operations - إدارة الحقول
+    description: |
+      Field management operations - إدارة الحقول
+      Core CRUD operations for agricultural field management including creation, updates, and deletion.
+  - name: Boundaries
+    description: |
+      Field boundary management - إدارة حدود الحقول
+      Update field boundaries with change tracking and audit trail.
   - name: NDVI
-    description: Vegetation index data - بيانات مؤشر الغطاء النباتي
+    description: |
+      Vegetation index data - بيانات مؤشر الغطاء النباتي
+      Record and retrieve NDVI readings from satellite imagery.
   - name: Pests
-    description: Pest management and treatment tracking - إدارة الآفات والعلاجات
+    description: |
+      Pest management and treatment tracking - إدارة الآفات والعلاجات
   - name: Geospatial
-    description: Geospatial queries and analysis - الاستعلامات الجغرافية
+    description: |
+      Geospatial queries and analysis - الاستعلامات الجغرافية
   - name: Health
-    description: Service health endpoints
+    description: |
+      Service health endpoints - نقاط فحص صحة الخدمة
 
 paths:
   # ============================================================================
   # FIELD MANAGEMENT ENDPOINTS
+  # نقاط إدارة الحقول
   # ============================================================================
   /fields:
     get:
@@ -62,7 +81,7 @@ paths:
       summary: List all fields
       description: |
         Get paginated list of fields for the tenant.
-        قائمة الحقول للمستأجر.
+        الحصول على قائمة مُقسمة للحقول حسب المستأجر.
       operationId: listFields
       parameters:
         - $ref: '#/components/parameters/TenantId'
@@ -70,18 +89,73 @@ paths:
         - $ref: '#/components/parameters/Offset'
         - name: status
           in: query
-          description: Filter by field status
+          description: |
+            Filter by field status
+            تصفية حسب حالة الحقل
           schema:
-            type: string
-            enum: [active, fallow, preparing, harvested]
+            $ref: '#/components/schemas/FieldStatus'
         - name: cropType
           in: query
-          description: Filter by crop type
+          description: |
+            Filter by crop type
+            تصفية حسب نوع المحصول
+          schema:
+            $ref: '#/components/schemas/CropType'
+        - name: irrigationType
+          in: query
+          description: |
+            Filter by irrigation type
+            تصفية حسب نوع الري
+          schema:
+            $ref: '#/components/schemas/IrrigationType'
+        - name: soilType
+          in: query
+          description: |
+            Filter by soil type
+            تصفية حسب نوع التربة
+          schema:
+            $ref: '#/components/schemas/SoilType'
+        - name: minArea
+          in: query
+          description: |
+            Minimum area in hectares
+            الحد الأدنى للمساحة بالهكتار
+          schema:
+            type: number
+            format: double
+            minimum: 0
+        - name: maxArea
+          in: query
+          description: |
+            Maximum area in hectares
+            الحد الأقصى للمساحة بالهكتار
+          schema:
+            type: number
+            format: double
+            minimum: 0
+        - name: sortBy
+          in: query
+          description: |
+            Sort field
+            ترتيب حسب
           schema:
             type: string
+            enum: [name, areaHectares, createdAt, updatedAt, healthScore]
+            default: createdAt
+        - name: sortOrder
+          in: query
+          description: |
+            Sort order
+            اتجاه الترتيب
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
       responses:
         '200':
-          description: Successful response
+          description: |
+            Successful response
+            استجابة ناجحة
           content:
             application/json:
               schema:
@@ -97,8 +171,8 @@ paths:
       tags: [Fields]
       summary: Create a new field
       description: |
-        Create a new agricultural field.
-        إنشاء حقل جديد.
+        Create a new agricultural field with boundary coordinates.
+        إنشاء حقل زراعي جديد مع إحداثيات الحدود.
       operationId: createField
       parameters:
         - $ref: '#/components/parameters/TenantId'
@@ -107,24 +181,43 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FieldCreate'
+              $ref: '#/components/schemas/CreateFieldDto'
             examples:
-              wheat:
-                summary: Wheat field example
+              wheat_field:
+                summary: Wheat field example (مثال حقل قمح)
                 value:
                   name: حقل القمح الشمالي
                   cropType: wheat
-                  coordinates:
+                  areaHectares: 8.5
+                  boundary:
                     - [46.7, 24.6]
                     - [46.8, 24.6]
                     - [46.8, 24.7]
                     - [46.7, 24.7]
+                    - [46.7, 24.6]
                   irrigationType: drip
                   soilType: sandy_loam
-                  plantingDate: '2024-01-15'
+                  plantingDate: '2026-01-15'
+              date_palm:
+                summary: Date palm grove (مثال بستان نخيل)
+                value:
+                  name: بستان النخيل الشرقي
+                  cropType: date_palm
+                  areaHectares: 12.3
+                  boundary:
+                    - [46.85, 24.55]
+                    - [46.95, 24.55]
+                    - [46.95, 24.65]
+                    - [46.85, 24.65]
+                    - [46.85, 24.55]
+                  irrigationType: drip
+                  soilType: sandy
+                  plantingDate: '2020-03-01'
       responses:
         '201':
-          description: Field created successfully
+          description: |
+            Field created successfully
+            تم إنشاء الحقل بنجاح
           content:
             application/json:
               schema:
@@ -133,6 +226,8 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
       security:
         - bearerAuth: []
 
@@ -140,14 +235,30 @@ paths:
     get:
       tags: [Fields]
       summary: Get field by ID
-      description: Get detailed field information - تفاصيل الحقل
+      description: |
+        Get detailed field information including current NDVI and health score.
+        الحصول على معلومات الحقل التفصيلية بما في ذلك مؤشر NDVI الحالي ودرجة الصحة.
       operationId: getField
       parameters:
         - $ref: '#/components/parameters/FieldId'
         - $ref: '#/components/parameters/TenantId'
+        - name: include
+          in: query
+          description: |
+            Include related data
+            تضمين البيانات المرتبطة
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [ndviHistory, boundaryHistory, cropSeasons]
+          style: form
+          explode: false
       responses:
         '200':
-          description: Successful response
+          description: |
+            Successful response
+            استجابة ناجحة
           content:
             application/json:
               schema:
@@ -159,10 +270,12 @@ paths:
       security:
         - bearerAuth: []
 
-    patch:
+    put:
       tags: [Fields]
       summary: Update field
-      description: Update field properties - تحديث الحقل
+      description: |
+        Update field properties. Use PUT /fields/{fieldId}/boundary to update boundaries.
+        تحديث خصائص الحقل. استخدم PUT /fields/{fieldId}/boundary لتحديث الحدود.
       operationId: updateField
       parameters:
         - $ref: '#/components/parameters/FieldId'
@@ -173,10 +286,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FieldUpdate'
+              $ref: '#/components/schemas/UpdateFieldDto'
+            examples:
+              update_crop:
+                summary: Update crop type (تحديث نوع المحصول)
+                value:
+                  cropType: barley
+                  plantingDate: '2026-02-01'
+              update_status:
+                summary: Mark as harvested (تحديد كمحصود)
+                value:
+                  status: harvested
       responses:
         '200':
-          description: Field updated successfully
+          description: |
+            Field updated successfully
+            تم تحديث الحقل بنجاح
           content:
             application/json:
               schema:
@@ -195,14 +320,160 @@ paths:
     delete:
       tags: [Fields]
       summary: Delete field
-      description: Soft delete a field - حذف الحقل
+      description: |
+        Soft delete a field. The field will be marked as inactive but not permanently removed.
+        حذف الحقل (حذف مبدئي). سيتم تحديد الحقل كغير نشط ولكن لن يُزال نهائياً.
       operationId: deleteField
       parameters:
         - $ref: '#/components/parameters/FieldId'
         - $ref: '#/components/parameters/TenantId'
       responses:
         '204':
-          description: Field deleted successfully
+          description: |
+            Field deleted successfully
+            تم حذف الحقل بنجاح
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # BOUNDARY MANAGEMENT ENDPOINTS
+  # نقاط إدارة الحدود
+  # ============================================================================
+  /fields/{fieldId}/boundary:
+    put:
+      tags: [Boundaries]
+      summary: Update field boundary
+      description: |
+        Update the field boundary with a change reason for audit trail.
+        تحديث حدود الحقل مع سبب التغيير للسجل المراجعي.
+
+        This operation:
+        - Validates the new boundary geometry
+        - Recalculates the field area
+        - Creates a history record of the change
+        - Triggers NDVI recalculation for the new boundary
+
+        هذه العملية:
+        - تتحقق من صحة الهندسة الجديدة للحدود
+        - تعيد حساب مساحة الحقل
+        - تنشئ سجل بتاريخ التغيير
+        - تفعّل إعادة حساب NDVI للحدود الجديدة
+      operationId: updateFieldBoundary
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBoundaryDto'
+            examples:
+              expansion:
+                summary: Field expansion (توسيع الحقل)
+                value:
+                  boundary:
+                    type: Polygon
+                    coordinates:
+                      - - [46.7, 24.6]
+                        - [46.85, 24.6]
+                        - [46.85, 24.75]
+                        - [46.7, 24.75]
+                        - [46.7, 24.6]
+                  changeReason: "توسيع الحقل بعد شراء الأرض المجاورة - Field expansion after purchasing adjacent land"
+                  changeSource: mobile
+              correction:
+                summary: GPS correction (تصحيح GPS)
+                value:
+                  boundary:
+                    type: Polygon
+                    coordinates:
+                      - - [46.701, 24.601]
+                        - [46.801, 24.601]
+                        - [46.801, 24.701]
+                        - [46.701, 24.701]
+                        - [46.701, 24.601]
+                  changeReason: "تصحيح حدود الحقل بعد المسح الجديد - Boundary correction after new survey"
+                  changeSource: api
+      responses:
+        '200':
+          description: |
+            Boundary updated successfully
+            تم تحديث الحدود بنجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoundaryUpdateResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          description: |
+            Invalid geometry - الهندسة غير صالحة
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error: Invalid polygon geometry - polygon must be closed and non-self-intersecting
+                error_ar: هندسة المضلع غير صالحة - يجب أن يكون المضلع مغلقاً وغير متقاطع ذاتياً
+      security:
+        - bearerAuth: []
+
+  /fields/{fieldId}/history:
+    get:
+      tags: [Boundaries]
+      summary: Get boundary change history
+      description: |
+        Get the history of boundary changes for a field with audit information.
+        الحصول على سجل تغييرات حدود الحقل مع معلومات المراجعة.
+      operationId: getFieldBoundaryHistory
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: startDate
+          in: query
+          description: |
+            Filter changes from this date
+            تصفية التغييرات من هذا التاريخ
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: |
+            Filter changes until this date
+            تصفية التغييرات حتى هذا التاريخ
+          schema:
+            type: string
+            format: date
+        - name: changeSource
+          in: query
+          description: |
+            Filter by change source
+            تصفية حسب مصدر التغيير
+          schema:
+            $ref: '#/components/schemas/ChangeSource'
+      responses:
+        '200':
+          description: |
+            Boundary history retrieved
+            تم استرجاع سجل الحدود
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldBoundaryHistoryListResponse'
         '404':
           $ref: '#/components/responses/NotFound'
         '401':
@@ -212,6 +483,7 @@ paths:
 
   # ============================================================================
   # NDVI ENDPOINTS
+  # نقاط مؤشر الغطاء النباتي
   # ============================================================================
   /fields/{fieldId}/ndvi:
     get:
@@ -219,26 +491,42 @@ paths:
       summary: Get NDVI history
       description: |
         Get vegetation index history for a field.
-        سجل مؤشر NDVI للحقل.
+        الحصول على سجل مؤشر NDVI للحقل.
       operationId: getFieldNdvi
       parameters:
         - $ref: '#/components/parameters/FieldId'
         - $ref: '#/components/parameters/TenantId'
         - name: startDate
           in: query
-          description: Start date for filtering
+          description: |
+            Start date for filtering
+            تاريخ البداية للتصفية
           schema:
             type: string
             format: date
         - name: endDate
           in: query
-          description: End date for filtering
+          description: |
+            End date for filtering
+            تاريخ النهاية للتصفية
           schema:
             type: string
             format: date
+        - name: source
+          in: query
+          description: |
+            Filter by satellite source
+            تصفية حسب مصدر القمر الصناعي
+          schema:
+            type: string
+            enum: [sentinel-2, landsat-8, landsat-9, modis, planet]
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
       responses:
         '200':
-          description: NDVI data retrieved
+          description: |
+            NDVI data retrieved
+            تم استرجاع بيانات NDVI
           content:
             application/json:
               schema:
@@ -250,8 +538,10 @@ paths:
 
     post:
       tags: [NDVI]
-      summary: Add NDVI reading
-      description: Add new NDVI measurement - إضافة قراءة NDVI
+      summary: Record NDVI reading
+      description: |
+        Record a new NDVI measurement for the field from satellite imagery.
+        تسجيل قراءة NDVI جديدة للحقل من صور الأقمار الصناعية.
       operationId: addFieldNdvi
       parameters:
         - $ref: '#/components/parameters/FieldId'
@@ -261,14 +551,37 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NdviCreate'
-            example:
-              value: 0.75
-              source: sentinel-2
-              recordedAt: '2024-01-15T10:30:00Z'
+              $ref: '#/components/schemas/NdviReadingDto'
+            examples:
+              sentinel:
+                summary: Sentinel-2 reading (قراءة سنتينل-2)
+                value:
+                  value: 0.72
+                  source: sentinel-2
+                  cloudCover: 5.2
+                  satelliteName: Sentinel-2A
+                  bandInfo:
+                    red: B04
+                    nir: B08
+                    resolution: 10
+                  recordedAt: '2026-01-15T10:30:00Z'
+              landsat:
+                summary: Landsat-8 reading (قراءة لاندسات-8)
+                value:
+                  value: 0.68
+                  source: landsat-8
+                  cloudCover: 12.5
+                  satelliteName: Landsat-8 OLI
+                  bandInfo:
+                    red: B4
+                    nir: B5
+                    resolution: 30
+                  recordedAt: '2026-01-14T09:15:00Z'
       responses:
         '201':
-          description: NDVI reading added
+          description: |
+            NDVI reading recorded
+            تم تسجيل قراءة NDVI
           content:
             application/json:
               schema:
@@ -282,6 +595,7 @@ paths:
 
   # ============================================================================
   # PEST MANAGEMENT ENDPOINTS
+  # نقاط إدارة الآفات
   # ============================================================================
   /pests/incidents:
     get:
@@ -289,38 +603,48 @@ paths:
       summary: List pest incidents
       description: |
         Get paginated list of pest incidents.
-        قائمة حوادث الآفات.
+        الحصول على قائمة مُقسمة لحوادث الآفات.
       operationId: listPestIncidents
       parameters:
         - $ref: '#/components/parameters/TenantId'
         - name: fieldId
           in: query
-          description: Filter by field ID
+          description: |
+            Filter by field ID
+            تصفية حسب معرف الحقل
           schema:
             type: string
             format: uuid
         - name: cropSeasonId
           in: query
-          description: Filter by crop season ID
+          description: |
+            Filter by crop season ID
+            تصفية حسب معرف موسم المحصول
           schema:
             type: string
             format: uuid
         - name: status
           in: query
-          description: Filter by incident status
+          description: |
+            Filter by incident status
+            تصفية حسب حالة الحادثة
           schema:
             type: string
             enum: [DETECTED, MONITORING, TREATING, RESOLVED, RECURRING]
         - name: pestType
           in: query
-          description: Filter by pest type
+          description: |
+            Filter by pest type
+            تصفية حسب نوع الآفة
           schema:
             $ref: '#/components/schemas/PestType'
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Offset'
       responses:
         '200':
-          description: Successful response
+          description: |
+            Successful response
+            استجابة ناجحة
           content:
             application/json:
               schema:
@@ -344,7 +668,7 @@ paths:
       summary: Report pest incident
       description: |
         Report a new pest incident.
-        الإبلاغ عن حادثة آفة.
+        الإبلاغ عن حادثة آفة جديدة.
       operationId: reportPestIncident
       parameters:
         - $ref: '#/components/parameters/TenantId'
@@ -356,23 +680,27 @@ paths:
               $ref: '#/components/schemas/PestIncidentCreate'
             examples:
               aphids:
-                summary: Aphid infestation
+                summary: Aphid infestation (إصابة بالمن)
                 value:
                   fieldId: 123e4567-e89b-12d3-a456-426614174000
                   tenantId: tenant-001
                   pestType: INSECT
                   pestName: Aphids
+                  pestNameAr: المن
                   severityLevel: 3
                   affectedArea: 0.5
-                  detectedAt: '2026-01-01T10:00:00Z'
+                  detectedAt: '2026-01-15T10:00:00Z'
                   reportedBy: Field Inspector
                   location:
                     lat: 24.6
                     lng: 46.7
                   notes: Found on wheat leaves
+                  notesAr: وُجد على أوراق القمح
       responses:
         '201':
-          description: Pest incident reported successfully
+          description: |
+            Pest incident reported successfully
+            تم الإبلاغ عن حادثة الآفة بنجاح
           content:
             application/json:
               schema:
@@ -388,20 +716,26 @@ paths:
     get:
       tags: [Pests]
       summary: Get pest incident
-      description: Get pest incident details with treatments - تفاصيل حادثة الآفة
+      description: |
+        Get pest incident details with treatments.
+        الحصول على تفاصيل حادثة الآفة مع العلاجات.
       operationId: getPestIncident
       parameters:
         - name: id
           in: path
           required: true
-          description: Pest incident ID
+          description: |
+            Pest incident ID
+            معرف حادثة الآفة
           schema:
             type: string
             format: uuid
         - $ref: '#/components/parameters/TenantId'
       responses:
         '200':
-          description: Successful response
+          description: |
+            Successful response
+            استجابة ناجحة
           content:
             application/json:
               schema:
@@ -416,13 +750,17 @@ paths:
     put:
       tags: [Pests]
       summary: Update pest incident
-      description: Update pest incident details - تحديث حادثة الآفة
+      description: |
+        Update pest incident details.
+        تحديث تفاصيل حادثة الآفة.
       operationId: updatePestIncident
       parameters:
         - name: id
           in: path
           required: true
-          description: Pest incident ID
+          description: |
+            Pest incident ID
+            معرف حادثة الآفة
           schema:
             type: string
             format: uuid
@@ -435,7 +773,9 @@ paths:
               $ref: '#/components/schemas/PestIncidentUpdate'
       responses:
         '200':
-          description: Pest incident updated successfully
+          description: |
+            Pest incident updated successfully
+            تم تحديث حادثة الآفة بنجاح
           content:
             application/json:
               schema:
@@ -450,20 +790,26 @@ paths:
     delete:
       tags: [Pests]
       summary: Delete pest incident
-      description: Delete a pest incident - حذف حادثة الآفة
+      description: |
+        Delete a pest incident.
+        حذف حادثة الآفة.
       operationId: deletePestIncident
       parameters:
         - name: id
           in: path
           required: true
-          description: Pest incident ID
+          description: |
+            Pest incident ID
+            معرف حادثة الآفة
           schema:
             type: string
             format: uuid
         - $ref: '#/components/parameters/TenantId'
       responses:
         '200':
-          description: Pest incident deleted successfully
+          description: |
+            Pest incident deleted successfully
+            تم حذف حادثة الآفة بنجاح
         '404':
           $ref: '#/components/responses/NotFound'
       security:
@@ -473,13 +819,17 @@ paths:
     get:
       tags: [Pests]
       summary: List pest treatments
-      description: Get paginated list of pest treatments - قائمة علاجات الآفات
+      description: |
+        Get paginated list of pest treatments.
+        الحصول على قائمة مُقسمة لعلاجات الآفات.
       operationId: listPestTreatments
       parameters:
         - $ref: '#/components/parameters/TenantId'
         - name: incidentId
           in: query
-          description: Filter by incident ID
+          description: |
+            Filter by incident ID
+            تصفية حسب معرف الحادثة
           schema:
             type: string
             format: uuid
@@ -487,7 +837,9 @@ paths:
         - $ref: '#/components/parameters/Offset'
       responses:
         '200':
-          description: Successful response
+          description: |
+            Successful response
+            استجابة ناجحة
           content:
             application/json:
               schema:
@@ -509,7 +861,9 @@ paths:
     post:
       tags: [Pests]
       summary: Record pest treatment
-      description: Record a new pest treatment application - تسجيل علاج الآفة
+      description: |
+        Record a new pest treatment application.
+        تسجيل تطبيق علاج آفة جديد.
       operationId: recordPestTreatment
       parameters:
         - $ref: '#/components/parameters/TenantId'
@@ -521,21 +875,26 @@ paths:
               $ref: '#/components/schemas/PestTreatmentCreate'
             examples:
               insecticide:
-                summary: Insecticide application
+                summary: Insecticide application (تطبيق مبيد حشري)
                 value:
                   incidentId: 123e4567-e89b-12d3-a456-426614174001
                   tenantId: tenant-001
-                  treatmentDate: '2026-01-01T14:00:00Z'
+                  treatmentDate: '2026-01-15T14:00:00Z'
                   method: Spray application
+                  methodAr: الرش
                   productUsed: Neem Oil
+                  productUsedAr: زيت النيم
                   quantity: 5
                   unit: liters
                   appliedBy: Farm Worker A
                   cost: 250.50
                   notes: Applied in early morning
+                  notesAr: تم التطبيق في الصباح الباكر
       responses:
         '201':
-          description: Treatment recorded successfully
+          description: |
+            Treatment recorded successfully
+            تم تسجيل العلاج بنجاح
           content:
             application/json:
               schema:
@@ -543,12 +902,15 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
-          description: Pest incident not found
+          description: |
+            Pest incident not found
+            حادثة الآفة غير موجودة
       security:
         - bearerAuth: []
 
   # ============================================================================
   # GEOSPATIAL ENDPOINTS
+  # نقاط الاستعلامات الجغرافية
   # ============================================================================
   /geo/fields/nearby:
     get:
@@ -556,35 +918,49 @@ paths:
       summary: Find nearby fields
       description: |
         Find fields within a specified radius of a location.
-        البحث عن الحقول القريبة من موقع معين.
+        البحث عن الحقول ضمن نطاق محدد من موقع معين.
       operationId: findNearbyFields
       parameters:
         - $ref: '#/components/parameters/TenantId'
         - name: lat
           in: query
           required: true
-          description: Latitude
+          description: |
+            Latitude
+            خط العرض
           schema:
             type: number
             format: double
+            minimum: -90
+            maximum: 90
         - name: lng
           in: query
           required: true
-          description: Longitude
+          description: |
+            Longitude
+            خط الطول
           schema:
             type: number
             format: double
+            minimum: -180
+            maximum: 180
         - name: radius
           in: query
-          description: Search radius in kilometers
+          description: |
+            Search radius in kilometers
+            نطاق البحث بالكيلومترات
           schema:
             type: number
             format: double
             default: 10
+            minimum: 0.1
+            maximum: 100
         - $ref: '#/components/parameters/Limit'
       responses:
         '200':
-          description: Nearby fields found
+          description: |
+            Nearby fields found
+            تم العثور على الحقول القريبة
           content:
             application/json:
               schema:
@@ -601,7 +977,9 @@ paths:
                           $ref: '#/components/schemas/Field'
                         distance:
                           type: number
-                          description: Distance in kilometers
+                          description: |
+                            Distance in kilometers
+                            المسافة بالكيلومترات
         '400':
           $ref: '#/components/responses/BadRequest'
       security:
@@ -620,26 +998,52 @@ paths:
         - name: minLat
           in: query
           required: true
+          description: |
+            Minimum latitude (south)
+            الحد الأدنى لخط العرض (جنوب)
           schema:
             type: number
+            format: double
+            minimum: -90
+            maximum: 90
         - name: minLng
           in: query
           required: true
+          description: |
+            Minimum longitude (west)
+            الحد الأدنى لخط الطول (غرب)
           schema:
             type: number
+            format: double
+            minimum: -180
+            maximum: 180
         - name: maxLat
           in: query
           required: true
+          description: |
+            Maximum latitude (north)
+            الحد الأقصى لخط العرض (شمال)
           schema:
             type: number
+            format: double
+            minimum: -90
+            maximum: 90
         - name: maxLng
           in: query
           required: true
+          description: |
+            Maximum longitude (east)
+            الحد الأقصى لخط الطول (شرق)
           schema:
             type: number
+            format: double
+            minimum: -180
+            maximum: 180
       responses:
         '200':
-          description: Fields within bounds found
+          description: |
+            Fields within bounds found
+            تم العثور على الحقول ضمن الحدود
           content:
             application/json:
               schema:
@@ -651,16 +1055,21 @@ paths:
 
   # ============================================================================
   # HEALTH ENDPOINTS
+  # نقاط فحص الصحة
   # ============================================================================
   /healthz:
     get:
       tags: [Health]
       summary: Liveness probe
-      description: Kubernetes liveness probe endpoint
+      description: |
+        Kubernetes liveness probe endpoint.
+        نقطة فحص الحياة لكوبرنيتس.
       operationId: healthCheck
       responses:
         '200':
-          description: Service is alive
+          description: |
+            Service is alive
+            الخدمة تعمل
           content:
             application/json:
               schema:
@@ -669,6 +1078,12 @@ paths:
                   status:
                     type: string
                     example: ok
+                  service:
+                    type: string
+                    example: field-management-service
+                  version:
+                    type: string
+                    example: "16.0.0"
                   timestamp:
                     type: string
                     format: date-time
@@ -678,11 +1093,15 @@ paths:
     get:
       tags: [Health]
       summary: Readiness probe
-      description: Kubernetes readiness probe endpoint
+      description: |
+        Kubernetes readiness probe endpoint.
+        نقطة فحص الجاهزية لكوبرنيتس.
       operationId: readinessCheck
       responses:
         '200':
-          description: Service is ready
+          description: |
+            Service is ready
+            الخدمة جاهزة
           content:
             application/json:
               schema:
@@ -696,10 +1115,17 @@ paths:
                     properties:
                       database:
                         type: string
+                        example: connected
                       cache:
                         type: string
+                        example: connected
+                      nats:
+                        type: string
+                        example: connected
         '503':
-          description: Service not ready
+          description: |
+            Service not ready
+            الخدمة غير جاهزة
       security: []
 
 components:
@@ -708,14 +1134,18 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: JWT token obtained from authentication service
+      description: |
+        JWT token obtained from authentication service
+        رمز JWT من خدمة المصادقة
 
   parameters:
     TenantId:
       name: X-Tenant-ID
       in: header
       required: true
-      description: Tenant identifier
+      description: |
+        Tenant identifier for multi-tenancy
+        معرف المستأجر للتعدد
       schema:
         type: string
         format: uuid
@@ -724,7 +1154,9 @@ components:
       name: fieldId
       in: path
       required: true
-      description: Field identifier
+      description: |
+        Field identifier
+        معرف الحقل
       schema:
         type: string
         format: uuid
@@ -732,7 +1164,9 @@ components:
     Limit:
       name: limit
       in: query
-      description: Number of items to return
+      description: |
+        Number of items to return
+        عدد العناصر المُرجعة
       schema:
         type: integer
         minimum: 1
@@ -742,7 +1176,9 @@ components:
     Offset:
       name: offset
       in: query
-      description: Number of items to skip
+      description: |
+        Number of items to skip
+        عدد العناصر المُتخطاة
       schema:
         type: integer
         minimum: 0
@@ -751,219 +1187,568 @@ components:
     IfMatch:
       name: If-Match
       in: header
-      description: ETag for optimistic concurrency control
+      description: |
+        ETag for optimistic concurrency control
+        ETag للتحكم بالتزامن المتفائل
       schema:
         type: string
 
   schemas:
-    # Field Schemas
+    # ============================================================================
+    # ENUMS - التعدادات
+    # ============================================================================
+    FieldStatus:
+      type: string
+      description: |
+        Field status
+        حالة الحقل
+      enum:
+        - active      # نشط - Field is actively cultivated
+        - fallow      # بور - Field is left uncultivated
+        - harvested   # محصود - Crop has been harvested
+        - preparing   # قيد التحضير - Being prepared for planting
+        - inactive    # غير نشط - Field is inactive/deleted
+
+    IrrigationType:
+      type: string
+      description: |
+        Irrigation system type
+        نوع نظام الري
+      enum:
+        - drip        # تنقيط - Drip irrigation
+        - sprinkler   # رشاش - Sprinkler irrigation
+        - flood       # غمر - Flood irrigation
+        - pivot       # محوري - Center pivot irrigation
+        - none        # بدون ري - Rainfed/no irrigation
+
+    SoilType:
+      type: string
+      description: |
+        Soil type classification
+        تصنيف نوع التربة
+      enum:
+        - sandy       # رملية - Sandy soil
+        - loamy       # طميية - Loamy soil
+        - clay        # طينية - Clay soil
+        - sandy_loam  # رملية طميية - Sandy loam
+        - clay_loam   # طينية طميية - Clay loam
+        - silt        # طمي - Silt soil
+
+    CropType:
+      type: string
+      description: |
+        Crop type
+        نوع المحصول
+      enum:
+        - wheat       # قمح
+        - barley      # شعير
+        - date_palm   # نخيل
+        - tomato      # طماطم
+        - cucumber    # خيار
+        - potato      # بطاطس
+        - onion       # بصل
+        - mango       # مانجو
+        - citrus      # حمضيات
+        - alfalfa     # برسيم
+        - corn        # ذرة
+        - cotton      # قطن
+        - watermelon  # بطيخ
+        - grape       # عنب
+        - olive       # زيتون
+        - other       # أخرى
+
+    ChangeSource:
+      type: string
+      description: |
+        Source of the change
+        مصدر التغيير
+      enum:
+        - mobile      # تطبيق الجوال - Mobile application
+        - web         # الموقع الإلكتروني - Web application
+        - api         # واجهة برمجة التطبيقات - Direct API call
+        - system      # النظام - System/automated change
+
+    PestType:
+      type: string
+      description: |
+        Type of pest
+        نوع الآفة
+      enum:
+        - INSECT      # حشرة
+        - FUNGUS      # فطر
+        - BACTERIA    # بكتيريا
+        - VIRUS       # فيروس
+        - WEED        # حشائش
+        - RODENT      # قوارض
+        - BIRD        # طيور
+        - NEMATODE    # نيماتودا
+        - OTHER       # أخرى
+
+    # ============================================================================
+    # FIELD SCHEMAS - مخططات الحقل
+    # ============================================================================
     Field:
       type: object
+      description: |
+        Agricultural field entity
+        كيان الحقل الزراعي
       properties:
         id:
           type: string
           format: uuid
+          description: |
+            Unique field identifier
+            المعرف الفريد للحقل
         tenantId:
           type: string
           format: uuid
+          description: |
+            Tenant/organization identifier
+            معرف المستأجر/المنظمة
         name:
           type: string
           maxLength: 100
+          description: |
+            Field name (supports Arabic)
+            اسم الحقل (يدعم العربية)
+          example: حقل القمح الشمالي
         cropType:
-          type: string
+          $ref: '#/components/schemas/CropType'
+        areaHectares:
+          type: number
+          format: double
+          description: |
+            Field area in hectares
+            مساحة الحقل بالهكتار
+          example: 8.5
+        boundary:
+          $ref: '#/components/schemas/GeoJSONPolygon'
+        healthScore:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          description: |
+            Overall field health score (0-100)
+            درجة صحة الحقل الإجمالية (0-100)
+          example: 85.5
+        ndviValue:
+          type: number
+          format: double
+          minimum: -1
+          maximum: 1
+          nullable: true
+          description: |
+            Current/latest NDVI value
+            قيمة NDVI الحالية/الأخيرة
+          example: 0.72
         status:
+          $ref: '#/components/schemas/FieldStatus'
+        irrigationType:
+          $ref: '#/components/schemas/IrrigationType'
+        soilType:
+          $ref: '#/components/schemas/SoilType'
+        plantingDate:
           type: string
-          enum: [active, fallow, preparing, harvested]
-        coordinates:
+          format: date
+          nullable: true
+          description: |
+            Date of planting
+            تاريخ الزراعة
+        createdAt:
+          type: string
+          format: date-time
+          description: |
+            Creation timestamp
+            تاريخ الإنشاء
+        updatedAt:
+          type: string
+          format: date-time
+          description: |
+            Last update timestamp
+            تاريخ آخر تحديث
+        version:
+          type: integer
+          description: |
+            Version number for optimistic concurrency
+            رقم الإصدار للتحكم بالتزامن
+      required:
+        - id
+        - tenantId
+        - name
+        - status
+
+    CreateFieldDto:
+      type: object
+      description: |
+        Data transfer object for creating a new field
+        كائن نقل البيانات لإنشاء حقل جديد
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: |
+            Field name (supports Arabic)
+            اسم الحقل (يدعم العربية)
+        cropType:
+          $ref: '#/components/schemas/CropType'
+        areaHectares:
+          type: number
+          format: double
+          minimum: 0.01
+          maximum: 10000
+          description: |
+            Field area in hectares (optional - calculated from boundary if not provided)
+            مساحة الحقل بالهكتار (اختياري - يُحسب من الحدود إذا لم يُقدم)
+        boundary:
           type: array
-          description: GeoJSON polygon coordinates
+          description: |
+            Polygon coordinates as array of [longitude, latitude] pairs
+            إحداثيات المضلع كمصفوفة من أزواج [خط الطول، خط العرض]
           items:
             type: array
             items:
               type: number
             minItems: 2
             maxItems: 2
-        area:
-          type: number
-          description: Area in hectares
+          minItems: 4
+          example:
+            - [46.7, 24.6]
+            - [46.8, 24.6]
+            - [46.8, 24.7]
+            - [46.7, 24.7]
+            - [46.7, 24.6]
         irrigationType:
-          type: string
-          enum: [drip, sprinkler, flood, none]
+          $ref: '#/components/schemas/IrrigationType'
         soilType:
-          type: string
-        currentNdvi:
-          type: number
-          minimum: -1
-          maximum: 1
+          $ref: '#/components/schemas/SoilType'
         plantingDate:
           type: string
           format: date
-        expectedHarvest:
-          type: string
-          format: date
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        version:
-          type: integer
+          description: |
+            Date of planting
+            تاريخ الزراعة
+        metadata:
+          type: object
+          description: |
+            Additional metadata
+            بيانات وصفية إضافية
+          additionalProperties: true
+      required:
+        - name
+        - cropType
+        - boundary
 
-    FieldCreate:
+    UpdateFieldDto:
       type: object
-      required: [name, cropType]
+      description: |
+        Data transfer object for updating a field (partial update)
+        كائن نقل البيانات لتحديث الحقل (تحديث جزئي)
       properties:
         name:
           type: string
           minLength: 1
           maxLength: 100
+          description: |
+            Field name (supports Arabic)
+            اسم الحقل (يدعم العربية)
         cropType:
+          $ref: '#/components/schemas/CropType'
+        status:
+          $ref: '#/components/schemas/FieldStatus'
+        irrigationType:
+          $ref: '#/components/schemas/IrrigationType'
+        soilType:
+          $ref: '#/components/schemas/SoilType'
+        plantingDate:
           type: string
-          minLength: 1
-          maxLength: 50
+          format: date
+          description: |
+            Date of planting
+            تاريخ الزراعة
+        metadata:
+          type: object
+          description: |
+            Additional metadata
+            بيانات وصفية إضافية
+          additionalProperties: true
+
+    # ============================================================================
+    # BOUNDARY SCHEMAS - مخططات الحدود
+    # ============================================================================
+    GeoJSONPolygon:
+      type: object
+      description: |
+        GeoJSON Polygon geometry
+        هندسة مضلع GeoJSON
+      properties:
+        type:
+          type: string
+          enum: [Polygon]
+          description: GeoJSON geometry type
         coordinates:
           type: array
+          description: |
+            Array of linear rings (first is exterior, rest are holes)
+            مصفوفة الحلقات الخطية (الأولى خارجية، والباقي ثقوب)
           items:
             type: array
             items:
-              type: number
-          minItems: 3
-        ownerId:
-          type: string
-          format: uuid
-        irrigationType:
-          type: string
-          enum: [drip, sprinkler, flood, none]
-        soilType:
-          type: string
-          maxLength: 50
-        plantingDate:
-          type: string
-          format: date
-        expectedHarvest:
-          type: string
-          format: date
-        metadata:
-          type: object
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 2
+            minItems: 4
+          example:
+            - - [46.7, 24.6]
+              - [46.8, 24.6]
+              - [46.8, 24.7]
+              - [46.7, 24.7]
+              - [46.7, 24.6]
+      required:
+        - type
+        - coordinates
 
-    FieldUpdate:
+    UpdateBoundaryDto:
       type: object
+      description: |
+        Data transfer object for updating field boundary
+        كائن نقل البيانات لتحديث حدود الحقل
       properties:
-        name:
+        boundary:
+          $ref: '#/components/schemas/GeoJSONPolygon'
+        changeReason:
           type: string
-          minLength: 1
-          maxLength: 100
-        cropType:
-          type: string
-        status:
-          type: string
-          enum: [active, fallow, preparing, harvested]
-        irrigationType:
-          type: string
-          enum: [drip, sprinkler, flood, none]
-        soilType:
-          type: string
-        plantingDate:
-          type: string
-          format: date
-        expectedHarvest:
-          type: string
-          format: date
-        metadata:
-          type: object
+          minLength: 10
+          maxLength: 500
+          description: |
+            Reason for boundary change (required for audit trail)
+            سبب تغيير الحدود (مطلوب للسجل المراجعي)
+          example: "توسيع الحقل بعد شراء الأرض المجاورة - Field expansion after purchasing adjacent land"
+        changeSource:
+          $ref: '#/components/schemas/ChangeSource'
+      required:
+        - boundary
+        - changeReason
 
-    FieldResponse:
+    FieldBoundaryHistory:
       type: object
-      properties:
-        success:
-          type: boolean
-        data:
-          $ref: '#/components/schemas/Field'
-        message:
-          type: string
-        message_ar:
-          type: string
-
-    FieldListResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Field'
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-
-    # NDVI Schemas
-    NdviReading:
-      type: object
+      description: |
+        Field boundary change history record
+        سجل تاريخ تغيير حدود الحقل
       properties:
         id:
           type: string
           format: uuid
+          description: |
+            History record identifier
+            معرف سجل التاريخ
         fieldId:
           type: string
           format: uuid
+          description: |
+            Field identifier
+            معرف الحقل
+        previousBoundary:
+          $ref: '#/components/schemas/GeoJSONPolygon'
+        newBoundary:
+          $ref: '#/components/schemas/GeoJSONPolygon'
+        previousAreaHectares:
+          type: number
+          format: double
+          description: |
+            Previous area in hectares
+            المساحة السابقة بالهكتار
+        newAreaHectares:
+          type: number
+          format: double
+          description: |
+            New area in hectares
+            المساحة الجديدة بالهكتار
+        areaChangeHectares:
+          type: number
+          format: double
+          description: |
+            Change in area (positive = expansion, negative = reduction)
+            التغيير في المساحة (موجب = توسيع، سالب = تقليص)
+        areaChangePercent:
+          type: number
+          format: double
+          description: |
+            Percentage change in area
+            نسبة التغيير في المساحة
+        changedBy:
+          type: string
+          format: uuid
+          description: |
+            User ID who made the change
+            معرف المستخدم الذي أجرى التغيير
+        changedByName:
+          type: string
+          description: |
+            Name of user who made the change
+            اسم المستخدم الذي أجرى التغيير
+        changeReason:
+          type: string
+          description: |
+            Reason for the change
+            سبب التغيير
+        changeSource:
+          $ref: '#/components/schemas/ChangeSource'
+        changedAt:
+          type: string
+          format: date-time
+          description: |
+            Timestamp of the change
+            وقت التغيير
+
+    # ============================================================================
+    # NDVI SCHEMAS - مخططات NDVI
+    # ============================================================================
+    NdviReading:
+      type: object
+      description: |
+        NDVI (Normalized Difference Vegetation Index) reading
+        قراءة مؤشر الغطاء النباتي NDVI
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: |
+            Reading identifier
+            معرف القراءة
+        fieldId:
+          type: string
+          format: uuid
+          description: |
+            Field identifier
+            معرف الحقل
         value:
           type: number
+          format: double
           minimum: -1
           maximum: 1
+          description: |
+            NDVI value (-1 to 1, higher = healthier vegetation)
+            قيمة NDVI (من -1 إلى 1، القيمة الأعلى = غطاء نباتي أكثر صحة)
         source:
           type: string
-          description: Data source (e.g., sentinel-2, landsat-8)
+          description: |
+            Data source (e.g., sentinel-2, landsat-8)
+            مصدر البيانات (مثل sentinel-2، landsat-8)
+        cloudCover:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          nullable: true
+          description: |
+            Cloud cover percentage at time of capture
+            نسبة الغطاء السحابي وقت الالتقاط
+        satelliteName:
+          type: string
+          nullable: true
+          description: |
+            Name of the satellite
+            اسم القمر الصناعي
+        bandInfo:
+          type: object
+          nullable: true
+          description: |
+            Band information used for NDVI calculation
+            معلومات النطاقات المستخدمة لحساب NDVI
+          properties:
+            red:
+              type: string
+              description: Red band identifier
+            nir:
+              type: string
+              description: NIR band identifier
+            resolution:
+              type: number
+              description: Spatial resolution in meters
         recordedAt:
           type: string
           format: date-time
+          description: |
+            Timestamp of the reading
+            وقت القراءة
+        createdAt:
+          type: string
+          format: date-time
+          description: |
+            Creation timestamp
+            تاريخ الإنشاء
 
-    NdviCreate:
+    NdviReadingDto:
       type: object
-      required: [value]
+      description: |
+        Data transfer object for recording NDVI reading
+        كائن نقل البيانات لتسجيل قراءة NDVI
       properties:
         value:
           type: number
+          format: double
           minimum: -1
           maximum: 1
+          description: |
+            NDVI value (-1 to 1)
+            قيمة NDVI (من -1 إلى 1)
         source:
           type: string
           maxLength: 50
+          description: |
+            Data source (sentinel-2, landsat-8, etc.)
+            مصدر البيانات (sentinel-2، landsat-8، إلخ)
+        cloudCover:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          description: |
+            Cloud cover percentage
+            نسبة الغطاء السحابي
+        satelliteName:
+          type: string
+          maxLength: 100
+          description: |
+            Name of the satellite
+            اسم القمر الصناعي
+        bandInfo:
+          type: object
+          description: |
+            Band information used for calculation
+            معلومات النطاقات المستخدمة للحساب
+          properties:
+            red:
+              type: string
+              description: Red band identifier
+            nir:
+              type: string
+              description: NIR band identifier
+            resolution:
+              type: number
+              description: Spatial resolution in meters
+        recordedAt:
+          type: string
+          format: date-time
+          description: |
+            Timestamp when reading was taken (defaults to now)
+            الوقت الذي أُخذت فيه القراءة (الافتراضي: الآن)
+      required:
+        - value
+        - source
 
-    NdviResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        data:
-          $ref: '#/components/schemas/NdviReading'
-
-    NdviListResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/NdviReading'
-
-    # Pest Management Schemas
-    PestType:
-      type: string
-      enum:
-        - INSECT
-        - FUNGUS
-        - BACTERIA
-        - VIRUS
-        - WEED
-        - RODENT
-        - BIRD
-        - NEMATODE
-        - OTHER
-
+    # ============================================================================
+    # PEST SCHEMAS - مخططات الآفات
+    # ============================================================================
     PestIncident:
       type: object
+      description: |
+        Pest incident record
+        سجل حادثة آفة
       properties:
         id:
           type: string
@@ -982,17 +1767,34 @@ components:
         pestName:
           type: string
           maxLength: 255
+          description: |
+            Pest name in English
+            اسم الآفة بالإنجليزية
+        pestNameAr:
+          type: string
+          maxLength: 255
+          nullable: true
+          description: |
+            Pest name in Arabic
+            اسم الآفة بالعربية
         severityLevel:
           type: integer
           minimum: 1
           maximum: 5
-          description: Severity from 1 (low) to 5 (critical)
+          description: |
+            Severity from 1 (low) to 5 (critical)
+            الشدة من 1 (منخفضة) إلى 5 (حرجة)
         affectedArea:
           type: number
-          description: Affected area in hectares
+          description: |
+            Affected area in hectares
+            المساحة المتأثرة بالهكتار
         status:
           type: string
           enum: [DETECTED, MONITORING, TREATING, RESOLVED, RECURRING]
+          description: |
+            Incident status
+            حالة الحادثة
         detectedAt:
           type: string
           format: date-time
@@ -1018,10 +1820,21 @@ components:
           nullable: true
           items:
             type: string
-          description: Array of photo URLs
+          description: |
+            Array of photo URLs
+            مصفوفة روابط الصور
         notes:
           type: string
           nullable: true
+          description: |
+            Notes in English
+            ملاحظات بالإنجليزية
+        notesAr:
+          type: string
+          nullable: true
+          description: |
+            Notes in Arabic
+            ملاحظات بالعربية
         treatments:
           type: array
           items:
@@ -1035,6 +1848,9 @@ components:
 
     PestIncidentCreate:
       type: object
+      description: |
+        Data transfer object for creating pest incident
+        كائن نقل البيانات لإنشاء حادثة آفة
       required:
         - fieldId
         - tenantId
@@ -1058,6 +1874,9 @@ components:
           $ref: '#/components/schemas/PestType'
         pestName:
           type: string
+        pestNameAr:
+          type: string
+          nullable: true
         severityLevel:
           type: integer
           minimum: 1
@@ -1080,6 +1899,9 @@ components:
         notes:
           type: string
           nullable: true
+        notesAr:
+          type: string
+          nullable: true
         status:
           type: string
           enum: [DETECTED, MONITORING, TREATING, RESOLVED, RECURRING]
@@ -1087,11 +1909,17 @@ components:
 
     PestIncidentUpdate:
       type: object
+      description: |
+        Data transfer object for updating pest incident
+        كائن نقل البيانات لتحديث حادثة آفة
       properties:
         pestType:
           $ref: '#/components/schemas/PestType'
         pestName:
           type: string
+        pestNameAr:
+          type: string
+          nullable: true
         severityLevel:
           type: integer
           minimum: 1
@@ -1112,9 +1940,15 @@ components:
         notes:
           type: string
           nullable: true
+        notesAr:
+          type: string
+          nullable: true
 
     PestTreatment:
       type: object
+      description: |
+        Pest treatment record
+        سجل علاج الآفة
       properties:
         id:
           type: string
@@ -1130,9 +1964,29 @@ components:
         method:
           type: string
           maxLength: 255
+          description: |
+            Treatment method in English
+            طريقة العلاج بالإنجليزية
+        methodAr:
+          type: string
+          maxLength: 255
+          nullable: true
+          description: |
+            Treatment method in Arabic
+            طريقة العلاج بالعربية
         productUsed:
           type: string
           maxLength: 255
+          description: |
+            Product name in English
+            اسم المنتج بالإنجليزية
+        productUsedAr:
+          type: string
+          maxLength: 255
+          nullable: true
+          description: |
+            Product name in Arabic
+            اسم المنتج بالعربية
         productId:
           type: string
           format: uuid
@@ -1150,11 +2004,19 @@ components:
           minimum: 1
           maximum: 5
           nullable: true
-          description: Effectiveness from 1 (ineffective) to 5 (very effective)
+          description: |
+            Effectiveness from 1 (ineffective) to 5 (very effective)
+            الفعالية من 1 (غير فعال) إلى 5 (فعال جداً)
         cost:
           type: number
           nullable: true
+          description: |
+            Treatment cost
+            تكلفة العلاج
         notes:
+          type: string
+          nullable: true
+        notesAr:
           type: string
           nullable: true
         createdAt:
@@ -1166,6 +2028,9 @@ components:
 
     PestTreatmentCreate:
       type: object
+      description: |
+        Data transfer object for creating pest treatment
+        كائن نقل البيانات لإنشاء علاج آفة
       required:
         - incidentId
         - tenantId
@@ -1186,8 +2051,14 @@ components:
           format: date-time
         method:
           type: string
+        methodAr:
+          type: string
+          nullable: true
         productUsed:
           type: string
+        productUsedAr:
+          type: string
+          nullable: true
         productId:
           type: string
           format: uuid
@@ -1209,32 +2080,197 @@ components:
         notes:
           type: string
           nullable: true
+        notesAr:
+          type: string
+          nullable: true
 
-    # Common Schemas
+    # ============================================================================
+    # RESPONSE SCHEMAS - مخططات الاستجابة
+    # ============================================================================
+    FieldResponse:
+      type: object
+      description: |
+        Single field response wrapper
+        غلاف استجابة الحقل المفرد
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Field'
+        message:
+          type: string
+          description: |
+            Success message in English
+            رسالة النجاح بالإنجليزية
+        message_ar:
+          type: string
+          description: |
+            Success message in Arabic
+            رسالة النجاح بالعربية
+
+    FieldListResponse:
+      type: object
+      description: |
+        Paginated field list response
+        استجابة قائمة الحقول المُقسمة
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Field'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    BoundaryUpdateResponse:
+      type: object
+      description: |
+        Boundary update response with change details
+        استجابة تحديث الحدود مع تفاصيل التغيير
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Field'
+        boundaryChange:
+          type: object
+          properties:
+            previousAreaHectares:
+              type: number
+              format: double
+            newAreaHectares:
+              type: number
+              format: double
+            areaChangeHectares:
+              type: number
+              format: double
+            areaChangePercent:
+              type: number
+              format: double
+        message:
+          type: string
+        message_ar:
+          type: string
+
+    FieldBoundaryHistoryListResponse:
+      type: object
+      description: |
+        Paginated boundary history response
+        استجابة سجل الحدود المُقسمة
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldBoundaryHistory'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    NdviResponse:
+      type: object
+      description: |
+        Single NDVI reading response
+        استجابة قراءة NDVI المفردة
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/NdviReading'
+
+    NdviListResponse:
+      type: object
+      description: |
+        Paginated NDVI readings response
+        استجابة قراءات NDVI المُقسمة
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/NdviReading'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        statistics:
+          type: object
+          description: |
+            NDVI statistics for the period
+            إحصائيات NDVI للفترة
+          properties:
+            min:
+              type: number
+            max:
+              type: number
+            average:
+              type: number
+            trend:
+              type: string
+              enum: [improving, stable, declining]
+              description: |
+                Trend direction
+                اتجاه الاتجاه
+
+    # ============================================================================
+    # COMMON SCHEMAS - المخططات المشتركة
+    # ============================================================================
     Pagination:
       type: object
+      description: |
+        Pagination metadata
+        بيانات التقسيم الوصفية
       properties:
         total:
           type: integer
+          description: |
+            Total number of items
+            إجمالي عدد العناصر
         limit:
           type: integer
+          description: |
+            Items per page
+            عناصر لكل صفحة
         offset:
           type: integer
+          description: |
+            Current offset
+            الإزاحة الحالية
         hasMore:
           type: boolean
+          description: |
+            Whether more items are available
+            هل توجد عناصر أخرى
 
     Error:
       type: object
+      description: |
+        Error response structure
+        هيكل استجابة الخطأ
       properties:
         success:
           type: boolean
           example: false
         error:
           type: string
+          description: |
+            Error message in English
+            رسالة الخطأ بالإنجليزية
         error_ar:
           type: string
+          description: |
+            Error message in Arabic
+            رسالة الخطأ بالعربية
+        code:
+          type: string
+          description: |
+            Error code for programmatic handling
+            رمز الخطأ للمعالجة البرمجية
         details:
           type: array
+          description: |
+            Field-level validation errors
+            أخطاء التحقق على مستوى الحقل
           items:
             type: object
             properties:
@@ -1242,23 +2278,30 @@ components:
                 type: string
               message:
                 type: string
+              message_ar:
+                type: string
               code:
                 type: string
 
   responses:
     Unauthorized:
-      description: Authentication required
+      description: |
+        Authentication required
+        المصادقة مطلوبة
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             success: false
-            error: Unauthorized
-            error_ar: غير مصرح
+            error: Unauthorized - Valid authentication token required
+            error_ar: غير مصرح - يلزم رمز مصادقة صالح
+            code: AUTH_REQUIRED
 
     NotFound:
-      description: Resource not found
+      description: |
+        Resource not found
+        المورد غير موجود
       content:
         application/json:
           schema:
@@ -1267,9 +2310,12 @@ components:
             success: false
             error: Field not found
             error_ar: الحقل غير موجود
+            code: FIELD_NOT_FOUND
 
     ValidationError:
-      description: Validation error
+      description: |
+        Validation error
+        خطأ في التحقق
       content:
         application/json:
           schema:
@@ -1278,71 +2324,97 @@ components:
             success: false
             error: Validation failed
             error_ar: فشل التحقق من البيانات
+            code: VALIDATION_ERROR
             details:
               - field: name
                 message: Required field is missing
+                message_ar: الحقل المطلوب مفقود
                 code: required
+              - field: boundary
+                message: Polygon must have at least 4 points
+                message_ar: يجب أن يحتوي المضلع على 4 نقاط على الأقل
+                code: min_points
 
     Conflict:
-      description: Conflict - resource already exists or version mismatch
+      description: |
+        Conflict - resource already exists or version mismatch
+        تعارض - المورد موجود بالفعل أو عدم تطابق الإصدار
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             success: false
-            error: Conflict detected
-            error_ar: تم اكتشاف تعارض
+            error: A field with this name already exists
+            error_ar: يوجد حقل بهذا الاسم بالفعل
+            code: DUPLICATE_FIELD
 
     PreconditionFailed:
-      description: ETag mismatch - resource was modified
+      description: |
+        ETag mismatch - resource was modified
+        عدم تطابق ETag - تم تعديل المورد
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             success: false
-            error: Resource was modified
-            error_ar: تم تعديل المورد
+            error: Resource was modified by another request
+            error_ar: تم تعديل المورد بواسطة طلب آخر
+            code: CONCURRENT_MODIFICATION
 
     RateLimitExceeded:
-      description: Rate limit exceeded
+      description: |
+        Rate limit exceeded
+        تم تجاوز حد الطلبات
       headers:
         X-RateLimit-Limit:
           schema:
             type: integer
-          description: Request limit per minute
+          description: |
+            Request limit per minute
+            حد الطلبات في الدقيقة
         X-RateLimit-Remaining:
           schema:
             type: integer
-          description: Remaining requests
+          description: |
+            Remaining requests
+            الطلبات المتبقية
         X-RateLimit-Reset:
           schema:
             type: integer
-          description: Unix timestamp when limit resets
+          description: |
+            Unix timestamp when limit resets
+            الطابع الزمني لإعادة تعيين الحد
         Retry-After:
           schema:
             type: integer
-          description: Seconds to wait before retry
+          description: |
+            Seconds to wait before retry
+            الثواني قبل إعادة المحاولة
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             success: false
-            error: Rate limit exceeded
-            error_ar: تم تجاوز حد الطلبات
+            error: Rate limit exceeded - please wait before retrying
+            error_ar: تم تجاوز حد الطلبات - يرجى الانتظار قبل إعادة المحاولة
+            code: RATE_LIMIT_EXCEEDED
 
     BadRequest:
-      description: Bad request - Invalid input
+      description: |
+        Bad request - Invalid input
+        طلب غير صالح - إدخال غير صالح
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             success: false
-            error: Bad request
-            error_ar: طلب غير صالح
+            error: Bad request - Invalid input provided
+            error_ar: طلب غير صالح - الإدخال المقدم غير صالح
+            code: BAD_REQUEST
 
 security:
   - bearerAuth: []

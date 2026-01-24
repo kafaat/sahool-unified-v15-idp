@@ -1,0 +1,85 @@
+name: 'Setup Node.js with Shared Packages'
+description: 'Install dependencies and optionally build shared packages with smart caching'
+
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: false
+    default: '20'
+  build-packages:
+    description: 'Whether to build shared packages'
+    required: false
+    default: 'true'
+  cache-key-prefix:
+    description: 'Cache key prefix for identifying the app context'
+    required: false
+    default: 'node'
+  working-directory:
+    description: 'Working directory for npm commands'
+    required: false
+    default: '.'
+
+outputs:
+  cache-hit:
+    description: 'Whether cache was hit'
+    value: ${{ steps.cache.outputs.cache-hit }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'npm'
+
+    - name: Cache node_modules
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          node_modules
+          ${{ inputs.working-directory }}/node_modules
+          packages/*/node_modules
+        key: ${{ runner.os }}-${{ inputs.cache-key-prefix }}-node-${{ hashFiles('package-lock.json', format('{0}/package-lock.json', inputs.working-directory), 'packages/*/package.json') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ inputs.cache-key-prefix }}-node-
+          ${{ runner.os }}-node-
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        echo "=== Installing dependencies ==="
+        npm install --legacy-peer-deps
+        echo "✅ Dependencies installed"
+
+    - name: Cache shared packages build
+      if: inputs.build-packages == 'true'
+      id: packages-cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          packages/*/dist
+          packages/*/build
+        key: ${{ runner.os }}-packages-build-${{ hashFiles('packages/*/src/**', 'packages/*/package.json') }}
+        restore-keys: |
+          ${{ runner.os }}-packages-build-
+
+    - name: Build shared packages
+      if: inputs.build-packages == 'true' && steps.packages-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        echo "=== Building shared packages ==="
+        npm run build:packages 2>&1 | tee build-packages.log || {
+          echo "❌ Failed to build shared packages!"
+          cat build-packages.log
+          exit 1
+        }
+        echo "✅ Shared packages built successfully"
+
+    - name: Verify packages build (if cached)
+      if: inputs.build-packages == 'true' && steps.packages-cache.outputs.cache-hit == 'true'
+      shell: bash
+      run: |
+        echo "✅ Shared packages restored from cache"

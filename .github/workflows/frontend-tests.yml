@@ -1,10 +1,11 @@
 name: Frontend Tests
 
+# =============================================================================
+# Security: Minimal permissions at workflow level
+# Job-specific permissions are granted where needed
+# =============================================================================
 permissions:
   contents: read
-  issues: write
-  pull-requests: write
-  checks: write
 
 on:
   push:
@@ -15,6 +16,8 @@ on:
       - 'apps/mobile/**'
       - 'packages/**'
       - '.github/workflows/frontend-tests.yml'
+      - '.github/actions/flutter-codegen/**'
+      - '.github/actions/setup-node-packages/**'
   pull_request:
     branches: [main, develop]
     paths:
@@ -30,17 +33,72 @@ env:
 
 jobs:
   # =============================================================================
-  # Job 1: Next.js Web App Testing
+  # Job 0: Build Shared Packages (runs once, cached for other jobs)
   # =============================================================================
-  web-app-tests:
-    name: Web App - ${{ matrix.test-type }}
+  build-packages:
+    name: Build Shared Packages
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
+
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.key }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Generate cache key
+        id: cache-key
+        run: echo "key=packages-build-${{ hashFiles('packages/*/src/**', 'packages/*/package.json') }}" >> $GITHUB_OUTPUT
+
+      - name: Restore packages build cache
+        id: packages-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            packages/*/dist
+            packages/*/build
+          key: ${{ runner.os }}-${{ steps.cache-key.outputs.key }}
+
+      - name: Install dependencies
+        if: steps.packages-cache.outputs.cache-hit != 'true'
+        run: npm install --legacy-peer-deps
+
+      - name: Build shared packages
+        if: steps.packages-cache.outputs.cache-hit != 'true'
+        run: |
+          echo "=== Building shared packages ==="
+          npm run build:packages
+          echo "✅ Shared packages built"
+
+      - name: Save packages build cache
+        if: steps.packages-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            packages/*/dist
+            packages/*/build
+          key: ${{ runner.os }}-${{ steps.cache-key.outputs.key }}
+
+  # =============================================================================
+  # Job 1a: Web App - Fast Checks (lint, typecheck)
+  # =============================================================================
+  web-fast-checks:
+    name: Web App - ${{ matrix.check }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build-packages
 
     strategy:
       fail-fast: false
       matrix:
-        test-type: ['lint', 'typecheck', 'unit-tests', 'build']
+        check: ['lint', 'typecheck']
 
     steps:
       - name: Checkout repository
@@ -59,54 +117,130 @@ jobs:
             node_modules
             apps/web/node_modules
             packages/*/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-web-node-${{ hashFiles('package-lock.json') }}
           restore-keys: |
+            ${{ runner.os }}-web-node-
             ${{ runner.os }}-node-
+
+      - name: Restore packages build
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            packages/*/dist
+            packages/*/build
+          key: ${{ runner.os }}-${{ needs.build-packages.outputs.cache-key }}
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Build shared packages
-        run: |
-          echo "Building shared packages for Web App..."
-          npm run build:packages 2>&1 | tee build-packages.log || {
-            echo "❌ Failed to build shared packages!"
-            echo "Check build-packages.log for details"
-            cat build-packages.log
-            exit 1
-          }
-          echo "✅ Shared packages built successfully"
-
       - name: Run Lint
-        if: matrix.test-type == 'lint'
+        if: matrix.check == 'lint'
         run: |
           echo "Running ESLint on Web App..."
           cd apps/web && npm run lint
-        continue-on-error: true
 
       - name: Run Type Check
-        if: matrix.test-type == 'typecheck'
+        if: matrix.check == 'typecheck'
         run: |
           echo "Running TypeScript type check on Web App..."
           cd apps/web && npm run type-check
 
+  # =============================================================================
+  # Job 1b: Web App - Unit Tests
+  # =============================================================================
+  web-unit-tests:
+    name: Web App - Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [build-packages, web-fast-checks]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/web/node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-web-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-web-node-
+
+      - name: Restore packages build
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            packages/*/dist
+            packages/*/build
+          key: ${{ runner.os }}-${{ needs.build-packages.outputs.cache-key }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
       - name: Run Unit Tests
-        if: matrix.test-type == 'unit-tests'
+        id: tests
         run: |
           echo "Running Vitest unit tests on Web App..."
           cd apps/web && npm run test:coverage
-        continue-on-error: true
 
       - name: Upload Coverage Report
-        if: matrix.test-type == 'unit-tests'
         uses: actions/upload-artifact@v4
         with:
           name: web-coverage
           path: apps/web/coverage/
-          retention-days: 7
+          retention-days: 3
+
+  # =============================================================================
+  # Job 1c: Web App - Build
+  # =============================================================================
+  web-build:
+    name: Web App - Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [build-packages, web-fast-checks]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/web/node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-web-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-web-node-
+
+      - name: Restore packages build
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            packages/*/dist
+            packages/*/build
+          key: ${{ runner.os }}-${{ needs.build-packages.outputs.cache-key }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
 
       - name: Build Web App
-        if: matrix.test-type == 'build'
         run: |
           echo "Building Next.js Web App..."
           cd apps/web && npm run build
@@ -114,26 +248,30 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
 
       - name: Upload Build Artifacts
-        if: matrix.test-type == 'build'
         uses: actions/upload-artifact@v4
         with:
           name: web-build
-          path: apps/web/.next
-          retention-days: 7
+          path: |
+            apps/web/.next/standalone
+            apps/web/.next/static
+            apps/web/.next/BUILD_ID
+            !apps/web/.next/cache/**
+          retention-days: 1
           if-no-files-found: warn
 
   # =============================================================================
-  # Job 2: Admin Dashboard Testing
+  # Job 2a: Admin Dashboard - Fast Checks
   # =============================================================================
-  admin-dashboard-tests:
-    name: Admin - ${{ matrix.test-type }}
+  admin-fast-checks:
+    name: Admin - ${{ matrix.check }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
+    needs: build-packages
 
     strategy:
       fail-fast: false
       matrix:
-        test-type: ['lint', 'typecheck', 'unit-tests', 'build']
+        check: ['lint', 'typecheck']
 
     steps:
       - name: Checkout repository
@@ -152,56 +290,131 @@ jobs:
             node_modules
             apps/admin/node_modules
             packages/*/node_modules
-          key: ${{ runner.os }}-node-admin-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-admin-node-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-admin-
+            ${{ runner.os }}-admin-node-
             ${{ runner.os }}-node-
+
+      - name: Restore packages build
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            packages/*/dist
+            packages/*/build
+          key: ${{ runner.os }}-${{ needs.build-packages.outputs.cache-key }}
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Build shared packages
-        run: |
-          echo "Building shared packages for Admin Dashboard..."
-          npm run build:packages 2>&1 | tee build-packages.log || {
-            echo "❌ Failed to build shared packages!"
-            echo "Check build-packages.log for details"
-            cat build-packages.log
-            exit 1
-          }
-          echo "✅ Shared packages built successfully"
-
       - name: Run Lint
-        if: matrix.test-type == 'lint'
+        if: matrix.check == 'lint'
         run: |
           echo "Running ESLint on Admin Dashboard..."
           cd apps/admin && npm run lint
-        continue-on-error: true
 
       - name: Run Type Check
-        if: matrix.test-type == 'typecheck'
+        if: matrix.check == 'typecheck'
         run: |
           echo "Running TypeScript type check on Admin Dashboard..."
           cd apps/admin && npm run type-check
 
+  # =============================================================================
+  # Job 2b: Admin Dashboard - Unit Tests
+  # =============================================================================
+  admin-unit-tests:
+    name: Admin - Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [build-packages, admin-fast-checks]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/admin/node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-admin-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-admin-node-
+
+      - name: Restore packages build
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            packages/*/dist
+            packages/*/build
+          key: ${{ runner.os }}-${{ needs.build-packages.outputs.cache-key }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
       - name: Run Unit Tests
-        if: matrix.test-type == 'unit-tests'
+        id: tests
         run: |
           echo "Running Vitest unit tests on Admin Dashboard..."
-          cd apps/admin && npm run test:coverage || npm run test || echo "⚠️ No test script found"
-        continue-on-error: true
+          cd apps/admin && npm run test:coverage || npm run test || echo "⚠️ No test script found - skipping"
 
       - name: Upload Admin Coverage Report
-        if: matrix.test-type == 'unit-tests'
         uses: actions/upload-artifact@v4
         with:
           name: admin-coverage
           path: apps/admin/coverage/
-          retention-days: 7
-        continue-on-error: true
+          retention-days: 3
+          if-no-files-found: ignore
+
+  # =============================================================================
+  # Job 2c: Admin Dashboard - Build
+  # =============================================================================
+  admin-build:
+    name: Admin - Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [build-packages, admin-fast-checks]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/admin/node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-admin-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-admin-node-
+
+      - name: Restore packages build
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            packages/*/dist
+            packages/*/build
+          key: ${{ runner.os }}-${{ needs.build-packages.outputs.cache-key }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
 
       - name: Build Admin Dashboard
-        if: matrix.test-type == 'build'
         run: |
           echo "Building Admin Dashboard..."
           cd apps/admin && npm run build
@@ -209,26 +422,23 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
 
       - name: Upload Build Artifacts
-        if: matrix.test-type == 'build'
         uses: actions/upload-artifact@v4
         with:
           name: admin-build
-          path: apps/admin/.next
-          retention-days: 7
+          path: |
+            apps/admin/.next/standalone
+            apps/admin/.next/static
+            !apps/admin/.next/cache/**
+          retention-days: 1
           if-no-files-found: warn
 
   # =============================================================================
-  # Job 3: Flutter Mobile App Testing
+  # Job 3a: Flutter - Analyze
   # =============================================================================
-  flutter-tests:
-    name: Flutter - ${{ matrix.test-type }}
+  flutter-analyze:
+    name: Flutter - Analyze
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    strategy:
-      fail-fast: false
-      matrix:
-        test-type: ['analyze', 'unit-tests', 'build-android']
+    timeout-minutes: 15
 
     defaults:
       run:
@@ -238,15 +448,146 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            apps/mobile/.dart_tool/package_config.json
+          key: ${{ runner.os }}-flutter-${{ env.FLUTTER_VERSION }}-${{ hashFiles('apps/mobile/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-${{ env.FLUTTER_VERSION }}-
+            ${{ runner.os }}-flutter-
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          API_BASE_URL=https://api.sahool.app
+          WEATHER_API_KEY=test_weather_key
+          MAPS_API_KEY=test_maps_key
+          ENV=test
+          EOF
+
+      - name: Run code generation
+        uses: ./.github/actions/flutter-codegen
+        with:
+          working-directory: apps/mobile
+          clean-first: 'true'
+
+      - name: Run Flutter Analyze
+        run: |
+          echo "Running Flutter analyze..."
+          flutter analyze --no-fatal-infos
+
+  # =============================================================================
+  # Job 3b: Flutter - Unit Tests
+  # =============================================================================
+  flutter-unit-tests:
+    name: Flutter - Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: flutter-analyze
+
+    defaults:
+      run:
+        working-directory: apps/mobile
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            apps/mobile/.dart_tool/package_config.json
+          key: ${{ runner.os }}-flutter-${{ env.FLUTTER_VERSION }}-${{ hashFiles('apps/mobile/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-${{ env.FLUTTER_VERSION }}-
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          API_BASE_URL=https://api.sahool.app
+          WEATHER_API_KEY=test_weather_key
+          MAPS_API_KEY=test_maps_key
+          ENV=test
+          EOF
+
+      - name: Run code generation
+        uses: ./.github/actions/flutter-codegen
+        with:
+          working-directory: apps/mobile
+          clean-first: 'true'
+
+      - name: Run Unit Tests
+        run: |
+          echo "Running Flutter unit and widget tests..."
+          flutter test --coverage --reporter=expanded
+
+      - name: Upload Test Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-coverage
+          path: apps/mobile/coverage/
+          retention-days: 3
+
+  # =============================================================================
+  # Job 3c: Flutter - Android Build
+  # =============================================================================
+  flutter-android-build:
+    name: Flutter - Android Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: flutter-analyze
+
+    defaults:
+      run:
+        working-directory: apps/mobile
+
+    steps:
       - name: Free disk space
         run: |
-          echo "Freeing disk space for Flutter build..."
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /opt/hostedtoolcache/CodeQL
-          # Note: Don't delete /usr/local/lib/android - needed for Android builds
+          echo "=== Disk space before cleanup ==="
+          df -h
+
+          echo "=== Freeing disk space ==="
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /opt/hostedtoolcache/CodeQL || true
+          sudo rm -rf /usr/local/share/boost || true
+
+          # Clean apt cache
+          sudo apt-get clean || true
+          sudo rm -rf /var/lib/apt/lists/* || true
+
+          echo "=== Disk space after cleanup ==="
           df -h
         working-directory: .
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -255,7 +596,6 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       - name: Setup Android SDK
-        if: matrix.test-type == 'build-android'
         uses: android-actions/setup-android@v3
 
       - name: Setup Flutter
@@ -272,39 +612,31 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            apps/mobile/.dart_tool
-            apps/mobile/.packages
             ~/.pub-cache
-          key: ${{ runner.os }}-flutter-${{ hashFiles('apps/mobile/pubspec.lock') }}
+            apps/mobile/.dart_tool/package_config.json
+          key: ${{ runner.os }}-flutter-${{ env.FLUTTER_VERSION }}-${{ hashFiles('apps/mobile/pubspec.lock') }}
           restore-keys: |
-            ${{ runner.os }}-flutter-
+            ${{ runner.os }}-flutter-${{ env.FLUTTER_VERSION }}-
 
       - name: Get Flutter dependencies
         run: flutter pub get
 
       - name: Setup Python for icon generation
-        if: matrix.test-type == 'build-android'
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Generate icons and assets
-        if: matrix.test-type == 'build-android'
+      - name: Create required directories and generate assets
         run: |
+          mkdir -p assets/icon assets/images assets/icons assets/fonts
+
           pip install Pillow
-          # Create required asset directories
-          mkdir -p assets/icon assets/images assets/icons
-          # Generate icons from parent directory script
-          if [ -f "../scripts/generate_icons.py" ]; then
+          if [ -f "scripts/generate_icons.py" ]; then
             python3 scripts/generate_icons.py
           else
             echo "⚠️ Icon generation script not found - using existing assets"
           fi
         continue-on-error: true
-
-      - name: Create required asset directories
-        run: |
-          mkdir -p assets/icon assets/images assets/icons assets/fonts
 
       - name: Create .env file
         run: |
@@ -315,117 +647,23 @@ jobs:
           ENV=test
           EOF
 
-      - name: Clean previous build artifacts
-        run: |
-          echo "Cleaning previous build artifacts..."
-          flutter clean
-          # Remove entire .dart_tool to ensure clean slate
-          rm -rf .dart_tool
-          rm -rf build
-          # Remove any existing generated files to force regeneration
-          find lib -name "*.g.dart" -delete 2>/dev/null || true
-          find lib -name "*.freezed.dart" -delete 2>/dev/null || true
-          flutter pub get
-
-      - name: Generate code (Drift, Freezed, etc.)
-        run: |
-          echo "Generating code with build_runner..."
-          echo "Working directory: $(pwd)"
-          echo "Checking for files that need generation..."
-          find lib -name "*.dart" -exec grep -l "part '.*\.g\.dart'" {} \; | head -10
-          echo "---"
-          # Force clean build_runner cache
-          dart run build_runner clean 2>/dev/null || true
-          # Run with verbose flag for debugging
-          dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log || {
-            echo "❌ First attempt failed! Checking logs..."
-            cat codegen.log | tail -50
-            echo "Retrying with fresh state..."
-            rm -rf .dart_tool/build
-            dart run build_runner build --delete-conflicting-outputs --verbose
-          }
-          echo "✅ Code generation completed"
-          echo "Generated files:"
-          find lib -name "*.g.dart" -o -name "*.freezed.dart" 2>/dev/null | head -20 || echo "No generated files found"
-
-      - name: Verify generated code exists
-        run: |
-          echo "=== Current working directory ==="
-          pwd
-          echo ""
-          echo "=== All generated .g.dart files ==="
-          find . -name "*.g.dart" -type f 2>/dev/null || echo "No .g.dart files found"
-          echo ""
-          echo "=== Searching for database.g.dart specifically ==="
-          find . -name "database.g.dart" -type f 2>/dev/null || echo "database.g.dart not found anywhere"
-          echo ""
-
-          if [ ! -f "lib/core/storage/database.g.dart" ]; then
-            echo "❌ ERROR: database.g.dart was not generated at expected path!"
-            echo "Expected path: lib/core/storage/database.g.dart"
-            echo ""
-            echo "=== Source file check ==="
-            ls -la lib/core/storage/database.dart 2>/dev/null || echo "Source file not found!"
-            echo ""
-            echo "=== Checking build.yaml ==="
-            cat build.yaml 2>/dev/null || echo "No build.yaml found"
-            echo ""
-            echo "=== Trying force regeneration with clean ==="
-            rm -rf .dart_tool/build
-            touch lib/core/storage/database.dart
-            dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee retry_codegen.log
-            echo ""
-            echo "=== After retry - searching for database.g.dart ==="
-            find . -name "database.g.dart" -type f 2>/dev/null || echo "Still not found"
-            echo ""
-            if [ ! -f "lib/core/storage/database.g.dart" ]; then
-              echo "❌ FATAL: Code generation failed after retry"
-              echo "=== Retry log ==="
-              cat retry_codegen.log || true
-              exit 1
-            fi
-          fi
-          echo "✅ database.g.dart exists"
-          ls -la lib/core/storage/database.g.dart
-          echo ""
-          echo "=== First 20 lines of database.g.dart ==="
-          head -20 lib/core/storage/database.g.dart
-
-      - name: Run Flutter Analyze
-        if: matrix.test-type == 'analyze'
-        run: |
-          echo "Running Flutter analyze..."
-          flutter analyze --no-fatal-infos
-        continue-on-error: true
-
-      - name: Run Unit Tests
-        if: matrix.test-type == 'unit-tests'
-        run: |
-          echo "Running Flutter unit and widget tests..."
-          flutter test --coverage --reporter=expanded
-        continue-on-error: true
-
-      - name: Upload Test Coverage
-        if: matrix.test-type == 'unit-tests'
-        uses: actions/upload-artifact@v4
+      - name: Run code generation
+        uses: ./.github/actions/flutter-codegen
         with:
-          name: flutter-coverage
-          path: apps/mobile/coverage/
-          retention-days: 7
+          working-directory: apps/mobile
+          clean-first: 'true'
 
       - name: Build Android APK
-        if: matrix.test-type == 'build-android'
         run: |
           echo "Building Android APK..."
           flutter build apk --debug --no-shrink
 
       - name: Upload APK
-        if: matrix.test-type == 'build-android'
         uses: actions/upload-artifact@v4
         with:
           name: flutter-android-apk
           path: apps/mobile/build/app/outputs/flutter-apk/*.apk
-          retention-days: 7
+          retention-days: 3
 
   # =============================================================================
   # Job 4: Flutter iOS Build (macOS runner)
@@ -434,6 +672,7 @@ jobs:
     name: Flutter - iOS Build
     runs-on: macos-latest
     timeout-minutes: 45
+    needs: flutter-analyze
 
     defaults:
       run:
@@ -454,12 +693,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            apps/mobile/.dart_tool
-            apps/mobile/.packages
             ~/.pub-cache
-          key: ${{ runner.os }}-flutter-${{ hashFiles('apps/mobile/pubspec.lock') }}
+            apps/mobile/.dart_tool/package_config.json
+          key: ${{ runner.os }}-flutter-${{ env.FLUTTER_VERSION }}-${{ hashFiles('apps/mobile/pubspec.lock') }}
           restore-keys: |
-            ${{ runner.os }}-flutter-
+            ${{ runner.os }}-flutter-${{ env.FLUTTER_VERSION }}-
 
       - name: Get Flutter dependencies
         run: flutter pub get
@@ -469,15 +707,12 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Create required asset directories
+      - name: Create required directories and generate assets
         run: |
           mkdir -p assets/icon assets/images assets/icons assets/fonts
 
-      - name: Generate icons and assets
-        run: |
           pip install Pillow
-          # Generate icons from parent directory script
-          if [ -f "../scripts/generate_icons.py" ]; then
+          if [ -f "scripts/generate_icons.py" ]; then
             python3 scripts/generate_icons.py
           else
             echo "⚠️ Icon generation script not found - using existing assets"
@@ -493,38 +728,16 @@ jobs:
           ENV=test
           EOF
 
-      - name: Clean previous build artifacts
-        run: |
-          echo "Cleaning previous build artifacts..."
-          flutter clean
-          rm -rf .dart_tool/build
-          flutter pub get
-
-      - name: Generate code (Drift, Freezed, etc.)
-        run: |
-          echo "Generating code with build_runner..."
-          dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs
-        continue-on-error: true
-
-      - name: Verify generated code exists
-        run: |
-          if [ ! -f "lib/core/storage/database.g.dart" ]; then
-            echo "❌ ERROR: database.g.dart was not generated!"
-            echo "Running code generation again..."
-            dart run build_runner build --delete-conflicting-outputs
-            if [ ! -f "lib/core/storage/database.g.dart" ]; then
-              echo "❌ FATAL: Code generation failed after retry"
-              exit 1
-            fi
-          fi
-          echo "✅ database.g.dart exists"
+      - name: Run code generation
+        uses: ./.github/actions/flutter-codegen
+        with:
+          working-directory: apps/mobile
+          clean-first: 'true'
 
       - name: Install CocoaPods
         run: |
           cd ios
           pod install --repo-update || pod install
-          cd ..
         continue-on-error: true
 
       - name: Build iOS (No Codesign)
@@ -540,7 +753,7 @@ jobs:
     name: E2E - Web (Playwright)
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: web-app-tests
+    needs: web-build
 
     steps:
       - name: Checkout repository
@@ -558,10 +771,10 @@ jobs:
           path: |
             node_modules
             apps/web/node_modules
-          key: ${{ runner.os }}-node-e2e-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-e2e-node-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-e2e-
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-e2e-node-
+            ${{ runner.os }}-web-node-
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -571,32 +784,60 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Download Web Build
+        id: download
         uses: actions/download-artifact@v4
         with:
           name: web-build
           path: apps/web/.next
         continue-on-error: true
 
-      - name: Build Web App if artifact missing
+      - name: Build Web App if download failed
+        if: steps.download.outcome == 'failure'
         run: |
-          if [ ! -d "apps/web/.next" ]; then
-            echo "Building Web App (artifact was missing)..."
-            cd apps/web && npm run build
-          fi
+          echo "::warning::Build artifact not found, building from scratch"
+          npm run build:packages || true
+          cd apps/web && npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
-        continue-on-error: true
+
+      - name: Verify build exists
+        run: |
+          if [ ! -d "apps/web/.next" ]; then
+            echo "::error::Build directory not found after download and build attempts"
+            exit 1
+          fi
+          echo "✅ Build directory exists"
 
       - name: Start Web App
         working-directory: apps/web
         run: |
-          npm run start &
-          sleep 10
-          curl --retry 10 --retry-delay 3 --retry-all-errors http://localhost:3000 || true
+          npm run start > server.log 2>&1 &
+          SERVER_PID=$!
+          echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+
+          # Health check with proper timeout
+          timeout=60
+          elapsed=0
+          while [ $elapsed -lt $timeout ]; do
+            if curl -f http://localhost:3000 2>/dev/null; then
+              echo "✅ Server is ready"
+              exit 0
+            fi
+            echo "Waiting for server... ($elapsed/$timeout seconds)"
+            sleep 3
+            elapsed=$((elapsed + 3))
+          done
+
+          echo "::error::Server failed to start within $timeout seconds"
+          echo "=== Server logs ==="
+          cat server.log
+          kill $SERVER_PID 2>/dev/null || true
+          exit 1
         env:
           NODE_ENV: production
 
       - name: Run E2E Tests
+        id: e2e
         working-directory: apps/web
         run: |
           echo "Running Playwright E2E tests..."
@@ -604,8 +845,16 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
-          API_AVAILABLE: 'true'  # Enable E2E tests - test fixtures mock all API calls
+          API_AVAILABLE: 'true'
         continue-on-error: true
+
+      - name: Stop Web App
+        if: always()
+        run: |
+          if [ -n "$SERVER_PID" ]; then
+            kill $SERVER_PID 2>/dev/null || true
+            echo "✅ Server stopped"
+          fi
 
       - name: Upload E2E Test Results
         if: always()
@@ -615,7 +864,21 @@ jobs:
           path: |
             apps/web/test-results/
             apps/web/playwright-report/
-          retention-days: 7
+          retention-days: 3
+
+      - name: Upload Server Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-server-logs
+          path: apps/web/server.log
+          retention-days: 3
+          if-no-files-found: ignore
+
+      - name: Report E2E Status
+        if: steps.e2e.outcome == 'failure'
+        run: |
+          echo "::warning::E2E tests failed. Check playwright-results artifact for details."
 
   # =============================================================================
   # Job 6: Integration Tests for Mobile
@@ -624,25 +887,24 @@ jobs:
     name: Integration - Mobile
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: flutter-tests
+    needs: flutter-unit-tests
 
     defaults:
       run:
         working-directory: apps/mobile
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Free disk space
         run: |
-          echo "Freeing disk space for mobile integration tests..."
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /opt/hostedtoolcache/CodeQL
-          # Note: Don't delete /usr/local/lib/android - needed for Android Emulator
+          echo "=== Freeing disk space ==="
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /opt/hostedtoolcache/CodeQL || true
           df -h
         working-directory: .
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -667,61 +929,33 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            apps/mobile/.dart_tool
             ~/.pub-cache
-          key: ${{ runner.os }}-flutter-integration-${{ hashFiles('apps/mobile/pubspec.lock') }}
+            apps/mobile/.dart_tool/package_config.json
+          key: ${{ runner.os }}-flutter-integration-${{ env.FLUTTER_VERSION }}-${{ hashFiles('apps/mobile/pubspec.lock') }}
           restore-keys: |
-            ${{ runner.os }}-flutter-integration-
-            ${{ runner.os }}-flutter-
+            ${{ runner.os }}-flutter-integration-${{ env.FLUTTER_VERSION }}-
+            ${{ runner.os }}-flutter-${{ env.FLUTTER_VERSION }}-
 
       - name: Get Flutter dependencies
         run: flutter pub get
 
       - name: Create .env file
         run: |
-          cat > .env << EOF
-          API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=test_weather_key
-          MAPS_API_KEY=test_maps_key
-          ENV=test
-          EOF
-
-      - name: Clean previous build artifacts
-        run: |
-          echo "Cleaning previous build artifacts..."
-          flutter clean
-          rm -rf .dart_tool/build
-          flutter pub get
-
-      - name: Generate code
-        run: |
-          echo "Generating code with build_runner..."
-          dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs
-
-      - name: Verify generated code exists
-        run: |
-          if [ ! -f "lib/core/storage/database.g.dart" ]; then
-            echo "❌ ERROR: database.g.dart was not generated!"
-            echo "Running code generation again..."
-            dart run build_runner build --delete-conflicting-outputs
-            if [ ! -f "lib/core/storage/database.g.dart" ]; then
-              echo "❌ FATAL: Code generation failed after retry"
-              exit 1
-            fi
-          fi
-          echo "✅ database.g.dart exists"
-
-      - name: Create .env file for integration tests
-        run: |
           cat > .env << 'EOF'
-          # CI Environment Configuration
           ENV=test
           API_URL=http://localhost:8080
           WS_URL=ws://localhost:8080
+          API_BASE_URL=https://api.sahool.app
+          WEATHER_API_KEY=test_weather_key
+          MAPS_API_KEY=test_maps_key
           MAPBOX_ACCESS_TOKEN=pk.test_token
           EOF
-          echo "Created .env file for integration tests"
+
+      - name: Run code generation
+        uses: ./.github/actions/flutter-codegen
+        with:
+          working-directory: apps/mobile
+          clean-first: 'true'
 
       - name: Enable KVM (for Android Emulator)
         run: |
@@ -730,10 +964,15 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Run Integration Tests (Headless)
+        id: integration
         run: |
           echo "Running Flutter integration tests..."
-          chmod +x integration_test/run_tests.sh
-          ./integration_test/run_tests.sh --all
+          if [ -f "integration_test/run_tests.sh" ]; then
+            chmod +x integration_test/run_tests.sh
+            ./integration_test/run_tests.sh --all
+          else
+            echo "⚠️ Integration test script not found - skipping"
+          fi
         continue-on-error: true
 
       - name: Upload Integration Test Results
@@ -744,8 +983,8 @@ jobs:
           path: |
             apps/mobile/integration_test/screenshots/
             apps/mobile/integration_test/test-results/
-          retention-days: 7
-          if-no-files-found: warn
+          retention-days: 3
+          if-no-files-found: ignore
 
   # =============================================================================
   # Job 7: Generate Test Reports
@@ -754,8 +993,25 @@ jobs:
     name: Generate Test Reports
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [web-app-tests, admin-dashboard-tests, flutter-tests, web-e2e-tests, mobile-integration-tests]
+    needs:
+      - web-fast-checks
+      - web-unit-tests
+      - web-build
+      - admin-fast-checks
+      - admin-unit-tests
+      - admin-build
+      - flutter-analyze
+      - flutter-unit-tests
+      - flutter-android-build
+      - flutter-ios-build
+      - web-e2e-tests
+      - mobile-integration-tests
     if: always()
+
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -765,6 +1021,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+        continue-on-error: true
 
       - name: Generate Test Summary
         run: |
@@ -775,35 +1032,35 @@ jobs:
           echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
 
-          # Check Web App
+          # Web App
           if [ -d "artifacts/web-build" ]; then
             echo "| Web App | ✅ Build Successful |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Web App | ❌ Build Failed |" >> $GITHUB_STEP_SUMMARY
           fi
 
-          # Check Admin Dashboard
+          # Admin Dashboard
           if [ -d "artifacts/admin-build" ]; then
             echo "| Admin Dashboard | ✅ Build Successful |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Admin Dashboard | ❌ Build Failed |" >> $GITHUB_STEP_SUMMARY
           fi
 
-          # Check Flutter
+          # Flutter Android
           if [ -d "artifacts/flutter-android-apk" ]; then
             echo "| Flutter Android | ✅ Build Successful |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Flutter Android | ❌ Build Failed |" >> $GITHUB_STEP_SUMMARY
           fi
 
-          # Check E2E Tests
+          # E2E Tests
           if [ -d "artifacts/playwright-results" ]; then
             echo "| E2E Tests (Web) | ✅ Completed |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| E2E Tests (Web) | ⚠️ Not Run |" >> $GITHUB_STEP_SUMMARY
           fi
 
-          # Check Mobile Integration
+          # Mobile Integration
           if [ -d "artifacts/mobile-integration-results" ]; then
             echo "| Mobile Integration | ✅ Completed |" >> $GITHUB_STEP_SUMMARY
           else
@@ -819,6 +1076,11 @@ jobs:
             echo "- ✅ Web App coverage report available" >> $GITHUB_STEP_SUMMARY
           fi
 
+          # Admin Coverage
+          if [ -d "artifacts/admin-coverage" ]; then
+            echo "- ✅ Admin Dashboard coverage report available" >> $GITHUB_STEP_SUMMARY
+          fi
+
           # Flutter Coverage
           if [ -d "artifacts/flutter-coverage" ]; then
             echo "- ✅ Flutter coverage report available" >> $GITHUB_STEP_SUMMARY
@@ -827,14 +1089,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Artifacts" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "All test artifacts have been uploaded and are available for download from the workflow run page." >> $GITHUB_STEP_SUMMARY
-
-      - name: Upload Combined Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports-summary
-          path: artifacts/
-          retention-days: 30
+          echo "All test artifacts have been uploaded and are available for download." >> $GITHUB_STEP_SUMMARY
 
       - name: Comment PR with Test Results
         if: github.event_name == 'pull_request'
@@ -852,6 +1107,8 @@ jobs:
             const flutterBuild = fs.existsSync(`${artifactsPath}/flutter-android-apk`);
             const e2eTests = fs.existsSync(`${artifactsPath}/playwright-results`);
             const mobileIntegration = fs.existsSync(`${artifactsPath}/mobile-integration-results`);
+            const webCoverage = fs.existsSync(`${artifactsPath}/web-coverage`);
+            const flutterCoverage = fs.existsSync(`${artifactsPath}/flutter-coverage`);
 
             comment += `| Component | Status |\n`;
             comment += `|-----------|--------|\n`;
@@ -862,7 +1119,13 @@ jobs:
             comment += `| Mobile Integration | ${mobileIntegration ? '✅ Completed' : '⚠️ Skipped'} |\n`;
 
             comment += '\n### 📊 Coverage Reports\n\n';
-            comment += 'Coverage reports are available in the workflow artifacts.\n';
+            if (webCoverage || flutterCoverage) {
+              comment += 'Coverage reports are available in the workflow artifacts:\n';
+              if (webCoverage) comment += '- Web App coverage\n';
+              if (flutterCoverage) comment += '- Flutter coverage\n';
+            } else {
+              comment += 'No coverage reports available.\n';
+            }
             comment += '\n---\n';
             comment += `*Workflow run: [#${context.runNumber}](${context.payload.repository.html_url}/actions/runs/${context.runId})*`;
 
@@ -881,8 +1144,12 @@ jobs:
     name: Bundle Size Analysis
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: web-app-tests
+    needs: [build-packages, web-fast-checks, admin-fast-checks]
     if: github.event_name == 'pull_request'
+
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -893,6 +1160,14 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+
+      - name: Restore packages build
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            packages/*/dist
+            packages/*/build
+          key: ${{ runner.os }}-${{ needs.build-packages.outputs.cache-key }}
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -918,7 +1193,8 @@ jobs:
           path: |
             apps/web/.next/analyze/
             apps/admin/.next/analyze/
-          retention-days: 7
+          retention-days: 3
+          if-no-files-found: ignore
 
       - name: Comment Bundle Size
         uses: actions/github-script@v7

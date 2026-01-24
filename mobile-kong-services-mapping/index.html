@@ -1,0 +1,2510 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Mobile-Kong Services Mapping | ربط خدمات Kong بتطبيقات الموبايل - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mobile-kong-services-mapping-kong" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Mobile-Kong Services Mapping | ربط خدمات Kong بتطبيقات الموبايل
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="mobile-kong-services-mapping-kong">Mobile-Kong Services Mapping | ربط خدمات Kong بتطبيقات الموبايل<a class="headerlink" href="#mobile-kong-services-mapping-kong" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>تقرير تحليلي للتحقق من ارتباط خدمات Kong بتطبيقات الموبايل</p>
+<p><strong>تاريخ التحليل</strong>: 2026-01-24 (محدث)
+<strong>المصادر</strong>:
+- <code>apps/mobile/lib/core/config/api_config.dart</code>
+- <code>apps/mobile/lib/core/config/env_config.dart</code>
+- <code>apps/mobile/lib/core/api/kong_gateway_client.dart</code>
+- <code>apps/mobile/lib/core/services/service_registry.dart</code>
+- <code>apps/mobile/sahool_field_app/</code>
+- <code>apps/mobile/sahol_atmosphere/</code>
+- <code>apps/mobile/sahool-mobile/</code> (React Native)
+- <code>services-definition.md</code></p>
+</blockquote>
+<hr />
+<h2 id="executive-summary">ملخص تنفيذي | Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>العدد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>إجمالي خدمات Kong</strong></td>
+<td>62</td>
+</tr>
+<tr>
+<td><strong>الخدمات المستخدمة في Mobile (جميع التطبيقات)</strong></td>
+<td>32</td>
+</tr>
+<tr>
+<td><strong>الخدمات غير المستخدمة</strong></td>
+<td>30</td>
+</tr>
+<tr>
+<td><strong>نسبة التغطية الإجمالية</strong></td>
+<td>51.6%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_1">تطبيقات الموبايل المكتشفة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التطبيق</th>
+<th>الموقع</th>
+<th>التقنية</th>
+<th>الوصف</th>
+<th>الخدمات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SAHOOL Field App (Main)</strong></td>
+<td><code>apps/mobile/lib/</code></td>
+<td>Flutter</td>
+<td>التطبيق الرئيسي الكامل v16.0.0</td>
+<td>29 خدمة</td>
+</tr>
+<tr>
+<td><strong>Sahool Field App</strong></td>
+<td><code>apps/mobile/sahool_field_app/</code></td>
+<td>Flutter</td>
+<td>تطبيق الحقول المتخصص v15.5.0</td>
+<td>5 خدمات</td>
+</tr>
+<tr>
+<td><strong>Sahol Atmosphere</strong></td>
+<td><code>apps/mobile/sahol_atmosphere/</code></td>
+<td>Flutter</td>
+<td>مراقبة صحة الخدمات v16.0.0</td>
+<td>4 خدمات</td>
+</tr>
+<tr>
+<td><strong>Sahool Mobile (React Native)</strong></td>
+<td><code>apps/mobile/sahool-mobile/</code></td>
+<td>React Native + TypeScript</td>
+<td>مدير المزامنة Offline-First</td>
+<td>7 خدمات</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-sahool-field-main-mobile-app">1. تطبيق SAHOOL Field الرئيسي | Main Mobile App<a class="headerlink" href="#1-sahool-field-main-mobile-app" title="Permanent link">&para;</a></h2>
+<h3 id="11-kong-konggatewayclient">1.1 خدمات Kong المُعرَّفة في KongGatewayClient<a class="headerlink" href="#11-kong-konggatewayclient" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// من kong_gateway_client.dart</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">KongServices</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">fields</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;field-management&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/fields&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">auth</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;user-service&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/auth&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">weather</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;weather-service&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/weather&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">vegetation</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;vegetation-analysis&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/vegetation&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">satellite</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;satellite&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/satellite&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">ndvi</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;ndvi&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/ndvi&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">irrigation</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;irrigation-smart&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/irrigation&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">advisory</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;advisory-service&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/advisory&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">cropHealth</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;crop-intelligence&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/crop-health&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tasks</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;task-service&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/tasks&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">equipment</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;equipment-service&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/equipment&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">alerts</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;alert-service&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/alerts&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">notifications</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;notification-service&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/notifications&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">marketplace</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;marketplace&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/marketplace&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">iot</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;iot-service&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/iot&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">yield_</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">KongService</span><span class="p">(</span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;yield-engine&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">basePath:</span><span class="w"> </span><span class="s1">&#39;/api/v1/yield&#39;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="12-full-list">1.2 الخدمات المتصلة فعلياً (Full List)<a class="headerlink" href="#12-full-list" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>Kong Service</th>
+<th>المنفذ</th>
+<th>نقاط النهاية الرئيسية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>auth</strong></td>
+<td>user-service</td>
+<td>3025</td>
+<td><code>/api/v1/auth/login</code>, <code>/api/v1/auth/refresh</code>, <code>/api/v1/auth/logout</code>, <code>/api/v1/auth/register</code>, <code>/api/v1/auth/otp/*</code></td>
+</tr>
+<tr>
+<td><strong>users</strong></td>
+<td>user-service</td>
+<td>3025</td>
+<td><code>/api/v1/users/profile</code></td>
+</tr>
+<tr>
+<td><strong>fields</strong></td>
+<td>field-management-service</td>
+<td>3000</td>
+<td><code>/api/v1/fields</code>, <code>/api/v1/fields/sync</code>, <code>/api/v1/fields/batch</code>, <code>/api/v1/fields/nearby</code>, <code>/api/v1/fields/:id/boundary</code></td>
+</tr>
+<tr>
+<td><strong>tasks</strong></td>
+<td>task-service</td>
+<td>8103</td>
+<td><code>/api/v1/tasks</code>, <code>/api/v1/tasks/:id/complete</code></td>
+</tr>
+<tr>
+<td><strong>weather</strong></td>
+<td>weather-service</td>
+<td>8092</td>
+<td><code>/api/v1/weather/current</code>, <code>/api/v1/weather/forecast</code>, <code>/api/v1/weather/alerts</code>, <code>/api/v1/weather/locations</code>, <code>/api/v1/weather/agricultural-calendar</code></td>
+</tr>
+<tr>
+<td><strong>satellite</strong></td>
+<td>vegetation-analysis-service</td>
+<td>8090</td>
+<td><code>/api/v1/satellite/analyze</code>, <code>/api/v1/satellite/timeseries</code>, <code>/api/v1/satellite/imagery</code>, <code>/api/v1/satellite/indices</code>, <code>/api/v1/satellite/health</code>, <code>/api/v1/satellite/phenology</code>, <code>/api/v1/satellite/satellites</code></td>
+</tr>
+<tr>
+<td><strong>ndvi</strong></td>
+<td>vegetation-analysis-service</td>
+<td>8090</td>
+<td><code>/api/v1/ndvi/process</code>, <code>/api/v1/ndvi/timeseries</code>, <code>/api/v1/ndvi/comparison</code>, <code>/api/v1/ndvi/tiles</code></td>
+</tr>
+<tr>
+<td><strong>indicators</strong></td>
+<td>indicators-service</td>
+<td>8091</td>
+<td><code>/api/v1/indicators/definitions</code>, <code>/api/v1/indicators/field/:id</code>, <code>/api/v1/indicators/dashboard</code>, <code>/api/v1/indicators/alerts</code>, <code>/api/v1/indicators/trends</code></td>
+</tr>
+<tr>
+<td><strong>crop-health</strong></td>
+<td>crop-intelligence-service</td>
+<td>8095</td>
+<td><code>/api/v1/crop-health/diagnose</code>, <code>/api/v1/crop-health/diagnose/batch</code>, <code>/api/v1/crop-health/crops</code>, <code>/api/v1/crop-health/diseases</code>, <code>/api/v1/crop-health/treatment</code>, <code>/api/v1/crop-health/expert-review</code></td>
+</tr>
+<tr>
+<td><strong>fertilizer</strong></td>
+<td>advisory-service</td>
+<td>8093</td>
+<td><code>/api/v1/fertilizer/crops</code>, <code>/api/v1/fertilizer/fertilizers</code>, <code>/api/v1/fertilizer/recommend</code>, <code>/api/v1/fertilizer/soil/interpret</code>, <code>/api/v1/fertilizer/deficiency/symptoms</code>, <code>/api/v1/fertilizer/schedule</code></td>
+</tr>
+<tr>
+<td><strong>irrigation</strong></td>
+<td>irrigation-smart</td>
+<td>8094</td>
+<td><code>/api/v1/irrigation/crops</code>, <code>/api/v1/irrigation/methods</code>, <code>/api/v1/irrigation/calculate</code>, <code>/api/v1/irrigation/water-balance</code>, <code>/api/v1/irrigation/sensor-reading</code>, <code>/api/v1/irrigation/efficiency</code>, <code>/api/v1/irrigation/schedule</code></td>
+</tr>
+<tr>
+<td><strong>virtual-sensors</strong></td>
+<td>virtual-sensors</td>
+<td>8119</td>
+<td><code>/api/v1/virtual-sensors/et0/calculate</code>, <code>/api/v1/virtual-sensors/etc/calculate</code>, <code>/api/v1/virtual-sensors/soil-moisture/estimate</code>, <code>/api/v1/virtual-sensors/irrigation/recommend</code>, <code>/api/v1/virtual-sensors/irrigation/quick-check</code></td>
+</tr>
+<tr>
+<td><strong>equipment</strong></td>
+<td>equipment-service</td>
+<td>8101</td>
+<td><code>/api/v1/equipment</code>, <code>/api/v1/equipment/:id</code>, <code>/api/v1/equipment/qr/:code</code>, <code>/api/v1/equipment/stats</code>, <code>/api/v1/equipment/maintenance/*</code>, <code>/api/v1/equipment/:id/fuel/*</code>, <code>/api/v1/equipment/:id/usage/*</code></td>
+</tr>
+<tr>
+<td><strong>inventory</strong></td>
+<td>inventory-service</td>
+<td>8116</td>
+<td><code>/api/v1/inventory</code>, <code>/api/v1/inventory/categories</code>, <code>/api/v1/inventory/transactions</code>, <code>/api/v1/inventory/alerts</code></td>
+</tr>
+<tr>
+<td><strong>iot</strong></td>
+<td>iot-service</td>
+<td>8117</td>
+<td><code>/api/v1/iot/devices</code>, <code>/api/v1/iot/sensors</code>, <code>/api/v1/iot/device-types</code></td>
+</tr>
+<tr>
+<td><strong>notifications</strong></td>
+<td>notification-service</td>
+<td>8110</td>
+<td><code>/api/v1/notifications</code>, <code>/api/v1/notifications/preferences</code>, <code>/api/v1/notifications/subscribe</code>, <code>/api/v1/notifications/unsubscribe</code>, <code>/api/v1/notifications/mark-read</code>, <code>/api/v1/notifications/device/*</code></td>
+</tr>
+<tr>
+<td><strong>alerts</strong></td>
+<td>alert-service</td>
+<td>8113</td>
+<td><code>/api/v1/alerts</code></td>
+</tr>
+<tr>
+<td><strong>billing</strong></td>
+<td>billing-core</td>
+<td>8089</td>
+<td><code>/api/v1/billing/wallet</code>, <code>/api/v1/billing/deposit</code>, <code>/api/v1/billing/withdraw</code>, <code>/api/v1/billing/transfer</code>, <code>/api/v1/billing/transactions</code>, <code>/api/v1/billing/subscription</code>, <code>/api/v1/billing/plans</code>, <code>/api/v1/billing/invoices</code>, <code>/api/v1/billing/usage</code>, <code>/api/v1/billing/stripe/*</code>, <code>/api/v1/billing/payment-methods/*</code></td>
+</tr>
+<tr>
+<td><strong>marketplace</strong></td>
+<td>marketplace-service</td>
+<td>3010</td>
+<td><code>/api/v1/marketplace/products</code>, <code>/api/v1/marketplace/harvest</code>, <code>/api/v1/marketplace/orders</code>, <code>/api/v1/marketplace/fintech/wallet</code>, <code>/api/v1/marketplace/fintech/loans</code>, <code>/api/v1/marketplace/fintech/calculate-score</code></td>
+</tr>
+<tr>
+<td><strong>yield</strong></td>
+<td>yield-prediction-service</td>
+<td>8098</td>
+<td><code>/api/v1/yield/predict</code>, <code>/api/v1/yield/history</code>, <code>/api/v1/yield/factors</code></td>
+</tr>
+<tr>
+<td><strong>ai-advisor</strong></td>
+<td>ai-advisor</td>
+<td>8112</td>
+<td><code>/api/v1/ai-advisor/query</code>, <code>/api/v1/ai-advisor/chat</code>, <code>/api/v1/ai-advisor/diagnose</code>, <code>/api/v1/ai-advisor/recommendations</code>, <code>/api/v1/ai-advisor/analyze</code>, <code>/api/v1/ai-advisor/history</code></td>
+</tr>
+<tr>
+<td><strong>advisor</strong></td>
+<td>agro-advisor</td>
+<td>8105</td>
+<td><code>/api/v1/advisor/ask</code>, <code>/api/v1/advisor/diagnose</code>, <code>/api/v1/advisor/recommend</code>, <code>/api/v1/advisor/irrigation</code>, <code>/api/v1/advisor/fertilizer</code>, <code>/api/v1/advisor/analyze-field</code>, <code>/api/v1/advisor/context</code>, <code>/api/v1/advisor/history</code>, <code>/api/v1/advisor/advisories</code>, <code>/api/v1/advisor/feedback</code></td>
+</tr>
+<tr>
+<td><strong>community</strong></td>
+<td>community-chat</td>
+<td>8097</td>
+<td><code>/api/v1/community/requests</code>, <code>/api/v1/community/rooms</code>, <code>/api/v1/community/experts/online</code>, <code>/api/v1/community/stats</code></td>
+</tr>
+<tr>
+<td><strong>chat</strong></td>
+<td>field-chat</td>
+<td>8099</td>
+<td><code>/api/v1/chat/conversations</code>, <code>/api/v1/chat/messages</code>, <code>/api/v1/conversations/*</code></td>
+</tr>
+<tr>
+<td><strong>gdd</strong></td>
+<td>-</td>
+<td>-</td>
+<td><code>/api/v1/gdd/fields/:id/accumulation</code>, <code>/api/v1/gdd/fields/:id/records</code>, <code>/api/v1/gdd/fields/:id/calculate</code>, <code>/api/v1/gdd/crops</code>, <code>/api/v1/gdd/fields/:id/forecast</code>, <code>/api/v1/gdd/fields/:id/settings</code></td>
+</tr>
+<tr>
+<td><strong>reports</strong></td>
+<td>-</td>
+<td>8084</td>
+<td><code>/api/v1/reports/templates</code>, <code>/api/v1/reports/generate</code>, <code>/api/v1/reports/history</code>, <code>/api/v1/reports/data/*</code>, <code>/api/v1/reports/:id/export/*</code></td>
+</tr>
+<tr>
+<td><strong>payment</strong></td>
+<td>-</td>
+<td>-</td>
+<td><code>/api/v1/payment/deposit</code>, <code>/api/v1/payment/withdraw</code>, <code>/api/v1/payment/transfer</code>, <code>/api/v1/payment/topup</code>, <code>/api/v1/payment/status</code>, <code>/api/v1/payment/transactions</code>, <code>/api/v1/payment/balance</code>, <code>/api/v1/payment/operators</code></td>
+</tr>
+<tr>
+<td><strong>astronomical</strong></td>
+<td>astronomical-calendar</td>
+<td>8111</td>
+<td><code>/api/v1/astronomical/*</code></td>
+</tr>
+<tr>
+<td><strong>crm</strong></td>
+<td>crm-service</td>
+<td>8131</td>
+<td><code>/api/v1/crm/*</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-envconfig">1.3 منافذ الخدمات (EnvConfig)<a class="headerlink" href="#13-envconfig" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Service Ports from env_config.dart</span>
+<span class="nl">fieldCorePort:</span><span class="w"> </span><span class="m">3000</span><span class="w">       </span><span class="c1">// field-management-service</span>
+<span class="nl">marketplacePort:</span><span class="w"> </span><span class="m">3010</span><span class="w">     </span><span class="c1">// marketplace-service</span>
+<span class="nl">chatPort:</span><span class="w"> </span><span class="m">8099</span><span class="w">            </span><span class="c1">// field-chat</span>
+<span class="nl">gatewayPort:</span><span class="w"> </span><span class="m">8000</span><span class="w">         </span><span class="c1">// Kong gateway</span>
+<span class="nl">satellitePort:</span><span class="w"> </span><span class="m">8090</span><span class="w">       </span><span class="c1">// vegetation-analysis-service</span>
+<span class="nl">indicatorsPort:</span><span class="w"> </span><span class="m">8091</span><span class="w">      </span><span class="c1">// indicators-service</span>
+<span class="nl">cropHealthPort:</span><span class="w"> </span><span class="m">8095</span><span class="w">      </span><span class="c1">// crop-intelligence-service</span>
+<span class="nl">virtualSensorsPort:</span><span class="w"> </span><span class="m">8119</span><span class="w">  </span><span class="c1">// virtual-sensors</span>
+<span class="nl">weatherPort:</span><span class="w"> </span><span class="m">8092</span><span class="w">         </span><span class="c1">// weather-service</span>
+<span class="nl">fertilizerPort:</span><span class="w"> </span><span class="m">8093</span><span class="w">      </span><span class="c1">// advisory-service</span>
+<span class="nl">irrigationPort:</span><span class="w"> </span><span class="m">8094</span><span class="w">      </span><span class="c1">// irrigation-smart</span>
+<span class="nl">sprayPort:</span><span class="w"> </span><span class="m">8098</span><span class="w">           </span><span class="c1">// yield-engine</span>
+<span class="nl">communityChatPort:</span><span class="w"> </span><span class="m">8097</span><span class="w">   </span><span class="c1">// community-chat</span>
+<span class="nl">equipmentPort:</span><span class="w"> </span><span class="m">8101</span><span class="w">       </span><span class="c1">// equipment-service</span>
+<span class="nl">inventoryPort:</span><span class="w"> </span><span class="m">8116</span><span class="w">       </span><span class="c1">// inventory-service</span>
+<span class="nl">notificationsPort:</span><span class="w"> </span><span class="m">8110</span><span class="w">   </span><span class="c1">// notification-service</span>
+<span class="nl">billingPort:</span><span class="w"> </span><span class="m">8089</span><span class="w">         </span><span class="c1">// billing-core</span>
+<span class="nl">aiAdvisorPort:</span><span class="w"> </span><span class="m">8112</span><span class="w">       </span><span class="c1">// ai-advisor</span>
+</code></pre></div>
+
+<hr />
+<h2 id="2-sahool-field-app-sahool-field-app">2. تطبيق Sahool Field App | Sahool Field App<a class="headerlink" href="#2-sahool-field-app-sahool-field-app" title="Permanent link">&para;</a></h2>
+<p>تطبيق متخصص للعمل الميداني مع مجموعة فرعية من الميزات.</p>
+<h3 id="21">2.1 الخدمات المستخدمة<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>نقاط النهاية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ai-advisor</strong></td>
+<td><code>/api/v1/advisor/ask</code>, <code>/api/v1/advisor/diagnose</code>, <code>/api/v1/advisor/recommend</code>, <code>/api/v1/advisor/analyze-field</code>, <code>/api/v1/advisor/history</code></td>
+</tr>
+<tr>
+<td><strong>equipment</strong></td>
+<td><code>/api/v1/equipment</code>, <code>/api/v1/equipment/:id</code>, <code>/api/v1/equipment/qr/:code</code>, <code>/api/v1/equipment/:id/status</code>, <code>/api/v1/equipment/:id/location</code>, <code>/api/v1/equipment/:id/telemetry</code>, <code>/api/v1/equipment/stats</code>, <code>/api/v1/equipment/alerts</code>, <code>/api/v1/equipment/:id/maintenance</code></td>
+</tr>
+<tr>
+<td><strong>tasks</strong></td>
+<td><code>/api/v1/tasks</code>, <code>/api/v1/tasks/:id</code>, <code>/api/v1/tasks/:id/complete</code></td>
+</tr>
+<tr>
+<td><strong>fields</strong></td>
+<td><code>/api/v1/fields</code>, <code>/api/v1/fields/:id</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-sahol-atmosphere-sahol-atmosphere">3. تطبيق Sahol Atmosphere | Sahol Atmosphere<a class="headerlink" href="#3-sahol-atmosphere-sahol-atmosphere" title="Permanent link">&para;</a></h2>
+<p>تطبيق بسيط لمراقبة صحة الخدمات.</p>
+<h3 id="31">3.1 الخدمات المراقبة<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Health check endpoints</span>
+<span class="n">_ServiceConfig</span><span class="p">(</span><span class="s1">&#39;Fields&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;الحقول&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/api/v1/fields/healthz&#39;</span><span class="p">),</span>
+<span class="n">_ServiceConfig</span><span class="p">(</span><span class="s1">&#39;Weather&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;الطقس&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/api/v1/weather/healthz&#39;</span><span class="p">),</span>
+<span class="n">_ServiceConfig</span><span class="p">(</span><span class="s1">&#39;NDVI&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;NDVI&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/api/v1/ndvi/healthz&#39;</span><span class="p">),</span>
+<span class="n">_ServiceConfig</span><span class="p">(</span><span class="s1">&#39;Tasks&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;المهام&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/api/v1/tasks/healthz&#39;</span><span class="p">),</span>
+</code></pre></div>
+
+<hr />
+<h2 id="4-sahool-mobile-react-native-sahool-mobile-app">4. تطبيق Sahool Mobile (React Native) | Sahool Mobile App<a class="headerlink" href="#4-sahool-mobile-react-native-sahool-mobile-app" title="Permanent link">&para;</a></h2>
+<p>تطبيق React Native/TypeScript متخصص في إدارة المزامنة بدون اتصال (Offline-First Sync Manager).</p>
+<h3 id="41">4.1 معلومات التطبيق<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>الموقع</strong></td>
+<td><code>apps/mobile/sahool-mobile/</code></td>
+</tr>
+<tr>
+<td><strong>التقنية</strong></td>
+<td>React Native + TypeScript</td>
+</tr>
+<tr>
+<td><strong>الإصدار</strong></td>
+<td>1.0.0</td>
+</tr>
+<tr>
+<td><strong>الوصف</strong></td>
+<td>Offline-first agricultural management system</td>
+</tr>
+<tr>
+<td><strong>حجم الكود</strong></td>
+<td>6,500+ سطر</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42">4.2 المكتبات الرئيسية<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;react&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^18.2.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;react-native&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^0.72.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;@react-native-async-storage/async-storage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.19.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;@react-native-community/netinfo&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^9.4.0&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="43">4.3 أنواع البيانات المدعومة للمزامنة<a class="headerlink" href="#43" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>نوع البيانات</th>
+<th>الوصف بالعربية</th>
+<th>Kong Service</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FIELD_OBSERVATION</code></td>
+<td>ملاحظات الحقول</td>
+<td>field-management-service</td>
+</tr>
+<tr>
+<td><code>SENSOR_READING</code></td>
+<td>قراءات المستشعرات</td>
+<td>iot-service</td>
+</tr>
+<tr>
+<td><code>TASK_COMPLETION</code></td>
+<td>إكمال المهام</td>
+<td>task-service</td>
+</tr>
+<tr>
+<td><code>IMAGE_UPLOAD</code></td>
+<td>رفع الصور</td>
+<td>notification-service</td>
+</tr>
+<tr>
+<td><code>FIELD_UPDATE</code></td>
+<td>تحديث بيانات الحقل</td>
+<td>field-management-service</td>
+</tr>
+<tr>
+<td><code>FARM_UPDATE</code></td>
+<td>تحديث بيانات المزرعة</td>
+<td>field-management-service</td>
+</tr>
+<tr>
+<td><code>IRRIGATION_LOG</code></td>
+<td>سجل الري</td>
+<td>irrigation-smart</td>
+</tr>
+<tr>
+<td><code>PEST_REPORT</code></td>
+<td>تقرير الآفات</td>
+<td>crop-intelligence-service</td>
+</tr>
+</tbody>
+</table>
+<h3 id="44-kong">4.4 الخدمات المتصلة عبر Kong<a class="headerlink" href="#44-kong" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>نقاط النهاية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>field-management-service</strong></td>
+<td><code>/api/v1/field-observations</code>, <code>/api/v1/fields/*</code></td>
+</tr>
+<tr>
+<td><strong>iot-service</strong></td>
+<td><code>/api/v1/sensor-readings</code></td>
+</tr>
+<tr>
+<td><strong>task-service</strong></td>
+<td><code>/api/v1/tasks/{id}/complete</code></td>
+</tr>
+<tr>
+<td><strong>notification-service</strong></td>
+<td><code>/api/v1/images</code> (uploads)</td>
+</tr>
+<tr>
+<td><strong>irrigation-smart</strong></td>
+<td><code>/api/v1/irrigation/logs</code></td>
+</tr>
+<tr>
+<td><strong>crop-intelligence-service</strong></td>
+<td><code>/api/v1/pest-reports</code></td>
+</tr>
+<tr>
+<td><strong>user-service</strong></td>
+<td><code>/api/v1/auth/*</code> (implicit)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="45">4.5 ميزات المزامنة<a class="headerlink" href="#45" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Default Sync Configuration</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nx">autoSync</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">syncInterval</span><span class="o">:</span><span class="w"> </span><span class="kt">5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000</span><span class="p">,</span><span class="w">  </span><span class="c1">// 5 دقائق</span>
+<span class="w">  </span><span class="nx">maxRetries</span><span class="o">:</span><span class="w"> </span><span class="kt">5</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">retryDelayBase</span><span class="o">:</span><span class="w"> </span><span class="kt">1000</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">retryDelayMax</span><span class="o">:</span><span class="w"> </span><span class="kt">30000</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">batchSize</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">maxQueueSize</span><span class="o">:</span><span class="w"> </span><span class="kt">1000</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">conflictResolution</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;LAST_WRITE_WINS&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">syncOnlyOnWifi</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">throttleOnSlowConnection</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">persistQueue</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">maxUploadSize</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1024</span><span class="w">  </span><span class="c1">// 10 MB</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="46">4.6 استراتيجيات حل التعارض<a class="headerlink" href="#46" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الاستراتيجية</th>
+<th>الوصف بالعربية</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LAST_WRITE_WINS</code></td>
+<td>آخر كتابة تفوز</td>
+<td>Based on timestamp</td>
+</tr>
+<tr>
+<td><code>SERVER_WINS</code></td>
+<td>الخادم يفوز دائماً</td>
+<td>Server data takes priority</td>
+</tr>
+<tr>
+<td><code>CLIENT_WINS</code></td>
+<td>العميل يفوز دائماً</td>
+<td>Client data takes priority</td>
+</tr>
+<tr>
+<td><code>MANUAL_MERGE</code></td>
+<td>دمج يدوي</td>
+<td>Requires user intervention</td>
+</tr>
+<tr>
+<td><code>FIELD_LEVEL_MERGE</code></td>
+<td>دمج على مستوى الحقول</td>
+<td>Merges field by field</td>
+</tr>
+<tr>
+<td><code>CUSTOM</code></td>
+<td>استراتيجية مخصصة</td>
+<td>Per data type resolver</td>
+</tr>
+</tbody>
+</table>
+<h3 id="47">4.7 نظام الأحداث<a class="headerlink" href="#47" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>نوع الحدث</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SYNC_STARTED</code></td>
+<td>بدء المزامنة</td>
+</tr>
+<tr>
+<td><code>SYNC_COMPLETED</code></td>
+<td>اكتمال المزامنة</td>
+</tr>
+<tr>
+<td><code>SYNC_FAILED</code></td>
+<td>فشل المزامنة</td>
+</tr>
+<tr>
+<td><code>OPERATION_QUEUED</code></td>
+<td>إضافة عملية للقائمة</td>
+</tr>
+<tr>
+<td><code>OPERATION_COMPLETED</code></td>
+<td>اكتمال العملية</td>
+</tr>
+<tr>
+<td><code>OPERATION_FAILED</code></td>
+<td>فشل العملية</td>
+</tr>
+<tr>
+<td><code>CONFLICT_DETECTED</code></td>
+<td>اكتشاف تعارض</td>
+</tr>
+<tr>
+<td><code>CONFLICT_RESOLVED</code></td>
+<td>حل التعارض</td>
+</tr>
+<tr>
+<td><code>NETWORK_STATUS_CHANGED</code></td>
+<td>تغير حالة الشبكة</td>
+</tr>
+<tr>
+<td><code>QUEUE_CLEARED</code></td>
+<td>مسح القائمة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="48">4.8 مثال الاستخدام<a class="headerlink" href="#48" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">SyncManager</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./services/syncManager&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SyncOperationType</span><span class="p">,</span><span class="w"> </span><span class="nx">SyncDataType</span><span class="p">,</span><span class="w"> </span><span class="nx">SyncPriority</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./models/syncTypes&#39;</span><span class="p">;</span>
+
+<span class="c1">// Initialize</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">syncManager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">SyncManager</span><span class="p">.</span><span class="nx">getInstance</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">autoSync</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">syncInterval</span><span class="o">:</span><span class="w"> </span><span class="kt">5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000</span>
+<span class="p">});</span>
+
+<span class="c1">// Queue field observation</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">syncManager</span><span class="p">.</span><span class="nx">queueOperation</span><span class="p">(</span>
+<span class="w">  </span><span class="nx">SyncOperationType</span><span class="p">.</span><span class="nx">CREATE</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">SyncDataType</span><span class="p">.</span><span class="nx">FIELD_OBSERVATION</span><span class="p">,</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;field-123&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">notes</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ملاحظات الحقل&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">()</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">priority</span><span class="o">:</span><span class="w"> </span><span class="kt">SyncPriority.HIGH</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">endpoint</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/api/v1/field-observations&#39;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">);</span>
+
+<span class="c1">// Check status</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">syncManager</span><span class="p">.</span><span class="nx">getSyncStatus</span><span class="p">();</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Pending:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">status</span><span class="p">.</span><span class="nx">pendingCount</span><span class="p">);</span>
+
+<span class="c1">// Force sync</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">syncManager</span><span class="p">.</span><span class="nx">forceSync</span><span class="p">();</span>
+</code></pre></div>
+
+<hr />
+<h2 id="5-unconnected-services">5. الخدمات غير المتصلة | Unconnected Services<a class="headerlink" href="#5-unconnected-services" title="Permanent link">&para;</a></h2>
+<h3 id="51-agent-services">5.1 خدمات الوكلاء (Agent Services)<a class="headerlink" href="#51-agent-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Kong Service</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent-registry</code></td>
+<td>8160</td>
+<td>سجل الوكلاء</td>
+</tr>
+<tr>
+<td><code>ai-agents-core</code></td>
+<td>8122</td>
+<td>نواة الوكلاء</td>
+</tr>
+<tr>
+<td><code>ai-agents-service</code></td>
+<td>8130</td>
+<td>تنسيق الوكلاء</td>
+</tr>
+<tr>
+<td><code>knowledge-graph</code></td>
+<td>8140</td>
+<td>رسم المعرفة</td>
+</tr>
+<tr>
+<td><code>mcp-server</code></td>
+<td>8200</td>
+<td>Model Context Protocol</td>
+</tr>
+<tr>
+<td><code>skills-service</code></td>
+<td>8121</td>
+<td>خدمة المهارات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52">5.2 خدمات أخرى غير مستخدمة<a class="headerlink" href="#52" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Kong Service</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>research-core</code></td>
+<td>3015</td>
+<td>البحث العلمي</td>
+</tr>
+<tr>
+<td><code>disaster-assessment</code></td>
+<td>3020</td>
+<td>تقييم الكوارث</td>
+</tr>
+<tr>
+<td><code>ws-gateway</code></td>
+<td>8081</td>
+<td>بوابة WebSocket</td>
+</tr>
+<tr>
+<td><code>iot-gateway</code></td>
+<td>8106</td>
+<td>بوابة IoT</td>
+</tr>
+<tr>
+<td><code>audit-service</code></td>
+<td>8114</td>
+<td>التدقيق</td>
+</tr>
+<tr>
+<td><code>code-review-service</code></td>
+<td>8102</td>
+<td>مراجعة الكود</td>
+</tr>
+<tr>
+<td><code>lowcode-engine</code></td>
+<td>8132</td>
+<td>محرك Low-Code</td>
+</tr>
+<tr>
+<td><code>wechat-service</code></td>
+<td>8133</td>
+<td>تكامل WeChat</td>
+</tr>
+<tr>
+<td><code>globalgap-compliance</code></td>
+<td>8123</td>
+<td>شهادة GlobalGAP</td>
+</tr>
+<tr>
+<td><code>logistics-service</code></td>
+<td>8162</td>
+<td>اللوجستيات</td>
+</tr>
+<tr>
+<td><code>ussd-gateway</code></td>
+<td>8163</td>
+<td>بوابة USSD</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53">5.3 الخدمات المهملة (لا يجب استخدامها)<a class="headerlink" href="#53" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Kong Service</th>
+<th>البديل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>yield-prediction</code> (3021)</td>
+<td><code>yield-prediction-service</code></td>
+</tr>
+<tr>
+<td><code>lai-estimation</code> (3022)</td>
+<td><code>indicators-service</code></td>
+</tr>
+<tr>
+<td><code>crop-growth-model</code> (3023)</td>
+<td><code>crop-intelligence-service</code></td>
+</tr>
+<tr>
+<td><code>field-ops</code> (8080)</td>
+<td><code>field-management-service</code></td>
+</tr>
+<tr>
+<td><code>ndvi-engine</code> (8107)</td>
+<td><code>vegetation-analysis-service</code></td>
+</tr>
+<tr>
+<td><code>field-service</code> (8115)</td>
+<td><code>field-management-service</code></td>
+</tr>
+<tr>
+<td><code>ndvi-processor</code> (8118)</td>
+<td><code>vegetation-analysis-service</code></td>
+</tr>
+<tr>
+<td><code>satellite-service</code> (9190)</td>
+<td><code>vegetation-analysis-service</code></td>
+</tr>
+<tr>
+<td><code>weather-advanced</code> (9092)</td>
+<td><code>weather-service</code></td>
+</tr>
+<tr>
+<td><code>crop-health-ai</code> (9095)</td>
+<td><code>crop-intelligence-service</code></td>
+</tr>
+<tr>
+<td><code>fertilizer-advisor</code> (9093)</td>
+<td><code>advisory-service</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-comparison">6. مقارنة بين التطبيقات | Comparison<a class="headerlink" href="#6-comparison" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>Mobile Main</th>
+<th>Field App</th>
+<th>Atmosphere</th>
+<th>RN Sync</th>
+<th>Web</th>
+<th>Admin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>field-management-service</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>user-service</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>weather-service</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>vegetation-analysis-service</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>indicators-service</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>crop-intelligence-service</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>advisory-service</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>irrigation-smart</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>virtual-sensors</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>equipment-service</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>task-service</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>alert-service</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td>notification-service</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>marketplace-service</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>billing-core</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>iot-service</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>yield-prediction-service</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>ai-advisor</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>agro-advisor</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>community-chat</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>field-chat</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>inventory-service</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>astronomical-calendar</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>crm-service</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>RN Sync</strong> = Sahool Mobile (React Native Sync Manager)</p>
+</blockquote>
+<hr />
+<h2 id="7-key-configuration-files">7. ملفات التكوين الرئيسية | Key Configuration Files<a class="headerlink" href="#7-key-configuration-files" title="Permanent link">&para;</a></h2>
+<h3 id="71-mobile">7.1 تطبيق Mobile الرئيسي<a class="headerlink" href="#71-mobile" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الملف</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lib/core/config/api_config.dart</code></td>
+<td>تكوين API endpoints لجميع الخدمات</td>
+</tr>
+<tr>
+<td><code>lib/core/config/env_config.dart</code></td>
+<td>متغيرات البيئة ومنافذ الخدمات</td>
+</tr>
+<tr>
+<td><code>lib/core/api/kong_gateway_client.dart</code></td>
+<td>عميل Kong Gateway مع Circuit Breaker</td>
+</tr>
+<tr>
+<td><code>lib/core/services/service_registry.dart</code></td>
+<td>سجل جميع الخدمات ونقاط النهاية</td>
+</tr>
+<tr>
+<td><code>lib/core/config/service_switcher.dart</code></td>
+<td>محول الخدمات للتبديل بين البيئات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-features-api">7.2 ملفات Features API<a class="headerlink" href="#72-features-api" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الملف</th>
+<th>الخدمات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lib/features/auth/services/</code></td>
+<td>auth, otp</td>
+</tr>
+<tr>
+<td><code>lib/features/field/data/</code></td>
+<td>fields</td>
+</tr>
+<tr>
+<td><code>lib/features/billing/data/remote/</code></td>
+<td>billing, stripe</td>
+</tr>
+<tr>
+<td><code>lib/features/equipment/data/</code></td>
+<td>equipment</td>
+</tr>
+<tr>
+<td><code>lib/features/ai_advisor/data/remote/</code></td>
+<td>ai-advisor, agro-advisor</td>
+</tr>
+<tr>
+<td><code>lib/features/chat/data/remote/</code></td>
+<td>chat, conversations</td>
+</tr>
+<tr>
+<td><code>lib/features/gdd/services/</code></td>
+<td>gdd</td>
+</tr>
+<tr>
+<td><code>lib/features/reports/data/</code></td>
+<td>reports</td>
+</tr>
+<tr>
+<td><code>lib/features/payment/data/</code></td>
+<td>payment (tharwatt)</td>
+</tr>
+<tr>
+<td><code>lib/features/notifications/data/</code></td>
+<td>notifications</td>
+</tr>
+<tr>
+<td><code>lib/features/marketplace/</code></td>
+<td>marketplace, fintech</td>
+</tr>
+<tr>
+<td><code>lib/features/wallet/</code></td>
+<td>wallet, loans</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-connection-diagram">8. مخطط الاتصال | Connection Diagram<a class="headerlink" href="#8-connection-diagram" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                            Mobile Applications                                        │
+├─────────────────┬──────────────────┬──────────────────┬───────────────────────────────┤
+│  SAHOOL Field   │   Sahool Field   │ Sahol Atmosphere │    Sahool Mobile (RN)        │
+│    (Main)       │      App         │  (Health Monitor)│   (Offline Sync Manager)     │
+│  Flutter v16    │  Flutter v15.5   │   Flutter v16    │  React Native + TypeScript   │
+│   29 services   │    5 services    │    4 services    │        7 services            │
+└─────────────────┴──────────────────┴──────────────────┴───────────────────────────────┘
+                                    │
+                      ┌─────────────┼─────────────┐
+                      │   Offline   │   Online    │
+                      │    Cache    │   Request   │
+                      └─────────────┴─────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     Kong API Gateway (:8000)                                │
+│                  api.sahool.app / api-staging.sahool.app                    │
+│                                                                             │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐             │
+│  │  Rate Limiting  │  │  Auth (JWT)     │  │  CORS           │             │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+        ┌───────────────────────────┼───────────────────────────┐
+        │                           │                           │
+        ▼                           ▼                           ▼
+┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐
+│  Core Services   │    │   AI Services    │    │ Business Services│
+│                  │    │                  │    │                  │
+│ fields:3000      │    │ crop-health:8095 │    │ marketplace:3010 │
+│ users:3025       │    │ ai-advisor:8112  │    │ billing:8089     │
+│ tasks:8103       │    │ agro-advisor:8105│    │ community:8097   │
+│ equipment:8101   │    │ advisory:8093    │    │ chat:8099        │
+│ weather:8092     │    │ yield:8098       │    │ notifications:8110│
+│ irrigation:8094  │    │ indicators:8091  │    │ inventory:8116   │
+│ satellite:8090   │    │ v-sensors:8119   │    │ crm:8131         │
+│ iot:8117         │    │                  │    │ astronomical:8111│
+│ alerts:8113      │    │                  │    │                  │
+└──────────────────┘    └──────────────────┘    └──────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="9-mobile-mobile-specific-features">9. ميزات Mobile الفريدة | Mobile-Specific Features<a class="headerlink" href="#9-mobile-mobile-specific-features" title="Permanent link">&para;</a></h2>
+<h3 id="91-offline-first-architecture">9.1 Offline-First Architecture<a class="headerlink" href="#91-offline-first-architecture" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Offline sync configuration</span>
+<span class="nl">syncInterval:</span><span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="n">seconds</span><span class="w"> </span><span class="p">(</span><span class="n">foreground</span><span class="p">)</span>
+<span class="nl">backgroundSyncInterval:</span><span class="w"> </span><span class="m">15</span><span class="w"> </span><span class="n">minutes</span><span class="w"> </span><span class="p">(</span><span class="n">background</span><span class="p">)</span>
+<span class="nl">maxRetryCount:</span><span class="w"> </span><span class="m">5</span>
+<span class="nl">outboxBatchSize:</span><span class="w"> </span><span class="m">50</span>
+</code></pre></div>
+
+<h3 id="92-circuit-breaker-pattern">9.2 Circuit Breaker Pattern<a class="headerlink" href="#92-circuit-breaker-pattern" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Circuit breaker configuration</span>
+<span class="nl">failureThreshold:</span><span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="n">failures</span>
+<span class="nl">circuitTimeout:</span><span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="n">seconds</span>
+</code></pre></div>
+
+<h3 id="93-service-health-monitoring">9.3 Service Health Monitoring<a class="headerlink" href="#93-service-health-monitoring" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Health check configuration</span>
+<span class="nl">enableServiceHealthMonitoring:</span><span class="w"> </span><span class="kc">true</span>
+<span class="nl">serviceHealthCheckInterval:</span><span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="n">minutes</span>
+<span class="nl">serviceHealthCheckTimeout:</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="n">seconds</span>
+</code></pre></div>
+
+<h3 id="94-multi-environment-support">9.4 Multi-Environment Support<a class="headerlink" href="#94-multi-environment-support" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البيئة</th>
+<th>API URL</th>
+<th>WS URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Development</td>
+<td><code>http://10.0.2.2:8000/api/v1</code></td>
+<td><code>ws://10.0.2.2:8081</code></td>
+</tr>
+<tr>
+<td>Staging</td>
+<td><code>https://api-staging.sahool.app/api/v1</code></td>
+<td><code>wss://ws-staging.sahool.app</code></td>
+</tr>
+<tr>
+<td>Production</td>
+<td><code>https://api.sahool.app/api/v1</code></td>
+<td><code>wss://ws.sahool.app</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-recommendations">10. التوصيات | Recommendations<a class="headerlink" href="#10-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="101">10.1 خدمات مفقودة يُنصح بتكاملها<a class="headerlink" href="#101" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الأولوية</th>
+<th>السبب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>audit-service</code></td>
+<td>عالية</td>
+<td>تتبع الأمان والامتثال</td>
+</tr>
+<tr>
+<td><code>disaster-assessment</code></td>
+<td>متوسطة</td>
+<td>تنبيهات الكوارث للمزارعين</td>
+</tr>
+<tr>
+<td><code>ws-gateway</code></td>
+<td>عالية</td>
+<td>Real-time updates للإشعارات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="102">10.2 تحسينات مقترحة<a class="headerlink" href="#102" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>توحيد ai-advisor و agro-advisor</strong>: كلاهما يقدم خدمات استشارية مشابهة</li>
+<li><strong>إضافة offline support لـ reports</strong>: تخزين التقارير محلياً</li>
+<li><strong>تكامل GDD مع Kong</strong>: خدمة GDD غير موجودة في kong.yml</li>
+</ol>
+<h3 id="103">10.3 ملاحظات أمنية<a class="headerlink" href="#103" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Certificate Pinning مُفعَّل للإنتاج</li>
+<li>Token refresh تلقائي</li>
+<li>PII filtering في crash reports</li>
+<li>Secure storage للـ tokens</li>
+</ul>
+<hr />
+<h2 id="11-conclusion">11. الخلاصة | Conclusion<a class="headerlink" href="#11-conclusion" title="Permanent link">&para;</a></h2>
+<p>تطبيقات Mobile الأربعة تستخدم مجتمعة <strong>51.6%</strong> من خدمات Kong المتاحة (32 من 62 خدمة).</p>
+<h3 id="_2">ملخص التطبيقات<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التطبيق</th>
+<th>التقنية</th>
+<th>الخدمات</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SAHOOL Field (Main)</strong></td>
+<td>Flutter v16.0.0</td>
+<td>29</td>
+<td>التطبيق الرئيسي الشامل</td>
+</tr>
+<tr>
+<td><strong>Sahool Field App</strong></td>
+<td>Flutter v15.5.0</td>
+<td>5</td>
+<td>العمليات الميدانية الأساسية</td>
+</tr>
+<tr>
+<td><strong>Sahol Atmosphere</strong></td>
+<td>Flutter v16.0.0</td>
+<td>4</td>
+<td>مراقبة صحة الخدمات</td>
+</tr>
+<tr>
+<td><strong>Sahool Mobile (RN)</strong></td>
+<td>React Native + TS</td>
+<td>7</td>
+<td>مدير المزامنة Offline</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">نقاط القوة<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ تكامل شامل مع خدمات الذكاء الاصطناعي (ai-advisor, agro-advisor, crop-health)</li>
+<li>✅ دعم كامل للعمل بدون اتصال (Offline-First) في جميع التطبيقات</li>
+<li>✅ Circuit Breaker و Retry patterns</li>
+<li>✅ تكامل Billing و Marketplace كامل</li>
+<li>✅ دعم CRM و Inventory (غير موجود في Web/Admin)</li>
+<li>✅ تطبيق React Native متخصص للمزامنة مع دعم TypeScript كامل</li>
+<li>✅ استراتيجيات متعددة لحل التعارضات في المزامنة</li>
+</ul>
+<h3 id="_4">نقاط التحسين<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>⚠️ إضافة تكامل WebSocket Gateway للتحديثات الفورية</li>
+<li>⚠️ توحيد خدمات AI المتعددة</li>
+<li>⚠️ إضافة audit-service للأمان</li>
+<li>⚠️ توحيد التطبيقين Flutter (Main v16 و Field App v15.5) في تطبيق واحد</li>
+</ul>
+<h3 id="sahool-mobile">ملاحظة حول sahool-mobile<a class="headerlink" href="#sahool-mobile" title="Permanent link">&para;</a></h3>
+<p>تطبيق <code>sahool-mobile</code> هو <strong>مكتبة/تطبيق React Native</strong> متخصص في إدارة المزامنة بدون اتصال. يمكن استخدامه:
+1. كتطبيق مستقل للمزامنة
+2. كمكتبة يتم دمجها في تطبيقات React Native أخرى</p>
+<p>يحتوي على:
+- 1,900+ سطر من كود مدير المزامنة
+- 650+ سطر من تعريفات TypeScript
+- 800+ سطر من الأمثلة
+- 600+ سطر من الاختبارات
+- <strong>إجمالي: 6,500+ سطر</strong></p>
+<hr />
+<p><em>آخر تحديث: 2026-01-24</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

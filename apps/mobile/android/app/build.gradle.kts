@@ -114,44 +114,44 @@ android {
             // Production releases MUST use proper keystore
             val isCI = System.getenv("CI") == "true" || System.getenv("GITHUB_ACTIONS") == "true"
 
-val isReleaseTask = gradle.startParameter.taskNames.any { it.contains("Release", ignoreCase = true) }
+            val isReleaseTask = gradle.startParameter.taskNames.any { it.contains("Release", ignoreCase = true) }
 
-if (isReleaseTask && !hasValidKeystore && !isCI) {
-    throw GradleException(
-        """
-        |
-        |========================================================================
-        | ERROR: Release keystore is not configured!
-        |========================================================================
-        |
-        | Release builds require a proper keystore configuration for security.
-        | Debug signing is NOT allowed for release builds.
-        |
-        | To fix this, choose ONE of the following options:
-        |
-        | Option 1: Create keystore.properties file (recommended for local builds)
-        |   1. Copy android/keystore.properties.example to android/keystore.properties
-        |   2. Fill in your keystore details:
-        |      - storeFile=/path/to/your/keystore.jks
-        |      - storePassword=your_keystore_password
-        |      - keyAlias=your_key_alias
-        |      - keyPassword=your_key_password
-        |   3. Ensure keystore.properties is in .gitignore (never commit it!)
-        |
-        | Option 2: Set environment variables (recommended for CI/CD)
-        |   export KEYSTORE_FILE=/path/to/your/keystore.jks
-        |   export KEYSTORE_PASSWORD=your_keystore_password
-        |   export KEY_ALIAS=your_key_alias
-        |   export KEY_PASSWORD=your_key_password
-        |
-        | For development/testing only, you can use the debug build variant:
-        |   flutter build apk --debug
-        |
-        |========================================================================
-        |
-        """.trimMargin()
-    )
-}
+            if (isReleaseTask && !hasValidKeystore && !isCI) {
+                throw GradleException(
+                    """
+                    |
+                    |========================================================================
+                    | ERROR: Release keystore is not configured!
+                    |========================================================================
+                    |
+                    | Release builds require a proper keystore configuration for security.
+                    | Debug signing is NOT allowed for release builds.
+                    |
+                    | To fix this, choose ONE of the following options:
+                    |
+                    | Option 1: Create keystore.properties file (recommended for local builds)
+                    |   1. Copy android/keystore.properties.example to android/keystore.properties
+                    |   2. Fill in your keystore details:
+                    |      - storeFile=/path/to/your/keystore.jks
+                    |      - storePassword=your_keystore_password
+                    |      - keyAlias=your_key_alias
+                    |      - keyPassword=your_key_password
+                    |   3. Ensure keystore.properties is in .gitignore (never commit it!)
+                    |
+                    | Option 2: Set environment variables (recommended for CI/CD)
+                    |   export KEYSTORE_FILE=/path/to/your/keystore.jks
+                    |   export KEYSTORE_PASSWORD=your_keystore_password
+                    |   export KEY_ALIAS=your_key_alias
+                    |   export KEY_PASSWORD=your_key_password
+                    |
+                    | For development/testing only, you can use the debug build variant:
+                    |   flutter build apk --debug
+                    |
+                    |========================================================================
+                    |
+                    """.trimMargin()
+                )
+            }
 
             // Use proper keystore if configured, otherwise fall back to debug (CI only)
             signingConfig = if (hasValidKeystore) {

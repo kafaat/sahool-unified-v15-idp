@@ -33,7 +33,7 @@ class _ScannerScreenState extends State<ScannerScreen>
     super.dispose();
   }
 
-  void _startScan() async {
+  Future<void> _startScan() async {
     setState(() {
       _isScanning = true;
       _hasResult = false;

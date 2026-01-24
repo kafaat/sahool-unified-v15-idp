@@ -313,7 +313,7 @@ class OfflineDataManager {
   }
 
   /// محاولة المزامنة الفورية
-  void _trySyncNow() async {
+  Future<void> _trySyncNow() async {
     final connectivityResults = await _connectivity.checkConnectivity();
     final isOnline = connectivityResults.isNotEmpty &&
                      !connectivityResults.every((r) => r == ConnectivityResult.none);
@@ -332,7 +332,7 @@ class OfflineDataManager {
   }
 
   /// تحديث عداد التغييرات المعلقة
-  void _updatePendingCount() async {
+  Future<void> _updatePendingCount() async {
     final count = await getPendingCount();
     _pendingChangesController.add(count);
   }

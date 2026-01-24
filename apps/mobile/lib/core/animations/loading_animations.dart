@@ -1006,7 +1006,7 @@ class _StaggeredAnimationListState extends State<StaggeredAnimationList>
     }).toList();
   }
 
-  void _startStaggeredAnimations() async {
+  Future<void> _startStaggeredAnimations() async {
     for (int i = 0; i < _controllers.length; i++) {
       await Future.delayed(widget.staggerDelay);
       if (mounted) {
@@ -1107,7 +1107,7 @@ class _AnimatedListItemState extends State<AnimatedListItem>
     _startAnimation();
   }
 
-  void _startAnimation() async {
+  Future<void> _startAnimation() async {
     await Future.delayed(
       Duration(milliseconds: widget.delay.inMilliseconds * widget.index),
     );

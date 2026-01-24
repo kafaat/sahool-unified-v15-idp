@@ -38,7 +38,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
     }
   }
 
-  void _startSync() async {
+  Future<void> _startSync() async {
     final syncStatus = ref.read(syncStatusProvider.notifier);
     final statusState = ref.read(syncStatusProvider);
 
@@ -64,7 +64,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
     }
   }
 
-  void _showConflictDialog(SyncEvent conflict) async {
+  Future<void> _showConflictDialog(SyncEvent conflict) async {
     final choice = await showConflictResolutionDialog(
       context: context,
       conflict: conflict,
@@ -452,7 +452,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
     );
   }
 
-  void _showMapDownloadDialog() async {
+  Future<void> _showMapDownloadDialog() async {
     await showMapDownloadDialog(context);
     _loadMapCacheSize();
   }

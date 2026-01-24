@@ -173,6 +173,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [build-packages, web-fast-checks]
+    if: always() && !cancelled() && needs.build-packages.result == 'success'
 
     steps:
       - name: Checkout repository
@@ -238,6 +239,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: [build-packages, web-fast-checks]
+    if: always() && !cancelled() && needs.build-packages.result == 'success'
 
     steps:
       - name: Checkout repository
@@ -373,6 +375,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [build-packages, admin-fast-checks]
+    if: always() && !cancelled() && needs.build-packages.result == 'success'
 
     steps:
       - name: Checkout repository
@@ -437,6 +440,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [build-packages, admin-fast-checks]
+    if: always() && !cancelled() && needs.build-packages.result == 'success'
 
     steps:
       - name: Checkout repository
@@ -560,6 +564,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: flutter-analyze
+    if: always() && !cancelled()
 
     defaults:
       run:
@@ -636,6 +641,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: flutter-analyze
+    if: always() && !cancelled()
 
     defaults:
       run:
@@ -748,6 +754,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 45
     needs: flutter-analyze
+    if: always() && !cancelled()
 
     defaults:
       run:
@@ -829,6 +836,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: web-build
+    if: needs.web-build.result == 'success'
 
     steps:
       - name: Checkout repository
@@ -963,6 +971,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: flutter-unit-tests
+    if: always() && !cancelled()
 
     defaults:
       run:

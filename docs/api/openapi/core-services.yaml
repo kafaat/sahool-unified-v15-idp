@@ -10,13 +10,17 @@ info:
     - Authentication & Authorization (المصادقة والتفويض)
     - Notification Service (خدمة الإشعارات)
     - Alert Service (خدمة التنبيهات)
+    - Billing & Subscriptions (الفوترة والاشتراكات)
+    - Audit Logging (سجل التدقيق)
 
     ## Authentication
     All endpoints require JWT authentication via the `Authorization: Bearer <token>` header unless otherwise specified.
 
     ## Rate Limiting
+    - Free tier: 30 requests/minute
     - Standard tier: 60 requests/minute
     - Premium tier: 120 requests/minute
+    - Internal: 1000 requests/minute
 
     ## Multi-tenancy
     Most endpoints require the `X-Tenant-ID` header for tenant isolation.
@@ -31,12 +35,12 @@ info:
     url: https://sahool.sa/terms
 
 servers:
-  - url: https://api.sahool.sa/v1
+  - url: https://api.sahool.sa/api/v1
     description: Production server
-  - url: https://staging-api.sahool.sa/v1
+  - url: https://staging-api.sahool.sa/api/v1
     description: Staging server
-  - url: http://localhost:3000
-    description: Development server
+  - url: http://localhost:8000
+    description: Development server (Kong Gateway)
 
 tags:
   - name: Authentication
@@ -47,12 +51,16 @@ tags:
     description: Notification service - خدمة الإشعارات
   - name: Alerts
     description: Agricultural alert management - إدارة التنبيهات الزراعية
+  - name: Billing
+    description: Billing and subscription management - إدارة الفوترة والاشتراكات
+  - name: Audit
+    description: Audit logging and compliance - سجل التدقيق والامتثال
   - name: Health
     description: Service health and readiness checks
 
 paths:
   # ============================================================================
-  # AUTHENTICATION ENDPOINTS
+  # AUTHENTICATION ENDPOINTS (user-service - Port 3025)
   # ============================================================================
   /auth/login:
     post:
@@ -67,45 +75,51 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [email, password]
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: user@sahool.com
-                password:
-                  type: string
-                  format: password
-                  minLength: 8
-                  example: SecurePassword123!
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              standard:
+                summary: Standard login
+                value:
+                  email: farmer@example.com
+                  password: SecurePassword123!
       responses:
         '200':
           description: Login successful
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  access_token:
-                    type: string
-                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-                  refresh_token:
-                    type: string
-                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-                  expires_in:
-                    type: integer
-                    example: 1800
-                    description: Token expiration time in seconds
-                  token_type:
-                    type: string
-                    example: Bearer
-                  user:
-                    $ref: '#/components/schemas/UserProfile'
+                $ref: '#/components/schemas/AuthResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '429':
           $ref: '#/components/responses/TooManyRequests'
+      security: []
+
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register new user
+      description: |
+        Register a new user account. Requires email verification.
+        تسجيل حساب مستخدم جديد.
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          description: Email already exists
       security: []
 
   /auth/logout:
@@ -122,14 +136,27 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Logged out successfully
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /auth/logout-all:
+    post:
+      tags: [Authentication]
+      summary: Logout from all devices
+      description: |
+        Logout from all devices and revoke all tokens.
+        تسجيل الخروج من جميع الأجهزة.
+      operationId: logoutAll
+      responses:
+        '200':
+          description: Logged out from all devices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
       security:
@@ -148,35 +175,20 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [refreshToken]
-              properties:
-                refreshToken:
-                  type: string
-                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+              $ref: '#/components/schemas/RefreshTokenRequest'
       responses:
         '200':
           description: Token refreshed successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  access_token:
-                    type: string
-                  refresh_token:
-                    type: string
-                  expires_in:
-                    type: integer
-                  token_type:
-                    type: string
-                    example: Bearer
+                $ref: '#/components/schemas/AuthResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
       security: []
 
   /auth/me:
-    post:
+    get:
       tags: [Authentication]
       summary: Get current user
       description: Get information about the currently authenticated user
@@ -187,16 +199,109 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    $ref: '#/components/schemas/UserProfile'
+                $ref: '#/components/schemas/UserProfile'
         '401':
           $ref: '#/components/responses/Unauthorized'
       security:
         - bearerAuth: []
+
+  /auth/forgot-password:
+    post:
+      tags: [Authentication]
+      summary: Request password reset
+      description: |
+        Request a password reset link via email.
+        طلب رابط إعادة تعيين كلمة المرور.
+      operationId: forgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+      responses:
+        '200':
+          description: Reset email sent (if account exists)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+      security: []
+
+  /auth/reset-password:
+    post:
+      tags: [Authentication]
+      summary: Reset password
+      description: |
+        Reset password using token from email.
+        إعادة تعيين كلمة المرور باستخدام الرمز.
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+      security: []
+
+  /auth/send-otp:
+    post:
+      tags: [Authentication]
+      summary: Send OTP
+      description: |
+        Send one-time password to phone or email for verification.
+        إرسال رمز التحقق لمرة واحدة.
+      operationId: sendOtp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendOtpRequest'
+      responses:
+        '200':
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security: []
+
+  /auth/verify-otp:
+    post:
+      tags: [Authentication]
+      summary: Verify OTP
+      description: |
+        Verify one-time password.
+        التحقق من رمز OTP.
+      operationId: verifyOtp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyOtpRequest'
+      responses:
+        '200':
+          description: OTP verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid or expired OTP
+      security: []
 
   # ============================================================================
   # USER MANAGEMENT ENDPOINTS
@@ -204,544 +309,429 @@ paths:
   /users:
     get:
       tags: [Users]
-      summary: List all users
+      summary: List users
       description: |
-        Get paginated list of users with optional filtering.
-        الحصول على قائمة المستخدمين مع إمكانية الفلترة.
+        Get paginated list of users. Admin/Manager only.
+        قائمة المستخدمين (للمدراء فقط).
       operationId: listUsers
       parameters:
-        - name: tenantId
-          in: query
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
         - name: role
           in: query
           schema:
-            type: string
-            enum: [FARMER, AGRONOMIST, ADMIN, FIELD_MANAGER]
+            $ref: '#/components/schemas/UserRole'
         - name: status
           in: query
           schema:
-            type: string
-            enum: [active, inactive, pending]
-        - name: skip
-          in: query
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
-        - name: take
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 20
+            $ref: '#/components/schemas/UserStatus'
       responses:
         '200':
-          description: Users retrieved successfully
+          description: List of users
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/User'
-                  count:
-                    type: integer
-                  meta:
-                    type: object
-                    properties:
-                      total:
-                        type: integer
-                      skip:
-                        type: integer
-                      take:
-                        type: integer
+                $ref: '#/components/schemas/UserListResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
       security:
         - bearerAuth: []
 
     post:
       tags: [Users]
-      summary: Create a new user
-      description: Create a new user account - إنشاء مستخدم جديد
+      summary: Create user
+      description: |
+        Create a new user. Admin/Manager only.
+        إنشاء مستخدم جديد.
       operationId: createUser
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUser'
+              $ref: '#/components/schemas/CreateUserRequest'
       responses:
         '201':
           description: User created successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    $ref: '#/components/schemas/User'
-                  message:
-                    type: string
+                $ref: '#/components/schemas/UserProfile'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          $ref: '#/components/responses/ValidationError'
         '409':
-          description: User already exists
+          description: Email already exists
       security:
         - bearerAuth: []
 
-  /users/{id}:
+  /users/{userId}:
     get:
       tags: [Users]
       summary: Get user by ID
-      description: Get detailed user information - تفاصيل المستخدم
+      description: Get user details by ID
       operationId: getUser
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/UserId'
       responses:
         '200':
-          description: User retrieved successfully
+          description: User details
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserProfile'
         '404':
           $ref: '#/components/responses/NotFound'
-        '403':
-          $ref: '#/components/responses/Forbidden'
       security:
         - bearerAuth: []
 
     put:
       tags: [Users]
       summary: Update user
-      description: Update user properties - تحديث المستخدم
+      description: Update user information
       operationId: updateUser
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/UserId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateUser'
+              $ref: '#/components/schemas/UpdateUserRequest'
       responses:
         '200':
           description: User updated successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    $ref: '#/components/schemas/User'
-                  message:
-                    type: string
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/ValidationError'
         '404':
           $ref: '#/components/responses/NotFound'
-        '403':
-          $ref: '#/components/responses/Forbidden'
       security:
         - bearerAuth: []
 
     delete:
       tags: [Users]
       summary: Delete user (soft delete)
-      description: Soft delete a user - حذف المستخدم (حذف ناعم)
+      description: Soft delete a user account
       operationId: deleteUser
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/UserId'
       responses:
         '200':
           description: User deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
         '404':
           $ref: '#/components/responses/NotFound'
       security:
         - bearerAuth: []
 
   # ============================================================================
-  # NOTIFICATION ENDPOINTS
+  # NOTIFICATION ENDPOINTS (notification-service - Port 8110)
   # ============================================================================
-  /v1/notifications:
+  /notifications:
     post:
       tags: [Notifications]
       summary: Create notification
       description: |
-        Create a custom notification with targeting options.
-        إنشاء إشعار مخصص مع خيارات الاستهداف.
+        Create and send a notification to targeted farmers.
+        إنشاء وإرسال إشعار للمزارعين المستهدفين.
       operationId: createNotification
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateNotification'
-            examples:
-              weatherAlert:
-                summary: Weather alert example
-                value:
-                  type: weather_alert
-                  priority: high
-                  title: Frost Warning
-                  title_ar: تحذير من الصقيع
-                  body: Expected frost tonight. Protect your crops.
-                  body_ar: يُتوقع صقيع الليلة. قم بحماية محاصيلك.
-                  target_governorates: [sanaa, dhamar]
-                  channels: [push, in_app]
-                  expires_in_hours: 24
+              $ref: '#/components/schemas/CreateNotificationRequest'
       responses:
-        '200':
-          description: Notification created successfully
+        '201':
+          description: Notification created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationResponse'
+                $ref: '#/components/schemas/Notification'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          $ref: '#/components/responses/ValidationError'
       security:
         - bearerAuth: []
 
-  /v1/notifications/farmer/{farmer_id}:
-    get:
-      tags: [Notifications]
-      summary: Get farmer notifications
-      description: Get all notifications for a specific farmer - إشعارات مزارع معين
-      operationId: getFarmerNotifications
-      parameters:
-        - name: farmer_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: unread_only
-          in: query
-          schema:
-            type: boolean
-            default: false
-        - name: type
-          in: query
-          schema:
-            $ref: '#/components/schemas/NotificationType'
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 50
-        - name: offset
-          in: query
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
-      responses:
-        '200':
-          description: Notifications retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  farmer_id:
-                    type: string
-                  total:
-                    type: integer
-                  unread_count:
-                    type: integer
-                  notifications:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Notification'
-      security:
-        - bearerAuth: []
-
-  /v1/notifications/{notification_id}/read:
-    patch:
-      tags: [Notifications]
-      summary: Mark notification as read
-      description: Mark a notification as read - تحديد إشعار كمقروء
-      operationId: markNotificationRead
-      parameters:
-        - name: notification_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: farmer_id
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Notification marked as read
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  notification_id:
-                    type: string
-                  is_read:
-                    type: boolean
-                  read_at:
-                    type: string
-                    format: date-time
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - bearerAuth: []
-
-  /v1/alerts/weather:
+  /notifications/weather:
     post:
       tags: [Notifications]
       summary: Create weather alert
-      description: Create a weather alert for specific governorates
+      description: |
+        Send weather alert to farmers in specific governorates.
+        إرسال تنبيه طقس للمزارعين في محافظات محددة.
       operationId: createWeatherAlert
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WeatherAlert'
+              $ref: '#/components/schemas/WeatherAlertRequest'
       responses:
-        '200':
+        '201':
           description: Weather alert created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationResponse'
+                $ref: '#/components/schemas/Notification'
       security:
         - bearerAuth: []
 
-  # ============================================================================
-  # ALERT SERVICE ENDPOINTS
-  # ============================================================================
-  /alerts:
+  /notifications/pest:
     post:
-      tags: [Alerts]
-      summary: Create alert
+      tags: [Notifications]
+      summary: Create pest outbreak alert
       description: |
-        Create a new agricultural alert.
-        إنشاء تنبيه زراعي جديد.
-      operationId: createAlert
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
+        Alert farmers about pest outbreaks in their area.
+        تنبيه المزارعين عن تفشي الآفات في منطقتهم.
+      operationId: createPestAlert
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateAlert'
+              $ref: '#/components/schemas/PestAlertRequest'
       responses:
-        '200':
-          description: Alert created successfully
+        '201':
+          description: Pest alert created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Alert'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/Notification'
       security:
         - bearerAuth: []
 
-  /alerts/{alert_id}:
-    get:
-      tags: [Alerts]
-      summary: Get alert by ID
-      description: Get a specific alert - جلب تنبيه محدد
-      operationId: getAlert
-      parameters:
-        - name: alert_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - $ref: '#/components/parameters/TenantId'
-      responses:
-        '200':
-          description: Alert retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Alert'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - bearerAuth: []
-
-    patch:
-      tags: [Alerts]
-      summary: Update alert status
-      description: Update alert status - تحديث حالة التنبيه
-      operationId: updateAlert
-      parameters:
-        - name: alert_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - $ref: '#/components/parameters/TenantId'
+  /notifications/irrigation:
+    post:
+      tags: [Notifications]
+      summary: Create irrigation reminder
+      description: |
+        Send irrigation reminder to specific farmer.
+        إرسال تذكير ري لمزارع محدد.
+      operationId: createIrrigationReminder
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateAlert'
+              $ref: '#/components/schemas/IrrigationReminderRequest'
       responses:
-        '200':
-          description: Alert updated successfully
+        '201':
+          description: Irrigation reminder created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Alert'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: '#/components/schemas/Notification'
       security:
         - bearerAuth: []
 
-    delete:
-      tags: [Alerts]
-      summary: Delete alert
-      description: Delete an alert - حذف تنبيه
-      operationId: deleteAlert
+  /notifications/farmer/{farmerId}:
+    get:
+      tags: [Notifications]
+      summary: Get farmer notifications
+      description: |
+        Get notifications for a specific farmer.
+        الحصول على إشعارات مزارع محدد.
+      operationId: getFarmerNotifications
       parameters:
-        - name: alert_id
+        - name: farmerId
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/NotificationType'
+        - name: read
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationListResponse'
+      security:
+        - bearerAuth: []
+
+  /notifications/{notificationId}/read:
+    patch:
+      tags: [Notifications]
+      summary: Mark notification as read
+      description: Mark a notification as read
+      operationId: markNotificationRead
+      parameters:
+        - name: notificationId
           in: path
           required: true
           schema:
             type: string
             format: uuid
-        - $ref: '#/components/parameters/TenantId'
       responses:
         '200':
-          description: Alert deleted successfully
+          description: Notification marked as read
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: deleted
-                  alert_id:
-                    type: string
+                $ref: '#/components/schemas/Notification'
         '404':
           $ref: '#/components/responses/NotFound'
       security:
         - bearerAuth: []
 
-  /alerts/field/{field_id}:
+  /notifications/register:
+    post:
+      tags: [Notifications]
+      summary: Register farmer for notifications
+      description: |
+        Register a farmer profile for receiving notifications.
+        تسجيل ملف مزارع لتلقي الإشعارات.
+      operationId: registerFarmerNotifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FarmerProfileRequest'
+      responses:
+        '201':
+          description: Farmer registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FarmerProfile'
+      security:
+        - bearerAuth: []
+
+  /notifications/stats:
+    get:
+      tags: [Notifications]
+      summary: Get notification statistics
+      description: Get statistics about sent notifications
+      operationId: getNotificationStats
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Notification statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationStats'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # ALERT ENDPOINTS (alert-service - Port 8113)
+  # ============================================================================
+  /alerts:
     get:
       tags: [Alerts]
-      summary: Get field alerts
-      description: Get all alerts for a specific field - تنبيهات حقل معين
-      operationId: getFieldAlerts
+      summary: List alerts
+      description: |
+        Get list of active alerts.
+        قائمة التنبيهات النشطة.
+      operationId: listAlerts
       parameters:
-        - name: field_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: status
-          in: query
-          schema:
-            $ref: '#/components/schemas/AlertStatus'
-        - name: severity
-          in: query
-          schema:
-            $ref: '#/components/schemas/AlertSeverity'
+        - $ref: '#/components/parameters/TenantId'
         - name: type
           in: query
           schema:
             $ref: '#/components/schemas/AlertType'
-        - name: skip
+        - name: severity
           in: query
           schema:
-            type: integer
-            default: 0
-        - name: limit
+            $ref: '#/components/schemas/AlertSeverity'
+        - name: status
           in: query
           schema:
-            type: integer
-            default: 50
-            maximum: 100
-        - $ref: '#/components/parameters/TenantId'
+            $ref: '#/components/schemas/AlertStatus'
       responses:
         '200':
-          description: Alerts retrieved successfully
+          description: List of alerts
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedAlerts'
+                $ref: '#/components/schemas/AlertListResponse'
       security:
         - bearerAuth: []
 
-  /alerts/{alert_id}/acknowledge:
     post:
       tags: [Alerts]
+      summary: Create alert
+      description: |
+        Create a new alert.
+        إنشاء تنبيه جديد.
+      operationId: createAlert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAlertRequest'
+      responses:
+        '201':
+          description: Alert created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+      security:
+        - bearerAuth: []
+
+  /alerts/{alertId}:
+    get:
+      tags: [Alerts]
+      summary: Get alert by ID
+      description: Get alert details
+      operationId: getAlert
+      parameters:
+        - $ref: '#/components/parameters/AlertId'
+      responses:
+        '200':
+          description: Alert details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  /alerts/{alertId}/acknowledge:
+    patch:
+      tags: [Alerts]
       summary: Acknowledge alert
-      description: Acknowledge an alert - الإقرار بتنبيه
+      description: Mark alert as acknowledged
       operationId: acknowledgeAlert
       parameters:
-        - name: alert_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: user_id
-          in: query
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/AlertId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcknowledgeAlertRequest'
       responses:
         '200':
           description: Alert acknowledged
@@ -749,34 +739,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Alert'
-        '404':
-          $ref: '#/components/responses/NotFound'
       security:
         - bearerAuth: []
 
-  /alerts/{alert_id}/resolve:
-    post:
+  /alerts/{alertId}/resolve:
+    patch:
       tags: [Alerts]
       summary: Resolve alert
-      description: Mark alert as resolved - حل تنبيه
+      description: Mark alert as resolved
       operationId: resolveAlert
       parameters:
-        - name: alert_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: user_id
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: note
-          in: query
-          schema:
-            type: string
-        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/AlertId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolveAlertRequest'
       responses:
         '200':
           description: Alert resolved
@@ -784,36 +763,96 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Alert'
-        '404':
-          $ref: '#/components/responses/NotFound'
       security:
         - bearerAuth: []
 
-  /alerts/stats:
+  /alerts/active:
     get:
       tags: [Alerts]
-      summary: Get alert statistics
-      description: Get alert statistics - إحصائيات التنبيهات
-      operationId: getAlertStats
+      summary: Get active alerts
+      description: Get all active (unresolved) alerts
+      operationId: getActiveAlerts
       parameters:
-        - name: field_id
-          in: query
-          schema:
-            type: string
-        - name: period
-          in: query
-          schema:
-            type: string
-            enum: [7d, 30d, 90d]
-            default: 30d
         - $ref: '#/components/parameters/TenantId'
       responses:
         '200':
-          description: Statistics retrieved
+          description: Active alerts
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AlertStats'
+                $ref: '#/components/schemas/AlertListResponse'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # AUDIT ENDPOINTS (audit-service - Port 8114)
+  # ============================================================================
+  /audit:
+    get:
+      tags: [Audit]
+      summary: Get audit logs
+      description: |
+        Get audit trail for compliance. Admin only.
+        سجل التدقيق للامتثال (للمدراء فقط).
+      operationId: getAuditLogs
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: entityType
+          in: query
+          schema:
+            type: string
+            enum: [user, field, task, billing, notification]
+        - name: entityId
+          in: query
+          schema:
+            type: string
+        - name: action
+          in: query
+          schema:
+            type: string
+            enum: [create, update, delete, login, logout]
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Audit logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogListResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Audit]
+      summary: Create audit entry
+      description: Record an audit entry (internal use)
+      operationId: createAuditEntry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAuditEntryRequest'
+      responses:
+        '201':
+          description: Audit entry created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditEntry'
       security:
         - bearerAuth: []
 
@@ -823,8 +862,8 @@ paths:
   /health:
     get:
       tags: [Health]
-      summary: Health check
-      description: Service health check
+      summary: Combined health check
+      description: Get combined health status
       operationId: healthCheck
       responses:
         '200':
@@ -832,18 +871,41 @@ paths:
           content:
             application/json:
               schema:
+                $ref: '#/components/schemas/HealthResponse'
+      security: []
+
+  /healthz:
+    get:
+      tags: [Health]
+      summary: Liveness probe
+      description: Kubernetes liveness probe endpoint
+      operationId: livenessProbe
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
                 type: object
                 properties:
                   status:
                     type: string
-                    example: healthy
-                  service:
-                    type: string
-                  version:
-                    type: string
-                  timestamp:
-                    type: string
-                    format: date-time
+                    example: ok
+      security: []
+
+  /readyz:
+    get:
+      tags: [Health]
+      summary: Readiness probe
+      description: Kubernetes readiness probe endpoint
+      operationId: readinessProbe
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
       security: []
 
 components:
@@ -852,11 +914,11 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: JWT token obtained from /auth/login endpoint
+      description: JWT access token
 
   parameters:
     TenantId:
-      name: X-Tenant-Id
+      name: X-Tenant-ID
       in: header
       required: true
       description: Tenant identifier for multi-tenancy
@@ -864,9 +926,84 @@ components:
         type: string
         format: uuid
 
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    AlertId:
+      name: alertId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    Limit:
+      name: limit
+      in: query
+      description: Maximum number of items to return
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    Offset:
+      name: offset
+      in: query
+      description: Number of items to skip
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
   schemas:
-    # User Schemas
-    User:
+    # ========== Authentication Schemas ==========
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@sahool.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: SecurePassword123!
+
+    RegisterRequest:
+      type: object
+      required: [tenantId, email, password, firstName, lastName]
+      properties:
+        tenantId:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          example: "+966501234567"
+        password:
+          type: string
+          format: password
+          minLength: 8
+        firstName:
+          type: string
+          maxLength: 50
+        lastName:
+          type: string
+          maxLength: 50
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+    RegisterResponse:
       type: object
       properties:
         id:
@@ -874,20 +1011,124 @@ components:
           format: uuid
         email:
           type: string
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        message:
+          type: string
+          example: Verification email sent
+
+    RefreshTokenRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+
+    ForgotPasswordRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
           format: email
+
+    ResetPasswordRequest:
+      type: object
+      required: [token, newPassword]
+      properties:
+        token:
+          type: string
+        newPassword:
+          type: string
+          format: password
+          minLength: 8
+
+    SendOtpRequest:
+      type: object
+      properties:
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+
+    VerifyOtpRequest:
+      type: object
+      required: [otp]
+      properties:
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        otp:
+          type: string
+          minLength: 6
+          maxLength: 6
+
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+        refresh_token:
+          type: string
+          description: JWT refresh token for token rotation
+        expires_in:
+          type: integer
+          description: Token expiration time in seconds
+          example: 1800
+        token_type:
+          type: string
+          example: Bearer
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    # ========== User Schemas ==========
+    UserRole:
+      type: string
+      enum: [ADMIN, MANAGER, FARMER, WORKER, VIEWER]
+      description: |
+        - ADMIN: Full system access
+        - MANAGER: Tenant management
+        - FARMER: Field and crop management
+        - WORKER: Task execution
+        - VIEWER: Read-only access
+
+    UserStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE, SUSPENDED, PENDING]
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
         firstName:
           type: string
         lastName:
           type: string
         role:
-          type: string
-          enum: [FARMER, AGRONOMIST, ADMIN, FIELD_MANAGER]
-        tenantId:
-          type: string
-          format: uuid
+          $ref: '#/components/schemas/UserRole'
         status:
+          $ref: '#/components/schemas/UserStatus'
+        emailVerified:
+          type: boolean
+        phoneVerified:
+          type: boolean
+        lastLoginAt:
           type: string
-          enum: [active, inactive, pending]
+          format: date-time
         createdAt:
           type: string
           format: date-time
@@ -895,75 +1136,288 @@ components:
           type: string
           format: date-time
 
-    UserProfile:
+    CreateUserRequest:
       type: object
-      properties:
-        id:
-          type: string
-        email:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-        role:
-          type: string
-        tenantId:
-          type: string
-
-    CreateUser:
-      type: object
-      required: [email, firstName, lastName, password]
+      required: [email, password, firstName, lastName]
       properties:
         email:
           type: string
           format: email
-        firstName:
-          type: string
-        lastName:
+        phone:
           type: string
         password:
           type: string
           format: password
           minLength: 8
+        firstName:
+          type: string
+        lastName:
+          type: string
         role:
-          type: string
-          enum: [FARMER, AGRONOMIST, ADMIN, FIELD_MANAGER]
-        tenantId:
-          type: string
-          format: uuid
+          $ref: '#/components/schemas/UserRole'
+        status:
+          $ref: '#/components/schemas/UserStatus'
 
-    UpdateUser:
+    UpdateUserRequest:
       type: object
       properties:
         firstName:
           type: string
         lastName:
           type: string
+        phone:
+          type: string
         role:
-          type: string
+          $ref: '#/components/schemas/UserRole'
         status:
-          type: string
+          $ref: '#/components/schemas/UserStatus'
 
-    # Notification Schemas
+    UserListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserProfile'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    # ========== Notification Schemas ==========
     NotificationType:
       type: string
       enum:
-        - weather_alert
-        - pest_outbreak
-        - irrigation_reminder
-        - crop_health
-        - market_price
-        - system
-        - task_reminder
+        - WEATHER_ALERT
+        - LOW_STOCK
+        - DISEASE_DETECTED
+        - SPRAY_WINDOW
+        - HARVEST_REMINDER
+        - PAYMENT_DUE
+        - FIELD_UPDATE
+        - SATELLITE_READY
+        - PEST_OUTBREAK
+        - IRRIGATION_REMINDER
+        - MARKET_PRICE
+        - CROP_HEALTH
+        - TASK_REMINDER
+        - SYSTEM
 
     NotificationPriority:
       type: string
-      enum: [low, medium, high, critical]
+      enum: [LOW, MEDIUM, HIGH, CRITICAL]
 
     NotificationChannel:
       type: string
-      enum: [push, sms, email, whatsapp, in_app]
+      enum: [PUSH, SMS, EMAIL, WHATSAPP, IN_APP]
+
+    Governorate:
+      type: string
+      enum:
+        - sanaa
+        - aden
+        - taiz
+        - hodeidah
+        - ibb
+        - dhamar
+        - hadramout
+        - hajjah
+        - lahj
+        - marib
+        - shabwah
+        - amran
+        - saadah
+        - abyan
+        - bayda
+        - mahwit
+        - mahrah
+        - raymah
+        - jawf
+        - dhale
+        - socotra
+
+    CropType:
+      type: string
+      enum:
+        - wheat
+        - barley
+        - date_palm
+        - tomato
+        - cucumber
+        - potato
+        - onion
+        - mango
+        - banana
+        - coffee
+        - grape
+        - citrus
+        - pomegranate
+        - alfalfa
+        - corn
+        - sesame
+        - sorghum
+        - qat
+
+    CreateNotificationRequest:
+      type: object
+      required: [type, title, titleAr, body, bodyAr]
+      properties:
+        type:
+          $ref: '#/components/schemas/NotificationType'
+        priority:
+          $ref: '#/components/schemas/NotificationPriority'
+        title:
+          type: string
+          maxLength: 100
+        titleAr:
+          type: string
+          maxLength: 100
+          description: Arabic title - العنوان بالعربية
+        body:
+          type: string
+          maxLength: 500
+        bodyAr:
+          type: string
+          maxLength: 500
+          description: Arabic body - المحتوى بالعربية
+        data:
+          type: object
+          additionalProperties: true
+        targetFarmers:
+          type: array
+          items:
+            type: string
+        targetGovernorates:
+          type: array
+          items:
+            $ref: '#/components/schemas/Governorate'
+        targetCrops:
+          type: array
+          items:
+            $ref: '#/components/schemas/CropType'
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationChannel'
+          default: [IN_APP]
+        expiresInHours:
+          type: integer
+          default: 24
+
+    WeatherAlertRequest:
+      type: object
+      required: [governorates, alertType, severity, expectedDate]
+      properties:
+        governorates:
+          type: array
+          items:
+            $ref: '#/components/schemas/Governorate'
+        alertType:
+          type: string
+          enum: [frost, heat_wave, storm, flood, drought, heavy_rain, dust_storm]
+        severity:
+          $ref: '#/components/schemas/NotificationPriority'
+        expectedDate:
+          type: string
+          format: date
+        details:
+          type: object
+          additionalProperties: true
+
+    PestAlertRequest:
+      type: object
+      required: [governorate, pestName, pestNameAr, affectedCrops, severity]
+      properties:
+        governorate:
+          $ref: '#/components/schemas/Governorate'
+        pestName:
+          type: string
+        pestNameAr:
+          type: string
+        affectedCrops:
+          type: array
+          items:
+            $ref: '#/components/schemas/CropType'
+        severity:
+          $ref: '#/components/schemas/NotificationPriority'
+
+    IrrigationReminderRequest:
+      type: object
+      required: [farmerId, fieldId, fieldName, crop, waterNeededMm]
+      properties:
+        farmerId:
+          type: string
+        fieldId:
+          type: string
+        fieldName:
+          type: string
+        crop:
+          $ref: '#/components/schemas/CropType'
+        waterNeededMm:
+          type: number
+          format: float
+        urgency:
+          $ref: '#/components/schemas/NotificationPriority'
+
+    FarmerProfileRequest:
+      type: object
+      required: [farmerId, name, nameAr, governorate, crops]
+      properties:
+        farmerId:
+          type: string
+        name:
+          type: string
+        nameAr:
+          type: string
+        governorate:
+          $ref: '#/components/schemas/Governorate'
+        crops:
+          type: array
+          items:
+            $ref: '#/components/schemas/CropType'
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        fcmToken:
+          type: string
+        language:
+          type: string
+          default: ar
+          enum: [ar, en]
+
+    FarmerProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        farmerId:
+          type: string
+        name:
+          type: string
+        nameAr:
+          type: string
+        governorate:
+          $ref: '#/components/schemas/Governorate'
+        crops:
+          type: array
+          items:
+            $ref: '#/components/schemas/CropType'
+        phone:
+          type: string
+        email:
+          type: string
+        fcmToken:
+          type: string
+        language:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
 
     Notification:
       type: object
@@ -971,129 +1425,142 @@ components:
         id:
           type: string
           format: uuid
+        tenantId:
+          type: string
+        userId:
+          type: string
         type:
           $ref: '#/components/schemas/NotificationType'
-        type_ar:
-          type: string
         priority:
           $ref: '#/components/schemas/NotificationPriority'
-        priority_ar:
-          type: string
         title:
           type: string
-        title_ar:
+        titleAr:
           type: string
         body:
           type: string
-        body_ar:
+        bodyAr:
           type: string
+        channel:
+          $ref: '#/components/schemas/NotificationChannel'
+        status:
+          type: string
+          enum: [pending, sent, delivered, read, failed, expired]
         data:
           type: object
-        is_read:
-          type: boolean
-        created_at:
+        actionUrl:
+          type: string
+        sentAt:
           type: string
           format: date-time
-        expires_at:
+        readAt:
           type: string
           format: date-time
-        action_url:
+        expiresAt:
           type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
 
-    CreateNotification:
+    NotificationListResponse:
       type: object
-      required: [type, title, title_ar, body, body_ar]
       properties:
-        type:
-          $ref: '#/components/schemas/NotificationType'
-        priority:
-          $ref: '#/components/schemas/NotificationPriority'
-        title:
-          type: string
-        title_ar:
-          type: string
-        body:
-          type: string
-        body_ar:
-          type: string
         data:
-          type: object
-        target_farmers:
           type: array
           items:
-            type: string
-        target_governorates:
-          type: array
-          items:
-            type: string
-        target_crops:
-          type: array
-          items:
-            type: string
-        channels:
-          type: array
-          items:
-            $ref: '#/components/schemas/NotificationChannel'
-        expires_in_hours:
+            $ref: '#/components/schemas/Notification'
+        total:
+          type: integer
+        unreadCount:
+          type: integer
+        limit:
+          type: integer
+        offset:
           type: integer
 
-    NotificationResponse:
+    NotificationStats:
       type: object
       properties:
-        id:
-          type: string
-        type:
-          type: string
-        title:
-          type: string
-        title_ar:
-          type: string
-        body:
-          type: string
-        body_ar:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-
-    WeatherAlert:
-      type: object
-      required: [governorates, alert_type, severity, expected_date]
-      properties:
-        governorates:
-          type: array
-          items:
-            type: string
-        alert_type:
-          type: string
-          enum: [frost, heat_wave, storm, flood, drought]
-        severity:
-          $ref: '#/components/schemas/NotificationPriority'
-        expected_date:
-          type: string
-          format: date
-        details:
+        totalFeedback:
+          type: integer
+        averageRating:
+          type: number
+          format: float
+        successRate:
+          type: number
+          format: float
+        thumbsUpCount:
+          type: integer
+        thumbsDownCount:
+          type: integer
+        byRecommendationType:
           type: object
+          additionalProperties:
+            type: object
+            properties:
+              count:
+                type: integer
+              averageRating:
+                type: number
+              positive:
+                type: integer
+              negative:
+                type: integer
 
-    # Alert Schemas
+    # ========== Alert Schemas ==========
     AlertType:
       type: string
-      enum:
-        - ndvi_anomaly
-        - weather
-        - pest
-        - disease
-        - soil_moisture
-        - irrigation
-        - general
+      enum: [weather, pest, disease, irrigation, equipment, system]
 
     AlertSeverity:
       type: string
-      enum: [low, medium, high, critical]
+      enum: [info, warning, critical, emergency]
 
     AlertStatus:
       type: string
-      enum: [active, acknowledged, resolved, dismissed, expired]
+      enum: [active, acknowledged, resolved, expired]
+
+    CreateAlertRequest:
+      type: object
+      required: [type, severity, title, message]
+      properties:
+        type:
+          $ref: '#/components/schemas/AlertType'
+        severity:
+          $ref: '#/components/schemas/AlertSeverity'
+        title:
+          type: string
+        titleAr:
+          type: string
+        message:
+          type: string
+        messageAr:
+          type: string
+        fieldId:
+          type: string
+          format: uuid
+        metadata:
+          type: object
+          additionalProperties: true
+
+    AcknowledgeAlertRequest:
+      type: object
+      required: [acknowledgedBy]
+      properties:
+        acknowledgedBy:
+          type: string
+        notes:
+          type: string
+
+    ResolveAlertRequest:
+      type: object
+      required: [resolution, resolvedBy]
+      properties:
+        resolution:
+          type: string
+        resolvedBy:
+          type: string
 
     Alert:
       type: object
@@ -1101,9 +1568,7 @@ components:
         id:
           type: string
           format: uuid
-        field_id:
-          type: string
-        tenant_id:
+        tenantId:
           type: string
         type:
           $ref: '#/components/schemas/AlertType'
@@ -1113,212 +1578,214 @@ components:
           $ref: '#/components/schemas/AlertStatus'
         title:
           type: string
-        title_en:
+        titleAr:
           type: string
         message:
           type: string
-        message_en:
+        messageAr:
           type: string
-        recommendations:
-          type: array
-          items:
-            type: string
-        recommendations_en:
-          type: array
-          items:
-            type: string
+        fieldId:
+          type: string
         metadata:
           type: object
-        source_service:
+        acknowledgedBy:
           type: string
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
+        acknowledgedAt:
           type: string
           format: date-time
-        acknowledged_at:
+        acknowledgeNotes:
+          type: string
+        resolvedBy:
+          type: string
+        resolvedAt:
           type: string
           format: date-time
-        resolved_at:
+        resolution:
+          type: string
+        createdAt:
           type: string
           format: date-time
-        expires_at:
-          type: string
-          format: date-time
-
-    CreateAlert:
-      type: object
-      required: [field_id, tenant_id, type, severity, title, title_en, message, message_en]
-      properties:
-        field_id:
-          type: string
-        tenant_id:
-          type: string
-        type:
-          $ref: '#/components/schemas/AlertType'
-        severity:
-          $ref: '#/components/schemas/AlertSeverity'
-        title:
-          type: string
-        title_en:
-          type: string
-        message:
-          type: string
-        message_en:
-          type: string
-        recommendations:
-          type: array
-          items:
-            type: string
-        recommendations_en:
-          type: array
-          items:
-            type: string
-        metadata:
-          type: object
-        expires_at:
+        expiresAt:
           type: string
           format: date-time
 
-    UpdateAlert:
+    AlertListResponse:
       type: object
       properties:
-        status:
-          $ref: '#/components/schemas/AlertStatus'
-        acknowledged_by:
-          type: string
-        resolved_by:
-          type: string
-        dismissed_by:
-          type: string
-        resolution_note:
-          type: string
-
-    PaginatedAlerts:
-      type: object
-      properties:
-        items:
+        data:
           type: array
           items:
             $ref: '#/components/schemas/Alert'
         total:
           type: integer
-        skip:
+        activeCount:
+          type: integer
+        criticalCount:
+          type: integer
+
+    # ========== Audit Schemas ==========
+    CreateAuditEntryRequest:
+      type: object
+      required: [action, entityType, entityId]
+      properties:
+        action:
+          type: string
+          enum: [create, update, delete, login, logout, view, export]
+        entityType:
+          type: string
+        entityId:
+          type: string
+        userId:
+          type: string
+        details:
+          type: object
+        ipAddress:
+          type: string
+
+    AuditEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+        userId:
+          type: string
+        action:
+          type: string
+        entityType:
+          type: string
+        entityId:
+          type: string
+        details:
+          type: object
+        ipAddress:
+          type: string
+        userAgent:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    AuditLogListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEntry'
+        total:
           type: integer
         limit:
           type: integer
-        has_more:
-          type: boolean
+        offset:
+          type: integer
 
-    AlertStats:
+    # ========== Health & Common Schemas ==========
+    HealthResponse:
       type: object
       properties:
-        total_alerts:
+        status:
+          type: string
+          example: ok
+        service:
+          type: string
+        version:
+          type: string
+          example: "16.0.0"
+        uptime:
           type: integer
-        active_alerts:
-          type: integer
-        by_type:
-          type: object
-        by_severity:
-          type: object
-        by_status:
-          type: object
-        acknowledged_rate:
-          type: number
-        resolved_rate:
-          type: number
-        average_resolution_hours:
-          type: number
+          description: Uptime in seconds
 
-    # Error Schema
-    Error:
+    ReadinessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        database:
+          type: boolean
+        nats:
+          type: boolean
+        redis:
+          type: boolean
+
+    SuccessResponse:
       type: object
       properties:
         success:
           type: boolean
-          example: false
+          example: true
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
         error:
           type: string
         message:
           type: string
-        statusCode:
-          type: integer
         details:
           type: object
 
   responses:
-    BadRequest:
-      description: Bad request - Invalid input
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            success: false
-            error: Validation failed
-            statusCode: 400
-
     Unauthorized:
-      description: Unauthorized - Authentication required
+      description: Authentication required or token invalid
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/ErrorResponse'
           example:
-            success: false
-            error: Unauthorized
-            statusCode: 401
+            error: UNAUTHORIZED
+            message: Invalid or expired token
 
     Forbidden:
-      description: Forbidden - Insufficient permissions
+      description: Insufficient permissions
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/ErrorResponse'
           example:
-            success: false
-            error: Forbidden
-            statusCode: 403
+            error: FORBIDDEN
+            message: You do not have permission to perform this action
 
     NotFound:
-      description: Not Found - Resource not found
+      description: Resource not found
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/ErrorResponse'
           example:
-            success: false
-            error: Resource not found
-            statusCode: 404
+            error: NOT_FOUND
+            message: Resource not found
+
+    ValidationError:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: VALIDATION_ERROR
+            message: Invalid request parameters
+            details:
+              email: Must be a valid email address
 
     TooManyRequests:
-      description: Too Many Requests - Rate limit exceeded
-      headers:
-        X-RateLimit-Limit:
-          schema:
-            type: integer
-          description: Request limit per minute
-        X-RateLimit-Remaining:
-          schema:
-            type: integer
-          description: Remaining requests
-        X-RateLimit-Reset:
-          schema:
-            type: integer
-          description: Unix timestamp when limit resets
-        Retry-After:
-          schema:
-            type: integer
-          description: Seconds to wait before retry
+      description: Rate limit exceeded
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/ErrorResponse'
           example:
-            success: false
-            error: Rate limit exceeded
-            statusCode: 429
-
-security:
-  - bearerAuth: []
+            error: RATE_LIMIT_EXCEEDED
+            message: Too many requests. Please try again later.
+      headers:
+        X-RateLimit-Limit-Minute:
+          schema:
+            type: integer
+        X-RateLimit-Remaining-Minute:
+          schema:
+            type: integer

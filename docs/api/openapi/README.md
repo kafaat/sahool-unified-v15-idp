@@ -1,26 +1,32 @@
-# SAHOOL AI/ML API Documentation
+# SAHOOL Platform API Documentation | توثيق واجهات برمجة تطبيقات منصة سهول
 
-OpenAPI 3.0 specifications for SAHOOL's AI/ML and Analysis services.
+OpenAPI 3.0.3 specifications for all SAHOOL platform services.
 
-## Overview
+> **Version**: 16.0.0
+> **Last Updated**: 2026-01-24
 
-This directory contains comprehensive OpenAPI/Swagger documentation for SAHOOL's agricultural AI and remote sensing APIs.
+## Overview | نظرة عامة
 
-### API Specifications
+This directory contains comprehensive OpenAPI/Swagger documentation for all SAHOOL agricultural platform APIs, organized by service category.
 
-1. **[ai-services.yaml](./ai-services.yaml)** - AI/ML Services API
-   - Crop Intelligence & Disease Detection
-   - Fertilizer Advisor & NPK Recommendations
-   - Yield Prediction with ML Models
+## API Specifications | مواصفات واجهات البرمجة
 
-2. **[analysis-services.yaml](./analysis-services.yaml)** - Analysis Services API
-   - NDVI Analysis & Vegetation Monitoring
-   - Satellite Imagery (Sentinel-2, Landsat, MODIS)
-   - LAI Estimation & Time Series Analysis
+| File | Services | Description | الوصف |
+|------|----------|-------------|-------|
+| **[core-services.yaml](./core-services.yaml)** | user-service, notification-service, alert-service, audit-service | Authentication, Users, Notifications, Alerts, Audit | المصادقة، المستخدمين، الإشعارات، التنبيهات، التدقيق |
+| **[field-services.yaml](./field-services.yaml)** | field-management-service | Field CRUD, Boundaries, NDVI, Geospatial | إدارة الحقول، الحدود، مؤشر الغطاء النباتي |
+| **[weather-services.yaml](./weather-services.yaml)** | weather-service, weather-core | Weather Assessment, Forecasts, ET0, GDD, Frost/Heat Risk | تقييم الطقس، التنبؤات، البخر-نتح، مخاطر الصقيع والحرارة |
+| **[ai-services.yaml](./ai-services.yaml)** | advisory-service, crop-intelligence-service, ai-advisor, agro-advisor | Disease Detection, Fertilizer Recommendations, Crop Health AI | اكتشاف الأمراض، توصيات الأسمدة، ذكاء صحة المحاصيل |
+| **[analysis-services.yaml](./analysis-services.yaml)** | vegetation-analysis-service, indicators-service, field-intelligence, virtual-sensors | NDVI Analysis, Satellite Imagery, LAI Estimation, Virtual Sensors | تحليل الغطاء النباتي، صور الأقمار الصناعية، المستشعرات الافتراضية |
+| **[iot-services.yaml](./iot-services.yaml)** | iot-service, iot-gateway, ws-gateway | Device Management, Sensor Data, WebSocket Events | إدارة الأجهزة، بيانات المستشعرات، أحداث WebSocket |
+| **[marketplace-services.yaml](./marketplace-services.yaml)** | marketplace-service, community-chat, research-core, disaster-assessment | Products, Orders, Community Posts, Research Trials, Disaster Assessment | المنتجات، الطلبات، منشورات المجتمع، التجارب البحثية، تقييم الكوارث |
+| **[billing-services.yaml](./billing-services.yaml)** | billing-core | Plans, Subscriptions, Invoices, Payments, Usage | الخطط، الاشتراكات، الفواتير، المدفوعات، الاستخدام |
+| **[task-services.yaml](./task-services.yaml)** | task-service, equipment-service, inventory-service | Tasks, Equipment, Inventory, Maintenance | المهام، المعدات، المخزون، الصيانة |
+| **[agent-services.yaml](./agent-services.yaml)** | agent-registry, ai-agents-core, ai-agents-service, knowledge-graph, mcp-server, skills-service | AI Agents, Knowledge Graph, MCP Tools, Skills | وكلاء الذكاء الاصطناعي، رسم المعرفة، أدوات MCP، المهارات |
 
-## Quick Start
+## Quick Start | البدء السريع
 
-### Viewing the Documentation
+### Viewing the Documentation | عرض التوثيق
 
 #### Option 1: Swagger UI (Recommended)
 
@@ -28,11 +34,10 @@ This directory contains comprehensive OpenAPI/Swagger documentation for SAHOOL's
 # Install swagger-ui
 npm install -g swagger-ui-watcher
 
-# View AI Services API
-swagger-ui-watcher docs/api/openapi/ai-services.yaml
-
-# View Analysis Services API
-swagger-ui-watcher docs/api/openapi/analysis-services.yaml
+# View any specification
+swagger-ui-watcher docs/api/openapi/core-services.yaml
+swagger-ui-watcher docs/api/openapi/field-services.yaml
+swagger-ui-watcher docs/api/openapi/weather-services.yaml
 ```
 
 Open your browser to `http://localhost:8000`
@@ -44,8 +49,8 @@ Open your browser to `http://localhost:8000`
 npm install -g redoc-cli
 
 # Generate HTML documentation
+redoc-cli bundle docs/api/openapi/core-services.yaml -o core-services.html
 redoc-cli bundle docs/api/openapi/ai-services.yaml -o ai-services.html
-redoc-cli bundle docs/api/openapi/analysis-services.yaml -o analysis-services.html
 ```
 
 #### Option 3: Online Swagger Editor
@@ -53,7 +58,7 @@ redoc-cli bundle docs/api/openapi/analysis-services.yaml -o analysis-services.ht
 1. Go to https://editor.swagger.io/
 2. File → Import file → Select the YAML file
 
-### Generating Client SDKs
+### Generating Client SDKs | إنشاء مكتبات العملاء
 
 #### Python Client
 
@@ -61,168 +66,87 @@ redoc-cli bundle docs/api/openapi/analysis-services.yaml -o analysis-services.ht
 # Install OpenAPI Generator
 npm install -g @openapitools/openapi-generator-cli
 
-# Generate Python client for AI Services
+# Generate Python client
 openapi-generator-cli generate \
-  -i docs/api/openapi/ai-services.yaml \
+  -i docs/api/openapi/core-services.yaml \
   -g python \
-  -o clients/python/sahool-ai-client \
-  --additional-properties=packageName=sahool_ai
+  -o clients/python/sahool-core-client \
+  --additional-properties=packageName=sahool_core
 
-# Generate Python client for Analysis Services
-openapi-generator-cli generate \
-  -i docs/api/openapi/analysis-services.yaml \
-  -g python \
-  -o clients/python/sahool-analysis-client \
-  --additional-properties=packageName=sahool_analysis
+# Generate for all services
+for spec in core-services field-services weather-services ai-services analysis-services iot-services marketplace-services billing-services task-services agent-services; do
+  openapi-generator-cli generate \
+    -i docs/api/openapi/${spec}.yaml \
+    -g python \
+    -o clients/python/sahool-${spec%-services}-client \
+    --additional-properties=packageName=sahool_${spec%-services}
+done
 ```
 
-#### JavaScript/TypeScript Client
+#### TypeScript/JavaScript Client
 
 ```bash
-# Generate TypeScript client for AI Services
+# Generate TypeScript Axios client
 openapi-generator-cli generate \
-  -i docs/api/openapi/ai-services.yaml \
+  -i docs/api/openapi/core-services.yaml \
   -g typescript-axios \
-  -o clients/typescript/sahool-ai-client
-
-# Generate TypeScript client for Analysis Services
-openapi-generator-cli generate \
-  -i docs/api/openapi/analysis-services.yaml \
-  -g typescript-axios \
-  -o clients/typescript/sahool-analysis-client
+  -o clients/typescript/sahool-core-client
 ```
 
-#### Java Client
+## Service Architecture | معمارية الخدمات
 
-```bash
-openapi-generator-cli generate \
-  -i docs/api/openapi/ai-services.yaml \
-  -g java \
-  -o clients/java/sahool-ai-client \
-  --additional-properties=groupId=io.sahool,artifactId=sahool-ai-client
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                      API Gateway (Kong :8000)                        │
+│                     https://api.sahool.sa/api/v1                     │
+└─────────────────────────────────────────────────────────────────────┘
+                                    │
+        ┌───────────────────────────┼───────────────────────────┐
+        │                           │                           │
+        ▼                           ▼                           ▼
+┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐
+│  Core Services   │    │  Field Services  │    │ Weather Services │
+│    (Node.js)     │    │    (Node.js)     │    │    (Python)      │
+└──────────────────┘    └──────────────────┘    └──────────────────┘
+│ user-service:3025│    │field-mgmt:3000   │    │weather:8092      │
+│ alert:8113       │    │                  │    │weather-core:8108 │
+│ notification:8110│    │                  │    │                  │
+│ audit:8114       │    │                  │    │                  │
+└──────────────────┘    └──────────────────┘    └──────────────────┘
+        │                           │                           │
+        ▼                           ▼                           ▼
+┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐
+│   AI Services    │    │ Analysis Services│    │   IoT Services   │
+│    (Python)      │    │    (Python)      │    │  (Python/Node)   │
+└──────────────────┘    └──────────────────┘    └──────────────────┘
+│ advisory:8093    │    │ vegetation:8090  │    │ iot-service:8117 │
+│ crop-intel:8095  │    │ indicators:8091  │    │ iot-gateway:8106 │
+│ ai-advisor:8112  │    │ field-intel:8120 │    │ ws-gateway:8081  │
+│ agro-advisor:8105│    │ virtual-sens:8119│    │                  │
+└──────────────────┘    └──────────────────┘    └──────────────────┘
+        │                           │                           │
+        ▼                           ▼                           ▼
+┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐
+│  Agent Services  │    │ Business Services│    │  Task Services   │
+│    (Python)      │    │    (Node.js)     │    │    (Python)      │
+└──────────────────┘    └──────────────────┘    └──────────────────┘
+│ agent-reg:8160   │    │ marketplace:3010 │    │ task:8103        │
+│ ai-agents:8122   │    │ community:8097   │    │ equipment:8101   │
+│ knowledge:8140   │    │ research:3015    │    │ inventory:8116   │
+│ mcp-server:8200  │    │ disaster:3020    │    │                  │
+│ skills:8121      │    │ billing:8089     │    │                  │
+└──────────────────┘    └──────────────────┘    └──────────────────┘
 ```
 
-## API Services
+## Authentication | المصادقة
 
-### 1. AI Services API
+All API endpoints require JWT authentication via the `Authorization` header unless otherwise specified.
 
-**Base URL**: `https://api.sahool.io/v1`
-
-#### Crop Intelligence
-
-- Disease detection using deep learning
-- Crop health diagnostics
-- Zone-based field analysis
-- VRT export for precision agriculture
-
-**Key Endpoints**:
-
-- `POST /crop-intelligence/disease-detection` - Detect diseases from images
-- `GET /crop-intelligence/fields/{field_id}/diagnosis` - Complete field diagnosis
-- `POST /crop-intelligence/fields/{field_id}/zones/{zone_id}/observations` - Submit observations
-
-#### Fertilizer Advisor
-
-- NPK recommendations
-- Soil analysis interpretation
-- Crop-specific fertilization plans
-- Nutrient deficiency diagnosis
-
-**Key Endpoints**:
-
-- `POST /fertilizer/recommend` - Get fertilizer recommendations
-- `POST /fertilizer/soil-analysis/interpret` - Interpret soil test results
-- `GET /fertilizer/deficiency-symptoms/{crop}` - Get deficiency information
-
-#### Yield Prediction
-
-- ML-powered yield forecasting
-- Revenue estimation
-- Weather and soil integration
-- 30+ Yemen crops supported
-
-**Key Endpoints**:
-
-- `POST /yield/predict` - Predict crop yield
-- `GET /yield/crops` - List supported crops
-- `GET /yield/price/{crop_type}` - Get current prices
-
-### 2. Analysis Services API
-
-**Base URL**: `https://api.sahool.io/v1`
-
-#### NDVI Analysis
-
-- Vegetation health monitoring
-- Anomaly detection
-- Zone-based analysis
-- Statistical trend analysis
-
-**Key Endpoints**:
-
-- `POST /ndvi/compute` - Compute NDVI for field
-- `POST /ndvi/anomaly` - Detect NDVI anomalies
-- `POST /ndvi/zones` - Analyze NDVI zones
-
-#### Vegetation Analysis
-
-- 17+ vegetation indices (NDVI, EVI, SAVI, LAI, NDRE, etc.)
-- Chlorophyll and nitrogen assessment
-- Water stress detection
-- Crop-specific interpretation
-
-**Key Endpoints**:
-
-- `POST /vegetation/indices` - Calculate all indices
-- `POST /vegetation/interpret` - Interpret index values
-
-#### Satellite Imagery
-
-- Multi-source support (Sentinel-2, Landsat-8/9, MODIS)
-- Automatic cloud filtering
-- Band-level data access
-- Temporal compositing
-
-**Key Endpoints**:
-
-- `POST /satellite/imagery` - Acquire satellite imagery
-- `POST /satellite/analyze` - Complete field analysis
-- `GET /satellite/sources` - List available sources
-
-#### LAI Estimation
-
-- Leaf Area Index calculation
-- Growth monitoring
-- Canopy development tracking
-- Time series analysis
-
-**Key Endpoints**:
-
-- `POST /lai/estimate` - Estimate LAI from indices
-- `POST /lai/timeseries` - Get LAI time series
-
-#### Time Series
-
-- Historical vegetation data
-- Multi-index time series
-- Trend analysis
-- Data export (CSV, GeoJSON, NetCDF)
-
-**Key Endpoints**:
-
-- `POST /timeseries/vegetation` - Get vegetation time series
-- `POST /timeseries/export` - Export data
-- `POST /timeseries/compare` - Compare multiple fields
-
-## Authentication
-
-All API endpoints require authentication using JWT Bearer tokens.
-
-### Getting a Token
+### Getting a Token | الحصول على رمز
 
 ```bash
 # Login to get access token
-curl -X POST https://api.sahool.io/v1/auth/login \
+curl -X POST https://api.sahool.sa/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "farmer@example.com",
@@ -230,146 +154,103 @@ curl -X POST https://api.sahool.io/v1/auth/login \
   }'
 ```
 
-### Using the Token
+### Using the Token | استخدام الرمز
 
 ```bash
 # Include token in Authorization header
-curl -X GET https://api.sahool.io/v1/crop-intelligence/fields/field_123/diagnosis?date=2025-12-14 \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+curl -X GET "https://api.sahool.sa/api/v1/fields" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "X-Tenant-ID: your-tenant-id"
 ```
 
-## Rate Limits
+## Rate Limiting | حدود الطلبات
 
-### AI Services
+| Tier | Requests/min | Requests/hour |
+|------|--------------|---------------|
+| Free | 30 | 500 |
+| Standard | 60 | 2000 |
+| Premium | 120 | 5000 |
+| Internal | 1000 | 50000 |
 
-- **Analysis Endpoints**: 100 requests/minute per user
-- **Prediction Endpoints**: 50 requests/minute per user
-- **Batch Operations**: 1000 requests/hour per tenant
+## Common Headers | الرؤوس الشائعة
 
-### Analysis Services
+| Header | Required | Description |
+|--------|----------|-------------|
+| `Authorization` | Yes* | `Bearer <JWT_TOKEN>` |
+| `X-Tenant-ID` | Yes | Tenant identifier (UUID) |
+| `X-Correlation-Id` | No | Request correlation ID for tracing |
+| `Content-Type` | Yes | `application/json` |
+| `Accept-Language` | No | `ar` or `en` for response language |
 
-- **Real-time Analysis**: 50 requests/minute per user
-- **Time Series (Cached)**: 500 requests/minute per user
-- **Data Export**: 20 requests/minute per user
+*Public endpoints (login, register, health) don't require Authorization
 
-## Error Handling
+## Error Responses | استجابات الأخطاء
 
 All APIs use standard HTTP status codes and return errors in this format:
 
 ```json
 {
-  "error": "INVALID_REQUEST",
-  "message": "Invalid crop type specified",
+  "error": "VALIDATION_ERROR",
+  "message": "Invalid request parameters",
+  "message_ar": "معاملات الطلب غير صالحة",
   "details": {
-    "field": "crop_type",
-    "allowed_values": ["wheat", "tomato", "corn", ...]
-  }
+    "field": "email",
+    "reason": "Must be a valid email address"
+  },
+  "request_id": "550e8400-e29b-41d4-a716-446655440000"
 }
 ```
 
-### Common Error Codes
+### Common Error Codes | رموز الأخطاء الشائعة
 
-- `400` - Bad Request (invalid parameters)
-- `401` - Unauthorized (missing or invalid token)
-- `403` - Forbidden (insufficient permissions)
-- `404` - Not Found (resource doesn't exist)
-- `429` - Too Many Requests (rate limit exceeded)
-- `500` - Internal Server Error
-- `503` - Service Unavailable
+| Code | Description | الوصف |
+|------|-------------|-------|
+| `400` | Bad Request (invalid parameters) | طلب غير صالح |
+| `401` | Unauthorized (missing/invalid token) | غير مصرح |
+| `403` | Forbidden (insufficient permissions) | ممنوع |
+| `404` | Not Found | غير موجود |
+| `409` | Conflict (duplicate resource) | تعارض |
+| `429` | Too Many Requests (rate limit) | طلبات كثيرة جداً |
+| `500` | Internal Server Error | خطأ في الخادم |
+| `503` | Service Unavailable | الخدمة غير متاحة |
 
-## Async Job Handling
+## WebSocket Events | أحداث WebSocket
 
-Long-running ML operations (e.g., disease detection on large images) return a job ID:
+Connect to real-time events via WebSocket:
 
-```json
-{
-  "job_id": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "pending",
-  "created_at": "2025-12-14T10:00:00Z"
-}
+```javascript
+const ws = new WebSocket('wss://api.sahool.sa/ws');
+
+// Authenticate
+ws.send(JSON.stringify({
+  type: 'auth',
+  token: 'YOUR_JWT_TOKEN'
+}));
+
+// Subscribe to channels
+ws.send(JSON.stringify({
+  type: 'subscribe',
+  channels: ['field.updates', 'alert.created', 'sensor.reading']
+}));
+
+// Handle events
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log(`Event: ${data.type}`, data.payload);
+};
 ```
 
-Poll for job status:
+### Available Channels | القنوات المتاحة
 
-```bash
-curl -X GET https://api.sahool.io/v1/jobs/550e8400-e29b-41d4-a716-446655440000 \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
+| Channel | Description | الوصف |
+|---------|-------------|-------|
+| `field.updates` | Field data changes | تحديثات بيانات الحقل |
+| `alert.created` | New alerts | تنبيهات جديدة |
+| `sensor.reading` | Sensor data | قراءات المستشعرات |
+| `device.status` | Device status changes | تغييرات حالة الأجهزة |
+| `irrigation.event` | Irrigation events | أحداث الري |
 
-## Examples
-
-### Example 1: Get Field Diagnosis
-
-```bash
-curl -X GET "https://api.sahool.io/v1/crop-intelligence/fields/field_123/diagnosis?date=2025-12-14" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json"
-```
-
-### Example 2: Get Fertilizer Recommendations
-
-```bash
-curl -X POST https://api.sahool.io/v1/fertilizer/recommend \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "field_id": "field_123",
-    "crop": "tomato",
-    "growth_stage": "flowering",
-    "area_hectares": 2.5,
-    "soil_type": "loamy",
-    "target_yield_kg_ha": 40000
-  }'
-```
-
-### Example 3: Predict Crop Yield
-
-```bash
-curl -X POST https://api.sahool.io/v1/yield/predict \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "field_id": "field_123",
-    "area_hectares": 5.0,
-    "crop_type": "wheat",
-    "avg_rainfall": 450,
-    "avg_temperature": 20,
-    "soil_quality": "good",
-    "irrigation_type": "drip"
-  }'
-```
-
-### Example 4: Calculate Vegetation Indices
-
-```bash
-curl -X POST https://api.sahool.io/v1/vegetation/indices \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "red": 0.08,
-    "nir": 0.45,
-    "blue": 0.05,
-    "green": 0.06,
-    "swir": 0.15
-  }'
-```
-
-### Example 5: Get NDVI Time Series
-
-```bash
-curl -X POST https://api.sahool.io/v1/timeseries/vegetation \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "field_id": "field_123",
-    "start_date": "2025-01-01",
-    "end_date": "2025-12-14",
-    "indices": ["ndvi", "evi", "lai"],
-    "interval": "weekly"
-  }'
-```
-
-## Validation
+## Validation | التحقق
 
 Validate your OpenAPI specs:
 
@@ -377,111 +258,78 @@ Validate your OpenAPI specs:
 # Install validator
 npm install -g @apidevtools/swagger-cli
 
-# Validate specs
-swagger-cli validate docs/api/openapi/ai-services.yaml
-swagger-cli validate docs/api/openapi/analysis-services.yaml
+# Validate all specs
+for spec in docs/api/openapi/*.yaml; do
+  echo "Validating $spec..."
+  swagger-cli validate "$spec"
+done
 ```
 
-## Testing
+## Examples | أمثلة
 
-### Using Postman
+### Create a Field | إنشاء حقل
 
-1. Import the OpenAPI spec into Postman:
-   - Click "Import" → "Upload Files"
-   - Select the YAML file
-   - Postman will create a collection with all endpoints
-
-2. Set up environment variables:
-   - `base_url`: `https://api.sahool.io/v1`
-   - `access_token`: Your JWT token
-
-### Using curl
-
-See the examples above.
-
-### Using Python
-
-```python
-import requests
-
-# Setup
-base_url = "https://api.sahool.io/v1"
-token = "YOUR_ACCESS_TOKEN"
-headers = {
-    "Authorization": f"Bearer {token}",
-    "Content-Type": "application/json"
-}
-
-# Get field diagnosis
-response = requests.get(
-    f"{base_url}/crop-intelligence/fields/field_123/diagnosis",
-    headers=headers,
-    params={"date": "2025-12-14"}
-)
-diagnosis = response.json()
-print(f"Critical zones: {diagnosis['summary']['zones_critical']}")
-
-# Predict yield
-response = requests.post(
-    f"{base_url}/yield/predict",
-    headers=headers,
-    json={
-        "field_id": "field_123",
-        "area_hectares": 5.0,
-        "crop_type": "tomato",
-        "avg_rainfall": 450,
-        "avg_temperature": 24,
-        "soil_quality": "good",
-        "irrigation_type": "drip"
+```bash
+curl -X POST "https://api.sahool.sa/api/v1/fields" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Tenant-ID: $TENANT_ID" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "حقل القمح الشمالي",
+    "cropType": "wheat",
+    "areaHectares": 5.5,
+    "irrigationType": "drip",
+    "boundary": {
+      "type": "Polygon",
+      "coordinates": [[[46.7, 24.6], [46.8, 24.6], [46.8, 24.7], [46.7, 24.7], [46.7, 24.6]]]
     }
-)
-prediction = response.json()
-print(f"Predicted yield: {prediction['predicted_yield_tons']} tons")
-print(f"Revenue: ${prediction['estimated_revenue_usd']:,.2f}")
+  }'
 ```
 
-## Service Architecture
+### Get Weather Forecast | الحصول على توقعات الطقس
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    API Gateway (Kong)                        │
-│                  https://api.sahool.io                       │
-└─────────────────────────────────────────────────────────────┘
-                            │
-        ┌───────────────────┴───────────────────┐
-        │                                       │
-        ▼                                       ▼
-┌──────────────────────┐              ┌──────────────────────┐
-│   AI Services API    │              │ Analysis Services API│
-│   (Port 8080)        │              │   (Port 8090)        │
-└──────────────────────┘              └──────────────────────┘
-        │                                       │
-        │                                       │
-   ┌────┴────┐                          ┌──────┴──────┐
-   │         │                          │             │
-   ▼         ▼                          ▼             ▼
-┌────────┐ ┌─────────┐         ┌─────────┐    ┌──────────┐
-│  Crop  │ │Fertilizer│         │  NDVI   │    │Satellite │
-│Intell. │ │ Advisor  │         │ Engine  │    │ Service  │
-│  :8095 │ │  :8093   │         │  :8097  │    │  :8090   │
-└────────┘ └─────────┘         └─────────┘    └──────────┘
-     │           │                    │              │
-     ▼           ▼                    ▼              ▼
-┌────────┐ ┌─────────┐         ┌─────────┐    ┌──────────┐
-│ Yield  │ │  Soil   │         │  Veg.   │    │   LAI    │
-│ Engine │ │Analysis │         │Analysis │    │Estimator │
-│  :8098 │ │         │         │         │    │          │
-└────────┘ └─────────┘         └─────────┘    └──────────┘
+```bash
+curl -X POST "https://api.sahool.sa/api/v1/weather/forecast" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Tenant-ID: $TENANT_ID" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fieldId": "field-123",
+    "lat": 24.7136,
+    "lon": 46.6753,
+    "days": 7
+  }'
 ```
 
-## Support
+### Get Fertilizer Recommendation | الحصول على توصية الأسمدة
+
+```bash
+curl -X POST "https://api.sahool.sa/api/v1/advisory/fertilizer/plan" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Tenant-ID: $TENANT_ID" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fieldId": "field-123",
+    "crop": "wheat",
+    "stage": "tillering",
+    "fieldSizeHa": 5.5,
+    "soilFertility": "medium",
+    "irrigationType": "drip"
+  }'
+```
+
+## Support | الدعم
 
 For API support and questions:
 
-- Email: support@sahool.io
-- Documentation: https://docs.sahool.io
-- GitHub Issues: https://github.com/sahool/platform/issues
+- **Documentation**: https://docs.sahool.sa
+- **GitHub Issues**: https://github.com/kafaat/sahool-unified-v15-idp/issues
+- **Email**: support@sahool.sa
 
-## License
+## License | الترخيص
 
-Proprietary - Copyright (c) 2025 SAHOOL Platform
+Proprietary - Copyright (c) 2026 KAFAAT / SAHOOL Platform
+
+---
+
+_Last Updated: 2026-01-24_

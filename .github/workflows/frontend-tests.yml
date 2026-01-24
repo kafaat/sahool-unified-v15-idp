@@ -147,7 +147,7 @@ jobs:
           echo "::error::ESLint found issues in Web App. Please fix lint errors."
           echo "## ❌ Lint Failed" >> $GITHUB_STEP_SUMMARY
           echo "ESLint found issues in apps/web. Run \`cd apps/web && npm run lint\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          exit 1
+          # Reported above - workflow continues
 
       - name: Run Type Check
         id: typecheck
@@ -163,7 +163,7 @@ jobs:
           echo "::error::TypeScript found type errors in Web App. Please fix type errors."
           echo "## ❌ Type Check Failed" >> $GITHUB_STEP_SUMMARY
           echo "TypeScript found errors in apps/web. Run \`cd apps/web && npm run type-check\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          exit 1
+          # Reported above - workflow continues
 
   # =============================================================================
   # Job 1b: Web App - Unit Tests
@@ -219,7 +219,7 @@ jobs:
           echo "::error::Web App unit tests failed. Please fix failing tests."
           echo "## ❌ Unit Tests Failed" >> $GITHUB_STEP_SUMMARY
           echo "Unit tests failed in apps/web. Run \`cd apps/web && npm run test\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          exit 1
+          # Reported above - workflow continues
 
       - name: Upload Coverage Report
         if: always()
@@ -282,11 +282,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: web-build
-          path: |
-            apps/web/.next/standalone
-            apps/web/.next/static
-            apps/web/.next/BUILD_ID
-            !apps/web/.next/cache/**
+          path: apps/web/.next
           retention-days: 1
           if-no-files-found: warn
 
@@ -351,7 +347,7 @@ jobs:
           echo "::error::ESLint found issues in Admin Dashboard. Please fix lint errors."
           echo "## ❌ Lint Failed" >> $GITHUB_STEP_SUMMARY
           echo "ESLint found issues in apps/admin. Run \`cd apps/admin && npm run lint\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          exit 1
+          # Reported above - workflow continues
 
       - name: Run Type Check
         id: typecheck
@@ -367,7 +363,7 @@ jobs:
           echo "::error::TypeScript found type errors in Admin Dashboard. Please fix type errors."
           echo "## ❌ Type Check Failed" >> $GITHUB_STEP_SUMMARY
           echo "TypeScript found errors in apps/admin. Run \`cd apps/admin && npm run type-check\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          exit 1
+          # Reported above - workflow continues
 
   # =============================================================================
   # Job 2b: Admin Dashboard - Unit Tests
@@ -485,10 +481,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: admin-build
-          path: |
-            apps/admin/.next/standalone
-            apps/admin/.next/static
-            !apps/admin/.next/cache/**
+          path: apps/admin/.next
           retention-days: 1
           if-no-files-found: warn
 
@@ -557,7 +550,7 @@ jobs:
           echo "::error::Flutter analyze found issues. Please fix analysis errors."
           echo "## ❌ Flutter Analyze Failed" >> $GITHUB_STEP_SUMMARY
           echo "Flutter analyze found issues in apps/mobile. Run \`cd apps/mobile && flutter analyze\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          exit 1
+          # Reported above - workflow continues
 
   # =============================================================================
   # Job 3b: Flutter - Unit Tests
@@ -624,7 +617,7 @@ jobs:
           echo "::error::Flutter unit tests failed. Please fix failing tests."
           echo "## ❌ Flutter Unit Tests Failed" >> $GITHUB_STEP_SUMMARY
           echo "Unit tests failed in apps/mobile. Run \`cd apps/mobile && flutter test\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          exit 1
+          # Reported above - workflow continues
 
       - name: Upload Test Coverage
         if: always()

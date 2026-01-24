@@ -2268,7 +2268,7 @@
   "remindLater": "Remind Later",
   "skipThisVersion": "Skip This Version",
   "exitApp": "Exit App",
-  "whatsNew": "What's New:",
+  "whatsNewTitle": "What''s New:",
   "updateDescription": "A new version of SAHOOL is available.",
   "forceUpdateDescription": "You must update the app to continue using it. This update includes important improvements and security fixes.",
   "majorUpdateDescription": "A new major version is available with significant improvements and new features. We highly recommend updating.",

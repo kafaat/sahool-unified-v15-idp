@@ -77,6 +77,86 @@ field-intelligence/
 
 ## API Endpoints | نقاط النهاية
 
+### Health Check | فحص الصحة
+
+The service provides three Kubernetes-compatible health endpoints:
+
+| Endpoint | Method | Purpose | الوصف |
+|----------|--------|---------|-------|
+| `/health` | GET | Basic liveness check | فحص الحياة الأساسي |
+| `/healthz` | GET | Kubernetes liveness probe | فحص الحياة لـ Kubernetes |
+| `/readyz` | GET | Kubernetes readiness probe | فحص الجاهزية لـ Kubernetes |
+
+#### GET /health
+```json
+{
+    "status": "healthy",
+    "service": "field-intelligence",
+    "version": "16.0.0",
+    "timestamp": "2026-01-24T10:30:00Z"
+}
+```
+
+#### GET /healthz
+Returns service status with component health:
+```json
+{
+    "status": "healthy",
+    "service": "field-intelligence",
+    "version": "16.0.0",
+    "rules_engine": "operational",
+    "event_processor": "operational",
+    "timestamp": "2026-01-24T10:30:00Z"
+}
+```
+
+#### GET /readyz
+Returns readiness with dependency status:
+```json
+{
+    "status": "ready",
+    "database": "connected",
+    "nats": "connected",
+    "rules_loaded": 42,
+    "events_processed": 156
+}
+```
+
+**Readiness Logic:**
+- Service is `ready` if Rules Engine and Event Processor are initialized
+- Database and NATS are optional (graceful degradation)
+- Returns actual connection status from app.state
+
+**Status Values:**
+| Dependency | Values |
+|------------|--------|
+| `database` | `connected`, `disconnected`, `not_configured` |
+| `nats` | `connected`, `disconnected`, `not_configured` |
+
+#### Kubernetes Configuration Example
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8120
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /readyz
+    port: 8120
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+```
+
+---
+
 ### Events
 
 #### Create Event

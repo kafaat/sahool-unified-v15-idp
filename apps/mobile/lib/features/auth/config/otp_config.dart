@@ -686,6 +686,7 @@ class OTPConfigRepository {
 
   /// Fetch remote config in background without waiting
   void _fetchInBackground() {
+    // ignore: unawaited_futures
     fetchRemoteConfig().then((_) {
       if (kDebugMode) {
         AppLogger.d('Background OTP config refresh completed', tag: 'OTPConfig');

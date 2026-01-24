@@ -19,7 +19,7 @@ class NetworkStatus {
 
   void _init() {
     // Check initial status
-    _connectivity.checkConnectivity().then(_updateStatus);
+    unawaited(_connectivity.checkConnectivity().then(_updateStatus));
 
     // Listen for changes
     _subscription = _connectivity.onConnectivityChanged.listen(_updateStatus);

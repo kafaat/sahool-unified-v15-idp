@@ -170,6 +170,7 @@ class _SwipeToDeleteState extends State<SwipeToDelete>
     ).animate(CurvedAnimation(parent: _controller, curve: widget.curve));
 
     _controller.addListener(_updateDragExtent);
+    // ignore: unawaited_futures
     _controller.forward(from: 0).then((_) {
       _controller.removeListener(_updateDragExtent);
       if (!_isDismissed) {

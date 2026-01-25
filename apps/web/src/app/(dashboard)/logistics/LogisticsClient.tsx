@@ -15,31 +15,34 @@ export default function LogisticsClient() {
   const { data: stats } = useLogisticsStats();
 
   const getStatusColor = (status: Shipment["status"]) => {
-    const colors = {
+    const colors: Record<Shipment["status"], string> = {
       pending: "text-yellow-600 bg-yellow-100",
       in_transit: "text-blue-600 bg-blue-100",
       delivered: "text-green-600 bg-green-100",
       delayed: "text-red-600 bg-red-100",
+      cancelled: "text-gray-600 bg-gray-100",
     };
     return colors[status];
   };
 
   const getStatusLabel = (status: Shipment["status"]) => {
-    const labels = {
+    const labels: Record<Shipment["status"], string> = {
       pending: "قيد الانتظار",
       in_transit: "في الطريق",
       delivered: "تم التسليم",
       delayed: "متأخر",
+      cancelled: "ملغي",
     };
     return labels[status];
   };
 
   const getStatusIcon = (status: Shipment["status"]) => {
-    const icons = {
+    const icons: Record<Shipment["status"], React.ReactNode> = {
       pending: <Clock className="w-4 h-4" />,
       in_transit: <Truck className="w-4 h-4" />,
       delivered: <CheckCircle className="w-4 h-4" />,
       delayed: <AlertCircle className="w-4 h-4" />,
+      cancelled: <AlertCircle className="w-4 h-4" />,
     };
     return icons[status];
   };
@@ -117,7 +120,7 @@ export default function LogisticsClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">في الطريق</div>
-              <div className="text-lg font-bold text-blue-600">{stats?.inTransit ?? localStats.inTransit}</div>
+              <div className="text-lg font-bold text-blue-600">{stats?.inTransitShipments ?? localStats.inTransit}</div>
             </div>
           </div>
         </div>
@@ -128,7 +131,7 @@ export default function LogisticsClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">تم التسليم</div>
-              <div className="text-lg font-bold text-green-600">{stats?.delivered ?? localStats.delivered}</div>
+              <div className="text-lg font-bold text-green-600">{stats?.deliveredShipments ?? localStats.delivered}</div>
             </div>
           </div>
         </div>
@@ -139,7 +142,7 @@ export default function LogisticsClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">متأخرة</div>
-              <div className="text-lg font-bold text-red-600">{stats?.delayed ?? localStats.delayed}</div>
+              <div className="text-lg font-bold text-red-600">{stats?.delayedShipments ?? localStats.delayed}</div>
             </div>
           </div>
         </div>
@@ -197,7 +200,7 @@ export default function LogisticsClient() {
                     {shipment.driver && (
                       <div>
                         <div className="text-gray-500">السائق</div>
-                        <div className="font-medium">{shipment.driver}</div>
+                        <div className="font-medium">{shipment.driver.name}</div>
                       </div>
                     )}
                   </div>

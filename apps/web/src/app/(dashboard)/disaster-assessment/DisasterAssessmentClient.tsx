@@ -46,37 +46,41 @@ export default function DisasterAssessmentClient() {
   };
 
   const getSeverityColor = (severity: DisasterEvent["severity"]) => {
-    const colors = {
+    const colors: Record<DisasterEvent["severity"], string> = {
       minor: "text-yellow-600 bg-yellow-100",
       moderate: "text-orange-600 bg-orange-100",
       severe: "text-red-600 bg-red-100",
+      catastrophic: "text-purple-600 bg-purple-100",
     };
     return colors[severity];
   };
 
   const getSeverityLabel = (severity: DisasterEvent["severity"]) => {
-    const labels = {
+    const labels: Record<DisasterEvent["severity"], string> = {
       minor: "طفيف",
       moderate: "متوسط",
       severe: "شديد",
+      catastrophic: "كارثي",
     };
     return labels[severity];
   };
 
   const getStatusColor = (status: DisasterEvent["status"]) => {
-    const colors = {
+    const colors: Record<DisasterEvent["status"], string> = {
       active: "text-red-600 bg-red-100",
       monitoring: "text-blue-600 bg-blue-100",
       resolved: "text-green-600 bg-green-100",
+      closed: "text-gray-600 bg-gray-100",
     };
     return colors[status];
   };
 
   const getStatusLabel = (status: DisasterEvent["status"]) => {
-    const labels = {
+    const labels: Record<DisasterEvent["status"], string> = {
       active: "نشط",
       monitoring: "قيد المراقبة",
       resolved: "تم الحل",
+      closed: "مغلق",
     };
     return labels[status];
   };
@@ -163,7 +167,7 @@ export default function DisasterAssessmentClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">إجمالي المخاطر</div>
-              <div className="text-lg font-bold text-amber-600">{stats?.totalRisks ?? localStats.totalRisks}</div>
+              <div className="text-lg font-bold text-amber-600">{stats?.activeRisks ?? localStats.totalRisks}</div>
             </div>
           </div>
         </div>
@@ -186,7 +190,7 @@ export default function DisasterAssessmentClient() {
             <div>
               <div className="text-sm text-gray-500">الخسائر المحتملة</div>
               <div className="text-lg font-bold text-blue-600">
-                {((stats?.potentialLoss ?? localStats.totalPotentialLoss) / 1000).toFixed(0)}K ريال
+                {((stats?.totalPotentialLoss ?? localStats.totalPotentialLoss) / 1000).toFixed(0)}K ريال
               </div>
             </div>
           </div>

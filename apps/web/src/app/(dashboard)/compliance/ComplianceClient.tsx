@@ -14,39 +14,43 @@ export default function ComplianceClient() {
   const isLoading = complianceLoading || certsLoading;
 
   const getStatusColor = (status: ComplianceItem["status"]) => {
-    const colors = {
+    const colors: Record<ComplianceItem["status"], string> = {
       compliant: "text-green-600 bg-green-100",
       partial: "text-yellow-600 bg-yellow-100",
       non_compliant: "text-red-600 bg-red-100",
       pending_review: "text-blue-600 bg-blue-100",
+      not_applicable: "text-gray-600 bg-gray-100",
     };
     return colors[status];
   };
 
   const getStatusLabel = (status: ComplianceItem["status"]) => {
-    const labels = {
+    const labels: Record<ComplianceItem["status"], string> = {
       compliant: "متوافق",
       partial: "جزئي",
       non_compliant: "غير متوافق",
       pending_review: "قيد المراجعة",
+      not_applicable: "غير مطبق",
     };
     return labels[status];
   };
 
   const getCertStatusColor = (status: Certification["status"]) => {
-    const colors = {
+    const colors: Record<Certification["status"], string> = {
       active: "text-green-600 bg-green-100",
       expired: "text-red-600 bg-red-100",
       pending: "text-yellow-600 bg-yellow-100",
+      revoked: "text-orange-600 bg-orange-100",
     };
     return colors[status];
   };
 
   const getCertStatusLabel = (status: Certification["status"]) => {
-    const labels = {
+    const labels: Record<Certification["status"], string> = {
       active: "نشطة",
       expired: "منتهية",
       pending: "قيد الإصدار",
+      revoked: "ملغاة",
     };
     return labels[status];
   };
@@ -57,8 +61,9 @@ export default function ComplianceClient() {
       : 0;
     const compliantCount = compliance.filter(c => c.status === "compliant").length;
     const activeCerts = certifications.filter(c => c.status === "active").length;
-    const nextAudit = compliance.length > 0
-      ? compliance.reduce((min, c) => c.nextAudit < min ? c.nextAudit : min, compliance[0].nextAudit)
+    const firstItem = compliance[0];
+    const nextAudit = firstItem
+      ? compliance.reduce((min, c) => c.nextAudit < min ? c.nextAudit : min, firstItem.nextAudit)
       : "N/A";
     return { overallScore, compliantCount, activeCerts, nextAudit };
   }, [compliance, certifications]);
@@ -122,7 +127,7 @@ export default function ComplianceClient() {
             <div>
               <div className="text-sm text-gray-500">متطلبات متوافقة</div>
               <div className="text-lg font-bold text-blue-600">
-                {stats?.compliantItems ?? localStats.compliantCount}/{stats?.totalItems ?? compliance.length}
+                {stats?.compliantCount ?? localStats.compliantCount}/{stats?.totalRequirements ?? compliance.length}
               </div>
             </div>
           </div>
@@ -145,7 +150,7 @@ export default function ComplianceClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">التدقيق القادم</div>
-              <div className="text-lg font-bold text-amber-600">{stats?.nextAuditDate ?? localStats.nextAudit}</div>
+              <div className="text-lg font-bold text-amber-600">{localStats.nextAudit}</div>
             </div>
           </div>
         </div>

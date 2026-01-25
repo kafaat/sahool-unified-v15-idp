@@ -13,17 +13,19 @@ export default function ResearchClient() {
   const { data: stats } = useResearchStats();
 
   const getStatusBadge = (status: ResearchTrial["status"]) => {
-    const styles = {
+    const styles: Record<ResearchTrial["status"], string> = {
       planning: "bg-blue-100 text-blue-800",
       active: "bg-green-100 text-green-800",
       completed: "bg-gray-100 text-gray-800",
       on_hold: "bg-yellow-100 text-yellow-800",
+      cancelled: "bg-red-100 text-red-800",
     };
-    const labels = {
+    const labels: Record<ResearchTrial["status"], string> = {
       planning: "قيد التخطيط",
       active: "نشط",
       completed: "مكتمل",
       on_hold: "معلق",
+      cancelled: "ملغي",
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>

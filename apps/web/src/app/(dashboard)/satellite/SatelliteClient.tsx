@@ -21,28 +21,30 @@ export default function SatelliteClient() {
   const { data: stats } = useSatelliteStats();
 
   const getHealthColor = (status: SatelliteField["healthStatus"]) => {
-    const colors = {
+    const colors: Record<SatelliteField["healthStatus"], string> = {
       excellent: "text-green-600 bg-green-100",
       good: "text-blue-600 bg-blue-100",
       moderate: "text-yellow-600 bg-yellow-100",
       poor: "text-red-600 bg-red-100",
+      critical: "text-purple-600 bg-purple-100",
     };
     return colors[status];
   };
 
   const getHealthLabel = (status: SatelliteField["healthStatus"]) => {
-    const labels = {
+    const labels: Record<SatelliteField["healthStatus"], string> = {
       excellent: "ممتاز",
       good: "جيد",
       moderate: "متوسط",
       poor: "ضعيف",
+      critical: "حرج",
     };
     return labels[status];
   };
 
   const avgNdvi = useMemo(() => {
     if (fields.length === 0) return "0.00";
-    return (fields.reduce((acc, f) => acc + f.ndvi, 0) / fields.length).toFixed(2);
+    return (fields.reduce((acc, f) => acc + f.indices.ndvi, 0) / fields.length).toFixed(2);
   }, [fields]);
 
   const totalArea = useMemo(() => {
@@ -210,9 +212,9 @@ export default function SatelliteClient() {
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
                       <span className="text-gray-500">NDVI:</span>
-                      <span className="font-medium mr-1">{field.ndvi.toFixed(2)}</span>
-                      <span className={field.ndviChange >= 0 ? "text-green-600" : "text-red-600"}>
-                        ({field.ndviChange >= 0 ? "+" : ""}{field.ndviChange.toFixed(2)})
+                      <span className="font-medium mr-1">{field.indices.ndvi.toFixed(2)}</span>
+                      <span className={field.indices.ndviChange >= 0 ? "text-green-600" : "text-red-600"}>
+                        ({field.indices.ndviChange >= 0 ? "+" : ""}{field.indices.ndviChange.toFixed(2)})
                       </span>
                     </div>
                     <div className="text-gray-500">
@@ -224,9 +226,9 @@ export default function SatelliteClient() {
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className={`h-2 rounded-full ${
-                          field.ndvi > 0.6 ? "bg-green-500" : field.ndvi > 0.4 ? "bg-yellow-500" : "bg-red-500"
+                          field.indices.ndvi > 0.6 ? "bg-green-500" : field.indices.ndvi > 0.4 ? "bg-yellow-500" : "bg-red-500"
                         }`}
-                        style={{ width: `${field.ndvi * 100}%` }}
+                        style={{ width: `${field.indices.ndvi * 100}%` }}
                       />
                     </div>
                   </div>

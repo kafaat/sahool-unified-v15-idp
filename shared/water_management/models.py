@@ -19,7 +19,7 @@ Updated: January 2026
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from decimal import Decimal
 from enum import Enum
 from typing import Any
@@ -278,8 +278,8 @@ class WaterSource:
     avg_daily_extraction_m3: float = 0.0
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     notes: str = ""
     notes_ar: str = ""
 
@@ -429,8 +429,8 @@ class WaterRight:
     status: ComplianceStatus = ComplianceStatus.COMPLIANT
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     @property
     def is_valid(self) -> bool:
@@ -541,7 +541,7 @@ class WaterAllocation:
     irrigation_count: int = 0
     last_irrigation_at: datetime | None = None
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     @property
     def remaining_m3(self) -> float:
@@ -693,7 +693,7 @@ class WaterQualityTest:
 
     # Metadata
     report_url: str | None = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def classify_water(self) -> WaterQualityClass:
         """
@@ -817,7 +817,7 @@ class WaterConsumptionRecord:
 
     # Recording
     recorded_by: str | None = None
-    recorded_at: datetime = field(default_factory=datetime.utcnow)
+    recorded_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     is_estimated: bool = False
 
     notes: str = ""
@@ -921,7 +921,7 @@ class IrrigationEvent:
     notes: str = ""
     notes_ar: str = ""
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -1009,7 +1009,7 @@ class WaterAlert:
     recommended_action_ar: str = ""
 
     # Status
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     acknowledged: bool = False
     acknowledged_by: str | None = None
     acknowledged_at: datetime | None = None

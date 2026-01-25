@@ -97,7 +97,7 @@ class SafetyCheckResult:
     zone_id: str | None = None
 
     # Metadata
-    checked_at: datetime = field(default_factory=datetime.utcnow)
+    checked_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     checked_by: str | None = None
 
 
@@ -128,7 +128,7 @@ class HeatStressAssessment:
     precautions_ar: list[str] = field(default_factory=list)
 
     # Assessment time
-    assessed_at: datetime = field(default_factory=datetime.utcnow)
+    assessed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     valid_until: datetime = field(default_factory=lambda: datetime.now(timezone.utc) + timedelta(hours=2))
 
     def is_valid(self) -> bool:

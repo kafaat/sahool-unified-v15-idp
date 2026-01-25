@@ -59,7 +59,7 @@ High-frequency agricultural monitoring using tower-mounted cameras, integrating 
 
 ```bash
 # Server
-PORT=8180
+PORT=8182
 ENVIRONMENT=production
 LOG_LEVEL=INFO
 
@@ -94,7 +94,7 @@ MAX_FRAMES_PER_ANALYSIS=5
 pip install -r requirements.txt
 
 # Run service
-python -m uvicorn src.main:app --reload --port 8180
+python -m uvicorn src.main:app --reload --port 8182
 ```
 
 ### Docker
@@ -104,7 +104,7 @@ python -m uvicorn src.main:app --reload --port 8180
 docker build -t ground-vision-service .
 
 # Run container
-docker run -p 8180:8180 \
+docker run -p 8182:8182 \
   -e DATABASE_URL=postgresql://... \
   -e NATS_URL=nats://... \
   ground-vision-service

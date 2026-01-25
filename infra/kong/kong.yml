@@ -594,146 +594,11 @@ upstreams:
           http_statuses: [500, 502, 503, 504]
           tcp_failures: 3
 
-  - name: analytics-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: analytics-service:8154
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: reporting-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: reporting-service:8155
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: integration-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: integration-service:8156
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
   - name: audit-service-upstream
     algorithm: round-robin
     slots: 10000
     targets:
       - target: audit-service:8157
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: export-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: export-service:8158
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: import-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: import-service:8159
         weight: 100
     healthchecks:
       active:
@@ -783,11 +648,15 @@ upstreams:
           http_statuses: [500, 502, 503, 504]
           tcp_failures: 3
 
-  - name: monitoring-service-upstream
+  # ============================================================================
+  # Indicators Service - Field Indicators Computation
+  # خدمة المؤشرات - حساب مؤشرات الحقول
+  # ============================================================================
+  - name: indicators-service-upstream
     algorithm: round-robin
     slots: 10000
     targets:
-      - target: monitoring-service:8160
+      - target: indicators-service:8091
         weight: 100
     healthchecks:
       active:
@@ -810,11 +679,15 @@ upstreams:
           http_statuses: [500, 502, 503, 504]
           tcp_failures: 3
 
-  - name: logging-service-upstream
+  # ============================================================================
+  # Task Service - Task Management
+  # خدمة المهام - إدارة المهام
+  # ============================================================================
+  - name: task-service-upstream
     algorithm: round-robin
     slots: 10000
     targets:
-      - target: logging-service:8161
+      - target: task-service:8103
         weight: 100
     healthchecks:
       active:
@@ -837,11 +710,15 @@ upstreams:
           http_statuses: [500, 502, 503, 504]
           tcp_failures: 3
 
-  - name: tracing-service-upstream
+  # ============================================================================
+  # Equipment Service - Equipment Tracking
+  # خدمة المعدات - تتبع المعدات
+  # ============================================================================
+  - name: equipment-service-upstream
     algorithm: round-robin
     slots: 10000
     targets:
-      - target: tracing-service:8162
+      - target: equipment-service:8101
         weight: 100
     healthchecks:
       active:
@@ -864,11 +741,15 @@ upstreams:
           http_statuses: [500, 502, 503, 504]
           tcp_failures: 3
 
-  - name: cache-service-upstream
+  # ============================================================================
+  # Alert Service - Alert Management
+  # خدمة التنبيهات - إدارة التنبيهات
+  # ============================================================================
+  - name: alert-service-upstream
     algorithm: round-robin
     slots: 10000
     targets:
-      - target: cache-service:8163
+      - target: alert-service:8113
         weight: 100
     healthchecks:
       active:
@@ -891,11 +772,46 @@ upstreams:
           http_statuses: [500, 502, 503, 504]
           tcp_failures: 3
 
-  - name: search-service-upstream
+  # ============================================================================
+  # Community Chat - Community Features
+  # محادثة المجتمع - ميزات المجتمع
+  # ============================================================================
+  - name: community-chat-upstream
     algorithm: round-robin
     slots: 10000
     targets:
-      - target: search-service:8164
+      - target: community-chat:8097
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+        healthy:
+          interval: 5
+          successes: 2
+          http_statuses: [200, 201, 204]
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          tcp_failures: 3
+          timeouts: 3
+          http_statuses: [500, 502, 503, 504]
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204]
+        unhealthy:
+          http_statuses: [500, 502, 503, 504]
+          tcp_failures: 3
+
+  # ============================================================================
+  # Irrigation Service - Smart Irrigation
+  # خدمة الري - الري الذكي
+  # ============================================================================
+  - name: irrigation-service-upstream
+    algorithm: round-robin
+    slots: 10000
+    targets:
+      - target: irrigation-smart:8094
         weight: 100
     healthchecks:
       active:
@@ -1236,7 +1152,7 @@ services:
   # الري الذكي - Smart Irrigation
   # ============================================================================
   - name: irrigation-smart
-    url: http://irrigation-smart:8094
+    host: irrigation-service-upstream
     tags:
       - professional
       - irrigation
@@ -1788,7 +1704,7 @@ services:
   # خدمة المؤشرات - Indicators Service
   # ============================================================================
   - name: indicators-service
-    url: http://indicators-service:8091
+    host: indicators-service-upstream
     tags:
       - shared
       - analytics
@@ -1851,7 +1767,7 @@ services:
   # محادثة المجتمع - Community Chat
   # ============================================================================
   - name: community-chat
-    url: http://community-chat:8097
+    host: community-chat-upstream
     tags:
       - shared
       - social
@@ -1916,7 +1832,7 @@ services:
   # خدمة المعدات - Equipment Service
   # ============================================================================
   - name: equipment-service
-    url: http://equipment-service:8101
+    host: equipment-service-upstream
     tags:
       - professional
       - equipment
@@ -1947,7 +1863,7 @@ services:
   # خدمة المهام - Task Service
   # ============================================================================
   - name: task-service
-    url: http://task-service:8103
+    host: task-service-upstream
     tags:
       - shared
       - tasks
@@ -2079,7 +1995,7 @@ services:
   # خدمة التنبيهات - Alert Service
   # ============================================================================
   - name: alert-service
-    url: http://alert-service:8113
+    host: alert-service-upstream
     tags:
       - shared
       - alerts
@@ -2571,103 +2487,6 @@ services:
           fault_tolerant: true
 
   # ============================================================================
-  # Analytics Service - Platform Analytics
-  # خدمة التحليلات - تحليلات المنصة
-  # ============================================================================
-  - name: analytics-service
-    host: analytics-service-upstream
-    tags:
-      - enterprise
-      - analytics
-    routes:
-      - name: analytics-route
-        paths:
-          - /api/v1/analytics
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-            - research-users
-      - name: rate-limiting
-        config:
-          minute: 5000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Reporting Service - Report Generation
-  # خدمة التقارير - إنشاء التقارير
-  # ============================================================================
-  - name: reporting-service
-    host: reporting-service-upstream
-    tags:
-      - professional
-      - reporting
-    routes:
-      - name: reporting-route
-        paths:
-          - /api/v1/reports
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 500
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Integration Service - Third-Party Integrations
-  # خدمة التكامل - تكامل الجهات الخارجية
-  # ============================================================================
-  - name: integration-service
-    host: integration-service-upstream
-    tags:
-      - professional
-      - integration
-    routes:
-      - name: integration-route
-        paths:
-          - /api/v1/integrations
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
   # Audit Service - System Audit Logs
   # خدمة التدقيق - سجلات تدقيق النظام
   # ============================================================================
@@ -2707,73 +2526,6 @@ services:
             - 192.168.0.0/16
 
   # ============================================================================
-  # Export Service - Data Export
-  # خدمة التصدير - تصدير البيانات
-  # ============================================================================
-  - name: export-service
-    host: export-service-upstream
-    tags:
-      - professional
-      - export
-    routes:
-      - name: export-route
-        paths:
-          - /api/v1/export
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 100
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Import Service - Data Import
-  # خدمة الاستيراد - استيراد البيانات
-  # ============================================================================
-  - name: import-service
-    host: import-service-upstream
-    tags:
-      - professional
-      - import
-    routes:
-      - name: import-route
-        paths:
-          - /api/v1/import
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 100
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: request-size-limiting
-        config:
-          allowed_payload_size: 100
-
-  # ============================================================================
   # Admin Dashboard - Administration Interface
   # لوحة تحكم المسؤول - واجهة الإدارة
   # ============================================================================
@@ -2809,167 +2561,6 @@ services:
             - 10.0.0.0/8
             - 172.16.0.0/12
             - 192.168.0.0/16
-
-  # ============================================================================
-  # Monitoring Service - System Monitoring
-  # خدمة المراقبة - مراقبة النظام
-  # ============================================================================
-  - name: monitoring-service
-    host: monitoring-service-upstream
-    tags:
-      - observability
-      - monitoring
-    routes:
-      - name: monitoring-route
-        paths:
-          - /api/v1/monitoring
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - admin-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Logging Service - Centralized Logging
-  # خدمة السجلات - السجلات المركزية
-  # ============================================================================
-  - name: logging-service
-    host: logging-service-upstream
-    tags:
-      - observability
-      - logging
-    routes:
-      - name: logging-route
-        paths:
-          - /api/v1/logs
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - admin-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Tracing Service - Distributed Tracing
-  # خدمة التتبع - التتبع الموزع
-  # ============================================================================
-  - name: tracing-service
-    host: tracing-service-upstream
-    tags:
-      - observability
-      - tracing
-    routes:
-      - name: tracing-route
-        paths:
-          - /api/v1/tracing
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - admin-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Cache Service - Distributed Caching
-  # خدمة التخزين المؤقت - التخزين المؤقت الموزع
-  # ============================================================================
-  - name: cache-service
-    host: cache-service-upstream
-    tags:
-      - infrastructure
-      - cache
-    routes:
-      - name: cache-route
-        paths:
-          - /api/v1/cache
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 50000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Search Service - Full-Text Search
-  # خدمة البحث - البحث عن النصوص الكاملة
-  # ============================================================================
-  - name: search-service
-    host: search-service-upstream
-    tags:
-      - professional
-      - search
-    routes:
-      - name: search-route
-        paths:
-          - /api/v1/search
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 5000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
 
   # ============================================================================
   # نقاط فحص الصحة - Health Check Endpoints

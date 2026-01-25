@@ -14,7 +14,7 @@ event_architecture:
   layers:
     acquisition:
       description: "Data ingestion layer - طبقة جمع البيانات"
-      services: [satellite-service, iot-service, iot-gateway, weather-advanced, weather-service, weather-core, virtual-sensors, ussd-gateway]
+      services: [vegetation-analysis-service, iot-service, iot-gateway, weather-service, weather-core, virtual-sensors, ussd-gateway]
       rules:
         - "No business logic"
         - "Only ingestion + normalization"
@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [indicators-service, lai-estimation, crop-health-ai, crop-health, disaster-assessment, agro-rules, crop-intelligence-service, ndvi-processor, ndvi-engine, field-intelligence, vegetation-analysis-service, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph]
+      services: [indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, ndvi-engine, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -30,7 +30,7 @@ event_architecture:
 
     decision:
       description: "Advisory & planning layer - طبقة القرار"
-      services: [crop-growth-model, fertilizer-advisor, irrigation-smart, yield-engine, yield-prediction, advisory-service, ai-advisor, agro-advisor]
+      services: [crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, ai-advisor, agro-advisor]
       rules:
         - "Consumes from Intelligence"
         - "Produces recommendations/plans"
@@ -38,7 +38,7 @@ event_architecture:
 
     business:
       description: "Business operations layer - طبقة الأعمال"
-      services: [notification-service, marketplace-service, billing-core, community-chat, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service, field-management-service, field-core, field-ops, field-service, user-service, alert-service, inventory-service, field-chat, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service]
+      services: [notification-service, marketplace-service, billing-core, community-chat, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service, field-management-service, user-service, alert-service, inventory-service, field-chat, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service]
       rules:
         - "Consumes from Decision"
         - "User-facing operations"
@@ -224,8 +224,8 @@ services:
       type: postgresql
       name: sahool_disaster
     dependencies:
-      - weather-advanced
-      - satellite-service
+      - weather-service
+      - vegetation-analysis-service
     resources:
       cpu: "300m"
       memory: "256Mi"
@@ -252,7 +252,7 @@ services:
         - IndexTileReady.v1
         - FieldIndicatorsComputed.v1
     dependencies:
-      - satellite-service
+      - vegetation-analysis-service
     resources:
       cpu: "400m"
       memory: "384Mi"
@@ -282,7 +282,7 @@ services:
         - FieldIndicatorsComputed.v1
     dependencies:
       - crop-growth-model
-      - weather-advanced
+      - weather-service
       - lai-estimation
     resources:
       cpu: "500m"
@@ -445,7 +445,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # SATELLITE SERVICE - خدمة الأقمار الصناعية (DEPRECATED)
+  # SATELLITE SERVICE - خدمة الأقمار الصناعية (ARCHIVED)
   # ═══════════════════════════════════════════════════════════════════════════
   satellite-service:
     name: "Satellite Service"
@@ -453,13 +453,14 @@ services:
     type: python
     category: analytics
     layer: acquisition
-    path: "apps/services/satellite-service"
+    path: "archive/deprecated-services/satellite-service"
     port: 9190  # Changed to avoid conflict with vegetation-analysis-service (9090 reserved for prometheus)
     protocol: http
     health_endpoint: "/health"
-    status: deprecated
+    status: archived
     replaced_by: vegetation-analysis-service
     deprecation_date: "2026-01-11"
+    archive_date: "2026-01-25"
     version: "15.4.0"
     events:
       produces:
@@ -486,7 +487,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # WEATHER ADVANCED - خدمة الطقس المتقدمة (DEPRECATED)
+  # WEATHER ADVANCED - خدمة الطقس المتقدمة (ARCHIVED)
   # ═══════════════════════════════════════════════════════════════════════════
   weather-advanced:
     name: "Weather Advanced"
@@ -494,13 +495,14 @@ services:
     type: python
     category: integration
     layer: acquisition
-    path: "apps/services/weather-advanced"
+    path: "archive/deprecated-services/weather-advanced"
     port: 9092  # Changed to avoid conflict with weather-service
     protocol: http
     health_endpoint: "/health"
-    status: deprecated
+    status: archived
     replaced_by: weather-service
     deprecation_date: "2026-01-11"
+    archive_date: "2026-01-25"
     events:
       produces:
         - WeatherObserved.v1
@@ -544,14 +546,14 @@ services:
       type: postgresql
       name: sahool_indicators
     dependencies:
-      - satellite-service
+      - vegetation-analysis-service
     resources:
       cpu: "400m"
       memory: "384Mi"
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # CROP HEALTH AI - سهول فيجن (DEPRECATED)
+  # CROP HEALTH AI - سهول فيجن (ARCHIVED)
   # ═══════════════════════════════════════════════════════════════════════════
   crop-health-ai:
     name: "Crop Health AI"
@@ -559,13 +561,14 @@ services:
     type: python
     category: analytics
     layer: intelligence
-    path: "apps/services/crop-health-ai"
+    path: "archive/deprecated-services/crop-health-ai"
     port: 9095  # Changed to avoid conflict with crop-intelligence-service
     protocol: http
     health_endpoint: "/health"
-    status: deprecated
+    status: archived
     replaced_by: crop-intelligence-service
     deprecation_date: "2026-01-11"
+    archive_date: "2026-01-25"
     events:
       produces:
         - CropHealthAssessed.v1
@@ -575,7 +578,7 @@ services:
         - LAIEstimated.v1
         - WeatherObserved.v1
     dependencies:
-      - satellite-service
+      - vegetation-analysis-service
     resources:
       cpu: "800m"
       memory: "1Gi"
@@ -603,8 +606,8 @@ services:
         - WeatherObserved.v1
         - IndexTileReady.v1
     dependencies:
-      - weather-advanced
-      - satellite-service
+      - weather-service
+      - vegetation-analysis-service
     resources:
       cpu: "400m"
       memory: "384Mi"
@@ -633,14 +636,14 @@ services:
         - FieldIndicatorsComputed.v1
     dependencies:
       - crop-growth-model
-      - weather-advanced
+      - weather-service
     resources:
       cpu: "500m"
       memory: "512Mi"
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # FERTILIZER ADVISOR - مستشار التسميد (DEPRECATED)
+  # FERTILIZER ADVISOR - مستشار التسميد (ARCHIVED)
   # ═══════════════════════════════════════════════════════════════════════════
   fertilizer-advisor:
     name: "Fertilizer Advisor"
@@ -648,13 +651,14 @@ services:
     type: python
     category: core
     layer: decision
-    path: "apps/services/fertilizer-advisor"
+    path: "archive/deprecated-services/fertilizer-advisor"
     port: 9093  # Changed to avoid conflict with advisory-service
     protocol: http
     health_endpoint: "/health"
-    status: deprecated
+    status: archived
     replaced_by: advisory-service
     deprecation_date: "2026-01-11"
+    archive_date: "2026-01-25"
     events:
       produces:
         - FertilizerPlanProposed.v1
@@ -667,7 +671,7 @@ services:
       name: sahool_fertilizer
     dependencies:
       - crop-growth-model
-      - satellite-service
+      - vegetation-analysis-service
     resources:
       cpu: "400m"
       memory: "384Mi"
@@ -699,7 +703,7 @@ services:
       type: postgresql
       name: sahool_irrigation
     dependencies:
-      - weather-advanced
+      - weather-service
       - virtual-sensors
     resources:
       cpu: "400m"
@@ -813,7 +817,7 @@ services:
         - IndexTileReady.v1
         - SatelliteSceneIngested.v1
     dependencies:
-      - satellite-service
+      - vegetation-analysis-service
     resources:
       cpu: "500m"
       memory: "512Mi"
@@ -921,7 +925,7 @@ services:
       consumes:
         - SatelliteSceneIngested.v1
     dependencies:
-      - satellite-service
+      - vegetation-analysis-service
     resources:
       cpu: "500m"
       memory: "512Mi"
@@ -1978,8 +1982,8 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # CROP HEALTH - صحة المحاصيل
-  # Legacy service - consider migration to crop-intelligence-service
+  # CROP HEALTH - صحة المحاصيل (ARCHIVED)
+  # Legacy service - migrated to crop-intelligence-service
   # ═══════════════════════════════════════════════════════════════════════════
   crop-health:
     name: "Crop Health"
@@ -1989,11 +1993,13 @@ services:
     type: python
     category: crop
     layer: intelligence
-    path: "apps/services/crop-health"
+    path: "archive/deprecated-services/crop-health"
     port: 8100  # Matches Dockerfile EXPOSE
     protocol: http
     health_endpoint: "/healthz"
-    status: active
+    status: archived
+    replaced_by: crop-intelligence-service
+    archive_date: "2026-01-25"
     ui_connections:
       - web
       - admin
@@ -2205,7 +2211,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # FIELD CORE - نواة الحقول (DEPRECATED)
+  # FIELD CORE - نواة الحقول (ARCHIVED)
   # ═══════════════════════════════════════════════════════════════════════════
   field-core:
     name: "Field Core"
@@ -2213,13 +2219,14 @@ services:
     type: nestjs
     category: core
     layer: business
-    path: "apps/services/field-core"
+    path: "archive/deprecated-services/field-core"
     port: 3005
     protocol: http
     health_endpoint: "/health"
-    status: deprecated
+    status: archived
     replaced_by: field-management-service
     deprecation_date: "2026-01-01"
+    archive_date: "2026-01-25"
     ui_connections:
       - web
       - admin
@@ -2235,7 +2242,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # FIELD OPS - عمليات الحقول (DEPRECATED)
+  # FIELD OPS - عمليات الحقول (ARCHIVED)
   # ═══════════════════════════════════════════════════════════════════════════
   field-ops:
     name: "Field Operations"
@@ -2243,13 +2250,14 @@ services:
     type: python
     category: core
     layer: business
-    path: "apps/services/field-ops"
+    path: "archive/deprecated-services/field-ops"
     port: 8155
     protocol: http
     health_endpoint: "/healthz"
-    status: deprecated
+    status: archived
     replaced_by: field-management-service
     deprecation_date: "2026-01-01"
+    archive_date: "2026-01-25"
     events:
       produces:
         - FieldOperationLogged.v1
@@ -2260,7 +2268,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # FIELD SERVICE - خدمة الحقول (DEPRECATED)
+  # FIELD SERVICE - خدمة الحقول (ARCHIVED)
   # ═══════════════════════════════════════════════════════════════════════════
   field-service:
     name: "Field Service"
@@ -2268,13 +2276,14 @@ services:
     type: python
     category: core
     layer: business
-    path: "apps/services/field-service"
+    path: "archive/deprecated-services/field-service"
     port: 8156
     protocol: http
     health_endpoint: "/healthz"
-    status: deprecated
+    status: archived
     replaced_by: field-management-service
     deprecation_date: "2026-01-01"
+    archive_date: "2026-01-25"
     events:
       produces:
         - FieldDataSynced.v1

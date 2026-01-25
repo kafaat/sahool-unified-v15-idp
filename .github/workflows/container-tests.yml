@@ -398,17 +398,25 @@ jobs:
           # Start container in detached mode with required environment variables
           # Use valid dummy URLs to prevent URL parsing errors (connection will fail gracefully)
           # Port mapping: host port -> container's actual internal port
+          # Note: Adding both DATABASE_URL (for Python/FastAPI) and DB_* vars (for TypeORM/NestJS)
           CONTAINER_ID=$(docker run -d \
             --name test-${{ matrix.service.name }} \
             -p ${{ matrix.service.port }}:${{ matrix.service.container_port }} \
             -e ENVIRONMENT=test \
+            -e NODE_ENV=test \
             -e LOG_LEVEL=INFO \
             -e JWT_SECRET_KEY=ci_test_jwt_secret_key_minimum_32_characters \
             -e JWT_ALGORITHM=HS256 \
             -e DATABASE_URL=postgresql://localhost:5432/test \
+            -e DB_HOST=localhost \
+            -e DB_PORT=5432 \
+            -e DB_USER=test \
+            -e DB_PASSWORD=test \
+            -e DB_NAME=test \
             -e NATS_URL=nats://localhost:4222 \
             -e REDIS_URL=redis://localhost:6379 \
             -e ALLOW_DEV_DEFAULTS=true \
+            -e SKIP_DB_INIT=true \
             ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }})
 
           echo "container_id=$CONTAINER_ID" >> $GITHUB_OUTPUT

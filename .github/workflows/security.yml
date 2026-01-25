@@ -331,11 +331,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Note: deprecated services migrated to new names
         service:
-          - field-ops
+          - field-management-service
           - weather-core
-          - satellite-service
-          - crop-health-ai
+          - vegetation-analysis-service
+          - crop-intelligence-service
           - billing-core
     steps:
       - name: Checkout code

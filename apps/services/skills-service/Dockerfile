@@ -44,10 +44,11 @@ RUN chown -R sahool:sahool /app
 USER sahool
 
 # Default port (can be overridden via PORT env var)
-ENV PORT=8110
-EXPOSE 8110
+# Note: Changed from 8110 to 8121 to avoid conflict with notification-service
+ENV PORT=8121
+EXPOSE 8121
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8110/healthz')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8121/healthz')" || exit 1
 
 CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT}"]

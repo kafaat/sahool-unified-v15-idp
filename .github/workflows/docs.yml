@@ -56,16 +56,21 @@ jobs:
           mkdir -p ${{ env.DOCS_DIR }}/openapi
 
           # List of Python FastAPI services
+          # NOTE: Deprecated services migrated to new names:
+          #   - satellite-service → vegetation-analysis-service
+          #   - weather-advanced → weather-service
+          #   - crop-health-ai → crop-intelligence-service
+          #   - field-ops → field-management-service
           PYTHON_SERVICES=(
-            "field-ops"
-            "weather-core"
+            "field-management-service"
+            "weather-service"
             "agro-advisor"
             "crop-health"
             "ndvi-engine"
             "irrigation-smart"
-            "satellite-service"
-            "weather-advanced"
-            "crop-health-ai"
+            "vegetation-analysis-service"
+            "weather-core"
+            "crop-intelligence-service"
             "yield-engine"
             "billing-core"
             "inventory-service"
@@ -243,10 +248,10 @@ jobs:
                   <h2>Starter Package</h2>
                   <div class="services">
                       <div class="service-card">
-                          <h3>Field Operations</h3>
+                          <h3>Field Management</h3>
                           <p>Manage fields, crops, and farming operations</p>
                           <span class="badge starter">Starter</span><br>
-                          <a href="field-ops.html">View API Docs →</a>
+                          <a href="field-management-service.html">View API Docs →</a>
                       </div>
                       <div class="service-card">
                           <h3>Weather Core</h3>
@@ -287,22 +292,22 @@ jobs:
                   <h2>Enterprise Package</h2>
                   <div class="services">
                       <div class="service-card">
-                          <h3>Satellite Service</h3>
+                          <h3>Vegetation Analysis</h3>
                           <p>Advanced satellite imagery and analytics</p>
                           <span class="badge enterprise">Enterprise</span><br>
-                          <a href="satellite-service.html">View API Docs →</a>
+                          <a href="vegetation-analysis-service.html">View API Docs →</a>
                       </div>
                       <div class="service-card">
-                          <h3>Advanced Weather</h3>
+                          <h3>Weather Service</h3>
                           <p>Premium weather forecasts and climate analysis</p>
                           <span class="badge enterprise">Enterprise</span><br>
-                          <a href="weather-advanced.html">View API Docs →</a>
+                          <a href="weather-service.html">View API Docs →</a>
                       </div>
                       <div class="service-card">
-                          <h3>Crop Health AI</h3>
+                          <h3>Crop Intelligence</h3>
                           <p>AI-powered crop disease detection and prediction</p>
                           <span class="badge enterprise">Enterprise</span><br>
-                          <a href="crop-health-ai.html">View API Docs →</a>
+                          <a href="crop-intelligence-service.html">View API Docs →</a>
                       </div>
                       <div class="service-card">
                           <h3>Yield Engine</h3>
@@ -394,9 +399,9 @@ jobs:
               - Enterprise Package: services/enterprise.md
             - API Reference:
               - Authentication: api/authentication.md
-              - Field Operations: api/field-ops.md
+              - Field Management: api/field-management.md
               - Weather: api/weather.md
-              - Satellite: api/satellite.md
+              - Vegetation Analysis: api/vegetation-analysis.md
             - Development:
               - Setup: development/setup.md
               - Testing: development/testing.md

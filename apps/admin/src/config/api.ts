@@ -473,19 +473,25 @@ export const API_CONFIG = {
 
 /**
  * Service name type for type-safe service references
+ * Note: Some names are deprecated but kept for backward compatibility:
+ *   - "field-core" → use "field-management"
+ *   - "satellite" → use "vegetation-analysis"
+ *   - "crop-health" → use "crop-intelligence"
  */
 export type ServiceName =
-  | "field-core"
+  | "field-core" // @deprecated - use "field-management"
   | "field-management"
   | "auth"
   | "users"
   | "ws-gateway"
-  | "satellite"
+  | "satellite" // @deprecated - use "vegetation-analysis"
+  | "vegetation-analysis"
   | "ndvi-engine"
   | "weather"
   | "weather-core"
   | "indicators"
-  | "crop-health"
+  | "crop-health" // @deprecated - use "crop-intelligence"
+  | "crop-intelligence"
   | "fertilizer"
   | "yield-engine"
   | "analytics"

@@ -1447,17 +1447,37 @@ export async function startFieldService(
 ): Promise<void> {
   const app = createFieldApp(serviceName);
 
-  await AppDataSource.initialize();
-  console.log("═══════════════════════════════════════════════════════════");
-  console.log("  🔥 Database Connected & PostGIS Engine Ready!");
-  console.log("═══════════════════════════════════════════════════════════");
+  // Allow skipping database initialization for container smoke tests
+  const skipDbInit = process.env.SKIP_DB_INIT === "true" ||
+                     process.env.ENVIRONMENT === "test";
 
-  // Enable PostGIS extension if not exists
-  try {
-    await AppDataSource.query("CREATE EXTENSION IF NOT EXISTS postgis");
-    console.log("  ✅ PostGIS extension enabled");
-  } catch (e) {
-    console.log("  ⚠️  PostGIS extension may already exist");
+  let dbConnected = false;
+
+  if (!skipDbInit) {
+    try {
+      await AppDataSource.initialize();
+      dbConnected = true;
+      console.log("═══════════════════════════════════════════════════════════");
+      console.log("  🔥 Database Connected & PostGIS Engine Ready!");
+      console.log("═══════════════════════════════════════════════════════════");
+
+      // Enable PostGIS extension if not exists
+      try {
+        await AppDataSource.query("CREATE EXTENSION IF NOT EXISTS postgis");
+        console.log("  ✅ PostGIS extension enabled");
+      } catch (e) {
+        console.log("  ⚠️  PostGIS extension may already exist");
+      }
+    } catch (dbError) {
+      console.warn("═══════════════════════════════════════════════════════════");
+      console.warn("  ⚠️  Database connection failed - running in limited mode");
+      console.warn(`  Error: ${dbError instanceof Error ? dbError.message : String(dbError)}`);
+      console.warn("═══════════════════════════════════════════════════════════");
+    }
+  } else {
+    console.log("═══════════════════════════════════════════════════════════");
+    console.log("  ⚠️  SKIP_DB_INIT=true - Database initialization skipped");
+    console.log("═══════════════════════════════════════════════════════════");
   }
 
   app.listen(port, "0.0.0.0", () => {

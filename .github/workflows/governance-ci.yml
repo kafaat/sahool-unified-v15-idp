@@ -201,12 +201,17 @@ jobs:
 
           errors = []
 
-          # Check services paths - must start with apps/services/
+          # Check services paths - must start with apps/services/ or archive/
           for name, service in data.get("services", {}).items():
               path = service.get("path", "")
+              status = service.get("status", "active")
               if path:
-                  if not path.startswith("apps/services/"):
-                      errors.append(f"❌ {name}: path must start with 'apps/services/' (got: {path})")
+                  # Allow archive paths for archived/deprecated services
+                  if path.startswith("archive/"):
+                      if not os.path.isdir(path):
+                          errors.append(f"❌ {name}: archived path does not exist ({path})")
+                  elif not path.startswith("apps/services/"):
+                      errors.append(f"❌ {name}: path must start with 'apps/services/' or 'archive/' (got: {path})")
                   elif not os.path.isdir(path):
                       errors.append(f"❌ {name}: path does not exist ({path})")
 

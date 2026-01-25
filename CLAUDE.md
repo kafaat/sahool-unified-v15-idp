@@ -153,7 +153,7 @@ sahool-unified-v15-idp/
 | -------------- | --------------------------------------- |
 | **Container**  | Docker, Kubernetes (K8s)                |
 | **IaC**        | Terraform, Helm Charts                  |
-| **CI/CD**      | GitHub Actions (38 workflows), Argo CD  |
+| **CI/CD**      | GitHub Actions (37 workflows), Argo CD  |
 | **Monitoring** | Prometheus, Grafana, OpenTelemetry      |
 | **Secrets**    | HashiCorp Vault                         |
 
@@ -652,7 +652,7 @@ chore: update dependencies
 4. **Security**: CodeQL, Trivy, Bandit, Gitleaks
 5. **Deploy**: ArgoCD to staging/production
 
-GitHub Workflows (38):
+GitHub Workflows (37):
 
 - `ci.yml` - Main CI pipeline
 - `cd-staging.yml` - Staging deployment
@@ -713,18 +713,21 @@ This service has been migrated to [new-service]
 | field-intelligence           | Python  | 8120 | Field analytics                |
 | lai-estimation               | Node.js | 3022 | Leaf Area Index estimation     |
 | skills-service               | Python  | 8121 | Farmer skills assessment       |
+| soil-analysis-service        | Python  | 8124 | Soil analysis                  |
+| pest-detection-service       | Python  | 8125 | Pest detection AI              |
 
 ### Decision & Advisory
 
 | Service          | Type    | Port | Description                  |
 | ---------------- | ------- | ---- | ---------------------------- |
-| crop-growth-model| Node.js | 3023 | Crop growth simulation       |
-| advisory-service | Python  | 8093 | Advisory & recommendations   |
-| irrigation-smart | Python  | 8094 | Smart irrigation             |
-| yield-engine     | Python  | 8098 | Yield estimation             |
-| yield-prediction | Node.js | 3021 | Yield prediction ML          |
-| agro-advisor     | Python  | 8105 | Agricultural advisory        |
-| agro-rules       | Python  | 8151 | Agronomic rules engine       |
+| crop-growth-model  | Node.js | 3023 | Crop growth simulation       |
+| advisory-service   | Python  | 8093 | Advisory & recommendations   |
+| irrigation-smart   | Python  | 8094 | Smart irrigation             |
+| irrigation-service | Python  | 8094 | Irrigation management        |
+| yield-engine       | Python  | 8098 | Yield estimation             |
+| yield-prediction   | Node.js | 3021 | Yield prediction ML          |
+| agro-advisor       | Python  | 8105 | Agricultural advisory        |
+| agro-rules         | Python  | 8151 | Agronomic rules engine       |
 
 ### Integration & IoT
 
@@ -737,6 +740,7 @@ This service has been migrated to [new-service]
 | ws-gateway            | Python  | 8081 | WebSocket gateway            |
 | mcp-server            | Python  | 8200 | Model Context Protocol       |
 | astronomical-calendar | Python  | 8111 | Islamic calendar & timings   |
+| drone-service         | Python  | 8126 | Drone integration            |
 
 ### Community & Business
 
@@ -748,6 +752,23 @@ This service has been migrated to [new-service]
 | disaster-assessment | Node.js | 3020 | Disaster risk assessment |
 | field-chat          | Python  | 8099 | Field-level chat         |
 | inventory-service   | Python  | 8116 | Inventory management     |
+| cooperative-service | Python  | 8127 | Cooperative management   |
+
+### AI Agents
+
+| Service             | Type    | Port | Description              |
+| ------------------- | ------- | ---- | ------------------------ |
+| agent-registry      | Python  | 8160 | Agent registry service   |
+| code-fix-agent      | Python  | 8161 | Code fix AI agent        |
+| code-review-agent   | Python  | 8162 | Code review agent        |
+
+### Compliance & Traceability
+
+| Service               | Type    | Port | Description              |
+| --------------------- | ------- | ---- | ------------------------ |
+| globalgap-compliance  | Python  | 8120 | GlobalGAP compliance     |
+| audit-service         | Python  | 8122 | Audit logging            |
+| traceability-service  | Python  | 8123 | Product traceability     |
 
 ---
 
@@ -795,6 +816,8 @@ The Auto-Fix Engine provides automated code diagnostics and fixing with full aud
 | **Bandit** | Python | Security vulnerability scanning |
 | **Dart Analyze** | Dart/Flutter | Flutter code analysis |
 
+*Note: The ToolType enum also defines Semgrep, Pylint, and TypeScript, but these are not yet implemented in the diagnostics engine.*
+
 #### Usage Example
 
 ```python
@@ -818,7 +841,7 @@ print(f"Auto-fixable: {report.fixable_count}")
 # Auto-fix issues
 results = await engine.auto_fix(
     report=report,
-    strategy=FixStrategy.SAFE,  # SAFE, AGGRESSIVE, or MANUAL
+    strategy=FixStrategy.SAFE,  # MINIMAL, SAFE, COMPREHENSIVE, or REFACTOR
     dry_run=False
 )
 
@@ -831,9 +854,10 @@ for entry in engine.get_audit_log():
 
 | Strategy | Description | Use Case |
 |----------|-------------|----------|
-| `SAFE` | Only apply fixes with high confidence | Production code |
-| `AGGRESSIVE` | Apply all suggested fixes | Development |
-| `MANUAL` | Generate fix plan for review | Code review |
+| `MINIMAL` | Least changes, only safe fixes | Conservative fixes |
+| `SAFE` | Safe changes only, no review required | Production code |
+| `COMPREHENSIVE` | Apply all suggested fixes | Development |
+| `REFACTOR` | Full restructuring allowed | Major cleanup |
 
 #### Data Models
 

@@ -409,14 +409,14 @@ kong-reload: ## إعادة تحميل إعدادات Kong - Reload Kong configur
 
 vault-up: ## تشغيل Vault - Start HashiCorp Vault
 	@echo "$(GREEN)🔐 تشغيل Vault - Starting Vault...$(RESET)"
-	docker compose -f infra/vault/docker-compose.vault.yml up -d
+	docker compose -f infrastructure/core/vault/docker-compose.vault.yml up -d
 	@echo "$(GREEN)✅ Vault جاهز - Vault ready!$(RESET)"
 	@echo "$(BLUE)Vault:$(RESET) http://localhost:8200"
 	@echo "$(YELLOW)Token:$(RESET) dev-root-token"
 
 vault-down: ## إيقاف Vault - Stop Vault
 	@echo "$(RED)🛑 إيقاف Vault - Stopping Vault...$(RESET)"
-	docker compose -f infra/vault/docker-compose.vault.yml down
+	docker compose -f infrastructure/core/vault/docker-compose.vault.yml down
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Package-Specific Commands - أوامر الحزم

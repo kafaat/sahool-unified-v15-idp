@@ -44,7 +44,7 @@ RUN chown -R sahool:sahool /app
 USER sahool
 
 # Default port (can be overridden via PORT env var)
-# Note: Changed to 8170 to avoid conflict with agent-registry
+# Note: Changed to 8170 to avoid conflict with agent-registry (which uses 8121)
 ENV PORT=8170
 EXPOSE 8170
 

@@ -8,7 +8,7 @@ Advanced user activity tracking and analytics system
 
 import uuid
 from collections import Counter, defaultdict
-from datetime import date, datetime, timedelta, timezone, UTC
+from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
 from .models import (

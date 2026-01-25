@@ -8,7 +8,7 @@ Seeds the database with sample data for development and testing.
 
 import random
 import uuid
-from datetime import date, datetime, timedelta, timezone, UTC
+from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import text

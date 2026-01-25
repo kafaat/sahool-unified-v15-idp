@@ -6,7 +6,7 @@
 Pydantic models for irrigation scheduling and water management
 """
 
-from datetime import date, datetime, timezone, UTC
+from datetime import UTC, date, datetime
 from enum import Enum
 from typing import Any
 

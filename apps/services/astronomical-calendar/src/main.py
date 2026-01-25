@@ -20,7 +20,7 @@ VERSION = "16.0.0"
 import math
 import os
 import sys
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query

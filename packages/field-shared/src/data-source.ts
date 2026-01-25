@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { DataSource, DataSourceOptions } from "typeorm";
+import { DataSource } from "typeorm";
 import { Field } from "./entity/Field";
 import { FieldBoundaryHistory } from "./entity/FieldBoundaryHistory";
 import { SyncStatus } from "./entity/SyncStatus";
@@ -24,20 +24,27 @@ import { PestTreatment } from "./entity/PestTreatment";
  * - DB_NAME: Database name (default: sahool)
  */
 
+interface DbConfig {
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  database: string;
+}
+
 // Parse DATABASE_URL if provided
-function getConnectionConfig(): Partial<DataSourceOptions> {
+function getConnectionConfig(): DbConfig {
   const databaseUrl = process.env.DATABASE_URL;
 
   if (databaseUrl) {
     try {
       const url = new URL(databaseUrl);
       return {
-        type: "postgres",
         host: url.hostname,
         port: parseInt(url.port || "5432"),
-        username: url.username,
-        password: url.password,
-        database: url.pathname.slice(1), // Remove leading '/'
+        username: url.username || "sahool",
+        password: url.password || "sahool",
+        database: url.pathname.slice(1) || "sahool", // Remove leading '/'
       };
     } catch {
       console.warn("Invalid DATABASE_URL format, falling back to individual env vars");
@@ -46,7 +53,6 @@ function getConnectionConfig(): Partial<DataSourceOptions> {
 
   // Fallback to individual environment variables
   return {
-    type: "postgres",
     host: process.env.DB_HOST || "localhost",
     port: parseInt(process.env.DB_PORT || "5432"),
     username: process.env.DB_USER || "sahool",
@@ -55,11 +61,15 @@ function getConnectionConfig(): Partial<DataSourceOptions> {
   };
 }
 
-const connectionConfig = getConnectionConfig();
+const dbConfig = getConnectionConfig();
 
 export const AppDataSource = new DataSource({
-  ...connectionConfig,
   type: "postgres",
+  host: dbConfig.host,
+  port: dbConfig.port,
+  username: dbConfig.username,
+  password: dbConfig.password,
+  database: dbConfig.database,
 
   // In production, set synchronize to false and use migrations
   synchronize: process.env.NODE_ENV !== "production",

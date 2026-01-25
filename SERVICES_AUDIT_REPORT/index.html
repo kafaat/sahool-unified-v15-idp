@@ -1,0 +1,1706 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Services Audit Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-services-audit-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Services Audit Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-services-audit-report">SAHOOL Services Audit Report<a class="headerlink" href="#sahool-services-audit-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-01-25
+<strong>Version</strong>: 16.0.0
+<strong>Auditor</strong>: Claude AI Assistant</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>This report presents a comprehensive audit of all 61 services in the SAHOOL platform. The audit identified critical issues that need immediate attention, along with recommendations for improvement.</p>
+<h3 id="key-statistics">Key Statistics<a class="headerlink" href="#key-statistics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Count</th>
+<th>Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Total Services</strong></td>
+<td>61</td>
+<td>100%</td>
+</tr>
+<tr>
+<td><strong>Python Services</strong></td>
+<td>42</td>
+<td>69%</td>
+</tr>
+<tr>
+<td><strong>Node.js Services</strong></td>
+<td>12</td>
+<td>20%</td>
+</tr>
+<tr>
+<td><strong>Hybrid Services</strong></td>
+<td>2</td>
+<td>3%</td>
+</tr>
+<tr>
+<td><strong>Stub Services</strong></td>
+<td>5</td>
+<td>8%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="critical-issues-found">Critical Issues Found<a class="headerlink" href="#critical-issues-found" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue Type</th>
+<th>Count</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Missing Prisma Schema</td>
+<td>5</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>ORM Conflicts</td>
+<td>1</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>Port Conflicts</td>
+<td>4</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>Database Driver Conflicts</td>
+<td>5</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>Incomplete Dockerfile</td>
+<td>1</td>
+<td>MEDIUM</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="nodejs-services-audit">Node.js Services Audit<a class="headerlink" href="#nodejs-services-audit" title="Permanent link">&para;</a></h2>
+<h3 id="services-using-prisma-correctly">Services Using Prisma Correctly<a class="headerlink" href="#services-using-prisma-correctly" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>chat-service</td>
+<td>OK</td>
+<td>Full Prisma setup</td>
+</tr>
+<tr>
+<td>iot-service</td>
+<td>OK</td>
+<td>Full Prisma setup</td>
+</tr>
+<tr>
+<td>marketplace-service</td>
+<td>OK</td>
+<td>Full Prisma setup</td>
+</tr>
+<tr>
+<td>research-core</td>
+<td>OK</td>
+<td>Full Prisma setup</td>
+</tr>
+<tr>
+<td>user-service</td>
+<td>OK</td>
+<td>Full Prisma setup</td>
+</tr>
+</tbody>
+</table>
+<h3 id="services-missing-prisma-schema-critical">Services Missing Prisma Schema (CRITICAL)<a class="headerlink" href="#services-missing-prisma-schema-critical" title="Permanent link">&para;</a></h3>
+<p>These services have Prisma dependencies but <strong>NO schema.prisma file</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Issue</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>crop-growth-model</td>
+<td>Missing prisma/schema.prisma</td>
+<td>Build will fail</td>
+</tr>
+<tr>
+<td>disaster-assessment</td>
+<td>Missing prisma/schema.prisma</td>
+<td>Build will fail</td>
+</tr>
+<tr>
+<td>lai-estimation</td>
+<td>Missing prisma/schema.prisma</td>
+<td>Build will fail</td>
+</tr>
+<tr>
+<td>yield-prediction-service</td>
+<td>Missing prisma/schema.prisma</td>
+<td>Build will fail</td>
+</tr>
+<tr>
+<td>yield-prediction</td>
+<td>Missing prisma/schema.prisma</td>
+<td>Build will fail</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recommended Actions:</strong>
+1. Create <code>prisma/schema.prisma</code> for each service
+2. Run <code>npx prisma generate</code>
+3. Update Dockerfile to include Prisma build steps</p>
+<h3 id="orm-conflict-resolved">ORM Conflict (RESOLVED)<a class="headerlink" href="#orm-conflict-resolved" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Issue</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>field-management-service</td>
+<td>Had both Prisma and TypeORM</td>
+<td><strong>FIXED</strong> - Removed Prisma</td>
+</tr>
+</tbody>
+</table>
+<h3 id="stateless-services-no-orm-needed">Stateless Services (No ORM Needed)<a class="headerlink" href="#stateless-services-no-orm-needed" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>code-review-agent</td>
+<td>AI code review (uses Claude SDK)</td>
+</tr>
+<tr>
+<td>community-chat</td>
+<td>In-memory chat (Socket.io)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="incomplete-dockerfile">Incomplete Dockerfile<a class="headerlink" href="#incomplete-dockerfile" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Issue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>weather-service</td>
+<td>Has Prisma schema but Dockerfile missing <code>prisma generate</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="python-services-audit">Python Services Audit<a class="headerlink" href="#python-services-audit" title="Permanent link">&para;</a></h2>
+<h3 id="port-conflicts-critical">Port Conflicts (CRITICAL)<a class="headerlink" href="#port-conflicts-critical" title="Permanent link">&para;</a></h3>
+<p>Multiple services are configured to use the same ports:</p>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Service 1</th>
+<th>Service 2</th>
+<th>Action Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8090</td>
+<td>code-fix-agent</td>
+<td>vegetation-analysis-service</td>
+<td>Reassign ports</td>
+</tr>
+<tr>
+<td>8121</td>
+<td>agent-registry</td>
+<td>skills-service</td>
+<td>Reassign ports</td>
+</tr>
+<tr>
+<td>8130</td>
+<td>ai-agents-service</td>
+<td>ussd-gateway</td>
+<td>Reassign ports</td>
+</tr>
+<tr>
+<td>8131</td>
+<td>crm-service</td>
+<td>logistics-service</td>
+<td>Reassign ports</td>
+</tr>
+</tbody>
+</table>
+<h3 id="database-driver-conflicts-high">Database Driver Conflicts (HIGH)<a class="headerlink" href="#database-driver-conflicts-high" title="Permanent link">&para;</a></h3>
+<p>Services with incompatible async/sync database drivers:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Conflict</th>
+<th>Resolution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>alert-service</td>
+<td>asyncpg + psycopg2-binary</td>
+<td>Keep asyncpg (async), remove psycopg2</td>
+</tr>
+<tr>
+<td>audit-service</td>
+<td>asyncpg + psycopg2 + SQLAlchemy + Tortoise</td>
+<td>Choose ONE approach</td>
+</tr>
+<tr>
+<td>billing-core</td>
+<td>asyncpg + psycopg2-binary</td>
+<td>Keep asyncpg (async), remove psycopg2</td>
+</tr>
+<tr>
+<td>field-intelligence</td>
+<td>asyncpg + psycopg2-binary</td>
+<td>Keep asyncpg (async), remove psycopg2</td>
+</tr>
+<tr>
+<td>inventory-service</td>
+<td>asyncpg + psycopg2-binary</td>
+<td>Keep asyncpg (async), remove psycopg2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recommendation:</strong> Use Tortoise ORM + asyncpg for all async Python services (SAHOOL standard).</p>
+<h3 id="version-inconsistency">Version Inconsistency<a class="headerlink" href="#version-inconsistency" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Issue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>advisory-service</td>
+<td>App version 15.3.3, health endpoint 16.0.0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="services-configured-correctly">Services Configured Correctly<a class="headerlink" href="#services-configured-correctly" title="Permanent link">&para;</a></h3>
+<p>All other Python services (36 services) have:
+- Valid requirements.txt
+- Proper Dockerfile with HEALTHCHECK
+- Health endpoints (/healthz, /readyz)
+- Consistent FastAPI patterns</p>
+<hr />
+<h2 id="stub-services-not-yet-implemented">Stub Services (Not Yet Implemented)<a class="headerlink" href="#stub-services-not-yet-implemented" title="Permanent link">&para;</a></h2>
+<p>These services have only README.md files:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cooperative-service</td>
+<td>Stub</td>
+</tr>
+<tr>
+<td>drone-service</td>
+<td>Stub</td>
+</tr>
+<tr>
+<td>pest-detection-service</td>
+<td>Stub</td>
+</tr>
+<tr>
+<td>soil-analysis-service</td>
+<td>Stub</td>
+</tr>
+<tr>
+<td>traceability-service</td>
+<td>Stub</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="fixes-applied-in-this-audit">Fixes Applied in This Audit<a class="headerlink" href="#fixes-applied-in-this-audit" title="Permanent link">&para;</a></h2>
+<h3 id="1-field-management-service-prisma-removal">1. field-management-service - Prisma Removal<a class="headerlink" href="#1-field-management-service-prisma-removal" title="Permanent link">&para;</a></h3>
+<p><strong>Commit:</strong> <code>54651d0</code></p>
+<p>Changes:
+- Removed <code>@prisma/client</code> and <code>prisma</code> from package.json
+- Removed all Prisma scripts (generate, migrate, studio)
+- Simplified Dockerfile (removed Prisma commands)
+- Removed OpenSSL dependency</p>
+<h3 id="2-data-sourcets-database_url-support">2. data-source.ts - DATABASE_URL Support<a class="headerlink" href="#2-data-sourcets-database_url-support" title="Permanent link">&para;</a></h3>
+<p><strong>Commit:</strong> <code>47f0be4</code></p>
+<p>Changes:
+- Added DATABASE_URL parsing support
+- Fixed TypeScript type error
+- Changed default DB_HOST from "postgres" to "localhost"
+- Supports both connection modes:
+  - <code>DATABASE_URL=postgresql://user:pass@host:5432/dbname</code>
+  - Individual vars: <code>DB_HOST</code>, <code>DB_PORT</code>, <code>DB_USER</code>, <code>DB_PASSWORD</code>, <code>DB_NAME</code></p>
+<hr />
+<h2 id="recommendations">Recommendations<a class="headerlink" href="#recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="priority-1-critical-immediate-action">Priority 1: Critical (Immediate Action)<a class="headerlink" href="#priority-1-critical-immediate-action" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Create Missing Prisma Schemas</strong>
+   <code>bash
+   # For each service missing schema:
+   cd apps/services/[service-name]
+   npx prisma init
+   # Define models in prisma/schema.prisma
+   npx prisma generate</code></p>
+</li>
+<li>
+<p><strong>Resolve Port Conflicts</strong></p>
+</li>
+<li>Update <code>governance/services.yaml</code> with unique ports</li>
+<li>Update Dockerfiles and docker-compose.yml</li>
+</ol>
+<h3 id="priority-2-high">Priority 2: High<a class="headerlink" href="#priority-2-high" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Fix Database Driver Conflicts</strong></li>
+<li>Remove psycopg2-binary from async services</li>
+<li>
+<p>Standardize on Tortoise ORM + asyncpg</p>
+</li>
+<li>
+<p><strong>Fix weather-service Dockerfile</strong></p>
+</li>
+<li>Add <code>prisma generate</code> commands</li>
+<li>Copy schema to production stage</li>
+</ol>
+<h3 id="priority-3-medium">Priority 3: Medium<a class="headerlink" href="#priority-3-medium" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Version Consistency</strong></li>
+<li>
+<p>Update advisory-service to 16.0.0</p>
+</li>
+<li>
+<p><strong>Implement Stub Services</strong></p>
+</li>
+<li>Complete drone-service, pest-detection-service, etc.</li>
+</ol>
+<hr />
+<h2 id="port-allocation-reference">Port Allocation Reference<a class="headerlink" href="#port-allocation-reference" title="Permanent link">&para;</a></h2>
+<h3 id="current-port-map-services">Current Port Map (Services)<a class="headerlink" href="#current-port-map-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Port Range</th>
+<th>Category</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3000-3030</td>
+<td>Node.js Services</td>
+</tr>
+<tr>
+<td>8081-8099</td>
+<td>Core Python Services</td>
+</tr>
+<tr>
+<td>8100-8130</td>
+<td>Analytics &amp; AI Services</td>
+</tr>
+<tr>
+<td>8131-8160</td>
+<td>Business Services</td>
+</tr>
+<tr>
+<td>8160-8200</td>
+<td>Agent Services</td>
+</tr>
+</tbody>
+</table>
+<h3 id="recommended-port-reassignments">Recommended Port Reassignments<a class="headerlink" href="#recommended-port-reassignments" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Current Port</th>
+<th>New Port</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>code-fix-agent</td>
+<td>8090</td>
+<td>8161</td>
+</tr>
+<tr>
+<td>skills-service</td>
+<td>8121</td>
+<td>8170</td>
+</tr>
+<tr>
+<td>ussd-gateway</td>
+<td>8130</td>
+<td>8180</td>
+</tr>
+<tr>
+<td>logistics-service</td>
+<td>8131</td>
+<td>8181</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="service-categories">Service Categories<a class="headerlink" href="#service-categories" title="Permanent link">&para;</a></h2>
+<h3 id="ai-intelligence-layer">AI &amp; Intelligence Layer<a class="headerlink" href="#ai-intelligence-layer" title="Permanent link">&para;</a></h3>
+<ul>
+<li>agent-registry, ai-advisor, ai-agents-core, ai-agents-service</li>
+<li>code-fix-agent, code-review-agent, code-review-service</li>
+<li>crop-intelligence-service, field-intelligence, knowledge-graph</li>
+<li>skills-service</li>
+</ul>
+<h3 id="field-operations">Field Operations<a class="headerlink" href="#field-operations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>field-management-service (TypeORM)</li>
+<li>field-chat, globalgap-compliance</li>
+<li>irrigation-smart, vegetation-analysis-service</li>
+</ul>
+<h3 id="analytics-processing">Analytics &amp; Processing<a class="headerlink" href="#analytics-processing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>indicators-service, ndvi-engine, ndvi-processor</li>
+<li>virtual-sensors, yield-engine, yield-prediction</li>
+</ul>
+<h3 id="business-communication">Business &amp; Communication<a class="headerlink" href="#business-communication" title="Permanent link">&para;</a></h3>
+<ul>
+<li>billing-core, crm-service, notification-service</li>
+<li>marketplace-service, community-chat, chat-service</li>
+</ul>
+<h3 id="infrastructure">Infrastructure<a class="headerlink" href="#infrastructure" title="Permanent link">&para;</a></h3>
+<ul>
+<li>iot-gateway, iot-service, ws-gateway</li>
+<li>mcp-server, weather-service, astronomical-calendar</li>
+</ul>
+<hr />
+<h2 id="appendix-service-file-paths">Appendix: Service File Paths<a class="headerlink" href="#appendix-service-file-paths" title="Permanent link">&para;</a></h2>
+<h3 id="nodejs-services">Node.js Services<a class="headerlink" href="#nodejs-services" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>apps/services/chat-service/
+apps/services/code-review-agent/
+apps/services/community-chat/
+apps/services/crop-growth-model/
+apps/services/disaster-assessment/
+apps/services/field-management-service/
+apps/services/iot-service/
+apps/services/lai-estimation/
+apps/services/marketplace-service/
+apps/services/research-core/
+apps/services/user-service/
+apps/services/weather-service/
+apps/services/yield-prediction/
+apps/services/yield-prediction-service/
+</code></pre></div>
+
+<h3 id="shared-packages">Shared Packages<a class="headerlink" href="#shared-packages" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nx">packages</span><span class="o">/</span><span class="nx">field</span><span class="o">-</span><span class="nx">shared</span><span class="o">/</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">TypeORM</span><span class="w"> </span><span class="nx">entities</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nx">field</span><span class="w"> </span><span class="nx">services</span>
+<span class="nx">packages</span><span class="o">/</span><span class="nx">shared</span><span class="o">-</span><span class="nx">types</span><span class="o">/</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">TypeScript</span><span class="w"> </span><span class="nx">types</span>
+<span class="nx">packages</span><span class="o">/</span><span class="nx">shared</span><span class="o">-</span><span class="nx">utils</span><span class="o">/</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">Utility</span><span class="w"> </span><span class="nx">functions</span>
+<span class="nx">packages</span><span class="o">/</span><span class="nx">nestjs</span><span class="o">-</span><span class="nx">auth</span><span class="o">/</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">NestJS</span><span class="w"> </span><span class="nx">auth</span><span class="w"> </span><span class="nx">module</span>
+</code></pre></div>
+
+<hr />
+<p><em>Report generated by Claude AI Assistant</em>
+<em>Last updated: 2026-01-25</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

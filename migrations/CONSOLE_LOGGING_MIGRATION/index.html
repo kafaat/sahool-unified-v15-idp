@@ -1,0 +1,1425 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Console Logging Migration Summary - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#console-logging-migration-summary" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Console Logging Migration Summary
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="console-logging-migration-summary">Console Logging Migration Summary<a class="headerlink" href="#console-logging-migration-summary" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>All <code>console.log</code>, <code>console.error</code>, <code>console.warn</code>, <code>console.info</code>, and <code>console.debug</code> statements in the web apps have been replaced with an environment-aware logger utility.</p>
+<h2 id="changes-made">Changes Made<a class="headerlink" href="#changes-made" title="Permanent link">&para;</a></h2>
+<h3 id="1-logger-utility-created">1. Logger Utility Created<a class="headerlink" href="#1-logger-utility-created" title="Permanent link">&para;</a></h3>
+<p>Created logger utilities for both web and admin apps:</p>
+<ul>
+<li><code>/home/user/sahool-unified-v15-idp/apps/web/src/lib/logger.ts</code></li>
+<li><code>/home/user/sahool-unified-v15-idp/apps/admin/src/lib/logger.ts</code></li>
+</ul>
+<p>The logger provides:</p>
+<ul>
+<li><strong>Development Mode</strong>: All logging enabled for debugging</li>
+<li><strong>Production Mode</strong>: Logging gated/disabled to prevent console pollution</li>
+<li><strong>Critical Logging</strong>: Always logged (for error tracking services)</li>
+<li><strong>Production Logging</strong>: Structured logging for production environments</li>
+</ul>
+<h3 id="2-logger-api">2. Logger API<a class="headerlink" href="#2-logger-api" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">logger</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@/lib/logger&quot;</span><span class="p">;</span>
+
+<span class="c1">// Development-only logging</span>
+<span class="nx">logger</span><span class="p">.</span><span class="nx">log</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span><span class="w"> </span><span class="c1">// General information</span>
+<span class="nx">logger</span><span class="p">.</span><span class="nx">error</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span><span class="w"> </span><span class="c1">// Errors (dev only)</span>
+<span class="nx">logger</span><span class="p">.</span><span class="nx">warn</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span><span class="w"> </span><span class="c1">// Warnings (dev only)</span>
+<span class="nx">logger</span><span class="p">.</span><span class="nx">info</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span><span class="w"> </span><span class="c1">// Info messages (dev only)</span>
+<span class="nx">logger</span><span class="p">.</span><span class="nx">debug</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span><span class="w"> </span><span class="c1">// Debug information</span>
+<span class="nx">logger</span><span class="p">.</span><span class="nx">group</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span><span class="w"> </span><span class="c1">// Console grouping</span>
+<span class="nx">logger</span><span class="p">.</span><span class="nx">groupEnd</span><span class="p">();</span><span class="w"> </span><span class="c1">// End console group</span>
+
+<span class="c1">// Critical errors (always logged)</span>
+<span class="nx">logger</span><span class="p">.</span><span class="nx">critical</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span><span class="w"> </span><span class="c1">// For errors that should be sent to error tracking</span>
+
+<span class="c1">// Production-safe logging</span>
+<span class="nx">logger</span><span class="p">.</span><span class="nx">production</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span><span class="w"> </span><span class="c1">// Structured logging for production</span>
+</code></pre></div>
+
+<h3 id="3-files-updated">3. Files Updated<a class="headerlink" href="#3-files-updated" title="Permanent link">&para;</a></h3>
+<h4 id="appsweb-41-files-updated">Apps/Web (41 files updated):<a class="headerlink" href="#appsweb-41-files-updated" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Core Infrastructure</strong>:</li>
+<li><code>src/lib/logger.ts</code> (created)</li>
+<li><code>src/lib/api/client.ts</code></li>
+<li><code>src/lib/ws/index.ts</code></li>
+<li><code>src/lib/monitoring/error-tracking.ts</code></li>
+<li><code>src/lib/auth/route-guard.tsx</code></li>
+<li><code>src/lib/rate-limiter.ts</code></li>
+<li><code>src/lib/security/nonce.ts</code></li>
+<li>
+<p><code>src/lib/services/service-switcher.ts</code></p>
+</li>
+<li>
+<p><strong>API Routes</strong>:</p>
+</li>
+<li><code>src/app/api/log-error/route.ts</code></li>
+<li>
+<p><code>src/app/api/csp-report/route.ts</code></p>
+</li>
+<li>
+<p><strong>Error Handling</strong>:</p>
+</li>
+<li><code>src/app/error.tsx</code></li>
+<li><code>src/app/(auth)/error.tsx</code></li>
+<li><code>src/app/(dashboard)/error.tsx</code></li>
+<li>
+<p><code>src/components/common/ErrorBoundary.tsx</code></p>
+</li>
+<li>
+<p><strong>Hooks</strong>:</p>
+</li>
+<li><code>src/hooks/useWebSocket.ts</code></li>
+<li><code>src/hooks/useKPIs.ts</code></li>
+<li>
+<p><code>src/hooks/useAlerts.ts</code></p>
+</li>
+<li>
+<p><strong>Features</strong> (all feature modules):</p>
+</li>
+<li>Fields API and hooks (5 files)</li>
+<li>Weather hooks</li>
+<li>IoT components and hooks (3 files)</li>
+<li>Equipment components (2 files)</li>
+<li>Crop health components (2 files)</li>
+<li>Analytics components</li>
+<li>Marketplace hooks and API</li>
+<li>Wallet API and components</li>
+<li>Community components</li>
+<li>Settings components</li>
+<li>
+<p>Alerts hooks</p>
+</li>
+<li>
+<p><strong>Dashboard Components</strong>:</p>
+</li>
+<li><code>src/components/dashboard/MapView.tsx</code></li>
+<li><code>src/components/dashboard/StatsCards.tsx</code></li>
+<li><code>src/components/dashboard/TaskList.tsx</code></li>
+<li><code>src/components/settings/ServiceSwitcher.tsx</code></li>
+</ul>
+<h4 id="appsadmin-23-files-updated">Apps/Admin (23 files updated):<a class="headerlink" href="#appsadmin-23-files-updated" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Core Infrastructure</strong>:</li>
+<li><code>src/lib/logger.ts</code> (created)</li>
+<li><code>src/lib/api.ts</code></li>
+<li><code>src/lib/api-client.ts</code></li>
+<li><code>src/lib/api-gateway/index.ts</code></li>
+<li><code>src/lib/auth.ts</code></li>
+<li><code>src/lib/websocket.ts</code></li>
+<li><code>src/lib/api/analytics.ts</code></li>
+<li>
+<p><code>src/lib/api/precision.ts</code></p>
+</li>
+<li>
+<p><strong>Components</strong>:</p>
+</li>
+<li>
+<p><code>src/components/common/ErrorBoundary.tsx</code></p>
+</li>
+<li>
+<p><strong>Hooks</strong>:</p>
+</li>
+<li><code>src/hooks/useWebSocket.ts</code></li>
+<li>
+<p><code>src/hooks/useRealTimeAlerts.ts</code></p>
+</li>
+<li>
+<p><strong>Pages</strong> (15 admin pages):</p>
+</li>
+<li>Dashboard, Settings, Farms, Support</li>
+<li>Sensors, Diseases, Epidemic, Yield</li>
+<li>Analytics (Satellite, Profitability)</li>
+<li>Precision Agriculture (GDD, Spray, VRA)</li>
+</ul>
+<h3 id="4-statistics">4. Statistics<a class="headerlink" href="#4-statistics" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Total files updated</strong>: 64 source files</li>
+<li><strong>Console statements replaced</strong>: 91+ instances</li>
+<li><strong>Remaining console statements</strong>: 0 (in source files)</li>
+<li><strong>Test files</strong>: Unchanged (console statements in tests are acceptable)</li>
+</ul>
+<h3 id="5-key-features">5. Key Features<a class="headerlink" href="#5-key-features" title="Permanent link">&para;</a></h3>
+<h4 id="environment-aware-logging">Environment-Aware Logging<a class="headerlink" href="#environment-aware-logging" title="Permanent link">&para;</a></h4>
+<p>The logger automatically adapts based on <code>NODE_ENV</code>:</p>
+<ul>
+<li><strong>Development</strong>: All logging visible in browser console</li>
+<li><strong>Production</strong>: Logging gated to prevent information leakage</li>
+</ul>
+<h4 id="critical-error-logging">Critical Error Logging<a class="headerlink" href="#critical-error-logging" title="Permanent link">&para;</a></h4>
+<p>Use <code>logger.critical()</code> for errors that should be tracked in production:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// risky operation</span>
+<span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">logger</span><span class="p">.</span><span class="nx">critical</span><span class="p">(</span><span class="s2">&quot;Critical operation failed:&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">);</span>
+<span class="w">  </span><span class="c1">// This will be logged in both dev and production</span>
+<span class="w">  </span><span class="c1">// TODO: Integrate with error tracking service (Sentry, etc.)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="production-logging">Production Logging<a class="headerlink" href="#production-logging" title="Permanent link">&para;</a></h4>
+<p>Use <code>logger.production()</code> for structured server-side logging:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// API routes</span>
+<span class="nx">logger</span><span class="p">.</span><span class="nx">production</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;sahool-web&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="kt">error.message</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">(),</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<h3 id="6-integration-points">6. Integration Points<a class="headerlink" href="#6-integration-points" title="Permanent link">&para;</a></h3>
+<p>The logger is designed to integrate with:</p>
+<ul>
+<li><strong>Error Tracking Services</strong>: Sentry, LogRocket, Datadog</li>
+<li><strong>Server Logging</strong>: Structured JSON logs for production</li>
+<li><strong>Monitoring Systems</strong>: Custom error tracking endpoints</li>
+</ul>
+<h2 id="benefits">Benefits<a class="headerlink" href="#benefits" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Security</strong>: Prevents sensitive information from appearing in production console</li>
+<li><strong>Performance</strong>: Reduces console overhead in production</li>
+<li><strong>Debugging</strong>: Maintains full logging in development</li>
+<li><strong>Flexibility</strong>: Easy to integrate with error tracking services</li>
+<li><strong>Consistency</strong>: Centralized logging configuration</li>
+</ol>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<h3 id="recommended-integrations">Recommended Integrations:<a class="headerlink" href="#recommended-integrations" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Error Tracking Service</strong> (Recommended):</li>
+</ol>
+<p><code>typescript
+   // In logger.ts, update critical() method:
+   critical: (...args: any[]) =&gt; {
+     console.error(...args);
+     if (process.env.NODE_ENV === "production") {
+       Sentry.captureException(args[0]);
+     }
+   };</code></p>
+<ol>
+<li><strong>Structured Logging Service</strong>:</li>
+</ol>
+<p><code>typescript
+   // In logger.ts, update production() method:
+   production: (...args: any[]) =&gt; {
+     if (process.env.NODE_ENV === "production") {
+       await fetch("/api/logging", {
+         method: "POST",
+         body: JSON.stringify({
+           level: "error",
+           timestamp: new Date().toISOString(),
+           data: args,
+         }),
+       });
+     }
+   };</code></p>
+<ol>
+<li><strong>Analytics Integration</strong>:</li>
+<li>Track errors in analytics platform</li>
+<li>Monitor error rates and patterns</li>
+<li>Set up alerts for critical errors</li>
+</ol>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<p>The logger utility has been integrated into:</p>
+<ul>
+<li>✅ Error boundaries</li>
+<li>✅ API error handlers</li>
+<li>✅ WebSocket connections</li>
+<li>✅ Data fetching hooks</li>
+<li>✅ Form submissions</li>
+<li>✅ Component lifecycle errors</li>
+</ul>
+<h2 id="rollback">Rollback<a class="headerlink" href="#rollback" title="Permanent link">&para;</a></h2>
+<p>If needed, the migration can be rolled back by:</p>
+<ol>
+<li>Removing logger imports</li>
+<li>Replacing <code>logger.log</code> with <code>console.log</code></li>
+<li>Replacing <code>logger.error</code> with <code>console.error</code></li>
+<li>Replacing <code>logger.warn</code> with <code>console.warn</code></li>
+</ol>
+<p>However, this is not recommended as the logger provides better security and flexibility.</p>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Test files intentionally kept with console statements for test output visibility</li>
+<li>The logger utilities themselves use console for actual logging (this is expected)</li>
+<li>All source files now use the logger utility</li>
+<li>No console statements remain in production source code</li>
+</ul>
+<hr />
+<p><strong>Migration completed on</strong>: 2026-01-03
+<strong>Files processed</strong>: 64 source files (41 web + 23 admin)
+<strong>Console statements replaced</strong>: 91+
+<strong>Status</strong>: ✅ Complete</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

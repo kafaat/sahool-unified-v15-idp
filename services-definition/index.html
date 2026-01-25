@@ -1,0 +1,5257 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Kong Services Definition | تعريف خدمات Kong - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#kong-services-definition-kong" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Kong Services Definition | تعريف خدمات Kong
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="kong-services-definition-kong">Kong Services Definition | تعريف خدمات Kong<a class="headerlink" href="#kong-services-definition-kong" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>تحليل شامل لجميع الخدمات المعرفة في بوابة Kong API Gateway</p>
+<p><strong>المصدر</strong>: <code>infrastructure/gateway/kong/kong.yml</code>
+<strong>تاريخ التحديث</strong>: 2026-01-24
+<strong>إجمالي الخدمات</strong>: 62 خدمة</p>
+</blockquote>
+<hr />
+<h2 id="_1">جدول المحتويات<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#نظرة-عامة">نظرة عامة</a></li>
+<li><a href="#الإضافات-العالمية-global-plugins">الإضافات العالمية</a></li>
+<li><a href="#خدمات-nodejs">خدمات Node.js</a></li>
+<li><a href="#خدمات-python">خدمات Python</a></li>
+<li><a href="#الخدمات-المضافة-حديثاً">الخدمات المضافة حديثاً</a></li>
+<li><a href="#الخدمات-المهملة-deprecated">الخدمات المهملة</a></li>
+<li><a href="#نقاط-النهاية-للمنصة">نقاط النهاية للمنصة</a></li>
+<li><a href="#الخدمات-غير-المضمنة-في-kong">الخدمات غير المضمنة في Kong</a></li>
+</ol>
+<hr />
+<h2 id="_2">نظرة عامة<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>إصدار التكوين</strong></td>
+<td>3.0</td>
+</tr>
+<tr>
+<td><strong>وضع قاعدة البيانات</strong></td>
+<td>DB-less (تكوين تصريحي)</td>
+</tr>
+<tr>
+<td><strong>إجمالي الخدمات</strong></td>
+<td>62 خدمة</td>
+</tr>
+<tr>
+<td><strong>خدمات Node.js</strong></td>
+<td>12 خدمة</td>
+</tr>
+<tr>
+<td><strong>خدمات Python</strong></td>
+<td>46 خدمة</td>
+</tr>
+<tr>
+<td><strong>خدمات مهملة</strong></td>
+<td>8 خدمات</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="global-plugins">الإضافات العالمية (Global Plugins)<a class="headerlink" href="#global-plugins" title="Permanent link">&para;</a></h2>
+<p>الإضافات التالية مُطبقة على جميع المسارات والخدمات:</p>
+<h3 id="1-cors">1. CORS (مشاركة الموارد عبر المصادر)<a class="headerlink" href="#1-cors" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المتغير</th>
+<th>النوع</th>
+<th>القيمة</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>origins</code></td>
+<td><code>string[]</code></td>
+<td><code>["*"]</code></td>
+<td>المصادر المسموح بها (في الإنتاج: نطاقات محددة)</td>
+</tr>
+<tr>
+<td><code>methods</code></td>
+<td><code>string[]</code></td>
+<td><code>["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]</code></td>
+<td>طرق HTTP المسموحة</td>
+</tr>
+<tr>
+<td><code>headers</code></td>
+<td><code>string[]</code></td>
+<td>Accept, Authorization, Content-Type, X-Request-Id, X-Correlation-Id</td>
+<td>رؤوس الطلب المسموحة</td>
+</tr>
+<tr>
+<td><code>exposed_headers</code></td>
+<td><code>string[]</code></td>
+<td>X-Request-Id, X-Correlation-Id, X-RateLimit-*</td>
+<td>الرؤوس المكشوفة للعميل</td>
+</tr>
+<tr>
+<td><code>credentials</code></td>
+<td><code>boolean</code></td>
+<td><code>false</code></td>
+<td>دعم بيانات الاعتماد</td>
+</tr>
+<tr>
+<td><code>max_age</code></td>
+<td><code>integer</code></td>
+<td><code>3600</code></td>
+<td>مدة تخزين preflight بالثواني</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-prometheus">2. Prometheus (المراقبة)<a class="headerlink" href="#2-prometheus" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المتغير</th>
+<th>النوع</th>
+<th>القيمة</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>config</code></td>
+<td><code>object</code></td>
+<td><code>{}</code></td>
+<td>التكوين الافتراضي للمقاييس</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-correlation-id">3. Correlation-ID (التتبع الموزع)<a class="headerlink" href="#3-correlation-id" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المتغير</th>
+<th>النوع</th>
+<th>القيمة</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>header_name</code></td>
+<td><code>string</code></td>
+<td><code>X-Correlation-Id</code></td>
+<td>اسم رأس معرف الارتباط</td>
+</tr>
+<tr>
+<td><code>generator</code></td>
+<td><code>string</code></td>
+<td><code>uuid#counter</code></td>
+<td>طريقة توليد المعرف</td>
+</tr>
+<tr>
+<td><code>echo_downstream</code></td>
+<td><code>boolean</code></td>
+<td><code>true</code></td>
+<td>إرسال المعرف في الاستجابة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-request-size-limiting">4. Request-Size-Limiting (تحديد حجم الطلب)<a class="headerlink" href="#4-request-size-limiting" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المتغير</th>
+<th>النوع</th>
+<th>القيمة</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>allowed_payload_size</code></td>
+<td><code>integer</code></td>
+<td><code>10</code></td>
+<td>الحد الأقصى للحجم</td>
+</tr>
+<tr>
+<td><code>size_unit</code></td>
+<td><code>string</code></td>
+<td><code>megabytes</code></td>
+<td>وحدة القياس</td>
+</tr>
+<tr>
+<td><code>require_content_length</code></td>
+<td><code>boolean</code></td>
+<td><code>false</code></td>
+<td>طلب رأس Content-Length</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="nodejs">خدمات Node.js<a class="headerlink" href="#nodejs" title="Permanent link">&para;</a></h2>
+<h3 id="1-field-management-service">1. field-management-service (إدارة الحقول)<a class="headerlink" href="#1-field-management-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>field-management-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>3000</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/fields</code>, <code>/api/v1/field</code>, <code>/field</code></td>
+</tr>
+<tr>
+<td><strong>strip_path</strong></td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input">المتغيرات المدخلة (Input)<a class="headerlink" href="#input" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/fields</code></td>
+<td><code>POST</code></td>
+<td><code>name</code>, <code>tenantId</code>, <code>cropType</code>, <code>areaHectares</code>, <code>boundary</code></td>
+<td><code>CreateFieldDto</code></td>
+</tr>
+<tr>
+<td><code>/fields</code></td>
+<td><code>GET</code></td>
+<td><code>tenantId</code>, <code>status</code>, <code>page</code>, <code>limit</code></td>
+<td><code>QueryParams</code></td>
+</tr>
+<tr>
+<td><code>/fields/:id</code></td>
+<td><code>PUT</code></td>
+<td><code>name</code>, <code>cropType</code>, <code>status</code>, <code>irrigationType</code></td>
+<td><code>UpdateFieldDto</code></td>
+</tr>
+<tr>
+<td><code>/fields/:id/boundary</code></td>
+<td><code>PUT</code></td>
+<td><code>boundary</code> (GeoJSON), <code>changeReason</code></td>
+<td><code>UpdateBoundaryDto</code></td>
+</tr>
+<tr>
+<td><code>/fields/:id/ndvi</code></td>
+<td><code>POST</code></td>
+<td><code>value</code> (-1 to 1), <code>source</code>, <code>cloudCover</code></td>
+<td><code>NdviReadingDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output">المتغيرات المخرجة (Output)<a class="headerlink" href="#output" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/fields</code></td>
+<td><code>id</code>, <code>name</code>, <code>tenantId</code>, <code>cropType</code>, <code>areaHectares</code>, <code>boundary</code>, <code>healthScore</code>, <code>ndviValue</code>, <code>status</code>, <code>irrigationType</code>, <code>createdAt</code>, <code>updatedAt</code></td>
+<td><code>Field</code></td>
+</tr>
+<tr>
+<td><code>/fields/:id/history</code></td>
+<td><code>previousBoundary</code>, <code>newBoundary</code>, <code>areaChangeHectares</code>, <code>changedBy</code>, <code>changeReason</code></td>
+<td><code>FieldBoundaryHistory[]</code></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Enums</span>
+<span class="nx">FieldStatus</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;fallow&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;harvested&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;preparing&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;inactive&quot;</span>
+<span class="nx">IrrigationType</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;drip&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;sprinkler&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;flood&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;pivot&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;none&quot;</span>
+<span class="nx">CropType</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;barley&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;date_palm&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;cucumber&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">...</span>
+</code></pre></div>
+
+<hr />
+<h3 id="2-user-service-public">2. user-service-public (المصادقة العامة)<a class="headerlink" href="#2-user-service-public" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>user-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>3025</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/auth/login</code>, <code>/api/v1/auth/register</code>, <code>/api/v1/auth/forgot-password</code>, <code>/api/v1/auth/reset-password</code>, <code>/api/v1/auth/send-otp</code>, <code>/api/v1/auth/verify-otp</code>, <code>/api/v1/auth/refresh</code></td>
+</tr>
+<tr>
+<td><strong>Rate Limiting</strong></td>
+<td>30/دقيقة، 500/ساعة</td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_1">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_1" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/auth/login</code></td>
+<td><code>POST</code></td>
+<td><code>email</code>, <code>password</code></td>
+<td><code>LoginDto</code></td>
+</tr>
+<tr>
+<td><code>/auth/register</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>email</code>, <code>phone</code>, <code>password</code>, <code>firstName</code>, <code>lastName</code>, <code>role</code></td>
+<td><code>CreateUserDto</code></td>
+</tr>
+<tr>
+<td><code>/auth/forgot-password</code></td>
+<td><code>POST</code></td>
+<td><code>email</code></td>
+<td><code>ForgotPasswordDto</code></td>
+</tr>
+<tr>
+<td><code>/auth/reset-password</code></td>
+<td><code>POST</code></td>
+<td><code>token</code>, <code>newPassword</code></td>
+<td><code>ResetPasswordDto</code></td>
+</tr>
+<tr>
+<td><code>/auth/send-otp</code></td>
+<td><code>POST</code></td>
+<td><code>phone</code> or <code>email</code></td>
+<td><code>SendOtpDto</code></td>
+</tr>
+<tr>
+<td><code>/auth/verify-otp</code></td>
+<td><code>POST</code></td>
+<td><code>phone</code> or <code>email</code>, <code>otp</code></td>
+<td><code>VerifyOtpDto</code></td>
+</tr>
+<tr>
+<td><code>/auth/refresh</code></td>
+<td><code>POST</code></td>
+<td><code>refreshToken</code></td>
+<td><code>RefreshTokenDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_1">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_1" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/auth/login</code></td>
+<td><code>accessToken</code>, <code>refreshToken</code>, <code>expiresIn</code>, <code>user</code></td>
+<td><code>AuthResponse</code></td>
+</tr>
+<tr>
+<td><code>/auth/register</code></td>
+<td><code>id</code>, <code>email</code>, <code>status</code>, <code>message</code></td>
+<td><code>RegisterResponse</code></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Types</span>
+<span class="nx">UserRole</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ADMIN&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;MANAGER&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;FARMER&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;WORKER&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;VIEWER&quot;</span>
+<span class="nx">UserStatus</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ACTIVE&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;INACTIVE&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;SUSPENDED&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;PENDING&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="3-user-service">3. user-service (المستخدمين المحمية)<a class="headerlink" href="#3-user-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>user-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>3025</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/auth/logout</code>, <code>/api/v1/auth/logout-all</code>, <code>/api/v1/auth/me</code>, <code>/api/v1/users</code></td>
+</tr>
+<tr>
+<td><strong>Rate Limiting</strong></td>
+<td>100/دقيقة، 2000/ساعة</td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_2">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_2" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/auth/me</code></td>
+<td><code>GET</code></td>
+<td><code>Authorization: Bearer &lt;token&gt;</code></td>
+<td>Header</td>
+</tr>
+<tr>
+<td><code>/users</code></td>
+<td><code>GET</code></td>
+<td><code>tenantId</code>, <code>role</code>, <code>status</code>, <code>page</code>, <code>limit</code></td>
+<td><code>QueryParams</code></td>
+</tr>
+<tr>
+<td><code>/users/:id</code></td>
+<td><code>PUT</code></td>
+<td><code>firstName</code>, <code>lastName</code>, <code>phone</code>, <code>role</code>, <code>status</code></td>
+<td><code>UpdateUserDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_2">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_2" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/auth/me</code></td>
+<td><code>id</code>, <code>tenantId</code>, <code>email</code>, <code>firstName</code>, <code>lastName</code>, <code>role</code>, <code>status</code></td>
+<td><code>User</code></td>
+</tr>
+<tr>
+<td><code>/users</code></td>
+<td>Array of User objects with pagination</td>
+<td><code>PaginatedResponse&lt;User&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="4-user-service-health">4. user-service-health (فحص الصحة)<a class="headerlink" href="#4-user-service-health" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>user-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>3025</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/health</code>, <code>/api/v1/healthz</code>, <code>/api/v1/readyz</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_3">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_3" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-service&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;database&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;nats&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;uptime&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12345</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="5-marketplace-service">5. marketplace-service (السوق الزراعي)<a class="headerlink" href="#5-marketplace-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>marketplace-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>3010</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/marketplace</code>, <code>/marketplace</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_3">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_3" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/products</code></td>
+<td><code>POST</code></td>
+<td><code>name</code>, <code>category</code>, <code>price</code>, <code>unit</code>, <code>quantity</code>, <code>farmerId</code></td>
+<td><code>CreateProductDto</code></td>
+</tr>
+<tr>
+<td><code>/products</code></td>
+<td><code>GET</code></td>
+<td><code>category</code>, <code>minPrice</code>, <code>maxPrice</code>, <code>location</code></td>
+<td><code>QueryParams</code></td>
+</tr>
+<tr>
+<td><code>/orders</code></td>
+<td><code>POST</code></td>
+<td><code>productId</code>, <code>quantity</code>, <code>buyerId</code>, <code>deliveryAddress</code></td>
+<td><code>CreateOrderDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_4">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_4" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/products</code></td>
+<td><code>id</code>, <code>name</code>, <code>category</code>, <code>price</code>, <code>unit</code>, <code>quantity</code>, <code>farmerId</code>, <code>status</code></td>
+<td><code>Product</code></td>
+</tr>
+<tr>
+<td><code>/orders</code></td>
+<td><code>id</code>, <code>productId</code>, <code>quantity</code>, <code>totalPrice</code>, <code>status</code>, <code>deliveryDate</code></td>
+<td><code>Order</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="6-research-core">6. research-core (البحث العلمي)<a class="headerlink" href="#6-research-core" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>research-core</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>3015</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/research</code>, <code>/research</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_4">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_4" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/trials</code></td>
+<td><code>POST</code></td>
+<td><code>name</code>, <code>cropType</code>, <code>startDate</code>, <code>endDate</code>, <code>treatments[]</code></td>
+<td><code>CreateTrialDto</code></td>
+</tr>
+<tr>
+<td><code>/trials/:id/results</code></td>
+<td><code>POST</code></td>
+<td><code>trialId</code>, <code>treatmentId</code>, <code>measurements[]</code></td>
+<td><code>RecordResultDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_5">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_5" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/trials</code></td>
+<td><code>id</code>, <code>name</code>, <code>status</code>, <code>cropType</code>, <code>treatments</code>, <code>results</code></td>
+<td><code>Trial</code></td>
+</tr>
+<tr>
+<td><code>/trials/:id/analysis</code></td>
+<td><code>statisticalSummary</code>, <code>significanceTests</code>, <code>recommendations</code></td>
+<td><code>TrialAnalysis</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="7-disaster-assessment">7. disaster-assessment (تقييم الكوارث)<a class="headerlink" href="#7-disaster-assessment" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>disaster-assessment</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>3020</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/disaster</code>, <code>/disaster</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_5">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_5" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/assessments</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>disasterType</code>, <code>severity</code>, <code>affectedArea</code>, <code>images[]</code></td>
+<td><code>CreateAssessmentDto</code></td>
+</tr>
+<tr>
+<td><code>/risk</code></td>
+<td><code>POST</code></td>
+<td><code>location</code> (lat/lon), <code>cropType</code>, <code>season</code></td>
+<td><code>RiskAnalysisRequest</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_6">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_6" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/assessments</code></td>
+<td><code>id</code>, <code>fieldId</code>, <code>disasterType</code>, <code>severity</code>, <code>estimatedLoss</code>, <code>recommendations</code></td>
+<td><code>Assessment</code></td>
+</tr>
+<tr>
+<td><code>/risk</code></td>
+<td><code>riskLevel</code>, <code>factors[]</code>, <code>mitigationMeasures[]</code></td>
+<td><code>RiskAnalysis</code></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Enums</span>
+<span class="nx">DisasterType</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;flood&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;drought&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;frost&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;hail&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;pest&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;disease&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;fire&quot;</span>
+<span class="nx">Severity</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;low&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;critical&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="8-chat-service">8. chat-service (الدردشة)<a class="headerlink" href="#8-chat-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>chat-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8000</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/chat</code>, <code>/chat</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_6">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_6" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/messages</code></td>
+<td><code>POST</code></td>
+<td><code>conversationId</code>, <code>content</code>, <code>senderId</code>, <code>type</code></td>
+<td><code>SendMessageDto</code></td>
+</tr>
+<tr>
+<td><code>/conversations</code></td>
+<td><code>POST</code></td>
+<td><code>participants[]</code>, <code>type</code>, <code>metadata</code></td>
+<td><code>CreateConversationDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_7">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_7" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/messages</code></td>
+<td><code>id</code>, <code>conversationId</code>, <code>content</code>, <code>senderId</code>, <code>timestamp</code>, <code>status</code></td>
+<td><code>Message</code></td>
+</tr>
+<tr>
+<td><code>/conversations/:id/messages</code></td>
+<td>Array of messages with pagination</td>
+<td><code>PaginatedResponse&lt;Message&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="9-iot-service">9. iot-service (إنترنت الأشياء)<a class="headerlink" href="#9-iot-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>iot-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8117</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/iot</code>, <code>/iot</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_7">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_7" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/devices</code></td>
+<td><code>POST</code></td>
+<td><code>name</code>, <code>type</code>, <code>fieldId</code>, <code>serialNumber</code>, <code>config</code></td>
+<td><code>RegisterDeviceDto</code></td>
+</tr>
+<tr>
+<td><code>/devices/:id/data</code></td>
+<td><code>POST</code></td>
+<td><code>readings[]</code> (timestamp, value, unit)</td>
+<td><code>SensorDataDto</code></td>
+</tr>
+<tr>
+<td><code>/devices/:id/commands</code></td>
+<td><code>POST</code></td>
+<td><code>command</code>, <code>parameters</code></td>
+<td><code>DeviceCommandDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_8">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_8" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/devices</code></td>
+<td><code>id</code>, <code>name</code>, <code>type</code>, <code>status</code>, <code>lastSeen</code>, <code>batteryLevel</code></td>
+<td><code>Device</code></td>
+</tr>
+<tr>
+<td><code>/devices/:id/data</code></td>
+<td><code>deviceId</code>, <code>readings[]</code>, <code>aggregates</code></td>
+<td><code>SensorDataResponse</code></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Enums</span>
+<span class="nx">DeviceType</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;soil_moisture&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;weather_station&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;irrigation_controller&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;camera&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;flow_meter&quot;</span>
+<span class="nx">DeviceStatus</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;online&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;offline&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;error&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;maintenance&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="10-community-chat">10. community-chat (مجتمع المزارعين)<a class="headerlink" href="#10-community-chat" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>community-chat</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8097</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/community</code>, <code>/api/v1/posts</code>, <code>/community</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_8">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_8" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/posts</code></td>
+<td><code>POST</code></td>
+<td><code>title</code>, <code>content</code>, <code>category</code>, <code>tags[]</code>, <code>images[]</code></td>
+<td><code>CreatePostDto</code></td>
+</tr>
+<tr>
+<td><code>/posts/:id/comments</code></td>
+<td><code>POST</code></td>
+<td><code>content</code>, <code>parentId</code></td>
+<td><code>CreateCommentDto</code></td>
+</tr>
+<tr>
+<td><code>/posts/:id/reactions</code></td>
+<td><code>POST</code></td>
+<td><code>type</code> (like, helpful, etc.)</td>
+<td><code>ReactionDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_9">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_9" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/posts</code></td>
+<td><code>id</code>, <code>title</code>, <code>content</code>, <code>author</code>, <code>category</code>, <code>likes</code>, <code>comments</code>, <code>createdAt</code></td>
+<td><code>Post</code></td>
+</tr>
+<tr>
+<td><code>/posts/:id/comments</code></td>
+<td><code>id</code>, <code>content</code>, <code>author</code>, <code>replies[]</code>, <code>createdAt</code></td>
+<td><code>Comment[]</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="python">خدمات Python<a class="headerlink" href="#python" title="Permanent link">&para;</a></h2>
+<h3 id="11-ws-gateway-websocket">11. ws-gateway (بوابة WebSocket)<a class="headerlink" href="#11-ws-gateway-websocket" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>ws-gateway</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8081</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/ws</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_9">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_9" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النوع</th>
+<th>المتغيرات</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WebSocket</td>
+<td><code>Authorization</code> header</td>
+<td>رمز JWT للمصادقة</td>
+</tr>
+<tr>
+<td>WebSocket</td>
+<td><code>subscribe</code> message</td>
+<td><code>{ "channel": "field.updates", "fieldId": "..." }</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_10">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_10" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field.updated</code></td>
+<td><code>fieldId</code>, <code>changes</code>, <code>timestamp</code></td>
+<td><code>FieldUpdateEvent</code></td>
+</tr>
+<tr>
+<td><code>alert.created</code></td>
+<td><code>alertId</code>, <code>type</code>, <code>severity</code>, <code>message</code></td>
+<td><code>AlertEvent</code></td>
+</tr>
+<tr>
+<td><code>sensor.reading</code></td>
+<td><code>deviceId</code>, <code>readings[]</code></td>
+<td><code>SensorEvent</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="12-billing-core">12. billing-core (الفوترة)<a class="headerlink" href="#12-billing-core" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>billing-core</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8089</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/billing</code>, <code>/billing</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_10">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_10" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/subscriptions</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>planId</code>, <code>paymentMethod</code>, <code>autoRenew</code></td>
+<td><code>CreateSubscriptionDto</code></td>
+</tr>
+<tr>
+<td><code>/invoices/:id/pay</code></td>
+<td><code>POST</code></td>
+<td><code>paymentMethod</code>, <code>transactionId</code></td>
+<td><code>PaymentDto</code></td>
+</tr>
+<tr>
+<td><code>/usage</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>feature</code>, <code>quantity</code></td>
+<td><code>RecordUsageDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_11">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_11" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/plans</code></td>
+<td><code>planId</code>, <code>name</code>, <code>nameAr</code>, <code>price</code>, <code>currency</code>, <code>billingCycle</code>, <code>features</code></td>
+<td><code>Plan[]</code></td>
+</tr>
+<tr>
+<td><code>/subscriptions</code></td>
+<td><code>id</code>, <code>tenantId</code>, <code>planId</code>, <code>status</code>, <code>startDate</code>, <code>endDate</code>, <code>autoRenew</code></td>
+<td><code>Subscription</code></td>
+</tr>
+<tr>
+<td><code>/invoices</code></td>
+<td><code>id</code>, <code>amount</code>, <code>currency</code>, <code>status</code>, <code>dueDate</code>, <code>items[]</code></td>
+<td><code>Invoice</code></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enums</span>
+<span class="n">SubscriptionStatus</span><span class="p">:</span> <span class="s2">&quot;ACTIVE&quot;</span> <span class="o">|</span> <span class="s2">&quot;TRIAL&quot;</span> <span class="o">|</span> <span class="s2">&quot;PAST_DUE&quot;</span> <span class="o">|</span> <span class="s2">&quot;CANCELED&quot;</span> <span class="o">|</span> <span class="s2">&quot;SUSPENDED&quot;</span> <span class="o">|</span> <span class="s2">&quot;EXPIRED&quot;</span>
+<span class="n">InvoiceStatus</span><span class="p">:</span> <span class="s2">&quot;DRAFT&quot;</span> <span class="o">|</span> <span class="s2">&quot;PENDING&quot;</span> <span class="o">|</span> <span class="s2">&quot;PAID&quot;</span> <span class="o">|</span> <span class="s2">&quot;OVERDUE&quot;</span> <span class="o">|</span> <span class="s2">&quot;CANCELED&quot;</span> <span class="o">|</span> <span class="s2">&quot;REFUNDED&quot;</span>
+<span class="n">PaymentMethod</span><span class="p">:</span> <span class="s2">&quot;CREDIT_CARD&quot;</span> <span class="o">|</span> <span class="s2">&quot;BANK_TRANSFER&quot;</span> <span class="o">|</span> <span class="s2">&quot;MOBILE_MONEY&quot;</span> <span class="o">|</span> <span class="s2">&quot;CASH&quot;</span>
+<span class="n">PlanTier</span><span class="p">:</span> <span class="s2">&quot;FREE&quot;</span> <span class="o">|</span> <span class="s2">&quot;STARTER&quot;</span> <span class="o">|</span> <span class="s2">&quot;PROFESSIONAL&quot;</span> <span class="o">|</span> <span class="s2">&quot;ENTERPRISE&quot;</span>
+<span class="n">BillingCycle</span><span class="p">:</span> <span class="s2">&quot;MONTHLY&quot;</span> <span class="o">|</span> <span class="s2">&quot;QUARTERLY&quot;</span> <span class="o">|</span> <span class="s2">&quot;YEARLY&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="13-vegetation-analysis-service">13. vegetation-analysis-service (تحليل الغطاء النباتي)<a class="headerlink" href="#13-vegetation-analysis-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>vegetation-analysis-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8090</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/vegetation</code>, <code>/api/v1/satellite</code>, <code>/api/v1/ndvi</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_11">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_11" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/analyze</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>boundary</code> (GeoJSON), <code>startDate</code>, <code>endDate</code></td>
+<td><code>AnalysisRequest</code></td>
+</tr>
+<tr>
+<td><code>/ndvi</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>date</code>, <code>cloudCoverMax</code></td>
+<td><code>NdviRequest</code></td>
+</tr>
+<tr>
+<td><code>/timeseries</code></td>
+<td><code>GET</code></td>
+<td><code>fieldId</code>, <code>startDate</code>, <code>endDate</code>, <code>interval</code></td>
+<td><code>QueryParams</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_12">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_12" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/analyze</code></td>
+<td><code>fieldId</code>, <code>ndviMean</code>, <code>ndviMin</code>, <code>ndviMax</code>, <code>healthScore</code>, <code>anomalies[]</code></td>
+<td><code>AnalysisResult</code></td>
+</tr>
+<tr>
+<td><code>/ndvi</code></td>
+<td><code>value</code> (-1 to 1), <code>date</code>, <code>source</code>, <code>cloudCover</code>, <code>quality</code></td>
+<td><code>NdviReading</code></td>
+</tr>
+<tr>
+<td><code>/timeseries</code></td>
+<td><code>readings[]</code> with date and value</td>
+<td><code>TimeseriesData</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="14-indicators-service">14. indicators-service (المؤشرات الزراعية)<a class="headerlink" href="#14-indicators-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>indicators-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8091</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/indicators</code>, <code>/indicators</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_12">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_12" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/compute</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>indicators[]</code>, <code>dateRange</code></td>
+<td><code>ComputeRequest</code></td>
+</tr>
+<tr>
+<td><code>/lai</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>ndvi</code>, <code>cropType</code>, <code>growthStage</code></td>
+<td><code>LaiRequest</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_13">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_13" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/compute</code></td>
+<td><code>fieldId</code>, <code>indicators</code> (NDVI, LAI, NDWI, EVI), <code>computedAt</code></td>
+<td><code>IndicatorsResult</code></td>
+</tr>
+<tr>
+<td><code>/lai</code></td>
+<td><code>value</code>, <code>confidence</code>, <code>method</code></td>
+<td><code>LaiResult</code></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Indicator Types</span>
+<span class="n">IndicatorType</span><span class="p">:</span> <span class="s2">&quot;NDVI&quot;</span> <span class="o">|</span> <span class="s2">&quot;LAI&quot;</span> <span class="o">|</span> <span class="s2">&quot;NDWI&quot;</span> <span class="o">|</span> <span class="s2">&quot;EVI&quot;</span> <span class="o">|</span> <span class="s2">&quot;SAVI&quot;</span> <span class="o">|</span> <span class="s2">&quot;GNDVI&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="15-weather-service">15. weather-service (الطقس)<a class="headerlink" href="#15-weather-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>weather-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8092</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/weather</code>, <code>/weather</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_13">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_13" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/assess</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>tempC</code>, <code>humidityPct</code>, <code>windSpeedKmh</code>, <code>precipitationMm</code>, <code>uvIndex</code></td>
+<td><code>WeatherAssessRequest</code></td>
+</tr>
+<tr>
+<td><code>/current</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>lat</code> (-90 to 90), <code>lon</code> (-180 to 180)</td>
+<td><code>LocationRequest</code></td>
+</tr>
+<tr>
+<td><code>/forecast</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>lat</code>, <code>lon</code>, <code>days</code> (1-16)</td>
+<td><code>ForecastRequest</code></td>
+</tr>
+<tr>
+<td><code>/evapotranspiration</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>tempC</code>, <code>humidityPct</code>, <code>windSpeedKmh</code>, <code>solarRadiationMj</code></td>
+<td><code>ETRequest</code></td>
+</tr>
+<tr>
+<td><code>/gdd</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>tempMaxC</code>, <code>tempMinC</code>, <code>baseTempC</code>, <code>upperTempC</code></td>
+<td><code>GDDRequest</code></td>
+</tr>
+<tr>
+<td><code>/spray-window</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>tempC</code>, <code>humidityPct</code>, <code>windSpeedKmh</code>, <code>precipitationProbability</code></td>
+<td><code>SprayWindowRequest</code></td>
+</tr>
+<tr>
+<td><code>/frost-risk</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>tempC</code>, <code>humidityPct</code>, <code>windSpeedKmh</code>, <code>cloudCoverPct</code>, <code>dewPointC</code></td>
+<td><code>FrostRiskRequest</code></td>
+</tr>
+<tr>
+<td><code>/heat-stress</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>tempC</code>, <code>humidityPct</code>, <code>solarRadiationMj</code>, <code>windSpeedKmh</code></td>
+<td><code>HeatStressRequest</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_14">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_14" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/current</code></td>
+<td><code>temperatureC</code>, <code>humidityPct</code>, <code>windSpeedKmh</code>, <code>precipitationMm</code>, <code>uvIndex</code>, <code>timestamp</code></td>
+<td><code>CurrentWeather</code></td>
+</tr>
+<tr>
+<td><code>/forecast</code></td>
+<td><code>daily[]</code> with date, tempMin, tempMax, precipitation, condition</td>
+<td><code>ForecastResponse</code></td>
+</tr>
+<tr>
+<td><code>/evapotranspiration</code></td>
+<td><code>et0Mm</code>, <code>method</code> ("FAO-56 Penman-Monteith")</td>
+<td><code>ETResult</code></td>
+</tr>
+<tr>
+<td><code>/gdd</code></td>
+<td><code>gddValue</code>, <code>accumulatedGdd</code></td>
+<td><code>GDDResult</code></td>
+</tr>
+<tr>
+<td><code>/spray-window</code></td>
+<td><code>suitable</code> (boolean), <code>factors[]</code>, <code>optimalWindow</code></td>
+<td><code>SprayWindowResult</code></td>
+</tr>
+<tr>
+<td><code>/frost-risk</code></td>
+<td><code>riskLevel</code>, <code>probability</code>, <code>recommendedActions[]</code></td>
+<td><code>FrostRiskResult</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="16-advisory-service">16. advisory-service (الاستشارات الزراعية)<a class="headerlink" href="#16-advisory-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>advisory-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8093</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/advisory</code>, <code>/api/v1/fertilizer</code>, <code>/advisory</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_14">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_14" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/disease/assess</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>conditionId</code>, <code>confidence</code> (0-1), <code>crop</code>, <code>weather</code></td>
+<td><code>DiseaseAssessRequest</code></td>
+</tr>
+<tr>
+<td><code>/disease/symptoms</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>crop</code>, <code>symptoms[]</code>, <code>lang</code></td>
+<td><code>SymptomAssessRequest</code></td>
+</tr>
+<tr>
+<td><code>/nutrient/ndvi</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>ndvi</code> (-1 to 1), <code>ndviHistory</code>, <code>crop</code>, <code>stage</code></td>
+<td><code>NDVIAssessRequest</code></td>
+</tr>
+<tr>
+<td><code>/nutrient/visual</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>leafColor</code>, <code>pattern</code>, <code>location</code>, <code>crop</code></td>
+<td><code>VisualAssessRequest</code></td>
+</tr>
+<tr>
+<td><code>/fertilizer/plan</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>crop</code>, <code>stage</code>, <code>fieldSizeHa</code>, <code>soilFertility</code>, <code>irrigationType</code></td>
+<td><code>FertilizerPlanRequest</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_15">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_15" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/disease/assess</code></td>
+<td><code>category</code>, <code>severity</code>, <code>titleAr</code>, <code>titleEn</code>, <code>confidence</code>, <code>actions[]</code>, <code>details</code></td>
+<td><code>DiseaseAssessment</code></td>
+</tr>
+<tr>
+<td><code>/disease/symptoms</code></td>
+<td><code>possibleDiseases[]</code> with name, probability, treatments</td>
+<td><code>SymptomAnalysis</code></td>
+</tr>
+<tr>
+<td><code>/nutrient/ndvi</code></td>
+<td><code>deficiency</code>, <code>severity</code>, <code>recommendations[]</code></td>
+<td><code>NutrientAssessment</code></td>
+</tr>
+<tr>
+<td><code>/fertilizer/plan</code></td>
+<td><code>applications[]</code> with product, rate, timing, method</td>
+<td><code>FertilizerPlan</code></td>
+</tr>
+<tr>
+<td><code>/crops</code></td>
+<td><code>code</code>, <code>nameAr</code>, <code>nameEn</code>, <code>category</code>, <code>seasons</code>, <code>stages[]</code></td>
+<td><code>Crop[]</code></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enums</span>
+<span class="n">Severity</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span> <span class="o">|</span> <span class="s2">&quot;low&quot;</span> <span class="o">|</span> <span class="s2">&quot;medium&quot;</span> <span class="o">|</span> <span class="s2">&quot;high&quot;</span> <span class="o">|</span> <span class="s2">&quot;critical&quot;</span>
+<span class="n">GrowthStage</span><span class="p">:</span> <span class="s2">&quot;germination&quot;</span> <span class="o">|</span> <span class="s2">&quot;seedling&quot;</span> <span class="o">|</span> <span class="s2">&quot;tillering&quot;</span> <span class="o">|</span> <span class="s2">&quot;heading&quot;</span> <span class="o">|</span> <span class="s2">&quot;flowering&quot;</span> <span class="o">|</span> <span class="s2">&quot;ripening&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="17-irrigation-smart">17. irrigation-smart (الري الذكي)<a class="headerlink" href="#17-irrigation-smart" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>irrigation-smart</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8094</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/irrigation</code>, <code>/irrigation</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_15">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_15" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/schedule</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>cropType</code>, <code>soilType</code>, <code>irrigationType</code>, <code>waterSource</code></td>
+<td><code>ScheduleRequest</code></td>
+</tr>
+<tr>
+<td><code>/recommend</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>soilMoisture</code>, <code>et0</code>, <code>cropKc</code>, <code>rainfallMm</code></td>
+<td><code>RecommendRequest</code></td>
+</tr>
+<tr>
+<td><code>/zones</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>zones[]</code> with area, soilType, cropType</td>
+<td><code>ZoneConfigRequest</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_16">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_16" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/schedule</code></td>
+<td><code>schedules[]</code> with date, duration, volume, zone</td>
+<td><code>IrrigationSchedule</code></td>
+</tr>
+<tr>
+<td><code>/recommend</code></td>
+<td><code>waterNeededMm</code>, <code>irrigationDuration</code>, <code>nextIrrigationDate</code>, <code>efficiency</code></td>
+<td><code>IrrigationRecommendation</code></td>
+</tr>
+<tr>
+<td><code>/status/:fieldId</code></td>
+<td><code>currentMoisture</code>, <code>lastIrrigation</code>, <code>nextScheduled</code>, <code>waterUsage</code></td>
+<td><code>IrrigationStatus</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="18-crop-intelligence-service">18. crop-intelligence-service (ذكاء المحاصيل)<a class="headerlink" href="#18-crop-intelligence-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>crop-intelligence-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8095</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/crop-health</code>, <code>/api/v1/crop</code>, <code>/crop</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_16">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_16" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/analyze</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>image</code> (base64), <code>cropType</code></td>
+<td><code>ImageAnalysisRequest</code></td>
+</tr>
+<tr>
+<td><code>/diagnose</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>symptoms[]</code>, <code>cropType</code>, <code>growthStage</code></td>
+<td><code>DiagnoseRequest</code></td>
+</tr>
+<tr>
+<td><code>/predict</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>cropType</code>, <code>plantingDate</code>, <code>currentStage</code></td>
+<td><code>PredictionRequest</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_17">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_17" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/analyze</code></td>
+<td><code>healthScore</code>, <code>issues[]</code>, <code>recommendations[]</code>, <code>confidence</code></td>
+<td><code>HealthAnalysis</code></td>
+</tr>
+<tr>
+<td><code>/diagnose</code></td>
+<td><code>diagnosis</code>, <code>probability</code>, <code>treatments[]</code>, <code>preventiveMeasures[]</code></td>
+<td><code>DiagnosisResult</code></td>
+</tr>
+<tr>
+<td><code>/predict</code></td>
+<td><code>expectedYield</code>, <code>harvestDate</code>, <code>riskFactors[]</code></td>
+<td><code>YieldPrediction</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="19-virtual-sensors">19. virtual-sensors (المستشعرات الافتراضية)<a class="headerlink" href="#19-virtual-sensors" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>virtual-sensors</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8119</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/virtual-sensors</code>, <code>/virtual-sensors</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_17">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_17" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/compute</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>sensorType</code>, <code>inputs</code> (weather, satellite, etc.)</td>
+<td><code>ComputeRequest</code></td>
+</tr>
+<tr>
+<td><code>/calibrate</code></td>
+<td><code>POST</code></td>
+<td><code>sensorId</code>, <code>groundTruthValues[]</code></td>
+<td><code>CalibrationRequest</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_18">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_18" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/compute</code></td>
+<td><code>sensorType</code>, <code>value</code>, <code>unit</code>, <code>confidence</code>, <code>methodology</code></td>
+<td><code>VirtualReading</code></td>
+</tr>
+<tr>
+<td><code>/:fieldId/readings</code></td>
+<td><code>readings[]</code> with type, value, timestamp</td>
+<td><code>SensorReadings</code></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Virtual Sensor Types</span>
+<span class="n">VirtualSensorType</span><span class="p">:</span> <span class="s2">&quot;soil_moisture&quot;</span> <span class="o">|</span> <span class="s2">&quot;evapotranspiration&quot;</span> <span class="o">|</span> <span class="s2">&quot;crop_water_stress&quot;</span> <span class="o">|</span> <span class="s2">&quot;nitrogen_status&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="20-yield-prediction-service">20. yield-prediction-service (التنبؤ بالمحصول)<a class="headerlink" href="#20-yield-prediction-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>yield-prediction-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8098</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/yield</code>, <code>/yield</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_18">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_18" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/predict</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>cropType</code>, <code>plantingDate</code>, <code>areaHa</code>, <code>ndviHistory[]</code>, <code>weatherData</code></td>
+<td><code>PredictionRequest</code></td>
+</tr>
+<tr>
+<td><code>/compare</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>actualYield</code>, <code>predictedYield</code></td>
+<td><code>CompareRequest</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_19">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_19" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/predict</code></td>
+<td><code>expectedYield</code>, <code>yieldRange</code> (min, max), <code>confidence</code>, <code>factors[]</code></td>
+<td><code>YieldPrediction</code></td>
+</tr>
+<tr>
+<td><code>/history/:fieldId</code></td>
+<td><code>predictions[]</code>, <code>actuals[]</code>, <code>accuracy</code></td>
+<td><code>PredictionHistory</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="21-field-chat">21. field-chat (دردشة الحقل)<a class="headerlink" href="#21-field-chat" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>field-chat</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8099</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/field-chat</code>, <code>/field-chat</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_19">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_19" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/ask</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>question</code>, <code>context</code>, <code>language</code></td>
+<td><code>QuestionRequest</code></td>
+</tr>
+<tr>
+<td><code>/history</code></td>
+<td><code>GET</code></td>
+<td><code>fieldId</code>, <code>limit</code></td>
+<td><code>QueryParams</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_20">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_20" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/ask</code></td>
+<td><code>answer</code>, <code>answerAr</code>, <code>sources[]</code>, <code>confidence</code>, <code>suggestions[]</code></td>
+<td><code>ChatResponse</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="22-equipment-service">22. equipment-service (المعدات)<a class="headerlink" href="#22-equipment-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>equipment-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8101</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/equipment</code>, <code>/equipment</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_20">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_20" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td><code>POST</code></td>
+<td><code>name</code>, <code>type</code>, <code>model</code>, <code>purchaseDate</code>, <code>condition</code></td>
+<td><code>CreateEquipmentDto</code></td>
+</tr>
+<tr>
+<td><code>/:id/maintenance</code></td>
+<td><code>POST</code></td>
+<td><code>type</code>, <code>description</code>, <code>cost</code>, <code>performedBy</code></td>
+<td><code>MaintenanceRecordDto</code></td>
+</tr>
+<tr>
+<td><code>/:id/assign</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>taskId</code>, <code>startDate</code>, <code>endDate</code></td>
+<td><code>AssignmentDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_21">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_21" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td><code>id</code>, <code>name</code>, <code>type</code>, <code>model</code>, <code>condition</code>, <code>lastMaintenance</code>, <code>nextMaintenance</code></td>
+<td><code>Equipment</code></td>
+</tr>
+<tr>
+<td><code>/:id/history</code></td>
+<td><code>maintenanceRecords[]</code>, <code>assignments[]</code>, <code>usageHours</code></td>
+<td><code>EquipmentHistory</code></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enums</span>
+<span class="n">EquipmentType</span><span class="p">:</span> <span class="s2">&quot;tractor&quot;</span> <span class="o">|</span> <span class="s2">&quot;harvester&quot;</span> <span class="o">|</span> <span class="s2">&quot;sprayer&quot;</span> <span class="o">|</span> <span class="s2">&quot;irrigation_pump&quot;</span> <span class="o">|</span> <span class="s2">&quot;seeder&quot;</span> <span class="o">|</span> <span class="s2">&quot;plow&quot;</span>
+<span class="n">Condition</span><span class="p">:</span> <span class="s2">&quot;excellent&quot;</span> <span class="o">|</span> <span class="s2">&quot;good&quot;</span> <span class="o">|</span> <span class="s2">&quot;fair&quot;</span> <span class="o">|</span> <span class="s2">&quot;poor&quot;</span> <span class="o">|</span> <span class="s2">&quot;needs_repair&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="23-task-service">23. task-service (المهام)<a class="headerlink" href="#23-task-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>task-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8103</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/tasks</code>, <code>/api/v1/task</code>, <code>/task</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_21">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_21" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td><code>POST</code></td>
+<td><code>title</code>, <code>description</code>, <code>taskType</code>, <code>priority</code>, <code>dueDate</code>, <code>assignedTo</code>, <code>fieldId</code></td>
+<td><code>CreateTaskDto</code></td>
+</tr>
+<tr>
+<td><code>/:id/status</code></td>
+<td><code>PATCH</code></td>
+<td><code>status</code>, <code>completionNotes</code>, <code>evidence</code></td>
+<td><code>UpdateStatusDto</code></td>
+</tr>
+<tr>
+<td><code>/:id/assign</code></td>
+<td><code>PATCH</code></td>
+<td><code>assignedTo</code></td>
+<td><code>AssignDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_22">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_22" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td><code>id</code>, <code>title</code>, <code>taskType</code>, <code>priority</code>, <code>status</code>, <code>dueDate</code>, <code>assignedTo</code>, <code>field</code></td>
+<td><code>Task</code></td>
+</tr>
+<tr>
+<td><code>/overdue</code></td>
+<td>Tasks where dueDate &lt; now and status != completed</td>
+<td><code>Task[]</code></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enums</span>
+<span class="n">TaskType</span><span class="p">:</span> <span class="s2">&quot;irrigation&quot;</span> <span class="o">|</span> <span class="s2">&quot;fertilization&quot;</span> <span class="o">|</span> <span class="s2">&quot;spraying&quot;</span> <span class="o">|</span> <span class="s2">&quot;scouting&quot;</span> <span class="o">|</span> <span class="s2">&quot;maintenance&quot;</span> <span class="o">|</span> <span class="s2">&quot;harvest&quot;</span> <span class="o">|</span> <span class="s2">&quot;planting&quot;</span>
+<span class="n">Priority</span><span class="p">:</span> <span class="s2">&quot;low&quot;</span> <span class="o">|</span> <span class="s2">&quot;medium&quot;</span> <span class="o">|</span> <span class="s2">&quot;high&quot;</span> <span class="o">|</span> <span class="s2">&quot;urgent&quot;</span>
+<span class="n">TaskStatus</span><span class="p">:</span> <span class="s2">&quot;pending&quot;</span> <span class="o">|</span> <span class="s2">&quot;in_progress&quot;</span> <span class="o">|</span> <span class="s2">&quot;completed&quot;</span> <span class="o">|</span> <span class="s2">&quot;cancelled&quot;</span> <span class="o">|</span> <span class="s2">&quot;overdue&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="24-provider-config">24. provider-config (تكوين المزودين)<a class="headerlink" href="#24-provider-config" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>provider-config</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8104</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/provider-config</code>, <code>/provider-config</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_22">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_22" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td><code>POST</code></td>
+<td><code>providerType</code>, <code>name</code>, <code>config</code>, <code>priority</code>, <code>enabled</code></td>
+<td><code>CreateProviderDto</code></td>
+</tr>
+<tr>
+<td><code>/:id</code></td>
+<td><code>PUT</code></td>
+<td><code>config</code>, <code>priority</code>, <code>enabled</code></td>
+<td><code>UpdateProviderDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_23">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_23" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td><code>id</code>, <code>providerType</code>, <code>name</code>, <code>config</code>, <code>priority</code>, <code>enabled</code>, <code>healthStatus</code></td>
+<td><code>Provider</code></td>
+</tr>
+<tr>
+<td><code>/types</code></td>
+<td>Available provider types</td>
+<td><code>string[]</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="25-agro-advisor">25. agro-advisor (المستشار الزراعي)<a class="headerlink" href="#25-agro-advisor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>agro-advisor</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8105</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/agro-advisor</code>, <code>/api/v1/agro-rules</code>, <code>/agro-advisor</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_23">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_23" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/advise</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>cropType</code>, <code>currentStage</code>, <code>issues[]</code>, <code>context</code></td>
+<td><code>AdviceRequest</code></td>
+</tr>
+<tr>
+<td><code>/rules/evaluate</code></td>
+<td><code>POST</code></td>
+<td><code>conditions</code>, <code>cropType</code>, <code>region</code></td>
+<td><code>RuleEvaluationRequest</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_24">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_24" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/advise</code></td>
+<td><code>recommendations[]</code>, <code>priority</code>, <code>timing</code>, <code>expectedOutcome</code></td>
+<td><code>AgronomicAdvice</code></td>
+</tr>
+<tr>
+<td><code>/rules</code></td>
+<td><code>ruleId</code>, <code>condition</code>, <code>action</code>, <code>priority</code>, <code>applicableCrops[]</code></td>
+<td><code>AgroRule[]</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="26-iot-gateway-iot">26. iot-gateway (بوابة IoT)<a class="headerlink" href="#26-iot-gateway-iot" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>iot-gateway</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8106</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/iot-gateway</code>, <code>/iot-gateway</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_24">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_24" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/ingest</code></td>
+<td><code>POST</code></td>
+<td><code>deviceId</code>, <code>protocol</code>, <code>payload</code></td>
+<td><code>IngestRequest</code></td>
+</tr>
+<tr>
+<td><code>/protocols</code></td>
+<td><code>GET</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_25">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_25" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/ingest</code></td>
+<td><code>accepted</code>, <code>deviceId</code>, <code>messageId</code></td>
+<td><code>IngestResponse</code></td>
+</tr>
+<tr>
+<td><code>/protocols</code></td>
+<td><code>mqtt</code>, <code>http</code>, <code>coap</code>, <code>lorawan</code></td>
+<td><code>string[]</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="27-weather-core">27. weather-core (الطقس المتقدم)<a class="headerlink" href="#27-weather-core" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>weather-core</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8108</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/weather-core</code>, <code>/weather-core</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_25">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_25" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/comprehensive-stress-report</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>lat</code>, <code>lon</code>, <code>cropType</code></td>
+<td><code>StressReportRequest</code></td>
+</tr>
+<tr>
+<td><code>/agricultural-report</code></td>
+<td><code>POST</code></td>
+<td><code>tenantId</code>, <code>fieldId</code>, <code>lat</code>, <code>lon</code></td>
+<td><code>AgReportRequest</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_26">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_26" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/comprehensive-stress-report</code></td>
+<td><code>heatStress</code>, <code>frostRisk</code>, <code>droughtIndex</code>, <code>overallRisk</code>, <code>recommendations[]</code></td>
+<td><code>StressReport</code></td>
+</tr>
+<tr>
+<td><code>/agricultural-report</code></td>
+<td><code>current</code>, <code>forecast</code>, <code>agriculturalAlerts[]</code>, <code>sprayWindows[]</code></td>
+<td><code>AgReport</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="28-notification-service">28. notification-service (الإشعارات)<a class="headerlink" href="#28-notification-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>notification-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8110</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/notifications</code>, <code>/api/v1/channels</code>, <code>/api/v1/preferences</code>, <code>/api/v1/alerts</code>, <code>/api/v1/reminders</code>, <code>/api/v1/farmers</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_26">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_26" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td><code>POST</code></td>
+<td><code>type</code>, <code>priority</code>, <code>title</code>, <code>titleAr</code>, <code>body</code>, <code>bodyAr</code>, <code>targetFarmers[]</code>, <code>targetGovernorates[]</code>, <code>targetCrops[]</code>, <code>channels[]</code>, <code>expiresInHours</code></td>
+<td><code>CreateNotificationRequest</code></td>
+</tr>
+<tr>
+<td><code>/weather</code></td>
+<td><code>POST</code></td>
+<td><code>governorates[]</code>, <code>alertType</code>, <code>severity</code>, <code>expectedDate</code>, <code>details</code></td>
+<td><code>WeatherAlertRequest</code></td>
+</tr>
+<tr>
+<td><code>/pest</code></td>
+<td><code>POST</code></td>
+<td><code>governorate</code>, <code>pestName</code>, <code>pestNameAr</code>, <code>affectedCrops[]</code>, <code>severity</code></td>
+<td><code>PestAlertRequest</code></td>
+</tr>
+<tr>
+<td><code>/irrigation</code></td>
+<td><code>POST</code></td>
+<td><code>farmerId</code>, <code>fieldId</code>, <code>fieldName</code>, <code>crop</code>, <code>waterNeededMm</code>, <code>urgency</code></td>
+<td><code>IrrigationReminderRequest</code></td>
+</tr>
+<tr>
+<td><code>/register</code></td>
+<td><code>POST</code></td>
+<td><code>farmerId</code>, <code>name</code>, <code>nameAr</code>, <code>governorate</code>, <code>crops[]</code>, <code>phone</code>, <code>email</code>, <code>fcmToken</code>, <code>language</code></td>
+<td><code>FarmerProfile</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_27">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_27" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/farmer/:farmerId</code></td>
+<td><code>notifications[]</code> with id, title, body, type, priority, status, sentAt, readAt</td>
+<td><code>Notification[]</code></td>
+</tr>
+<tr>
+<td><code>/stats</code></td>
+<td><code>total</code>, <code>sent</code>, <code>read</code>, <code>byType</code>, <code>byChannel</code></td>
+<td><code>NotificationStats</code></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enums</span>
+<span class="n">NotificationType</span><span class="p">:</span> <span class="s2">&quot;WEATHER_ALERT&quot;</span> <span class="o">|</span> <span class="s2">&quot;PEST_OUTBREAK&quot;</span> <span class="o">|</span> <span class="s2">&quot;IRRIGATION_REMINDER&quot;</span> <span class="o">|</span> <span class="s2">&quot;DISEASE_DETECTED&quot;</span> <span class="o">|</span> <span class="s2">&quot;HARVEST_REMINDER&quot;</span> <span class="o">|</span> <span class="s2">&quot;MARKET_PRICE&quot;</span> <span class="o">|</span> <span class="s2">&quot;SYSTEM&quot;</span>
+<span class="n">NotificationPriority</span><span class="p">:</span> <span class="s2">&quot;LOW&quot;</span> <span class="o">|</span> <span class="s2">&quot;MEDIUM&quot;</span> <span class="o">|</span> <span class="s2">&quot;HIGH&quot;</span> <span class="o">|</span> <span class="s2">&quot;CRITICAL&quot;</span>
+<span class="n">NotificationChannel</span><span class="p">:</span> <span class="s2">&quot;PUSH&quot;</span> <span class="o">|</span> <span class="s2">&quot;SMS&quot;</span> <span class="o">|</span> <span class="s2">&quot;EMAIL&quot;</span> <span class="o">|</span> <span class="s2">&quot;WHATSAPP&quot;</span> <span class="o">|</span> <span class="s2">&quot;IN_APP&quot;</span>
+<span class="n">Governorate</span><span class="p">:</span> <span class="s2">&quot;sanaa&quot;</span> <span class="o">|</span> <span class="s2">&quot;aden&quot;</span> <span class="o">|</span> <span class="s2">&quot;taiz&quot;</span> <span class="o">|</span> <span class="s2">&quot;hodeidah&quot;</span> <span class="o">|</span> <span class="s2">&quot;ibb&quot;</span> <span class="o">|</span> <span class="o">...</span>
+</code></pre></div>
+
+<hr />
+<h3 id="29-astronomical-calendar">29. astronomical-calendar (التقويم الفلكي)<a class="headerlink" href="#29-astronomical-calendar" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>astronomical-calendar</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8111</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/astronomy</code>, <code>/astronomy</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_27">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_27" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/prayer-times</code></td>
+<td><code>GET</code></td>
+<td><code>lat</code>, <code>lon</code>, <code>date</code>, <code>method</code></td>
+<td><code>QueryParams</code></td>
+</tr>
+<tr>
+<td><code>/moon-phase</code></td>
+<td><code>GET</code></td>
+<td><code>date</code></td>
+<td><code>QueryParams</code></td>
+</tr>
+<tr>
+<td><code>/seasons</code></td>
+<td><code>GET</code></td>
+<td><code>year</code>, <code>hemisphere</code></td>
+<td><code>QueryParams</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_28">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_28" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/prayer-times</code></td>
+<td><code>fajr</code>, <code>sunrise</code>, <code>dhuhr</code>, <code>asr</code>, <code>maghrib</code>, <code>isha</code></td>
+<td><code>PrayerTimes</code></td>
+</tr>
+<tr>
+<td><code>/moon-phase</code></td>
+<td><code>phase</code>, <code>illumination</code>, <code>age</code>, <code>nextFullMoon</code></td>
+<td><code>MoonPhase</code></td>
+</tr>
+<tr>
+<td><code>/hijri-date</code></td>
+<td><code>day</code>, <code>month</code>, <code>year</code>, <code>monthName</code>, <code>monthNameAr</code></td>
+<td><code>HijriDate</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="30-ai-advisor">30. ai-advisor (المستشار الذكي)<a class="headerlink" href="#30-ai-advisor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>ai-advisor</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8112</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/ai-advisor</code>, <code>/ai-advisor</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_28">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_28" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/chat</code></td>
+<td><code>POST</code></td>
+<td><code>message</code>, <code>context</code>, <code>fieldId</code>, <code>language</code></td>
+<td><code>ChatRequest</code></td>
+</tr>
+<tr>
+<td><code>/analyze-image</code></td>
+<td><code>POST</code></td>
+<td><code>image</code> (base64), <code>cropType</code>, <code>question</code></td>
+<td><code>ImageAnalysisRequest</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_29">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_29" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/chat</code></td>
+<td><code>response</code>, <code>responseAr</code>, <code>suggestions[]</code>, <code>references[]</code></td>
+<td><code>AiResponse</code></td>
+</tr>
+<tr>
+<td><code>/analyze-image</code></td>
+<td><code>diagnosis</code>, <code>confidence</code>, <code>recommendations[]</code></td>
+<td><code>ImageAnalysisResult</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="31-alert-service">31. alert-service (التنبيهات)<a class="headerlink" href="#31-alert-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>alert-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8113</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/alerts</code>, <code>/alerts</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_29">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_29" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td><code>POST</code></td>
+<td><code>type</code>, <code>severity</code>, <code>title</code>, <code>message</code>, <code>fieldId</code>, <code>metadata</code></td>
+<td><code>CreateAlertDto</code></td>
+</tr>
+<tr>
+<td><code>/:id/acknowledge</code></td>
+<td><code>PATCH</code></td>
+<td><code>acknowledgedBy</code>, <code>notes</code></td>
+<td><code>AcknowledgeDto</code></td>
+</tr>
+<tr>
+<td><code>/:id/resolve</code></td>
+<td><code>PATCH</code></td>
+<td><code>resolution</code>, <code>resolvedBy</code></td>
+<td><code>ResolveDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_30">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_30" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td><code>id</code>, <code>type</code>, <code>severity</code>, <code>title</code>, <code>message</code>, <code>status</code>, <code>createdAt</code>, <code>acknowledgedAt</code>, <code>resolvedAt</code></td>
+<td><code>Alert</code></td>
+</tr>
+<tr>
+<td><code>/active</code></td>
+<td>Active alerts filtered by status</td>
+<td><code>Alert[]</code></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enums</span>
+<span class="n">AlertType</span><span class="p">:</span> <span class="s2">&quot;weather&quot;</span> <span class="o">|</span> <span class="s2">&quot;pest&quot;</span> <span class="o">|</span> <span class="s2">&quot;disease&quot;</span> <span class="o">|</span> <span class="s2">&quot;irrigation&quot;</span> <span class="o">|</span> <span class="s2">&quot;equipment&quot;</span> <span class="o">|</span> <span class="s2">&quot;system&quot;</span>
+<span class="n">AlertSeverity</span><span class="p">:</span> <span class="s2">&quot;info&quot;</span> <span class="o">|</span> <span class="s2">&quot;warning&quot;</span> <span class="o">|</span> <span class="s2">&quot;critical&quot;</span> <span class="o">|</span> <span class="s2">&quot;emergency&quot;</span>
+<span class="n">AlertStatus</span><span class="p">:</span> <span class="s2">&quot;active&quot;</span> <span class="o">|</span> <span class="s2">&quot;acknowledged&quot;</span> <span class="o">|</span> <span class="s2">&quot;resolved&quot;</span> <span class="o">|</span> <span class="s2">&quot;expired&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="32-inventory-service">32. inventory-service (المخزون)<a class="headerlink" href="#32-inventory-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>inventory-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8116</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/inventory</code>, <code>/inventory</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_30">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_30" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/items</code></td>
+<td><code>POST</code></td>
+<td><code>name</code>, <code>category</code>, <code>quantity</code>, <code>unit</code>, <code>minStock</code>, <code>location</code></td>
+<td><code>CreateItemDto</code></td>
+</tr>
+<tr>
+<td><code>/items/:id/adjust</code></td>
+<td><code>POST</code></td>
+<td><code>adjustment</code>, <code>reason</code>, <code>reference</code></td>
+<td><code>AdjustmentDto</code></td>
+</tr>
+<tr>
+<td><code>/transactions</code></td>
+<td><code>POST</code></td>
+<td><code>itemId</code>, <code>type</code>, <code>quantity</code>, <code>reference</code></td>
+<td><code>TransactionDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_31">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_31" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/items</code></td>
+<td><code>id</code>, <code>name</code>, <code>category</code>, <code>quantity</code>, <code>unit</code>, <code>minStock</code>, <code>status</code></td>
+<td><code>InventoryItem</code></td>
+</tr>
+<tr>
+<td><code>/low-stock</code></td>
+<td>Items where quantity &lt;= minStock</td>
+<td><code>InventoryItem[]</code></td>
+</tr>
+<tr>
+<td><code>/transactions</code></td>
+<td><code>id</code>, <code>itemId</code>, <code>type</code>, <code>quantity</code>, <code>balanceBefore</code>, <code>balanceAfter</code>, <code>createdAt</code></td>
+<td><code>Transaction[]</code></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enums</span>
+<span class="n">ItemCategory</span><span class="p">:</span> <span class="s2">&quot;seeds&quot;</span> <span class="o">|</span> <span class="s2">&quot;fertilizer&quot;</span> <span class="o">|</span> <span class="s2">&quot;pesticide&quot;</span> <span class="o">|</span> <span class="s2">&quot;equipment&quot;</span> <span class="o">|</span> <span class="s2">&quot;fuel&quot;</span> <span class="o">|</span> <span class="s2">&quot;other&quot;</span>
+<span class="n">TransactionType</span><span class="p">:</span> <span class="s2">&quot;in&quot;</span> <span class="o">|</span> <span class="s2">&quot;out&quot;</span> <span class="o">|</span> <span class="s2">&quot;adjustment&quot;</span> <span class="o">|</span> <span class="s2">&quot;transfer&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="33-field-intelligence">33. field-intelligence (ذكاء الحقل)<a class="headerlink" href="#33-field-intelligence" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>field-intelligence</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8120</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/field-intelligence</code>, <code>/api/v1/field-core</code>, <code>/field-intelligence</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_31">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_31" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/analyze</code></td>
+<td><code>POST</code></td>
+<td><code>fieldId</code>, <code>analysisType[]</code>, <code>dateRange</code></td>
+<td><code>AnalysisRequest</code></td>
+</tr>
+<tr>
+<td><code>/insights</code></td>
+<td><code>GET</code></td>
+<td><code>fieldId</code>, <code>category</code></td>
+<td><code>QueryParams</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_32">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_32" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/analyze</code></td>
+<td><code>healthScore</code>, <code>trends[]</code>, <code>anomalies[]</code>, <code>recommendations[]</code></td>
+<td><code>FieldAnalysis</code></td>
+</tr>
+<tr>
+<td><code>/insights</code></td>
+<td><code>insights[]</code> with category, title, description, actionItems</td>
+<td><code>Insight[]</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="34-mcp-server-model-context-protocol">34. mcp-server (Model Context Protocol)<a class="headerlink" href="#34-mcp-server-model-context-protocol" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>mcp-server</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8200</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/mcp</code>, <code>/mcp</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_32">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_32" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/tools</code></td>
+<td><code>GET</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>/execute</code></td>
+<td><code>POST</code></td>
+<td><code>toolName</code>, <code>parameters</code></td>
+<td><code>ExecuteRequest</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_33">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_33" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/tools</code></td>
+<td><code>tools[]</code> with name, description, parameters</td>
+<td><code>Tool[]</code></td>
+</tr>
+<tr>
+<td><code>/execute</code></td>
+<td><code>result</code>, <code>metadata</code></td>
+<td><code>ExecutionResult</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="35-skills-service">35. skills-service (المهارات)<a class="headerlink" href="#35-skills-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>skills-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8121</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/skills</code>, <code>/skills</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_33">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_33" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/assess</code></td>
+<td><code>POST</code></td>
+<td><code>farmerId</code>, <code>skillCategories[]</code></td>
+<td><code>AssessmentRequest</code></td>
+</tr>
+<tr>
+<td><code>/training</code></td>
+<td><code>POST</code></td>
+<td><code>farmerId</code>, <code>skillId</code>, <code>completionStatus</code></td>
+<td><code>TrainingRecordDto</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_34">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_34" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/assess</code></td>
+<td><code>skillLevels[]</code>, <code>gaps[]</code>, <code>recommendations[]</code></td>
+<td><code>SkillAssessment</code></td>
+</tr>
+<tr>
+<td><code>/farmer/:id</code></td>
+<td><code>skills[]</code> with name, level, certifications</td>
+<td><code>FarmerSkills</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="36-code-review-service">36. code-review-service (مراجعة الكود)<a class="headerlink" href="#36-code-review-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>code-review-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8102</code></td>
+</tr>
+<tr>
+<td><strong>البروتوكول</strong></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/code-review</code>, <code>/code-review</code></td>
+</tr>
+<tr>
+<td><strong>ملاحظة</strong></td>
+<td>يتطلب GPU profile</td>
+</tr>
+</tbody>
+</table>
+<h4 id="input_34">المتغيرات المدخلة (Input)<a class="headerlink" href="#input_34" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الطريقة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/review</code></td>
+<td><code>POST</code></td>
+<td><code>code</code>, <code>language</code>, <code>context</code></td>
+<td><code>ReviewRequest</code></td>
+</tr>
+<tr>
+<td><code>/fix</code></td>
+<td><code>POST</code></td>
+<td><code>code</code>, <code>issues[]</code></td>
+<td><code>FixRequest</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="output_35">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_35" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>المتغيرات</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/review</code></td>
+<td><code>issues[]</code>, <code>suggestions[]</code>, <code>score</code></td>
+<td><code>ReviewResult</code></td>
+</tr>
+<tr>
+<td><code>/fix</code></td>
+<td><code>fixedCode</code>, <code>changes[]</code></td>
+<td><code>FixResult</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">الخدمات المضافة حديثاً<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>تاريخ الإضافة: 2026-01-23</p>
+</blockquote>
+<h3 id="37-audit-service">37. audit-service (التدقيق)<a class="headerlink" href="#37-audit-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>audit-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8114</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/audit</code>, <code>/audit</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="_4">المتغيرات المدخلة/المخرجة<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/logs</code></td>
+<td><code>entityType</code>, <code>entityId</code>, <code>action</code>, <code>dateRange</code></td>
+<td><code>AuditLog[]</code></td>
+</tr>
+<tr>
+<td><code>/</code></td>
+<td><code>action</code>, <code>entityType</code>, <code>entityId</code>, <code>userId</code>, <code>details</code>, <code>ipAddress</code></td>
+<td><code>AuditEntry</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="38-crop-health">38. crop-health (صحة المحاصيل الأساسية)<a class="headerlink" href="#38-crop-health" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>crop-health</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8100</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/crop-health-basic</code>, <code>/crop-health</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="39-crm-service">39. crm-service (إدارة علاقات المزارعين)<a class="headerlink" href="#39-crm-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>crm-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8131</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/crm</code>, <code>/crm</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="40-lowcode-engine">40. lowcode-engine (منصة التطوير السريع)<a class="headerlink" href="#40-lowcode-engine" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>lowcode-engine</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8132</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/lowcode</code>, <code>/lowcode</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="41-wechat-service-wechat">41. wechat-service (تكامل WeChat)<a class="headerlink" href="#41-wechat-service-wechat" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>wechat-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8133</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/wechat</code>, <code>/wechat</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="42-globalgap-compliance-globalgap">42. globalgap-compliance (شهادة GlobalGAP)<a class="headerlink" href="#42-globalgap-compliance-globalgap" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>globalgap-compliance</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8123</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/globalgap</code>, <code>/globalgap</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="43-logistics-service">43. logistics-service (اللوجستيات)<a class="headerlink" href="#43-logistics-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>logistics-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8162</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/logistics</code>, <code>/logistics</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="44-ussd-gateway-ussd">44. ussd-gateway (بوابة USSD)<a class="headerlink" href="#44-ussd-gateway-ussd" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>ussd-gateway</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8163</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/ussd</code>, <code>/ussd</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="45-agent-registry">45. agent-registry (سجل الوكلاء)<a class="headerlink" href="#45-agent-registry" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>agent-registry</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8160</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/agents</code>, <code>/agents</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="46-ai-agents-core">46. ai-agents-core (البنية التحتية للوكلاء)<a class="headerlink" href="#46-ai-agents-core" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>ai-agents-core</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8122</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/ai-agents</code>, <code>/ai-agents</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="47-knowledge-graph">47. knowledge-graph (رسم المعرفة)<a class="headerlink" href="#47-knowledge-graph" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>knowledge-graph</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8140</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/knowledge</code>, <code>/knowledge</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="48-yield-engine">48. yield-engine (محرك المحصول)<a class="headerlink" href="#48-yield-engine" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>yield-engine</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8098</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/yield-engine</code>, <code>/yield-engine</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="49-ai-agents-service">49. ai-agents-service (تنسيق الوكلاء)<a class="headerlink" href="#49-ai-agents-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>ai-agents-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8130</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/ai-agents-service</code>, <code>/ai-agents-service</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="50-field-core">50. field-core (خدمة الحقول القديمة)<a class="headerlink" href="#50-field-core" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>field-core</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>3005</code></td>
+</tr>
+<tr>
+<td><strong>النوع</strong></td>
+<td>NestJS</td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/field-core</code>, <code>/field-core</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="deprecated">الخدمات المهملة (Deprecated)<a class="headerlink" href="#deprecated" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>⚠️ هذه الخدمات مهملة ويجب استخدام البدائل المذكورة</p>
+</blockquote>
+<h3 id="51-yield-prediction-nodejs-">51. yield-prediction (Node.js - مهمل)<a class="headerlink" href="#51-yield-prediction-nodejs-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>yield-prediction</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>3021</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/yield-legacy</code></td>
+</tr>
+<tr>
+<td><strong>البديل</strong></td>
+<td><code>yield-prediction-service</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="52-lai-estimation-nodejs-">52. lai-estimation (Node.js - مهمل)<a class="headerlink" href="#52-lai-estimation-nodejs-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>lai-estimation</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>3022</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/lai-legacy</code></td>
+</tr>
+<tr>
+<td><strong>البديل</strong></td>
+<td><code>indicators-service</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="53-crop-growth-model-nodejs-">53. crop-growth-model (Node.js - مهمل)<a class="headerlink" href="#53-crop-growth-model-nodejs-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>crop-growth-model</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>3023</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/crop-growth-legacy</code></td>
+</tr>
+<tr>
+<td><strong>البديل</strong></td>
+<td><code>crop-intelligence-service</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="54-field-ops-python-">54. field-ops (Python - مهمل)<a class="headerlink" href="#54-field-ops-python-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>field-ops</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8080</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/field-ops-legacy</code></td>
+</tr>
+<tr>
+<td><strong>البديل</strong></td>
+<td><code>field-management-service</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="55-ndvi-engine-python-">55. ndvi-engine (Python - مهمل)<a class="headerlink" href="#55-ndvi-engine-python-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>ndvi-engine</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8107</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/ndvi-engine-legacy</code></td>
+</tr>
+<tr>
+<td><strong>البديل</strong></td>
+<td><code>vegetation-analysis-service</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="56-field-service-python-">56. field-service (Python - مهمل)<a class="headerlink" href="#56-field-service-python-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>field-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8115</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/field-service-legacy</code></td>
+</tr>
+<tr>
+<td><strong>البديل</strong></td>
+<td><code>field-management-service</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="57-ndvi-processor-python-">57. ndvi-processor (Python - مهمل)<a class="headerlink" href="#57-ndvi-processor-python-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>ndvi-processor</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>8118</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/ndvi-processor-legacy</code></td>
+</tr>
+<tr>
+<td><strong>البديل</strong></td>
+<td><code>vegetation-analysis-service</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="58-satellite-service">58. satellite-service (مهمل)<a class="headerlink" href="#58-satellite-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>satellite-service</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>9190</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/satellite-legacy</code>, <code>/satellite-legacy</code></td>
+</tr>
+<tr>
+<td><strong>البديل</strong></td>
+<td><code>vegetation-analysis-service</code></td>
+</tr>
+<tr>
+<td><strong>تاريخ الإهمال</strong></td>
+<td>2026-01-11</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="59-weather-advanced">59. weather-advanced (مهمل)<a class="headerlink" href="#59-weather-advanced" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>weather-advanced</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>9092</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/weather-advanced</code>, <code>/weather-advanced</code></td>
+</tr>
+<tr>
+<td><strong>البديل</strong></td>
+<td><code>weather-service</code></td>
+</tr>
+<tr>
+<td><strong>تاريخ الإهمال</strong></td>
+<td>2026-01-11</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="60-crop-health-ai">60. crop-health-ai (مهمل)<a class="headerlink" href="#60-crop-health-ai" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>crop-health-ai</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>9095</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/crop-health-ai</code>, <code>/crop-health-ai</code></td>
+</tr>
+<tr>
+<td><strong>البديل</strong></td>
+<td><code>crop-intelligence-service</code></td>
+</tr>
+<tr>
+<td><strong>تاريخ الإهمال</strong></td>
+<td>2026-01-11</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="61-fertilizer-advisor">61. fertilizer-advisor (مهمل)<a class="headerlink" href="#61-fertilizer-advisor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المضيف</strong></td>
+<td><code>fertilizer-advisor</code></td>
+</tr>
+<tr>
+<td><strong>المنفذ</strong></td>
+<td><code>9093</code></td>
+</tr>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/api/v1/fertilizer-advisor</code>, <code>/fertilizer-advisor</code></td>
+</tr>
+<tr>
+<td><strong>البديل</strong></td>
+<td><code>advisory-service</code></td>
+</tr>
+<tr>
+<td><strong>تاريخ الإهمال</strong></td>
+<td>2026-01-11</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_5">نقاط النهاية للمنصة<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="62-root-endpoint">62. root-endpoint (الجذر)<a class="headerlink" href="#62-root-endpoint" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المسار</strong></td>
+<td><code>/</code></td>
+</tr>
+<tr>
+<td><strong>الطريقة</strong></td>
+<td><code>GET</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="_6">المخرجات<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SAHOOL&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;National Agricultural Intelligence Platform&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;operational&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;endpoints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;/health&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Health check&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;/ping&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ping check&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;/api/v1&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;API Gateway&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;documentation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://github.com/kafaat/sahool-unified-v15-idp&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="health-check">health-check (فحص الصحة)<a class="headerlink" href="#health-check" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المسارات</strong></td>
+<td><code>/health</code>, <code>/ping</code></td>
+</tr>
+<tr>
+<td><strong>الطريقة</strong></td>
+<td><code>GET</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="_7">المخرجات<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SAHOOL Platform is healthy&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="kong">الخدمات غير المضمنة في Kong<a class="headerlink" href="#kong" title="Permanent link">&para;</a></h2>
+<p>الخدمات التالية <strong>لا</strong> يتم توجيهها عبر Kong لأنها:
+- بنية تحتية داخلية
+- لا تحتوي على واجهة HTTP
+- عمال خلفية (workers)</p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>السبب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>postgres</code></td>
+<td>قاعدة بيانات داخلية</td>
+</tr>
+<tr>
+<td><code>pgbouncer</code></td>
+<td>مجمع اتصالات</td>
+</tr>
+<tr>
+<td><code>redis</code></td>
+<td>ذاكرة تخزين مؤقت</td>
+</tr>
+<tr>
+<td><code>nats</code></td>
+<td>ناقل الرسائل</td>
+</tr>
+<tr>
+<td><code>nats-prometheus-exporter</code></td>
+<td>مصدر مقاييس</td>
+</tr>
+<tr>
+<td><code>mqtt</code></td>
+<td>بروتوكول IoT</td>
+</tr>
+<tr>
+<td><code>qdrant</code></td>
+<td>قاعدة بيانات متجهات</td>
+</tr>
+<tr>
+<td><code>etcd</code></td>
+<td>تخزين التكوين</td>
+</tr>
+<tr>
+<td><code>etcd-init</code></td>
+<td>تهيئة etcd</td>
+</tr>
+<tr>
+<td><code>minio</code></td>
+<td>تخزين الكائنات</td>
+</tr>
+<tr>
+<td><code>milvus</code></td>
+<td>بحث متجهي</td>
+</tr>
+<tr>
+<td><code>agro-rules</code></td>
+<td>عامل NATS (لا HTTP)</td>
+</tr>
+<tr>
+<td><code>demo-data</code></td>
+<td>بيانات تجريبية</td>
+</tr>
+<tr>
+<td><code>ollama</code></td>
+<td>LLM محلي</td>
+</tr>
+<tr>
+<td><code>ollama-model-loader</code></td>
+<td>محمل النماذج</td>
+</tr>
+<tr>
+<td><code>code-fix-agent</code></td>
+<td>وكيل مستقل</td>
+</tr>
+<tr>
+<td><code>code-review-agent</code></td>
+<td>وكيل مستقل</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_8">ملخص الإحصائيات<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الفئة</th>
+<th>العدد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>إجمالي الخدمات</strong></td>
+<td>62</td>
+</tr>
+<tr>
+<td><strong>خدمات Node.js</strong></td>
+<td>12</td>
+</tr>
+<tr>
+<td><strong>خدمات Python</strong></td>
+<td>46</td>
+</tr>
+<tr>
+<td><strong>خدمات مهملة</strong></td>
+<td>11</td>
+</tr>
+<tr>
+<td><strong>نقاط نهاية المنصة</strong></td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>الإضافات العالمية</strong></td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_9">المراجع<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>ملف التكوين</strong>: <code>infrastructure/gateway/kong/kong.yml</code></li>
+<li><strong>سجل الخدمات</strong>: <code>governance/services.yaml</code></li>
+<li><strong>التوثيق</strong>: <code>docs/API_GATEWAY.md</code></li>
+</ul>
+<hr />
+<p><em>آخر تحديث: 2026-01-24</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

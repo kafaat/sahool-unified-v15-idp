@@ -1,0 +1,1564 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>تقرير الفجوات والتوصيات - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تقرير الفجوات والتوصيات
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">تقرير الفجوات والتوصيات<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="gaps-recommendations-report">Gaps &amp; Recommendations Report<a class="headerlink" href="#gaps-recommendations-report" title="Permanent link">&para;</a></h1>
+<p><strong>SAHOOL v16.0.0</strong> - Smart Agricultural Platform<br />
+<strong>تاريخ:</strong> 2026-01-04<br />
+<strong>النوع:</strong> تحليل شامل للفجوات والتوصيات</p>
+<hr />
+<h2 id="executive-summary">🎯 ملخص تنفيذي | Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>هذا التقرير يحدد الفجوات المتبقية بعد الإصلاحات الحالية ويقدم توصيات لتحسين استقرار وجودة المشروع.</p>
+<p><strong>الحالة الحالية:</strong> ✅ ممتاز - المشروع مستقر وجاهز للتطوير<br />
+<strong>الفجوات المتبقية:</strong> 5 فئات رئيسية<br />
+<strong>الأولوية:</strong> متوسطة إلى منخفضة (لا توجد فجوات حرجة)</p>
+<hr />
+<h2 id="identified-gaps">📊 الفجوات المحددة | Identified Gaps<a class="headerlink" href="#identified-gaps" title="Permanent link">&para;</a></h2>
+<h3 id="1-code-quality">1️⃣ جودة الكود | Code Quality<a class="headerlink" href="#1-code-quality" title="Permanent link">&para;</a></h3>
+<h4 id="eslint-warnings-211">ESLint Warnings (211 تحذير)<a class="headerlink" href="#eslint-warnings-211" title="Permanent link">&para;</a></h4>
+<p><strong>الحالة:</strong> ⚠️ غير حرج<br />
+<strong>التأثير:</strong> منخفض<br />
+<strong>الأولوية:</strong> متوسطة</p>
+<p><strong>التفاصيل:</strong></p>
+<ul>
+<li>متغيرات غير مستخدمة: ~120 حالة</li>
+<li>any types: ~40 حالة</li>
+<li>missing dependencies في useEffect: ~25 حالة</li>
+<li>unused imports: ~26 حالة</li>
+</ul>
+<p><strong>التوصيات:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Fix automatically where possible</span>
+npm<span class="w"> </span>run<span class="w"> </span>lint<span class="w"> </span>--<span class="w"> </span>--fix
+
+<span class="c1"># Manual review for complex cases</span>
+<span class="c1"># Focus on:</span>
+<span class="c1"># 1. Remove unused variables</span>
+<span class="c1"># 2. Replace &#39;any&#39; with proper types</span>
+<span class="c1"># 3. Fix useEffect dependencies</span>
+</code></pre></div>
+
+<p><strong>الأولوية:</strong> متوسطة - يحسن جودة الكود لكن لا يؤثر على التشغيل<br />
+<strong>المدة المقدرة:</strong> 2-3 ساعات<br />
+<strong>المسؤول:</strong> Frontend Developer</p>
+<hr />
+<h3 id="2-database">2️⃣ قاعدة البيانات | Database<a class="headerlink" href="#2-database" title="Permanent link">&para;</a></h3>
+<h4 id="missing-foreign-keys">Missing Foreign Keys<a class="headerlink" href="#missing-foreign-keys" title="Permanent link">&para;</a></h4>
+<p><strong>الحالة:</strong> ⚠️ متوسط<br />
+<strong>التأثير:</strong> عالي على سلامة البيانات<br />
+<strong>الأولوية:</strong> عالية</p>
+<p><strong>الجداول المتأثرة:</strong></p>
+<ul>
+<li><code>inventory_items</code> → <code>inventory_categories</code></li>
+<li><code>inventory_items</code> → <code>inventory_warehouses</code></li>
+<li><code>inventory_items</code> → <code>inventory_suppliers</code></li>
+</ul>
+<p><strong>التوصيات:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Add foreign key constraints</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">inventory_items</span>
+<span class="k">ADD</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">fk_category</span>
+<span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">category_id</span><span class="p">)</span>
+<span class="k">REFERENCES</span><span class="w"> </span><span class="n">inventory_categories</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span>
+
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">inventory_items</span>
+<span class="k">ADD</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">fk_warehouse</span>
+<span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">warehouse_id</span><span class="p">)</span>
+<span class="k">REFERENCES</span><span class="w"> </span><span class="n">inventory_warehouses</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">RESTRICT</span><span class="p">;</span>
+
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">inventory_items</span>
+<span class="k">ADD</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">fk_supplier</span>
+<span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">supplier_id</span><span class="p">)</span>
+<span class="k">REFERENCES</span><span class="w"> </span><span class="n">inventory_suppliers</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>الأولوية:</strong> عالية - قبل الإنتاج<br />
+<strong>المدة المقدرة:</strong> 2-4 ساعات<br />
+<strong>المسؤول:</strong> Backend Developer + DBA</p>
+<h4 id="missing-indexes">Missing Indexes<a class="headerlink" href="#missing-indexes" title="Permanent link">&para;</a></h4>
+<p><strong>الحالة:</strong> ⚠️ متوسط<br />
+<strong>التأثير:</strong> عالي على الأداء<br />
+<strong>الأولوية:</strong> عالية</p>
+<p><strong>الأعمدة المتأثرة:</strong></p>
+<ul>
+<li><code>fields.current_crop_id</code> - no index</li>
+<li><code>sensor_readings(tenant_id, timestamp)</code> - no composite index</li>
+<li><code>sensors(tenant_id, is_active, device_type)</code> - no composite index</li>
+</ul>
+<p><strong>التوصيات:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Add single column indexes</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_fields_current_crop</span>
+<span class="k">ON</span><span class="w"> </span><span class="n">fields</span><span class="p">(</span><span class="n">current_crop_id</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">current_crop_id</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span>
+
+<span class="c1">-- Add composite indexes for common queries</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_sensor_readings_tenant_time</span>
+<span class="k">ON</span><span class="w"> </span><span class="n">sensor_readings</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">,</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="k">DESC</span><span class="p">);</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_sensors_active_by_type</span>
+<span class="k">ON</span><span class="w"> </span><span class="n">sensors</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">,</span><span class="w"> </span><span class="n">is_active</span><span class="p">,</span><span class="w"> </span><span class="n">device_type</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">is_active</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>الأولوية:</strong> عالية - قبل الإنتاج<br />
+<strong>المدة المقدرة:</strong> 1-2 ساعات<br />
+<strong>المسؤول:</strong> DBA</p>
+<h4 id="missing-gin-indexes-for-jsonb">Missing GIN Indexes for JSONB<a class="headerlink" href="#missing-gin-indexes-for-jsonb" title="Permanent link">&para;</a></h4>
+<p><strong>الحالة:</strong> ⚠️ متوسط<br />
+<strong>التأثير:</strong> متوسط على الأداء<br />
+<strong>الأولوية:</strong> متوسطة</p>
+<p><strong>الجداول المتأثرة:</strong></p>
+<ul>
+<li><code>tenants.metadata</code></li>
+<li><code>users.metadata</code></li>
+<li><code>fields.metadata</code></li>
+<li><code>crops.metadata</code></li>
+<li><code>sensors.metadata</code></li>
+</ul>
+<p><strong>التوصيات:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Add GIN indexes for JSONB columns</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_tenants_metadata_gin</span>
+<span class="k">ON</span><span class="w"> </span><span class="n">tenants</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">GIN</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="p">);</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_users_metadata_gin</span>
+<span class="k">ON</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">GIN</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="p">);</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_fields_metadata_gin</span>
+<span class="k">ON</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">GIN</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="p">);</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_crops_metadata_gin</span>
+<span class="k">ON</span><span class="w"> </span><span class="n">crops</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">GIN</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="p">);</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_sensors_metadata_gin</span>
+<span class="k">ON</span><span class="w"> </span><span class="n">sensors</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">GIN</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="p">);</span>
+</code></pre></div>
+
+<p><strong>الأولوية:</strong> متوسطة<br />
+<strong>المدة المقدرة:</strong> 1 ساعة<br />
+<strong>المسؤول:</strong> DBA</p>
+<hr />
+<h3 id="3-documentation">3️⃣ التوثيق | Documentation<a class="headerlink" href="#3-documentation" title="Permanent link">&para;</a></h3>
+<h4 id="missing-api-documentation">Missing API Documentation<a class="headerlink" href="#missing-api-documentation" title="Permanent link">&para;</a></h4>
+<p><strong>الحالة:</strong> ⚠️ متوسط<br />
+<strong>التأثير:</strong> متوسط على Developer Experience<br />
+<strong>الأولوية:</strong> متوسطة</p>
+<p><strong>ما ينقص:</strong></p>
+<ul>
+<li>OpenAPI/Swagger specs لبعض الخدمات</li>
+<li>API examples في README</li>
+<li>Postman collections</li>
+<li>GraphQL schema documentation</li>
+</ul>
+<p><strong>التوصيات:</strong></p>
+<ol>
+<li>إضافة Swagger UI لكل service</li>
+<li>توليد OpenAPI specs تلقائياً</li>
+<li>إنشاء Postman collections</li>
+<li>توثيق GraphQL schemas</li>
+</ol>
+<p><strong>الأولوية:</strong> متوسطة<br />
+<strong>المدة المقدرة:</strong> 4-6 ساعات<br />
+<strong>المسؤول:</strong> Technical Writer + Backend Developer</p>
+<h4 id="missing-deployment-documentation">Missing Deployment Documentation<a class="headerlink" href="#missing-deployment-documentation" title="Permanent link">&para;</a></h4>
+<p><strong>الحالة:</strong> ⚠️ متوسط<br />
+<strong>التأثير:</strong> متوسط<br />
+<strong>الأولوية:</strong> متوسطة</p>
+<p><strong>ما ينقص:</strong></p>
+<ul>
+<li>Production deployment guide</li>
+<li>Kubernetes deployment examples</li>
+<li>Environment variables reference</li>
+<li>Scaling guidelines</li>
+</ul>
+<p><strong>التوصيات:</strong></p>
+<ol>
+<li>إنشاء DEPLOYMENT.md شامل</li>
+<li>إضافة K8s manifests examples</li>
+<li>توثيق environment variables</li>
+<li>إضافة troubleshooting guide</li>
+</ol>
+<p><strong>الأولوية:</strong> متوسطة<br />
+<strong>المدة المقدرة:</strong> 4-6 ساعات<br />
+<strong>المسؤول:</strong> DevOps Engineer</p>
+<hr />
+<h3 id="4-testing">4️⃣ الاختبارات | Testing<a class="headerlink" href="#4-testing" title="Permanent link">&para;</a></h3>
+<h4 id="missing-integration-tests">Missing Integration Tests<a class="headerlink" href="#missing-integration-tests" title="Permanent link">&para;</a></h4>
+<p><strong>الحالة:</strong> ⚠️ متوسط<br />
+<strong>التأثير:</strong> عالي على الجودة<br />
+<strong>الأولوية:</strong> عالية</p>
+<p><strong>ما ينقص:</strong></p>
+<ul>
+<li>Service-to-service communication tests</li>
+<li>NATS messaging tests</li>
+<li>Kong routing tests</li>
+<li>Database integration tests</li>
+</ul>
+<p><strong>التوصيات:</strong></p>
+<ol>
+<li>إضافة integration tests لكل service</li>
+<li>اختبار NATS event flows</li>
+<li>اختبار Kong configurations</li>
+<li>اختبار database migrations</li>
+</ol>
+<p><strong>الأولوية:</strong> عالية - قبل الإنتاج<br />
+<strong>المدة المقدرة:</strong> 8-12 ساعات<br />
+<strong>المسؤول:</strong> QA Engineer + Backend Developer</p>
+<h4 id="missing-e2e-tests">Missing E2E Tests<a class="headerlink" href="#missing-e2e-tests" title="Permanent link">&para;</a></h4>
+<p><strong>الحالة:</strong> ⚠️ منخفض<br />
+<strong>التأثير:</strong> متوسط<br />
+<strong>الأولوية:</strong> منخفضة</p>
+<p><strong>ما ينقص:</strong></p>
+<ul>
+<li>Frontend E2E tests (Playwright/Cypress)</li>
+<li>Mobile app E2E tests</li>
+<li>Critical user flows tests</li>
+</ul>
+<p><strong>التوصيات:</strong></p>
+<ol>
+<li>إضافة Playwright tests للـ Web app</li>
+<li>إضافة Cypress tests للـ Admin app</li>
+<li>اختبار critical user flows</li>
+</ol>
+<p><strong>الأولوية:</strong> منخفضة<br />
+<strong>المدة المقدرة:</strong> 12-16 ساعات<br />
+<strong>المسؤول:</strong> QA Engineer</p>
+<hr />
+<h3 id="5-security">5️⃣ الأمان | Security<a class="headerlink" href="#5-security" title="Permanent link">&para;</a></h3>
+<h4 id="security-headers">Security Headers<a class="headerlink" href="#security-headers" title="Permanent link">&para;</a></h4>
+<p><strong>الحالة:</strong> ⚠️ متوسط<br />
+<strong>التأثير:</strong> متوسط<br />
+<strong>الأولوية:</strong> متوسطة</p>
+<p><strong>ما ينقص:</strong></p>
+<ul>
+<li>Content Security Policy (CSP)</li>
+<li>X-Frame-Options</li>
+<li>X-Content-Type-Options</li>
+<li>Referrer-Policy</li>
+</ul>
+<p><strong>التوصيات:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Add security headers middleware</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">((</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">setHeader</span><span class="p">(</span><span class="s2">&quot;X-Frame-Options&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;DENY&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">setHeader</span><span class="p">(</span><span class="s2">&quot;X-Content-Type-Options&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;nosniff&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">setHeader</span><span class="p">(</span><span class="s2">&quot;Referrer-Policy&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;strict-origin-when-cross-origin&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">setHeader</span><span class="p">(</span><span class="s2">&quot;Content-Security-Policy&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;default-src &#39;self&#39;&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">next</span><span class="p">();</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<p><strong>الأولوية:</strong> متوسطة - قبل الإنتاج<br />
+<strong>المدة المقدرة:</strong> 2-3 ساعات<br />
+<strong>المسؤول:</strong> Security Engineer + Backend Developer</p>
+<h4 id="rate-limiting-documentation">Rate Limiting Documentation<a class="headerlink" href="#rate-limiting-documentation" title="Permanent link">&para;</a></h4>
+<p><strong>الحالة:</strong> ✅ موجود لكن يحتاج توثيق<br />
+<strong>التأثير:</strong> منخفض<br />
+<strong>الأولوية:</strong> منخفضة</p>
+<p><strong>التوصيات:</strong></p>
+<ol>
+<li>توثيق rate limiting tiers</li>
+<li>إضافة examples للـ responses</li>
+<li>توثيق retry strategies</li>
+</ol>
+<p><strong>الأولوية:</strong> منخفضة<br />
+<strong>المدة المقدرة:</strong> 1-2 ساعات<br />
+<strong>المسؤول:</strong> Technical Writer</p>
+<hr />
+<h2 id="action-plan">📋 خطة العمل | Action Plan<a class="headerlink" href="#action-plan" title="Permanent link">&para;</a></h2>
+<h3 id="1-1-immediate">المرحلة 1: فوري (أسبوع 1) | Immediate<a class="headerlink" href="#1-1-immediate" title="Permanent link">&para;</a></h3>
+<p><strong>الأولوية:</strong> عالية</p>
+<ul>
+<li>[ ] إضافة Foreign Key constraints (4 ساعات)</li>
+<li>[ ] إضافة Database indexes (2 ساعات)</li>
+<li>[ ] إضافة Security headers (3 ساعات)</li>
+</ul>
+<p><strong>المسؤول:</strong> Backend Developer + DBA<br />
+<strong>المدة:</strong> 9 ساعات (1.5 يوم عمل)</p>
+<h3 id="2-2-3-high-priority">المرحلة 2: عالي (أسبوع 2-3) | High Priority<a class="headerlink" href="#2-2-3-high-priority" title="Permanent link">&para;</a></h3>
+<p><strong>الأولوية:</strong> عالية</p>
+<ul>
+<li>[ ] إضافة Integration tests (12 ساعات)</li>
+<li>[ ] إنشاء API documentation (6 ساعات)</li>
+<li>[ ] إضافة GIN indexes (1 ساعة)</li>
+</ul>
+<p><strong>المسؤول:</strong> QA Engineer + Backend Developer + Technical Writer<br />
+<strong>المدة:</strong> 19 ساعات (2.5 يوم عمل)</p>
+<h3 id="3-4-6-medium-priority">المرحلة 3: متوسط (أسبوع 4-6) | Medium Priority<a class="headerlink" href="#3-4-6-medium-priority" title="Permanent link">&para;</a></h3>
+<p><strong>الأولوية:</strong> متوسطة</p>
+<ul>
+<li>[ ] إصلاح ESLint warnings (3 ساعات)</li>
+<li>[ ] إنشاء Deployment documentation (6 ساعات)</li>
+<li>[ ] توثيق Rate limiting (2 ساعات)</li>
+</ul>
+<p><strong>المسؤول:</strong> Frontend Developer + DevOps + Technical Writer<br />
+<strong>المدة:</strong> 11 ساعات (1.5 يوم عمل)</p>
+<h3 id="4-low-priority">المرحلة 4: منخفض (مستمر) | Low Priority<a class="headerlink" href="#4-low-priority" title="Permanent link">&para;</a></h3>
+<p><strong>الأولوية:</strong> منخفضة</p>
+<ul>
+<li>[ ] إضافة E2E tests (16 ساعات)</li>
+<li>[ ] تحسينات الأداء</li>
+<li>[ ] Code refactoring</li>
+</ul>
+<p><strong>المسؤول:</strong> QA Engineer + Team<br />
+<strong>المدة:</strong> مستمر</p>
+<hr />
+<h2 id="impact-matrix">📊 مصفوفة الأثر | Impact Matrix<a class="headerlink" href="#impact-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الفجوة</th>
+<th>التأثير على الأداء</th>
+<th>التأثير على الأمان</th>
+<th>التأثير على UX</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Missing FK</td>
+<td>-</td>
+<td>🔴 عالي</td>
+<td>🟡 متوسط</td>
+<td>⚡ عالية</td>
+</tr>
+<tr>
+<td>Missing Indexes</td>
+<td>🔴 عالي</td>
+<td>-</td>
+<td>🔴 عالي</td>
+<td>⚡ عالية</td>
+</tr>
+<tr>
+<td>ESLint Warnings</td>
+<td>-</td>
+<td>-</td>
+<td>🟢 منخفض</td>
+<td>🟡 متوسطة</td>
+</tr>
+<tr>
+<td>Security Headers</td>
+<td>-</td>
+<td>🟡 متوسط</td>
+<td>-</td>
+<td>🟡 متوسطة</td>
+</tr>
+<tr>
+<td>Integration Tests</td>
+<td>-</td>
+<td>🟡 متوسط</td>
+<td>🟡 متوسط</td>
+<td>⚡ عالية</td>
+</tr>
+<tr>
+<td>API Documentation</td>
+<td>-</td>
+<td>-</td>
+<td>🟡 متوسط</td>
+<td>🟡 متوسطة</td>
+</tr>
+<tr>
+<td>E2E Tests</td>
+<td>-</td>
+<td>-</td>
+<td>🟡 متوسط</td>
+<td>🟢 منخفضة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conclusion">✅ الخلاصة | Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<h3 id="_2">الحالة الحالية<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ المشروع مستقر ويبنى بنجاح</li>
+<li>✅ لا توجد فجوات حرجة</li>
+<li>⚠️ توجد تحسينات موصى بها</li>
+</ul>
+<h3 id="_3">الخطوات التالية<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>أسبوع 1:</strong> إصلاح Database constraints &amp; indexes</li>
+<li><strong>أسبوع 2-3:</strong> إضافة Integration tests &amp; API docs</li>
+<li><strong>أسبوع 4-6:</strong> التحسينات المتبقية</li>
+</ol>
+<h3 id="_4">المدة الإجمالية<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>عالية الأولوية:</strong> 3-4 أيام عمل</li>
+<li><strong>متوسطة الأولوية:</strong> 1.5 يوم عمل</li>
+<li><strong>منخفضة الأولوية:</strong> مستمر</li>
+</ul>
+<p><strong>التوصية النهائية:</strong> المشروع جاهز للتطوير. يُنصح بتنفيذ المرحلة 1 و 2 قبل الإطلاق للإنتاج.</p>
+<hr />
+<p><strong>تم إنشاء هذا التقرير بواسطة:</strong> GitHub Copilot Agent<br />
+<strong>الإصدار:</strong> v16.0.0<br />
+<strong>PR:</strong> copilot/analyze-and-fix-project-issues</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

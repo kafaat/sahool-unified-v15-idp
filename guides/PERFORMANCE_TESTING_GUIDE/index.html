@@ -1,0 +1,1707 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Performance Testing Guide - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#performance-testing-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Performance Testing Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="performance-testing-guide">Performance Testing Guide<a class="headerlink" href="#performance-testing-guide" title="Permanent link">&para;</a></h1>
+<h2 id="_1">دليل اختبار الأداء<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p><strong>Version</strong>: 1.0<br />
+<strong>Last Updated</strong>: 2026-01-02<br />
+<strong>Related</strong>: tests/load/README.md, POST_MERGE_VERIFICATION.md</p>
+<hr />
+<h2 id="overview">📋 Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This guide provides comprehensive instructions for performance testing the SAHOOL platform using the k6 load testing framework added in PR #315.</p>
+<p>يوفر هذا الدليل تعليمات شاملة لاختبار أداء منصة سهول باستخدام إطار اختبار الأحمال k6.</p>
+<hr />
+<h2 id="testing-objectives">🎯 Testing Objectives | أهداف الاختبار<a class="headerlink" href="#testing-objectives" title="Permanent link">&para;</a></h2>
+<h3 id="primary-goals">Primary Goals<a class="headerlink" href="#primary-goals" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Baseline Performance</strong>: Establish performance benchmarks for all services</li>
+<li><strong>Capacity Planning</strong>: Determine system limits under various load conditions</li>
+<li><strong>Regression Detection</strong>: Identify performance degradation in new releases</li>
+<li><strong>Bottleneck Identification</strong>: Find and document performance bottlenecks</li>
+<li><strong>Resource Optimization</strong>: Guide infrastructure scaling decisions</li>
+</ol>
+<h3 id="key-performance-indicators-kpis">Key Performance Indicators (KPIs)<a class="headerlink" href="#key-performance-indicators-kpis" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Response Time</strong>: p95, p99 latency for API endpoints</li>
+<li><strong>Throughput</strong>: Requests per second (RPS)</li>
+<li><strong>Error Rate</strong>: Percentage of failed requests</li>
+<li><strong>Resource Utilization</strong>: CPU, Memory, Network, Disk I/O</li>
+<li><strong>Concurrent Users</strong>: Maximum supported simultaneous users</li>
+</ul>
+<hr />
+<h2 id="test-infrastructure">🏗️ Test Infrastructure | البنية التحتية للاختبار<a class="headerlink" href="#test-infrastructure" title="Permanent link">&para;</a></h2>
+<h3 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">tests</span><span class="o">/</span><span class="nb">load</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">scenarios</span><span class="o">/</span><span class="w">               </span><span class="c1"># k6 test scenarios</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">smoke</span><span class="o">.</span><span class="n">js</span><span class="w">            </span><span class="c1"># Minimal load validation</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nb">load</span><span class="o">.</span><span class="n">js</span><span class="w">             </span><span class="c1"># Normal load testing</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">stress</span><span class="o">.</span><span class="n">js</span><span class="w">           </span><span class="c1"># Beyond capacity testing</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">spike</span><span class="o">.</span><span class="n">js</span><span class="w">            </span><span class="c1"># Sudden load increase</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">soak</span><span class="o">.</span><span class="n">js</span><span class="w">             </span><span class="c1"># Extended duration testing</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">lib</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">js</span><span class="w">           </span><span class="c1"># Configuration management</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">helpers</span><span class="o">.</span><span class="n">js</span><span class="w">          </span><span class="c1"># Utility functions</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">simulation</span><span class="o">/</span><span class="w">             </span><span class="c1"># Multi-client simulation</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">scripts</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">web</span><span class="o">-</span><span class="n">dashboard</span><span class="o">-</span><span class="n">simulation</span><span class="o">.</span><span class="n">js</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">mobile</span><span class="o">-</span><span class="n">app</span><span class="o">-</span><span class="n">simulation</span><span class="o">.</span><span class="n">js</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">agent</span><span class="o">-</span><span class="n">simulation</span><span class="o">.</span><span class="n">js</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">sim</span><span class="o">.</span><span class="n">yml</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">grafana</span><span class="o">/</span><span class="w">                </span><span class="c1"># Visualization dashboards</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">.</span><span class="n">load</span><span class="o">.</span><span class="n">yml</span><span class="w"> </span><span class="c1"># Load testing infrastructure</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">run</span><span class="o">-</span><span class="n">tests</span><span class="o">.</span><span class="n">sh</span><span class="w">            </span><span class="c1"># Test execution script</span>
+</code></pre></div>
+
+<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
+<p><strong>Software Requirements:</strong></p>
+<ul>
+<li>Docker &amp; Docker Compose (v2+)</li>
+<li>k6 (for local runs)</li>
+<li>8GB+ RAM recommended</li>
+<li>4+ CPU cores recommended</li>
+</ul>
+<p><strong>Infrastructure Requirements:</strong></p>
+<ul>
+<li>SAHOOL platform running (all services)</li>
+<li>PostgreSQL database</li>
+<li>Redis cache</li>
+<li>NATS message queue</li>
+<li>Monitoring stack (optional but recommended)</li>
+</ul>
+<hr />
+<h2 id="quick-start">🚀 Quick Start | البدء السريع<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="1-start-sahool-platform">1. Start SAHOOL Platform<a class="headerlink" href="#1-start-sahool-platform" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Using docker-one-by-one script (recommended for resource-constrained systems)</span>
+./docker-one-by-one.sh
+
+<span class="c1"># OR using standard docker compose</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Verify all services are running</span>
+docker<span class="w"> </span>compose<span class="w"> </span>ps
+
+<span class="c1"># Check health endpoints</span>
+curl<span class="w"> </span>http://localhost:8080/healthz
+</code></pre></div>
+
+<h3 id="2-start-load-testing-infrastructure">2. Start Load Testing Infrastructure<a class="headerlink" href="#2-start-load-testing-infrastructure" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>tests/load
+
+<span class="c1"># Start InfluxDB and Grafana</span>
+docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.load.yml<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Access Grafana at http://localhost:3000</span>
+<span class="c1"># Default credentials: admin/admin</span>
+</code></pre></div>
+
+<h3 id="3-run-smoke-test">3. Run Smoke Test<a class="headerlink" href="#3-run-smoke-test" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Quick validation (minimal load)</span>
+./run-tests.sh<span class="w"> </span>smoke
+
+<span class="c1"># Expected output:</span>
+<span class="c1"># - Test duration: ~30 seconds</span>
+<span class="c1"># - Virtual users: 1-5</span>
+<span class="c1"># - Success rate: 100%</span>
+</code></pre></div>
+
+<h3 id="4-view-results">4. View Results<a class="headerlink" href="#4-view-results" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Grafana dashboards</span>
+open<span class="w"> </span>http://localhost:3000
+
+<span class="c1"># InfluxDB metrics</span>
+open<span class="w"> </span>http://localhost:8086
+
+<span class="c1"># Check test results directory</span>
+ls<span class="w"> </span>-la<span class="w"> </span>results/
+</code></pre></div>
+
+<hr />
+<h2 id="test-scenarios">📊 Test Scenarios | سيناريوهات الاختبار<a class="headerlink" href="#test-scenarios" title="Permanent link">&para;</a></h2>
+<h3 id="1-smoke-test">1. Smoke Test (اختبار الدخان)<a class="headerlink" href="#1-smoke-test" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Verify system works with minimal load</p>
+<p><strong>Configuration:</strong></p>
+<ul>
+<li>Duration: 30 seconds</li>
+<li>Virtual Users: 1-5</li>
+<li>Target RPS: 10-20</li>
+</ul>
+<p><strong>Command:</strong></p>
+<div class="codehilite"><pre><span></span><code>./run-tests.sh<span class="w"> </span>smoke
+</code></pre></div>
+
+<p><strong>Success Criteria:</strong></p>
+<ul>
+<li>✅ 100% success rate</li>
+<li>✅ p95 latency &lt; 500ms</li>
+<li>✅ No errors</li>
+</ul>
+<hr />
+<h3 id="2-load-test">2. Load Test (اختبار الحمل)<a class="headerlink" href="#2-load-test" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Test system under normal expected load</p>
+<p><strong>Configuration:</strong></p>
+<ul>
+<li>Duration: 5-10 minutes</li>
+<li>Virtual Users: 50-100</li>
+<li>Target RPS: 100-500</li>
+</ul>
+<p><strong>Command:</strong></p>
+<div class="codehilite"><pre><span></span><code>./run-tests.sh<span class="w"> </span>load
+</code></pre></div>
+
+<p><strong>Success Criteria:</strong></p>
+<ul>
+<li>✅ 99.9% success rate</li>
+<li>✅ p95 latency &lt; 1000ms</li>
+<li>✅ Error rate &lt; 0.1%</li>
+<li>✅ CPU &lt; 70%</li>
+<li>✅ Memory &lt; 80%</li>
+</ul>
+<hr />
+<h3 id="3-stress-test">3. Stress Test (اختبار الإجهاد)<a class="headerlink" href="#3-stress-test" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Find system breaking point</p>
+<p><strong>Configuration:</strong></p>
+<ul>
+<li>Duration: 10-20 minutes</li>
+<li>Virtual Users: 100-500+ (gradually increasing)</li>
+<li>Target RPS: 500-2000+</li>
+</ul>
+<p><strong>Command:</strong></p>
+<div class="codehilite"><pre><span></span><code>./run-tests.sh<span class="w"> </span>stress
+</code></pre></div>
+
+<p><strong>Success Criteria:</strong></p>
+<ul>
+<li>✅ System gracefully degrades (no crashes)</li>
+<li>✅ Error messages are clear</li>
+<li>✅ Recovery after load reduction</li>
+<li>⚠️ Identify max capacity</li>
+</ul>
+<hr />
+<h3 id="4-spike-test">4. Spike Test (اختبار الارتفاع المفاجئ)<a class="headerlink" href="#4-spike-test" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Test system behavior with sudden traffic increase</p>
+<p><strong>Configuration:</strong></p>
+<ul>
+<li>Duration: 5-10 minutes</li>
+<li>Virtual Users: 1 → 500 (sudden jump)</li>
+<li>Target RPS: 10 → 1000</li>
+</ul>
+<p><strong>Command:</strong></p>
+<div class="codehilite"><pre><span></span><code>./run-tests.sh<span class="w"> </span>spike
+</code></pre></div>
+
+<p><strong>Success Criteria:</strong></p>
+<ul>
+<li>✅ System handles spike without crashes</li>
+<li>✅ Auto-scaling triggers (if configured)</li>
+<li>✅ Response times recover after spike</li>
+</ul>
+<hr />
+<h3 id="5-soak-test">5. Soak Test (اختبار النقع)<a class="headerlink" href="#5-soak-test" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Verify system stability over extended period</p>
+<p><strong>Configuration:</strong></p>
+<ul>
+<li>Duration: 2-24 hours</li>
+<li>Virtual Users: 50-100 (constant)</li>
+<li>Target RPS: 100-200 (steady)</li>
+</ul>
+<p><strong>Command:</strong></p>
+<div class="codehilite"><pre><span></span><code>./run-tests.sh<span class="w"> </span>soak
+</code></pre></div>
+
+<p><strong>Success Criteria:</strong></p>
+<ul>
+<li>✅ No memory leaks</li>
+<li>✅ No connection pool exhaustion</li>
+<li>✅ Consistent performance</li>
+<li>✅ No resource degradation</li>
+</ul>
+<hr />
+<h2 id="performance-targets">🎯 Performance Targets | أهداف الأداء<a class="headerlink" href="#performance-targets" title="Permanent link">&para;</a></h2>
+<h3 id="api-response-times">API Response Times<a class="headerlink" href="#api-response-times" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint Type</th>
+<th>p50</th>
+<th>p95</th>
+<th>p99</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Health Check</td>
+<td>&lt;50ms</td>
+<td>&lt;100ms</td>
+<td>&lt;200ms</td>
+</tr>
+<tr>
+<td>Read Operations</td>
+<td>&lt;100ms</td>
+<td>&lt;500ms</td>
+<td>&lt;1000ms</td>
+</tr>
+<tr>
+<td>Write Operations</td>
+<td>&lt;200ms</td>
+<td>&lt;1000ms</td>
+<td>&lt;2000ms</td>
+</tr>
+<tr>
+<td>Complex Queries</td>
+<td>&lt;500ms</td>
+<td>&lt;2000ms</td>
+<td>&lt;5000ms</td>
+</tr>
+<tr>
+<td>File Uploads</td>
+<td>&lt;1s</td>
+<td>&lt;5s</td>
+<td>&lt;10s</td>
+</tr>
+</tbody>
+</table>
+<h3 id="throughput">Throughput<a class="headerlink" href="#throughput" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Target RPS</th>
+<th>Max RPS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Field Ops</td>
+<td>200</td>
+<td>1000</td>
+</tr>
+<tr>
+<td>Billing</td>
+<td>100</td>
+<td>500</td>
+</tr>
+<tr>
+<td>Satellite</td>
+<td>50</td>
+<td>200</td>
+</tr>
+<tr>
+<td>Weather</td>
+<td>100</td>
+<td>500</td>
+</tr>
+<tr>
+<td>Notification</td>
+<td>500</td>
+<td>2000</td>
+</tr>
+</tbody>
+</table>
+<h3 id="resource-utilization">Resource Utilization<a class="headerlink" href="#resource-utilization" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Normal</th>
+<th>Warning</th>
+<th>Critical</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU</td>
+<td>&lt;50%</td>
+<td>50-70%</td>
+<td>&gt;70%</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>&lt;60%</td>
+<td>60-80%</td>
+<td>&gt;80%</td>
+</tr>
+<tr>
+<td>Disk I/O</td>
+<td>&lt;50%</td>
+<td>50-75%</td>
+<td>&gt;75%</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>&lt;40%</td>
+<td>40-60%</td>
+<td>&gt;60%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="monitoring-metrics">📈 Monitoring &amp; Metrics | المراقبة والمقاييس<a class="headerlink" href="#monitoring-metrics" title="Permanent link">&para;</a></h2>
+<h3 id="real-time-dashboards">Real-time Dashboards<a class="headerlink" href="#real-time-dashboards" title="Permanent link">&para;</a></h3>
+<p><strong>Grafana Dashboards:</strong></p>
+<ol>
+<li><strong>k6 Load Testing Dashboard</strong></li>
+<li>Request rate</li>
+<li>Response times (p50, p95, p99)</li>
+<li>Error rate</li>
+<li>
+<p>Active virtual users</p>
+</li>
+<li>
+<p><strong>System Resources Dashboard</strong></p>
+</li>
+<li>CPU usage per service</li>
+<li>Memory consumption</li>
+<li>Network traffic</li>
+<li>
+<p>Disk I/O</p>
+</li>
+<li>
+<p><strong>Application Metrics Dashboard</strong></p>
+</li>
+<li>API endpoint latency</li>
+<li>Database query performance</li>
+<li>Cache hit rate</li>
+<li>Queue depth</li>
+</ol>
+<h3 id="influxdb-queries">InfluxDB Queries<a class="headerlink" href="#influxdb-queries" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Average response time by endpoint (with time bucketing)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="ss">&quot;value&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="ss">&quot;http_req_duration&quot;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">time</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="n">h</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">time</span><span class="p">(</span><span class="mi">1</span><span class="n">m</span><span class="p">),</span><span class="w"> </span><span class="ss">&quot;url&quot;</span>
+
+<span class="c1">-- Error rate over time</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="ss">&quot;value&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="ss">&quot;http_req_failed&quot;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="ss">&quot;value&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="k">time</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="n">h</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">time</span><span class="p">(</span><span class="mi">1</span><span class="n">m</span><span class="p">)</span>
+
+<span class="c1">-- Request rate per minute</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="ss">&quot;value&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="ss">&quot;http_reqs&quot;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">time</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="n">h</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">time</span><span class="p">(</span><span class="mi">1</span><span class="n">m</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="analysis-reporting">🔍 Analysis &amp; Reporting | التحليل والإبلاغ<a class="headerlink" href="#analysis-reporting" title="Permanent link">&para;</a></h2>
+<h3 id="post-test-analysis">Post-Test Analysis<a class="headerlink" href="#post-test-analysis" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate HTML report</span>
+k6<span class="w"> </span>run<span class="w"> </span>--out<span class="w"> </span><span class="nv">json</span><span class="o">=</span>results.json<span class="w"> </span>scenarios/load.js
+k6<span class="w"> </span>json-to-html<span class="w"> </span>results.json<span class="w"> </span>&gt;<span class="w"> </span>report.html
+
+<span class="c1"># View results</span>
+open<span class="w"> </span>report.html
+</code></pre></div>
+
+<h3 id="key-metrics-to-report">Key Metrics to Report<a class="headerlink" href="#key-metrics-to-report" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Performance Summary</strong></li>
+<li>Total requests</li>
+<li>Success rate</li>
+<li>Average/p95/p99 response times</li>
+<li>
+<p>Requests per second</p>
+</li>
+<li>
+<p><strong>Resource Utilization</strong></p>
+</li>
+<li>Peak CPU usage</li>
+<li>Peak memory usage</li>
+<li>Network bandwidth</li>
+<li>
+<p>Database connections</p>
+</li>
+<li>
+<p><strong>Errors &amp; Failures</strong></p>
+</li>
+<li>Error types and counts</li>
+<li>Failed endpoints</li>
+<li>
+<p>Root cause analysis</p>
+</li>
+<li>
+<p><strong>Recommendations</strong></p>
+</li>
+<li>Scaling recommendations</li>
+<li>Optimization opportunities</li>
+<li>Configuration changes</li>
+</ol>
+<hr />
+<h2 id="troubleshooting">🐛 Troubleshooting | استكشاف الأخطاء<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
+<h4 id="high-response-times">High Response Times<a class="headerlink" href="#high-response-times" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check database slow queries</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>postgres<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;duration:&quot;</span>
+
+<span class="c1"># Check Redis performance</span>
+redis-cli<span class="w"> </span>--latency
+
+<span class="c1"># Review service logs</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span><span class="o">[</span>service-name<span class="o">]</span>
+</code></pre></div>
+
+<h4 id="memory-leaks">Memory Leaks<a class="headerlink" href="#memory-leaks" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Monitor memory over time</span>
+docker<span class="w"> </span>stats<span class="w"> </span>--no-stream
+
+<span class="c1"># Check for goroutine leaks (Go services)</span>
+curl<span class="w"> </span>http://localhost:6060/debug/pprof/heap
+
+<span class="c1"># Check for event loop blocks (Node.js services)</span>
+curl<span class="w"> </span>http://localhost:9229/json
+</code></pre></div>
+
+<h4 id="connection-pool-exhaustion">Connection Pool Exhaustion<a class="headerlink" href="#connection-pool-exhaustion" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check database connections</span>
+SELECT<span class="w"> </span>count<span class="o">(</span>*<span class="o">)</span><span class="w"> </span>FROM<span class="w"> </span>pg_stat_activity<span class="p">;</span>
+
+<span class="c1"># Check Redis connections</span>
+redis-cli<span class="w"> </span>CLIENT<span class="w"> </span>LIST<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l
+</code></pre></div>
+
+<hr />
+<h2 id="best-practices">📝 Best Practices | أفضل الممارسات<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="test-execution">Test Execution<a class="headerlink" href="#test-execution" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Isolate Environment</strong>: Run tests in dedicated environment</li>
+<li><strong>Consistent State</strong>: Reset database between test runs</li>
+<li><strong>Realistic Data</strong>: Use production-like data volumes</li>
+<li><strong>Gradual Ramp</strong>: Increase load gradually</li>
+<li><strong>Monitor Resources</strong>: Watch CPU, memory, network during tests</li>
+</ol>
+<h3 id="test-development">Test Development<a class="headerlink" href="#test-development" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Parameterize</strong>: Use environment variables for configuration</li>
+<li><strong>Modular</strong>: Break tests into reusable functions</li>
+<li><strong>Assertions</strong>: Add meaningful checks and thresholds</li>
+<li><strong>Documentation</strong>: Document test scenarios and expectations</li>
+<li><strong>Version Control</strong>: Track test changes in git</li>
+</ol>
+<h3 id="continuous-testing">Continuous Testing<a class="headerlink" href="#continuous-testing" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Automated Runs</strong>: Schedule regular performance tests</li>
+<li><strong>Baseline Comparison</strong>: Compare against previous runs</li>
+<li><strong>Alert on Regression</strong>: Notify on performance degradation</li>
+<li><strong>Track Trends</strong>: Monitor performance over time</li>
+<li><strong>Document Changes</strong>: Record infrastructure/code changes</li>
+</ol>
+<hr />
+<h2 id="references">🔗 References | المراجع<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://k6.io/docs/">k6 Documentation</a></li>
+<li><a href="tests/load/README.md">Load Testing Guide</a></li>
+<li><a href="tests/load/QUICKSTART.md">Quick Start</a></li>
+<li><a href="docs/DOCKER.md">Docker Guide</a></li>
+<li><a href="../POST_MERGE_VERIFICATION/">Post-Merge Verification</a></li>
+</ul>
+<hr />
+<h2 id="testing-schedule">📅 Testing Schedule | جدول الاختبار<a class="headerlink" href="#testing-schedule" title="Permanent link">&para;</a></h2>
+<h3 id="recommended-frequency">Recommended Frequency<a class="headerlink" href="#recommended-frequency" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Test Type</th>
+<th>Frequency</th>
+<th>Duration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Smoke</td>
+<td>Every commit</td>
+<td>1 min</td>
+</tr>
+<tr>
+<td>Load</td>
+<td>Daily</td>
+<td>10 min</td>
+</tr>
+<tr>
+<td>Stress</td>
+<td>Weekly</td>
+<td>30 min</td>
+</tr>
+<tr>
+<td>Spike</td>
+<td>Weekly</td>
+<td>15 min</td>
+</tr>
+<tr>
+<td>Soak</td>
+<td>Monthly</td>
+<td>4-24 hours</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>Note</strong>: Always run tests in a non-production environment first!</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

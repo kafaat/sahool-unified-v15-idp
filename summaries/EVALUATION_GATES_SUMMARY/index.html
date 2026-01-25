@@ -1,0 +1,1675 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL CI/CD Pipeline Enhancement - Evaluation Gates - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-cicd-pipeline-enhancement-evaluation-gates" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL CI/CD Pipeline Enhancement - Evaluation Gates
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-cicd-pipeline-enhancement-evaluation-gates">SAHOOL CI/CD Pipeline Enhancement - Evaluation Gates<a class="headerlink" href="#sahool-cicd-pipeline-enhancement-evaluation-gates" title="Permanent link">&para;</a></h1>
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>Successfully enhanced the SAHOOL CI/CD pipeline with comprehensive Evaluation Gates following AgentOps best practices. The implementation includes agent evaluation, progressive deployment strategies (Canary and Blue-Green), and emergency rollback capabilities.</p>
+<h2 id="files-modifiedcreated">Files Modified/Created<a class="headerlink" href="#files-modifiedcreated" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Type</th>
+<th>Description</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.github/workflows/quality-gates.yml</code></td>
+<td>Modified</td>
+<td>Added agent-evaluation job as required check</td>
+<td>16KB</td>
+</tr>
+<tr>
+<td><code>.github/actions/evaluate-agent/action.yml</code></td>
+<td>Created</td>
+<td>Reusable agent evaluation action</td>
+<td>23KB</td>
+</tr>
+<tr>
+<td><code>.github/workflows/canary-deploy.yml</code></td>
+<td>Created</td>
+<td>Progressive canary deployment (1%→10%→50%→100%)</td>
+<td>24KB</td>
+</tr>
+<tr>
+<td><code>.github/workflows/blue-green-deploy.yml</code></td>
+<td>Created</td>
+<td>Zero-downtime blue-green deployment</td>
+<td>26KB</td>
+</tr>
+<tr>
+<td><code>.github/workflows/cd-staging.yml</code></td>
+<td>Modified</td>
+<td>Added pre/post deployment evaluation gates</td>
+<td>31KB</td>
+</tr>
+<tr>
+<td><code>scripts/rollback.sh</code></td>
+<td>Created</td>
+<td>Emergency rollback script with Helm</td>
+<td>17KB</td>
+</tr>
+<tr>
+<td><code>.github/workflows/EVALUATION_GATES_IMPLEMENTATION.md</code></td>
+<td>Created</td>
+<td>Comprehensive documentation</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h2 id="key-capabilities">Key Capabilities<a class="headerlink" href="#key-capabilities" title="Permanent link">&para;</a></h2>
+<h3 id="1-agent-evaluation-evaluate-agent-action">1. Agent Evaluation (evaluate-agent action)<a class="headerlink" href="#1-agent-evaluation-evaluate-agent-action" title="Permanent link">&para;</a></h3>
+<p><strong>What it does:</strong></p>
+<ul>
+<li>Runs AI/Agent quality tests against golden datasets</li>
+<li>Measures accuracy, latency, cost, and success rate</li>
+<li>Generates detailed JSON reports</li>
+<li>Provides pass/fail decisions based on thresholds</li>
+</ul>
+<p><strong>Where it's used:</strong></p>
+<ul>
+<li>Quality gates (PR checks) - blocks merge if fails</li>
+<li>Pre-deployment (staging) - blocks deployment if fails</li>
+<li>Post-deployment (staging) - validates production quality</li>
+</ul>
+<p><strong>Configurable parameters:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">threshold-accuracy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.85&quot;</span><span class="w"> </span><span class="c1"># 85% minimum accuracy</span>
+<span class="nt">threshold-latency</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2000&quot;</span><span class="w"> </span><span class="c1"># 2000ms max latency</span>
+<span class="nt">threshold-cost</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.50&quot;</span><span class="w"> </span><span class="c1"># $0.50 max cost per request</span>
+<span class="nt">threshold-success-rate</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.95&quot;</span><span class="w"> </span><span class="c1"># 95% minimum success rate</span>
+</code></pre></div>
+
+<h3 id="2-canary-deployment">2. Canary Deployment<a class="headerlink" href="#2-canary-deployment" title="Permanent link">&para;</a></h3>
+<p><strong>Progressive Rollout Strategy:</strong></p>
+<ol>
+<li><strong>1% traffic</strong> → Monitor for 5-10 minutes</li>
+<li><strong>10% traffic</strong> → Monitor for 15-30 minutes</li>
+<li><strong>50% traffic</strong> → Monitor for 30-60 minutes</li>
+<li><strong>100% traffic</strong> → Full rollout complete</li>
+</ol>
+<p><strong>Safety features:</strong></p>
+<ul>
+<li>Automatic rollback if any stage fails</li>
+<li>Health checks between each stage</li>
+<li>Configurable rollout speed (fast/normal/slow)</li>
+<li>Metrics monitoring at each stage</li>
+<li>Service-by-service or all-services deployment</li>
+</ul>
+<p><strong>Use when:</strong></p>
+<ul>
+<li>Testing new features with gradual exposure</li>
+<li>Minimizing risk of breaking changes</li>
+<li>Want to validate with real traffic before full rollout</li>
+</ul>
+<h3 id="3-blue-green-deployment">3. Blue-Green Deployment<a class="headerlink" href="#3-blue-green-deployment" title="Permanent link">&para;</a></h3>
+<p><strong>Deployment Strategy:</strong></p>
+<ol>
+<li>Deploy to inactive environment (Green)</li>
+<li>Run comprehensive tests on Green</li>
+<li>Switch traffic instantly to Green</li>
+<li>Monitor Green environment</li>
+<li>Keep Blue for instant rollback</li>
+</ol>
+<p><strong>Safety features:</strong></p>
+<ul>
+<li>Zero-downtime traffic switch</li>
+<li>Instant rollback capability (switch back to Blue)</li>
+<li>Optional manual approval before traffic switch</li>
+<li>Comprehensive pre-switch testing</li>
+<li>90-day backup retention</li>
+</ul>
+<p><strong>Use when:</strong></p>
+<ul>
+<li>Need guaranteed zero-downtime</li>
+<li>Want instant rollback capability</li>
+<li>Deploying critical production changes</li>
+<li>Running complex integration tests before go-live</li>
+</ul>
+<h3 id="4-emergency-rollback-script">4. Emergency Rollback Script<a class="headerlink" href="#4-emergency-rollback-script" title="Permanent link">&para;</a></h3>
+<p><strong>Capabilities:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Rollback all services in production</span>
+./scripts/rollback.sh<span class="w"> </span>-e<span class="w"> </span>production<span class="w"> </span>-a
+
+<span class="c1"># Rollback specific service to specific revision</span>
+./scripts/rollback.sh<span class="w"> </span>-e<span class="w"> </span>staging<span class="w"> </span>-s<span class="w"> </span>field-ops<span class="w"> </span>-r<span class="w"> </span><span class="m">5</span>
+
+<span class="c1"># Dry-run to see what would happen</span>
+./scripts/rollback.sh<span class="w"> </span>-e<span class="w"> </span>production<span class="w"> </span>-a<span class="w"> </span>--dry-run
+
+<span class="c1"># With Slack notifications</span>
+<span class="nv">SLACK_WEBHOOK_URL</span><span class="o">=</span>https://...<span class="w"> </span>./scripts/rollback.sh<span class="w"> </span>-e<span class="w"> </span>production<span class="w"> </span>-a<span class="w"> </span>-y
+</code></pre></div>
+
+<p><strong>Features:</strong></p>
+<ul>
+<li>Helm-based rollback (to previous or specific revision)</li>
+<li>Single service or all services</li>
+<li>Dry-run mode for safety</li>
+<li>Interactive confirmation (or --yes to skip)</li>
+<li>Slack notifications</li>
+<li>Detailed history display</li>
+</ul>
+<h2 id="evaluation-thresholds">Evaluation Thresholds<a class="headerlink" href="#evaluation-thresholds" title="Permanent link">&para;</a></h2>
+<h3 id="quality-gates-pr-checks">Quality Gates (PR Checks)<a class="headerlink" href="#quality-gates-pr-checks" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">threshold-accuracy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.85&quot;</span><span class="w"> </span><span class="c1"># 85%</span>
+<span class="nt">threshold-latency</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2000&quot;</span><span class="w"> </span><span class="c1"># 2000ms</span>
+<span class="nt">threshold-cost</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.50&quot;</span><span class="w"> </span><span class="c1"># $0.50</span>
+<span class="nt">threshold-success-rate</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.95&quot;</span><span class="w"> </span><span class="c1"># 95%</span>
+</code></pre></div>
+
+<p><strong>Purpose:</strong> Ensure code quality before merge</p>
+<h3 id="staging-pre-deployment">Staging Pre-deployment<a class="headerlink" href="#staging-pre-deployment" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">threshold-accuracy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.80&quot;</span><span class="w"> </span><span class="c1"># 80% (more lenient)</span>
+<span class="nt">threshold-latency</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2500&quot;</span><span class="w"> </span><span class="c1"># 2500ms</span>
+<span class="nt">threshold-cost</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.60&quot;</span><span class="w"> </span><span class="c1"># $0.60</span>
+<span class="nt">threshold-success-rate</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.90&quot;</span><span class="w"> </span><span class="c1"># 90%</span>
+</code></pre></div>
+
+<p><strong>Purpose:</strong> Block problematic deployments early</p>
+<h3 id="staging-post-deployment">Staging Post-deployment<a class="headerlink" href="#staging-post-deployment" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">threshold-accuracy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.85&quot;</span><span class="w"> </span><span class="c1"># 85% (stricter)</span>
+<span class="nt">threshold-latency</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2000&quot;</span><span class="w"> </span><span class="c1"># 2000ms</span>
+<span class="nt">threshold-cost</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.50&quot;</span><span class="w"> </span><span class="c1"># $0.50</span>
+<span class="nt">threshold-success-rate</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.95&quot;</span><span class="w"> </span><span class="c1"># 95%</span>
+</code></pre></div>
+
+<p><strong>Purpose:</strong> Validate production-readiness with live API</p>
+<h2 id="agentops-best-practices-implemented">AgentOps Best Practices Implemented<a class="headerlink" href="#agentops-best-practices-implemented" title="Permanent link">&para;</a></h2>
+<h3 id="1-golden-dataset-testing">1. Golden Dataset Testing<a class="headerlink" href="#1-golden-dataset-testing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Structured test cases with expected outputs</li>
+<li>Category-based organization (agro_advisor, weather_forecast, crop_health, etc.)</li>
+<li>Accuracy scoring using semantic similarity</li>
+<li>Cost and latency tracking per test case</li>
+</ul>
+<h3 id="2-multi-stage-evaluation">2. Multi-stage Evaluation<a class="headerlink" href="#2-multi-stage-evaluation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Pre-deployment:</strong> Local testing, lower thresholds</li>
+<li><strong>Post-deployment:</strong> Live API testing, higher thresholds</li>
+<li><strong>Continuous:</strong> PR checks, quality gates</li>
+</ul>
+<h3 id="3-comprehensive-metrics">3. Comprehensive Metrics<a class="headerlink" href="#3-comprehensive-metrics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Description</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Accuracy</td>
+<td>Semantic similarity (expected vs actual)</td>
+<td>Quality of responses</td>
+</tr>
+<tr>
+<td>Latency</td>
+<td>Response time in milliseconds</td>
+<td>Performance</td>
+</tr>
+<tr>
+<td>Cost</td>
+<td>Token usage cost in USD</td>
+<td>Efficiency</td>
+</tr>
+<tr>
+<td>Success Rate</td>
+<td>Percentage of tests passed</td>
+<td>Reliability</td>
+</tr>
+<tr>
+<td>Error Rate</td>
+<td>Percentage of failures</td>
+<td>Stability</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-progressive-deployment">4. Progressive Deployment<a class="headerlink" href="#4-progressive-deployment" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Canary:</strong> Gradual traffic increase with automated rollback</li>
+<li><strong>Blue-Green:</strong> Zero-downtime with instant rollback</li>
+<li><strong>Health checks:</strong> At every deployment stage</li>
+<li><strong>Validation:</strong> Before and after deployment</li>
+</ul>
+<h3 id="5-observability">5. Observability<a class="headerlink" href="#5-observability" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Detailed JSON evaluation reports</li>
+<li>GitHub Actions summaries with metrics</li>
+<li>PR comments with test results</li>
+<li>Artifact retention (30-90 days)</li>
+<li>Slack notifications</li>
+</ul>
+<h3 id="6-safety-mechanisms">6. Safety Mechanisms<a class="headerlink" href="#6-safety-mechanisms" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Required evaluation gates (must pass to proceed)</li>
+<li>Manual approval options for critical changes</li>
+<li>Dry-run capabilities for testing</li>
+<li>Automatic rollback triggers on failures</li>
+<li>Comprehensive health checks</li>
+</ul>
+<h2 id="usage-guide">Usage Guide<a class="headerlink" href="#usage-guide" title="Permanent link">&para;</a></h2>
+<h3 id="running-canary-deployment">Running Canary Deployment<a class="headerlink" href="#running-canary-deployment" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Go to <strong>GitHub Actions</strong> → <strong>Canary Deployment</strong></li>
+<li>Click <strong>Run workflow</strong></li>
+<li>Configure:</li>
+<li><strong>Environment:</strong> staging or production</li>
+<li><strong>Version:</strong> e.g., v1.2.3</li>
+<li><strong>Rollout speed:</strong> fast/normal/slow</li>
+<li><strong>Service:</strong> (optional) specific service or leave empty for all</li>
+<li>
+<p><strong>Skip evaluation:</strong> (not recommended) only for emergencies</p>
+</li>
+<li>
+<p>Monitor progress through stages:</p>
+</li>
+<li>Stage 1 (1%) → 5 min wait</li>
+<li>Stage 2 (10%) → 15 min wait</li>
+<li>Stage 3 (50%) → 30 min wait</li>
+<li>
+<p>Stage 4 (100%) → Full rollout</p>
+</li>
+<li>
+<p>Automatic rollback if any stage fails</p>
+</li>
+</ol>
+<h3 id="running-blue-green-deployment">Running Blue-Green Deployment<a class="headerlink" href="#running-blue-green-deployment" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Go to <strong>GitHub Actions</strong> → <strong>Blue-Green Deployment</strong></li>
+<li>Click <strong>Run workflow</strong></li>
+<li>Configure:</li>
+<li><strong>Environment:</strong> staging or production</li>
+<li><strong>Version:</strong> e.g., v1.2.3</li>
+<li><strong>Monitoring duration:</strong> minutes to monitor Green (default: 30)</li>
+<li><strong>Require approval:</strong> true/false (manual gate before traffic switch)</li>
+<li>
+<p><strong>Skip evaluation:</strong> (not recommended)</p>
+</li>
+<li>
+<p>Workflow steps:</p>
+</li>
+<li>Backup current (Blue) state</li>
+<li>Deploy to Green environment</li>
+<li>Test Green thoroughly</li>
+<li>(Optional) Wait for manual approval</li>
+<li>Switch traffic to Green</li>
+<li>Monitor Green</li>
+<li>
+<p>Scale down Blue (kept for rollback)</p>
+</li>
+<li>
+<p>Instant rollback available if issues detected</p>
+</li>
+</ol>
+<h3 id="emergency-rollback">Emergency Rollback<a class="headerlink" href="#emergency-rollback" title="Permanent link">&para;</a></h3>
+<p><strong>Scenario 1: Rollback all services in staging</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/home/user/sahool-unified-v15-idp
+./scripts/rollback.sh<span class="w"> </span>-e<span class="w"> </span>staging<span class="w"> </span>-a
+</code></pre></div>
+
+<p><strong>Scenario 2: Rollback specific service in production</strong></p>
+<div class="codehilite"><pre><span></span><code>./scripts/rollback.sh<span class="w"> </span>-e<span class="w"> </span>production<span class="w"> </span>-s<span class="w"> </span>field-ops
+</code></pre></div>
+
+<p><strong>Scenario 3: Rollback to specific revision</strong></p>
+<div class="codehilite"><pre><span></span><code>./scripts/rollback.sh<span class="w"> </span>-e<span class="w"> </span>staging<span class="w"> </span>-s<span class="w"> </span>weather-core<span class="w"> </span>-r<span class="w"> </span><span class="m">5</span>
+</code></pre></div>
+
+<p><strong>Scenario 4: Dry-run first (recommended)</strong></p>
+<div class="codehilite"><pre><span></span><code>./scripts/rollback.sh<span class="w"> </span>-e<span class="w"> </span>production<span class="w"> </span>-a<span class="w"> </span>--dry-run
+</code></pre></div>
+
+<p><strong>Scenario 5: With Slack notifications</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">SLACK_WEBHOOK_URL</span><span class="o">=</span>https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+./scripts/rollback.sh<span class="w"> </span>-e<span class="w"> </span>production<span class="w"> </span>-a<span class="w"> </span>-y
+</code></pre></div>
+
+<h2 id="configuration-required">Configuration Required<a class="headerlink" href="#configuration-required" title="Permanent link">&para;</a></h2>
+<h3 id="github-secrets">GitHub Secrets<a class="headerlink" href="#github-secrets" title="Permanent link">&para;</a></h3>
+<p>Add these secrets in <strong>Repository Settings</strong> → <strong>Secrets and variables</strong> → <strong>Actions</strong>:</p>
+<div class="codehilite"><pre><span></span><code>KUBE_CONFIG_STAGING         # Kubernetes config for staging (base64)
+KUBE_CONFIG_PRODUCTION      # Kubernetes config for production (base64)
+STAGING_API_KEY             # API key for staging environment
+PRODUCTION_API_KEY          # API key for production environment
+SLACK_WEBHOOK_URL           # Slack webhook for notifications (optional)
+JWT_SECRET_STAGING          # JWT secret for staging
+JWT_SECRET_PRODUCTION       # JWT secret for production
+DATABASE_URL_STAGING        # Database connection for staging
+DATABASE_URL_PRODUCTION     # Database connection for production
+</code></pre></div>
+
+<h3 id="golden-datasets">Golden Datasets<a class="headerlink" href="#golden-datasets" title="Permanent link">&para;</a></h3>
+<p>Create test datasets in <code>tests/golden-datasets/</code>:</p>
+<p><strong>Example: <code>tests/golden-datasets/agro-advisor.json</code></strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Agro Advisor Tests&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;test_cases&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test_001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;crop_recommendation&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;What crops are suitable for Yemen climate?&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;expected_output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;coffee, qat, grapes, mangoes&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;max_latency_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2000</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;max_cost&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test_002&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;soil_analysis&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Analyze soil pH for wheat cultivation&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;expected_output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;optimal pH range 6.0-7.5&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;max_latency_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;max_cost&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.08</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="monitoring-and-observability">Monitoring and Observability<a class="headerlink" href="#monitoring-and-observability" title="Permanent link">&para;</a></h2>
+<h3 id="github-actions-artifacts">GitHub Actions Artifacts<a class="headerlink" href="#github-actions-artifacts" title="Permanent link">&para;</a></h3>
+<p>All workflows generate artifacts:</p>
+<ul>
+<li><strong>Evaluation reports</strong> (JSON): 30-90 day retention</li>
+<li><strong>Backup snapshots</strong>: 90-day retention</li>
+<li><strong>Test results</strong>: Viewable in workflow runs</li>
+</ul>
+<h3 id="slack-notifications">Slack Notifications<a class="headerlink" href="#slack-notifications" title="Permanent link">&para;</a></h3>
+<p>Configure <code>SLACK_WEBHOOK_URL</code> to receive:</p>
+<ul>
+<li>Deployment start/complete notifications</li>
+<li>Rollback alerts</li>
+<li>Evaluation failures</li>
+<li>Critical errors</li>
+</ul>
+<h3 id="metrics-dashboard-recommended">Metrics Dashboard (Recommended)<a class="headerlink" href="#metrics-dashboard-recommended" title="Permanent link">&para;</a></h3>
+<p>Integrate with:</p>
+<ul>
+<li><strong>Prometheus</strong>: Collect evaluation metrics</li>
+<li><strong>Grafana</strong>: Visualize trends</li>
+<li><strong>Datadog</strong>: Real-time monitoring</li>
+<li><strong>New Relic</strong>: APM integration</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="evaluation-gate-fails">Evaluation Gate Fails<a class="headerlink" href="#evaluation-gate-fails" title="Permanent link">&para;</a></h3>
+<p><strong>Problem:</strong> Agent evaluation fails in PR checks</p>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Check evaluation report in workflow artifacts</li>
+<li>Review failed test cases and accuracy scores</li>
+<li>Fix code to improve metrics</li>
+<li>Re-run evaluation</li>
+<li>If thresholds too strict, adjust in action parameters</li>
+</ol>
+<h3 id="canary-deployment-stuck">Canary Deployment Stuck<a class="headerlink" href="#canary-deployment-stuck" title="Permanent link">&para;</a></h3>
+<p><strong>Problem:</strong> Canary deployment not progressing</p>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Check health check logs in workflow</li>
+<li>Verify service pods are running: <code>kubectl get pods -n sahool-staging</code></li>
+<li>Check metrics for errors</li>
+<li>If needed, trigger manual rollback</li>
+<li>Review logs for root cause</li>
+</ol>
+<h3 id="blue-green-traffic-switch-fails">Blue-Green Traffic Switch Fails<a class="headerlink" href="#blue-green-traffic-switch-fails" title="Permanent link">&para;</a></h3>
+<p><strong>Problem:</strong> Unable to switch traffic to Green</p>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Check if Green pods are healthy</li>
+<li>Verify service selectors are correct</li>
+<li>Review Kubernetes service configuration</li>
+<li>If Green is unhealthy, automatic rollback will trigger</li>
+<li>Check logs for deployment errors</li>
+</ol>
+<h3 id="rollback-script-issues">Rollback Script Issues<a class="headerlink" href="#rollback-script-issues" title="Permanent link">&para;</a></h3>
+<p><strong>Problem:</strong> Rollback script fails to execute</p>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Verify kubectl is configured: <code>kubectl cluster-info</code></li>
+<li>Check Helm releases exist: <code>helm list -n namespace</code></li>
+<li>Review rollback script logs</li>
+<li>Try dry-run first: <code>./scripts/rollback.sh --dry-run</code></li>
+<li>Check namespace and environment settings</li>
+</ol>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-always-use-evaluation-gates">1. Always Use Evaluation Gates<a class="headerlink" href="#1-always-use-evaluation-gates" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Don't skip evaluation unless absolute emergency</li>
+<li>Review evaluation reports before proceeding</li>
+<li>Adjust thresholds based on service requirements</li>
+</ul>
+<h3 id="2-test-in-staging-first">2. Test in Staging First<a class="headerlink" href="#2-test-in-staging-first" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Use canary/blue-green in staging before production</li>
+<li>Validate evaluation thresholds in staging</li>
+<li>Run full test suites</li>
+</ul>
+<h3 id="3-monitor-deployments">3. Monitor Deployments<a class="headerlink" href="#3-monitor-deployments" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Watch metrics during rollout</li>
+<li>Set up alerts for anomalies</li>
+<li>Keep team informed via Slack</li>
+</ul>
+<h3 id="4-maintain-golden-datasets">4. Maintain Golden Datasets<a class="headerlink" href="#4-maintain-golden-datasets" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Update datasets regularly</li>
+<li>Add new test cases for new features</li>
+<li>Review and remove obsolete tests</li>
+</ul>
+<h3 id="5-document-incidents">5. Document Incidents<a class="headerlink" href="#5-document-incidents" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Record all rollbacks</li>
+<li>Document root causes</li>
+<li>Update runbooks</li>
+</ul>
+<h2 id="future-enhancements">Future Enhancements<a class="headerlink" href="#future-enhancements" title="Permanent link">&para;</a></h2>
+<h3 id="planned-features">Planned Features<a class="headerlink" href="#planned-features" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Semantic similarity models for accuracy scoring</li>
+<li>RAG evaluation metrics</li>
+<li>Multi-modal agent testing</li>
+<li>Chain-of-thought validation</li>
+<li>Automated performance regression detection</li>
+<li>Cost optimization recommendations</li>
+<li>A/B testing integration</li>
+<li>Real-time monitoring dashboards</li>
+</ol>
+<h3 id="integration-opportunities">Integration Opportunities<a class="headerlink" href="#integration-opportunities" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Datadog APM integration</li>
+<li>Prometheus metrics export</li>
+<li>Grafana dashboard templates</li>
+<li>PagerDuty alerting</li>
+<li>JIRA ticket automation</li>
+<li>Custom webhook integrations</li>
+</ol>
+<h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
+<p>For issues or questions:</p>
+<ol>
+<li>Check workflow logs in GitHub Actions</li>
+<li>Review evaluation reports in artifacts</li>
+<li>Run rollback script in dry-run mode</li>
+<li>Consult <code>.github/workflows/EVALUATION_GATES_IMPLEMENTATION.md</code></li>
+<li>Contact SAHOOL Engineering Team</li>
+</ol>
+<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
+<p>This implementation is part of the SAHOOL project.</p>
+<hr />
+<p><strong>Version:</strong> 1.0.0<br />
+<strong>Last Updated:</strong> 2025-12-28<br />
+<strong>Implementation Status:</strong> ✅ Production Ready<br />
+<strong>Maintainer:</strong> SAHOOL Engineering Team</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

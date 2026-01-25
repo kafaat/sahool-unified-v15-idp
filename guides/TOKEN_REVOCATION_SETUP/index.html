@@ -1,0 +1,1515 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Token Revocation Setup Guide - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#token-revocation-setup-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Token Revocation Setup Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="token-revocation-setup-guide">Token Revocation Setup Guide<a class="headerlink" href="#token-revocation-setup-guide" title="Permanent link">&para;</a></h1>
+<p>Quick setup guide for implementing token revocation on logout for SAHOOL platform.</p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Redis server running</li>
+<li>Node.js and npm installed</li>
+<li>PostgreSQL database configured</li>
+</ol>
+<h2 id="setup-steps">Setup Steps<a class="headerlink" href="#setup-steps" title="Permanent link">&para;</a></h2>
+<h3 id="1-install-dependencies">1. Install Dependencies<a class="headerlink" href="#1-install-dependencies" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>apps/services/user-service
+npm<span class="w"> </span>install<span class="w"> </span>uuid<span class="w"> </span>@types/uuid
+</code></pre></div>
+
+<h3 id="2-configure-environment-variables">2. Configure Environment Variables<a class="headerlink" href="#2-configure-environment-variables" title="Permanent link">&para;</a></h3>
+<p>Create or update <code>.env</code> file in <code>apps/services/user-service/</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Copy example file</span>
+cp<span class="w"> </span>.env.example<span class="w"> </span>.env
+
+<span class="c1"># Edit the file with your settings</span>
+nano<span class="w"> </span>.env
+</code></pre></div>
+
+<p><strong>Minimum required configuration:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="k">Database</span>
+<span class="n">DATABASE_URL</span><span class="o">=</span><span class="ss">&quot;postgresql://user:password@localhost:5432/sahool_users&quot;</span>
+
+<span class="err">#</span><span class="w"> </span><span class="n">JWT</span>
+<span class="n">JWT_SECRET_KEY</span><span class="o">=</span><span class="ss">&quot;your-super-secret-jwt-key-at-least-32-characters-long&quot;</span>
+<span class="n">JWT_ALGORITHM</span><span class="o">=</span><span class="ss">&quot;HS256&quot;</span>
+<span class="n">JWT_ACCESS_TOKEN_EXPIRE_MINUTES</span><span class="o">=</span><span class="ss">&quot;30&quot;</span>
+<span class="n">JWT_REFRESH_TOKEN_EXPIRE_DAYS</span><span class="o">=</span><span class="ss">&quot;7&quot;</span>
+
+<span class="err">#</span><span class="w"> </span><span class="n">Redis</span>
+<span class="n">REDIS_URL</span><span class="o">=</span><span class="ss">&quot;redis://localhost:6379&quot;</span>
+
+<span class="err">#</span><span class="w"> </span><span class="n">Token</span><span class="w"> </span><span class="n">Revocation</span>
+<span class="n">TOKEN_REVOCATION_ENABLED</span><span class="o">=</span><span class="ss">&quot;true&quot;</span>
+</code></pre></div>
+
+<h3 id="3-start-redis">3. Start Redis<a class="headerlink" href="#3-start-redis" title="Permanent link">&para;</a></h3>
+<p><strong>Using Docker:</strong></p>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>sahool-redis<span class="w"> </span>-p<span class="w"> </span><span class="m">6379</span>:6379<span class="w"> </span>-d<span class="w"> </span>redis:alpine
+</code></pre></div>
+
+<p><strong>Using local Redis:</strong></p>
+<div class="codehilite"><pre><span></span><code>redis-server
+</code></pre></div>
+
+<p><strong>Verify Redis is running:</strong></p>
+<div class="codehilite"><pre><span></span><code>redis-cli<span class="w"> </span>ping
+<span class="c1"># Should return: PONG</span>
+</code></pre></div>
+
+<h3 id="4-build-and-start-user-service">4. Build and Start User Service<a class="headerlink" href="#4-build-and-start-user-service" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>apps/services/user-service
+
+<span class="c1"># Install dependencies</span>
+npm<span class="w"> </span>install
+
+<span class="c1"># Run database migrations (if needed)</span>
+npx<span class="w"> </span>prisma<span class="w"> </span>migrate<span class="w"> </span>dev
+
+<span class="c1"># Start the service</span>
+npm<span class="w"> </span>run<span class="w"> </span>start:dev
+</code></pre></div>
+
+<h3 id="5-verify-implementation">5. Verify Implementation<a class="headerlink" href="#5-verify-implementation" title="Permanent link">&para;</a></h3>
+<p><strong>Test the API:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Login</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3020/api/v1/auth/login<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;email&quot;: &quot;test@sahool.com&quot;,</span>
+<span class="s1">    &quot;password&quot;: &quot;TestPassword123!&quot;</span>
+<span class="s1">  }&#39;</span>
+
+<span class="c1"># Copy the access_token from response</span>
+
+<span class="c1"># 2. Access protected endpoint</span>
+curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3020/api/v1/auth/me<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span>
+
+<span class="c1"># Should return user info</span>
+
+<span class="c1"># 3. Logout (revoke token)</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3020/api/v1/auth/logout<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span>
+
+<span class="c1"># Should return: {&quot;success&quot;: true, &quot;message&quot;: &quot;Logged out successfully&quot;}</span>
+
+<span class="c1"># 4. Try using the same token again</span>
+curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3020/api/v1/auth/me<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span>
+
+<span class="c1"># Should return 401 Unauthorized with &quot;token_revoked&quot; error</span>
+</code></pre></div>
+
+<p><strong>Check Redis:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Connect to Redis CLI</span>
+redis-cli
+
+<span class="c1"># List all revoked tokens</span>
+KEYS<span class="w"> </span>revoked:token:*
+
+<span class="c1"># Check a specific token (use one of the keys from above)</span>
+GET<span class="w"> </span>revoked:token:&lt;jti&gt;
+
+<span class="c1"># Output should show:</span>
+<span class="c1"># {&quot;revokedAt&quot;:1234567890,&quot;reason&quot;:&quot;user_logout&quot;,&quot;userId&quot;:&quot;...&quot;}</span>
+
+<span class="c1"># Check TTL (Time To Live)</span>
+TTL<span class="w"> </span>revoked:token:&lt;jti&gt;
+
+<span class="c1"># Should show seconds until expiration</span>
+</code></pre></div>
+
+<h3 id="6-configure-other-services-optional">6. Configure Other Services (Optional)<a class="headerlink" href="#6-configure-other-services-optional" title="Permanent link">&para;</a></h3>
+<p>To enable token revocation in other services (e.g., marketplace-service, iot-service):</p>
+<p><strong>Update the service's <code>app.module.ts</code>:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Module</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">APP_GUARD</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/core&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtModule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/jwt&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TokenRevocationGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth/guards/token-revocation.guard&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RedisTokenRevocationStore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth/services/token-revocation&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JWTConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth/config/jwt.config&quot;</span><span class="p">;</span>
+
+<span class="kd">@Module</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">imports</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nx">JwtModule</span><span class="p">.</span><span class="nx">register</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">secret</span><span class="o">:</span><span class="w"> </span><span class="kt">JWTConfig.getVerificationKey</span><span class="p">(),</span>
+<span class="w">    </span><span class="p">}),</span>
+<span class="w">    </span><span class="c1">// ... other modules</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nx">providers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="c1">// Global token revocation guard</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">provide</span><span class="o">:</span><span class="w"> </span><span class="kt">APP_GUARD</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">useClass</span><span class="o">:</span><span class="w"> </span><span class="kt">TokenRevocationGuard</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="c1">// Token revocation store</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">provide</span><span class="o">:</span><span class="w"> </span><span class="kt">RedisTokenRevocationStore</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">useFactory</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">redisUrl</span><span class="w"> </span><span class="o">=</span>
+<span class="w">          </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">REDIS_URL</span><span class="w"> </span><span class="o">||</span>
+<span class="w">          </span><span class="sb">`redis://</span><span class="si">${</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">REDIS_HOST</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;localhost&quot;</span><span class="si">}</span><span class="sb">:</span><span class="si">${</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">REDIS_PORT</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">6379</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RedisTokenRevocationStore</span><span class="p">(</span><span class="nx">redisUrl</span><span class="p">);</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="c1">// ... other providers</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="p">})</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">AppModule</span><span class="w"> </span><span class="p">{}</span>
+</code></pre></div>
+
+<p><strong>Add Redis config to service's <code>.env</code>:</strong></p>
+<div class="codehilite"><pre><span></span><code>REDIS_URL=&quot;redis://localhost:6379&quot;
+TOKEN_REVOCATION_ENABLED=&quot;true&quot;
+</code></pre></div>
+
+<h3 id="7-update-frontend-environment">7. Update Frontend Environment<a class="headerlink" href="#7-update-frontend-environment" title="Permanent link">&para;</a></h3>
+<p>For admin and web apps, add backend URL:</p>
+<p><strong><code>apps/admin/.env.local</code>:</strong></p>
+<div class="codehilite"><pre><span></span><code>USER_SERVICE_URL=&quot;http://localhost:3020&quot;
+</code></pre></div>
+
+<p><strong><code>apps/web/.env.local</code>:</strong></p>
+<div class="codehilite"><pre><span></span><code>USER_SERVICE_URL=&quot;http://localhost:3020&quot;
+</code></pre></div>
+
+<h2 id="verification-checklist">Verification Checklist<a class="headerlink" href="#verification-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Redis is running and accessible</li>
+<li>[ ] User service starts without errors</li>
+<li>[ ] Login endpoint returns tokens with JTI</li>
+<li>[ ] Protected endpoints work with valid token</li>
+<li>[ ] Logout successfully revokes token</li>
+<li>[ ] Revoked token cannot access protected endpoints</li>
+<li>[ ] Token appears in Redis with correct TTL</li>
+<li>[ ] Health check endpoint returns healthy status</li>
+<li>[ ] Frontend logout calls backend revocation</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="redis-connection-error">Redis Connection Error<a class="headerlink" href="#redis-connection-error" title="Permanent link">&para;</a></h3>
+<p><strong>Error:</strong> <code>Failed to initialize Redis: connect ECONNREFUSED</code></p>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Ensure Redis is running: <code>redis-cli ping</code></li>
+<li>Check Redis connection string in <code>.env</code></li>
+<li>Verify firewall allows connection to Redis port</li>
+</ol>
+<h3 id="jwt-secret-not-configured">JWT Secret Not Configured<a class="headerlink" href="#jwt-secret-not-configured" title="Permanent link">&para;</a></h3>
+<p><strong>Error:</strong> <code>JWT_SECRET must be at least 32 characters in production</code></p>
+<p><strong>Solution:</strong>
+Generate a secure secret:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate random secret</span>
+node<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;console.log(require(&#39;crypto&#39;).randomBytes(32).toString(&#39;base64&#39;))&quot;</span>
+
+<span class="c1"># Add to .env</span>
+<span class="nv">JWT_SECRET_KEY</span><span class="o">=</span><span class="s2">&quot;&lt;generated_secret&gt;&quot;</span>
+</code></pre></div>
+
+<h3 id="token-missing-jti">Token Missing JTI<a class="headerlink" href="#token-missing-jti" title="Permanent link">&para;</a></h3>
+<p><strong>Error:</strong> <code>Token does not have JTI claim</code></p>
+<p><strong>Solution:</strong>
+Ensure you're using the new auth service for login. Old tokens won't have JTI.</p>
+<ol>
+<li>Use POST <code>/api/v1/auth/login</code> endpoint</li>
+<li>Verify token payload includes <code>jti</code> field</li>
+</ol>
+<h3 id="module-import-errors">Module Import Errors<a class="headerlink" href="#module-import-errors" title="Permanent link">&para;</a></h3>
+<p><strong>Error:</strong> <code>Cannot find module '@sahool/nestjs-auth'</code></p>
+<p><strong>Solution:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Install the package</span>
+<span class="nb">cd</span><span class="w"> </span>packages/nestjs-auth
+npm<span class="w"> </span>install
+npm<span class="w"> </span>run<span class="w"> </span>build
+
+<span class="c1"># Link it (if needed)</span>
+npm<span class="w"> </span>link
+
+<span class="c1"># In the service directory</span>
+npm<span class="w"> </span>link<span class="w"> </span>@sahool/nestjs-auth
+</code></pre></div>
+
+<h2 id="production-deployment">Production Deployment<a class="headerlink" href="#production-deployment" title="Permanent link">&para;</a></h2>
+<h3 id="redis-configuration">Redis Configuration<a class="headerlink" href="#redis-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>High Availability Setup:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="n">Redis</span><span class="w"> </span><span class="n">Sentinel</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">Cluster</span>
+<span class="n">REDIS_URL</span><span class="o">=</span><span class="ss">&quot;redis://sentinel1:26379,sentinel2:26379,sentinel3:26379&quot;</span>
+
+<span class="err">#</span><span class="w"> </span><span class="k">With</span><span class="w"> </span><span class="n">password</span>
+<span class="n">REDIS_URL</span><span class="o">=</span><span class="ss">&quot;redis://:password@host:6379&quot;</span>
+
+<span class="err">#</span><span class="w"> </span><span class="n">Redis</span><span class="w"> </span><span class="n">Cluster</span>
+<span class="n">REDIS_CLUSTER_NODES</span><span class="o">=</span><span class="ss">&quot;host1:6379,host2:6379,host3:6379&quot;</span>
+</code></pre></div>
+
+<h3 id="security-checklist">Security Checklist<a class="headerlink" href="#security-checklist" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Use strong JWT secret (minimum 32 characters)</li>
+<li>[ ] Enable Redis password authentication</li>
+<li>[ ] Use TLS for Redis connections in production</li>
+<li>[ ] Set appropriate token expiration times</li>
+<li>[ ] Monitor Redis memory usage</li>
+<li>[ ] Set up Redis persistence (AOF or RDB)</li>
+<li>[ ] Configure Redis maxmemory policy</li>
+<li>[ ] Enable rate limiting on auth endpoints</li>
+<li>[ ] Set up monitoring and alerts</li>
+</ul>
+<h3 id="performance-optimization">Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="gh">#</span> Increase token expiration to reduce revocation checks
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=&quot;60&quot;
+
+<span class="gh">#</span> Use Redis connection pooling
+REDIS_MAX_CONNECTIONS=&quot;50&quot;
+REDIS_MIN_CONNECTIONS=&quot;10&quot;
+
+<span class="gh">#</span> Enable Redis persistence
+REDIS_SAVE=&quot;900 1 300 10 60 10000&quot;
+</code></pre></div>
+
+<h2 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="health-checks">Health Checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Service health</span>
+curl<span class="w"> </span>http://localhost:3020/api/v1/health
+
+<span class="c1"># Token revocation health</span>
+curl<span class="w"> </span>http://localhost:3020/api/v1/auth/revocation/health
+
+<span class="c1"># Redis health</span>
+redis-cli<span class="w"> </span>ping
+</code></pre></div>
+
+<h3 id="metrics-to-monitor">Metrics to Monitor<a class="headerlink" href="#metrics-to-monitor" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Redis Metrics:</strong></li>
+<li>Memory usage</li>
+<li>Key count (revoked tokens)</li>
+<li>Hit/miss ratio</li>
+<li>
+<p>Connection count</p>
+</li>
+<li>
+<p><strong>Application Metrics:</strong></p>
+</li>
+<li>Login success/failure rate</li>
+<li>Logout success rate</li>
+<li>Token revocation rate</li>
+<li>
+<p>Revoked token access attempts</p>
+</li>
+<li>
+<p><strong>Performance Metrics:</strong></p>
+</li>
+<li>Token validation latency</li>
+<li>Redis operation latency</li>
+<li>Authentication endpoint response time</li>
+</ol>
+<h3 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h3>
+<p>Check logs for:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Token revocations</span>
+grep<span class="w"> </span><span class="s2">&quot;Token revoked&quot;</span><span class="w"> </span>/var/log/user-service.log
+
+<span class="c1"># Revoked token access attempts</span>
+grep<span class="w"> </span><span class="s2">&quot;Revoked token access attempt&quot;</span><span class="w"> </span>/var/log/user-service.log
+
+<span class="c1"># Redis connection issues</span>
+grep<span class="w"> </span><span class="s2">&quot;Redis error&quot;</span><span class="w"> </span>/var/log/user-service.log
+</code></pre></div>
+
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Test the implementation thoroughly</li>
+<li>Set up monitoring and alerts</li>
+<li>Document API for frontend team</li>
+<li>Deploy to staging environment</li>
+<li>Perform load testing</li>
+<li>Deploy to production</li>
+<li>Monitor for issues</li>
+</ol>
+<h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
+<p>For issues or questions:</p>
+<ol>
+<li>Check logs: <code>docker logs sahool-user-service</code></li>
+<li>Check Redis: <code>redis-cli</code> and use <code>KEYS *</code> to inspect</li>
+<li>Review documentation: <code>TOKEN_REVOCATION_IMPLEMENTATION.md</code></li>
+<li>Contact platform team</li>
+</ol>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>Your token revocation system is now set up! Users can:</p>
+<ul>
+<li>✅ Login and receive tokens with unique JTI</li>
+<li>✅ Access protected resources with valid tokens</li>
+<li>✅ Logout and immediately revoke tokens</li>
+<li>✅ Be blocked from using revoked tokens</li>
+<li>✅ Logout from all devices</li>
+</ul>
+<p>The system automatically manages token lifecycle with Redis TTL.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

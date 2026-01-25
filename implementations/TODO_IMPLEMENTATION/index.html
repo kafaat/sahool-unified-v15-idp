@@ -1,0 +1,1462 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Task Service TODO Items - Implementation Status - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#task-service-todo-items-implementation-status" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Task Service TODO Items - Implementation Status
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="task-service-todo-items-implementation-status">Task Service TODO Items - Implementation Status<a class="headerlink" href="#task-service-todo-items-implementation-status" title="Permanent link">&para;</a></h1>
+<h2 id="project-sahool-task-service">Project: SAHOOL Task Service<a class="headerlink" href="#project-sahool-task-service" title="Permanent link">&para;</a></h2>
+<p><strong>Date</strong>: 2026-01-18
+<strong>Service</strong>: <code>/home/user/sahool-unified-v15-idp/apps/services/task-service/src/</code></p>
+<hr />
+<h2 id="todo-1-database-migration-move-from-in-memory-storage-to-postgresql">TODO #1: Database Migration - Move from In-Memory Storage to PostgreSQL<a class="headerlink" href="#todo-1-database-migration-move-from-in-memory-storage-to-postgresql" title="Permanent link">&para;</a></h2>
+<p><strong>Status</strong>: URGENT - IN PROGRESS
+<strong>Location</strong>: <code>main.py</code> (multiple endpoints)
+<strong>Priority</strong>: HIGH
+<strong>Effort</strong>: MEDIUM</p>
+<h3 id="issue-description">Issue Description<a class="headerlink" href="#issue-description" title="Permanent link">&para;</a></h3>
+<p>The task-service is currently using in-memory dictionaries (<code>tasks_db</code> and <code>evidence_db</code>) for storing tasks and evidence instead of the PostgreSQL database infrastructure that is already set up.</p>
+<h3 id="current-state">Current State<a class="headerlink" href="#current-state" title="Permanent link">&para;</a></h3>
+<p><strong>In-Memory Storage Definitions</strong> (need to identify and remove):
+- <code>tasks_db</code> dictionary - stores Task objects in memory
+- <code>evidence_db</code> dictionary - stores Evidence objects in memory</p>
+<p><strong>Affected Endpoints</strong> (22 occurrences):
+1. Line 1220-1227: <code>get_today_tasks()</code> - reads from <code>tasks_db</code>
+2. Line 1240-1247: <code>get_upcoming_tasks()</code> - reads from <code>tasks_db</code>
+3. Line 1261: <code>get_task_stats()</code> - reads from <code>tasks_db</code>
+4. Line 1303-1306: <code>get_task()</code> - reads from <code>tasks_db</code>
+5. Line 1353: <code>create_task()</code> - writes to <code>tasks_db</code>
+6. Line 1382-1395: <code>update_task()</code> - reads/writes to <code>tasks_db</code>
+7. Line 1420-1449: <code>complete_task()</code> - reads/writes to <code>tasks_db</code> and <code>evidence_db</code>
+8. Line 1474-1483: <code>start_task()</code> - reads/writes to <code>tasks_db</code>
+9. Line 1508-1517: <code>cancel_task()</code> - reads/writes to <code>tasks_db</code>
+10. Line 1542-1546: <code>delete_task()</code> - reads/deletes from <code>tasks_db</code>
+11. Line 1559-1575: <code>add_evidence()</code> - reads/writes to <code>tasks_db</code> and <code>evidence_db</code>
+12. Line 1690: <code>create_task_from_ndvi_alert()</code> - writes to <code>tasks_db</code>
+13. Line 1925: <code>auto_create_tasks()</code> - writes to <code>tasks_db</code>
+14. Line 2152: <code>create_task_with_astronomical_recommendation()</code> - writes to <code>tasks_db</code></p>
+<h3 id="required-changes">Required Changes<a class="headerlink" href="#required-changes" title="Permanent link">&para;</a></h3>
+<h4 id="step-1-add-database-dependency-to-endpoints">Step 1: Add Database Dependency to Endpoints<a class="headerlink" href="#step-1-add-database-dependency-to-endpoints" title="Permanent link">&para;</a></h4>
+<p>All endpoints need to accept a database session dependency:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">Depends</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_db</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">Session</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/api/v1/tasks/</span><span class="si">{task_id}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">Task</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_task</span><span class="p">(</span>
+    <span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_tenant_id</span><span class="p">),</span>
+    <span class="n">db</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_db</span><span class="p">),</span>  <span class="c1"># ADD THIS</span>
+<span class="p">):</span>
+    <span class="n">repo</span> <span class="o">=</span> <span class="n">TaskRepository</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_task_by_id</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">tenant_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">task</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Task not found&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">db_task_to_dict</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</code></pre></div>
+
+<h4 id="step-2-replace-in-memory-reads-with-database-queries">Step 2: Replace In-Memory Reads with Database Queries<a class="headerlink" href="#step-2-replace-in-memory-reads-with-database-queries" title="Permanent link">&para;</a></h4>
+<p><strong>Before</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">task</span> <span class="o">=</span> <span class="n">tasks_db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">task</span> <span class="ow">or</span> <span class="n">task</span><span class="o">.</span><span class="n">tenant_id</span> <span class="o">!=</span> <span class="n">tenant_id</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Task not found&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>After</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">repo</span> <span class="o">=</span> <span class="n">TaskRepository</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+<span class="n">task</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_task_by_id</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">tenant_id</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">task</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Task not found&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h4 id="step-3-replace-in-memory-writes-with-database-persistence">Step 3: Replace In-Memory Writes with Database Persistence<a class="headerlink" href="#step-3-replace-in-memory-writes-with-database-persistence" title="Permanent link">&para;</a></h4>
+<p><strong>Before</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">tasks_db</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span>
+</code></pre></div>
+
+<p><strong>After</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">repo</span> <span class="o">=</span> <span class="n">TaskRepository</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+<span class="n">task</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</code></pre></div>
+
+<h4 id="step-4-update-complex-endpoints">Step 4: Update Complex Endpoints<a class="headerlink" href="#step-4-update-complex-endpoints" title="Permanent link">&para;</a></h4>
+<p>Endpoints like <code>get_task_stats()</code> need complete refactoring:</p>
+<p><strong>Current</strong> (using in-memory):</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_task_stats</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">tenant_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tasks_db</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">tenant_id</span> <span class="o">==</span> <span class="n">tenant_id</span><span class="p">]</span>
+    <span class="c1"># ... process in-memory list</span>
+</code></pre></div>
+
+<p><strong>New</strong> (using database):</p>
+<div class="codehilite"><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_task_stats</span><span class="p">(</span>
+    <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_tenant_id</span><span class="p">),</span>
+    <span class="n">db</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_db</span><span class="p">),</span>
+<span class="p">):</span>
+    <span class="n">repo</span> <span class="o">=</span> <span class="n">TaskRepository</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+    <span class="n">stats</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_task_stats</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">stats</span>
+</code></pre></div>
+
+<h3 id="database-infrastructure-already-available">Database Infrastructure Already Available<a class="headerlink" href="#database-infrastructure-already-available" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>TaskRepository</strong> (<code>repository.py</code>):
+- <code>create_task(task)</code> - creates and returns task
+- <code>get_task_by_id(task_id, tenant_id)</code> - retrieves task with tenant validation
+- <code>list_tasks()</code> - supports filtering and pagination
+- <code>update_task()</code> - updates and records history
+- <code>delete_task()</code> - deletes task
+- <code>start_task()</code> - marks as in_progress
+- <code>complete_task()</code> - marks as completed with evidence
+- <code>cancel_task()</code> - cancels task
+- <code>add_evidence()</code> - adds evidence to task
+- <code>get_task_stats()</code> - returns aggregated statistics</p>
+<p>✅ <strong>Database Configuration</strong> (<code>database.py</code>):
+- <code>init_database()</code> - initializes PostgreSQL connection
+- <code>get_db()</code> - FastAPI dependency for session injection
+- <code>get_db_session()</code> - context manager for direct usage
+- <code>seed_demo_data()</code> - populates test data</p>
+<p>✅ <strong>Models</strong> (<code>models.py</code>):
+- <code>Task</code> - SQLAlchemy model with all required fields
+- <code>TaskEvidence</code> - evidence model with relationships
+- <code>TaskHistory</code> - audit trail for changes</p>
+<h3 id="testing-strategy">Testing Strategy<a class="headerlink" href="#testing-strategy" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Unit Tests</strong>: Verify each endpoint works with database</li>
+<li><strong>Integration Tests</strong>: Verify NATS events still publish correctly</li>
+<li><strong>Smoke Tests</strong>: Verify basic CRUD operations</li>
+<li><strong>Regression Tests</strong>: Ensure NDVI integration still works</li>
+</ol>
+<h3 id="estimated-effort">Estimated Effort<a class="headerlink" href="#estimated-effort" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Analysis</strong>: 30 minutes (DONE)</li>
+<li><strong>Endpoint Refactoring</strong>: 2-3 hours (14 endpoints)</li>
+<li><strong>Testing</strong>: 1 hour</li>
+<li><strong>Debugging/Fixes</strong>: 1 hour</li>
+<li><strong>Total</strong>: ~4-5 hours</li>
+</ul>
+<h3 id="non-straightforward-endpoints-require-special-handling">Non-Straightforward Endpoints (Require Special Handling)<a class="headerlink" href="#non-straightforward-endpoints-require-special-handling" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong><code>get_today_tasks()</code> &amp; <code>get_upcoming_tasks()</code></strong> - Need pagination support</li>
+<li><strong><code>get_task_stats()</code></strong> - Repository method exists but needs integration</li>
+<li><strong><code>create_task()</code> &amp; <code>update_task()</code></strong> - Need to handle astronomical data enrichment</li>
+<li><strong>Evidence endpoints</strong> - TaskEvidence model integration</li>
+</ol>
+<h3 id="straightforward-endpoints-ready-to-migrate">Straightforward Endpoints (Ready to Migrate)<a class="headerlink" href="#straightforward-endpoints-ready-to-migrate" title="Permanent link">&para;</a></h3>
+<ol>
+<li>✅ <code>get_task()</code> - Single read, direct repository call</li>
+<li>✅ <code>delete_task()</code> - Single delete, direct repository call</li>
+<li>✅ <code>start_task()</code> - Status update, repository method exists</li>
+<li>✅ <code>cancel_task()</code> - Status update, repository method exists</li>
+</ol>
+<hr />
+<h2 id="todo-2-real-ndvi-service-integration">TODO #2: Real NDVI Service Integration<a class="headerlink" href="#todo-2-real-ndvi-service-integration" title="Permanent link">&para;</a></h2>
+<p><strong>Status</strong>: PLANNED
+<strong>Location</strong>: <code>main.py</code> line 1735-1750, <code>get_task_suggestions_for_field()</code>
+<strong>Priority</strong>: MEDIUM
+<strong>Effort</strong>: LOW</p>
+<h3 id="issue-description_1">Issue Description<a class="headerlink" href="#issue-description_1" title="Permanent link">&para;</a></h3>
+<p>The <code>get_task_suggestions_for_field()</code> endpoint currently uses mock suggestions. It should call the actual NDVI service to fetch real field health data.</p>
+<h3 id="current-implementation">Current Implementation<a class="headerlink" href="#current-implementation" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># TODO: Call NDVI service to get field health data</span>
+<span class="c1"># For now, return mock suggestions based on common scenarios</span>
+</code></pre></div>
+
+<h3 id="required-changes_1">Required Changes<a class="headerlink" href="#required-changes_1" title="Permanent link">&para;</a></h3>
+<p>The NDVI client (<code>ndvi_client.py</code>) is already fully implemented with:
+- <code>NDVIClient.get_field_health(field_id)</code> - fetches actual health data
+- <code>get_task_suggestions_from_health(health_data)</code> - generates suggestions from real data
+- Fallback to simulated data if service unavailable</p>
+<h3 id="implementation-status">Implementation Status<a class="headerlink" href="#implementation-status" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>NDVI Client Already Integrated</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">.ndvi_client</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_ndvi_client</span><span class="p">,</span>
+    <span class="n">get_task_suggestions_from_health</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ndvi_client</span> <span class="o">=</span> <span class="n">get_ndvi_client</span><span class="p">()</span>
+<span class="n">health_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ndvi_client</span><span class="o">.</span><span class="n">get_field_health</span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span>
+<span class="n">raw_suggestions</span> <span class="o">=</span> <span class="n">get_task_suggestions_from_health</span><span class="p">(</span><span class="n">health_data</span><span class="p">)</span>
+</code></pre></div>
+
+<p>The endpoint at line 1735-1750 already has this implementation!</p>
+<h3 id="current-status">Current Status<a class="headerlink" href="#current-status" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Line 1741: <code>ndvi_client = get_ndvi_client()</code> ✅</li>
+<li>Line 1742: <code>health_data = await ndvi_client.get_field_health(field_id)</code> ✅</li>
+<li>Line 1750: <code>raw_suggestions = get_task_suggestions_from_health(health_data)</code> ✅</li>
+</ul>
+<p><strong>CONCLUSION</strong>: This TODO is already COMPLETED. The real NDVI service integration is in place.</p>
+<hr />
+<h2 id="todo-3-field-manager-lookup">TODO #3: Field Manager Lookup<a class="headerlink" href="#todo-3-field-manager-lookup" title="Permanent link">&para;</a></h2>
+<p><strong>Status</strong>: COMPLETED ✅
+<strong>Location</strong>: <code>main.py</code> line 796-861 (<code>fetch_field_manager()</code>)
+<strong>Completed</strong>: Already implemented</p>
+<h3 id="implementation-details">Implementation Details<a class="headerlink" href="#implementation-details" title="Permanent link">&para;</a></h3>
+<p>Function <code>fetch_field_manager()</code>:
+- Fetches field manager from field-service
+- Validates field_id to prevent SSRF
+- Sanitizes for logging to prevent log injection
+- Has proper error handling and timeouts
+- Fallback if field manager not found</p>
+<p>Used in:
+- <code>create_task_from_ndvi_alert()</code> - Line 1647-1652
+- <code>auto_create_tasks()</code> - Line 1882-1885</p>
+<p>Configuration:
+- <code>FIELD_SERVICE_URL</code> env var (default: <code>http://field-service:8115</code>)</p>
+<hr />
+<h2 id="summary-of-todo-items">Summary of TODO Items<a class="headerlink" href="#summary-of-todo-items" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>TODO</th>
+<th>Status</th>
+<th>Effort</th>
+<th>Priority</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Database Migration</td>
+<td>IN PROGRESS</td>
+<td>4-5 hrs</td>
+<td>HIGH</td>
+<td>22 endpoint changes needed</td>
+</tr>
+<tr>
+<td>NDVI Integration</td>
+<td>COMPLETED ✅</td>
+<td>-</td>
+<td>-</td>
+<td>Already implemented</td>
+</tr>
+<tr>
+<td>Field Manager Lookup</td>
+<td>COMPLETED ✅</td>
+<td>-</td>
+<td>-</td>
+<td>Already implemented</td>
+</tr>
+<tr>
+<td>In-Memory Storage Removal</td>
+<td>BLOCKED</td>
+<td>-</td>
+<td>HIGH</td>
+<td>Depends on Database Migration</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="implementation-checklist">Implementation Checklist<a class="headerlink" href="#implementation-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-straightforward-endpoints-ready-to-start">Phase 1: Straightforward Endpoints (READY TO START)<a class="headerlink" href="#phase-1-straightforward-endpoints-ready-to-start" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <code>get_task()</code> - single read</li>
+<li>[ ] <code>delete_task()</code> - single delete</li>
+<li>[ ] <code>start_task()</code> - status update</li>
+<li>[ ] <code>cancel_task()</code> - status update</li>
+</ul>
+<h3 id="phase-2-complex-endpoints-after-database-foundation">Phase 2: Complex Endpoints (AFTER DATABASE FOUNDATION)<a class="headerlink" href="#phase-2-complex-endpoints-after-database-foundation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <code>create_task()</code> - with astronomical enrichment</li>
+<li>[ ] <code>update_task()</code> - with history tracking</li>
+<li>[ ] <code>complete_task()</code> - with evidence handling</li>
+<li>[ ] <code>add_evidence()</code> - task evidence</li>
+</ul>
+<h3 id="phase-3-analytics-endpoints-after-core">Phase 3: Analytics Endpoints (AFTER CORE)<a class="headerlink" href="#phase-3-analytics-endpoints-after-core" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <code>list_tasks()</code> - already uses repository!</li>
+<li>[ ] <code>get_task_stats()</code> - repository has method</li>
+<li>[ ] <code>get_today_tasks()</code> - refactor to use repo</li>
+<li>[ ] <code>get_upcoming_tasks()</code> - refactor to use repo</li>
+</ul>
+<h3 id="phase-4-ndvi-endpoints-verify-only">Phase 4: NDVI Endpoints (VERIFY ONLY)<a class="headerlink" href="#phase-4-ndvi-endpoints-verify-only" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <code>create_task_from_ndvi_alert()</code> - verify database integration</li>
+<li>[ ] <code>get_task_suggestions_for_field()</code> - verify NDVI client works</li>
+<li>[ ] <code>auto_create_tasks()</code> - verify batch creation works</li>
+<li>[ ] <code>get_field_health()</code> - verify NDVI client calls</li>
+</ul>
+<hr />
+<h2 id="files-modified">Files Modified<a class="headerlink" href="#files-modified" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>/home/user/sahool-unified-v15-idp/apps/services/task-service/src/main.py</code> - endpoint refactoring</li>
+<li>No changes to: <code>database.py</code>, <code>repository.py</code>, <code>models.py</code>, <code>ndvi_client.py</code> (already correct)</li>
+</ul>
+<hr />
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Start with Phase 1 endpoints (straightforward)</li>
+<li>Verify each endpoint works with database</li>
+<li>Run tests to ensure no regressions</li>
+<li>Move to Phase 2 endpoints</li>
+<li>Verify NDVI integration still works after migration</li>
+<li>Remove in-memory storage dictionaries</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

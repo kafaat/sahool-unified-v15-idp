@@ -1,0 +1,1544 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Two-Factor Authentication (2FA) Implementation Summary - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#two-factor-authentication-2fa-implementation-summary" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Two-Factor Authentication (2FA) Implementation Summary
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="two-factor-authentication-2fa-implementation-summary">Two-Factor Authentication (2FA) Implementation Summary<a class="headerlink" href="#two-factor-authentication-2fa-implementation-summary" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This document summarizes the complete implementation of Two-Factor Authentication (2FA) for SAHOOL Platform admin accounts. The implementation uses TOTP (Time-based One-Time Password) with support for authenticator apps, backup codes, and configurable enforcement policies.</p>
+<h2 id="implementation-status">Implementation Status<a class="headerlink" href="#implementation-status" title="Permanent link">&para;</a></h2>
+<p>All components have been successfully implemented and are ready for integration and testing.</p>
+<h2 id="files-created">Files Created<a class="headerlink" href="#files-created" title="Permanent link">&para;</a></h2>
+<h3 id="backend-components">Backend Components<a class="headerlink" href="#backend-components" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong><code>/shared/auth/twofa_service.py</code></strong></li>
+<li>Core 2FA service with TOTP functionality</li>
+<li>QR code generation</li>
+<li>Backup code management</li>
+<li>
+<p>Token verification</p>
+</li>
+<li>
+<p><strong><code>/shared/auth/twofa_api.py</code></strong></p>
+</li>
+<li>FastAPI routes for 2FA management</li>
+<li>Endpoints: setup, verify, disable, status, backup-codes</li>
+<li>
+<p>Admin-only access control</p>
+</li>
+<li>
+<p><strong><code>/shared/auth/auth_api.py</code></strong></p>
+</li>
+<li>Updated authentication API with 2FA support</li>
+<li>Two-step login flow</li>
+<li>
+<p>TOTP and backup code verification</p>
+</li>
+<li>
+<p><strong><code>/shared/auth/twofa_config.py</code></strong></p>
+</li>
+<li>Configuration management</li>
+<li>Enforcement levels (optional, required_for_admin, etc.)</li>
+<li>Grace period settings</li>
+<li>
+<p>Preset configurations (production, development, strict)</p>
+</li>
+<li>
+<p><strong><code>/shared/auth/requirements-2fa.txt</code></strong></p>
+</li>
+<li>Python dependencies for 2FA</li>
+<li>
+<p>pyotp, qrcode[pil], Pillow</p>
+</li>
+<li>
+<p><strong><code>/shared/auth/2FA_IMPLEMENTATION_GUIDE.md</code></strong></p>
+</li>
+<li>Comprehensive documentation</li>
+<li>Installation instructions</li>
+<li>API examples</li>
+<li>Integration guide</li>
+</ol>
+<h3 id="frontend-components">Frontend Components<a class="headerlink" href="#frontend-components" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong><code>/apps/admin/src/app/settings/security/page.tsx</code></strong></li>
+<li>Complete 2FA management UI</li>
+<li>Setup wizard with QR code display</li>
+<li>Backup codes display and download</li>
+<li>Enable/disable functionality</li>
+</ol>
+<h2 id="files-modified">Files Modified<a class="headerlink" href="#files-modified" title="Permanent link">&para;</a></h2>
+<h3 id="backend">Backend<a class="headerlink" href="#backend" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong><code>/shared/domain/users/models.py</code></strong></li>
+<li>
+<p>Added 2FA fields to User model:</p>
+<ul>
+<li><code>twofa_secret</code>: TOTP secret (encrypted)</li>
+<li><code>twofa_enabled</code>: Boolean flag</li>
+<li><code>twofa_backup_codes</code>: List of hashed backup codes</li>
+</ul>
+</li>
+<li>
+<p><strong><code>/shared/domain/users/service.py</code></strong></p>
+</li>
+<li>Added 2FA management methods:<ul>
+<li><code>update_twofa_secret()</code></li>
+<li><code>enable_twofa()</code></li>
+<li><code>disable_twofa()</code></li>
+<li><code>update_backup_codes()</code></li>
+<li><code>remove_backup_code()</code></li>
+</ul>
+</li>
+</ol>
+<h3 id="frontend">Frontend<a class="headerlink" href="#frontend" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong><code>/apps/admin/src/app/login/page.tsx</code></strong></li>
+<li>Added 2FA code input field</li>
+<li>Two-step login flow</li>
+<li>Support for backup codes</li>
+<li>
+<p>Enhanced UI for 2FA verification</p>
+</li>
+<li>
+<p><strong><code>/apps/admin/src/lib/api-client.ts</code></strong></p>
+</li>
+<li>Updated login method to support TOTP code parameter</li>
+<li>
+<p>Added support for 2FA response handling</p>
+</li>
+<li>
+<p><strong><code>/apps/admin/src/stores/auth.store.tsx</code></strong></p>
+</li>
+<li>Updated login function to handle 2FA flow</li>
+<li>Returns 2FA requirement status</li>
+<li>Handles temporary tokens</li>
+</ol>
+<h2 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
+<h3 id="1-totp-based-authentication">1. TOTP-Based Authentication<a class="headerlink" href="#1-totp-based-authentication" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Industry-standard TOTP algorithm (RFC 6238)</li>
+<li>Compatible with Google Authenticator, Authy, Microsoft Authenticator</li>
+<li>6-digit codes, 30-second intervals</li>
+<li>QR code generation for easy setup</li>
+</ul>
+<h3 id="2-backup-codes">2. Backup Codes<a class="headerlink" href="#2-backup-codes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>10 single-use backup codes generated at setup</li>
+<li>Hashed storage (SHA-256)</li>
+<li>Can be regenerated with TOTP verification</li>
+<li>Downloadable as text file</li>
+</ul>
+<h3 id="3-flexible-enforcement">3. Flexible Enforcement<a class="headerlink" href="#3-flexible-enforcement" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Optional</strong>: Users can choose to enable 2FA</li>
+<li><strong>Recommended</strong>: Suggested but not required</li>
+<li><strong>Required for Admin</strong>: Enforced for admin/supervisor roles</li>
+<li><strong>Required for All</strong>: Platform-wide enforcement</li>
+</ul>
+<h3 id="4-grace-period">4. Grace Period<a class="headerlink" href="#4-grace-period" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Configurable grace period (default: 7-30 days)</li>
+<li>Allows new admins time to set up 2FA</li>
+<li>Prevents immediate lockout</li>
+</ul>
+<h3 id="5-security-features">5. Security Features<a class="headerlink" href="#5-security-features" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Encrypted TOTP secret storage</li>
+<li>Hashed backup codes</li>
+<li>Rate limiting support</li>
+<li>Account lockout after failed attempts</li>
+<li>Audit logging</li>
+</ul>
+<h2 id="api-endpoints">API Endpoints<a class="headerlink" href="#api-endpoints" title="Permanent link">&para;</a></h2>
+<h3 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>POST /api/v1/auth/login</code> - Login with optional 2FA code</li>
+<li><code>GET /api/v1/auth/me</code> - Get current user info</li>
+</ul>
+<h3 id="2fa-management">2FA Management<a class="headerlink" href="#2fa-management" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>POST /admin/2fa/setup</code> - Initiate 2FA setup (returns QR code)</li>
+<li><code>POST /admin/2fa/verify</code> - Verify TOTP and enable 2FA</li>
+<li><code>POST /admin/2fa/disable</code> - Disable 2FA (requires code)</li>
+<li><code>GET /admin/2fa/status</code> - Get 2FA status</li>
+<li><code>POST /admin/2fa/backup-codes</code> - Regenerate backup codes</li>
+</ul>
+<h2 id="user-flows">User Flows<a class="headerlink" href="#user-flows" title="Permanent link">&para;</a></h2>
+<h3 id="setup-flow">Setup Flow<a class="headerlink" href="#setup-flow" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Admin navigates to Security Settings</li>
+<li>Clicks "Enable 2FA"</li>
+<li>Backend generates TOTP secret and QR code</li>
+<li>User scans QR with authenticator app</li>
+<li>User enters verification code</li>
+<li>2FA is enabled, backup codes displayed</li>
+<li>User saves backup codes securely</li>
+</ol>
+<h3 id="login-flow-2fa-enabled">Login Flow (2FA Enabled)<a class="headerlink" href="#login-flow-2fa-enabled" title="Permanent link">&para;</a></h3>
+<ol>
+<li>User enters email and password</li>
+<li>System checks if 2FA is enabled</li>
+<li>If enabled, user is prompted for TOTP code</li>
+<li>User enters 6-digit code or backup code</li>
+<li>System verifies code</li>
+<li>User is logged in</li>
+</ol>
+<h3 id="disable-flow">Disable Flow<a class="headerlink" href="#disable-flow" title="Permanent link">&para;</a></h3>
+<ol>
+<li>User navigates to Security Settings</li>
+<li>Clicks "Disable 2FA"</li>
+<li>Enters TOTP code or backup code for verification</li>
+<li>2FA is disabled</li>
+</ol>
+<h2 id="configuration-examples">Configuration Examples<a class="headerlink" href="#configuration-examples" title="Permanent link">&para;</a></h2>
+<h3 id="production-recommended">Production (Recommended)<a class="headerlink" href="#production-recommended" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth.twofa_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_twofa</span><span class="p">,</span> <span class="n">TwoFAEnforcementLevel</span>
+
+<span class="n">configure_twofa</span><span class="p">(</span>
+    <span class="n">enforcement_level</span><span class="o">=</span><span class="n">TwoFAEnforcementLevel</span><span class="o">.</span><span class="n">REQUIRED_FOR_ADMIN</span><span class="p">,</span>
+    <span class="n">grace_period_days</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+    <span class="n">max_2fa_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">lockout_duration_minutes</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">require_2fa_for_api_access</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">configure_twofa</span><span class="p">(</span>
+    <span class="n">enforcement_level</span><span class="o">=</span><span class="n">TwoFAEnforcementLevel</span><span class="o">.</span><span class="n">OPTIONAL</span><span class="p">,</span>
+    <span class="n">grace_period_days</span><span class="o">=</span><span class="mi">365</span><span class="p">,</span>
+    <span class="n">max_2fa_attempts</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="maximum-security">Maximum Security<a class="headerlink" href="#maximum-security" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">configure_twofa</span><span class="p">(</span>
+    <span class="n">enforcement_level</span><span class="o">=</span><span class="n">TwoFAEnforcementLevel</span><span class="o">.</span><span class="n">REQUIRED_FOR_ALL</span><span class="p">,</span>
+    <span class="n">grace_period_days</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>  <span class="c1"># No grace period</span>
+    <span class="n">max_2fa_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">lockout_duration_minutes</span><span class="o">=</span><span class="mi">60</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<h3 id="backend_1">Backend<a class="headerlink" href="#backend_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Install Python dependencies</span>
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>/shared/auth/requirements-2fa.txt
+
+<span class="c1"># Or install individually</span>
+pip<span class="w"> </span>install<span class="w"> </span>pyotp<span class="w"> </span>qrcode<span class="o">[</span>pil<span class="o">]</span>
+</code></pre></div>
+
+<h3 id="database-migration">Database Migration<a class="headerlink" href="#database-migration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Add 2FA fields to users table</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">twofa_secret</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">twofa_enabled</span><span class="w"> </span><span class="nb">BOOLEAN</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">FALSE</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">twofa_backup_codes</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">[];</span>
+</code></pre></div>
+
+<h3 id="frontend_1">Frontend<a class="headerlink" href="#frontend_1" title="Permanent link">&para;</a></h3>
+<p>No additional dependencies required. Uses existing React/Next.js setup.</p>
+<h2 id="integration-steps">Integration Steps<a class="headerlink" href="#integration-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Install Dependencies</strong></li>
+</ol>
+<p><code>bash
+   pip install pyotp qrcode[pil]</code></p>
+<ol>
+<li><strong>Run Database Migrations</strong></li>
+<li>
+<p>Add 2FA fields to user table</p>
+</li>
+<li>
+<p><strong>Register API Routes</strong></p>
+</li>
+</ol>
+<p>```python
+   from shared.auth.twofa_api import router as twofa_router
+   from shared.auth.auth_api import router as auth_router</p>
+<p>app.include_router(auth_router)
+   app.include_router(twofa_router)
+   ```</p>
+<ol>
+<li><strong>Configure 2FA</strong></li>
+</ol>
+<p>```python
+   from shared.auth.twofa_config import get_production_config, set_twofa_config</p>
+<p>set_twofa_config(get_production_config())
+   ```</p>
+<ol>
+<li><strong>Set User Service</strong></li>
+</ol>
+<p>```python
+   from shared.auth.twofa_api import set_user_service</p>
+<p>set_user_service(your_user_service_instance)
+   ```</p>
+<ol>
+<li><strong>Update Frontend Routing</strong></li>
+<li>Ensure <code>/settings/security</code> route is accessible</li>
+<li>Login page already updated</li>
+</ol>
+<h2 id="testing-checklist">Testing Checklist<a class="headerlink" href="#testing-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Install dependencies (pyotp, qrcode)</li>
+<li>[ ] Run database migrations</li>
+<li>[ ] Register API routes</li>
+<li>[ ] Configure 2FA enforcement</li>
+<li>[ ] Test 2FA setup flow</li>
+<li>[ ] Test login with 2FA</li>
+<li>[ ] Test backup codes</li>
+<li>[ ] Test 2FA disable</li>
+<li>[ ] Test grace period</li>
+<li>[ ] Test enforcement levels</li>
+<li>[ ] Verify QR code generation</li>
+<li>[ ] Test backup code regeneration</li>
+</ul>
+<h2 id="security-considerations">Security Considerations<a class="headerlink" href="#security-considerations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>TOTP Secret Storage</strong></li>
+<li>Secrets should be encrypted at rest</li>
+<li>
+<p>Never expose secrets in logs or responses</p>
+</li>
+<li>
+<p><strong>Backup Codes</strong></p>
+</li>
+<li>Always hashed (SHA-256)</li>
+<li>Single-use only</li>
+<li>
+<p>Securely stored</p>
+</li>
+<li>
+<p><strong>Rate Limiting</strong></p>
+</li>
+<li>Implement rate limiting on 2FA endpoints</li>
+<li>
+<p>Lockout after failed attempts</p>
+</li>
+<li>
+<p><strong>Audit Logging</strong></p>
+</li>
+<li>Log all 2FA events (setup, disable, verification)</li>
+<li>
+<p>Track failed attempts</p>
+</li>
+<li>
+<p><strong>Time Synchronization</strong></p>
+</li>
+<li>Ensure server time is synchronized (NTP)</li>
+<li>TOTP depends on accurate time</li>
+</ol>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="qr-code-not-generating">QR Code Not Generating<a class="headerlink" href="#qr-code-not-generating" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Check if <code>qrcode[pil]</code> is installed</li>
+<li>Verify PIL/Pillow is working</li>
+</ul>
+<h3 id="totp-verification-fails">TOTP Verification Fails<a class="headerlink" href="#totp-verification-fails" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Check server time synchronization</li>
+<li>Verify 30-second window tolerance</li>
+<li>Ensure user entered correct code</li>
+</ul>
+<h3 id="backup-codes-not-working">Backup Codes Not Working<a class="headerlink" href="#backup-codes-not-working" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Check if code was already used</li>
+<li>Verify hash comparison logic</li>
+<li>Ensure proper format (XXXX-XXXX)</li>
+</ul>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Testing</strong>: Thoroughly test all flows</li>
+<li><strong>Documentation</strong>: Share user guides with admins</li>
+<li><strong>Deployment</strong>: Deploy to staging environment first</li>
+<li><strong>Monitoring</strong>: Set up alerts for 2FA events</li>
+<li><strong>User Communication</strong>: Notify admins about 2FA availability</li>
+<li><strong>Gradual Rollout</strong>: Start with optional, then enforce for admins</li>
+</ol>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://tools.ietf.org/html/rfc6238">RFC 6238 - TOTP</a></li>
+<li><a href="https://pyauth.github.io/pyotp/">pyotp Documentation</a></li>
+<li><a href="https://support.google.com/accounts/answer/1066447">Google Authenticator</a></li>
+</ul>
+<h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
+<p>For questions or issues:</p>
+<ul>
+<li>Review <code>/shared/auth/2FA_IMPLEMENTATION_GUIDE.md</code></li>
+<li>Check application logs</li>
+<li>Contact development team</li>
+</ul>
+<hr />
+<p><strong>Implementation Date</strong>: 2026-01-01
+<strong>Status</strong>: ✅ Complete
+<strong>Version</strong>: 1.0.0</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2065 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>NestJS Guards Implementation - SAHOOL Platform - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nestjs-guards-implementation-sahool-platform" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              NestJS Guards Implementation - SAHOOL Platform
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="nestjs-guards-implementation-sahool-platform">NestJS Guards Implementation - SAHOOL Platform<a class="headerlink" href="#nestjs-guards-implementation-sahool-platform" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This document provides a comprehensive overview of NestJS guards implementation across all SAHOOL microservices. The platform uses a multi-layered security approach with various guards for authentication, authorization, and rate limiting.</p>
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#guard-types">Guard Types</a></li>
+<li><a href="#service-coverage">Service Coverage</a></li>
+<li><a href="#implementation-guide">Implementation Guide</a></li>
+<li><a href="#usage-examples">Usage Examples</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#testing-guards">Testing Guards</a></li>
+</ol>
+<hr />
+<h2 id="guard-types">Guard Types<a class="headerlink" href="#guard-types" title="Permanent link">&para;</a></h2>
+<h3 id="1-rate-limiting-guards">1. Rate Limiting Guards<a class="headerlink" href="#1-rate-limiting-guards" title="Permanent link">&para;</a></h3>
+<p><strong>ThrottlerGuard</strong> - Prevents API abuse and DDoS attacks</p>
+<ul>
+<li><strong>Location</strong>: <code>@nestjs/throttler</code></li>
+<li><strong>Configuration</strong>: Global in all services</li>
+<li><strong>Purpose</strong>: Rate limiting based on IP and user</li>
+</ul>
+<p><strong>Configuration:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nx">ThrottlerModule</span><span class="p">.</span><span class="nx">forRoot</span><span class="p">([</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;short&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">1000</span><span class="p">,</span><span class="w"> </span><span class="c1">// 1 second</span>
+<span class="w">    </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span><span class="w"> </span><span class="c1">// 10 requests per second</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="p">,</span><span class="w"> </span><span class="c1">// 1 minute</span>
+<span class="w">    </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">100</span><span class="p">,</span><span class="w"> </span><span class="c1">// 100 requests per minute</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;long&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">3600000</span><span class="p">,</span><span class="w"> </span><span class="c1">// 1 hour</span>
+<span class="w">    </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">1000</span><span class="p">,</span><span class="w"> </span><span class="c1">// 1000 requests per hour</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">]);</span>
+</code></pre></div>
+
+<h3 id="2-authentication-guards">2. Authentication Guards<a class="headerlink" href="#2-authentication-guards" title="Permanent link">&para;</a></h3>
+<p><strong>JwtAuthGuard</strong> - Validates JWT tokens</p>
+<ul>
+<li><strong>Location</strong>: <code>@sahool/nestjs-auth/guards/jwt.guard</code></li>
+<li><strong>Features</strong>:</li>
+<li>Extends Passport JWT guard</li>
+<li>Supports @Public() decorator for public routes</li>
+<li>Detailed logging of authentication failures</li>
+<li>Custom error messages (English/Arabic)</li>
+</ul>
+<p><strong>TokenRevocationGuard</strong> - Checks token revocation status</p>
+<ul>
+<li><strong>Location</strong>: <code>@sahool/nestjs-auth/guards/token-revocation.guard</code></li>
+<li><strong>Features</strong>:</li>
+<li>Redis-backed token blacklist</li>
+<li>Automatic cleanup of expired tokens</li>
+<li>Skip revocation check with decorator</li>
+<li>User-level and token-level revocation</li>
+</ul>
+<p><strong>OptionalAuthGuard</strong> - Optional authentication</p>
+<ul>
+<li><strong>Location</strong>: <code>@sahool/nestjs-auth/guards/jwt.guard</code></li>
+<li><strong>Purpose</strong>: Routes that work with or without authentication</li>
+<li><strong>Use Case</strong>: Public content with premium features for authenticated users</li>
+</ul>
+<p><strong>ActiveAccountGuard</strong> - Ensures active user accounts</p>
+<ul>
+<li><strong>Location</strong>: <code>@sahool/nestjs-auth/guards/jwt.guard</code></li>
+<li><strong>Checks</strong>:</li>
+<li>User account is active</li>
+<li>User account is verified</li>
+<li>User has not been suspended</li>
+</ul>
+<h3 id="3-authorization-guards">3. Authorization Guards<a class="headerlink" href="#3-authorization-guards" title="Permanent link">&para;</a></h3>
+<p><strong>RolesGuard</strong> - Role-based access control (RBAC)</p>
+<ul>
+<li><strong>Location</strong>: <code>@sahool/nestjs-auth/guards/jwt.guard</code></li>
+<li><strong>Purpose</strong>: Check if user has required roles</li>
+<li><strong>Decorator</strong>: <code>@Roles('admin', 'manager')</code></li>
+</ul>
+<p><strong>PermissionsGuard</strong> - Fine-grained permissions</p>
+<ul>
+<li><strong>Location</strong>: <code>@sahool/nestjs-auth/guards/jwt.guard</code></li>
+<li><strong>Purpose</strong>: Check if user has specific permissions</li>
+<li><strong>Decorator</strong>: <code>@RequirePermissions('farm:delete', 'farm:write')</code></li>
+</ul>
+<p><strong>FarmAccessGuard</strong> - Farm-specific access control</p>
+<ul>
+<li><strong>Location</strong>: <code>@sahool/nestjs-auth/guards/jwt.guard</code></li>
+<li><strong>Purpose</strong>: Ensure user has access to specific farm</li>
+<li><strong>Features</strong>:</li>
+<li>Admin users bypass check</li>
+<li>Validates farm ownership</li>
+<li>Checks farmIds in user object</li>
+</ul>
+<h3 id="4-service-to-service-guards">4. Service-to-Service Guards<a class="headerlink" href="#4-service-to-service-guards" title="Permanent link">&para;</a></h3>
+<p><strong>ServiceAuthGuard</strong> - Inter-service authentication</p>
+<ul>
+<li><strong>Location</strong>: <code>shared/auth/service-auth.guard.ts</code></li>
+<li><strong>Purpose</strong>: Verify service tokens for inter-service calls</li>
+<li><strong>Features</strong>:</li>
+<li>Service name validation</li>
+<li>Target service verification</li>
+<li>Allowed services whitelist</li>
+</ul>
+<hr />
+<h2 id="service-coverage">Service Coverage<a class="headerlink" href="#service-coverage" title="Permanent link">&para;</a></h2>
+<h3 id="summary-table">Summary Table<a class="headerlink" href="#summary-table" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>ThrottlerGuard</th>
+<th>JwtAuthGuard</th>
+<th>RolesGuard</th>
+<th>PermissionsGuard</th>
+<th>TokenRevocationGuard</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>chat-service</td>
+<td>✅ Global</td>
+<td>⚠️ Per-route</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>B+</td>
+</tr>
+<tr>
+<td>user-service</td>
+<td>✅ Global</td>
+<td>⚠️ Per-route</td>
+<td>⚠️ Available</td>
+<td>⚠️ Available</td>
+<td>✅ Global</td>
+<td>A</td>
+</tr>
+<tr>
+<td>marketplace-service</td>
+<td>✅ Global</td>
+<td>⚠️ Per-route</td>
+<td>⚠️ Available</td>
+<td>⚠️ Available</td>
+<td>❌</td>
+<td>B+</td>
+</tr>
+<tr>
+<td>iot-service</td>
+<td>✅ Global</td>
+<td>⚠️ Per-route</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>B+</td>
+</tr>
+<tr>
+<td>disaster-assessment</td>
+<td>✅ Global</td>
+<td>⚠️ Per-route</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>B+</td>
+</tr>
+<tr>
+<td>research-core</td>
+<td>✅ Global</td>
+<td>⚠️ Per-route</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>B+</td>
+</tr>
+<tr>
+<td>crop-growth-model</td>
+<td>✅ Global</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>B</td>
+</tr>
+<tr>
+<td>yield-prediction-service</td>
+<td>✅ Global</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>B</td>
+</tr>
+<tr>
+<td>lai-estimation</td>
+<td>❓</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>C</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Legend:</strong></p>
+<ul>
+<li>✅ Implemented and configured</li>
+<li>⚠️ Available but needs more usage</li>
+<li>❌ Not implemented</li>
+<li>❓ Unknown/needs verification</li>
+</ul>
+<h3 id="detailed-service-analysis">Detailed Service Analysis<a class="headerlink" href="#detailed-service-analysis" title="Permanent link">&para;</a></h3>
+<h4 id="excellent-coverage-a-grade">✅ Excellent Coverage (A Grade)<a class="headerlink" href="#excellent-coverage-a-grade" title="Permanent link">&para;</a></h4>
+<p><strong>user-service</strong> - Full authentication stack</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Global guards configured in app.module.ts</span>
+<span class="nx">providers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">provide</span><span class="o">:</span><span class="w"> </span><span class="kt">APP_GUARD</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">useClass</span><span class="o">:</span><span class="w"> </span><span class="kt">ThrottlerGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">provide</span><span class="o">:</span><span class="w"> </span><span class="kt">APP_GUARD</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">useClass</span><span class="o">:</span><span class="w"> </span><span class="kt">TokenRevocationGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">];</span>
+</code></pre></div>
+
+<h4 id="good-coverage-b-grade">⚠️ Good Coverage (B+ Grade)<a class="headerlink" href="#good-coverage-b-grade" title="Permanent link">&para;</a></h4>
+<p><strong>chat-service, marketplace-service, iot-service, disaster-assessment, research-core</strong></p>
+<p>These services have:</p>
+<ul>
+<li>✅ ThrottlerGuard globally configured</li>
+<li>✅ JwtAuthGuard used on protected routes</li>
+<li>⚠️ Missing RolesGuard and PermissionsGuard on admin routes</li>
+<li>⚠️ Missing TokenRevocationGuard</li>
+</ul>
+<p><strong>Recommendation:</strong> Add TokenRevocationGuard globally and use RolesGuard on admin endpoints.</p>
+<h4 id="moderate-coverage-b-grade">⚠️ Moderate Coverage (B Grade)<a class="headerlink" href="#moderate-coverage-b-grade" title="Permanent link">&para;</a></h4>
+<p><strong>crop-growth-model, yield-prediction-service</strong></p>
+<p>These services have:</p>
+<ul>
+<li>✅ ThrottlerGuard globally configured</li>
+<li>❌ No authentication guards (may be internal services)</li>
+</ul>
+<p><strong>Recommendation:</strong> If these services are exposed externally, add JwtAuthGuard. If internal-only, add ServiceAuthGuard.</p>
+<hr />
+<h2 id="implementation-guide">Implementation Guide<a class="headerlink" href="#implementation-guide" title="Permanent link">&para;</a></h2>
+<h3 id="step-1-install-dependencies">Step 1: Install Dependencies<a class="headerlink" href="#step-1-install-dependencies" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>@nestjs/passport<span class="w"> </span>passport-jwt<span class="w"> </span>@nestjs/jwt<span class="w"> </span>@nestjs/throttler
+npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<span class="w">  </span><span class="c1"># Internal package</span>
+</code></pre></div>
+
+<h3 id="step-2-configure-module">Step 2: Configure Module<a class="headerlink" href="#step-2-configure-module" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// app.module.ts</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Module</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">APP_GUARD</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/core&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ThrottlerModule</span><span class="p">,</span><span class="w"> </span><span class="nx">ThrottlerGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/throttler&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtModule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/jwt&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PassportModule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/passport&quot;</span><span class="p">;</span>
+
+<span class="c1">// Import from shared package</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">JwtAuthGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">RolesGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">PermissionsGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">TokenRevocationGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">JWTConfig</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
+
+<span class="kd">@Module</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">imports</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="c1">// Passport configuration</span>
+<span class="w">    </span><span class="nx">PassportModule</span><span class="p">.</span><span class="nx">register</span><span class="p">({</span><span class="w"> </span><span class="nx">defaultStrategy</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;jwt&quot;</span><span class="w"> </span><span class="p">}),</span>
+
+<span class="w">    </span><span class="c1">// JWT configuration</span>
+<span class="w">    </span><span class="nx">JwtModule</span><span class="p">.</span><span class="nx">register</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">secret</span><span class="o">:</span><span class="w"> </span><span class="kt">JWTConfig.getVerificationKey</span><span class="p">(),</span>
+<span class="w">      </span><span class="nx">signOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">expiresIn</span><span class="o">:</span><span class="w"> </span><span class="kt">JWTConfig.ACCESS_TOKEN_EXPIRY</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">}),</span>
+
+<span class="w">    </span><span class="c1">// Rate limiting</span>
+<span class="w">    </span><span class="nx">ThrottlerModule</span><span class="p">.</span><span class="nx">forRoot</span><span class="p">([</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;short&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">1000</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">100</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;long&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">3600000</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">1000</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">]),</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nx">providers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="c1">// Global ThrottlerGuard</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">provide</span><span class="o">:</span><span class="w"> </span><span class="kt">APP_GUARD</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">useClass</span><span class="o">:</span><span class="w"> </span><span class="kt">ThrottlerGuard</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="c1">// Optional: Global TokenRevocationGuard</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">provide</span><span class="o">:</span><span class="w"> </span><span class="kt">APP_GUARD</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">useClass</span><span class="o">:</span><span class="w"> </span><span class="kt">TokenRevocationGuard</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="c1">// Note: DON&#39;T add JwtAuthGuard, RolesGuard, or PermissionsGuard globally</span>
+<span class="w">    </span><span class="c1">// Use them per-route instead</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="p">})</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">AppModule</span><span class="w"> </span><span class="p">{}</span>
+</code></pre></div>
+
+<h3 id="step-3-apply-guards-to-controllers">Step 3: Apply Guards to Controllers<a class="headerlink" href="#step-3-apply-guards-to-controllers" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">JwtAuthGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">RolesGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">PermissionsGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Roles</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">RequirePermissions</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Public</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">CurrentUser</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">UserId</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Throttle</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/throttler&quot;</span><span class="p">;</span>
+
+<span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;farms&quot;</span><span class="p">)</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">FarmsController</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Public route - no authentication required</span>
+<span class="w">  </span><span class="kd">@Public</span><span class="p">()</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;public&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">getPublicFarms</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">farmsService</span><span class="p">.</span><span class="nx">getPublicFarms</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Authenticated route</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">()</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">getUserFarms</span><span class="p">(</span><span class="kd">@UserId</span><span class="p">()</span><span class="w"> </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">farmsService</span><span class="p">.</span><span class="nx">findByUser</span><span class="p">(</span><span class="nx">userId</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Role-based access</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;manager&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">getAllFarms</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">farmsService</span><span class="p">.</span><span class="nx">findAll</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Permission-based access</span>
+<span class="w">  </span><span class="kd">@Delete</span><span class="p">(</span><span class="s2">&quot;:id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">PermissionsGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@RequirePermissions</span><span class="p">(</span><span class="s2">&quot;farm:delete&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">deleteFarm</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">farmsService</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Custom rate limiting</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">&quot;bulk-import&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Throttle</span><span class="p">({</span><span class="w"> </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">3</span><span class="p">,</span><span class="w"> </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="c1">// 3 per minute</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">bulkImport</span><span class="p">(</span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">farmsService</span><span class="p">.</span><span class="nx">bulkImport</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Get current user info</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;profile&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">getProfile</span><span class="p">(</span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">user.id</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">email</span><span class="o">:</span><span class="w"> </span><span class="kt">user.email</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">roles</span><span class="o">:</span><span class="w"> </span><span class="kt">user.roles</span><span class="p">,</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="example-1-authentication-controller">Example 1: Authentication Controller<a class="headerlink" href="#example-1-authentication-controller" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">Body</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">Public</span><span class="p">,</span><span class="w"> </span><span class="nx">CurrentUser</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Throttle</span><span class="p">,</span><span class="w"> </span><span class="nx">SkipThrottle</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/throttler&quot;</span><span class="p">;</span>
+
+<span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;auth&quot;</span><span class="p">)</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">AuthController</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Public login endpoint with strict rate limiting</span>
+<span class="w">  </span><span class="kd">@Public</span><span class="p">()</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">&quot;login&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Throttle</span><span class="p">({</span><span class="w"> </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">5</span><span class="p">,</span><span class="w"> </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="c1">// 5 per minute</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">login</span><span class="p">(</span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">credentials</span><span class="o">:</span><span class="w"> </span><span class="kt">LoginDto</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">authService</span><span class="p">.</span><span class="nx">login</span><span class="p">(</span><span class="nx">credentials</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Public registration with moderate rate limiting</span>
+<span class="w">  </span><span class="kd">@Public</span><span class="p">()</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">&quot;register&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Throttle</span><span class="p">({</span><span class="w"> </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span><span class="w"> </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="c1">// 10 per minute</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">register</span><span class="p">(</span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">userData</span><span class="o">:</span><span class="w"> </span><span class="kt">RegisterDto</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">authService</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">userData</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Logout - no rate limiting needed</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">&quot;logout&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@SkipThrottle</span><span class="p">()</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">logout</span><span class="p">(</span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">authService</span><span class="p">.</span><span class="nx">logout</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Protected endpoint to get current user</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;me&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">getCurrentUser</span><span class="p">(</span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">user</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="example-2-admin-controller">Example 2: Admin Controller<a class="headerlink" href="#example-2-admin-controller" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">Put</span><span class="p">,</span><span class="w"> </span><span class="nx">Delete</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">JwtAuthGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">RolesGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">PermissionsGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Roles</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">RequirePermissions</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">CurrentUser</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">UserRoles</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
+
+<span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
+<span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
+<span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// All routes require admin role</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">AdminController</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Admin dashboard</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;dashboard&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">getDashboard</span><span class="p">(</span><span class="kd">@UserRoles</span><span class="p">()</span><span class="w"> </span><span class="nx">roles</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">adminService</span><span class="p">.</span><span class="nx">getDashboard</span><span class="p">(</span><span class="nx">roles</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// View all users (admin only)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;users&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">getAllUsers</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">adminService</span><span class="p">.</span><span class="nx">getAllUsers</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Delete user (requires specific permission)</span>
+<span class="w">  </span><span class="kd">@Delete</span><span class="p">(</span><span class="s2">&quot;users/:id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">PermissionsGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@RequirePermissions</span><span class="p">(</span><span class="s2">&quot;user:delete&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">deleteUser</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">adminService</span><span class="p">.</span><span class="nx">deleteUser</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// System settings (super admin only)</span>
+<span class="w">  </span><span class="kd">@Put</span><span class="p">(</span><span class="s2">&quot;settings&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;super_admin&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// Override to require super_admin</span>
+<span class="w">  </span><span class="nx">updateSettings</span><span class="p">(</span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">settings</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">adminService</span><span class="p">.</span><span class="nx">updateSettings</span><span class="p">(</span><span class="nx">settings</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="example-3-marketplace-controller-with-fine-grained-permissions">Example 3: Marketplace Controller with Fine-Grained Permissions<a class="headerlink" href="#example-3-marketplace-controller-with-fine-grained-permissions" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">Put</span><span class="p">,</span><span class="w"> </span><span class="nx">Delete</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">JwtAuthGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">RolesGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">PermissionsGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">OptionalAuthGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Roles</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">RequirePermissions</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">CurrentUser</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Public</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
+
+<span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;market&quot;</span><span class="p">)</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">MarketController</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Public product listing</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;products&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Public</span><span class="p">()</span>
+<span class="w">  </span><span class="nx">getProducts</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">marketService</span><span class="p">.</span><span class="nx">getProducts</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Create product (sellers only)</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">&quot;products&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;seller&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">createProduct</span><span class="p">(</span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">product</span><span class="o">:</span><span class="w"> </span><span class="kt">CreateProductDto</span><span class="p">,</span><span class="w"> </span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">marketService</span><span class="p">.</span><span class="nx">createProduct</span><span class="p">(</span><span class="nx">product</span><span class="p">,</span><span class="w"> </span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Update product (owner or admin)</span>
+<span class="w">  </span><span class="kd">@Put</span><span class="p">(</span><span class="s2">&quot;products/:id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">PermissionsGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@RequirePermissions</span><span class="p">(</span><span class="s2">&quot;product:write&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">updateProduct</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">@Param</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">product</span><span class="o">:</span><span class="w"> </span><span class="kt">UpdateProductDto</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span>
+<span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">marketService</span><span class="p">.</span><span class="nx">updateProduct</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">product</span><span class="p">,</span><span class="w"> </span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Delete product (admin only)</span>
+<span class="w">  </span><span class="kd">@Delete</span><span class="p">(</span><span class="s2">&quot;products/:id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">deleteProduct</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">marketService</span><span class="p">.</span><span class="nx">deleteProduct</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// View orders (authenticated or not, different data)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;orders&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">OptionalAuthGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">getOrders</span><span class="p">(</span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user?</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">user</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">marketService</span><span class="p">.</span><span class="nx">getUserOrders</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">marketService</span><span class="p">.</span><span class="nx">getPublicOrders</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Verify seller (admin only with specific permission)</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">&quot;sellers/:id/verify&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">PermissionsGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@RequirePermissions</span><span class="p">(</span><span class="s2">&quot;seller:verify&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">verifySeller</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">marketService</span><span class="p">.</span><span class="nx">verifySeller</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="example-4-iot-service-with-service-to-service-auth">Example 4: IoT Service with Service-to-Service Auth<a class="headerlink" href="#example-4-iot-service-with-service-to-service-auth" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtAuthGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">ServiceAuthGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">AllowedServices</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">CallingService</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../../../shared/auth/service-auth.guard&quot;</span><span class="p">;</span>
+
+<span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;iot&quot;</span><span class="p">)</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">IotController</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// User-facing endpoint</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;devices&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">getUserDevices</span><span class="p">(</span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">iotService</span><span class="p">.</span><span class="nx">getDevicesByUser</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Internal endpoint - only accessible by specific services</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">&quot;internal/readings&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">ServiceAuthGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@AllowedServices</span><span class="p">(</span><span class="s2">&quot;field-service&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;crop-service&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">submitReadings</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">readings</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">@CallingService</span><span class="p">()</span><span class="w"> </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Readings submitted by: </span><span class="si">${</span><span class="nx">serviceName</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">iotService</span><span class="p">.</span><span class="nx">saveReadings</span><span class="p">(</span><span class="nx">readings</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-guard-order-matters">1. Guard Order Matters<a class="headerlink" href="#1-guard-order-matters" title="Permanent link">&para;</a></h3>
+<p>Always apply guards in this order:</p>
+<ol>
+<li><strong>ThrottlerGuard</strong> (global) - Rate limiting first</li>
+<li><strong>JwtAuthGuard</strong> - Authentication</li>
+<li><strong>RolesGuard</strong> or <strong>PermissionsGuard</strong> - Authorization</li>
+<li><strong>Custom Guards</strong> - Business logic guards</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">CustomGuard</span><span class="p">)</span>
+<span class="kd">@Roles</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="2-use-global-guards-wisely">2. Use Global Guards Wisely<a class="headerlink" href="#2-use-global-guards-wisely" title="Permanent link">&para;</a></h3>
+<p><strong>Do apply globally:</strong></p>
+<ul>
+<li>✅ ThrottlerGuard</li>
+<li>✅ TokenRevocationGuard (for services with authentication)</li>
+</ul>
+<p><strong>Don't apply globally:</strong></p>
+<ul>
+<li>❌ JwtAuthGuard (use @Public() decorator instead)</li>
+<li>❌ RolesGuard (not all routes need role checks)</li>
+<li>❌ PermissionsGuard (too fine-grained for global use)</li>
+</ul>
+<h3 id="3-decorators-for-better-code">3. Decorators for Better Code<a class="headerlink" href="#3-decorators-for-better-code" title="Permanent link">&para;</a></h3>
+<p>Use decorators to extract user information:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Instead of this:</span>
+<span class="kd">@Get</span><span class="p">()</span>
+<span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
+<span class="nx">getProfile</span><span class="p">(</span><span class="kd">@Request</span><span class="p">()</span><span class="w"> </span><span class="nx">req</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">userId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">roles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">roles</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">service</span><span class="p">.</span><span class="nx">getProfile</span><span class="p">(</span><span class="nx">userId</span><span class="p">,</span><span class="w"> </span><span class="nx">roles</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Do this:</span>
+<span class="kd">@Get</span><span class="p">()</span>
+<span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
+<span class="nx">getProfile</span><span class="p">(</span>
+<span class="w">  </span><span class="kd">@UserId</span><span class="p">()</span><span class="w"> </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">  </span><span class="kd">@UserRoles</span><span class="p">()</span><span class="w"> </span><span class="nx">roles</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[],</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">service</span><span class="p">.</span><span class="nx">getProfile</span><span class="p">(</span><span class="nx">userId</span><span class="p">,</span><span class="w"> </span><span class="nx">roles</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="4-rate-limiting-best-practices">4. Rate Limiting Best Practices<a class="headerlink" href="#4-rate-limiting-best-practices" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Strict limits for authentication</span>
+<span class="kd">@Post</span><span class="p">(</span><span class="s1">&#39;login&#39;</span><span class="p">)</span>
+<span class="kd">@Throttle</span><span class="p">({</span><span class="w"> </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">5</span><span class="p">,</span><span class="w"> </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// 5/min</span>
+
+<span class="c1">// Moderate limits for registration</span>
+<span class="kd">@Post</span><span class="p">(</span><span class="s1">&#39;register&#39;</span><span class="p">)</span>
+<span class="kd">@Throttle</span><span class="p">({</span><span class="w"> </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span><span class="w"> </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// 10/min</span>
+
+<span class="c1">// Relaxed limits for data fetching</span>
+<span class="kd">@Get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+<span class="kd">@Throttle</span><span class="p">({</span><span class="w"> </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">100</span><span class="p">,</span><span class="w"> </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// 100/min</span>
+
+<span class="c1">// No limits for logout</span>
+<span class="kd">@Post</span><span class="p">(</span><span class="s1">&#39;logout&#39;</span><span class="p">)</span>
+<span class="kd">@SkipThrottle</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="5-error-handling">5. Error Handling<a class="headerlink" href="#5-error-handling" title="Permanent link">&para;</a></h3>
+<p>Guards throw standard NestJS exceptions:</p>
+<ul>
+<li><strong>UnauthorizedException</strong> (401) - Missing or invalid token</li>
+<li><strong>ForbiddenException</strong> (403) - Insufficient permissions</li>
+<li><strong>TooManyRequestsException</strong> (429) - Rate limit exceeded</li>
+</ul>
+<p>Handle these in a global exception filter:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// http-exception.filter.ts</span>
+<span class="kd">@Catch</span><span class="p">()</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">HttpExceptionFilter</span><span class="w"> </span><span class="k">implements</span><span class="w"> </span><span class="nx">ExceptionFilter</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">catch</span><span class="p">(</span><span class="nx">exception</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"> </span><span class="nx">host</span><span class="o">:</span><span class="w"> </span><span class="kt">ArgumentsHost</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">host</span><span class="p">.</span><span class="nx">switchToHttp</span><span class="p">();</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ctx</span><span class="p">.</span><span class="nx">getResponse</span><span class="p">();</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ctx</span><span class="p">.</span><span class="nx">getRequest</span><span class="p">();</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">exception</span><span class="p">.</span><span class="nx">getStatus</span><span class="o">?</span><span class="p">.()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">500</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">exception</span><span class="p">.</span><span class="nx">message</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;Internal server error&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nx">response</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="nx">status</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">statusCode</span><span class="o">:</span><span class="w"> </span><span class="kt">status</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">message</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">(),</span>
+<span class="w">      </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="kt">request.url</span><span class="p">,</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="6-testing-guards">6. Testing Guards<a class="headerlink" href="#6-testing-guards" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Test</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/testing&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ExecutionContext</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+
+<span class="nx">describe</span><span class="p">(</span><span class="s2">&quot;FarmsController&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">controller</span><span class="o">:</span><span class="w"> </span><span class="kt">FarmsController</span><span class="p">;</span>
+
+<span class="w">  </span><span class="nx">beforeEach</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">Test</span><span class="p">.</span><span class="nx">createTestingModule</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">controllers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">FarmsController</span><span class="p">],</span>
+<span class="w">      </span><span class="nx">providers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">FarmsService</span><span class="p">],</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">overrideGuard</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">useValue</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">canActivate</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">context</span><span class="o">:</span><span class="w"> </span><span class="kt">ExecutionContext</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="kd">const</span><span class="w"> </span><span class="nx">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">switchToHttp</span><span class="p">().</span><span class="nx">getRequest</span><span class="p">();</span>
+<span class="w">          </span><span class="nx">request</span><span class="p">.</span><span class="nx">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;test-user&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">roles</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;admin&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">};</span>
+<span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">      </span><span class="p">})</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">compile</span><span class="p">();</span>
+
+<span class="w">    </span><span class="nx">controller</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">module</span><span class="nx">.get</span><span class="o">&lt;</span><span class="nx">FarmsController</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">FarmsController</span><span class="p">);</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s2">&quot;should allow admin to access all farms&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">controller</span><span class="p">.</span><span class="nx">getAllFarms</span><span class="p">();</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">result</span><span class="p">).</span><span class="nx">toBeDefined</span><span class="p">();</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<hr />
+<h2 id="common-user-roles">Common User Roles<a class="headerlink" href="#common-user-roles" title="Permanent link">&para;</a></h2>
+<p>The SAHOOL platform uses these standard roles:</p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Description</th>
+<th>Typical Permissions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>super_admin</code></td>
+<td>Platform super administrator</td>
+<td>Full access</td>
+</tr>
+<tr>
+<td><code>admin</code></td>
+<td>Tenant administrator</td>
+<td>Full tenant access</td>
+</tr>
+<tr>
+<td><code>manager</code></td>
+<td>Farm/Business manager</td>
+<td>Manage operations</td>
+</tr>
+<tr>
+<td><code>farmer</code></td>
+<td>Farm owner</td>
+<td>Manage own farms</td>
+</tr>
+<tr>
+<td><code>agronomist</code></td>
+<td>Agricultural expert</td>
+<td>Read farms, provide advice</td>
+</tr>
+<tr>
+<td><code>seller</code></td>
+<td>Marketplace seller</td>
+<td>Sell products</td>
+</tr>
+<tr>
+<td><code>buyer</code></td>
+<td>Marketplace buyer</td>
+<td>Purchase products</td>
+</tr>
+<tr>
+<td><code>worker</code></td>
+<td>Farm worker</td>
+<td>Limited farm access</td>
+</tr>
+<tr>
+<td><code>viewer</code></td>
+<td>Read-only user</td>
+<td>View data only</td>
+</tr>
+<tr>
+<td><code>researcher</code></td>
+<td>Research scientist</td>
+<td>Access research data</td>
+</tr>
+</tbody>
+</table>
+<h2 id="common-permissions">Common Permissions<a class="headerlink" href="#common-permissions" title="Permanent link">&para;</a></h2>
+<p>Fine-grained permissions follow the pattern: <code>resource:action</code></p>
+<h3 id="farm-permissions">Farm Permissions<a class="headerlink" href="#farm-permissions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>farm:read</code> - View farms</li>
+<li><code>farm:write</code> - Create/update farms</li>
+<li><code>farm:delete</code> - Delete farms</li>
+<li><code>farm:share</code> - Share farm data</li>
+</ul>
+<h3 id="product-permissions">Product Permissions<a class="headerlink" href="#product-permissions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>product:read</code> - View products</li>
+<li><code>product:write</code> - Create/update products</li>
+<li><code>product:delete</code> - Delete products</li>
+<li><code>product:publish</code> - Publish products to marketplace</li>
+</ul>
+<h3 id="user-permissions">User Permissions<a class="headerlink" href="#user-permissions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>user:read</code> - View users</li>
+<li><code>user:write</code> - Create/update users</li>
+<li><code>user:delete</code> - Delete users</li>
+<li><code>user:impersonate</code> - Impersonate users</li>
+</ul>
+<h3 id="seller-permissions">Seller Permissions<a class="headerlink" href="#seller-permissions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>seller:verify</code> - Verify sellers</li>
+<li><code>seller:suspend</code> - Suspend sellers</li>
+</ul>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="issue-unauthorized-on-all-routes">Issue: "Unauthorized" on all routes<a class="headerlink" href="#issue-unauthorized-on-all-routes" title="Permanent link">&para;</a></h3>
+<p><strong>Cause:</strong> Missing JWT strategy or secret key</p>
+<p><strong>Solution:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Ensure JwtModule is configured</span>
+<span class="nx">JwtModule</span><span class="p">.</span><span class="nx">register</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">secret</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.JWT_SECRET</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">signOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">expiresIn</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1h&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="p">})</span>
+
+<span class="c1">// Ensure JWT strategy is provided</span>
+<span class="nx">providers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">JwtStrategy</span><span class="p">,</span><span class="w"> </span><span class="p">...]</span>
+</code></pre></div>
+
+<h3 id="issue-guards-not-working">Issue: Guards not working<a class="headerlink" href="#issue-guards-not-working" title="Permanent link">&para;</a></h3>
+<p><strong>Cause:</strong> Guards applied in wrong order</p>
+<p><strong>Solution:</strong> Apply guards in correct order (Auth → Roles → Custom)</p>
+<h3 id="issue-rate-limiting-not-working">Issue: Rate limiting not working<a class="headerlink" href="#issue-rate-limiting-not-working" title="Permanent link">&para;</a></h3>
+<p><strong>Cause:</strong> ThrottlerGuard not globally configured</p>
+<p><strong>Solution:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nx">providers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">provide</span><span class="o">:</span><span class="w"> </span><span class="kt">APP_GUARD</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">useClass</span><span class="o">:</span><span class="w"> </span><span class="kt">ThrottlerGuard</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">];</span>
+</code></pre></div>
+
+<h3 id="issue-cannot-read-property-user-of-undefined">Issue: "Cannot read property 'user' of undefined"<a class="headerlink" href="#issue-cannot-read-property-user-of-undefined" title="Permanent link">&para;</a></h3>
+<p><strong>Cause:</strong> Trying to access user before JwtAuthGuard</p>
+<p><strong>Solution:</strong> Always apply JwtAuthGuard before accessing request.user</p>
+<hr />
+<h2 id="migration-path">Migration Path<a class="headerlink" href="#migration-path" title="Permanent link">&para;</a></h2>
+<h3 id="for-services-currently-without-guards">For services currently without guards:<a class="headerlink" href="#for-services-currently-without-guards" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Add ThrottlerGuard globally</strong> (if not already present)</li>
+<li><strong>Add JwtAuthGuard to protected routes</strong></li>
+<li><strong>Add RolesGuard to admin routes</strong></li>
+<li><strong>Add PermissionsGuard to sensitive operations</strong></li>
+<li><strong>Consider adding TokenRevocationGuard globally</strong></li>
+</ol>
+<h3 id="example-migration">Example Migration:<a class="headerlink" href="#example-migration" title="Permanent link">&para;</a></h3>
+<p><strong>Before:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;farms&quot;</span><span class="p">)</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">FarmsController</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">()</span>
+<span class="w">  </span><span class="nx">getFarms</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">farmsService</span><span class="p">.</span><span class="nx">findAll</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>After:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;farms&quot;</span><span class="p">)</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">FarmsController</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">()</span>
+<span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;manager&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">getFarms</span><span class="p">(</span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">farmsService</span><span class="p">.</span><span class="nx">findAll</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="security-checklist">Security Checklist<a class="headerlink" href="#security-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] ThrottlerGuard configured globally on all services</li>
+<li>[ ] JwtAuthGuard on all protected routes</li>
+<li>[ ] RolesGuard on admin routes</li>
+<li>[ ] PermissionsGuard on sensitive operations</li>
+<li>[ ] TokenRevocationGuard on services with user authentication</li>
+<li>[ ] @Public() decorator on truly public routes</li>
+<li>[ ] Custom rate limits on authentication endpoints</li>
+<li>[ ] ServiceAuthGuard on internal endpoints</li>
+<li>[ ] Error messages don't leak sensitive information</li>
+<li>[ ] Guards tested in unit and e2e tests</li>
+</ul>
+<hr />
+<h2 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://docs.nestjs.com/guards">NestJS Guards Documentation</a></li>
+<li><a href="https://docs.nestjs.com/security/authentication">NestJS Passport Integration</a></li>
+<li><a href="https://docs.nestjs.com/security/rate-limiting">NestJS Throttler</a></li>
+<li><a href="/packages/nestjs-auth/README.md">Shared Auth Package</a></li>
+<li><a href="/RATE_LIMITING_IMPLEMENTATION.md">Rate Limiting Implementation</a></li>
+</ul>
+<hr />
+<p><strong>Last Updated:</strong> 2026-01-06
+<strong>Version:</strong> 16.0.0
+<strong>Status:</strong> ✅ Production Ready</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

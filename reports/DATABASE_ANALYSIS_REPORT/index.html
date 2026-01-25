@@ -1,0 +1,1789 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>تقرير تحليل هيكلية قاعدة البيانات - SAHOOL IDP - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#-sahool-idp" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تقرير تحليل هيكلية قاعدة البيانات - SAHOOL IDP
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="-sahool-idp">تقرير تحليل هيكلية قاعدة البيانات - SAHOOL IDP<a class="headerlink" href="#-sahool-idp" title="Permanent link">&para;</a></h1>
+<h1 id="database-structure-analysis-report">Database Structure Analysis Report<a class="headerlink" href="#database-structure-analysis-report" title="Permanent link">&para;</a></h1>
+<p><strong>تاريخ التحليل / Analysis Date:</strong> 2026-01-01
+<strong>الإصدار / Version:</strong> 15.3.0
+<strong>عدد الوكلاء المستخدمين / Agents Used:</strong> 16</p>
+<hr />
+<h2 id="executive-summary">📊 ملخص تنفيذي / Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>تم إجراء تحليل شامل لهيكلية قاعدة البيانات عبر جميع الخدمات في منصة سهول الموحدة. تم اكتشاف <strong>87 فجوة</strong> تتراوح بين حرجة ومتوسطة وبسيطة.</p>
+<table>
+<thead>
+<tr>
+<th>المستوى / Severity</th>
+<th>العدد / Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🔴 حرج / Critical</td>
+<td>12</td>
+</tr>
+<tr>
+<td>🟠 مهم / High</td>
+<td>28</td>
+</tr>
+<tr>
+<td>🟡 متوسط / Medium</td>
+<td>31</td>
+</tr>
+<tr>
+<td>🟢 منخفض / Low</td>
+<td>16</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="current-database-architecture">🏗️ هيكل قواعد البيانات الحالي / Current Database Architecture<a class="headerlink" href="#current-database-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="orms-orm-frameworks-used">ORMs المستخدمة / ORM Frameworks Used<a class="headerlink" href="#orms-orm-frameworks-used" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ORM</th>
+<th>الخدمات / Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Prisma</strong></td>
+<td>chat-service, field-core, marketplace-service, inventory-service, research-core</td>
+</tr>
+<tr>
+<td><strong>SQLAlchemy</strong></td>
+<td>alert-service, billing-core, ndvi-engine, inventory-service</td>
+</tr>
+<tr>
+<td><strong>Tortoise</strong></td>
+<td>notification-service, field-chat, field-service</td>
+</tr>
+<tr>
+<td><strong>None</strong></td>
+<td>iot-service ⚠️</td>
+</tr>
+</tbody>
+</table>
+<h3 id="databases">قواعد البيانات / Databases<a class="headerlink" href="#databases" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Database</th>
+<th>الاستخدام / Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PostgreSQL</strong></td>
+<td>Primary data store (all services)</td>
+</tr>
+<tr>
+<td><strong>PostGIS</strong></td>
+<td>Geospatial data (field-core, ndvi-engine)</td>
+</tr>
+<tr>
+<td><strong>Redis</strong></td>
+<td>Caching, sessions, rate limiting</td>
+</tr>
+<tr>
+<td><strong>TimescaleDB</strong></td>
+<td>Time-series (configured, not fully utilized)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="critical-gaps">🔴 الفجوات الحرجة / Critical Gaps<a class="headerlink" href="#critical-gaps" title="Permanent link">&para;</a></h2>
+<h3 id="1-iot-iot-service-has-no-database-schema">1. خدمة IoT بدون قاعدة بيانات / IoT Service Has No Database Schema<a class="headerlink" href="#1-iot-iot-service-has-no-database-schema" title="Permanent link">&para;</a></h3>
+<p><strong>الموقع:</strong> <code>apps/services/iot-service/</code>
+<strong>المشكلة:</strong> الخدمة تعمل بالكامل في الذاكرة بدون أي تخزين دائم
+<strong>التأثير:</strong> فقدان جميع بيانات الأجهزة والمستشعرات عند إعادة التشغيل</p>
+<div class="codehilite"><pre><span></span><code>❌ لا يوجد ملف Prisma schema
+❌ لا يوجد نماذج SQLAlchemy
+❌ لا يوجد تخزين لقراءات المستشعرات
+❌ لا يوجد سجل للأجهزة المتصلة
+</code></pre></div>
+
+<p><strong>الحل المقترح:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="o">//</span><span class="w"> </span><span class="n">apps</span><span class="o">/</span><span class="n">services</span><span class="o">/</span><span class="n">iot</span><span class="o">-</span><span class="n">service</span><span class="o">/</span><span class="n">prisma</span><span class="o">/</span><span class="k">schema</span><span class="p">.</span><span class="n">prisma</span>
+<span class="n">model</span><span class="w"> </span><span class="n">Device</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w">            </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">tenantId</span><span class="w">      </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;tenant_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">deviceId</span><span class="w">      </span><span class="n">String</span><span class="w">   </span><span class="nv">@unique</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;device_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">name</span><span class="w">          </span><span class="n">String</span>
+<span class="w">  </span><span class="n">type</span><span class="w">          </span><span class="n">DeviceType</span>
+<span class="w">  </span><span class="n">status</span><span class="w">        </span><span class="n">DeviceStatus</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">OFFLINE</span><span class="p">)</span>
+<span class="w">  </span><span class="n">lastSeen</span><span class="w">      </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;last_seen&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">metadata</span><span class="w">      </span><span class="n">Json</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">fieldId</span><span class="w">       </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;field_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">createdAt</span><span class="w">     </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;created_at&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">updatedAt</span><span class="w">     </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@updatedAt</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;updated_at&quot;</span><span class="p">)</span>
+
+<span class="w">  </span><span class="n">sensors</span><span class="w">       </span><span class="n">Sensor</span><span class="err">[]</span>
+<span class="w">  </span><span class="n">actuators</span><span class="w">     </span><span class="n">Actuator</span><span class="err">[]</span>
+
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">tenantId</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">fieldId</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;iot_devices&quot;</span><span class="p">)</span>
+<span class="err">}</span>
+
+<span class="n">model</span><span class="w"> </span><span class="n">SensorReading</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w">        </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">deviceId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;device_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">sensorType</span><span class="w"> </span><span class="n">String</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;sensor_type&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="k">value</span><span class="w">     </span><span class="nc">Float</span>
+<span class="w">  </span><span class="n">unit</span><span class="w">      </span><span class="n">String</span>
+<span class="w">  </span><span class="nc">timestamp</span><span class="w"> </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span>
+<span class="w">  </span><span class="n">quality</span><span class="w">   </span><span class="nc">Int</span><span class="w">      </span><span class="nv">@default</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="w">  </span><span class="n">device</span><span class="w">    </span><span class="n">Device</span><span class="w">   </span><span class="nv">@relation</span><span class="p">(</span><span class="nl">fields</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">deviceId</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="k">references</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">id</span><span class="o">]</span><span class="p">)</span>
+
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">deviceId, timestamp</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">sensorType, timestamp</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;sensor_readings&quot;</span><span class="p">)</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="2-no-central-user-service">2. عدم وجود خدمة مستخدمين مركزية / No Central User Service<a class="headerlink" href="#2-no-central-user-service" title="Permanent link">&para;</a></h3>
+<p><strong>المشكلة:</strong> user_id موزع عبر جميع الخدمات بدون مصدر مركزي
+<strong>التأثير:</strong></p>
+<ul>
+<li>لا يمكن التحقق من صحة user_id</li>
+<li>لا يوجد ملف تعريف مستخدم موحد</li>
+<li>صعوبة في تتبع المستخدمين عبر الخدمات</li>
+</ul>
+<p><strong>الوضع الحالي:</strong></p>
+<div class="codehilite"><pre><span></span><code>field-core:        user_id: String (no FK)
+marketplace:       userId: String (no FK)
+notification:      user_id: String (no FK)
+inventory:         created_by: String (no FK)
+</code></pre></div>
+
+<p><strong>الحل المقترح:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="o">//</span><span class="w"> </span><span class="n">apps</span><span class="o">/</span><span class="n">services</span><span class="o">/</span><span class="k">user</span><span class="o">-</span><span class="n">service</span><span class="o">/</span><span class="n">prisma</span><span class="o">/</span><span class="k">schema</span><span class="p">.</span><span class="n">prisma</span><span class="w"> </span><span class="p">(</span><span class="n">جديد</span><span class="p">)</span>
+<span class="n">model</span><span class="w"> </span><span class="k">User</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w">              </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">tenantId</span><span class="w">        </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;tenant_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">email</span><span class="w">           </span><span class="n">String</span><span class="w">   </span><span class="nv">@unique</span>
+<span class="w">  </span><span class="n">phone</span><span class="w">           </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@unique</span>
+<span class="w">  </span><span class="n">passwordHash</span><span class="w">    </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;password_hash&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">firstName</span><span class="w">       </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;first_name&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">lastName</span><span class="w">        </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;last_name&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="k">role</span><span class="w">            </span><span class="n">UserRole</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">FARMER</span><span class="p">)</span>
+<span class="w">  </span><span class="n">status</span><span class="w">          </span><span class="n">UserStatus</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">ACTIVE</span><span class="p">)</span>
+<span class="w">  </span><span class="n">emailVerified</span><span class="w">   </span><span class="k">Boolean</span><span class="w">  </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;email_verified&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">phoneVerified</span><span class="w">   </span><span class="k">Boolean</span><span class="w">  </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;phone_verified&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">lastLoginAt</span><span class="w">     </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;last_login_at&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">createdAt</span><span class="w">       </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;created_at&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">updatedAt</span><span class="w">       </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@updatedAt</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;updated_at&quot;</span><span class="p">)</span>
+
+<span class="w">  </span><span class="n">profile</span><span class="w">         </span><span class="n">UserProfile</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">farms</span><span class="w">           </span><span class="n">Farm</span><span class="err">[]</span>
+<span class="w">  </span><span class="n">wallets</span><span class="w">         </span><span class="n">Wallet</span><span class="err">[]</span>
+
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">tenantId</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">email</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">phone</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;users&quot;</span><span class="p">)</span>
+<span class="err">}</span>
+
+<span class="n">model</span><span class="w"> </span><span class="n">UserProfile</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w">              </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">userId</span><span class="w">          </span><span class="n">String</span><span class="w">   </span><span class="nv">@unique</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;user_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">nationalId</span><span class="w">      </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;national_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">dateOfBirth</span><span class="w">     </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;date_of_birth&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">address</span><span class="w">         </span><span class="n">String</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">city</span><span class="w">            </span><span class="n">String</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">region</span><span class="w">          </span><span class="n">String</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">country</span><span class="w">         </span><span class="n">String</span><span class="w">   </span><span class="nv">@default</span><span class="p">(</span><span class="ss">&quot;SA&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">avatarUrl</span><span class="w">       </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;avatar_url&quot;</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">user</span><span class="w">            </span><span class="k">User</span><span class="w">     </span><span class="nv">@relation</span><span class="p">(</span><span class="nl">fields</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">userId</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="k">references</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">id</span><span class="o">]</span><span class="p">)</span>
+
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;user_profiles&quot;</span><span class="p">)</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="3-research-core-80-research-core-80-unimplemented">3. research-core - 80%+ غير منفذ / Research Core 80%+ Unimplemented<a class="headerlink" href="#3-research-core-80-research-core-80-unimplemented" title="Permanent link">&para;</a></h3>
+<p><strong>الموقع:</strong> <code>apps/services/research-core/</code>
+<strong>المشكلة:</strong> Prisma schema شامل (17 نموذج) لكن معظم APIs غير موجودة</p>
+<p><strong>النماذج المعرفة مقابل المنفذة:</strong></p>
+<table>
+<thead>
+<tr>
+<th>النموذج / Model</th>
+<th>Schema</th>
+<th>API</th>
+<th>Controllers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Experiment</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Protocol</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Treatment</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Plot</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Observation</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Sample</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>LabAnalysis</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Publication</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Collaborator</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الحل:</strong> تنفيذ CRUDs لجميع النماذج المعرفة</p>
+<hr />
+<h3 id="4-weather-data-not-persisted">4. بيانات الطقس غير مخزنة / Weather Data Not Persisted<a class="headerlink" href="#4-weather-data-not-persisted" title="Permanent link">&para;</a></h3>
+<p><strong>الموقع:</strong> <code>apps/services/weather-service/</code>
+<strong>المشكلة:</strong> يتم جلب بيانات الطقس من APIs خارجية عند الطلب فقط</p>
+<p><strong>المخاطر:</strong></p>
+<ul>
+<li>تكلفة عالية لاستدعاءات API المتكررة</li>
+<li>عدم توفر بيانات تاريخية للتحليل</li>
+<li>فشل الخدمة عند عدم توفر الإنترنت</li>
+</ul>
+<p><strong>الحل المقترح:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="w"> </span><span class="n">WeatherObservation</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w">          </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">locationId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;location_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">latitude</span><span class="w">    </span><span class="nc">Float</span>
+<span class="w">  </span><span class="n">longitude</span><span class="w">   </span><span class="nc">Float</span>
+<span class="w">  </span><span class="nc">timestamp</span><span class="w">   </span><span class="nc">DateTime</span>
+<span class="w">  </span><span class="n">temperature</span><span class="w"> </span><span class="nc">Float</span>
+<span class="w">  </span><span class="n">humidity</span><span class="w">    </span><span class="nc">Float</span>
+<span class="w">  </span><span class="n">pressure</span><span class="w">    </span><span class="nc">Float</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">windSpeed</span><span class="w">   </span><span class="nc">Float</span><span class="vm">?</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;wind_speed&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">windDir</span><span class="w">     </span><span class="nc">Float</span><span class="vm">?</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;wind_direction&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">rainfall</span><span class="w">    </span><span class="nc">Float</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">uvIndex</span><span class="w">     </span><span class="nc">Float</span><span class="vm">?</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;uv_index&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">source</span><span class="w">      </span><span class="n">String</span><span class="w">   </span><span class="o">//</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="p">(</span><span class="n">openweather</span><span class="p">,</span><span class="w"> </span><span class="n">weatherapi</span><span class="p">,</span><span class="w"> </span><span class="n">etc</span><span class="p">)</span>
+
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">locationId, timestamp</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;weather_observations&quot;</span><span class="p">)</span>
+<span class="err">}</span>
+
+<span class="n">model</span><span class="w"> </span><span class="n">WeatherForecast</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w">          </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">locationId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;location_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">forecastFor</span><span class="w"> </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;forecast_for&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">fetchedAt</span><span class="w">   </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;fetched_at&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="k">data</span><span class="w">        </span><span class="n">Json</span>
+
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">locationId, forecastFor</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;weather_forecasts&quot;</span><span class="p">)</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="high-priority-gaps">🟠 الفجوات المهمة / High Priority Gaps<a class="headerlink" href="#high-priority-gaps" title="Permanent link">&para;</a></h2>
+<h3 id="5-marketplace-">5. Marketplace - نماذج البائع/المشتري مفقودة<a class="headerlink" href="#5-marketplace-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="o">//</span><span class="w"> </span><span class="n">مطلوب</span><span class="w"> </span><span class="n">إضافة</span>
+<span class="n">model</span><span class="w"> </span><span class="n">SellerProfile</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w">            </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">userId</span><span class="w">        </span><span class="n">String</span><span class="w">   </span><span class="nv">@unique</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;user_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">businessName</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;business_name&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">businessType</span><span class="w">  </span><span class="n">BusinessType</span>
+<span class="w">  </span><span class="n">taxId</span><span class="w">         </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;tax_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">rating</span><span class="w">        </span><span class="nc">Float</span><span class="w">    </span><span class="nv">@default</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">  </span><span class="n">totalSales</span><span class="w">    </span><span class="nc">Int</span><span class="w">      </span><span class="nv">@default</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;total_sales&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">verified</span><span class="w">      </span><span class="k">Boolean</span><span class="w">  </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
+
+<span class="w">  </span><span class="n">products</span><span class="w">      </span><span class="n">Product</span><span class="err">[]</span>
+<span class="w">  </span><span class="n">orders</span><span class="w">        </span><span class="k">Order</span><span class="err">[]</span><span class="w">  </span><span class="nv">@relation</span><span class="p">(</span><span class="ss">&quot;SellerOrders&quot;</span><span class="p">)</span>
+<span class="err">}</span>
+
+<span class="n">model</span><span class="w"> </span><span class="n">ProductReview</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w">        </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">productId</span><span class="w"> </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;product_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">buyerId</span><span class="w">   </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;buyer_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">rating</span><span class="w">    </span><span class="nc">Int</span><span class="w">      </span><span class="o">//</span><span class="w"> </span><span class="mi">1</span><span class="o">-</span><span class="mi">5</span>
+<span class="w">  </span><span class="n">comment</span><span class="w">   </span><span class="n">String</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">verified</span><span class="w">  </span><span class="k">Boolean</span><span class="w">  </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">verified</span><span class="w"> </span><span class="n">purchase</span>
+
+<span class="w">  </span><span class="n">product</span><span class="w">   </span><span class="n">Product</span><span class="w">  </span><span class="nv">@relation</span><span class="p">(</span><span class="nl">fields</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">productId</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="k">references</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">id</span><span class="o">]</span><span class="p">)</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<h3 id="6-inventory-">6. Inventory - فهارس مفقودة للأداء<a class="headerlink" href="#6-inventory-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- فهارس مفقودة يجب إضافتها</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_inventory_items_low_stock</span>
+<span class="k">ON</span><span class="w"> </span><span class="n">inventory_items</span><span class="w"> </span><span class="p">(</span><span class="n">tenant_id</span><span class="p">,</span><span class="w"> </span><span class="n">current_stock</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">current_stock</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">reorder_level</span><span class="p">;</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_inventory_movements_date_range</span>
+<span class="k">ON</span><span class="w"> </span><span class="n">inventory_movements</span><span class="w"> </span><span class="p">(</span><span class="n">tenant_id</span><span class="p">,</span><span class="w"> </span><span class="n">movement_date</span><span class="w"> </span><span class="k">DESC</span><span class="p">);</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_inventory_items_expiry</span>
+<span class="k">ON</span><span class="w"> </span><span class="n">inventory_items</span><span class="w"> </span><span class="p">(</span><span class="n">expiry_date</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">has_expiry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">expiry_date</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span>
+</code></pre></div>
+
+<h3 id="7-notification-">7. Notification - قنوات متعددة غير مدعومة<a class="headerlink" href="#7-notification-" title="Permanent link">&para;</a></h3>
+<p><strong>الوضع الحالي:</strong> Push notifications فقط
+<strong>المطلوب:</strong> Email, SMS, WhatsApp, In-App</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">model</span><span class="w"> </span><span class="nx">NotificationChannel</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">id</span><span class="w">        </span><span class="nx">String</span><span class="w">   </span><span class="err">@</span><span class="nx">id</span><span class="w"> </span><span class="err">@</span><span class="k">default</span><span class="p">(</span><span class="nx">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="nx">userId</span><span class="w">    </span><span class="nx">String</span><span class="w">   </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">&quot;user_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">channel</span><span class="w">   </span><span class="nx">ChannelType</span><span class="w"> </span><span class="c1">// EMAIL, SMS, PUSH, WHATSAPP</span>
+<span class="w">  </span><span class="nx">address</span><span class="w">   </span><span class="nx">String</span><span class="w">   </span><span class="c1">// email address, phone number, device token</span>
+<span class="w">  </span><span class="nx">verified</span><span class="w">  </span><span class="nx">Boolean</span><span class="w">  </span><span class="err">@</span><span class="k">default</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">enabled</span><span class="w">   </span><span class="nx">Boolean</span><span class="w">  </span><span class="err">@</span><span class="k">default</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+
+<span class="w">  </span><span class="err">@@</span><span class="nx">unique</span><span class="p">([</span><span class="nx">userId</span><span class="p">,</span><span class="w"> </span><span class="nx">channel</span><span class="p">,</span><span class="w"> </span><span class="nx">address</span><span class="p">])</span>
+<span class="p">}</span>
+
+<span class="nx">model</span><span class="w"> </span><span class="nx">NotificationPreference</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">id</span><span class="w">          </span><span class="nx">String</span><span class="w">   </span><span class="err">@</span><span class="nx">id</span><span class="w"> </span><span class="err">@</span><span class="k">default</span><span class="p">(</span><span class="nx">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="nx">userId</span><span class="w">      </span><span class="nx">String</span><span class="w">   </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">&quot;user_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">eventType</span><span class="w">   </span><span class="nx">String</span><span class="w">   </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">&quot;event_type&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">channels</span><span class="w">    </span><span class="nx">String</span><span class="p">[]</span><span class="w"> </span><span class="c1">// [&quot;EMAIL&quot;, &quot;PUSH&quot;]</span>
+<span class="w">  </span><span class="nx">enabled</span><span class="w">     </span><span class="nx">Boolean</span><span class="w">  </span><span class="err">@</span><span class="k">default</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">quietStart</span><span class="w">  </span><span class="nx">String</span><span class="p">?</span><span class="w">  </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">&quot;quiet_hours_start&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// &quot;22:00&quot;</span>
+<span class="w">  </span><span class="nx">quietEnd</span><span class="w">    </span><span class="nx">String</span><span class="p">?</span><span class="w">  </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">&quot;quiet_hours_end&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1">// &quot;06:00&quot;</span>
+
+<span class="w">  </span><span class="err">@@</span><span class="nx">unique</span><span class="p">([</span><span class="nx">userId</span><span class="p">,</span><span class="w"> </span><span class="nx">eventType</span><span class="p">])</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="8-field-core-">8. Field Core - إدارة الآفات مفقودة<a class="headerlink" href="#8-field-core-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="w"> </span><span class="n">PestIncident</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w">            </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">fieldId</span><span class="w">       </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;field_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">cropSeasonId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;crop_season_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">pestType</span><span class="w">      </span><span class="n">PestType</span>
+<span class="w">  </span><span class="n">severityLevel</span><span class="w"> </span><span class="nc">Int</span><span class="w">      </span><span class="o">//</span><span class="w"> </span><span class="mi">1</span><span class="o">-</span><span class="mi">5</span>
+<span class="w">  </span><span class="n">affectedArea</span><span class="w">  </span><span class="nc">Float</span><span class="w">    </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;affected_area&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">hectares</span>
+<span class="w">  </span><span class="n">detectedAt</span><span class="w">    </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;detected_at&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">reportedBy</span><span class="w">    </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;reported_by&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">status</span><span class="w">        </span><span class="n">IncidentStatus</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">ACTIVE</span><span class="p">)</span>
+
+<span class="w">  </span><span class="n">treatments</span><span class="w">    </span><span class="n">PestTreatment</span><span class="err">[]</span>
+
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">fieldId, detectedAt</span><span class="o">]</span><span class="p">)</span>
+<span class="err">}</span>
+
+<span class="n">model</span><span class="w"> </span><span class="n">PestTreatment</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w">          </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">incidentId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;incident_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">treatmentDate</span><span class="w"> </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;treatment_date&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="k">method</span><span class="w">      </span><span class="n">String</span>
+<span class="w">  </span><span class="n">productUsed</span><span class="w"> </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;product_used&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">quantity</span><span class="w">    </span><span class="nc">Float</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">appliedBy</span><span class="w">   </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;applied_by&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">effectiveness</span><span class="w"> </span><span class="nc">Int</span><span class="vm">?</span><span class="w">   </span><span class="o">//</span><span class="w"> </span><span class="mi">1</span><span class="o">-</span><span class="mi">5</span><span class="w"> </span><span class="n">rating</span>
+
+<span class="w">  </span><span class="n">incident</span><span class="w">    </span><span class="n">PestIncident</span><span class="w"> </span><span class="nv">@relation</span><span class="p">(</span><span class="nl">fields</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">incidentId</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="k">references</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">id</span><span class="o">]</span><span class="p">)</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<h3 id="9-billing-sqlalchemy">9. Billing - هجرة غير مكتملة من SQLAlchemy<a class="headerlink" href="#9-billing-sqlalchemy" title="Permanent link">&para;</a></h3>
+<p><strong>المشكلة:</strong> خدمة الفوترة تستخدم SQLAlchemy بينما باقي الخدمات تستخدم Prisma</p>
+<p><strong>الملفات المتأثرة:</strong></p>
+<ul>
+<li><code>billing-core/src/models/billing.py</code> - SQLAlchemy</li>
+<li>يجب تحويلها إلى Prisma للتوحيد</li>
+</ul>
+<h3 id="10-nats-event-bus">10. NATS Event Bus غير مفعل<a class="headerlink" href="#10-nats-event-bus" title="Permanent link">&para;</a></h3>
+<p><strong>الوضع الحالي:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// موجود في الإعدادات لكن غير مستخدم</span>
+<span class="nx">NATS_URL</span><span class="o">=</span><span class="nx">nats</span><span class="o">:</span><span class="c1">//localhost:4222</span>
+</code></pre></div>
+
+<p><strong>المطلوب:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// نشر الأحداث عند التغييرات</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">natsClient</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s2">&quot;field.created&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">fieldId</span><span class="p">,</span><span class="w"> </span><span class="nx">tenantId</span><span class="w"> </span><span class="p">});</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">natsClient</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s2">&quot;order.placed&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">orderId</span><span class="p">,</span><span class="w"> </span><span class="nx">buyerId</span><span class="w"> </span><span class="p">});</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">natsClient</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s2">&quot;sensor.reading&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">deviceId</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="p">});</span>
+</code></pre></div>
+
+<hr />
+<h2 id="medium-priority-gaps">🟡 الفجوات المتوسطة / Medium Priority Gaps<a class="headerlink" href="#medium-priority-gaps" title="Permanent link">&para;</a></h2>
+<h3 id="11">11. تسمية غير متسقة للجداول<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>النمط الحالي</th>
+<th>النمط المطلوب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>field-core</td>
+<td><code>Field</code>, <code>Farm</code></td>
+<td><code>fields</code>, <code>farms</code></td>
+</tr>
+<tr>
+<td>inventory</td>
+<td><code>inventory_items</code></td>
+<td>✅ صحيح</td>
+</tr>
+<tr>
+<td>marketplace</td>
+<td><code>Product</code>, <code>Order</code></td>
+<td><code>products</code>, <code>orders</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-tenant-id">12. معرفات المستأجر (Tenant ID) غير موحدة<a class="headerlink" href="#12-tenant-id" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>field-core:    tenantId: String
+inventory:     tenant_id: String (snake_case)
+notification:  tenant_id: String
+marketplace:   tenantId: String
+</code></pre></div>
+
+<h3 id="13-soft-delete">13. Soft Delete غير منفذ<a class="headerlink" href="#13-soft-delete" title="Permanent link">&para;</a></h3>
+<p>معظم الجداول تستخدم <code>is_active</code> بدلاً من <code>deleted_at</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// المطلوب</span>
+<span class="n">model</span><span class="w"> </span><span class="n">BaseEntity</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">deletedAt</span><span class="w"> </span><span class="n">DateTime</span>?<span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;deleted_at&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">deletedBy</span><span class="w"> </span><span class="n">String</span>?<span class="w">   </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;deleted_by&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="14-audit-trail">14. تدقيق التغييرات (Audit Trail) غير مكتمل<a class="headerlink" href="#14-audit-trail" title="Permanent link">&para;</a></h3>
+<p><strong>الموجود:</strong> <code>AuditLog</code> مع hash chain
+<strong>المفقود:</strong></p>
+<ul>
+<li>Field-level change tracking</li>
+<li>Before/After values</li>
+<li>Automatic triggers</li>
+</ul>
+<h3 id="15-geospatial-indexes">15. Geospatial Indexes مفقودة<a class="headerlink" href="#15-geospatial-indexes" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- مطلوب لـ field-core</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_fields_location</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">GIST</span><span class="w"> </span><span class="p">(</span><span class="n">boundary</span><span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_farms_location</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">farms</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">GIST</span><span class="w"> </span><span class="p">(</span><span class="k">location</span><span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h2 id="low-priority-gaps">🟢 الفجوات المنخفضة / Low Priority Gaps<a class="headerlink" href="#low-priority-gaps" title="Permanent link">&para;</a></h2>
+<h3 id="16-20-schema">16-20. توثيق الـ Schema<a class="headerlink" href="#16-20-schema" title="Permanent link">&para;</a></h3>
+<ul>
+<li>إضافة تعليقات عربية/إنجليزية لجميع الحقول</li>
+<li>توحيد أسماء العلاقات</li>
+<li>إضافة Prisma @description</li>
+</ul>
+<h3 id="21-25">21-25. تحسينات الأداء<a class="headerlink" href="#21-25" title="Permanent link">&para;</a></h3>
+<ul>
+<li>إضافة Composite indexes للاستعلامات الشائعة</li>
+<li>تفعيل Query caching</li>
+<li>Partitioning للجداول الكبيرة (sensor_readings, audit_logs)</li>
+</ul>
+<h3 id="26-31">26-31. أمان البيانات<a class="headerlink" href="#26-31" title="Permanent link">&para;</a></h3>
+<ul>
+<li>تشفير الحقول الحساسة (national_id, phone)</li>
+<li>Row-level security policies</li>
+<li>إزالة credentials الثابتة من الكود</li>
+</ul>
+<hr />
+<h2 id="remediation-plan">📋 خطة الإصلاح المقترحة / Remediation Plan<a class="headerlink" href="#remediation-plan" title="Permanent link">&para;</a></h2>
+<h3 id="1">المرحلة 1: الفجوات الحرجة (أسبوعين)<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<ol>
+<li>✅ إنشاء Prisma schema لخدمة IoT</li>
+<li>✅ إنشاء User Service مركزي</li>
+<li>✅ إضافة تخزين بيانات الطقس</li>
+<li>✅ تنفيذ 50% من Research Core APIs</li>
+</ol>
+<h3 id="2">المرحلة 2: الفجوات المهمة (أسبوعين)<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<ol>
+<li>إضافة SellerProfile/BuyerProfile للسوق</li>
+<li>إضافة ProductReview system</li>
+<li>إصلاح فهارس Inventory</li>
+<li>تفعيل NATS event publishing</li>
+</ol>
+<h3 id="3">المرحلة 3: التوحيد (أسبوع)<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<ol>
+<li>توحيد تسمية الجداول (snake_case)</li>
+<li>توحيد tenant_id across services</li>
+<li>تنفيذ Soft Delete pattern</li>
+</ol>
+<h3 id="4">المرحلة 4: التحسينات (مستمر)<a class="headerlink" href="#4" title="Permanent link">&para;</a></h3>
+<ol>
+<li>إضافة Geospatial indexes</li>
+<li>تفعيل Query caching</li>
+<li>Table partitioning</li>
+<li>تشفير البيانات الحساسة</li>
+</ol>
+<hr />
+<h2 id="files-to-create">📁 الملفات المطلوب إنشاؤها / Files to Create<a class="headerlink" href="#files-to-create" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>apps/services/iot-service/prisma/
+├── schema.prisma          # جديد
+└── migrations/
+
+apps/services/user-service/  # خدمة جديدة
+├── prisma/schema.prisma
+├── src/
+│   ├── main.ts
+│   ├── app.module.ts
+│   ├── users/
+│   │   ├── users.controller.ts
+│   │   ├── users.service.ts
+│   │   └── dto/
+│   └── auth/
+│       ├── auth.controller.ts
+│       └── auth.service.ts
+
+apps/services/weather-service/prisma/
+├── schema.prisma          # جديد
+└── migrations/
+</code></pre></div>
+
+<hr />
+<h2 id="cross-service-relations">🔗 العلاقات بين الخدمات / Cross-Service Relations<a class="headerlink" href="#cross-service-relations" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────┐
+│                        USER SERVICE                              │
+│  ┌─────────┐                                                    │
+│  │  User   │◄──────────────────────────────────────────────┐    │
+│  └────┬────┘                                               │    │
+│       │                                                    │    │
+└───────┼────────────────────────────────────────────────────┼────┘
+        │                                                    │
+        ▼                                                    │
+┌───────────────┐  ┌───────────────┐  ┌───────────────┐     │
+│  FIELD-CORE   │  │  MARKETPLACE  │  │  IOT-SERVICE  │     │
+│  ┌─────────┐  │  │  ┌─────────┐  │  │  ┌─────────┐  │     │
+│  │  Farm   │  │  │  │ Product │  │  │  │ Device  │  │     │
+│  │  Field  │◄─┼──┼──┤ Order   │  │  │  │ Sensor  │  │     │
+│  │  Crop   │  │  │  │ Wallet  │  │  │  └─────────┘  │     │
+│  └─────────┘  │  │  └─────────┘  │  │       │       │     │
+└───────┬───────┘  └───────────────┘  └───────┼───────┘     │
+        │                                      │             │
+        ▼                                      ▼             │
+┌───────────────┐                    ┌───────────────┐       │
+│  INVENTORY    │                    │  NOTIFICATION │       │
+│  ┌─────────┐  │                    │  ┌─────────┐  │       │
+│  │  Item   │  │                    │  │  Alert  │──┼───────┘
+│  │Movement │  │                    │  │Template │  │
+│  └─────────┘  │                    │  └─────────┘  │
+└───────────────┘                    └───────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="conclusion">✅ الخلاصة / Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>تم اكتشاف 87 فجوة في هيكلية قاعدة البيانات، منها 12 فجوة حرجة تتطلب معالجة فورية:</p>
+<ol>
+<li><strong>IoT Service</strong> - لا يوجد تخزين دائم</li>
+<li><strong>User Service</strong> - غير موجود</li>
+<li><strong>Research Core</strong> - 80%+ غير منفذ</li>
+<li><strong>Weather Data</strong> - لا يتم تخزينها</li>
+</ol>
+<p>يُوصى بتنفيذ خطة الإصلاح على 4 مراحل خلال 5 أسابيع.</p>
+<hr />
+<p><strong>تم إعداد هذا التقرير بواسطة 16 وكيل تحليل متوازي</strong>
+<strong>Generated by 16 parallel analysis agents</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

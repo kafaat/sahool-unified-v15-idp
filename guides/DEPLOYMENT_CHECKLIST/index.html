@@ -1,0 +1,2062 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Platform v16.0.0 - Deployment Checklist - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-v1600-deployment-checklist" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Platform v16.0.0 - Deployment Checklist
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-v1600-deployment-checklist">SAHOOL Platform v16.0.0 - Deployment Checklist<a class="headerlink" href="#sahool-platform-v1600-deployment-checklist" title="Permanent link">&para;</a></h1>
+<p><strong>Platform</strong>: SAHOOL Unified Platform
+<strong>Version</strong>: v16.0.0
+<strong>Services</strong>: 50+ microservices
+<strong>Infrastructure</strong>: PostgreSQL, Redis, NATS, MQTT, Qdrant, Kong, etcd
+<strong>Last Updated</strong>: January 6, 2026</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#pre-deployment-steps">Pre-Deployment Steps</a></li>
+<li><a href="#database-migrations">Database Migrations</a></li>
+<li><a href="#infrastructure-startup-order">Infrastructure Startup Order</a></li>
+<li><a href="#service-startup-order">Service Startup Order</a></li>
+<li><a href="#post-deployment-verification">Post-Deployment Verification</a></li>
+<li><a href="#health-checks--monitoring">Health Checks &amp; Monitoring</a></li>
+<li><a href="#rollback-procedures">Rollback Procedures</a></li>
+<li><a href="#emergency-response">Emergency Response</a></li>
+</ol>
+<hr />
+<h2 id="pre-deployment-steps">Pre-Deployment Steps<a class="headerlink" href="#pre-deployment-steps" title="Permanent link">&para;</a></h2>
+<h3 id="1-pre-deployment-environment-verification">1. Pre-Deployment Environment Verification<a class="headerlink" href="#1-pre-deployment-environment-verification" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>Verify Git State</strong></li>
+<li>[ ] All changes committed: <code>git status</code> (should be clean)</li>
+<li>[ ] Pull latest from main: <code>git pull origin main</code></li>
+<li>[ ] Verify current branch is for deployment: <code>git branch</code></li>
+<li>[ ] Tag the release: <code>git tag -a v16.0.0 -m "Production deployment"</code></li>
+<li>
+<p>[ ] Push tags: <code>git push origin --tags</code></p>
+</li>
+<li>
+<p>[ ] <strong>Verify Deployment Environment</strong></p>
+</li>
+<li>[ ] Confirm target environment (development/staging/production)</li>
+<li>[ ] Verify environment is accessible and responsive</li>
+<li>[ ] Check system resources available:<ul>
+<li>[ ] Disk space: min 50GB free</li>
+<li>[ ] CPU cores: min 8 cores recommended</li>
+<li>[ ] RAM: min 16GB available</li>
+</ul>
+</li>
+<li>[ ] Verify Docker daemon is running: <code>docker ps</code></li>
+<li>
+<p>[ ] Verify Docker Compose version: <code>docker-compose --version</code> (min v1.29)</p>
+</li>
+<li>
+<p>[ ] <strong>Network &amp; Connectivity</strong></p>
+</li>
+<li>[ ] Verify DNS resolution is working</li>
+<li>[ ] Check firewall rules for required ports:<ul>
+<li>[ ] PostgreSQL: 5432</li>
+<li>[ ] PgBouncer: 6432</li>
+<li>[ ] Redis: 6379</li>
+<li>[ ] NATS: 4222, 8222</li>
+<li>[ ] MQTT: 1883, 9001</li>
+<li>[ ] Kong: 8000, 8001, 8443, 8444</li>
+<li>[ ] Qdrant: 6333, 6334</li>
+<li>[ ] Services: 8100-8150 range</li>
+</ul>
+</li>
+<li>[ ] Verify external API connectivity (weather, satellite data providers)</li>
+<li>[ ] Confirm TLS certificates are valid (if applicable)</li>
+</ul>
+<h3 id="2-credentials-secrets-management">2. Credentials &amp; Secrets Management<a class="headerlink" href="#2-credentials-secrets-management" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>Environment Configuration</strong></li>
+<li>[ ] Copy and customize <code>.env</code> file: <code>cp .env.example .env</code></li>
+<li>
+<p>[ ] Verify all required variables are set (no defaults):</p>
+<ul>
+<li>[ ] <code>POSTGRES_PASSWORD</code> - Generate with: <code>openssl rand -base64 32</code></li>
+<li>[ ] <code>POSTGRES_USER</code> - Set to <code>sahool</code></li>
+<li>[ ] <code>POSTGRES_DB</code> - Set to <code>sahool</code></li>
+<li>[ ] <code>REDIS_PASSWORD</code> - Generate with: <code>openssl rand -base64 32</code></li>
+<li>[ ] <code>NATS_USER</code> - Set user account</li>
+<li>[ ] <code>NATS_PASSWORD</code> - Generate with: <code>openssl rand -base64 32</code></li>
+<li>[ ] <code>NATS_ADMIN_PASSWORD</code> - Generate with: <code>openssl rand -base64 32</code></li>
+<li>[ ] <code>JWT_SECRET_KEY</code> - Generate with: <code>openssl rand -base64 48</code></li>
+<li>[ ] <code>MQTT_USER</code> - Set to <code>sahool_iot</code></li>
+<li>[ ] <code>MQTT_PASSWORD</code> - Generate with: <code>openssl rand -base64 32</code></li>
+<li>[ ] <code>QDRANT_API_KEY</code> - Generate with: <code>openssl rand -base64 32</code></li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Credentials Validation</strong></p>
+</li>
+<li>[ ] Run secret validation: <code>./scripts/security/check-secrets.sh</code></li>
+<li>[ ] Verify no credentials in git history</li>
+<li>[ ] Rotate credentials if they're older than 90 days</li>
+<li>[ ] Back up <code>.env</code> file in secure location</li>
+<li>
+<p>[ ] Verify <code>.env</code> file is not tracked in git</p>
+</li>
+<li>
+<p>[ ] <strong>TLS/SSL Certificates (if applicable)</strong></p>
+</li>
+<li>[ ] Generate certificates: <code>./scripts/security/generate-certs.sh</code></li>
+<li>[ ] Verify certificate validity dates</li>
+<li>[ ] Copy certificates to <code>/infrastructure/gateway/kong/certs/</code></li>
+<li>[ ] Set permissions: <code>chmod 600 *.key</code></li>
+<li>[ ] Verify Kong TLS configuration in <code>docker-compose.yml</code></li>
+</ul>
+<h3 id="3-backup-recovery-preparation">3. Backup &amp; Recovery Preparation<a class="headerlink" href="#3-backup-recovery-preparation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>Create Pre-Deployment Backup</strong></li>
+<li>
+<p>[ ] If upgrading existing deployment:</p>
+<ul>
+<li>[ ] Full database backup: <code>./scripts/backup_database.sh -t manual -m full</code></li>
+<li>[ ] Backup verification: Verify backup file size &gt; 10MB</li>
+<li>[ ] Store backup in 2 locations (local + cloud/external)</li>
+<li>[ ] Test backup restoration (dry run): <code>pg_restore --list backup_file.dump | head -20</code></li>
+<li>[ ] Record backup location and timestamp</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Document Pre-Deployment State</strong></p>
+</li>
+<li>[ ] Export current service configurations</li>
+<li>[ ] Record active connections count: <code>docker-compose ps | wc -l</code></li>
+<li>[ ] Document current resource usage: <code>docker stats --no-stream</code></li>
+<li>[ ] Capture database schema version</li>
+<li>
+<p>[ ] Note any active deployments or migrations in progress</p>
+</li>
+<li>
+<p>[ ] <strong>Communication Plan</strong></p>
+</li>
+<li>[ ] Notify stakeholders of deployment window</li>
+<li>[ ] Schedule maintenance window (if needed)</li>
+<li>[ ] Post maintenance notification in team channels</li>
+<li>[ ] Prepare rollback communication template</li>
+</ul>
+<h3 id="4-code-configuration-review">4. Code &amp; Configuration Review<a class="headerlink" href="#4-code-configuration-review" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>Code Quality Checks</strong></li>
+<li>[ ] Run linter: <code>npm run lint</code></li>
+<li>[ ] Run tests: <code>npm run test</code></li>
+<li>[ ] Run security scan: <code>npm run security</code></li>
+<li>[ ] Verify TypeScript compilation: <code>npm run build</code></li>
+<li>
+<p>[ ] Check API documentation is current</p>
+</li>
+<li>
+<p>[ ] <strong>Configuration Validation</strong></p>
+</li>
+<li>[ ] Validate docker-compose syntax: <code>docker-compose config &gt; /dev/null</code></li>
+<li>[ ] Verify all service images are specified with versions (no <code>latest</code>)</li>
+<li>[ ] Check Kong configuration: <code>./scripts/validate-kong-config.sh</code></li>
+<li>[ ] Validate NATS configuration in <code>config/nats/nats.conf</code></li>
+<li>[ ] Verify Redis security config: <code>./scripts/validate-redis-security.sh</code></li>
+<li>
+<p>[ ] Check environment variable usage in services</p>
+</li>
+<li>
+<p>[ ] <strong>Dependency &amp; Image Verification</strong></p>
+</li>
+<li>[ ] Pull all container images: <code>docker-compose pull</code></li>
+<li>[ ] Verify image checksums match</li>
+<li>[ ] Scan images for vulnerabilities</li>
+<li>[ ] Check image disk space requirements</li>
+<li>[ ] Verify all images are from trusted registries</li>
+</ul>
+<hr />
+<h2 id="database-migrations">Database Migrations<a class="headerlink" href="#database-migrations" title="Permanent link">&para;</a></h2>
+<h3 id="1-pre-migration-checks">1. Pre-Migration Checks<a class="headerlink" href="#1-pre-migration-checks" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>Database Accessibility</strong></li>
+<li>[ ] PostgreSQL service is running: <code>docker-compose up -d postgres</code></li>
+<li>[ ] Wait for PostgreSQL to be healthy (30s startup period)</li>
+<li>[ ] Test connection: <code>docker exec sahool-postgres pg_isready -U sahool</code></li>
+<li>[ ] Verify database exists: <code>docker exec sahool-postgres psql -U sahool -l | grep sahool</code></li>
+<li>
+<p>[ ] Check database size: <code>docker exec sahool-postgres psql -U sahool -c "SELECT pg_database.datname, pg_size_pretty(pg_database_size(pg_database.datname)) FROM pg_database WHERE datname = 'sahool';"</code></p>
+</li>
+<li>
+<p>[ ] <strong>PgBouncer Verification</strong> (for production)</p>
+</li>
+<li>[ ] PgBouncer is running: <code>docker-compose ps pgbouncer</code></li>
+<li>[ ] PgBouncer health check: <code>docker exec sahool-pgbouncer pg_isready -h localhost -p 6432</code></li>
+<li>[ ] Test pooled connection: <code>docker exec sahool-pgbouncer psql -h localhost -p 6432 -U sahool -c "SELECT 1;"</code></li>
+<li>
+<p>[ ] Check connection pool stats: <code>docker exec sahool-pgbouncer psql -h localhost -p 6432 -U pgbouncer_admin -c "SHOW STATS;"</code></p>
+</li>
+<li>
+<p>[ ] <strong>Migration Lock Status</strong></p>
+</li>
+<li>[ ] Check for existing migration locks: <code>docker exec sahool-postgres psql -U sahool -c "SELECT * FROM pg_locks WHERE locktype='advisory';"</code></li>
+<li>[ ] Kill any hung migration processes if needed</li>
+<li>[ ] Document any concurrent operations that should complete first</li>
+</ul>
+<h3 id="2-execute-migrations">2. Execute Migrations<a class="headerlink" href="#2-execute-migrations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>Run Database Migrations</strong></li>
+<li>[ ] Navigate to project root: <code>cd /home/user/sahool-unified-v15-idp</code></li>
+<li>[ ] List pending migrations: <code>docker-compose exec postgres psql -U sahool -c "\dt information_schema.tables" | grep -i migration</code></li>
+<li>
+<p>[ ] <strong>Alert Service Migration</strong> (if applicable)</p>
+<ul>
+<li>[ ] Apply migration: <code>docker-compose exec postgres psql -U sahool sahool &lt; database/migrations/011_migrate_passwords_to_argon2.sql</code></li>
+<li>[ ] Verify migration: <code>docker exec sahool-postgres psql -U sahool -c "SELECT COUNT(*) as password_migration_tracking FROM information_schema.columns WHERE table_name='users' AND column_name='password_needs_migration';"</code></li>
+<li>[ ] Check migration stats: <code>docker exec sahool-postgres psql -U sahool -c "SELECT * FROM password_migration_stats;"</code></li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Execute Pending Migrations</strong> (for services using Alembic)</p>
+<ul>
+<li>For each affected service (if applicable):
+  <code>bash
+  docker-compose up -d &lt;service-name&gt;
+  docker-compose exec &lt;service-name&gt; alembic upgrade head
+  docker-compose logs &lt;service-name&gt; | grep -i migration</code></li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Seed Database</strong> (initial deployment only)</p>
+<ul>
+<li>[ ] If fresh deployment, load seed data:
+  <code>bash
+  docker-compose exec postgres psql -U sahool sahool &lt; database/seeds/01_users.sql
+  docker-compose exec postgres psql -U sahool sahool &lt; database/seeds/02_farms.sql
+  docker-compose exec postgres psql -U sahool sahool &lt; database/seeds/03_fields.sql
+  # ... continue for other seeds</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="3-migration-verification">3. Migration Verification<a class="headerlink" href="#3-migration-verification" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>Validate Migration Success</strong></li>
+<li>[ ] Check for migration errors in logs: <code>docker-compose logs postgres | grep -i error</code></li>
+<li>[ ] Verify schema changes applied:
+    <code>bash
+    docker exec sahool-postgres psql -U sahool -c "
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema = 'public'
+    ORDER BY table_name;"</code></li>
+<li>[ ] Record table counts: <code>docker exec sahool-postgres psql -U sahool -c "SELECT tablename, pg_size_pretty(pg_total_relation_size('\"'||tablename||'\"')) FROM pg_tables WHERE schemaname='public';"</code></li>
+<li>[ ] Check for constraint violations: <code>docker exec sahool-postgres psql -U sahool -c "SELECT * FROM pg_constraint;"</code></li>
+<li>
+<p>[ ] Verify indexes are created: <code>docker exec sahool-postgres psql -U sahool -c "SELECT * FROM pg_indexes WHERE schemaname='public';"</code></p>
+</li>
+<li>
+<p>[ ] <strong>Data Integrity Checks</strong></p>
+</li>
+<li>[ ] Run validation script: <code>./scripts/data_integrity_checker.py</code></li>
+<li>[ ] Check for orphaned records</li>
+<li>[ ] Verify referential integrity (all foreign keys valid)</li>
+<li>
+<p>[ ] Validate password algorithm migrations (if applicable):
+    <code>bash
+    docker exec sahool-postgres psql -U sahool -c "
+    SELECT password_algorithm, COUNT(*) as count
+    FROM users
+    WHERE password_hash IS NOT NULL
+    GROUP BY password_algorithm;"</code></p>
+</li>
+<li>
+<p>[ ] <strong>Performance Checks</strong></p>
+</li>
+<li>[ ] Query a large table to verify performance: <code>docker exec sahool-postgres psql -U sahool -c "EXPLAIN ANALYZE SELECT * FROM users LIMIT 1000;"</code></li>
+<li>[ ] Check slow query log (if enabled)</li>
+<li>[ ] Verify index statistics are up to date: <code>docker exec sahool-postgres psql -U sahool -c "ANALYZE;"</code></li>
+</ul>
+<hr />
+<h2 id="infrastructure-startup-order">Infrastructure Startup Order<a class="headerlink" href="#infrastructure-startup-order" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>Critical</strong>: Services must start in dependency order. Do NOT start all services simultaneously.</p>
+</blockquote>
+<h3 id="phase-1-core-infrastructure-sequential-start-60-120s">Phase 1: Core Infrastructure (Sequential Start - 60-120s)<a class="headerlink" href="#phase-1-core-infrastructure-sequential-start-60-120s" title="Permanent link">&para;</a></h3>
+<p>Start these services one at a time, waiting for health checks:</p>
+<ol>
+<li>[ ] <strong>PostgreSQL</strong> (Port 5432)</li>
+</ol>
+<p><code>bash
+   docker-compose up -d postgres
+   sleep 30  # Wait for startup
+   docker-compose exec postgres pg_isready -U sahool
+   # Verify: "accepting connections"</code></p>
+<ol>
+<li>[ ] <strong>Redis</strong> (Port 6379)</li>
+</ol>
+<p><code>bash
+   docker-compose up -d redis
+   sleep 15
+   docker-compose exec redis redis-cli -a "${REDIS_PASSWORD}" ping
+   # Verify: "PONG"</code></p>
+<ol>
+<li>[ ] <strong>PgBouncer</strong> (Port 6432) - for production only</li>
+</ol>
+<p><code>bash
+   docker-compose up -d pgbouncer
+   sleep 15
+   docker-compose exec pgbouncer pg_isready -h localhost -p 6432 -U sahool
+   # Verify: "accepting connections"</code></p>
+<ol>
+<li>[ ] <strong>NATS JetStream</strong> (Ports 4222, 8222)</li>
+</ol>
+<p><code>bash
+   docker-compose up -d nats
+   sleep 15
+   curl http://localhost:8222/healthz
+   # Verify: HTTP 200 response</code></p>
+<ol>
+<li>[ ] <strong>MQTT Broker</strong> (Ports 1883, 9001)</li>
+</ol>
+<p><code>bash
+   docker-compose up -d mqtt
+   sleep 10
+   docker-compose exec mqtt pidof mosquitto
+   # Verify: Process ID returned</code></p>
+<ol>
+<li>[ ] <strong>Qdrant Vector DB</strong> (Ports 6333, 6334)</li>
+</ol>
+<p><code>bash
+   docker-compose up -d qdrant
+   sleep 20
+   curl -s http://localhost:6333/health | jq .
+   # Verify: "status":"ok"</code></p>
+<ol>
+<li>[ ] <strong>etcd</strong> (Ports 2379, 2380)</li>
+</ol>
+<p><code>bash
+   docker-compose up -d etcd
+   sleep 15
+   docker-compose exec etcd etcdctl endpoint health
+   # Verify: "healthy: true"</code></p>
+<ol>
+<li>[ ] <strong>Minio</strong> (Ports 9000, 9001)</li>
+</ol>
+<p><code>bash
+   docker-compose up -d minio
+   sleep 15
+   curl -s http://localhost:9000/minio/health/live
+   # Verify: HTTP 200</code></p>
+<ol>
+<li>[ ] <strong>Milvus</strong> (Ports 19530, 9091)</li>
+</ol>
+<p><code>bash
+   docker-compose up -d milvus
+   sleep 30
+   docker-compose logs milvus | grep -i "healthy"
+   # Verify: Health status OK</code></p>
+<ol>
+<li>
+<p>[ ] <strong>Ollama</strong> (Port 11434)</p>
+<p>```bash
+docker-compose up -d ollama
+sleep 20
+curl -s http://localhost:11434/api/tags</p>
+<h1 id="verify-json-response-with-model-list">Verify: JSON response with model list<a class="headerlink" href="#verify-json-response-with-model-list" title="Permanent link">&para;</a></h1>
+<p>```</p>
+</li>
+<li>
+<p>[ ] <strong>Ollama Model Loader</strong> (initialization service)
+    <code>bash
+    docker-compose up -d ollama-model-loader
+    sleep 60
+    docker-compose logs ollama-model-loader | tail -5
+    # Verify: Model loading complete</code></p>
+</li>
+</ol>
+<h3 id="phase-2-api-gateway-routing-30-45s">Phase 2: API Gateway &amp; Routing (30-45s)<a class="headerlink" href="#phase-2-api-gateway-routing-30-45s" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>[ ] <strong>Kong API Gateway</strong> (Ports 8000, 8001, 8443, 8444)</p>
+<p>```bash
+docker-compose up -d kong
+sleep 20
+curl -s http://localhost:8001/</p>
+<h1 id="verify-kong-admin-api-response-json-object">Verify: Kong Admin API response (JSON object)<a class="headerlink" href="#verify-kong-admin-api-response-json-object" title="Permanent link">&para;</a></h1>
+<p>docker-compose exec kong kong health</p>
+<h1 id="verify-health-status">Verify: Health status<a class="headerlink" href="#verify-health-status" title="Permanent link">&para;</a></h1>
+<p>```</p>
+</li>
+<li>
+<p>[ ] <strong>Provider Config Service</strong> (bootstrap Kong routes)
+    <code>bash
+    docker-compose up -d provider-config
+    sleep 15
+    docker-compose logs provider-config | grep -i "route\|plugin\|configured"
+    # Verify: Configuration applied successfully</code></p>
+</li>
+</ol>
+<h3 id="phase-3-core-platform-services-parallel-start-30-60s">Phase 3: Core Platform Services (Parallel Start, 30-60s)<a class="headerlink" href="#phase-3-core-platform-services-parallel-start-30-60s" title="Permanent link">&para;</a></h3>
+<p>Start these services in parallel (Docker handles dependencies):</p>
+<div class="codehilite"><pre><span></span><code>docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>field-management-service<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>marketplace-service<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>research-core<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>field-ops<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>weather-service<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>advisory-service<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>weather-core
+</code></pre></div>
+
+<p>Then verify each:</p>
+<ul>
+<li>[ ] field-management-service (8100): <code>curl http://localhost:8100/healthz</code></li>
+<li>[ ] marketplace-service (8101): <code>curl http://localhost:8101/healthz</code></li>
+<li>[ ] research-core (8102): <code>curl http://localhost:8102/healthz</code></li>
+<li>[ ] field-ops (8103): <code>curl http://localhost:8103/healthz</code></li>
+<li>[ ] weather-service (8104): <code>curl http://localhost:8104/healthz</code></li>
+<li>[ ] advisory-service (8105): <code>curl http://localhost:8105/healthz</code></li>
+<li>[ ] weather-core (8106): <code>curl http://localhost:8106/healthz</code></li>
+</ul>
+<h3 id="phase-4-intelligence-analysis-services-parallel-start-45-90s">Phase 4: Intelligence &amp; Analysis Services (Parallel Start, 45-90s)<a class="headerlink" href="#phase-4-intelligence-analysis-services-parallel-start-45-90s" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>yield-prediction<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>lai-estimation<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>crop-growth-model<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>vegetation-analysis-service<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>crop-intelligence-service<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>ndvi-engine<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>disaster-assessment<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>indicators-service
+</code></pre></div>
+
+<p>Health verification for each service (port numbers 8107-8114)</p>
+<h3 id="phase-5-communication-iot-services-parallel-start-30-60s">Phase 5: Communication &amp; IoT Services (Parallel Start, 30-60s)<a class="headerlink" href="#phase-5-communication-iot-services-parallel-start-30-60s" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>chat-service<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>iot-service<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>community-chat<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>notification-service<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>ws-gateway<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>iot-gateway<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>field-chat
+</code></pre></div>
+
+<h3 id="phase-6-business-support-services-parallel-start-30-60s">Phase 6: Business &amp; Support Services (Parallel Start, 30-60s)<a class="headerlink" href="#phase-6-business-support-services-parallel-start-30-60s" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>billing-core<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>equipment-service<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>field-intelligence<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>task-service<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>inventory-service<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>virtual-sensors<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>irrigation-smart
+</code></pre></div>
+
+<h3 id="phase-7-ai-advisory-services-parallel-start-30-60s">Phase 7: AI &amp; Advisory Services (Parallel Start, 30-60s)<a class="headerlink" href="#phase-7-ai-advisory-services-parallel-start-30-60s" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>ai-advisor<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>agro-advisor<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>alert-service<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>crop-health<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>crop-health-ai<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>astronomical-calendar<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>yield-prediction-service
+</code></pre></div>
+
+<h3 id="phase-8-monitoring-code-quality-sequential-start-15-30s">Phase 8: Monitoring &amp; Code Quality (Sequential Start, 15-30s)<a class="headerlink" href="#phase-8-monitoring-code-quality-sequential-start-15-30s" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>code-review-service
+sleep<span class="w"> </span><span class="m">10</span>
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>agent-registry
+sleep<span class="w"> </span><span class="m">10</span>
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>field-service
+</code></pre></div>
+
+<h3 id="phase-9-demo-testing-services-optional-15-30s">Phase 9: Demo &amp; Testing Services (Optional, 15-30s)<a class="headerlink" href="#phase-9-demo-testing-services-optional-15-30s" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>demo-data
+sleep<span class="w"> </span><span class="m">10</span>
+<span class="c1"># Verify demo data population</span>
+curl<span class="w"> </span>http://localhost:8150/api/demo/status
+</code></pre></div>
+
+<hr />
+<h2 id="post-deployment-verification">Post-Deployment Verification<a class="headerlink" href="#post-deployment-verification" title="Permanent link">&para;</a></h2>
+<h3 id="1-infrastructure-health-checks">1. Infrastructure Health Checks<a class="headerlink" href="#1-infrastructure-health-checks" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>All Services Running</strong></li>
+</ul>
+<p><code>bash
+  docker-compose ps
+  # Verify: All services show "Up" status, 0 errors</code></p>
+<ul>
+<li>[ ] <strong>Container Health Status</strong></li>
+</ul>
+<p><code>bash
+  docker-compose ps --services | while read service; do
+    echo "Checking $service..."
+    docker-compose exec $service /bin/sh -c 'true' 2&gt;/dev/null &amp;&amp; echo "✓" || echo "✗"
+  done</code></p>
+<ul>
+<li>[ ] <strong>Database Connectivity</strong></li>
+<li>[ ] Direct connection: <code>docker-compose exec postgres pg_isready -U sahool</code></li>
+<li>[ ] Pooled connection: <code>docker-compose exec pgbouncer pg_isready -h localhost -p 6432</code></li>
+<li>
+<p>[ ] Test query: <code>docker exec sahool-postgres psql -U sahool -c "SELECT version();"</code></p>
+</li>
+<li>
+<p>[ ] <strong>Message Queue Status</strong></p>
+</li>
+<li>[ ] NATS: <code>curl http://localhost:8222/healthz</code></li>
+<li>[ ] MQTT: <code>docker-compose exec mqtt mosquitto_sub -h mqtt -t '$SYS/#' -c 1</code></li>
+<li>
+<p>[ ] Test publish: <code>docker-compose exec mqtt mosquitto_pub -h mqtt -t 'test' -m 'test_message'</code></p>
+</li>
+<li>
+<p>[ ] <strong>Cache Status</strong></p>
+</li>
+<li>[ ] Redis: <code>docker-compose exec redis redis-cli -a "${REDIS_PASSWORD}" INFO server | head -10</code></li>
+<li>[ ] Memory usage: <code>docker-compose exec redis redis-cli -a "${REDIS_PASSWORD}" INFO memory</code></li>
+<li>[ ] Connected clients: <code>docker-compose exec redis redis-cli -a "${REDIS_PASSWORD}" CLIENT LIST | wc -l</code></li>
+</ul>
+<h3 id="2-api-gateway-validation">2. API Gateway Validation<a class="headerlink" href="#2-api-gateway-validation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>Kong Status</strong></li>
+</ul>
+<p><code>bash
+  curl http://localhost:8001/status
+  # Verify: database=connected, server=online</code></p>
+<ul>
+<li>[ ] <strong>Routes Configured</strong></li>
+</ul>
+<p><code>bash
+  curl http://localhost:8001/routes | jq '.data | length'
+  # Verify: &gt;10 routes configured</code></p>
+<ul>
+<li>[ ] <strong>Plugins Active</strong>
+  <code>bash
+  curl http://localhost:8001/plugins | jq '.data | length'
+  # Verify: rate-limiting, jwt, cors plugins active</code></li>
+</ul>
+<h3 id="3-service-health-endpoint-verification">3. Service Health Endpoint Verification<a class="headerlink" href="#3-service-health-endpoint-verification" title="Permanent link">&para;</a></h3>
+<p>Test core services (sampling approach):</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">SERVICES</span><span class="o">=(</span>
+<span class="w">  </span><span class="s2">&quot;http://localhost:8100/healthz&quot;</span><span class="w">  </span><span class="c1"># field-management</span>
+<span class="w">  </span><span class="s2">&quot;http://localhost:8101/healthz&quot;</span><span class="w">  </span><span class="c1"># marketplace</span>
+<span class="w">  </span><span class="s2">&quot;http://localhost:8102/healthz&quot;</span><span class="w">  </span><span class="c1"># research-core</span>
+<span class="w">  </span><span class="s2">&quot;http://localhost:8103/healthz&quot;</span><span class="w">  </span><span class="c1"># field-ops</span>
+<span class="w">  </span><span class="s2">&quot;http://localhost:8104/healthz&quot;</span><span class="w">  </span><span class="c1"># weather</span>
+<span class="o">)</span>
+
+<span class="k">for</span><span class="w"> </span>service<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SERVICES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Testing </span><span class="nv">$service</span><span class="s2">&quot;</span>
+<span class="w">  </span>curl<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$service</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✓&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✗&quot;</span>
+<span class="k">done</span>
+</code></pre></div>
+
+<ul>
+<li>[ ] Record healthy service count: <code>__________ / 50+ services</code></li>
+<li>[ ] Identify any unhealthy services for troubleshooting</li>
+</ul>
+<h3 id="4-database-verification">4. Database Verification<a class="headerlink" href="#4-database-verification" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>Schema Integrity</strong></li>
+<li>[ ] Check table count: <code>docker exec sahool-postgres psql -U sahool -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"</code></li>
+<li>
+<p>[ ] Verify critical tables exist:
+    <code>bash
+    docker exec sahool-postgres psql -U sahool -c "
+    SELECT tablename FROM pg_tables
+    WHERE schemaname='public' AND tablename IN
+    ('users', 'farms', 'fields', 'crops', 'alerts', 'weather_data');
+    "</code></p>
+</li>
+<li>
+<p>[ ] <strong>Data Validation</strong></p>
+</li>
+<li>[ ] User count: <code>docker exec sahool-postgres psql -U sahool -c "SELECT COUNT(*) FROM users;"</code></li>
+<li>[ ] Farm count: <code>docker exec sahool-postgres psql -U sahool -c "SELECT COUNT(*) FROM farms;"</code></li>
+<li>[ ] Field count: <code>docker exec sahool-postgres psql -U sahool -c "SELECT COUNT(*) FROM fields;"</code></li>
+</ul>
+<h3 id="5-performance-baseline">5. Performance Baseline<a class="headerlink" href="#5-performance-baseline" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>Connection Pool Status</strong></li>
+<li>[ ] PgBouncer: <code>docker exec sahool-pgbouncer psql -h localhost -p 6432 -U pgbouncer_admin -c "SHOW POOLS;"</code></li>
+<li>[ ] Current connections: Check should show &lt; MAX_CLIENT_CONN (500)</li>
+<li>
+<p>[ ] Active size: Check that DEFAULT_POOL_SIZE (20) is reasonable</p>
+</li>
+<li>
+<p>[ ] <strong>Resource Utilization</strong></p>
+</li>
+</ul>
+<p><code>bash
+  docker stats --no-stream | tail -20
+  # Record CPU and memory for each service</code></p>
+<ul>
+<li>[ ] <strong>Query Performance</strong> (baseline)</li>
+<li>[ ] Sample slow query from application logs</li>
+<li>[ ] EXPLAIN ANALYZE: <code>docker exec sahool-postgres psql -U sahool -c "EXPLAIN ANALYZE SELECT * FROM users LIMIT 100;"</code></li>
+</ul>
+<hr />
+<h2 id="health-checks-monitoring">Health Checks &amp; Monitoring<a class="headerlink" href="#health-checks-monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="1-readiness-probe-verification">1. Readiness Probe Verification<a class="headerlink" href="#1-readiness-probe-verification" title="Permanent link">&para;</a></h3>
+<p>These services must respond with HTTP 200 to <code>/readyz</code> endpoint:</p>
+<ul>
+<li>[ ] <strong>Core Services</strong></li>
+<li>[ ] field-management-service: <code>curl http://localhost:8100/readyz</code></li>
+<li>[ ] marketplace-service: <code>curl http://localhost:8101/readyz</code></li>
+<li>
+<p>[ ] alert-service: <code>curl http://localhost:8113/readyz</code></p>
+</li>
+<li>
+<p>[ ] <strong>Verify all readiness probes pass</strong>
+  <code>bash
+  ./scripts/test-api-connectivity.sh
+  # Should show all endpoints responding</code></p>
+</li>
+</ul>
+<h3 id="2-liveness-probe-verification">2. Liveness Probe Verification<a class="headerlink" href="#2-liveness-probe-verification" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>Docker health checks active</strong>
+  <code>bash
+  docker-compose ps | grep -E "healthy|unhealthy"
+  # All should show "healthy"</code></li>
+</ul>
+<h3 id="3-continuous-health-monitoring">3. Continuous Health Monitoring<a class="headerlink" href="#3-continuous-health-monitoring" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>Set up monitoring script</strong> (if using K8s monitoring)</li>
+<li>[ ] Deploy Prometheus for metrics collection</li>
+<li>[ ] Configure Grafana dashboards</li>
+<li>
+<p>[ ] Set up alert rules: <code>/monitoring/alerts/rollout-alerts.yaml</code></p>
+</li>
+<li>
+<p>[ ] <strong>Application Monitoring</strong></p>
+</li>
+<li>[ ] Check telemetry collection: <code>curl http://localhost:4317/api/traces</code> (Jaeger/OTEL)</li>
+<li>[ ] Verify logs are being collected</li>
+<li>[ ] Confirm metrics are exported</li>
+</ul>
+<h3 id="4-log-aggregation-verification">4. Log Aggregation Verification<a class="headerlink" href="#4-log-aggregation-verification" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>Check Service Logs</strong></li>
+</ul>
+<p><code>bash
+  docker-compose logs --tail=100 | grep -i "error\|warn"
+  # Should be minimal warnings, no errors</code></p>
+<ul>
+<li>[ ] <strong>Database Logs</strong>
+  <code>bash
+  docker-compose logs postgres | grep -i "error"
+  # Should be none for a healthy deployment</code></li>
+</ul>
+<hr />
+<h2 id="rollback-procedures">Rollback Procedures<a class="headerlink" href="#rollback-procedures" title="Permanent link">&para;</a></h2>
+<h3 id="emergency-rollback-5-minutes-to-decision">Emergency Rollback (&lt; 5 minutes to decision)<a class="headerlink" href="#emergency-rollback-5-minutes-to-decision" title="Permanent link">&para;</a></h3>
+<p>Use this if critical issues detected within first 5 minutes:</p>
+<h4 id="option-1-container-rollback-fastest">Option 1: Container Rollback (Fastest)<a class="headerlink" href="#option-1-container-rollback-fastest" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Step 1: Identify problematic service</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span>&lt;service-name&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-50
+
+<span class="c1"># Step 2: Revert to previous image version</span>
+<span class="c1"># Edit docker-compose.yml to use previous image tag</span>
+<span class="c1"># Example: change &#39;field-management-service:v16.0.0&#39; to &#39;field-management-service:v15.9.0&#39;</span>
+
+<span class="c1"># Step 3: Restart service</span>
+docker-compose<span class="w"> </span>pull<span class="w"> </span>&lt;service-name&gt;
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>&lt;service-name&gt;
+
+<span class="c1"># Step 4: Verify recovery</span>
+curl<span class="w"> </span>http://localhost:8100/healthz
+</code></pre></div>
+
+<h4 id="option-2-database-rollback-for-schema-issues">Option 2: Database Rollback (for schema issues)<a class="headerlink" href="#option-2-database-rollback-for-schema-issues" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Step 1: Stop all services</span>
+docker-compose<span class="w"> </span>stop
+
+<span class="c1"># Step 2: Restore from backup</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>pg_restore<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span>backup_file.dump
+
+<span class="c1"># Step 3: Restart</span>
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>postgres
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--no-deps<span class="w"> </span>&lt;affected-services&gt;
+</code></pre></div>
+
+<h4 id="option-3-full-rollback">Option 3: Full Rollback<a class="headerlink" href="#option-3-full-rollback" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Step 1: Stop all services</span>
+docker-compose<span class="w"> </span>down
+
+<span class="c1"># Step 2: Restore database</span>
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>postgres
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>pg_restore<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span>backup_file_before_deployment.dump
+
+<span class="c1"># Step 3: Restore previous code</span>
+git<span class="w"> </span>revert<span class="w"> </span>HEAD<span class="w"> </span>--no-edit
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>main
+
+<span class="c1"># Step 4: Deploy previous version</span>
+docker-compose<span class="w"> </span>pull
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Step 5: Verify all services healthy</span>
+./scripts/test-api-connectivity.sh
+</code></pre></div>
+
+<h3 id="rollback-verification-checklist">Rollback Verification Checklist<a class="headerlink" href="#rollback-verification-checklist" title="Permanent link">&para;</a></h3>
+<p>After rollback, verify:</p>
+<ul>
+<li>[ ] All services responding to health checks</li>
+<li>[ ] Database restored to correct state</li>
+<li>[ ] No data loss in critical tables</li>
+<li>[ ] Previous API contracts working</li>
+<li>[ ] WebSocket connections working (chat, notifications)</li>
+<li>[ ] File uploads/downloads functional</li>
+<li>[ ] External integrations (weather API, satellite data) working</li>
+</ul>
+<h3 id="post-rollback-communication">Post-Rollback Communication<a class="headerlink" href="#post-rollback-communication" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Notify stakeholders of rollback</li>
+<li>[ ] Document root cause analysis</li>
+<li>[ ] Create incident report</li>
+<li>[ ] Schedule post-mortem</li>
+<li>[ ] Update deployment procedures based on findings</li>
+</ul>
+<hr />
+<h2 id="emergency-response">Emergency Response<a class="headerlink" href="#emergency-response" title="Permanent link">&para;</a></h2>
+<h3 id="critical-issues-during-deployment">Critical Issues During Deployment<a class="headerlink" href="#critical-issues-during-deployment" title="Permanent link">&para;</a></h3>
+<h4 id="issue-postgresql-wont-start">Issue: PostgreSQL Won't Start<a class="headerlink" href="#issue-postgresql-wont-start" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check logs</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span>postgres
+
+<span class="c1"># If corrupted: reset and restore from backup</span>
+docker<span class="w"> </span>volume<span class="w"> </span>rm<span class="w"> </span>sahool_postgres_data
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>postgres
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>pg_restore<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>backup_file.dump
+</code></pre></div>
+
+<h4 id="issue-high-connection-failures">Issue: High Connection Failures<a class="headerlink" href="#issue-high-connection-failures" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check PgBouncer pool</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-pgbouncer<span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span>localhost<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>pgbouncer_admin<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SHOW CLIENTS;&quot;</span>
+
+<span class="c1"># Restart PgBouncer if stuck</span>
+docker-compose<span class="w"> </span>restart<span class="w"> </span>pgbouncer
+sleep<span class="w"> </span><span class="m">10</span>
+docker-compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>pgbouncer<span class="w"> </span>pg_isready
+</code></pre></div>
+
+<h4 id="issue-memory-exhaustion">Issue: Memory Exhaustion<a class="headerlink" href="#issue-memory-exhaustion" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check resource usage</span>
+docker<span class="w"> </span>stats
+
+<span class="c1"># Identify memory hog</span>
+docker-compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;service&gt;<span class="w"> </span>/bin/sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;ps aux | sort -nrk 3,3 | head -10&#39;</span>
+
+<span class="c1"># Restart affected service</span>
+docker-compose<span class="w"> </span>restart<span class="w"> </span>&lt;service&gt;
+</code></pre></div>
+
+<h4 id="issue-natsmqtt-not-accepting-messages">Issue: NATS/MQTT Not Accepting Messages<a class="headerlink" href="#issue-natsmqtt-not-accepting-messages" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check NATS status</span>
+curl<span class="w"> </span>http://localhost:8222/connz
+curl<span class="w"> </span>http://localhost:8222/jsz
+
+<span class="c1"># Reset NATS (WARNING: loses in-memory state)</span>
+docker-compose<span class="w"> </span>down<span class="w"> </span>nats
+docker<span class="w"> </span>volume<span class="w"> </span>rm<span class="w"> </span>sahool_nats_data<span class="w">  </span><span class="c1"># Only if necessary</span>
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>nats
+</code></pre></div>
+
+<h3 id="rollback-decision-tree">Rollback Decision Tree<a class="headerlink" href="#rollback-decision-tree" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Issue Detected?
+│
+├─ YES
+│   ├─ Database corruption?
+│   │  └─ RESTORE_BACKUP → Restart services
+│   │
+│   ├─ Service(s) crashing?
+│   │  └─ Revert image version → Restart service
+│   │
+│   ├─ API/Contract incompatibility?
+│   │  └─ Revert code: git revert HEAD → Full restart
+│   │
+│   ├─ Memory/Resource exhaustion?
+│   │  └─ Scale down → Investigate → Revert if needed
+│   │
+│   └─ Configuration error?
+│      └─ Fix config → Restart affected services
+│
+└─ NO
+   └─ Continue monitoring
+</code></pre></div>
+
+<hr />
+<h2 id="monitoring-checklist-first-24-hours">Monitoring Checklist (First 24 Hours)<a class="headerlink" href="#monitoring-checklist-first-24-hours" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] <strong>Hourly Checks</strong></li>
+<li>[ ] All services still showing healthy status</li>
+<li>[ ] No critical errors in logs</li>
+<li>[ ] Response times normal (no degradation)</li>
+<li>[ ] Database query performance acceptable</li>
+<li>
+<p>[ ] Memory/CPU usage stable</p>
+</li>
+<li>
+<p>[ ] <strong>Every 4 Hours</strong></p>
+</li>
+<li>[ ] Run full health suite: <code>./scripts/test-api-connectivity.sh</code></li>
+<li>[ ] Check database integrity: <code>./scripts/data_integrity_checker.py</code></li>
+<li>[ ] Verify backup completed successfully</li>
+<li>
+<p>[ ] Review slow query log</p>
+</li>
+<li>
+<p>[ ] <strong>At 24 Hours</strong></p>
+</li>
+<li>[ ] Run performance tests: <code>./tests/load/docker-compose-sim.yml</code></li>
+<li>[ ] Verify all background jobs executed</li>
+<li>[ ] Check external API integrations</li>
+<li>[ ] Confirm no data anomalies</li>
+</ul>
+<hr />
+<h2 id="sign-off-documentation">Sign-Off &amp; Documentation<a class="headerlink" href="#sign-off-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="deployment-sign-off">Deployment Sign-Off<a class="headerlink" href="#deployment-sign-off" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Deployment completed successfully</li>
+<li>[ ] All checklist items completed</li>
+<li>[ ] Post-deployment monitoring verified</li>
+<li>[ ] Rollback procedures tested and ready</li>
+<li>[ ] Stakeholders notified of completion</li>
+<li>[ ] Incident log updated</li>
+</ul>
+<h3 id="documentation-updates">Documentation Updates<a class="headerlink" href="#documentation-updates" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Update deployment notes with any issues encountered</li>
+<li>[ ] Record actual timing for each phase</li>
+<li>[ ] Document any environment-specific configurations</li>
+<li>[ ] Update runbooks based on this deployment</li>
+<li>[ ] Archive backup location and credentials securely</li>
+</ul>
+<hr />
+<p><strong>Deployment Status</strong>: <strong><em>*</em>*___</strong><strong><em>*
+</em>*Date Deployed</strong>: <strong><em>*</em>*____</strong><strong><em>*
+</em>*Deployed By</strong>: <strong><em>*</em>*____</strong><strong><em>*
+</em>*Approved By</strong>: <strong><em>*</em>*____</strong><strong><em>*
+</em>*Rollback Executed</strong>: Yes / No
+<strong>Issues Encountered</strong>: <strong><em>*</em>*__</strong><strong><em>*
+</em>*Notes</strong>: <strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><em>__</em><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong></p>
+<hr />
+<h2 id="quick-reference-commands">Quick Reference Commands<a class="headerlink" href="#quick-reference-commands" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Start full deployment (careful - sequential is recommended)</span>
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Check status</span>
+docker-compose<span class="w"> </span>ps
+
+<span class="c1"># View logs</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>&lt;service-name&gt;
+
+<span class="c1"># Stop everything</span>
+docker-compose<span class="w"> </span>stop
+
+<span class="c1"># Stop and remove</span>
+docker-compose<span class="w"> </span>down
+
+<span class="c1"># Remove all data (DESTRUCTIVE)</span>
+docker-compose<span class="w"> </span>down<span class="w"> </span>-v
+
+<span class="c1"># Backup database</span>
+./scripts/backup_database.sh<span class="w"> </span>-t<span class="w"> </span>manual<span class="w"> </span>-m<span class="w"> </span>full
+
+<span class="c1"># Database restore</span>
+pg_restore<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-v<span class="w"> </span>-c<span class="w"> </span>backup_file.dump
+
+<span class="c1"># Rollback script</span>
+./scripts/rollback.sh<span class="w"> </span>-e<span class="w"> </span>production<span class="w"> </span>-a<span class="w"> </span>--dry-run
+
+<span class="c1"># Health check</span>
+./scripts/test-api-connectivity.sh
+
+<span class="c1"># Validate deployment</span>
+./scripts/validate-build.sh
+
+<span class="c1"># Check Redis security</span>
+./scripts/validate-redis-security.sh
+
+<span class="c1"># Database health check</span>
+./scripts/db_health_check.sh
+
+<span class="c1"># NATS info</span>
+curl<span class="w"> </span>http://localhost:8222/connz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+
+<span class="c1"># Kong status</span>
+curl<span class="w"> </span>http://localhost:8001/status
+
+<span class="c1"># Service count</span>
+docker-compose<span class="w"> </span>ps<span class="w"> </span>--services<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l
+</code></pre></div>
+
+<hr />
+<p><strong>Last Updated</strong>: January 6, 2026
+<strong>Version</strong>: 1.0
+<strong>Maintained By</strong>: SAHOOL Platform Team</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

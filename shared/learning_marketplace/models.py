@@ -157,7 +157,7 @@ class ContentResource:
     caption_languages: list[str] = field(default_factory=list)
     has_transcript: bool = False
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
     def to_dict(self) -> dict[str, Any]:
@@ -289,7 +289,7 @@ class Quiz:
     # Total points
     total_points: int = 0
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
     def __post_init__(self):
@@ -376,7 +376,7 @@ class Lesson:
     status: CourseStatus = CourseStatus.DRAFT
 
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=datetime.utcnow)
     published_at: datetime | None = None
 
@@ -515,7 +515,7 @@ class Expert:
     # Status
     is_active: bool = True
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
     def to_dict(self) -> dict[str, Any]:
@@ -623,7 +623,7 @@ class Course:
     offers_certificate: bool = True
 
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=datetime.utcnow)
     published_at: datetime | None = None
 
@@ -757,7 +757,7 @@ class Certification:
     total_issued: int = 0
 
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
     # Tenant
@@ -914,7 +914,7 @@ class FarmerSkill:
     last_activity_at: datetime | None = None
 
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
     @property
@@ -1021,7 +1021,7 @@ class FarmerProfile:
     weekly_learning_goal_minutes: int = 60
 
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
     @property

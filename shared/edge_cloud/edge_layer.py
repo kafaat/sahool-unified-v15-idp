@@ -297,7 +297,7 @@ class RuleEngine:
         Returns:
             List of (rule, actions) tuples for triggered rules
         """
-        current_time = current_time or datetime.utcnow()
+        current_time = current_time or datetime.now(timezone.utc)
         triggered: list[tuple[IFTTTRule, list[RuleAction]]] = []
 
         # Index readings by sensor type for fast lookup
@@ -492,13 +492,13 @@ class LocalInferenceEngine:
         Returns:
             Inference result with latency
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         # Placeholder for actual inference
         # In production, this would use TFLite, ONNX, or similar
         result = await self._simple_inference(model_name, data)
 
-        end_time = datetime.utcnow()
+        end_time = datetime.now(timezone.utc)
         latency_ms = (end_time - start_time).total_seconds() * 1000
 
         self._inference_count += 1
@@ -774,7 +774,7 @@ class EdgeComputingLayer:
                 # Execute irrigation
                 pass
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         # Convert readings to dict format
         if isinstance(data, list):
@@ -997,7 +997,7 @@ class EdgeComputingLayer:
                 else:
                     decision.executed = await self._execute_action(action)
                     if decision.executed:
-                        decision.executed_at = datetime.utcnow()
+                        decision.executed_at = datetime.now(timezone.utc)
 
                 self._record_decision(decision)
                 decisions.append(decision)
@@ -1159,7 +1159,7 @@ class EdgeComputingLayer:
             Number of decisions marked
         """
         count = 0
-        sync_time = datetime.utcnow()
+        sync_time = datetime.now(timezone.utc)
 
         for decision in self._decisions:
             if decision.id in decision_ids:

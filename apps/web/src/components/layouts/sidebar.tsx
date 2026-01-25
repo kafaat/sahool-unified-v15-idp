@@ -16,6 +16,11 @@ import {
   Calendar,
   FileBarChart,
   Droplets,
+  Satellite,
+  FlaskConical,
+  Truck,
+  Shield,
+  AlertTriangle,
 } from "lucide-react";
 
 interface NavItem {
@@ -74,6 +79,31 @@ const navItems: NavItem[] = [
     labelKey: "analytics",
     href: "/dashboard/analytics",
     icon: TrendingUp,
+  },
+  {
+    labelKey: "satellite",
+    href: "/satellite",
+    icon: Satellite,
+  },
+  {
+    labelKey: "research",
+    href: "/research",
+    icon: FlaskConical,
+  },
+  {
+    labelKey: "logistics",
+    href: "/logistics",
+    icon: Truck,
+  },
+  {
+    labelKey: "compliance",
+    href: "/compliance",
+    icon: Shield,
+  },
+  {
+    labelKey: "disasterAssessment",
+    href: "/disaster-assessment",
+    icon: AlertTriangle,
   },
   {
     labelKey: "settings",

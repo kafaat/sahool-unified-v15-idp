@@ -106,6 +106,27 @@ from .metrics import (
     get_metrics_collector,
 )
 
+# Observability (Sentry, OpenTelemetry, Prometheus, Test Integration, CI/CD)
+try:
+    from .observability import (
+        AIAgentObservability,
+        AgentContext as ObservabilityContext,
+        AgentErrorType,
+        AgentTracer,
+        CIFeedback,
+        GitHubActionsIntegration,
+        SentryIntegration,
+        TestFrameworkIntegration,
+        TestResult,
+        create_observability,
+        get_agent_tracer,
+        get_ci_integration,
+        get_sentry_integration,
+    )
+    OBSERVABILITY_AVAILABLE = True
+except ImportError:
+    OBSERVABILITY_AVAILABLE = False
+
 # Validation
 from .validation import (
     AIValidator,
@@ -376,6 +397,8 @@ __all__ = [
     "MetricType",
     "MetricValue",
     "get_metrics_collector",
+    # Observability
+    "OBSERVABILITY_AVAILABLE",
     # Validation
     "AIValidator",
     "ValidationResult",
@@ -774,3 +797,22 @@ __all__.extend([
     "list_arabic_supported_models",
     "list_open_source_models",
 ])
+
+# Add Observability exports if available
+if OBSERVABILITY_AVAILABLE:
+    __all__.extend([
+        # Observability (Sentry, OpenTelemetry, Prometheus, Test Integration, CI/CD)
+        "AIAgentObservability",
+        "ObservabilityContext",
+        "AgentErrorType",
+        "AgentTracer",
+        "CIFeedback",
+        "GitHubActionsIntegration",
+        "SentryIntegration",
+        "TestFrameworkIntegration",
+        "TestResult",
+        "create_observability",
+        "get_agent_tracer",
+        "get_ci_integration",
+        "get_sentry_integration",
+    ])

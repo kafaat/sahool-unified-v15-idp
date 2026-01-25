@@ -53,6 +53,19 @@ try:
 except ImportError:
     OLLAMA_AVAILABLE = False
 
+# Import Observability integration
+try:
+    from shared.ai.observability import (
+        AIAgentObservability,
+        AgentContext as ObsContext,
+        AgentErrorType,
+        create_observability,
+    )
+
+    OBSERVABILITY_AVAILABLE = True
+except ImportError:
+    OBSERVABILITY_AVAILABLE = False
+
 logger = structlog.get_logger(__name__)
 
 
@@ -363,6 +376,20 @@ class CodeFixAgent:
             except Exception as e:
                 logger.warning(f"Failed to initialize Ollama client: {e}")
 
+        # Initialize Observability (Sentry, OpenTelemetry, Prometheus)
+        self._observability: AIAgentObservability | None = None
+        if OBSERVABILITY_AVAILABLE:
+            try:
+                self._observability = create_observability(
+                    agent_id=self.agent_id,
+                    agent_type="code_fix",
+                    enable_tracing=True,
+                    enable_metrics=True,
+                )
+                logger.info("Observability initialized (Sentry, OpenTelemetry, Prometheus)")
+            except Exception as e:
+                logger.warning(f"Failed to initialize observability: {e}")
+
         # Goals
         self.state.goals = [
             "fix_bugs_accurately",
@@ -609,11 +636,44 @@ class CodeFixAgent:
         """
         دورة الوكيل الكاملة: إدراك → تفكير → فعل
         Full agent cycle: Perceive → Think → Act
+
+        With full observability:
+        - Distributed tracing via OpenTelemetry
+        - Error tracking via Sentry
+        - Metrics collection via Prometheus
         """
         start_time = datetime.now()
         self.total_requests += 1
 
+        # Extract context for observability
+        file_path = percept.data.get("file_path") if isinstance(percept.data, dict) else None
+        language = percept.data.get("language", "python") if isinstance(percept.data, dict) else "python"
+
+        # Use observability context if available
+        if self._observability and OBSERVABILITY_AVAILABLE:
+            async with self._observability.operation(
+                name=f"run_{percept.percept_type}",
+                file_path=file_path,
+                language=language,
+                tenant_id=self.context.tenant_id if self.context else "default",
+                user_id=self.context.user_id if self.context else None,
+                percept_type=percept.percept_type,
+            ):
+                return await self._run_internal(percept, start_time)
+        else:
+            return await self._run_internal(percept, start_time)
+
+    async def _run_internal(self, percept: AgentPercept, start_time: datetime) -> dict[str, Any]:
+        """Internal run implementation with observability support."""
         try:
+            # Add breadcrumb for debugging
+            if self._observability:
+                self._observability.add_breadcrumb(
+                    category="agent.perceive",
+                    message=f"Processing {percept.percept_type} from {percept.source}",
+                    data={"reliability": percept.reliability},
+                )
+
             # 1. Perceive
             await self.perceive(percept)
 
@@ -626,6 +686,14 @@ class CodeFixAgent:
                     "message": "No action determined",
                     "agent_id": self.agent_id,
                 }
+
+            # Add breadcrumb for action
+            if self._observability:
+                self._observability.add_breadcrumb(
+                    category="agent.act",
+                    message=f"Executing {action.action_type}",
+                    data={"confidence": action.confidence, "priority": action.priority},
+                )
 
             # 3. Act
             result = await self.act(action)

@@ -366,6 +366,46 @@ services:
     - sahool.category=integration
     - traefik.enable=true
     - traefik.http.routers.iot-service.rule=PathPrefix(`/api/v1/iot/service`)
+  ground-vision-service:
+    build:
+      context: ./apps/services/ground-vision-service
+      dockerfile: Dockerfile
+    container_name: sahool-ground-vision-service
+    ports:
+    - 8182:8182
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8182
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - DB_NAME=sahool_ground_vision
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8182/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=ground-vision-service
+    - sahool.port=8182
+    - sahool.category=analytics
+    - traefik.enable=true
+    - traefik.http.routers.ground-vision-service.rule=PathPrefix(`/api/v1/ground/vision/service`)
   research-core:
     build:
       context: ./apps/services/research-core

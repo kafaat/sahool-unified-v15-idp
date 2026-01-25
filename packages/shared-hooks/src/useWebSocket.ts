@@ -178,7 +178,9 @@ export function useWebSocket({
       wsRef.current.onclose = null;
       wsRef.current.onerror = null;
       wsRef.current.close();
+      wsRef.current = null;
     }
+    setIsConnected(false);
   }, [maxReconnectAttempts]);
 
   const reconnect = useCallback(() => {

@@ -272,7 +272,7 @@ describe("SahoolApiClient", () => {
       expect(urls.fertilizer).toContain(":8093");
       expect(urls.irrigation).toContain(":8094");
       expect(urls.cropHealth).toContain(":8095");
-      expect(urls.virtualSensors).toContain(":8096");
+      expect(urls.virtualSensors).toContain(":8119");
       expect(urls.notifications).toContain(":8110");
 
       process.env.NODE_ENV = originalEnv;

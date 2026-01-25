@@ -168,7 +168,7 @@ updates:
   # Docker Base Images
   # ─────────────────────────────────────────────────────────────────────────────
   - package-ecosystem: "docker"
-    directory: "/apps/services/satellite-service"
+    directory: "/apps/services/vegetation-analysis-service"
     schedule:
       interval: "monthly"
     labels:
@@ -178,7 +178,7 @@ updates:
       prefix: "chore(docker)"
 
   - package-ecosystem: "docker"
-    directory: "/apps/services/crop-health-ai"
+    directory: "/apps/services/crop-intelligence-service"
     schedule:
       interval: "monthly"
     labels:

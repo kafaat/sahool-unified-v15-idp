@@ -135,7 +135,7 @@ export async function fetchFarmById(id: string): Promise<Farm> {
   return response.data;
 }
 
-// Diagnoses - connects to crop-health-ai v2.1 service
+// Diagnoses - connects to crop-intelligence-service (formerly crop-health-ai)
 export async function fetchDiagnoses(params?: {
   status?: string;
   severity?: string;
@@ -320,8 +320,9 @@ export async function getAgriculturalReport(
   }
 }
 
-// Weather Advanced API (location_id based - for Yemen locations)
-// Uses weather-advanced service (port 8092) for location-based weather data
+// Weather API (location_id based - for Yemen locations)
+// Uses weather-service (port 8092) for location-based weather data
+// Note: weather-advanced has been consolidated into weather-service
 export async function getWeatherByLocation(locationId: string) {
   try {
     const response = await apiClient.get(
@@ -358,7 +359,7 @@ export async function getWeatherLocations() {
   }
 }
 
-// Weather Alerts (from weather-advanced service)
+// Weather Alerts (from weather-service)
 export async function fetchWeatherAlerts(locationId: string = "sanaa"): Promise<WeatherAlert[]> {
   try {
     const response = await apiClient.get(

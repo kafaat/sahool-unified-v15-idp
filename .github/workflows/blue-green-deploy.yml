@@ -86,7 +86,8 @@ jobs:
           if [ -n "${{ github.event.inputs.service }}" ]; then
             SERVICES='["${{ github.event.inputs.service }}"]'
           else
-            SERVICES='["field-ops","weather-core","agro-advisor","crop-health","ndvi-engine","irrigation-smart","satellite-service","weather-advanced","crop-health-ai","yield-engine","billing-core","inventory-service"]'
+            # Note: deprecated services migrated (field-ops, satellite-service, weather-advanced, crop-health-ai)
+            SERVICES='["field-management-service","weather-core","agro-advisor","crop-health","ndvi-engine","irrigation-smart","vegetation-analysis-service","weather-service","crop-intelligence-service","yield-engine","billing-core","inventory-service"]'
           fi
           echo "services=$SERVICES" >> $GITHUB_OUTPUT
 
@@ -99,7 +100,7 @@ jobs:
           TARGET_SLOT="green"
 
           # If we had a way to detect current slot:
-          # CURRENT_SLOT=$(kubectl get service field-ops -n namespace -o jsonpath='{.spec.selector.slot}' || echo "blue")
+          # CURRENT_SLOT=$(kubectl get service field-management-service -n namespace -o jsonpath='{.spec.selector.slot}' || echo "blue")
 
           if [ "$CURRENT_SLOT" = "blue" ]; then
             TARGET_SLOT="green"

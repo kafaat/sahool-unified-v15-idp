@@ -89,16 +89,21 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           echo "Verifying all required Docker images exist for version: $VERSION"
 
+          # Note: Deprecated services migrated:
+          #   - field-ops → field-management-service
+          #   - satellite-service → vegetation-analysis-service
+          #   - weather-advanced → weather-service
+          #   - crop-health-ai → crop-intelligence-service
           SERVICES=(
-            "field-ops"
+            "field-management-service"
             "weather-core"
             "agro-advisor"
             "crop-health"
             "ndvi-engine"
             "irrigation-smart"
-            "satellite-service"
-            "weather-advanced"
-            "crop-health-ai"
+            "vegetation-analysis-service"
+            "weather-service"
+            "crop-intelligence-service"
             "yield-engine"
             "billing-core"
             "inventory-service"
@@ -224,8 +229,8 @@ jobs:
           # Deploy with green label
           DEPLOYMENT_SLOT="green"
 
-          # Starter Package
-          helm upgrade --install field-ops-green ./helm/services/field-ops \
+          # Starter Package (field-ops → field-management-service)
+          helm upgrade --install field-management-service-green ./helm/services/field-management-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=$VERSION \
             --set environment=production \
@@ -279,8 +284,8 @@ jobs:
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
 
-          # Enterprise Package
-          helm upgrade --install satellite-service-green ./helm/services/satellite-service \
+          # Enterprise Package (deprecated services migrated to new names)
+          helm upgrade --install vegetation-analysis-service-green ./helm/services/vegetation-analysis-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=$VERSION \
             --set environment=production \
@@ -288,7 +293,7 @@ jobs:
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
 
-          helm upgrade --install weather-advanced-green ./helm/services/weather-advanced \
+          helm upgrade --install weather-service-green ./helm/services/weather-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=$VERSION \
             --set environment=production \
@@ -296,7 +301,7 @@ jobs:
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
 
-          helm upgrade --install crop-health-ai-green ./helm/services/crop-health-ai \
+          helm upgrade --install crop-intelligence-service-green ./helm/services/crop-intelligence-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=$VERSION \
             --set environment=production \
@@ -369,8 +374,8 @@ jobs:
           # via internal service names or a separate ingress
           echo "Running smoke tests on Green environment..."
 
-          # Test health endpoints
-          kubectl port-forward -n ${{ env.KUBERNETES_NAMESPACE }} svc/field-ops-green 8080:80 &
+          # Test health endpoints (using field-management-service instead of deprecated field-ops)
+          kubectl port-forward -n ${{ env.KUBERNETES_NAMESPACE }} svc/field-management-service-green 8080:80 &
           sleep 5
           curl -f http://localhost:8080/health || exit 1
 
@@ -403,7 +408,8 @@ jobs:
           echo "Switching production traffic to Green environment..."
 
           # Update service selectors to point to green pods
-          kubectl patch service field-ops -n ${{ env.KUBERNETES_NAMESPACE }} \
+          # Note: deprecated services migrated to new names
+          kubectl patch service field-management-service -n ${{ env.KUBERNETES_NAMESPACE }} \
             -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
 
           kubectl patch service weather-core -n ${{ env.KUBERNETES_NAMESPACE }} \
@@ -421,13 +427,13 @@ jobs:
           kubectl patch service irrigation-smart -n ${{ env.KUBERNETES_NAMESPACE }} \
             -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
 
-          kubectl patch service satellite-service -n ${{ env.KUBERNETES_NAMESPACE }} \
+          kubectl patch service vegetation-analysis-service -n ${{ env.KUBERNETES_NAMESPACE }} \
             -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
 
-          kubectl patch service weather-advanced -n ${{ env.KUBERNETES_NAMESPACE }} \
+          kubectl patch service weather-service -n ${{ env.KUBERNETES_NAMESPACE }} \
             -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
 
-          kubectl patch service crop-health-ai -n ${{ env.KUBERNETES_NAMESPACE }} \
+          kubectl patch service crop-intelligence-service -n ${{ env.KUBERNETES_NAMESPACE }} \
             -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
 
           kubectl patch service yield-engine -n ${{ env.KUBERNETES_NAMESPACE }} \
@@ -465,9 +471,9 @@ jobs:
         run: |
           echo "Running production verification..."
 
-          # Test critical endpoints
+          # Test critical endpoints (using new service names)
           curl -f https://sahool.io/health || exit 1
-          curl -f https://sahool.io/api/v1/field-ops/health || exit 1
+          curl -f https://sahool.io/api/v1/field-management/health || exit 1
           curl -f https://sahool.io/api/v1/weather/health || exit 1
 
           echo "✅ Production verification successful"
@@ -524,8 +530,8 @@ jobs:
         run: |
           echo "🚨 Deployment failed! Rolling back to Blue environment..."
 
-          # Switch traffic back to blue
-          kubectl patch service field-ops -n ${{ env.KUBERNETES_NAMESPACE }} \
+          # Switch traffic back to blue (using new service name)
+          kubectl patch service field-management-service -n ${{ env.KUBERNETES_NAMESPACE }} \
             -p '{"spec":{"selector":{"deploymentSlot":"blue"}}}'
 
           # Repeat for all services...

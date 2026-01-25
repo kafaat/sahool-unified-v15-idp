@@ -17,11 +17,18 @@ import { logger } from "../logger";
 // Types
 // ═══════════════════════════════════════════════════════════════════════════
 
+// NOTE: Some service names are deprecated and mapped to new names:
+//   - field-core → field-management (both supported for backward compatibility)
+//   - satellite → vegetation-analysis (actual service name)
+//   - weather-advanced → weather (consolidated)
 export type ServiceName =
-  | "field-core"
+  | "field-core" // @deprecated use "field-management"
+  | "field-management"
   | "satellite"
+  | "vegetation-analysis"
   | "weather"
   | "crop-health"
+  | "crop-intelligence"
   | "virtual-sensors"
   | "notifications"
   | "irrigation"
@@ -81,6 +88,7 @@ export interface ApiResponse<T = unknown> {
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost";
 
 const SERVICES: Record<ServiceName, ServiceConfig> = {
+  // @deprecated - use "field-management" instead
   "field-core": {
     name: "field-core",
     baseUrl: `${API_BASE}:3000`,
@@ -89,8 +97,27 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
     timeout: 10000,
     retries: 3,
   },
+  // New canonical name for field management service
+  "field-management": {
+    name: "field-management",
+    baseUrl: `${API_BASE}:3000`,
+    port: 3000,
+    healthEndpoint: "/health",
+    timeout: 10000,
+    retries: 3,
+  },
+  // @deprecated alias - actual service is vegetation-analysis-service
   satellite: {
     name: "satellite",
+    baseUrl: `${API_BASE}:8090`,
+    port: 8090,
+    healthEndpoint: "/api/health",
+    timeout: 30000,
+    retries: 2,
+  },
+  // New canonical name for vegetation analysis service
+  "vegetation-analysis": {
+    name: "vegetation-analysis",
     baseUrl: `${API_BASE}:8090`,
     port: 8090,
     healthEndpoint: "/api/health",
@@ -105,8 +132,18 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
     timeout: 15000,
     retries: 3,
   },
+  // @deprecated alias - actual service is crop-intelligence-service
   "crop-health": {
     name: "crop-health",
+    baseUrl: `${API_BASE}:8095`,
+    port: 8095,
+    healthEndpoint: "/api/health",
+    timeout: 20000,
+    retries: 2,
+  },
+  // New canonical name for crop intelligence service
+  "crop-intelligence": {
+    name: "crop-intelligence",
     baseUrl: `${API_BASE}:8095`,
     port: 8095,
     healthEndpoint: "/api/health",

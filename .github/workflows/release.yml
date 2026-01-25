@@ -67,8 +67,9 @@ jobs:
       packages: write
     strategy:
       matrix:
+        # Note: field-ops → field-management-service (deprecated)
         service:
-          - field-ops
+          - field-management-service
           - ndvi-engine
           - weather-core
           - field-chat
@@ -166,7 +167,7 @@ jobs:
           ### Services
           | Service | Port | Description |
           |---------|------|-------------|
-          | field-ops | 8080 | Field operations and task management |
+          | field-management-service | 3000 | Field operations and task management |
           | ndvi-engine | 8097 | NDVI satellite analysis |
           | weather-core | 8098 | Weather forecasting |
           | field-chat | 8099 | Real-time collaboration |
@@ -191,7 +192,7 @@ jobs:
           ### Docker Images
 
           \`\`\`bash
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/field-ops:${{ needs.validate.outputs.version }}
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/field-management-service:${{ needs.validate.outputs.version }}
           \`\`\`
 
           ### Changes

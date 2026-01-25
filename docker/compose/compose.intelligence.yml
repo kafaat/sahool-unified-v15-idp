@@ -25,8 +25,8 @@ services:
           cpus: '300'
           memory: 256Mi
     depends_on:
-    - weather-advanced
-    - satellite-service
+    - weather-service
+    - vegetation-analysis-service
   lai-estimation:
     build:
       context: ../../apps/services/lai-estimation
@@ -52,7 +52,7 @@ services:
           cpus: '400'
           memory: 384Mi
     depends_on:
-    - satellite-service
+    - vegetation-analysis-service
   indicators-service:
     build:
       context: ../../apps/services/indicators-service
@@ -78,10 +78,10 @@ services:
           cpus: '400'
           memory: 384Mi
     depends_on:
-    - satellite-service
+    - vegetation-analysis-service
   crop-health-ai:
     build:
-      context: ../../apps/services/crop-health-ai
+      context: ../../archive/deprecated-services/crop-health-ai
       dockerfile: Dockerfile
     ports:
     - 9095:9095
@@ -104,7 +104,7 @@ services:
           cpus: '800'
           memory: 1Gi
     depends_on:
-    - satellite-service
+    - vegetation-analysis-service
   agro-rules:
     build:
       context: ../../apps/services/agro-rules
@@ -156,7 +156,7 @@ services:
           cpus: '500'
           memory: 512Mi
     depends_on:
-    - satellite-service
+    - vegetation-analysis-service
   ndvi-processor:
     build:
       context: ../../apps/services/ndvi-processor
@@ -182,7 +182,7 @@ services:
           cpus: '500'
           memory: 512Mi
     depends_on:
-    - satellite-service
+    - vegetation-analysis-service
   field-intelligence:
     build:
       context: ../../apps/services/field-intelligence
@@ -242,16 +242,16 @@ services:
       context: ../../apps/services/skills-service
       dockerfile: Dockerfile
     ports:
-    - 8121:8121
+    - 8170:8170
     environment:
-    - PORT=8121
+    - PORT=8170
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8121/health
+      - http://localhost:8170/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -373,7 +373,7 @@ services:
     - nats
   crop-health:
     build:
-      context: ../../apps/services/crop-health
+      context: ../../archive/deprecated-services/crop-health
       dockerfile: Dockerfile
     ports:
     - 8100:8100

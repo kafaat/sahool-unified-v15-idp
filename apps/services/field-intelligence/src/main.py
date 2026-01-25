@@ -166,7 +166,7 @@ async def lifespan(app: FastAPI):
             logger.warning(f"NATS connection failed: {e}")
             app.state.nc = None
 
-    logger.info("✓ Field Intelligence Service ready on port 8119")
+    logger.info("✓ Field Intelligence Service ready on port 8120")
     logger.info("✓ Rules Engine initialized")
     logger.info("✓ Event Processor initialized")
 
@@ -348,7 +348,7 @@ def root():
         "version": "16.0.0",
         "description": "Intelligent field event processing and automation rules engine",
         "description_ar": "محرك ذكي لمعالجة أحداث الحقول وتنفيذ قواعد الأتمتة",
-        "port": 8119,
+        "port": 8120,
         "docs": "/docs",
         "redoc": "/redoc",
         "health": "/health",

@@ -1496,8 +1496,7 @@ services:
       - SENTINEL_HUB_CLIENT_SECRET=${SENTINEL_HUB_CLIENT_SECRET:-}
       - NASA_EARTHDATA_USERNAME=${NASA_EARTHDATA_USERNAME:-}
       - NASA_EARTHDATA_PASSWORD=${NASA_EARTHDATA_PASSWORD:-}
-      - PLANET_API_KEY=${PLANET_API_KEY:-}
-      - PLANET_CLIENT_ID=${PLANET_CLIENT_ID:-}
+      # NOTE: Planet provider not implemented - env vars removed (see vegetation-analysis-service docs)
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
@@ -1580,8 +1579,21 @@ services:
       - PORT=8092
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      # Weather API Provider Keys
+      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
       - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
       - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
+      # Multi-Provider Configuration
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      - USE_MOCK_WEATHER=${USE_MOCK_WEATHER:-false}
+      # Cache Configuration (TTL in minutes)
+      - WEATHER_CACHE_ENABLED=${WEATHER_CACHE_ENABLED:-true}
+      - WEATHER_CACHE_CURRENT_TTL=${WEATHER_CACHE_CURRENT_TTL:-10}
+      - WEATHER_CACHE_FORECAST_TTL=${WEATHER_CACHE_FORECAST_TTL:-60}
+      # Feature Toggles
+      - WEATHER_ALERTS_ENABLED=${WEATHER_ALERTS_ENABLED:-true}
+      - WEATHER_AG_INDICES_ENABLED=${WEATHER_AG_INDICES_ENABLED:-true}
+      # Database and Messaging
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
@@ -1664,6 +1676,8 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - IOT_GATEWAY_URL=http://iot-gateway:8106
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "8094:8094"
     depends_on:
@@ -1707,6 +1721,8 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "8095:8095"
     volumes:
@@ -2044,6 +2060,7 @@ services:
       - PORT=8106
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
       - MQTT_BROKER=mqtt
       - MQTT_PORT=1883
       - MQTT_USER=${MQTT_USER:-sahool_iot}
@@ -2061,6 +2078,8 @@ services:
       nats:
         condition: service_healthy
       mqtt:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8106/health'); exit(0) if r.getcode()==200 else exit(1)" ]
@@ -2212,12 +2231,31 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      # SMTP Configuration (Email fallback)
       - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER:-}
       - SMTP_PASSWORD=${SMTP_PASSWORD:-}
       - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-noreply@sahool.com}
+      # Twilio SMS Configuration
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID:-}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN:-}
+      - TWILIO_FROM_NUMBER=${TWILIO_FROM_NUMBER:-}
+      # Twilio WhatsApp Configuration
+      - TWILIO_WHATSAPP_NUMBER=${TWILIO_WHATSAPP_NUMBER:-}
+      # SendGrid Email Configuration
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
+      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-notifications@sahool.app}
+      - SENDGRID_FROM_NAME=${SENDGRID_FROM_NAME:-SAHOOL Agriculture Platform}
+      # Firebase Push Notifications Configuration
       - FCM_SERVER_KEY=${FCM_SERVER_KEY:-}
+      - FIREBASE_CREDENTIALS_PATH=${FIREBASE_CREDENTIALS_PATH:-}
+      - FIREBASE_CREDENTIALS_JSON=${FIREBASE_CREDENTIALS_JSON:-}
+      # Meta WhatsApp Cloud API Configuration
+      - META_WHATSAPP_ACCESS_TOKEN=${META_WHATSAPP_ACCESS_TOKEN:-}
+      - META_WHATSAPP_PHONE_NUMBER_ID=${META_WHATSAPP_PHONE_NUMBER_ID:-}
+      # Telegram Bot Configuration
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
     ports:
       - "8110:8110"
     depends_on:
@@ -2344,6 +2382,12 @@ services:
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-pro}
+      # Ollama Local LLM Configuration (for offline/local deployments)
+      - OLLAMA_BASE_URL=${OLLAMA_URL:-http://ollama:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2}
+      # LLM Generation Settings
+      - MAX_TOKENS=${LLM_MAX_TOKENS:-4096}
+      - TEMPERATURE=${LLM_TEMPERATURE:-0.7}
       # External service URLs - Updated to consolidated services
       - CROP_HEALTH_URL=http://crop-intelligence-service:8095
       - WEATHER_URL=http://weather-service:8092

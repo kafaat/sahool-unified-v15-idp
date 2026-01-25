@@ -11,13 +11,16 @@ SAHOOL Astronomical Calendar Service
 - الأبراج الزراعية
 
 Port: 8111
-Version: 15.5.0
+Version: 16.0.0
 """
+
+# Version constant - use this throughout the application
+VERSION = "16.0.0"
 
 import math
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query
@@ -40,10 +43,6 @@ app = FastAPI(
     ## المميزات:
     - 🌙 حساب مراحل القمر بدقة عالية
     - ⭐ منازل النجوم الـ 28 (المنازل القمرية)
-
-# Setup unified error handling
-setup_exception_handlers(app)
-add_request_id_middleware(app)
     - 📅 التقويم الهجري
     - 🌱 توقيتات الزراعة التقليدية
     - ♈ الأبراج الزراعية
@@ -53,10 +52,18 @@ add_request_id_middleware(app)
     يستخدم المزارعون اليمنيون هذا التقويم منذ آلاف السنين
     لتحديد أفضل أوقات الزراعة والحصاد.
     """,
-    version="15.5.0",
+    version=VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+# Setup unified error handling
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+    setup_exception_handlers(app)
+    add_request_id_middleware(app)
+except ImportError:
+    pass  # Shared module not available in standalone mode
 
 # CORS middleware - secure origins from environment
 CORS_ORIGINS = os.getenv(
@@ -3201,8 +3208,8 @@ def health_check():
     return {
         "status": "healthy",
         "service": "astronomical-calendar",
-        "version": "15.5.0",
-        "timestamp": datetime.utcnow().isoformat(),
+        "version": VERSION,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -3212,7 +3219,7 @@ def readiness():
     return {
         "status": "ready",
         "service": "astronomical-calendar",
-        "version": "16.0.0",
+        "version": VERSION,
         "checks": {
             "service": "ready",
         },
@@ -3232,7 +3239,7 @@ def get_today():
     - الموسم الزراعي
     - التوصيات الزراعية
     """
-    return get_daily_astronomical_data(datetime.utcnow())
+    return get_daily_astronomical_data(datetime.now(timezone.utc))
 
 
 @app.get("/v1/date/{date_str}", response_model=DailyAstronomicalData, tags=["Calendar"])
@@ -3265,7 +3272,7 @@ def get_weekly_forecast(
         except ValueError:
             raise HTTPException(status_code=400, detail="صيغة التاريخ غير صحيحة")
     else:
-        start = datetime.utcnow()
+        start = datetime.now(timezone.utc)
 
     days = []
     best_planting = []
@@ -3311,7 +3318,7 @@ def get_moon_phase(date_str: str | None = Query(None, description="التاري�
         except ValueError:
             raise HTTPException(status_code=400, detail="صيغة التاريخ غير صحيحة")
     else:
-        dt = datetime.utcnow()
+        dt = datetime.now(timezone.utc)
 
     return calculate_moon_phase(dt)
 
@@ -3325,7 +3332,7 @@ def get_lunar_mansion(date_str: str | None = Query(None, description="التار
         except ValueError:
             raise HTTPException(status_code=400, detail="صيغة التاريخ غير صحيحة")
     else:
-        dt = datetime.utcnow()
+        dt = datetime.now(timezone.utc)
 
     return calculate_lunar_mansion(dt)
 
@@ -3358,7 +3365,7 @@ def get_hijri_date(date_str: str | None = Query(None, description="التاري�
         except ValueError:
             raise HTTPException(status_code=400, detail="صيغة التاريخ غير صحيحة")
     else:
-        dt = datetime.utcnow()
+        dt = datetime.now(timezone.utc)
 
     return gregorian_to_hijri(dt.year, dt.month, dt.day)
 
@@ -3378,7 +3385,7 @@ def get_zodiac(date_str: str | None = Query(None, description="التاريخ (Y
         except ValueError:
             raise HTTPException(status_code=400, detail="صيغة التاريخ غير صحيحة")
     else:
-        dt = datetime.utcnow()
+        dt = datetime.now(timezone.utc)
 
     return get_zodiac_sign(dt)
 
@@ -3398,7 +3405,7 @@ def list_seasons():
 @app.get("/v1/current-season", response_model=SeasonInfo, tags=["Calendar"])
 def get_current_season_info():
     """الحصول على الموسم الزراعي الحالي"""
-    return get_current_season(datetime.utcnow().month)
+    return get_current_season(datetime.now(timezone.utc).month)
 
 
 @app.get("/v1/crop-calendar/{crop_name}", response_model=CropCalendar, tags=["Crops"])
@@ -3511,14 +3518,14 @@ def get_crop_calendar(crop_name: str):
     crop_data = crop_calendars[crop_key]
 
     # حساب ملاءمة اليوم الحالي
-    today = get_daily_astronomical_data(datetime.utcnow())
+    today = get_daily_astronomical_data(datetime.now(timezone.utc))
     current_suitability = 5
 
     if today.lunar_mansion.number in crop_data["best_planting_mansions"]:
         current_suitability += 2
     if today.moon_phase.phase_key in crop_data["best_moon_phases"]:
         current_suitability += 2
-    if datetime.utcnow().month in crop_data["optimal_months"]:
+    if datetime.now(timezone.utc).month in crop_data["optimal_months"]:
         current_suitability += 1
 
     current_suitability = min(10, current_suitability)
@@ -3617,7 +3624,7 @@ def get_region(region_id: str):
     region_data = YEMENI_AGRICULTURAL_REGIONS[region_id]
 
     # حساب أفضل وقت للزراعة حالياً
-    current_month = datetime.utcnow().month
+    current_month = datetime.now(timezone.utc).month
     current_season = None
     recommended_crops = []
 
@@ -3767,7 +3774,7 @@ def get_best_farming_days(
 
     الأنشطة المدعومة: زراعة، حصاد، ري، تقليم، غرس، تطعيم
     """
-    start = datetime.utcnow()
+    start = datetime.now(timezone.utc)
     best_days = []
 
     for i in range(days):
@@ -3813,7 +3820,7 @@ async def get_integrated_data(
         except ValueError:
             raise HTTPException(status_code=400, detail="صيغة التاريخ غير صحيحة")
     else:
-        dt = datetime.utcnow()
+        dt = datetime.now(timezone.utc)
 
     # البيانات الفلكية
     astro_data = get_daily_astronomical_data(dt)
@@ -3828,8 +3835,12 @@ async def get_integrated_data(
             )
             if response.status_code == 200:
                 weather_data = response.json()
-    except Exception:
-        weather_data = {"note": "خدمة الطقس غير متاحة حالياً"}
+    except httpx.TimeoutException:
+        weather_data = {"error": "timeout", "note": "انتهت مهلة الاتصال بخدمة الطقس"}
+    except httpx.ConnectError:
+        weather_data = {"error": "connection_error", "note": "لا يمكن الاتصال بخدمة الطقس"}
+    except Exception as e:
+        weather_data = {"error": "unknown", "note": "خدمة الطقس غير متاحة حالياً"}
 
     # دمج التوصيات
     integrated_recommendations = []
@@ -3919,8 +3930,8 @@ def get_crop_details(crop_id: str):
     crop_data = DETAILED_CROP_CALENDAR[crop_id]
 
     # حساب ملاءمة اليوم الحالي للزراعة
-    today = get_daily_astronomical_data(datetime.utcnow())
-    current_month = datetime.utcnow().month
+    today = get_daily_astronomical_data(datetime.now(timezone.utc))
+    current_month = datetime.now(timezone.utc).month
 
     planting_suitability = {
         "score": 5,
@@ -3959,7 +3970,7 @@ def get_crop_details(crop_id: str):
         **crop_data,
         "crop_id": crop_id,
         "current_planting_suitability": planting_suitability,
-        "current_date": datetime.utcnow().strftime("%Y-%m-%d"),
+        "current_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "current_lunar_mansion": today.lunar_mansion.name,
         "current_moon_phase": today.moon_phase.name,
     }
@@ -4053,8 +4064,8 @@ def what_to_plant_now(
     - المنطقة (اختياري)
     - الارتفاع (اختياري)
     """
-    today = get_daily_astronomical_data(datetime.utcnow())
-    current_month = datetime.utcnow().month
+    today = get_daily_astronomical_data(datetime.now(timezone.utc))
+    current_month = datetime.now(timezone.utc).month
     current_hijri_month = today.date_hijri.month_name
 
     recommendations = []
@@ -4135,7 +4146,7 @@ def what_to_plant_now(
     recommendations.sort(key=lambda x: x["suitability_score"], reverse=True)
 
     return {
-        "query_date": datetime.utcnow().strftime("%Y-%m-%d"),
+        "query_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "hijri_date": f"{today.date_hijri.day} {current_hijri_month} {today.date_hijri.year}هـ",
         "lunar_mansion": today.lunar_mansion.name,
         "moon_phase": today.moon_phase.name,
@@ -4188,7 +4199,7 @@ def get_proverb_of_the_day():
     - الموسم الحالي
     - مرحلة القمر
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     lunar_mansion = calculate_lunar_mansion(now)
     moon_phase = calculate_moon_phase(now)
     season = get_current_season(now.month)
@@ -4301,7 +4312,7 @@ def get_star_info(star_name: str):
         )
 
     # هل النجم طالع حالياً؟
-    current_month = datetime.utcnow().month
+    current_month = datetime.now(timezone.utc).month
     is_rising = current_month == star["rising_month"]
 
     return {
@@ -4440,7 +4451,7 @@ def get_daily_wisdom():
     - توقعات النجوم
     - توصيات الموسم
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     astro_data = get_daily_astronomical_data(now)
 
     # مثل اليوم
@@ -4623,7 +4634,7 @@ def get_technique_details(category: str, technique_id: str):
     technique = category_data[technique_id]
 
     # إضافة معلومات سياقية
-    current_data = get_daily_astronomical_data(datetime.utcnow())
+    current_data = get_daily_astronomical_data(datetime.now(timezone.utc))
 
     # تقييم مدى ملاءمة اليوم الحالي لهذه التقنية
     suitability_score = 5
@@ -4666,7 +4677,7 @@ def get_technique_details(category: str, technique_id: str):
         "technique_id": technique_id,
         "current_day_suitability": {
             "score": suitability_score,
-            "date": datetime.utcnow().strftime("%Y-%m-%d"),
+            "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
             "lunar_mansion": current_data.lunar_mansion.name,
             "moon_phase": current_data.moon_phase.name,
             "notes": suitability_notes,

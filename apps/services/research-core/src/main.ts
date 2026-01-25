@@ -13,6 +13,11 @@ async function bootstrap() {
   // Global exception filter for unified error handling
   app.useGlobalFilters(new HttpExceptionFilter());
 
+  // Global request logging interceptor for structured logging
+  app.useGlobalInterceptors(
+    new RequestLoggingInterceptor("research-core", false, false),
+  );
+
   // Global prefix
   app.setGlobalPrefix("api/v1");
 
@@ -42,7 +47,7 @@ async function bootstrap() {
     .setDescription(
       "نواة البحث العلمي الزراعي - Agricultural Research Core API",
     )
-    .setVersion("15.3.0")
+    .setVersion("16.0.0")
     .addBearerAuth()
     .addTag("experiments", "التجارب البحثية")
     .addTag("protocols", "البروتوكولات")

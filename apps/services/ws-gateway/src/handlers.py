@@ -6,7 +6,7 @@ Handles incoming WebSocket messages from clients
 """
 
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from .events import EventType
@@ -115,7 +115,7 @@ class WebSocketMessageHandler:
             "type": "subscribed",
             "topics": joined,
             "failed": failed,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "message_ar": f"تم الاشتراك في {len(joined)} موضوع",
         }
 
@@ -138,7 +138,7 @@ class WebSocketMessageHandler:
         return {
             "type": "unsubscribed",
             "topics": left,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "message_ar": f"تم إلغاء الاشتراك من {len(left)} موضوع",
         }
 
@@ -149,7 +149,7 @@ class WebSocketMessageHandler:
         """
         return {
             "type": "pong",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     async def handle_broadcast(self, connection_id: str, message: dict) -> dict:
@@ -194,7 +194,7 @@ class WebSocketMessageHandler:
                 "user_id": metadata.get("user_id") if metadata else None,
             },
             "message": msg_content,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         # Broadcast (excluding sender)
@@ -206,7 +206,7 @@ class WebSocketMessageHandler:
             "type": "broadcast_sent",
             "room": room_id,
             "recipients": sent_count,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     async def handle_join_room(self, connection_id: str, message: dict) -> dict:
@@ -235,7 +235,7 @@ class WebSocketMessageHandler:
         return {
             "type": "room_joined" if success else "error",
             "room": room_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "message_ar": "تم الانضمام للغرفة" if success else "فشل الانضمام للغرفة",
         }
 
@@ -258,7 +258,7 @@ class WebSocketMessageHandler:
         return {
             "type": "room_left" if success else "error",
             "room": room_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "message_ar": "تم مغادرة الغرفة" if success else "فشل مغادرة الغرفة",
         }
 
@@ -284,7 +284,7 @@ class WebSocketMessageHandler:
             "room": room_id,
             "user_id": metadata.get("user_id") if metadata else None,
             "typing": is_typing,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         await self.room_manager.broadcast_to_room(
@@ -318,7 +318,7 @@ class WebSocketMessageHandler:
             "room": room_id,
             "message_id": message_id,
             "user_id": metadata.get("user_id") if metadata else None,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         await self.room_manager.broadcast_to_room(
@@ -361,10 +361,35 @@ class WebSocketMessageHandler:
             topic_user = parts[1] if len(parts) > 1 else None
             return topic_user == user_id
 
-        # Field/Farm topics - should belong to tenant
-        # In production, verify field/farm ownership via database
+        # Field/Farm topics - validate format and log access
+        # NOTE: Full ownership validation requires database lookup
+        # For now, we validate format and support tenant-prefixed field IDs
         if topic_type in [RoomType.FIELD, RoomType.FARM]:
-            return True  # Simplified - add proper validation
+            resource_id = parts[1] if len(parts) > 1 else None
+            if not resource_id:
+                logger.warning(
+                    f"Invalid {topic_type} topic format: {topic} - missing resource ID"
+                )
+                return False
+
+            # Support tenant-prefixed field IDs (e.g., field:tenant123:field456)
+            # If the field ID includes a tenant prefix, validate it
+            if len(parts) > 2:
+                topic_tenant = parts[1]
+                if topic_tenant != tenant_id:
+                    logger.warning(
+                        f"Tenant mismatch for {topic_type} topic: {topic}. "
+                        f"User tenant: {tenant_id}, Topic tenant: {topic_tenant}"
+                    )
+                    return False
+
+            # Log field/farm access for audit trail
+            # TODO: Implement full database validation via field-management-service
+            logger.info(
+                f"Field/farm access granted (simplified validation). "
+                f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
+            )
+            return True
 
         return False
 

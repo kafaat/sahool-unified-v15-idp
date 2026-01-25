@@ -24,7 +24,7 @@ export class HealthController {
     return {
       status: "healthy",
       service: "iot-service",
-      version: "1.0.0",
+      version: "16.0.0",
       timestamp: new Date().toISOString(),
       dependencies: {
         mqtt: "connected", // MQTT is managed by the service lifecycle

@@ -20,7 +20,7 @@ Updated: January 2026
 import asyncio
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import httpx
@@ -716,7 +716,7 @@ class SAHOOLTools:
                 },
                 metadata={
                     "provider": data.get("provider", "SAHOOL Weather"),
-                    "updated_at": datetime.utcnow().isoformat(),
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
                     "units": data.get("units", "metric"),
                 },
             )
@@ -862,7 +862,7 @@ class SAHOOLTools:
                 metadata={
                     "recommendation_basis": data.get("recommendation_basis"),
                     "confidence_score": data.get("confidence_score"),
-                    "generated_at": datetime.utcnow().isoformat(),
+                    "generated_at": datetime.now(timezone.utc).isoformat(),
                 },
             )
         except httpx.HTTPError as e:
@@ -934,7 +934,7 @@ class SAHOOLTools:
                     "active_recommendations": data.get("active_recommendations", 0),
                 },
                 metadata={
-                    "retrieved_at": datetime.utcnow().isoformat(),
+                    "retrieved_at": datetime.now(timezone.utc).isoformat(),
                     "data_completeness": data.get("data_completeness"),
                 },
             )
@@ -990,7 +990,7 @@ class SAHOOLTools:
                 "interaction_type": interaction_type,
                 "summary": summary,
                 "channel": channel,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
             if summary_ar:
@@ -1101,7 +1101,7 @@ class SAHOOLTools:
                 },
                 metadata={
                     "query_period_days": days,
-                    "retrieved_at": datetime.utcnow().isoformat(),
+                    "retrieved_at": datetime.now(timezone.utc).isoformat(),
                 },
             )
         except httpx.HTTPError as e:
@@ -1160,7 +1160,7 @@ class SAHOOLTools:
 
                 # Create agent instance
                 agent_id = f"agent-{uuid.uuid4().hex[:12]}"
-                now = datetime.utcnow()
+                now = datetime.now(timezone.utc)
 
                 agent = AgentInstance(
                     agent_id=agent_id,
@@ -1206,9 +1206,7 @@ class SAHOOLTools:
                 },
                 metadata={
                     "created_at": now.isoformat(),
-                    "expires_at": datetime.utcnow().replace(
-                        second=datetime.utcnow().second + timeout_seconds
-                    ).isoformat()
+                    "expires_at": (now + timedelta(seconds=timeout_seconds)).isoformat()
                     if timeout_seconds
                     else None,
                 },
@@ -1260,7 +1258,7 @@ class SAHOOLTools:
                     )
 
                 # Update agent activity
-                agent.last_active = datetime.utcnow()
+                agent.last_active = datetime.now(timezone.utc)
                 agent.query_count += 1
 
             # Build context for the query
@@ -1358,8 +1356,8 @@ class SAHOOLTools:
                     )
 
                 # Calculate uptime
-                uptime_seconds = (datetime.utcnow() - agent.created_at).total_seconds()
-                idle_seconds = (datetime.utcnow() - agent.last_active).total_seconds()
+                uptime_seconds = (datetime.now(timezone.utc) - agent.created_at).total_seconds()
+                idle_seconds = (datetime.now(timezone.utc) - agent.last_active).total_seconds()
 
                 status_translations = {
                     "active": "نشط",
@@ -1393,7 +1391,7 @@ class SAHOOLTools:
                     success=True,
                     data=data,
                     metadata={
-                        "retrieved_at": datetime.utcnow().isoformat(),
+                        "retrieved_at": datetime.now(timezone.utc).isoformat(),
                     },
                 )
 
@@ -1437,7 +1435,7 @@ class SAHOOLTools:
                     "final_query_count": agent.query_count,
                 },
                 metadata={
-                    "terminated_at": datetime.utcnow().isoformat(),
+                    "terminated_at": datetime.now(timezone.utc).isoformat(),
                 },
             )
 

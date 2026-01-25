@@ -17,6 +17,7 @@ nats-py==2.9.0
 redis==5.2.1
 python-jose[cryptography]>=3.4.0
 passlib[bcrypt]==1.7.4
+PyJWT>=2.8.0
 
 # Service-specific dependencies
 aerich==0.7.2

@@ -21,4 +21,7 @@ alembic==1.13.1
 # Caching
 redis==5.0.1
 
+# Messaging
+nats-py>=2.9.0
+
 structlog>=24.1.0

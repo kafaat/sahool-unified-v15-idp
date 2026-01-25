@@ -212,7 +212,7 @@ def seed_demo_data(db: Session) -> None:
             estimated_duration_minutes=120,
             created_at=now - timedelta(days=1),
             updated_at=now - timedelta(days=1),
-            metadata={"pump_id": "pump_2", "water_volume_m3": 500},
+            task_metadata={"pump_id": "pump_2", "water_volume_m3": 500},
         ),
         Task(
             task_id="task_002",
@@ -273,7 +273,7 @@ def seed_demo_data(db: Session) -> None:
             estimated_duration_minutes=180,
             created_at=now - timedelta(hours=6),
             updated_at=now - timedelta(hours=6),
-            metadata={"fertilizer_type": "NPK 20-20-20", "rate_kg_ha": 50},
+            task_metadata={"fertilizer_type": "NPK 20-20-20", "rate_kg_ha": 50},
         ),
         Task(
             task_id="task_005",
@@ -310,7 +310,7 @@ def seed_demo_data(db: Session) -> None:
             estimated_duration_minutes=150,
             created_at=now - timedelta(hours=1),
             updated_at=now - timedelta(hours=1),
-            metadata={"chemical": "Mancozeb", "rate_ml_ha": 2500},
+            task_metadata={"chemical": "Mancozeb", "rate_ml_ha": 2500},
         ),
     ]
 

@@ -1,18 +1,25 @@
 """
 SAHOOL Skills Service - Main API
 Manages AI model skill compression, memory storage/recall, and evaluation
-Port: 8170
+Port: 8121
 """
 
 import json
 import os
 import sys
+import uuid
 from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from fastapi import Depends, FastAPI
+import nats
+import structlog
+from fastapi import Depends, FastAPI, Request
 from pydantic import BaseModel, Field
+
+# Initialize structured logger
+logger = structlog.get_logger()
 
 # Add shared modules to path
 # In Docker, shared is at /app/shared
@@ -68,7 +75,8 @@ async def lifespan(app: FastAPI):
     """
     # Startup
     app.state.revocation_store = None
-    print("🧠 Starting Skills Service...")
+    app.state.nc = None
+    logger.info("Starting Skills Service...")
 
     # Initialize token revocation store
     if REVOCATION_AVAILABLE:
@@ -76,17 +84,32 @@ async def lifespan(app: FastAPI):
             revocation_store = get_revocation_store()
             await revocation_store.initialize()
             app.state.revocation_store = revocation_store
-            print("✅ Token revocation store initialized")
+            logger.info("Token revocation store initialized")
         except Exception as e:
-            print(f"⚠️ Token revocation store failed (running without revocation): {e}")
+            logger.warning("Token revocation store failed (running without revocation)", error=str(e))
 
-    print("✅ Skills Service ready on port 8170")
+    # Initialize NATS connection
+    nats_url = os.getenv("NATS_URL")
+    if nats_url:
+        try:
+            app.state.nc = await nats.connect(nats_url)
+            logger.info("Connected to NATS", nats_url=nats_url)
+        except Exception as e:
+            logger.warning("Failed to connect to NATS", error=str(e))
+            app.state.nc = None
+    else:
+        logger.info("NATS_URL not configured, event publishing disabled")
+
+    logger.info("Skills Service ready on port 8121")
     yield
 
     # Shutdown
+    if hasattr(app.state, "nc") and app.state.nc:
+        await app.state.nc.close()
+        logger.info("NATS connection closed")
     if getattr(app.state, "revocation_store", None):
         await app.state.revocation_store.close()
-    print("👋 Skills Service shutting down")
+    logger.info("Skills Service shutting down")
 
 
 # ============== FastAPI App Initialization ==============
@@ -108,6 +131,29 @@ if REVOCATION_AVAILABLE:
         TokenRevocationMiddleware,
         exempt_paths=["/healthz", "/health", "/docs", "/redoc", "/openapi.json"],
     )
+
+
+# ============== Event Publishing Helper ==============
+
+
+async def publish_event(request: Request, subject: str, data: dict) -> bool:
+    """
+    Publish an event to NATS.
+    Returns True if published successfully, False otherwise.
+    """
+    nc = getattr(request.app.state, "nc", None)
+    if not nc:
+        logger.debug("NATS not connected, skipping event publish", subject=subject)
+        return False
+
+    try:
+        payload = json.dumps(data).encode()
+        await nc.publish(subject, payload)
+        logger.info("Event published", subject=subject, data=data)
+        return True
+    except Exception as e:
+        logger.error("Failed to publish event", subject=subject, error=str(e))
+        return False
 
 
 # ============== Request/Response Models ==============
@@ -203,6 +249,60 @@ class EvaluateResponse(BaseModel):
     timestamp: str
 
 
+class LearningModuleModel(BaseModel):
+    """Model for a learning module"""
+
+    module_id: str = Field(..., description="Unique module identifier")
+    title: str = Field(..., description="Module title")
+    title_ar: str = Field(default=None, description="Module title in Arabic")
+    skill_type: str = Field(..., description="Type of skill covered")
+    difficulty: str = Field(default="beginner", description="Difficulty level")
+    duration_minutes: int = Field(default=30, description="Estimated duration")
+
+
+class LearningPathRequest(BaseModel):
+    """Request model for learning path recommendation"""
+
+    farmer_id: str = Field(..., description="Unique farmer identifier")
+    current_skills: list[str] = Field(default_factory=list, description="List of current skill IDs")
+    target_skills: list[str] = Field(default_factory=list, description="Desired skills to learn")
+    preferred_difficulty: str = Field(default="intermediate", description="Preferred difficulty level")
+    max_modules: int = Field(default=5, ge=1, le=20, description="Maximum modules in path")
+
+
+class LearningPathResponse(BaseModel):
+    """Response model for learning path"""
+
+    path_id: str
+    farmer_id: str
+    modules: list[LearningModuleModel]
+    total_duration_minutes: int
+    recommended_order: list[str]
+    created_at: str
+
+
+class SkillAssessmentRequest(BaseModel):
+    """Request model for skill assessment"""
+
+    farmer_id: str = Field(..., description="Unique farmer identifier")
+    skill_type: str = Field(..., description="Type of skill being assessed")
+    assessment_data: dict[str, Any] = Field(..., description="Assessment input data")
+    assessment_type: str = Field(default="quiz", description="Type of assessment (quiz, practical, self)")
+
+
+class SkillAssessmentResponse(BaseModel):
+    """Response model for skill assessment"""
+
+    assessment_id: str
+    farmer_id: str
+    skill_type: str
+    score: float
+    level: str
+    feedback: str
+    feedback_ar: str = None
+    timestamp: str
+
+
 # ============== Health Check Endpoints ==============
 
 
@@ -218,6 +318,7 @@ def readiness():
     return {
         "status": "ok",
         "revocation_store": getattr(app.state, "revocation_store", None) is not None,
+        "nats": getattr(app.state, "nc", None) is not None,
     }
 
 
@@ -353,12 +454,15 @@ async def recall_from_memory(
 @app.post("/evaluate")
 async def evaluate_skill(
     request: EvaluateRequest,
+    http_request: Request,
     user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
     """
     Evaluate skill performance against metrics
     Measures accuracy, latency, and other performance indicators
     """
+    import random
+
     # Validate input
     if not request.skill_id:
         raise ValidationException(
@@ -373,9 +477,6 @@ async def evaluate_skill(
         )
 
     # Simulate evaluation metrics
-    from datetime import datetime
-    import random
-
     metrics = {}
     for metric in request.metrics:
         if metric == "accuracy":
@@ -393,12 +494,302 @@ async def evaluate_skill(
     ) or sum(metrics.values()) / len(metrics)
     performance_score = min(1.0, performance_score)
 
+    timestamp = datetime.utcnow().isoformat()
+
+    # Publish skill evaluation event
+    await publish_event(
+        http_request,
+        "sahool.skills.evaluated",
+        {
+            "skill_id": request.skill_id,
+            "performance_score": round(performance_score, 3),
+            "metrics": metrics,
+            "timestamp": timestamp,
+        },
+    )
+
     return EvaluateResponse(
         skill_id=request.skill_id,
         status="completed",
         metrics=metrics,
         performance_score=round(performance_score, 3),
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=timestamp,
+    )
+
+
+# ============== Skill Assessment Endpoint ==============
+
+
+@app.post("/assess", response_model=SkillAssessmentResponse)
+async def assess_skill(
+    request: SkillAssessmentRequest,
+    http_request: Request,
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+):
+    """
+    Assess a farmer's skill level based on assessment data.
+    Publishes assessment results to NATS for downstream processing.
+    """
+    import random
+
+    # Validate input
+    if not request.farmer_id:
+        raise ValidationException(
+            ErrorCode.INVALID_INPUT,
+            details={"field": "farmer_id", "message": "Farmer ID is required"},
+        )
+
+    if not request.skill_type:
+        raise ValidationException(
+            ErrorCode.INVALID_INPUT,
+            details={"field": "skill_type", "message": "Skill type is required"},
+        )
+
+    if not request.assessment_data:
+        raise ValidationException(
+            ErrorCode.INVALID_INPUT,
+            details={"field": "assessment_data", "message": "Assessment data is required"},
+        )
+
+    # Generate assessment ID
+    assessment_id = f"assess_{uuid.uuid4().hex[:12]}"
+
+    # Simulate skill assessment scoring
+    # In production, this would use ML models or rule-based evaluation
+    score = round(random.uniform(40, 100), 1)
+
+    # Determine skill level based on score
+    if score >= 90:
+        level = "expert"
+        feedback = "Excellent performance! You demonstrate mastery of this skill."
+        feedback_ar = "أداء ممتاز! أنت تُظهر إتقانًا لهذه المهارة."
+    elif score >= 75:
+        level = "advanced"
+        feedback = "Great job! You have a strong understanding of this skill."
+        feedback_ar = "عمل رائع! لديك فهم قوي لهذه المهارة."
+    elif score >= 60:
+        level = "intermediate"
+        feedback = "Good progress! Consider reviewing advanced concepts."
+        feedback_ar = "تقدم جيد! فكر في مراجعة المفاهيم المتقدمة."
+    elif score >= 40:
+        level = "beginner"
+        feedback = "Keep practicing! Focus on foundational concepts."
+        feedback_ar = "استمر في الممارسة! ركز على المفاهيم الأساسية."
+    else:
+        level = "novice"
+        feedback = "We recommend starting with basic training modules."
+        feedback_ar = "نوصي بالبدء بوحدات التدريب الأساسية."
+
+    timestamp = datetime.utcnow().isoformat()
+
+    # Publish skill assessment event to NATS
+    await publish_event(
+        http_request,
+        "sahool.skills.assessed",
+        {
+            "farmer_id": request.farmer_id,
+            "skill_type": request.skill_type,
+            "score": score,
+            "level": level,
+            "assessment_id": assessment_id,
+            "timestamp": timestamp,
+        },
+    )
+
+    logger.info(
+        "Skill assessment completed",
+        assessment_id=assessment_id,
+        farmer_id=request.farmer_id,
+        skill_type=request.skill_type,
+        score=score,
+        level=level,
+    )
+
+    return SkillAssessmentResponse(
+        assessment_id=assessment_id,
+        farmer_id=request.farmer_id,
+        skill_type=request.skill_type,
+        score=score,
+        level=level,
+        feedback=feedback,
+        feedback_ar=feedback_ar,
+        timestamp=timestamp,
+    )
+
+
+# ============== Learning Path Endpoint ==============
+
+
+@app.post("/learning-path", response_model=LearningPathResponse)
+async def create_learning_path(
+    request: LearningPathRequest,
+    http_request: Request,
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+):
+    """
+    Generate a personalized learning path for a farmer.
+    Publishes learning path creation event to NATS.
+    """
+    # Validate input
+    if not request.farmer_id:
+        raise ValidationException(
+            ErrorCode.INVALID_INPUT,
+            details={"field": "farmer_id", "message": "Farmer ID is required"},
+        )
+
+    # Generate path ID
+    path_id = f"path_{uuid.uuid4().hex[:12]}"
+
+    # Simulate learning path generation
+    # In production, this would use recommendation algorithms
+    skill_modules = {
+        "irrigation": [
+            LearningModuleModel(
+                module_id="irr_basics",
+                title="Irrigation Fundamentals",
+                title_ar="أساسيات الري",
+                skill_type="irrigation",
+                difficulty="beginner",
+                duration_minutes=30,
+            ),
+            LearningModuleModel(
+                module_id="irr_drip",
+                title="Drip Irrigation Systems",
+                title_ar="أنظمة الري بالتنقيط",
+                skill_type="irrigation",
+                difficulty="intermediate",
+                duration_minutes=45,
+            ),
+            LearningModuleModel(
+                module_id="irr_smart",
+                title="Smart Irrigation Scheduling",
+                title_ar="جدولة الري الذكي",
+                skill_type="irrigation",
+                difficulty="advanced",
+                duration_minutes=60,
+            ),
+        ],
+        "crop_management": [
+            LearningModuleModel(
+                module_id="crop_basics",
+                title="Crop Management Basics",
+                title_ar="أساسيات إدارة المحاصيل",
+                skill_type="crop_management",
+                difficulty="beginner",
+                duration_minutes=40,
+            ),
+            LearningModuleModel(
+                module_id="crop_disease",
+                title="Disease Identification",
+                title_ar="تحديد الأمراض",
+                skill_type="crop_management",
+                difficulty="intermediate",
+                duration_minutes=50,
+            ),
+        ],
+        "soil_analysis": [
+            LearningModuleModel(
+                module_id="soil_testing",
+                title="Soil Testing Fundamentals",
+                title_ar="أساسيات فحص التربة",
+                skill_type="soil_analysis",
+                difficulty="beginner",
+                duration_minutes=35,
+            ),
+            LearningModuleModel(
+                module_id="soil_nutrition",
+                title="Soil Nutrition Management",
+                title_ar="إدارة تغذية التربة",
+                skill_type="soil_analysis",
+                difficulty="intermediate",
+                duration_minutes=55,
+            ),
+        ],
+        "pest_control": [
+            LearningModuleModel(
+                module_id="pest_id",
+                title="Pest Identification",
+                title_ar="تحديد الآفات",
+                skill_type="pest_control",
+                difficulty="beginner",
+                duration_minutes=30,
+            ),
+            LearningModuleModel(
+                module_id="pest_ipm",
+                title="Integrated Pest Management",
+                title_ar="الإدارة المتكاملة للآفات",
+                skill_type="pest_control",
+                difficulty="advanced",
+                duration_minutes=60,
+            ),
+        ],
+    }
+
+    # Build learning path based on target skills
+    modules = []
+    target_skills = request.target_skills if request.target_skills else list(skill_modules.keys())[:2]
+
+    for skill in target_skills:
+        if skill in skill_modules:
+            for module in skill_modules[skill]:
+                if len(modules) < request.max_modules:
+                    # Filter by difficulty preference
+                    if request.preferred_difficulty == "beginner" and module.difficulty in ["beginner"]:
+                        modules.append(module)
+                    elif request.preferred_difficulty == "intermediate" and module.difficulty in [
+                        "beginner",
+                        "intermediate",
+                    ]:
+                        modules.append(module)
+                    elif request.preferred_difficulty == "advanced":
+                        modules.append(module)
+                    elif request.preferred_difficulty not in ["beginner", "intermediate", "advanced"]:
+                        modules.append(module)
+
+    # If no modules matched, add some defaults
+    if not modules:
+        for skill_list in skill_modules.values():
+            for module in skill_list:
+                if len(modules) < request.max_modules:
+                    modules.append(module)
+
+    # Calculate total duration
+    total_duration = sum(m.duration_minutes for m in modules)
+
+    # Get recommended order (by module_id)
+    recommended_order = [m.module_id for m in modules]
+
+    timestamp = datetime.utcnow().isoformat()
+
+    # Publish learning path creation event to NATS
+    await publish_event(
+        http_request,
+        "sahool.skills.learning_path_created",
+        {
+            "farmer_id": request.farmer_id,
+            "path_id": path_id,
+            "modules": [m.module_id for m in modules],
+            "total_modules": len(modules),
+            "total_duration_minutes": total_duration,
+            "timestamp": timestamp,
+        },
+    )
+
+    logger.info(
+        "Learning path created",
+        path_id=path_id,
+        farmer_id=request.farmer_id,
+        module_count=len(modules),
+        total_duration=total_duration,
+    )
+
+    return LearningPathResponse(
+        path_id=path_id,
+        farmer_id=request.farmer_id,
+        modules=modules,
+        total_duration_minutes=total_duration,
+        recommended_order=recommended_order,
+        created_at=timestamp,
     )
 
 
@@ -417,6 +808,8 @@ def root():
                 "POST /memory/store",
                 "POST /memory/recall",
                 "POST /evaluate",
+                "POST /assess",
+                "POST /learning-path",
                 "GET /healthz",
                 "GET /readyz",
             ],
@@ -427,5 +820,5 @@ def root():
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", 8170))
+    port = int(os.getenv("PORT", 8121))
     uvicorn.run(app, host="0.0.0.0", port=port)

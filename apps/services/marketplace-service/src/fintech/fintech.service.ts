@@ -118,6 +118,17 @@ export class FintechService {
     return this.walletService.updateWalletLimits(walletId);
   }
 
+  /**
+   * Get wallet by ID for authorization checks
+   * Returns wallet with userId for ownership verification
+   */
+  async getWalletById(walletId: string) {
+    return this.prisma.wallet.findUnique({
+      where: { id: walletId },
+      select: { id: true, userId: true },
+    });
+  }
+
   async getWalletDashboard(walletId: string) {
     return this.walletService.getWalletDashboard(walletId);
   }
@@ -212,6 +223,23 @@ export class FintechService {
 
   async executeScheduledPayment(paymentId: string) {
     return this.loanService.executeScheduledPayment(paymentId);
+  }
+
+  /**
+   * Get scheduled payment by ID for authorization checks
+   * Returns payment with wallet info for ownership verification
+   */
+  async getScheduledPaymentById(paymentId: string) {
+    return this.prisma.scheduledPayment.findUnique({
+      where: { id: paymentId },
+      select: {
+        id: true,
+        walletId: true,
+        wallet: {
+          select: { userId: true },
+        },
+      },
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

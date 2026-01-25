@@ -1,8 +1,11 @@
 """
-SAHOOL Agro Advisor - Main API Service
+SAHOOL Advisory Service - Main API Service
 Disease diagnosis, nutrient assessment, and fertilizer planning
-Port: 8095
+Port: 8093
 """
+
+# Service version - single source of truth
+VERSION = "16.0.0"
 
 import os
 import sys
@@ -109,7 +112,7 @@ async def lifespan(app: FastAPI):
     try:
         publisher = await get_publisher()
         app.state.publisher = publisher
-        print("✅ Agro Advisor ready on port 8095")
+        print("✅ Advisory Service ready on port 8093")
     except Exception as e:
         print(f"⚠️ NATS connection failed (running without events): {e}")
 
@@ -134,9 +137,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="SAHOOL Agro Advisor",
+    title="SAHOOL Advisory Service",
     description="Disease diagnosis, nutrient assessment, and fertilizer planning for Yemen agriculture",
-    version="15.3.3",
+    version=VERSION,
     lifespan=lifespan,
 )
 
@@ -157,7 +160,7 @@ if REVOCATION_AVAILABLE:
 
 @app.get("/healthz")
 def health():
-    return {"status": "ok", "service": "agro_advisor", "version": "16.0.0"}
+    return {"status": "ok", "service": "advisory_service", "version": VERSION}
 
 
 @app.get("/readyz")
@@ -176,14 +179,14 @@ def readiness():
     if not is_ready:
         from fastapi.responses import JSONResponse
         return JSONResponse(
-            content={"status": "not_ready", "service": "agro_advisor", "checks": checks},
+            content={"status": "not_ready", "service": "advisory_service", "checks": checks},
             status_code=503,
         )
 
     return {
         "status": "ready",
-        "service": "agro_advisor",
-        "version": "16.0.0",
+        "service": "advisory_service",
+        "version": VERSION,
         "checks": checks,
     }
 
@@ -731,5 +734,5 @@ def get_action(action_id: str, lang: str = "ar"):
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", 8095))
+    port = int(os.getenv("PORT", 8093))
     uvicorn.run(app, host="0.0.0.0", port=port)

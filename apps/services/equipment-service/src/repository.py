@@ -7,7 +7,7 @@ Data access layer for equipment, maintenance records, and alerts
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -169,7 +169,7 @@ def update_equipment(
         if hasattr(equipment, key) and value is not None:
             setattr(equipment, key, value)
 
-    equipment.updated_at = datetime.utcnow()
+    equipment.updated_at = datetime.now(timezone.utc)
 
     return equipment
 

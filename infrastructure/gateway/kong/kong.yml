@@ -220,7 +220,7 @@ services:
 
   - name: chat-service
     host: chat-service
-    port: 8000  # FIXED: was 8114, actual Dockerfile port is 8000
+    port: 8114  # FIXED: chat-service listens on 8114 (not 8000 which is Kong's port)
     protocol: http
     routes:
       - name: chat-service-route
@@ -363,7 +363,7 @@ services:
 
   - name: yield-prediction-service
     host: yield-prediction-service
-    port: 8098
+    port: 8152
     protocol: http
     routes:
       - name: yield-prediction-service-route
@@ -679,17 +679,6 @@ services:
     routes:
       - name: ussd-gateway-route
         paths: ["/api/v1/ussd", "/ussd"]
-        strip_path: true
-        protocols: ["http", "https"]
-
-  # Code Review Service - Code review workflows
-  - name: code-review-service-new
-    host: code-review-service
-    port: 8124
-    protocol: http
-    routes:
-      - name: code-review-service-new-route
-        paths: ["/api/v1/code-review-v2", "/code-review-v2"]
         strip_path: true
         protocols: ["http", "https"]
 

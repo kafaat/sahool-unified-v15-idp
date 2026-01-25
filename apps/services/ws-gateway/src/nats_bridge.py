@@ -9,7 +9,7 @@ import contextlib
 import json
 import logging
 from collections.abc import Callable
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from .events import EventType, get_event_message, get_event_priority
@@ -29,6 +29,11 @@ class NATSBridge:
         self.nc = None  # NATS connection
         self.subscriptions = []
         self.event_filters: dict[str, Callable] = {}
+        # Track subscription errors for health monitoring (BUG-008 fix)
+        self.subscription_errors: dict[str, int] = {}
+        self.last_message_received: datetime | None = None
+        self.total_messages_processed: int = 0
+        self.total_errors: int = 0
 
     async def connect(self, nats_url: str):
         """
@@ -146,8 +151,10 @@ class NATSBridge:
                 if tenant_id:
                     await self.room_manager.send_to_tenant(tenant_id, ws_message)
 
+            self._track_success(msg.subject)
         except Exception as e:
             logger.error(f"Error handling field event: {e}", exc_info=True)
+            self._track_error(msg.subject)
 
     async def _handle_weather_event(self, msg):
         """Handle weather-related events"""
@@ -175,8 +182,10 @@ class NATSBridge:
             if tenant_id:
                 await self.room_manager.send_to_tenant(tenant_id, ws_message)
 
+            self._track_success(msg.subject)
         except Exception as e:
             logger.error(f"Error handling weather event: {e}", exc_info=True)
+            self._track_error(msg.subject)
 
     async def _handle_satellite_event(self, msg):
         """Handle satellite imagery events"""
@@ -203,8 +212,10 @@ class NATSBridge:
             if tenant_id:
                 await self.room_manager.send_to_tenant(tenant_id, ws_message)
 
+            self._track_success(msg.subject)
         except Exception as e:
             logger.error(f"Error handling satellite event: {e}", exc_info=True)
+            self._track_error(msg.subject)
 
     async def _handle_ndvi_event(self, msg):
         """Handle NDVI analysis events"""
@@ -229,8 +240,10 @@ class NATSBridge:
             if tenant_id:
                 await self.room_manager.send_to_tenant(tenant_id, ws_message)
 
+            self._track_success(msg.subject)
         except Exception as e:
             logger.error(f"Error handling NDVI event: {e}", exc_info=True)
+            self._track_error(msg.subject)
 
     async def _handle_inventory_event(self, msg):
         """Handle inventory events"""
@@ -256,8 +269,10 @@ class NATSBridge:
             if event_type in [EventType.LOW_STOCK, EventType.OUT_OF_STOCK]:
                 await self.room_manager.broadcast_to_room(RoomType.ALERTS, ws_message)
 
+            self._track_success(msg.subject)
         except Exception as e:
             logger.error(f"Error handling inventory event: {e}", exc_info=True)
+            self._track_error(msg.subject)
 
     async def _handle_crop_event(self, msg):
         """Handle crop health events"""
@@ -287,8 +302,10 @@ class NATSBridge:
             # Send to alerts room
             await self.room_manager.broadcast_to_room(RoomType.ALERTS, ws_message)
 
+            self._track_success(msg.subject)
         except Exception as e:
             logger.error(f"Error handling crop event: {e}", exc_info=True)
+            self._track_error(msg.subject)
 
     async def _handle_spray_event(self, msg):
         """Handle spray timing events"""
@@ -315,8 +332,10 @@ class NATSBridge:
             if tenant_id:
                 await self.room_manager.send_to_tenant(tenant_id, ws_message)
 
+            self._track_success(msg.subject)
         except Exception as e:
             logger.error(f"Error handling spray event: {e}", exc_info=True)
+            self._track_error(msg.subject)
 
     async def _handle_chat_event(self, msg):
         """Handle chat events"""
@@ -339,8 +358,10 @@ class NATSBridge:
                 room_id = f"{RoomType.CHAT}:{chat_room_id}"
                 await self.room_manager.broadcast_to_room(room_id, ws_message)
 
+            self._track_success(msg.subject)
         except Exception as e:
             logger.error(f"Error handling chat event: {e}", exc_info=True)
+            self._track_error(msg.subject)
 
     async def _handle_task_event(self, msg):
         """Handle task events"""
@@ -369,8 +390,10 @@ class NATSBridge:
             if tenant_id:
                 await self.room_manager.send_to_tenant(tenant_id, ws_message)
 
+            self._track_success(msg.subject)
         except Exception as e:
             logger.error(f"Error handling task event: {e}", exc_info=True)
+            self._track_error(msg.subject)
 
     async def _handle_iot_event(self, msg):
         """Handle IoT sensor events"""
@@ -401,8 +424,10 @@ class NATSBridge:
             if event_type in [EventType.IOT_ALERT, EventType.IOT_OFFLINE]:
                 await self.room_manager.broadcast_to_room(RoomType.ALERTS, ws_message)
 
+            self._track_success(msg.subject)
         except Exception as e:
             logger.error(f"Error handling IoT event: {e}", exc_info=True)
+            self._track_error(msg.subject)
 
     async def _handle_alert_event(self, msg):
         """Handle general alert events"""
@@ -426,8 +451,10 @@ class NATSBridge:
             if user_id:
                 await self.room_manager.send_to_user(user_id, ws_message)
 
+            self._track_success(msg.subject)
         except Exception as e:
             logger.error(f"Error handling alert event: {e}", exc_info=True)
+            self._track_error(msg.subject)
 
     def _create_event_message(
         self, event_type: EventType, data: dict[str, Any], subject: str
@@ -444,7 +471,7 @@ class NATSBridge:
             "message_ar": get_event_message(event_type, "ar"),
             "data": data,
             "subject": subject,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     @property
@@ -457,4 +484,61 @@ class NATSBridge:
         return {
             "connected": self.is_connected,
             "subscriptions": len(self.subscriptions),
+            "subscription_errors": self.subscription_errors.copy(),
+            "total_errors": self.total_errors,
+            "total_messages_processed": self.total_messages_processed,
+            "last_message_received": (
+                self.last_message_received.isoformat()
+                if self.last_message_received
+                else None
+            ),
         }
+
+    def get_subscription_health(self) -> dict:
+        """
+        Get subscription health status (BUG-008 fix)
+        Returns health status for readiness check
+        """
+        # Consider subscriptions healthy if:
+        # 1. We have active subscriptions
+        # 2. Error rate is below threshold (< 10% of total messages)
+        has_subscriptions = len(self.subscriptions) > 0
+
+        # Calculate error rate
+        total_ops = self.total_messages_processed + self.total_errors
+        error_rate = (self.total_errors / total_ops) if total_ops > 0 else 0.0
+
+        # Check if any subject has too many errors
+        high_error_subjects = [
+            subject
+            for subject, count in self.subscription_errors.items()
+            if count > 10  # More than 10 errors on a subject
+        ]
+
+        is_healthy = (
+            has_subscriptions and error_rate < 0.1 and len(high_error_subjects) == 0
+        )
+
+        return {
+            "healthy": is_healthy,
+            "has_subscriptions": has_subscriptions,
+            "subscription_count": len(self.subscriptions),
+            "error_rate": round(error_rate * 100, 2),
+            "high_error_subjects": high_error_subjects,
+            "total_messages_processed": self.total_messages_processed,
+            "total_errors": self.total_errors,
+        }
+
+    def _track_success(self, subject: str):
+        """Track successful message processing"""
+        self.last_message_received = datetime.now(UTC)
+        self.total_messages_processed += 1
+
+    def _track_error(self, subject: str):
+        """Track message processing error"""
+        self.total_errors += 1
+        subject_prefix = subject.split(".")[0:3]
+        subject_key = ".".join(subject_prefix) if subject_prefix else subject
+        self.subscription_errors[subject_key] = (
+            self.subscription_errors.get(subject_key, 0) + 1
+        )

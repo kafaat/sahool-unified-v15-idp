@@ -1,6 +1,6 @@
 /**
- * Request Logging Interceptor for Marketplace Service
- * اعتراض تسجيل الطلبات لخدمة السوق
+ * Request Logging Interceptor for Research Core Service
+ * اعتراض تسجيل الطلبات لخدمة البحث العلمي
  *
  * Provides structured JSON logging for all HTTP requests.
  */

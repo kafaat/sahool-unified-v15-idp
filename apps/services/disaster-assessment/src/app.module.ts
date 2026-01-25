@@ -2,9 +2,10 @@
 // Disaster Assessment App Module
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Module } from "@nestjs/common";
+import { Module, OnModuleInit } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { PrismaModule } from "./prisma/prisma.module";
 import { DisasterController } from "./disaster/disaster.controller";
 import { DisasterService } from "./disaster/disaster.service";
 import { AlertController } from "./alert/alert.controller";
@@ -12,6 +13,9 @@ import { AlertService } from "./alert/alert.service";
 
 @Module({
   imports: [
+    // Database connection
+    PrismaModule,
+
     // Rate limiting configuration
     ThrottlerModule.forRoot([
       {
@@ -42,4 +46,15 @@ import { AlertService } from "./alert/alert.service";
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit {
+  constructor(
+    private readonly disasterService: DisasterService,
+    private readonly alertService: AlertService,
+  ) {}
+
+  async onModuleInit() {
+    // Initialize seed data for services
+    await this.disasterService.onModuleInit();
+    await this.alertService.onModuleInit();
+  }
+}

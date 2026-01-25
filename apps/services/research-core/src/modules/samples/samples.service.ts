@@ -7,6 +7,7 @@ import {
 import { PrismaService } from "@/config/prisma.service";
 import { Prisma } from "@prisma/client";
 import { CreateSampleDto, UpdateSampleDto } from "./dto/sample.dto";
+import { MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE } from "../../utils/db-utils";
 
 @Injectable()
 export class SamplesService {
@@ -86,7 +87,8 @@ export class SamplesService {
     },
   ) {
     const page = filters?.page || 1;
-    const limit = filters?.limit || 20;
+    // Enforce maximum page size to prevent memory exhaustion
+    const limit = Math.min(filters?.limit || DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
     const skip = (page - 1) * limit;
 
     const where: any = { experimentId };

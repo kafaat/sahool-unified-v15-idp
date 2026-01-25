@@ -235,6 +235,38 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8117'
       prometheus.io/path: /metrics
+  ground-vision-service:
+    enabled: true
+    name: ground-vision-service
+    image:
+      repository: ghcr.io/kafaat/sahool-ground-vision-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8182
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+      limits:
+        cpu: 1000000m
+        memory: 2Gi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8182'
+    serviceAccount:
+      create: true
+      name: sahool-ground-vision-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8182'
+      prometheus.io/path: /metrics
   research-core:
     enabled: true
     name: research-core
@@ -2049,6 +2081,10 @@ ingress:
       pathType: Prefix
       service: iot-service
       port: 8117
+    - path: /api/v1/ground/vision/service
+      pathType: Prefix
+      service: ground-vision-service
+      port: 8182
     - path: /api/v1/research/core
       pathType: Prefix
       service: research-core

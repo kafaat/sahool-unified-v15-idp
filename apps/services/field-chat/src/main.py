@@ -226,7 +226,7 @@ async def websocket_endpoint(websocket: WebSocket, thread_id: str, token: str | 
     Messages are broadcast when sent via the REST API.
 
     Authentication:
-        Pass JWT token as query parameter: ws://host/ws/chat/{thread_id}?token=<jwt>
+        Pass JWT token as query parameter: wss://host/ws/chat/{thread_id}?token=<jwt>
     """
     # Validate authentication token
     if not token:

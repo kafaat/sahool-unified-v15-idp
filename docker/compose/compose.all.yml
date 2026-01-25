@@ -1424,6 +1424,34 @@ services:
         limits:
           cpus: '400'
           memory: 512Mi
+  ground-vision-service:
+    build:
+      context: ../../apps/services/ground-vision-service
+      dockerfile: Dockerfile
+    ports:
+    - 8182:8182
+    environment:
+    - PORT=8182
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8182/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1000'
+          memory: 2Gi
+    depends_on:
+    - vegetation-analysis-service
+    - weather-service
+    - iot-service
   satellite-service:
     build:
       context: ../../archive/deprecated-services/satellite-service

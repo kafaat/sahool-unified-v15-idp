@@ -356,30 +356,41 @@ async def db_list_pages(
     is_published: bool | None = None,
     limit: int = 50,
 ) -> list[InternalPage]:
-    """List pages from the database."""
+    """List pages from the database using safe parameterized queries."""
     pool = get_db_pool()
     if not pool:
         return []
     try:
         async with pool.acquire() as conn:
-            query = "SELECT * FROM lowcode_pages WHERE 1=1"
-            params = []
-            param_idx = 1
-
-            if tenant_id:
-                query += f" AND tenant_id = ${param_idx}"
-                params.append(tenant_id)
-                param_idx += 1
-
-            if is_published is not None:
-                query += f" AND is_published = ${param_idx}"
-                params.append(is_published)
-                param_idx += 1
-
-            query += f" ORDER BY created_at DESC LIMIT ${param_idx}"
-            params.append(limit)
-
-            rows = await conn.fetch(query, *params)
+            # Build query with explicit parameter handling to avoid SQL injection
+            # Use conditional query selection based on filter combinations
+            if tenant_id and is_published is not None:
+                rows = await conn.fetch(
+                    """SELECT * FROM lowcode_pages
+                       WHERE tenant_id = $1 AND is_published = $2
+                       ORDER BY created_at DESC LIMIT $3""",
+                    tenant_id, is_published, limit
+                )
+            elif tenant_id:
+                rows = await conn.fetch(
+                    """SELECT * FROM lowcode_pages
+                       WHERE tenant_id = $1
+                       ORDER BY created_at DESC LIMIT $2""",
+                    tenant_id, limit
+                )
+            elif is_published is not None:
+                rows = await conn.fetch(
+                    """SELECT * FROM lowcode_pages
+                       WHERE is_published = $1
+                       ORDER BY created_at DESC LIMIT $2""",
+                    is_published, limit
+                )
+            else:
+                rows = await conn.fetch(
+                    """SELECT * FROM lowcode_pages
+                       ORDER BY created_at DESC LIMIT $1""",
+                    limit
+                )
             return [_row_to_page(row) for row in rows]
     except Exception as e:
         logger.error("db_list_pages_error", error=str(e))
@@ -391,32 +402,36 @@ async def db_update_page(
     is_published: bool | None = None,
     updated_at: datetime | None = None,
 ) -> bool:
-    """Update a page in the database."""
+    """Update a page in the database using safe parameterized queries."""
     pool = get_db_pool()
     if not pool:
         return False
     try:
         async with pool.acquire() as conn:
-            updates = []
-            params = []
-            param_idx = 1
-
-            if is_published is not None:
-                updates.append(f"is_published = ${param_idx}")
-                params.append(is_published)
-                param_idx += 1
-
-            if updated_at is not None:
-                updates.append(f"updated_at = ${param_idx}")
-                params.append(updated_at)
-                param_idx += 1
-
-            if not updates:
-                return True
-
-            params.append(page_id)
-            query = f"UPDATE lowcode_pages SET {', '.join(updates)} WHERE id = ${param_idx}"
-            await conn.execute(query, *params)
+            # Use explicit queries based on which fields are being updated
+            # This avoids dynamic SQL construction and SQL injection risks
+            if is_published is not None and updated_at is not None:
+                await conn.execute(
+                    """UPDATE lowcode_pages
+                       SET is_published = $1, updated_at = $2
+                       WHERE id = $3""",
+                    is_published, updated_at, page_id
+                )
+            elif is_published is not None:
+                await conn.execute(
+                    """UPDATE lowcode_pages
+                       SET is_published = $1
+                       WHERE id = $2""",
+                    is_published, page_id
+                )
+            elif updated_at is not None:
+                await conn.execute(
+                    """UPDATE lowcode_pages
+                       SET updated_at = $1
+                       WHERE id = $2""",
+                    updated_at, page_id
+                )
+            # If no updates specified, nothing to do
         return True
     except Exception as e:
         logger.error("db_update_page_error", page_id=page_id, error=str(e))
@@ -518,25 +533,27 @@ async def db_list_models(
     tenant_id: str | None = None,
     limit: int = 50,
 ) -> list[InternalDataModel]:
-    """List data models from the database."""
+    """List data models from the database using safe parameterized queries."""
     pool = get_db_pool()
     if not pool:
         return []
     try:
         async with pool.acquire() as conn:
-            query = "SELECT * FROM lowcode_models WHERE 1=1"
-            params = []
-            param_idx = 1
-
+            # Use explicit queries based on filter combinations
+            # This avoids dynamic SQL construction and SQL injection risks
             if tenant_id:
-                query += f" AND tenant_id = ${param_idx}"
-                params.append(tenant_id)
-                param_idx += 1
-
-            query += f" ORDER BY created_at DESC LIMIT ${param_idx}"
-            params.append(limit)
-
-            rows = await conn.fetch(query, *params)
+                rows = await conn.fetch(
+                    """SELECT * FROM lowcode_models
+                       WHERE tenant_id = $1
+                       ORDER BY created_at DESC LIMIT $2""",
+                    tenant_id, limit
+                )
+            else:
+                rows = await conn.fetch(
+                    """SELECT * FROM lowcode_models
+                       ORDER BY created_at DESC LIMIT $1""",
+                    limit
+                )
             return [_row_to_model(row) for row in rows]
     except Exception as e:
         logger.error("db_list_models_error", error=str(e))

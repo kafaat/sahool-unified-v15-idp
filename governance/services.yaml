@@ -14,7 +14,7 @@ event_architecture:
   layers:
     acquisition:
       description: "Data ingestion layer - طبقة جمع البيانات"
-      services: [vegetation-analysis-service, iot-service, iot-gateway, weather-service, weather-core, virtual-sensors, ussd-gateway]
+      services: [vegetation-analysis-service, iot-service, iot-gateway, weather-service, weather-core, virtual-sensors, ussd-gateway, ground-vision-service]
       rules:
         - "No business logic"
         - "Only ingestion + normalization"
@@ -382,6 +382,83 @@ services:
       cpu: "400m"
       memory: "512Mi"
       replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # GROUND VISION SERVICE - خدمة الرؤية الأرضية
+  # ═══════════════════════════════════════════════════════════════════════════
+  ground-vision-service:
+    name: "Ground Vision Service"
+    name_ar: "خدمة الرؤية الأرضية"
+    type: fastapi
+    category: analytics
+    layer: acquisition
+    path: "apps/services/ground-vision-service"
+    port: 8182
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    description: |
+      High-frequency agricultural monitoring using tower-mounted cameras.
+      Based on: Qin et al. (2026) - Tower-Based Agricultural Monitoring Framework
+    description_ar: |
+      رصد زراعي عالي التردد باستخدام كاميرات الأبراج.
+      مبني على: Qin et al. (2026) - إطار الرصد الزراعي القائم على الأبراج
+    events:
+      produces:
+        - FrameCaptured.v1
+        - OperationDetected.v1
+        - GrowthStageChanged.v1
+        - AnomalyDetected.v1
+        - TimelineUpdated.v1
+        - CameraStatusChanged.v1
+      consumes:
+        - NDVIComputed.v1
+        - WeatherForecastUpdated.v1
+        - FieldBoundaryUpdated.v1
+        - SensorReadingIngested.v1
+    modules:
+      - id: cameras
+        name: "Camera Registry"
+        name_ar: "سجل الكاميرات"
+        endpoint: "/api/v1/cameras"
+      - id: frames
+        name: "Frame Processing"
+        name_ar: "معالجة الإطارات"
+        endpoint: "/api/v1/frames"
+      - id: detections
+        name: "Operation Detection"
+        name_ar: "كشف العمليات"
+        endpoint: "/api/v1/detections"
+      - id: timeline
+        name: "Crop Timeline"
+        name_ar: "الخط الزمني للمحصول"
+        endpoint: "/api/v1/timeline"
+      - id: anomalies
+        name: "Anomaly Detection"
+        name_ar: "كشف الشذوذ"
+        endpoint: "/api/v1/anomalies"
+    database:
+      type: postgresql
+      name: sahool_ground_vision
+    dependencies:
+      - vegetation-analysis-service
+      - weather-service
+      - iot-service
+    environment:
+      - PORT
+      - DATABASE_URL
+      - NATS_URL
+      - SAM_CHECKPOINT_PATH
+      - YOLO_MODEL_PATH
+      - MLLM_PROVIDER
+      - ANTHROPIC_API_KEY
+      - OLLAMA_BASE_URL
+      - CHANGE_DETECTION_THRESHOLD
+    resources:
+      cpu: "1000m"
+      memory: "2Gi"
+      replicas: 1
+      gpu: "nvidia"
 
   # ═══════════════════════════════════════════════════════════════════════════
   # RESEARCH CORE - نواة البحث العلمي

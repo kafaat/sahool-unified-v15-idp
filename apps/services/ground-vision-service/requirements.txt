@@ -1,0 +1,47 @@
+# Ground Vision Service - Tower Camera Agricultural Monitoring
+# Based on: Qin et al. (2026) - High-Frequency Parcel-Level Monitoring
+
+# Core
+fastapi>=0.126.0
+uvicorn>=0.34.0
+pydantic>=2.10.0
+python-multipart>=0.0.9
+
+# Database
+asyncpg>=0.30.0
+sqlalchemy>=2.0.0
+geoalchemy2>=0.15.0
+
+# Messaging
+nats-py>=2.9.0
+
+# Computer Vision
+opencv-python-headless>=4.10.0
+numpy>=2.0.0
+scipy>=1.14.0
+pillow>=11.0.0
+
+# AI/ML (optional - for GPU inference)
+# torch>=2.5.0
+# segment-anything>=1.0
+# ultralytics>=8.3.0
+
+# Geospatial
+rasterio>=1.4.0
+shapely>=2.0.0
+pyproj>=3.7.0
+
+# LLM Integration
+anthropic>=0.40.0
+openai>=1.55.0
+
+# Logging & Monitoring
+structlog>=24.4.0
+prometheus-client>=0.21.0
+
+# HTTP Client
+httpx>=0.28.0
+
+# Testing
+pytest>=8.3.0
+pytest-asyncio>=0.24.0

@@ -8,6 +8,8 @@
 
 const express = require("express");
 const http = require("http");
+const https = require("https");
+const fs = require("fs");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const { v4: uuidv4 } = require("uuid");
@@ -79,7 +81,31 @@ app.use(express.json());
 // Setup Swagger API Documentation
 setupSwagger(app);
 
-const server = http.createServer(app);
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECURITY: Server Creation with TLS Support
+// In production, TLS is typically terminated at the API gateway (Kong/Nginx)
+// However, for direct HTTPS support, provide TLS_CERT_PATH and TLS_KEY_PATH
+// ═══════════════════════════════════════════════════════════════════════════════
+const TLS_CERT_PATH = process.env.TLS_CERT_PATH;
+const TLS_KEY_PATH = process.env.TLS_KEY_PATH;
+
+let server;
+if (TLS_CERT_PATH && TLS_KEY_PATH && fs.existsSync(TLS_CERT_PATH) && fs.existsSync(TLS_KEY_PATH)) {
+  // Create HTTPS server when TLS certificates are provided
+  const httpsOptions = {
+    cert: fs.readFileSync(TLS_CERT_PATH),
+    key: fs.readFileSync(TLS_KEY_PATH),
+  };
+  server = https.createServer(httpsOptions, app);
+  console.log("🔒 HTTPS server enabled with TLS certificates");
+} else {
+  // HTTP server - TLS should be handled by API gateway (Kong) in production
+  // This is safe when running behind a reverse proxy that handles TLS termination
+  server = http.createServer(app);
+  if (process.env.NODE_ENV === "production" && !process.env.TRUST_PROXY) {
+    console.warn("⚠️ Running HTTP in production - ensure TLS is handled by API gateway");
+  }
+}
 
 // JWT Verification middleware for Socket.io
 // ═══════════════════════════════════════════════════════════════════════════════

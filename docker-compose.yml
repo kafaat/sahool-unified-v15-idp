@@ -1239,6 +1239,60 @@ services:
     networks:
       - sahool-network
 
+  # Ground Vision Service - Tower Camera Agricultural Monitoring
+  # Based on: Qin et al. (2026) - Tower-Based Agricultural Monitoring Framework
+  ground-vision-service:
+    build:
+      context: .
+      dockerfile: apps/services/ground-vision-service/Dockerfile
+    container_name: sahool-ground-vision-service
+    environment:
+      - PORT=8182
+      - ENVIRONMENT=production
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - SAM_CHECKPOINT_PATH=/models/sam_vit_h.pth
+      - YOLO_MODEL_PATH=/models/yolo_agri_ops.pt
+      - MLLM_PROVIDER=${MLLM_PROVIDER:-ollama}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - CHANGE_DETECTION_THRESHOLD=0.15
+      - SAM_IOU_THRESHOLD=0.85
+      - MAX_FRAMES_PER_ANALYSIS=5
+    volumes:
+      - ./models:/models:ro
+    ports:
+      - "8182:8182"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8182/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - sahool-network
+
   # ⚠️ DEPRECATED: community_chat - Migrating to chat-service
   # This service is being consolidated into chat-service (Port 8114)
   # Kept temporarily for backwards compatibility

@@ -20,7 +20,7 @@ from typing import Any
 import hashlib
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class EmbeddingProvider(str, Enum):

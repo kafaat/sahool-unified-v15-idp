@@ -22,7 +22,7 @@ Updated: January 2026
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, TYPE_CHECKING
 from enum import Enum
 

@@ -1,0 +1,378 @@
+# SAHOOL Traceability Service
+
+## خدمة التتبع - من المزرعة إلى المائدة
+
+Farm-to-table supply chain traceability service with QR codes, blockchain anchoring, and consumer product journey.
+
+خدمة تتبع سلسلة التوريد من المزرعة إلى المائدة مع رموز QR والتثبيت على البلوكتشين ورحلة المنتج للمستهلك.
+
+---
+
+## Features | الميزات
+
+- **Batch Management** | إدارة الدفعات
+  - Produce batch creation and tracking
+  - Unique batch codes with checksum validation
+  - Batch splits and merges
+  - Complete batch history
+
+- **Supply Chain Events** | أحداث سلسلة التوريد
+  - Harvest recording with field data
+  - Processing facility tracking
+  - Storage conditions monitoring
+  - Transportation tracking
+  - Retail point of sale
+
+- **QR Code Generation** | إنشاء رموز QR
+  - Multiple QR formats (PNG, SVG, PDF)
+  - Various sizes (Small, Medium, Large, XLarge)
+  - Label generation with batch info
+  - Bilingual labels (Arabic/English)
+
+- **Consumer Journey** | رحلة المستهلك
+  - Public product journey display
+  - Certification verification
+  - Quality grade information
+  - Carbon footprint calculation
+
+- **Certifications & Compliance** | الشهادات والامتثال
+  - GlobalGAP certification tracking
+  - Organic certification
+  - SASO standards compliance
+  - ISO certifications
+
+---
+
+## API Endpoints | نقاط النهاية
+
+### Health Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/healthz` | GET | Kubernetes liveness probe |
+| `/readyz` | GET | Kubernetes readiness probe |
+| `/health` | GET | Comprehensive health check with dependencies |
+| `/metrics` | GET | Prometheus metrics |
+
+### Batches
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/batches` | GET | List produce batches |
+| `/api/v1/batches` | POST | Create new batch |
+| `/api/v1/batches/{batch_id}` | GET | Get batch details |
+| `/api/v1/batches/{batch_id}` | PUT | Update batch |
+| `/api/v1/batches/{batch_id}/status` | PUT | Update batch status |
+| `/api/v1/batches/{batch_id}/split` | POST | Split batch |
+| `/api/v1/batches/merge` | POST | Merge batches |
+| `/api/v1/batches/generate-code` | POST | Generate batch code |
+| `/api/v1/batches/verify-code/{code}` | GET | Verify batch code |
+
+### Events
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/batches/{batch_id}/events` | GET | List batch events |
+| `/api/v1/batches/{batch_id}/events/harvest` | POST | Record harvest event |
+| `/api/v1/batches/{batch_id}/events/processing` | POST | Record processing event |
+| `/api/v1/batches/{batch_id}/events/storage` | POST | Record storage event |
+| `/api/v1/batches/{batch_id}/events/transport` | POST | Record transport event |
+| `/api/v1/batches/{batch_id}/events/retail` | POST | Record retail event |
+| `/api/v1/events/{event_id}` | GET | Get event details |
+
+### QR Codes
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/batches/{batch_id}/qr` | POST | Generate QR code |
+| `/api/v1/batches/{batch_id}/qr` | GET | Get QR code |
+| `/api/v1/batches/{batch_id}/label` | POST | Generate label |
+| `/api/v1/qr/decode` | POST | Decode QR data |
+| `/api/v1/qr/verify` | POST | Verify QR checksum |
+
+### Consumer Journey (Public)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/journey/{batch_code}` | GET | Get product journey (public) |
+| `/api/v1/scan/{batch_code}` | POST | Record consumer scan |
+| `/api/v1/journey/{batch_code}/certifications` | GET | Get certifications |
+| `/api/v1/journey/{batch_code}/carbon-footprint` | GET | Get carbon footprint |
+
+### Certifications
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/certifications` | GET | List certifications |
+| `/api/v1/certifications` | POST | Add certification |
+| `/api/v1/certifications/{cert_id}` | GET | Get certification |
+| `/api/v1/certifications/{cert_id}/verify` | GET | Verify certification |
+| `/api/v1/batches/{batch_id}/certifications` | GET | Get batch certifications |
+| `/api/v1/batches/{batch_id}/certifications` | POST | Attach certification |
+
+### Reports
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/reports/trace/{batch_id}` | GET | Generate trace report |
+| `/api/v1/reports/chain/{batch_id}` | GET | Full supply chain report |
+| `/api/v1/reports/carbon/{batch_id}` | GET | Carbon footprint report |
+| `/api/v1/reports/compliance/{batch_id}` | GET | Compliance report |
+
+### Actors
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/actors/producers` | GET | List producers |
+| `/api/v1/actors/producers` | POST | Register producer |
+| `/api/v1/actors/facilities` | GET | List processing facilities |
+| `/api/v1/actors/facilities` | POST | Register facility |
+| `/api/v1/actors/transporters` | GET | List transporters |
+| `/api/v1/actors/retailers` | GET | List retailers |
+
+---
+
+## Events | الأحداث
+
+### Produces
+
+| Event | Description |
+|-------|-------------|
+| `BatchCreated.v1` | New produce batch created |
+| `HarvestRecorded.v1` | Harvest event recorded |
+| `BatchProcessed.v1` | Processing event recorded |
+| `BatchShipped.v1` | Transport event recorded |
+| `ConsumerScanned.v1` | Consumer scanned product |
+| `CertificationAttached.v1` | Certification attached to batch |
+
+### Consumes
+
+| Event | Description |
+|-------|-------------|
+| `FieldCreated.v1` | Field data for producer tracking |
+| `YieldEstimated.v1` | Yield for batch planning |
+| `TaskCompleted.v1` | Harvest task completion |
+| `QualityGraded.v1` | Quality grade assignment |
+
+---
+
+## Environment Variables | متغيرات البيئة
+
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `PORT` | Service port | `8174` | No |
+| `HOST` | Bind address | `0.0.0.0` | No |
+| `ENVIRONMENT` | Environment (development/staging/production) | `development` | No |
+| `DATABASE_URL` | PostgreSQL connection string | - | Yes |
+| `REDIS_URL` | Redis connection string | - | Yes |
+| `NATS_URL` | NATS server URL | - | Yes |
+| `QR_BASE_URL` | Base URL for QR code links | - | No |
+| `BLOCKCHAIN_ENABLED` | Enable blockchain anchoring | `false` | No |
+| `BLOCKCHAIN_RPC_URL` | Blockchain RPC endpoint | - | No |
+| `LOG_LEVEL` | Logging level | `INFO` | No |
+
+---
+
+## Port
+
+**8174**
+
+---
+
+## Quick Start | البداية السريعة
+
+### Local Development
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the service
+uvicorn src.main:app --host 0.0.0.0 --port 8174 --reload
+```
+
+### Docker
+
+```bash
+# Build image
+docker build -t sahool/traceability-service .
+
+# Run container
+docker run -p 8174:8174 \
+  -e DATABASE_URL=postgresql://user:pass@localhost:5432/sahool \
+  -e REDIS_URL=redis://localhost:6379 \
+  -e NATS_URL=nats://localhost:4222 \
+  sahool/traceability-service
+```
+
+---
+
+## Kubernetes Deployment | نشر Kubernetes
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traceability-service
+  namespace: sahool
+  labels:
+    app: traceability-service
+    tier: business
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: traceability-service
+  template:
+    metadata:
+      labels:
+        app: traceability-service
+    spec:
+      containers:
+        - name: traceability-service
+          image: sahool/traceability-service:latest
+          ports:
+            - containerPort: 8174
+          env:
+            - name: PORT
+              value: "8174"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sahool-secrets
+                  key: database-url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sahool-secrets
+                  key: redis-url
+            - name: NATS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: sahool-config
+                  key: nats-url
+            - name: QR_BASE_URL
+              value: "https://trace.sahool.app"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8174
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8174
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traceability-service
+  namespace: sahool
+spec:
+  selector:
+    app: traceability-service
+  ports:
+    - port: 8174
+      targetPort: 8174
+  type: ClusterIP
+```
+
+---
+
+## Consumer Journey Example | مثال رحلة المستهلك
+
+When a consumer scans the QR code on a product, they see:
+
+```json
+{
+  "product": {
+    "name_en": "Organic Tomatoes",
+    "name_ar": "طماطم عضوية",
+    "batch_code": "TM-25-001",
+    "grade": "A"
+  },
+  "producer": {
+    "name": "Al-Falah Farm",
+    "location": "Riyadh, Saudi Arabia",
+    "certifications": ["GlobalGAP", "Organic"]
+  },
+  "journey": [
+    {
+      "event": "Harvested",
+      "date": "2025-01-15",
+      "location": "Field A, Al-Falah Farm"
+    },
+    {
+      "event": "Quality Checked",
+      "date": "2025-01-15",
+      "grade": "A"
+    },
+    {
+      "event": "Packed",
+      "date": "2025-01-16",
+      "facility": "Al-Falah Packing House"
+    },
+    {
+      "event": "Shipped",
+      "date": "2025-01-17",
+      "destination": "Retail Distribution Center"
+    }
+  ],
+  "carbon_footprint": {
+    "total_kg_co2": 0.45,
+    "per_kg": 0.09
+  }
+}
+```
+
+---
+
+## Testing | الاختبار
+
+```bash
+# Run tests
+pytest tests/ -v
+
+# Run with coverage
+pytest tests/ --cov=src --cov-report=html
+
+# Run specific test
+pytest tests/test_qr_generator.py -v
+```
+
+---
+
+## Dependencies | التبعيات
+
+This service uses the shared traceability module:
+
+```python
+from shared.traceability import (
+    SupplyChainTracker,
+    QRCodeGenerator,
+    ProduceBatch,
+    EventType,
+    calculate_carbon_footprint,
+)
+```
+
+---
+
+## License | الترخيص
+
+Proprietary - KAFAAT
+
+---
+
+**Version**: 1.0.0
+**Last Updated**: January 2026

@@ -103,7 +103,7 @@ agents:
         keywords: ["field", "assessment", "evaluation", "analysis"]
 
     dependencies:
-      - satellite-service
+      - vegetation-analysis-service
       - ndvi-processor
       - weather-service
       - iot-gateway
@@ -190,8 +190,8 @@ agents:
         keywords: ["vision", "image", "detection", "recognition"]
 
     dependencies:
-      - crop-health-service
-      - crop-health-ai
+      - crop-health
+      - crop-intelligence-service
       - weather-service
 
     endpoint:
@@ -340,10 +340,10 @@ agents:
         keywords: ["ml", "ai", "prediction", "model"]
 
     dependencies:
-      - yield-prediction-service
+      - yield-prediction
       - crop-growth-model
       - weather-service
-      - satellite-service
+      - vegetation-analysis-service
 
     endpoint:
       url: "https://api.sahool.app/agents/yield-predictor/invoke"
@@ -542,7 +542,7 @@ agents:
 
     dependencies:
       - weather-service
-      - weather-advanced
+      - weather-core
 
     endpoint:
       url: "https://api.sahool.app/agents/weather-advisor/invoke"
@@ -610,9 +610,9 @@ agents:
         keywords: ["gis", "geospatial", "mapping"]
 
     dependencies:
-      - satellite-service
-      - ndvi-processor
       - vegetation-analysis-service
+      - ndvi-processor
+      - ndvi-engine
 
     endpoint:
       url: "https://api.sahool.app/agents/satellite-analyst/invoke"
@@ -841,7 +841,7 @@ agents:
       - audit-service
       - notification-service
       - alert-service
-      - auto-fix-engine
+      - code-fix-agent
 
     endpoint:
       url: "https://api.sahool.app/agents/audit-agent/invoke"

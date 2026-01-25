@@ -1,5 +1,6 @@
 # SAHOOL Crop Rotation Service Dockerfile
 # Multi-stage build for Python service
+# ⚠️ DEPRECATED: This service is part of field-core which has been migrated to field-management-service
 
 FROM python:3.11-slim as base
 
@@ -22,12 +23,12 @@ RUN pip install --no-cache-dir -r rotation-requirements.txt
 COPY src/ ./src/
 COPY ../shared/ ./shared/
 
-# Expose port
-EXPOSE 8099
+# Expose port (changed from 8099 to 8153 to avoid conflict with field-chat)
+EXPOSE 8153
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import httpx; httpx.get('http://localhost:8099/healthz')" || exit 1
+    CMD python -c "import httpx; httpx.get('http://localhost:8153/healthz')" || exit 1
 
 # Run the application
 CMD ["python", "-m", "src.rotation_main"]

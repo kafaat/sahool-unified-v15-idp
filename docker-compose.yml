@@ -1777,26 +1777,27 @@ services:
 
   # Yield Prediction Service - Unified Yield Analysis
   # Consolidates: yield-engine, yield-prediction
+  # Note: Port changed from 8098 to 8152 to avoid conflict with yield-engine
   yield-prediction-service:
     build:
       context: .
       dockerfile: apps/services/yield-prediction-service/Dockerfile
     container_name: sahool-yield-prediction-service
     environment:
-      - PORT=8098
+      - PORT=8152
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
-      - "8098:8098"
+      - "8152:8152"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8098/api/v1/yield/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8152/api/v1/yield/health" ]
       interval: 30s
       timeout: 10s
       retries: 3

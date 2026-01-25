@@ -8,33 +8,34 @@ export type ResearchType = "trial" | "experiment" | "study" | "survey";
 
 export interface ResearchTrial {
   id: string;
-  title: string;
-  titleAr: string;
+  name: string;
+  nameAr: string;
   description: string;
-  descriptionAr: string;
-  type: ResearchType;
+  descriptionAr?: string;
+  crop: string;
+  cropAr: string;
+  type?: ResearchType;
   status: ResearchStatus;
   startDate: string;
-  endDate?: string;
-  targetEndDate: string;
-  fieldId?: string;
-  fieldName?: string;
-  cropType?: string;
-  objectives: string[];
-  objectivesAr: string[];
+  endDate: string;
+  fieldId: string;
+  fieldName: string;
+  researchers: number;
+  progress: number;
+  objectives?: string[];
+  objectivesAr?: string[];
   methodology?: string;
   methodologyAr?: string;
-  progress: number;
   results?: string;
   resultsAr?: string;
-  leadResearcher: string;
-  team: string[];
+  leadResearcher?: string;
+  team?: string[];
   budget?: number;
   actualCost?: number;
   attachments?: string[];
-  metadata: Record<string, unknown>;
-  createdAt: string;
-  updatedAt: string;
+  metadata?: Record<string, unknown>;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ResearchFilters {
@@ -45,21 +46,22 @@ export interface ResearchFilters {
 }
 
 export interface ResearchFormData {
-  title: string;
-  titleAr: string;
+  name: string;
+  nameAr: string;
   description: string;
-  descriptionAr: string;
-  type: ResearchType;
+  descriptionAr?: string;
+  crop: string;
+  cropAr: string;
+  type?: ResearchType;
   startDate: string;
-  targetEndDate: string;
+  endDate: string;
   fieldId?: string;
-  cropType?: string;
-  objectives: string[];
-  objectivesAr: string[];
+  objectives?: string[];
+  objectivesAr?: string[];
   methodology?: string;
   methodologyAr?: string;
-  leadResearcher: string;
-  team: string[];
+  leadResearcher?: string;
+  team?: string[];
   budget?: number;
 }
 
@@ -78,7 +80,9 @@ export interface ResearchStats {
   totalTrials: number;
   activeTrials: number;
   completedTrials: number;
-  totalBudget: number;
-  byType: Record<string, number>;
-  byStatus: Record<string, number>;
+  planningTrials?: number;
+  totalResearchers: number;
+  totalBudget?: number;
+  byType?: Record<string, number>;
+  byStatus?: Record<string, number>;
 }

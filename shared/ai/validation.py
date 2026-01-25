@@ -15,7 +15,7 @@ Updated: January 2026
 
 import re
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -83,7 +83,7 @@ class ValidationResult:
     score: float = 1.0  # 0.0 = unsafe, 1.0 = safe
     processed_text: str | None = None  # Sanitized version if applicable
     metadata: dict[str, Any] = field(default_factory=dict)
-    validated_at: datetime = field(default_factory=datetime.utcnow)
+    validated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""

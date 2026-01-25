@@ -6,7 +6,7 @@ Error Response Models
 @description Standardized error response formats for FastAPI
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, Field
@@ -111,7 +111,7 @@ class SuccessResponseModel(BaseModel, Generic[T]):
     message: str | None = Field(None, description="Response message in English")
     messageAr: str | None = Field(None, description="Response message in Arabic - الرسالة بالعربية")
     timestamp: str = Field(
-        default_factory=lambda: datetime.utcnow().isoformat(),
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
         description="Response timestamp",
     )
 
@@ -162,7 +162,7 @@ class PaginatedResponseModel(BaseModel, Generic[T]):
     message: str | None = Field(None, description="Response message in English")
     messageAr: str | None = Field(None, description="Response message in Arabic - الرسالة بالعربية")
     timestamp: str = Field(
-        default_factory=lambda: datetime.utcnow().isoformat(),
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
         description="Response timestamp",
     )
 
@@ -198,7 +198,7 @@ def create_success_response(
         "data": data,
         "message": message,
         "messageAr": message_ar,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -229,5 +229,5 @@ def create_paginated_response(
         },
         "message": message,
         "messageAr": message_ar,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }

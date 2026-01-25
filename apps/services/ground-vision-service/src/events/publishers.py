@@ -8,7 +8,7 @@ for consumption by other services.
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from pydantic import BaseModel
@@ -62,7 +62,7 @@ class GroundVisionPublisher:
     def _generate_event_id(self) -> str:
         """Generate unique event ID."""
         self._event_counter += 1
-        timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S%f")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")
         return f"gv_evt_{timestamp}_{self._event_counter}"
 
     async def publish_frame_captured(
@@ -88,7 +88,7 @@ class GroundVisionPublisher:
         payload = EventPayload(
             event_id=self._generate_event_id(),
             event_type="frame_captured",
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             tenant_id=tenant_id,
             data={
                 "camera_id": camera_id,
@@ -118,7 +118,7 @@ class GroundVisionPublisher:
         payload = EventPayload(
             event_id=self._generate_event_id(),
             event_type="operation_detected",
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             tenant_id=detection.tenant_id,
             data={
                 "detection_id": detection.detection_id,
@@ -176,7 +176,7 @@ class GroundVisionPublisher:
         payload = EventPayload(
             event_id=self._generate_event_id(),
             event_type="growth_stage_changed",
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             tenant_id=tenant_id,
             data={
                 "field_id": field_id,
@@ -214,7 +214,7 @@ class GroundVisionPublisher:
         payload = EventPayload(
             event_id=self._generate_event_id(),
             event_type="anomaly_detected",
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             tenant_id=anomaly.tenant_id,
             data={
                 "anomaly_id": anomaly.anomaly_id,
@@ -260,7 +260,7 @@ class GroundVisionPublisher:
         payload = EventPayload(
             event_id=self._generate_event_id(),
             event_type="timeline_updated",
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             tenant_id=analysis.tenant_id,
             data={
                 "analysis_id": analysis.analysis_id,
@@ -308,7 +308,7 @@ class GroundVisionPublisher:
         payload = EventPayload(
             event_id=self._generate_event_id(),
             event_type="camera_status",
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             tenant_id=tenant_id,
             data={
                 "camera_id": camera_id,

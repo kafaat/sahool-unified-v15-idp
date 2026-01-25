@@ -17,7 +17,7 @@ import json
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -852,7 +852,7 @@ async def fetch_messages(
     # Simulate fetching messages (in production, call WeChat API)
     if chat_id not in messages:
         # Generate sample messages for demo
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         messages[chat_id] = [
             MessageResponse(
                 id=str(uuid4()),
@@ -891,7 +891,7 @@ async def fetch_messages(
             "tenant_id": fetch_request.tenant_id,
             "message_count": len(limited_messages),
             "user_id": user.id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
     )
 
@@ -934,7 +934,7 @@ async def send_message(
 
     # Create message
     message_id = str(uuid4())
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     new_message = MessageResponse(
         id=message_id,
@@ -1024,7 +1024,7 @@ async def add_contact(
 
     # Create contact
     contact_id = str(uuid4())
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     new_contact = ContactResponse(
         id=contact_id,
@@ -1100,7 +1100,7 @@ async def publish_moment(
 
     # Create moment
     moment_id = str(uuid4())
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     new_moment = MomentResponse(
         id=moment_id,
@@ -1173,7 +1173,7 @@ async def summarize_chat(
     validate_tenant_access(user, summarize_request.tenant_id)
 
     chat_id = summarize_request.chat_id
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     # Calculate time range
     from datetime import timedelta
@@ -1284,7 +1284,7 @@ async def get_chat_insights(
     validate_tenant_access(user, insights_request.tenant_id)
 
     chat_id = insights_request.chat_id
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     # Calculate time range
     from datetime import timedelta

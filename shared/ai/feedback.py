@@ -16,7 +16,7 @@ Updated: January 2026
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 import os
 import asyncio
@@ -165,8 +165,8 @@ class FeedbackItem:
             context=data.get("context", {}),
             sentiment=FeedbackSentiment(data.get("sentiment", "neutral")),
             sentiment_score=data.get("sentiment_score", 0.0),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.utcnow(),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.utcnow(),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(timezone.utc),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(timezone.utc),
             source=data.get("source", "mobile_app"),
             tags=data.get("tags", []),
         )
@@ -293,7 +293,7 @@ class FeedbackStorage:
     ) -> list[FeedbackItem]:
         """Load recent feedback"""
         from datetime import timedelta
-        cutoff = datetime.utcnow() - timedelta(days=days)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
         all_feedback = await self.load_all(tenant_id)
         return [f for f in all_feedback if f.created_at >= cutoff]
 

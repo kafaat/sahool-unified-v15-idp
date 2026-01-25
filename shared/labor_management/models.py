@@ -8,7 +8,7 @@ Version: 1.0.0
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, date, time, timedelta
+from datetime import datetime, date, time, timedelta, timezone
 from enum import Enum
 from uuid import uuid4
 

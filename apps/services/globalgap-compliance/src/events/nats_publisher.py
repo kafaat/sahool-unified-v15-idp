@@ -5,7 +5,7 @@ Publishes compliance-related events to NATS event bus
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
 
@@ -79,7 +79,7 @@ class NatsPublisher:
             event = {
                 "eventId": str(uuid4()),
                 "eventType": event_type,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "version": "1.0",
                 "payload": payload,
                 "metadata": metadata or {},
@@ -149,7 +149,7 @@ async def publish_compliance_updated(
             "overallStatus": overall_status,
             "compliancePercentage": compliance_percentage,
             "changes": changes or {},
-            "updatedAt": datetime.utcnow().isoformat(),
+            "updatedAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -193,7 +193,7 @@ async def publish_audit_completed(
             "auditStatus": audit_status,
             "overallScore": overall_score,
             "auditorName": auditor_name,
-            "completedAt": datetime.utcnow().isoformat(),
+            "completedAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -234,7 +234,7 @@ async def publish_non_conformity_created(
             "controlPointNumber": control_point_number,
             "severity": severity,
             "description": description,
-            "createdAt": datetime.utcnow().isoformat(),
+            "createdAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -272,7 +272,7 @@ async def publish_non_conformity_resolved(
             "tenantId": tenant_id,
             "resolutionDescription": resolution_description,
             "resolvedBy": resolved_by,
-            "resolvedAt": datetime.utcnow().isoformat(),
+            "resolvedAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -316,7 +316,7 @@ async def publish_certificate_created(
             "certificateType": certificate_type,
             "issuedDate": issued_date,
             "expiryDate": expiry_date,
-            "createdAt": datetime.utcnow().isoformat(),
+            "createdAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -354,7 +354,7 @@ async def publish_certificate_renewed(
             "tenantId": tenant_id,
             "ggnNumber": ggn_number,
             "newExpiryDate": new_expiry_date,
-            "renewedAt": datetime.utcnow().isoformat(),
+            "renewedAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 

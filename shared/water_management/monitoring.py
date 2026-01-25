@@ -18,7 +18,7 @@ Updated: January 2026
 import statistics
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from .models import (
@@ -222,7 +222,7 @@ class WaterLevelMonitor:
             id=str(uuid.uuid4()),
             source_id=source.id,
             tenant_id=self.tenant_id,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             level_m3=level_m3,
             level_percent=level_percent,
             depth_m=depth_m,
@@ -377,7 +377,7 @@ class WaterLevelMonitor:
         Analyze water level trend over specified period.
         تحليل اتجاه مستوى المياه خلال الفترة المحددة
         """
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         period_start = now - timedelta(hours=hours)
 
         readings = self._readings_cache.get(source_id, [])
@@ -763,7 +763,7 @@ class WaterQualityMonitor:
         تحليل اتجاه جودة المياه خلال الفترة المحددة
         """
         tests = self._test_history.get(source_id, [])
-        cutoff = datetime.utcnow() - timedelta(days=months * 30)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=months * 30)
         period_tests = [t for t in tests if t.tested_at >= cutoff]
 
         if not period_tests:

@@ -6,7 +6,7 @@ Data aggregation, anomaly detection, and field interpolation
 import math
 import uuid
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from .models import (
     SensorReading,
@@ -170,7 +170,7 @@ class SensorDataProcessor:
             return None  # Not enough data
 
         # Get recent readings (last 24 hours)
-        cutoff = datetime.utcnow() - timedelta(hours=24)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
         recent = [r for r in sensor_readings if r.timestamp > cutoff]
 
         if len(recent) < 5:
@@ -231,7 +231,7 @@ class SensorDataProcessor:
         if not readings:
             return None
 
-        cutoff = datetime.utcnow() - timedelta(hours=period_hours)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=period_hours)
         period_readings = [r for r in readings if r.timestamp > cutoff]
 
         if not period_readings:
@@ -418,7 +418,7 @@ def interpolate_field_moisture(
     if not points:
         return FieldMoistureMap(
             field_id="",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             grid_resolution_m=resolution_m,
             min_lat=min_lat,
             max_lat=max_lat,
@@ -489,7 +489,7 @@ def interpolate_field_moisture(
 
     return FieldMoistureMap(
         field_id="",  # Set by caller
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
         grid_resolution_m=resolution_m,
         min_lat=min_lat,
         max_lat=max_lat,

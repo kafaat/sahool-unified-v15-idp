@@ -16,7 +16,7 @@ Updated: January 2026
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 from decimal import Decimal
 from typing import Any
 
@@ -118,7 +118,7 @@ class ComplianceIssue:
     description_ar: str
     regulation_reference: str | None = None
     regulation_reference_ar: str | None = None
-    detected_at: datetime = field(default_factory=datetime.utcnow)
+    detected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     resolved: bool = False
     resolved_at: datetime | None = None
     resolution_notes: str = ""
@@ -708,7 +708,7 @@ class WaterReportGenerator:
             tenant_id=self.tenant_id,
             farm_id=farm_id,
             report_period=period,
-            generated_at=datetime.utcnow(),
+            generated_at=datetime.now(timezone.utc),
         )
 
         # Set farm information
@@ -836,7 +836,7 @@ class WaterReportGenerator:
             tenant_id=self.tenant_id,
             well_id=well.id,
             report_period=period,
-            generated_at=datetime.utcnow(),
+            generated_at=datetime.now(timezone.utc),
         )
 
         # Well information
@@ -938,7 +938,7 @@ class WaterReportGenerator:
             tenant_id=self.tenant_id,
             farm_id=farm_id,
             report_period=period,
-            generated_at=datetime.utcnow(),
+            generated_at=datetime.now(timezone.utc),
         )
 
         report.total_sources = len(sources)
@@ -1053,7 +1053,7 @@ class WaterReportGenerator:
             tenant_id=self.tenant_id,
             farm_id=farm_id,
             report_period=period,
-            generated_at=datetime.utcnow(),
+            generated_at=datetime.now(timezone.utc),
         )
 
         # Farm info

@@ -4,7 +4,7 @@ Handles warehouses, zones, locations, and stock transfers
 """
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 
 
@@ -334,7 +334,7 @@ class WarehouseManager:
             data={
                 "status": "APPROVED",
                 "approvedBy": approved_by,
-                "approvedAt": datetime.utcnow(),
+                "approvedAt": datetime.now(timezone.utc),
             },
         )
 
@@ -361,7 +361,7 @@ class WarehouseManager:
             data={
                 "status": "COMPLETED",
                 "performedBy": performed_by,
-                "completedAt": datetime.utcnow(),
+                "completedAt": datetime.now(timezone.utc),
             },
         )
 
@@ -457,12 +457,12 @@ class WarehouseManager:
         Returns:
             List of expiring items
         """
-        cutoff_date = datetime.utcnow() + timedelta(days=days)
+        cutoff_date = datetime.now(timezone.utc) + timedelta(days=days)
 
         items = await self.db.inventoryitem.find_many(
             where={
                 "warehouseId": warehouse_id,
-                "expiryDate": {"lte": cutoff_date, "gte": datetime.utcnow()},
+                "expiryDate": {"lte": cutoff_date, "gte": datetime.now(timezone.utc)},
             },
             order_by={"expiryDate": "asc"},
         )
@@ -470,7 +470,7 @@ class WarehouseManager:
         result = []
         for item in items:
             days_until_expiry = (
-                (item.expiryDate - datetime.utcnow()).days if item.expiryDate else None
+                (item.expiryDate - datetime.now(timezone.utc)).days if item.expiryDate else None
             )
             result.append(
                 {

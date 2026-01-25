@@ -8,7 +8,7 @@ Base agent implementation with agent card generation and task handling.
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import structlog
@@ -96,7 +96,7 @@ class AgentCard(BaseModel):
     status: str = Field(
         default="active", description="Agent status (active, maintenance, deprecated)"
     )
-    last_updated: datetime = Field(default_factory=datetime.utcnow)
+    last_updated: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:
         json_encoders = {
@@ -217,7 +217,7 @@ class A2AAgent(ABC):
             supports_batch=False,
             protocol_version="1.0",
             status="active",
-            last_updated=datetime.utcnow(),
+            last_updated=datetime.now(timezone.utc),
         )
 
     def register_task_handler(
@@ -247,7 +247,7 @@ class A2AAgent(ABC):
         Returns:
             Task result message
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         self.stats["tasks_received"] += 1
 
         # Add to queue
@@ -278,7 +278,7 @@ class A2AAgent(ABC):
 
             # Calculate execution time
             # حساب وقت التنفيذ
-            execution_time = (datetime.utcnow() - start_time).total_seconds() * 1000
+            execution_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
             self.stats["total_execution_time_ms"] += execution_time
             self.stats["tasks_completed"] += 1
 
@@ -434,7 +434,7 @@ class A2AAgent(ABC):
         Returns:
             Number of conversations removed
         """
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         removed = 0
 
         conversation_ids = list(self.conversations.keys())

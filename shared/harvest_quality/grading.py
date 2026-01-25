@@ -14,7 +14,7 @@ Updated: January 2026
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any
 import math
@@ -923,7 +923,7 @@ class QualityGradingEngine:
         test_record.standard_id = standard.id
         test_record.standard_name = standard.name
         test_record.standard_code = standard.standard_code
-        test_record.updated_at = datetime.utcnow()
+        test_record.updated_at = datetime.now(timezone.utc)
 
         # Update summary metrics
         if "moisture" in test_values:

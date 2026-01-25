@@ -15,7 +15,7 @@ Updated: January 2026
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from decimal import Decimal
 from typing import Any, Callable
 import asyncio
@@ -101,7 +101,7 @@ class PayoutCalculation:
     rejection_reason: str = ""
     rejection_reason_ar: str = ""
 
-    calculated_at: datetime = field(default_factory=datetime.utcnow)
+    calculated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     calculated_by: str = "system"
 
     def to_dict(self) -> dict[str, Any]:
@@ -784,8 +784,8 @@ class ClaimStorage:
             verified_loss_percentage=data.get("verified_loss_percentage"),
             payout=payout,
             status_history=data.get("status_history", []),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.utcnow(),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.utcnow(),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(timezone.utc),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(timezone.utc),
             contact_phone=data.get("contact_phone", ""),
             contact_email=data.get("contact_email", ""),
             preferred_language=data.get("preferred_language", "ar"),
@@ -911,7 +911,7 @@ class ClaimProcessor:
             )
 
         claim.evidence.append(evidence)
-        claim.updated_at = datetime.utcnow()
+        claim.updated_at = datetime.now(timezone.utc)
         await self.storage.update_claim(claim)
         return claim
 
@@ -984,7 +984,7 @@ class ClaimProcessor:
         if validation_result.is_valid:
             # Submit the claim
             claim.add_status_change(ClaimStatus.SUBMITTED, "farmer", "Claim submitted")
-            claim.submitted_at = datetime.utcnow()
+            claim.submitted_at = datetime.now(timezone.utc)
 
             # Save
             await self.storage.save_claim(claim)
@@ -1019,7 +1019,7 @@ class ClaimProcessor:
 
         if validation_result.is_valid:
             claim.add_status_change(ClaimStatus.SUBMITTED, "farmer", "Claim submitted")
-            claim.submitted_at = datetime.utcnow()
+            claim.submitted_at = datetime.now(timezone.utc)
             await self.storage.update_claim(claim)
 
             if self.on_claim_submitted:
@@ -1079,7 +1079,7 @@ class ClaimProcessor:
             trigger_id=trigger.id,
             index_value=measured_value,
             threshold_value=trigger.threshold_value,
-            submitted_at=datetime.utcnow(),
+            submitted_at=datetime.now(timezone.utc),
         )
 
         # Add evidence from data source
@@ -1091,10 +1091,10 @@ class ClaimProcessor:
             description_ar=f"القيمة المقاسة: {measured_value} {trigger.measurement_unit_ar}",
             data_source=data_source,
             data_value=measured_value,
-            data_timestamp=datetime.utcnow(),
+            data_timestamp=datetime.now(timezone.utc),
             verified=True,
             verified_by="system",
-            verified_at=datetime.utcnow(),
+            verified_at=datetime.now(timezone.utc),
         ))
 
         # Calculate payout
@@ -1118,7 +1118,7 @@ class ClaimProcessor:
                 coverage_percentage=payout_calc.coverage_percentage,
                 calculation_details={"steps": payout_calc.calculation_steps},
                 approved_by="system",
-                approved_at=datetime.utcnow(),
+                approved_at=datetime.now(timezone.utc),
                 approval_notes="Automatically approved parametric claim",
                 approval_notes_ar="مطالبة معيارية موافق عليها تلقائياً",
             )
@@ -1175,7 +1175,7 @@ class ClaimProcessor:
             is_parametric_claim=True,
             index_value=index.current_value,
             threshold_value=index.trigger_threshold,
-            submitted_at=datetime.utcnow(),
+            submitted_at=datetime.now(timezone.utc),
         )
 
         # Add weather data evidence
@@ -1190,7 +1190,7 @@ class ClaimProcessor:
             data_timestamp=index.last_updated,
             verified=True,
             verified_by="system",
-            verified_at=datetime.utcnow(),
+            verified_at=datetime.now(timezone.utc),
         ))
 
         # Calculate payout
@@ -1210,7 +1210,7 @@ class ClaimProcessor:
                 coverage_percentage=payout_calc.coverage_percentage,
                 calculation_details={"steps": payout_calc.calculation_steps},
                 approved_by="system",
-                approved_at=datetime.utcnow(),
+                approved_at=datetime.now(timezone.utc),
             )
             payout.calculate_net_payout()
             claim.payout = payout
@@ -1247,11 +1247,11 @@ class ClaimProcessor:
         if decision == "approve":
             claim.add_status_change(ClaimStatus.APPROVED, reviewer_id, notes)
             claim.verified_loss_percentage = verified_loss_percentage
-            claim.resolved_at = datetime.utcnow()
+            claim.resolved_at = datetime.now(timezone.utc)
 
         elif decision == "reject":
             claim.add_status_change(ClaimStatus.REJECTED, reviewer_id, notes)
-            claim.resolved_at = datetime.utcnow()
+            claim.resolved_at = datetime.now(timezone.utc)
 
         elif decision == "request_inspection":
             claim.add_status_change(ClaimStatus.FIELD_INSPECTION, reviewer_id, notes)
@@ -1336,13 +1336,13 @@ class ClaimProcessor:
             account_number=account_number,
             iban=iban,
             approved_by=approved_by,
-            approved_at=datetime.utcnow(),
+            approved_at=datetime.now(timezone.utc),
         )
         payout.calculate_net_payout()
 
         claim.payout = payout
         claim.add_status_change(ClaimStatus.PAID, approved_by, "Payout finalized")
-        claim.resolved_at = datetime.utcnow()
+        claim.resolved_at = datetime.now(timezone.utc)
 
         await self.storage.update_claim(claim)
 

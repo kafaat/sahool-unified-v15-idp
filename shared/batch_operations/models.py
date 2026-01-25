@@ -11,7 +11,7 @@ Updated: January 2026
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -526,7 +526,7 @@ class BatchOperation:
     # Metadata
     created_by_user_id: str | None = None
     created_by_name: str | None = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     started_at: datetime | None = None
     completed_at: datetime | None = None
     cancelled_at: datetime | None = None
@@ -572,7 +572,7 @@ class BatchOperation:
     ):
         """Add an audit log entry."""
         entry = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "action": action,
             "details": details or {},
             "user_id": user_id,

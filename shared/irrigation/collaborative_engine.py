@@ -20,7 +20,7 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Callable
 from uuid import UUID, uuid4, uuid5, NAMESPACE_DNS
 import structlog

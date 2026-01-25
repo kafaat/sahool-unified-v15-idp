@@ -6,7 +6,7 @@ Service Client for Inter-Service Communication
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 
@@ -98,7 +98,7 @@ class ServiceClient:
         cached_at = cache_entry.get("cached_at")
         if not cached_at:
             return False
-        return datetime.utcnow() - cached_at < self._cache_ttl
+        return datetime.now(timezone.utc) - cached_at < self._cache_ttl
 
     async def get(
         self,
@@ -115,7 +115,7 @@ class ServiceClient:
                 logger.debug(f"Cache hit for {self.service.value}{path}")
                 return self._cache[cache_key]["response"]
 
-        start = datetime.utcnow()
+        start = datetime.now(timezone.utc)
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.get(
@@ -123,7 +123,7 @@ class ServiceClient:
                     params=params,
                     headers=self._get_headers(),
                 )
-                latency = (datetime.utcnow() - start).total_seconds() * 1000
+                latency = (datetime.now(timezone.utc) - start).total_seconds() * 1000
 
                 result = ServiceResponse(
                     success=response.is_success,
@@ -137,7 +137,7 @@ class ServiceClient:
                 if use_cache and result.success:
                     self._cache[cache_key] = {
                         "response": result,
-                        "cached_at": datetime.utcnow(),
+                        "cached_at": datetime.now(timezone.utc),
                     }
 
                 return result
@@ -163,7 +163,7 @@ class ServiceClient:
         json: dict[str, Any] | None = None,
     ) -> ServiceResponse:
         """Make POST request to service"""
-        start = datetime.utcnow()
+        start = datetime.now(timezone.utc)
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.post(
@@ -172,7 +172,7 @@ class ServiceClient:
                     json=json,
                     headers=self._get_headers(),
                 )
-                latency = (datetime.utcnow() - start).total_seconds() * 1000
+                latency = (datetime.now(timezone.utc) - start).total_seconds() * 1000
 
                 return ServiceResponse(
                     success=response.is_success,
@@ -203,7 +203,7 @@ class ServiceClient:
         json: dict[str, Any] | None = None,
     ) -> ServiceResponse:
         """Make PUT request to service"""
-        start = datetime.utcnow()
+        start = datetime.now(timezone.utc)
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.put(
@@ -212,7 +212,7 @@ class ServiceClient:
                     json=json,
                     headers=self._get_headers(),
                 )
-                latency = (datetime.utcnow() - start).total_seconds() * 1000
+                latency = (datetime.now(timezone.utc) - start).total_seconds() * 1000
 
                 return ServiceResponse(
                     success=response.is_success,
@@ -232,14 +232,14 @@ class ServiceClient:
 
     async def delete(self, path: str) -> ServiceResponse:
         """Make DELETE request to service"""
-        start = datetime.utcnow()
+        start = datetime.now(timezone.utc)
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.delete(
                     f"{self.base_url}{path}",
                     headers=self._get_headers(),
                 )
-                latency = (datetime.utcnow() - start).total_seconds() * 1000
+                latency = (datetime.now(timezone.utc) - start).total_seconds() * 1000
 
                 return ServiceResponse(
                     success=response.is_success,

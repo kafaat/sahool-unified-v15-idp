@@ -12,7 +12,7 @@ Version: 1.0.0
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timezone
 from enum import Enum
 
 from .models import (

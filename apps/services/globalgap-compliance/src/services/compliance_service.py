@@ -6,7 +6,7 @@ Business logic for tracking farm compliance against IFA v6 standards.
 منطق العمل لتتبع امتثال المزارع لمعايير IFA v6.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from ..models import (
@@ -105,8 +105,8 @@ class ComplianceService:
             non_compliant_points=non_compliant_points,
             major_must_fails=major_must_fails,
             minor_must_fails=minor_must_fails,
-            assessment_date=datetime.utcnow(),
-            next_assessment_date=datetime.utcnow() + timedelta(days=365),
+            assessment_date=datetime.now(timezone.utc),
+            next_assessment_date=datetime.now(timezone.utc) + timedelta(days=365),
         )
 
         return compliance_record
@@ -176,7 +176,7 @@ class ComplianceService:
         # في التطبيق الفعلي، الحفظ في قاعدة البيانات
         key = f"{compliance_record.tenant_id}:{compliance_record.farm_id}"
         compliance_record.id = key
-        compliance_record.updated_at = datetime.utcnow()
+        compliance_record.updated_at = datetime.now(timezone.utc)
         self.compliance_records[key] = compliance_record
         return compliance_record
 
@@ -228,8 +228,8 @@ class ComplianceService:
         """
         # Extract farm_id from compliance_record_id (simplified)
         # استخراج farm_id من compliance_record_id (مبسط)
-        non_conformity.id = f"nc_{datetime.utcnow().timestamp()}"
-        non_conformity.identified_date = datetime.utcnow()
+        non_conformity.id = f"nc_{datetime.now(timezone.utc).timestamp()}"
+        non_conformity.identified_date = datetime.now(timezone.utc)
 
         # In real implementation, save to database
         # في التطبيق الفعلي، الحفظ في قاعدة البيانات
@@ -272,7 +272,7 @@ class ComplianceService:
                     nc.corrective_action_status = status
                     if status == "completed":
                         nc.corrective_action_completed = True
-                        nc.resolved_date = datetime.utcnow()
+                        nc.resolved_date = datetime.now(timezone.utc)
                     return nc
 
         return None
@@ -299,7 +299,7 @@ class ComplianceService:
         # Simulate historical data
         # محاكاة البيانات التاريخية
         for i in range(months):
-            date = datetime.utcnow() - timedelta(days=30 * i)
+            date = datetime.now(timezone.utc) - timedelta(days=30 * i)
             trends.append(
                 {
                     "date": date.isoformat(),

@@ -19,7 +19,7 @@ Updated: January 2026
 """
 
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Callable
 from uuid import UUID, uuid4
 import structlog

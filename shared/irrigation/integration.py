@@ -16,7 +16,7 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Protocol
 from uuid import UUID
 import structlog

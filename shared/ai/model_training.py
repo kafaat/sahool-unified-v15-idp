@@ -22,7 +22,7 @@ import json
 import os
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable
@@ -105,7 +105,7 @@ class TrainingDataset:
     def add_example(self, example: TrainingExample) -> None:
         """Add an example to the dataset."""
         self.examples.append(example)
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
 
     def to_jsonl(self) -> str:
         """Export dataset to JSONL format."""
@@ -608,7 +608,7 @@ class ModelTrainer:
             raise ValueError(f"Job not found: {job_id}")
 
         job.status = TrainingStatus.PREPARING
-        job.started_at = datetime.utcnow()
+        job.started_at = datetime.now(timezone.utc)
         self._notify_progress(job)
 
         try:
@@ -636,13 +636,13 @@ class ModelTrainer:
             # Complete
             job.status = TrainingStatus.COMPLETED
             job.progress = 100.0
-            job.completed_at = datetime.utcnow()
+            job.completed_at = datetime.now(timezone.utc)
             self._notify_progress(job)
 
         except Exception as e:
             job.status = TrainingStatus.FAILED
             job.error_message = str(e)
-            job.completed_at = datetime.utcnow()
+            job.completed_at = datetime.now(timezone.utc)
             self._notify_progress(job)
             raise
 
@@ -750,7 +750,7 @@ Consider local climate, soil conditions, and available resources."""
 
         async with httpx.AsyncClient(timeout=60.0) as client:
             for example in dataset.examples[:eval_count]:
-                start_time = datetime.utcnow()
+                start_time = datetime.now(timezone.utc)
 
                 try:
                     response = await client.post(
@@ -762,7 +762,7 @@ Consider local climate, soil conditions, and available resources."""
                         },
                     )
 
-                    latency = (datetime.utcnow() - start_time).total_seconds() * 1000
+                    latency = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
                     total_latency += latency
 
                     if response.status_code == 200:
@@ -828,7 +828,7 @@ Consider local climate, soil conditions, and available resources."""
         job = self._jobs.get(job_id)
         if job and job.status in [TrainingStatus.PENDING, TrainingStatus.PREPARING, TrainingStatus.TRAINING]:
             job.status = TrainingStatus.CANCELLED
-            job.completed_at = datetime.utcnow()
+            job.completed_at = datetime.now(timezone.utc)
             return True
         return False
 

@@ -12,7 +12,7 @@ import hashlib
 import mimetypes
 import os
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
@@ -484,7 +484,7 @@ class DocumentStorageService:
 
         # Generate document ID and storage path
         doc_id = str(uuid4())
-        timestamp = datetime.utcnow().strftime("%Y/%m/%d")
+        timestamp = datetime.now(timezone.utc).strftime("%Y/%m/%d")
         safe_filename = self._sanitize_filename(filename)
         storage_path = f"{tenant_id}/{farm_id}/{timestamp}/{doc_id}_{safe_filename}"
 
@@ -586,7 +586,7 @@ class DocumentStorageService:
         else:
             # Soft delete - just mark as archived
             document.status = DocumentStatus.ARCHIVED
-            document.updated_at = datetime.utcnow()
+            document.updated_at = datetime.now(timezone.utc)
 
         logger.info(
             "document_deleted",
@@ -718,7 +718,7 @@ class DocumentStorageService:
         if status is not None:
             document.status = status
 
-        document.updated_at = datetime.utcnow()
+        document.updated_at = datetime.now(timezone.utc)
 
         logger.info(
             "document_updated",
@@ -775,7 +775,7 @@ class DocumentStorageService:
 
         # Archive old version
         old_document.status = DocumentStatus.ARCHIVED
-        old_document.updated_at = datetime.utcnow()
+        old_document.updated_at = datetime.now(timezone.utc)
 
         logger.info(
             "document_version_created",
@@ -819,7 +819,7 @@ class DocumentStorageService:
             if hasattr(category, key) and value is not None:
                 setattr(category, key, value)
 
-        category.updated_at = datetime.utcnow()
+        category.updated_at = datetime.now(timezone.utc)
         return category
 
     # ─────────────────────────────────────────────────────────────────────────

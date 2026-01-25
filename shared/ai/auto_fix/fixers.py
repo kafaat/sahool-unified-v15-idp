@@ -16,7 +16,7 @@ import re
 import shutil
 import tempfile
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -381,7 +381,7 @@ class CodeFixer:
                 return FixResult(
                     fix_id=fix.id,
                     success=False,
-                    applied_at=datetime.utcnow(),
+                    applied_at=datetime.now(timezone.utc),
                     file_path="unknown",
                     error_message="Fix has no code content",
                 )
@@ -392,7 +392,7 @@ class CodeFixer:
             return FixResult(
                 fix_id=fix.id,
                 success=True,
-                applied_at=datetime.utcnow(),
+                applied_at=datetime.now(timezone.utc),
                 file_path="pending",  # Will be set by engine
                 backup_path=backup_path,
                 rollback_available=create_backup,
@@ -402,7 +402,7 @@ class CodeFixer:
             return FixResult(
                 fix_id=fix.id,
                 success=False,
-                applied_at=datetime.utcnow(),
+                applied_at=datetime.now(timezone.utc),
                 file_path="unknown",
                 error_message=str(e),
             )
@@ -433,7 +433,7 @@ class CodeFixer:
                 return FixResult(
                     fix_id=fix.id,
                     success=False,
-                    applied_at=datetime.utcnow(),
+                    applied_at=datetime.now(timezone.utc),
                     file_path=file_path,
                     error_message=f"File not found: {file_path}",
                 )
@@ -455,7 +455,7 @@ class CodeFixer:
             return FixResult(
                 fix_id=fix.id,
                 success=True,
-                applied_at=datetime.utcnow(),
+                applied_at=datetime.now(timezone.utc),
                 file_path=file_path,
                 backup_path=backup_path,
                 verification_passed=verification,
@@ -466,7 +466,7 @@ class CodeFixer:
             return FixResult(
                 fix_id=fix.id,
                 success=False,
-                applied_at=datetime.utcnow(),
+                applied_at=datetime.now(timezone.utc),
                 file_path=file_path,
                 backup_path=backup_path,
                 error_message=str(e),

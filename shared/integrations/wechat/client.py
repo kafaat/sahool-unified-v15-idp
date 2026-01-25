@@ -17,7 +17,7 @@ import json
 import time
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, AsyncIterator
 
 import httpx

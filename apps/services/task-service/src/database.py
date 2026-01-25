@@ -179,7 +179,7 @@ def seed_demo_data(db: Session) -> None:
     Seed demo tasks for testing
     إضافة مهام تجريبية للاختبار
     """
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
 
     logger.info("Checking if demo data exists...")
 
@@ -190,7 +190,7 @@ def seed_demo_data(db: Session) -> None:
         return
 
     logger.info("Seeding demo data...")
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
     demo_tasks = [

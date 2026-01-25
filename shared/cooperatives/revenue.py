@@ -16,7 +16,7 @@ Updated: January 2026
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal, ROUND_HALF_UP
 from enum import Enum
 from typing import Any
@@ -91,7 +91,7 @@ class FinancialPeriod:
     total_distributed: Decimal = Decimal("0")
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     closed_at: datetime | None = None
     notes: str | None = None
 
@@ -172,14 +172,14 @@ class Transaction:
     source_ar: str | None = None
 
     # Timing
-    transaction_date: datetime = field(default_factory=datetime.utcnow)
+    transaction_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     effective_date: datetime | None = None
 
     # Status
     status: str = "completed"              # pending, completed, reversed
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str | None = None
     notes: str | None = None
     attachments: list[str] = field(default_factory=list)
@@ -310,7 +310,7 @@ class DistributionPlan:
     approved_at: datetime | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     notes: str | None = None
     notes_ar: str | None = None
 
@@ -419,8 +419,8 @@ class MemberPayment:
     status: PaymentStatus = PaymentStatus.PENDING
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     processed_by: str | None = None
     notes: str | None = None
 
@@ -973,7 +973,7 @@ class RevenueService:
 
     async def get_current_period(self) -> FinancialPeriod | None:
         """Get the current open period"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         for period in self._periods.values():
             if (
                 period.status == PeriodStatus.OPEN
@@ -989,7 +989,7 @@ class RevenueService:
             return None
 
         period.status = PeriodStatus.CLOSED
-        period.closed_at = datetime.utcnow()
+        period.closed_at = datetime.now(timezone.utc)
         return period
 
     # ===== Transactions =====
@@ -1174,7 +1174,7 @@ class RevenueService:
 
         plan.status = "approved"
         plan.approved_by = approved_by
-        plan.approved_at = datetime.utcnow()
+        plan.approved_at = datetime.now(timezone.utc)
 
         return plan
 
@@ -1236,10 +1236,10 @@ class RevenueService:
 
         payment.status = PaymentStatus.PAID
         payment.payment_method = payment_method
-        payment.payment_date = datetime.utcnow()
+        payment.payment_date = datetime.now(timezone.utc)
         payment.reference = reference
         payment.processed_by = processed_by
-        payment.updated_at = datetime.utcnow()
+        payment.updated_at = datetime.now(timezone.utc)
 
         # Record transaction
         await self._record_distribution_transaction(payment)

@@ -20,7 +20,7 @@ Updated: January 2025
 import json
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import httpx

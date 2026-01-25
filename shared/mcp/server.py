@@ -23,7 +23,7 @@ import asyncio
 import json
 import logging
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import FastAPI, Request, Response

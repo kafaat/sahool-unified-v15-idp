@@ -6,7 +6,7 @@ Support for MQTT, LoRaWAN, HTTP protocols
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Callable
 
 from .models import (
@@ -157,7 +157,7 @@ class MQTTAdapter(SensorAdapter):
             if "value" in data and "type" in data:
                 return SensorReading(
                     sensor_id=sensor.id,
-                    timestamp=datetime.fromisoformat(data.get("timestamp", datetime.utcnow().isoformat())),
+                    timestamp=datetime.fromisoformat(data.get("timestamp", datetime.now(timezone.utc).isoformat())),
                     reading_type=SensorType(data.get("type", sensor.sensor_type.value)),
                     value=float(data["value"]),
                     unit=data.get("unit", "%"),
@@ -173,7 +173,7 @@ class MQTTAdapter(SensorAdapter):
             if "moisture" in data:
                 return SensorReading(
                     sensor_id=sensor.id,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     reading_type=SensorType.MOISTURE,
                     value=float(data["moisture"]),
                     unit="%",
@@ -185,7 +185,7 @@ class MQTTAdapter(SensorAdapter):
             if isinstance(data, (int, float)):
                 return SensorReading(
                     sensor_id=sensor.id,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     reading_type=sensor.sensor_type,
                     value=float(data),
                     unit="%",
@@ -252,7 +252,7 @@ class LoRaWANAdapter(SensorAdapter):
 
                 return SensorReading(
                     sensor_id=sensor.id,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     reading_type=SensorType.MOISTURE,
                     value=moisture,
                     unit="%",
@@ -305,7 +305,7 @@ class HTTPAdapter(SensorAdapter):
             if "sensor_id" in data and "volumetric_water_content" in data:
                 return SensorReading(
                     sensor_id=sensor.id,
-                    timestamp=datetime.fromisoformat(data.get("timestamp", datetime.utcnow().isoformat())),
+                    timestamp=datetime.fromisoformat(data.get("timestamp", datetime.now(timezone.utc).isoformat())),
                     reading_type=SensorType.MOISTURE,
                     value=float(data["volumetric_water_content"]) * 100,  # Convert to %
                     unit="%",
@@ -320,7 +320,7 @@ class HTTPAdapter(SensorAdapter):
                 sensor_data = data["sensor"]
                 return SensorReading(
                     sensor_id=sensor.id,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     reading_type=SensorType.MOISTURE,
                     value=float(sensor_data.get("value", 0)),
                     unit=sensor_data.get("unit", "%"),
@@ -330,7 +330,7 @@ class HTTPAdapter(SensorAdapter):
             if "moisture" in data or "value" in data:
                 return SensorReading(
                     sensor_id=sensor.id,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     reading_type=SensorType.MOISTURE,
                     value=float(data.get("moisture", data.get("value", 0))),
                     unit="%",

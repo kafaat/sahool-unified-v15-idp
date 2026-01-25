@@ -15,7 +15,7 @@ Updated: January 2026
 """
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from collections import defaultdict
 import logging

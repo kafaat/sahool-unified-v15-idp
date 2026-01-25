@@ -63,7 +63,7 @@ class WaterUsageAlert(BaseModel):
     source_id: str | None = Field(None, description="Water source ID / معرف مصدر المياه")
 
     triggered_date: datetime = Field(
-        default_factory=datetime.utcnow, description="Trigger date / تاريخ التفعيل"
+        default_factory=lambda: datetime.now(timezone.utc), description="Trigger date / تاريخ التفعيل"
     )
 
     title_en: str = Field(..., description="Alert title (English) / عنوان التنبيه")

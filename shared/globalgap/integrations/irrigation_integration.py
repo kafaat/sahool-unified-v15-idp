@@ -37,7 +37,7 @@ Usage:
     )
 """
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from enum import Enum
 from uuid import UUID, uuid4
 
@@ -142,8 +142,8 @@ class WaterUsageRecord(BaseModel):
 
     # Metadata
     recorded_by: UUID | None = Field(None, description="User who recorded")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:
         use_enum_values = True
@@ -228,7 +228,7 @@ class WaterUsageReport(BaseModel):
     )
 
     # Report metadata
-    generated_at: datetime = Field(default_factory=datetime.utcnow)
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     generated_by: UUID | None = Field(None, description="User who generated report")
 
     class Config:
@@ -287,7 +287,7 @@ class SPRINGCompliance(BaseModel):
         default_factory=list, description="Non-compliance issues (Arabic)"
     )
 
-    assessed_at: datetime = Field(default_factory=datetime.utcnow)
+    assessed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:
         json_encoders = {

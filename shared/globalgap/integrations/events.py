@@ -25,7 +25,7 @@ Usage:
     await publisher.publish_event("sahool.globalgap.compliance.updated", event)
 """
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from uuid import UUID, uuid4
 
 from pydantic import Field
@@ -228,7 +228,7 @@ class AuditCompletedEvent(BaseEvent):
 
     audit_type: str = Field(..., description="Type of audit")
     completion_date: datetime = Field(
-        default_factory=datetime.utcnow, description="Completion date"
+        default_factory=lambda: datetime.now(timezone.utc), description="Completion date"
     )
 
     # Results
@@ -301,7 +301,7 @@ class NonConformanceDetectedEvent(BaseEvent):
 
     # Dates
     identified_date: datetime = Field(
-        default_factory=datetime.utcnow, description="Date identified"
+        default_factory=lambda: datetime.now(timezone.utc), description="Date identified"
     )
     due_date: datetime = Field(..., description="Correction due date")
 
@@ -335,7 +335,7 @@ class CorrectiveActionCompletedEvent(BaseEvent):
     tenant_id: UUID = Field(..., description="Tenant ID")
 
     completion_date: datetime = Field(
-        default_factory=datetime.utcnow, description="Completion date"
+        default_factory=lambda: datetime.now(timezone.utc), description="Completion date"
     )
     planned_date: date = Field(..., description="Originally planned date")
 

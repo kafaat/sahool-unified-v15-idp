@@ -47,6 +47,13 @@ export class AlertService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   async onModuleInit() {
+    // Check if database is connected before attempting to seed
+    const isHealthy = await this.prisma.isHealthy();
+    if (!isHealthy) {
+      this.logger.warn("Database not connected - skipping alert seed data initialization");
+      return;
+    }
+
     try {
       const count = await this.prisma.disasterAlert.count();
       if (count === 0) {

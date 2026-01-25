@@ -83,6 +83,13 @@ export class DisasterService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   async onModuleInit() {
+    // Check if database is connected before attempting to seed
+    const isHealthy = await this.prisma.isHealthy();
+    if (!isHealthy) {
+      this.logger.warn("Database not connected - skipping seed data initialization");
+      return;
+    }
+
     try {
       const count = await this.prisma.disasterReport.count();
       if (count === 0) {

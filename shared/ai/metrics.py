@@ -36,7 +36,7 @@ class MetricValue:
     name: str
     value: float
     labels: dict[str, str] = field(default_factory=dict)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     metric_type: MetricType = MetricType.GAUGE
 
     def to_prometheus(self) -> str:

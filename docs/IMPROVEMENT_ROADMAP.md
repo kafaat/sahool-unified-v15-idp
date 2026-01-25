@@ -14,10 +14,12 @@
 
 | الفئة | المكتمل | المتبقي | الأولوية |
 |-------|---------|---------|----------|
-| إصلاحات حرجة | 18 | 3 | عالية |
-| التوثيق | 14 ملف | 2 | متوسطة |
-| تنظيف الكود | 2 | 8 | منخفضة |
+| إصلاحات حرجة | 21 | 0 | عالية ✅ |
+| التوثيق | 16 ملف | 0 | متوسطة ✅ |
+| تنظيف الكود | 10 | 0 | منخفضة ✅ |
 | تحسينات الأداء | 0 | 5 | متوسطة |
+
+> **تحديث 2026-01-25**: تم إكمال المراحل 1-5 بنجاح
 
 ---
 
@@ -73,15 +75,15 @@
 
 ---
 
-## المرحلة 3: تعارضات المنافذ (متبقية ⏳)
+## المرحلة 3: تعارضات المنافذ (مكتملة ✅)
 
 ### 3.1 تعارضات مكتشفة
 
 | المنفذ | الخدمة 1 | الخدمة 2 | الحالة |
 |--------|----------|----------|--------|
-| 8110 | notification-service | skills-service | ⏳ يحتاج إصلاح |
-| 8098 | yield-engine | yield-prediction-service | ⏳ يحتاج إصلاح |
-| 8099 | field-chat | field-core/rotation | ⏳ يحتاج إصلاح |
+| 8110 | notification-service | skills-service | ✅ تم الإصلاح (skills → 8121) |
+| 8098 | yield-engine | yield-prediction-service | ✅ تم الإصلاح (yield-prediction → 8152) |
+| 8099 | field-chat | field-core/rotation | ✅ تم الإصلاح (rotation → 8153) |
 
 ### 3.2 خطة الإصلاح
 
@@ -137,13 +139,13 @@ infrastructure/gateway/kong/kong.yml
 
 ---
 
-## المرحلة 5: تنظيف الكود (متبقية ⏳)
+## المرحلة 5: تنظيف الكود (مكتملة ✅)
 
-### 5.1 ملفات الجذر
+### 5.1 ملفات الجذر ✅
 
 ```bash
-# نقل 60+ ملف .md من الجذر إلى docs/
-# الهيكل المقترح:
+# تم نقل 128 ملف .md من الجذر إلى docs/
+# الهيكل المحقق:
 docs/
 ├── migrations/          # دلائل الترحيل
 ├── implementations/     # ملخصات التنفيذ
@@ -158,17 +160,20 @@ CLAUDE.md
 Makefile
 ```
 
-### 5.2 الخدمات المهملة
+### 5.2 الخدمات المهملة ✅
 
 | الخدمة | البديل | الحالة |
 |--------|--------|--------|
-| satellite-service | vegetation-analysis-service | مهملة - للحذف |
-| weather-advanced | weather-service | مهملة - للحذف |
-| crop-health-ai | crop-intelligence-service | مهملة - للحذف |
-| fertilizer-advisor | advisory-service | مهملة - للحذف |
-| field-ops | field-management-service | مهملة - للحذف |
-| field-core | field-management-service | مهملة - للحذف |
-| field-service | field-management-service | مهملة - للحذف |
+| satellite-service | vegetation-analysis-service | ✅ تم الأرشفة |
+| weather-advanced | weather-service | ✅ تم الأرشفة |
+| crop-health-ai | crop-intelligence-service | ✅ تم الأرشفة |
+| crop-health | crop-intelligence-service | ✅ تم الأرشفة |
+| fertilizer-advisor | advisory-service | ✅ تم الأرشفة |
+| field-ops | field-management-service | ✅ تم الأرشفة |
+| field-core | field-management-service | ✅ تم الأرشفة |
+| field-service | field-management-service | ✅ تم الأرشفة |
+
+> **ملاحظة**: تم نقل جميع الخدمات إلى `archive/deprecated-services/`
 
 ### 5.3 خطوات الحذف الآمن
 

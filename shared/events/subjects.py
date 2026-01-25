@@ -159,6 +159,46 @@ SAHOOL_BILLING_INVOICE_ALL = "sahool.billing.invoice.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# AI Agent Subjects - موضوعات الوكلاء الذكية
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_AGENT_EXECUTION_STARTED = "sahool.agent.execution.started"
+SAHOOL_AGENT_EXECUTION_COMPLETED = "sahool.agent.execution.completed"
+SAHOOL_AGENT_EXECUTION_FAILED = "sahool.agent.execution.failed"
+SAHOOL_AGENT_STEP_COMPLETED = "sahool.agent.step.completed"
+
+# Agent types
+SAHOOL_AGENT_FARM_ADVISOR = "sahool.agent.farm_advisor"
+SAHOOL_AGENT_RESEARCH = "sahool.agent.research"
+SAHOOL_AGENT_PLANNER = "sahool.agent.planner"
+
+# Wildcards
+SAHOOL_AGENT_ALL = "sahool.agent.*"
+SAHOOL_AGENT_EXECUTION_ALL = "sahool.agent.execution.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Farmer/CRM Subjects - موضوعات المزارعين وإدارة العلاقات
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_FARMER_CREATED = "sahool.farmer.created"
+SAHOOL_FARMER_UPDATED = "sahool.farmer.updated"
+SAHOOL_FARMER_STATUS_CHANGED = "sahool.farmer.status.changed"
+
+# Harvest deals
+SAHOOL_HARVEST_DEAL_CREATED = "sahool.harvest.deal.created"
+SAHOOL_HARVEST_DEAL_STAGE_CHANGED = "sahool.harvest.deal.stage.changed"
+
+# Interactions
+SAHOOL_INTERACTION_LOGGED = "sahool.interaction.logged"
+
+# Wildcards
+SAHOOL_FARMER_ALL = "sahool.farmer.*"
+SAHOOL_HARVEST_ALL = "sahool.harvest.*"
+SAHOOL_INTERACTION_ALL = "sahool.interaction.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Task Subjects - موضوعات المهام
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -343,6 +383,34 @@ SUBJECT_REGISTRY = {
     "billing.subscription.created": SAHOOL_BILLING_SUBSCRIPTION_CREATED,
     "billing.payment.completed": SAHOOL_BILLING_PAYMENT_COMPLETED,
     "billing.payment.failed": SAHOOL_BILLING_PAYMENT_FAILED,
+    # Agent
+    "agent.execution.started": SAHOOL_AGENT_EXECUTION_STARTED,
+    "agent.execution.completed": SAHOOL_AGENT_EXECUTION_COMPLETED,
+    "agent.execution.failed": SAHOOL_AGENT_EXECUTION_FAILED,
+    "agent.step.completed": SAHOOL_AGENT_STEP_COMPLETED,
+    # Farmer
+    "farmer.created": SAHOOL_FARMER_CREATED,
+    "farmer.updated": SAHOOL_FARMER_UPDATED,
+    "farmer.status.changed": SAHOOL_FARMER_STATUS_CHANGED,
+    # Harvest
+    "harvest.deal.created": SAHOOL_HARVEST_DEAL_CREATED,
+    "harvest.deal.stage.changed": SAHOOL_HARVEST_DEAL_STAGE_CHANGED,
+    # Interaction
+    "interaction.logged": SAHOOL_INTERACTION_LOGGED,
+    # Task
+    "task.created": SAHOOL_TASK_CREATED,
+    "task.updated": SAHOOL_TASK_UPDATED,
+    "task.completed": SAHOOL_TASK_COMPLETED,
+    "task.deleted": SAHOOL_TASK_DELETED,
+    "task.assigned": SAHOOL_TASK_ASSIGNED,
+    # Recommendation
+    "recommendation.created": SAHOOL_RECOMMENDATION_CREATED,
+    "recommendation.irrigation": SAHOOL_RECOMMENDATION_IRRIGATION,
+    "recommendation.fertilizer": SAHOOL_RECOMMENDATION_FERTILIZER,
+    # Alert
+    "alert.created": SAHOOL_ALERT_CREATED,
+    "alert.acknowledged": SAHOOL_ALERT_ACKNOWLEDGED,
+    "alert.resolved": SAHOOL_ALERT_RESOLVED,
 }
 
 

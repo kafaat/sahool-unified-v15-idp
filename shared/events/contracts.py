@@ -18,7 +18,7 @@ Usage:
     )
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -37,7 +37,7 @@ class BaseEvent(BaseModel):
     event_id: str = Field(
         default_factory=lambda: str(uuid4()), description="Unique event identifier"
     )
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Event timestamp")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Event timestamp")
     version: str = Field(default="1.0", description="Event schema version")
     source_service: str | None = Field(None, description="Service that emitted the event")
     correlation_id: str | None = Field(None, description="Correlation ID for tracing")

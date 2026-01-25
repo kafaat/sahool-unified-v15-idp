@@ -1,0 +1,3828 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Docker Services Reference - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-docker-services-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Docker Services Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-docker-services-reference">SAHOOL Docker Services Reference<a class="headerlink" href="#sahool-docker-services-reference" title="Permanent link">&para;</a></h1>
+<h1 id="docker">مرجع خدمات Docker لمنصة سهول<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: 16.0.0
+<strong>Last Updated</strong>: January 2026</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents | جدول المحتويات<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#overview">Overview | نظرة عامة</a></li>
+<li><a href="#infrastructure-services">Infrastructure Services | خدمات البنية التحتية</a></li>
+<li><a href="#nodejs-services">Node.js Services | خدمات Node.js</a></li>
+<li><a href="#python-services">Python Services | خدمات Python</a></li>
+<li><a href="#deprecated-services">Deprecated Services | الخدمات المهملة</a></li>
+<li><a href="#network-configuration">Network Configuration | تكوين الشبكة</a></li>
+<li><a href="#volume-configuration">Volume Configuration | تكوين وحدات التخزين</a></li>
+<li><a href="#service-dependencies">Service Dependencies | تبعيات الخدمات</a></li>
+<li><a href="#resource-limits-summary">Resource Limits Summary | ملخص حدود الموارد</a></li>
+<li><a href="#profiles">Profiles | ملفات التعريف</a></li>
+</ol>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<h2 id="_1">نظرة عامة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>The SAHOOL platform runs <strong>39+ services</strong> plus infrastructure components in a containerized environment. This document provides a comprehensive reference for all Docker services defined in <code>docker-compose.yml</code>.</p>
+<p>تعمل منصة سهول على <strong>39+ خدمة</strong> بالإضافة إلى مكونات البنية التحتية في بيئة حاويات. يوفر هذا المستند مرجعًا شاملاً لجميع خدمات Docker المحددة في <code>docker-compose.yml</code>.</p>
+<h3 id="quick-stats">Quick Stats | إحصائيات سريعة<a class="headerlink" href="#quick-stats" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Infrastructure Services</td>
+<td>14</td>
+</tr>
+<tr>
+<td>Node.js Services</td>
+<td>12</td>
+</tr>
+<tr>
+<td>Python Services</td>
+<td>29</td>
+</tr>
+<tr>
+<td><strong>Total Active Services</strong></td>
+<td><strong>39+</strong></td>
+</tr>
+<tr>
+<td>Deprecated Services</td>
+<td>9</td>
+</tr>
+<tr>
+<td>Named Volumes</td>
+<td>14</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="infrastructure-services">Infrastructure Services<a class="headerlink" href="#infrastructure-services" title="Permanent link">&para;</a></h2>
+<h2 id="_2">خدمات البنية التحتية<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h3 id="1-postgresql-with-postgis">1. PostgreSQL with PostGIS<a class="headerlink" href="#1-postgresql-with-postgis" title="Permanent link">&para;</a></h3>
+<p><strong>قاعدة البيانات المكانية</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-postgres</code></td>
+</tr>
+<tr>
+<td><strong>Image</strong></td>
+<td><code>postgis/postgis:16-3.4</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>127.0.0.1:5432:5432</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Primary database with geospatial support for field boundaries and location data.</p>
+<p><strong>الوصف</strong>: قاعدة البيانات الرئيسية مع دعم البيانات المكانية لحدود الحقول وبيانات الموقع.</p>
+<p><strong>Environment Variables</strong>:
+- <code>POSTGRES_USER</code> (required)
+- <code>POSTGRES_PASSWORD</code> (required)
+- <code>POSTGRES_DB</code> (default: <code>sahool</code>)</p>
+<p><strong>Volumes</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres_data:/var/lib/postgresql/data</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./infrastructure/core/postgres/init:/docker-entrypoint-initdb.d:ro</span>
+</code></pre></div>
+
+<p><strong>Health Check</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD-SHELL&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;pg_isready</span><span class="nv"> </span><span class="s">-U</span><span class="nv"> </span><span class="s">${POSTGRES_USER:-sahool}&quot;</span><span class="p p-Indicator">]</span>
+<span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="nt">start_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+</code></pre></div>
+
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 2 | 0.5 |
+| Memory | 2G | 512M |</p>
+<p><strong>Security</strong>:
+- <code>no-new-privileges:true</code>
+- tmpfs for <code>/tmp</code> and <code>/run/postgresql</code>
+- Localhost-only port binding</p>
+<hr />
+<h3 id="2-pgbouncer">2. PgBouncer<a class="headerlink" href="#2-pgbouncer" title="Permanent link">&para;</a></h3>
+<p><strong>تجميع اتصالات قاعدة البيانات</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-pgbouncer</code></td>
+</tr>
+<tr>
+<td><strong>Image</strong></td>
+<td><code>edoburu/pgbouncer:latest</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>127.0.0.1:6432:6432</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Connection pooler to prevent connection exhaustion with 39+ services.</p>
+<p><strong>الوصف</strong>: مجمع اتصالات لمنع استنفاد الاتصالات مع أكثر من 39 خدمة.</p>
+<p><strong>Key Configuration</strong>:
+- Pool Mode: <code>transaction</code>
+- Max DB Connections: <code>250</code>
+- Default Pool Size: <code>30</code>
+- Min Pool Size: <code>10</code>
+- Max Client Connections: <code>800</code></p>
+<p><strong>Volumes</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./infrastructure/core/pgbouncer/entrypoint.sh:/entrypoint-custom.sh</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./infrastructure/core/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./config/certs:/etc/pgbouncer/certs:ro</span>
+</code></pre></div>
+
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy)</p>
+<p><strong>Health Check</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD-SHELL&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;pidof</span><span class="nv"> </span><span class="s">pgbouncer</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">exit</span><span class="nv"> </span><span class="s">1&quot;</span><span class="p p-Indicator">]</span>
+<span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="nt">start_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45s</span>
+</code></pre></div>
+
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.1 |
+| Memory | 256M | 64M |</p>
+<hr />
+<h3 id="3-redis">3. Redis<a class="headerlink" href="#3-redis" title="Permanent link">&para;</a></h3>
+<p><strong>التخزين المؤقت ومخزن الجلسات</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-redis</code></td>
+</tr>
+<tr>
+<td><strong>Image</strong></td>
+<td><code>redis:7.4-alpine</code></td>
+</tr>
+<tr>
+<td><strong>Ports</strong></td>
+<td><code>127.0.0.1:6379:6379</code>, <code>127.0.0.1:6380:6380</code> (TLS)</td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Cache and session store with password authentication and memory limits.</p>
+<p><strong>الوصف</strong>: ذاكرة تخزين مؤقت ومخزن جلسات مع مصادقة بكلمة مرور وحدود للذاكرة.</p>
+<p><strong>Security Features</strong>:
+- Password authentication (requirepass)
+- Dangerous commands renamed
+- AOF persistence
+- Memory limit with LRU eviction
+- TLS/SSL ready</p>
+<p><strong>Volumes</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis_data:/data</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./infrastructure/redis/redis-secure.conf:/usr/local/etc/redis/redis.conf:ro</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./config/certs:/etc/redis/certs:ro</span>
+</code></pre></div>
+
+<p><strong>Health Check</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD-SHELL&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;redis-cli</span><span class="nv"> </span><span class="s">-a</span><span class="nv"> </span><span class="s">${REDIS_PASSWORD}</span><span class="nv"> </span><span class="s">ping</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">grep</span><span class="nv"> </span><span class="s">PONG&quot;</span><span class="p p-Indicator">]</span>
+<span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="nt">start_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+</code></pre></div>
+
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1 | 0.25 |
+| Memory | 768M | 256M |</p>
+<hr />
+<h3 id="4-nats-jetstream">4. NATS JetStream<a class="headerlink" href="#4-nats-jetstream" title="Permanent link">&para;</a></h3>
+<p><strong>قائمة انتظار الرسائل</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-nats</code></td>
+</tr>
+<tr>
+<td><strong>Image</strong></td>
+<td><code>nats:2.10.24-alpine</code></td>
+</tr>
+<tr>
+<td><strong>Ports</strong></td>
+<td><code>127.0.0.1:4222:4222</code> (Standard), <code>127.0.0.1:4223:4223</code> (TLS), <code>127.0.0.1:8222:8222</code> (Monitoring), <code>127.0.0.1:6222:6222</code> (Cluster)</td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Message queue with authentication, TLS enforcement, and JetStream for persistence.</p>
+<p><strong>الوصف</strong>: قائمة انتظار الرسائل مع المصادقة وتطبيق TLS وJetStream للثبات.</p>
+<p><strong>Environment Variables</strong>:
+- <code>NATS_USER</code>, <code>NATS_PASSWORD</code> (required)
+- <code>NATS_ADMIN_USER</code>, <code>NATS_ADMIN_PASSWORD</code> (required)
+- <code>NATS_MONITOR_USER</code>, <code>NATS_MONITOR_PASSWORD</code> (required)
+- <code>NATS_CLUSTER_USER</code>, <code>NATS_CLUSTER_PASSWORD</code> (required)
+- <code>NATS_JETSTREAM_KEY</code> (AES-256 encryption)</p>
+<p><strong>Volumes</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats_data:/data</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./config/nats/nats-secure.conf:/etc/nats/nats-secure.conf:ro</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./config/nats/nats.conf:/etc/nats/nats.conf:ro</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./config/certs:/etc/nats/certs:ro</span>
+</code></pre></div>
+
+<p><strong>Health Check</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;wget&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-q&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;--spider&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;http://localhost:8222/healthz&quot;</span><span class="p p-Indicator">]</span>
+<span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="nt">start_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+</code></pre></div>
+
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1 | 0.25 |
+| Memory | 512M | 128M |</p>
+<hr />
+<h3 id="5-nats-prometheus-exporter">5. NATS Prometheus Exporter<a class="headerlink" href="#5-nats-prometheus-exporter" title="Permanent link">&para;</a></h3>
+<p><strong>مصدر مقاييس NATS لـ Prometheus</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-nats-prometheus-exporter</code></td>
+</tr>
+<tr>
+<td><strong>Image</strong></td>
+<td><code>natsio/prometheus-nats-exporter:0.14.0</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>127.0.0.1:7777:7777</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Exports NATS metrics for Prometheus monitoring including JetStream statistics.</p>
+<p><strong>الوصف</strong>: تصدير مقاييس NATS لمراقبة Prometheus بما في ذلك إحصائيات JetStream.</p>
+<p><strong>Dependencies</strong>: <code>nats</code> (healthy)</p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.25 | 0.1 |
+| Memory | 128M | 64M |</p>
+<hr />
+<h3 id="6-mqtt-broker-mosquitto">6. MQTT Broker (Mosquitto)<a class="headerlink" href="#6-mqtt-broker-mosquitto" title="Permanent link">&para;</a></h3>
+<p><strong>وسيط MQTT للاتصالات IoT</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-mqtt</code></td>
+</tr>
+<tr>
+<td><strong>Image</strong></td>
+<td><code>eclipse-mosquitto:2</code></td>
+</tr>
+<tr>
+<td><strong>Ports</strong></td>
+<td><code>127.0.0.1:1883:1883</code>, <code>127.0.0.1:9001:9001</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: MQTT broker for IoT device communication with agricultural sensors.</p>
+<p><strong>الوصف</strong>: وسيط MQTT للاتصال بأجهزة IoT مع أجهزة الاستشعار الزراعية.</p>
+<p><strong>Volumes</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf.orig:ro</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./infrastructure/core/mqtt/acl:/mosquitto/config/acl.source:ro</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./infrastructure/core/mqtt/init-mqtt.sh:/init-mqtt.sh:ro</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mqtt_passwd:/mosquitto/config</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mqtt_data:/mosquitto/data</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mqtt_logs:/mosquitto/log</span>
+</code></pre></div>
+
+<p><strong>Health Check</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD-SHELL&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;pidof</span><span class="nv"> </span><span class="s">mosquitto</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">exit</span><span class="nv"> </span><span class="s">1&quot;</span><span class="p p-Indicator">]</span>
+<span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="nt">start_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15s</span>
+</code></pre></div>
+
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.1 |
+| Memory | 256M | 64M |</p>
+<hr />
+<h3 id="7-qdrant-vector-database">7. Qdrant Vector Database<a class="headerlink" href="#7-qdrant-vector-database" title="Permanent link">&para;</a></h3>
+<p><strong>قاعدة البيانات الشعاعية للبحث الدلالي</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-qdrant</code></td>
+</tr>
+<tr>
+<td><strong>Image</strong></td>
+<td><code>qdrant/qdrant:v1.7.4</code></td>
+</tr>
+<tr>
+<td><strong>Ports</strong></td>
+<td><code>127.0.0.1:6333:6333</code>, <code>127.0.0.1:6334:6334</code> (gRPC)</td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Vector database for RAG (Retrieval Augmented Generation) and semantic search.</p>
+<p><strong>الوصف</strong>: قاعدة بيانات شعاعية لـ RAG والبحث الدلالي.</p>
+<p><strong>Volumes</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qdrant_data:/qdrant/storage</span>
+</code></pre></div>
+
+<p><strong>Health Check</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;sh&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-c&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;test</span><span class="nv"> </span><span class="s">-f</span><span class="nv"> </span><span class="s">/proc/1/cmdline&quot;</span><span class="p p-Indicator">]</span>
+<span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="nt">start_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+</code></pre></div>
+
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1.0 | 0.25 |
+| Memory | 1G | 256M |</p>
+<hr />
+<h3 id="8-ollama-gpu-profile">8. Ollama (GPU Profile)<a class="headerlink" href="#8-ollama-gpu-profile" title="Permanent link">&para;</a></h3>
+<p><strong>خادم نماذج الذكاء الاصطناعي المحلي</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-ollama</code></td>
+</tr>
+<tr>
+<td><strong>Image</strong></td>
+<td><code>ollama/ollama:0.5.4</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>127.0.0.1:11434:11434</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+<tr>
+<td><strong>Profile</strong></td>
+<td><code>gpu</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Local LLM server for code and log analysis. Requires NVIDIA GPU.</p>
+<p><strong>الوصف</strong>: خادم نماذج لغوية كبيرة محلي لتحليل الكود والسجلات. يتطلب GPU من NVIDIA.</p>
+<p><strong>Key Configuration</strong>:
+- Keep Alive: 24h
+- Parallel Requests: 24
+- Max Loaded Models: 2</p>
+<p><strong>Volumes</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ollama_data:/root/.ollama</span>
+</code></pre></div>
+
+<p><strong>Health Check</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD-SHELL&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;ollama</span><span class="nv"> </span><span class="s">list</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">exit</span><span class="nv"> </span><span class="s">1&quot;</span><span class="p p-Indicator">]</span>
+<span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="nt">start_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60s</span>
+</code></pre></div>
+
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 4 | 1 |
+| Memory | 8G | 2G |
+| GPU | All NVIDIA GPUs | - |</p>
+<hr />
+<h3 id="9-etcd-milvus-metadata">9. Etcd (Milvus Metadata)<a class="headerlink" href="#9-etcd-milvus-metadata" title="Permanent link">&para;</a></h3>
+<p><strong>تخزين البيانات الوصفية لـ Milvus</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-etcd</code></td>
+</tr>
+<tr>
+<td><strong>Image</strong></td>
+<td><code>quay.io/coreos/etcd:v3.5.5</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Metadata storage for Milvus vector database with authentication.</p>
+<p><strong>الوصف</strong>: تخزين البيانات الوصفية لقاعدة بيانات Milvus الشعاعية مع المصادقة.</p>
+<p><strong>Volumes</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">etcd_data:/etcd</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro</span>
+</code></pre></div>
+
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.1 |
+| Memory | 512M | 128M |</p>
+<hr />
+<h3 id="10-minio-object-storage">10. MinIO Object Storage<a class="headerlink" href="#10-minio-object-storage" title="Permanent link">&para;</a></h3>
+<p><strong>تخزين الكائنات لـ Milvus</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-minio</code></td>
+</tr>
+<tr>
+<td><strong>Image</strong></td>
+<td><code>minio/minio:RELEASE.2024-01-16T16-07-38Z</code></td>
+</tr>
+<tr>
+<td><strong>Ports</strong></td>
+<td><code>127.0.0.1:9000:9000</code> (API), <code>127.0.0.1:9090:9090</code> (Console)</td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: S3-compatible object storage with TLS and server-side encryption.</p>
+<p><strong>الوصف</strong>: تخزين كائنات متوافق مع S3 مع TLS والتشفير من جانب الخادم.</p>
+<p><strong>Volumes</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">minio_data:/minio_data</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./secrets/minio-certs/production/certs:/root/.minio/certs:ro</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./scripts/security/minio-init.sh:/scripts/minio-init.sh:ro</span>
+</code></pre></div>
+
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1 | 0.25 |
+| Memory | 1G | 256M |</p>
+<hr />
+<h3 id="11-milvus-vector-database">11. Milvus Vector Database<a class="headerlink" href="#11-milvus-vector-database" title="Permanent link">&para;</a></h3>
+<p><strong>قاعدة البيانات الشعاعية Milvus</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-milvus</code></td>
+</tr>
+<tr>
+<td><strong>Image</strong></td>
+<td><code>milvusdb/milvus:v2.3.3</code></td>
+</tr>
+<tr>
+<td><strong>Ports</strong></td>
+<td><code>127.0.0.1:19530:19530</code>, <code>127.0.0.1:9091:9091</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Alternative vector database to Qdrant for high-performance similarity search.</p>
+<p><strong>الوصف</strong>: قاعدة بيانات شعاعية بديلة لـ Qdrant للبحث عالي الأداء عن التشابه.</p>
+<p><strong>Dependencies</strong>: <code>etcd</code> (healthy), <code>minio</code> (healthy)</p>
+<p><strong>Volumes</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">milvus_data:/var/lib/milvus</span>
+</code></pre></div>
+
+<p><strong>Health Check</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;curl&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-f&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;http://localhost:9091/healthz&quot;</span><span class="p p-Indicator">]</span>
+<span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="nt">start_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">90s</span>
+</code></pre></div>
+
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 2 | 0.5 |
+| Memory | 4G | 1G |</p>
+<hr />
+<h3 id="12-kong-api-gateway">12. Kong API Gateway<a class="headerlink" href="#12-kong-api-gateway" title="Permanent link">&para;</a></h3>
+<p><strong>بوابة API</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-kong</code></td>
+</tr>
+<tr>
+<td><strong>Image</strong></td>
+<td><code>kong:3.4</code></td>
+</tr>
+<tr>
+<td><strong>Ports</strong></td>
+<td><code>8000:8000</code> (Proxy), <code>127.0.0.1:8001:8001</code> (Admin)</td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: API Gateway with authentication, rate limiting, and service routing.</p>
+<p><strong>الوصف</strong>: بوابة API مع المصادقة وتحديد المعدل وتوجيه الخدمات.</p>
+<p><strong>Key Configuration</strong>:
+- Database: Off (declarative mode)
+- Plugins: <code>bundled,cors,rate-limiting,jwt,acl,prometheus</code>
+- DNS Resolver: <code>127.0.0.11:53</code> (Docker internal)
+- Worker Processes: Auto
+- Keepalive Pool Size: 60</p>
+<p><strong>Volumes</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./infrastructure/gateway/kong/kong.yml:/kong/declarative/kong.yml:ro</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./infrastructure/gateway/kong/ssl:/etc/kong/ssl:ro</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kong_logs:/var/log/kong</span>
+</code></pre></div>
+
+<p><strong>Dependencies</strong>: <code>redis</code> (healthy)</p>
+<p><strong>Health Check</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;kong&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;health&quot;</span><span class="p p-Indicator">]</span>
+<span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="nt">start_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+</code></pre></div>
+
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 2 | 0.25 |
+| Memory | 1G | 128M |</p>
+<hr />
+<h2 id="nodejs-services">Node.js Services<a class="headerlink" href="#nodejs-services" title="Permanent link">&para;</a></h2>
+<h2 id="nodejs">خدمات Node.js<a class="headerlink" href="#nodejs" title="Permanent link">&para;</a></h2>
+<h3 id="1-field-management-service">1. Field Management Service<a class="headerlink" href="#1-field-management-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة إدارة الحقول الموحدة</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-field-management-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>3000:3000</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Unified field operations service. Consolidates: field-core, field-service, field-ops.</p>
+<p><strong>الوصف</strong>: خدمة عمليات الحقول الموحدة. تجمع: field-core، field-service، field-ops.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>redis</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1 | 0.25 |
+| Memory | 512M | 128M |</p>
+<hr />
+<h3 id="2-marketplace-service">2. Marketplace Service<a class="headerlink" href="#2-marketplace-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة السوق الزراعي</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-marketplace</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>3010:3010</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Agricultural marketplace and FinTech integration.</p>
+<p><strong>الوصف</strong>: سوق زراعي وتكامل التقنية المالية.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>redis</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /api/v1/healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1 | 0.25 |
+| Memory | 512M | 128M |</p>
+<hr />
+<h3 id="3-research-core">3. Research Core<a class="headerlink" href="#3-research-core" title="Permanent link">&para;</a></h3>
+<p><strong>إدارة البحوث العلمية</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-research-core</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>3015:3015</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Scientific research trials management.</p>
+<p><strong>الوصف</strong>: إدارة التجارب البحثية العلمية.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>redis</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /api/v1/healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1 | 0.25 |
+| Memory | 512M | 128M |</p>
+<hr />
+<h3 id="4-disaster-assessment">4. Disaster Assessment<a class="headerlink" href="#4-disaster-assessment" title="Permanent link">&para;</a></h3>
+<p><strong>تقييم الكوارث</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-disaster-assessment</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>3020:3020</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Disaster risk assessment and response coordination.</p>
+<p><strong>الوصف</strong>: تقييم مخاطر الكوارث وتنسيق الاستجابة.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>redis</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /api/v1/disasters/health</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1 | 0.25 |
+| Memory | 512M | 128M |</p>
+<hr />
+<h3 id="5-yield-prediction-nodejs-deprecated">5. Yield Prediction (Node.js - Deprecated)<a class="headerlink" href="#5-yield-prediction-nodejs-deprecated" title="Permanent link">&para;</a></h3>
+<p><strong>التنبؤ بالإنتاجية</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-yield-prediction</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>3021:3021</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>DEPRECATED - Migrating to yield-prediction-service (Port 8098)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Yield prediction ML service. Being consolidated into yield-prediction-service.</p>
+<p><strong>الوصف</strong>: خدمة التعلم الآلي للتنبؤ بالإنتاجية. يتم دمجها في yield-prediction-service.</p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1 | 0.25 |
+| Memory | 512M | 128M |</p>
+<hr />
+<h3 id="6-lai-estimation-deprecated">6. LAI Estimation (Deprecated)<a class="headerlink" href="#6-lai-estimation-deprecated" title="Permanent link">&para;</a></h3>
+<p><strong>تقدير مؤشر مساحة الورقة</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-lai-estimation</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>3022:3022</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>DEPRECATED - Migrating to vegetation-analysis-service (Port 8090)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Leaf Area Index estimation. Being consolidated into vegetation-analysis-service.</p>
+<p><strong>الوصف</strong>: تقدير مؤشر مساحة الورقة. يتم دمجها في vegetation-analysis-service.</p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1 | 0.25 |
+| Memory | 512M | 128M |</p>
+<hr />
+<h3 id="7-crop-growth-model-deprecated">7. Crop Growth Model (Deprecated)<a class="headerlink" href="#7-crop-growth-model-deprecated" title="Permanent link">&para;</a></h3>
+<p><strong>نموذج نمو المحاصيل</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-crop-growth-model</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>3023:3023</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>DEPRECATED - Migrating to crop-intelligence-service (Port 8095)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Crop growth simulation. Being consolidated into crop-intelligence-service.</p>
+<p><strong>الوصف</strong>: محاكاة نمو المحاصيل. يتم دمجها في crop-intelligence-service.</p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1 | 0.25 |
+| Memory | 512M | 128M |</p>
+<hr />
+<h3 id="8-chat-service">8. Chat Service<a class="headerlink" href="#8-chat-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة المحادثة الزراعية</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-chat-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8114:8114</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Agricultural chat and messaging service.</p>
+<p><strong>الوصف</strong>: خدمة المحادثة والرسائل الزراعية.</p>
+<p><strong>Dependencies</strong>: <code>pgbouncer</code> (healthy), <code>redis</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /api/v1/health</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="9-iot-service">9. IoT Service<a class="headerlink" href="#9-iot-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة إدارة أجهزة IoT</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-iot-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8117:8117</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: IoT device and sensor management with MQTT integration.</p>
+<p><strong>الوصف</strong>: إدارة أجهزة IoT وأجهزة الاستشعار مع تكامل MQTT.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>redis</code> (healthy), <code>nats</code> (healthy), <code>mqtt</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /api/v1/health</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="10-community-chat-deprecated">10. Community Chat (Deprecated)<a class="headerlink" href="#10-community-chat-deprecated" title="Permanent link">&para;</a></h3>
+<p><strong>محادثة المجتمع</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-community-chat</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8097:8097</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>DEPRECATED - Migrating to chat-service (Port 8114)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Community features and chat. Being consolidated into chat-service.</p>
+<p><strong>الوصف</strong>: ميزات المجتمع والمحادثة. يتم دمجها في chat-service.</p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="11-user-service">11. User Service<a class="headerlink" href="#11-user-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة المستخدمين والمصادقة</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-user-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>127.0.0.1:3025:3025</code> (localhost only)</td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Authentication and user management. Access via Kong API Gateway only.</p>
+<p><strong>الوصف</strong>: المصادقة وإدارة المستخدمين. الوصول عبر بوابة Kong API فقط.</p>
+<p><strong>Dependencies</strong>: <code>pgbouncer</code> (healthy), <code>redis</code> (healthy), <code>notification-service</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /api/v1/health</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h2 id="python-services">Python Services<a class="headerlink" href="#python-services" title="Permanent link">&para;</a></h2>
+<h2 id="python">خدمات Python<a class="headerlink" href="#python" title="Permanent link">&para;</a></h2>
+<h3 id="1-websocket-gateway">1. WebSocket Gateway<a class="headerlink" href="#1-websocket-gateway" title="Permanent link">&para;</a></h3>
+<p><strong>بوابة WebSocket</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-ws-gateway</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8081:8081</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Real-time WebSocket gateway for live updates.</p>
+<p><strong>الوصف</strong>: بوابة WebSocket للتحديثات في الوقت الفعلي.</p>
+<p><strong>Dependencies</strong>: <code>nats</code> (healthy), <code>redis</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="2-billing-core">2. Billing Core<a class="headerlink" href="#2-billing-core" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة الفوترة الأساسية</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-billing-core</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8089:8089</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Billing and invoicing with Stripe and Tharwatt integration.</p>
+<p><strong>الوصف</strong>: الفوترة والفواتير مع تكامل Stripe و Tharwatt.</p>
+<p><strong>Dependencies</strong>: <code>pgbouncer</code> (healthy), <code>redis</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="3-vegetation-analysis-service">3. Vegetation Analysis Service<a class="headerlink" href="#3-vegetation-analysis-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة تحليل الغطاء النباتي الموحدة</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-vegetation-analysis-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8090:8090</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Unified satellite and vegetation analysis. Consolidates: satellite-service, ndvi-processor, ndvi-engine, lai-estimation.</p>
+<p><strong>الوصف</strong>: تحليل موحد للأقمار الصناعية والغطاء النباتي. يجمع: satellite-service، ndvi-processor، ndvi-engine، lai-estimation.</p>
+<p><strong>Satellite Providers</strong>:
+- Sentinel Hub
+- NASA Earthdata
+- Planet</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>redis</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1 | 0.25 |
+| Memory | 768M | 256M |</p>
+<hr />
+<h3 id="4-indicators-service">4. Indicators Service<a class="headerlink" href="#4-indicators-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة المؤشرات</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-indicators-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8091:8091</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Field indicators computation and aggregation.</p>
+<p><strong>الوصف</strong>: حساب وتجميع مؤشرات الحقل.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="5-weather-service">5. Weather Service<a class="headerlink" href="#5-weather-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة الطقس الموحدة</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-weather-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8092:8092</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Unified weather operations. Consolidates: weather-core, weather-advanced.</p>
+<p><strong>الوصف</strong>: عمليات الطقس الموحدة. يجمع: weather-core، weather-advanced.</p>
+<p><strong>Weather Providers</strong>:
+- OpenWeatherMap
+- WeatherAPI</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="6-advisory-service">6. Advisory Service<a class="headerlink" href="#6-advisory-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة الاستشارات الموحدة</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-advisory-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8093:8093</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Unified agricultural advisory. Consolidates: agro-advisor, fertilizer-advisor.</p>
+<p><strong>الوصف</strong>: الاستشارات الزراعية الموحدة. يجمع: agro-advisor، fertilizer-advisor.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="7-irrigation-smart">7. Irrigation Smart<a class="headerlink" href="#7-irrigation-smart" title="Permanent link">&para;</a></h3>
+<p><strong>الري الذكي</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-irrigation-smart</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8094:8094</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Smart irrigation management and scheduling.</p>
+<p><strong>الوصف</strong>: إدارة وجدولة الري الذكي.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>nats</code> (healthy), <code>iot-gateway</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="8-crop-intelligence-service">8. Crop Intelligence Service<a class="headerlink" href="#8-crop-intelligence-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة ذكاء المحاصيل الموحدة</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-crop-intelligence-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8095:8095</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Unified crop analysis and AI. Consolidates: crop-health, crop-health-ai, crop-growth-model.</p>
+<p><strong>الوصف</strong>: تحليل المحاصيل الموحد والذكاء الاصطناعي. يجمع: crop-health، crop-health-ai، crop-growth-model.</p>
+<p><strong>Volumes</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./models:/app/models:ro</span>
+</code></pre></div>
+
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1 | 0.5 |
+| Memory | 1G | 512M |</p>
+<hr />
+<h3 id="9-yield-prediction-service-python">9. Yield Prediction Service (Python)<a class="headerlink" href="#9-yield-prediction-service-python" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة التنبؤ بالإنتاجية</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-yield-prediction-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8098:8098</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Unified yield analysis. Consolidates: yield-engine, yield-prediction.</p>
+<p><strong>الوصف</strong>: تحليل الإنتاجية الموحد. يجمع: yield-engine، yield-prediction.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /api/v1/yield/health</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1 | 0.25 |
+| Memory | 512M | 128M |</p>
+<hr />
+<h3 id="10-virtual-sensors">10. Virtual Sensors<a class="headerlink" href="#10-virtual-sensors" title="Permanent link">&para;</a></h3>
+<p><strong>المستشعرات الافتراضية</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-virtual-sensors</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8119:8119</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Virtual sensor computation from remote sensing data.</p>
+<p><strong>الوصف</strong>: حساب المستشعرات الافتراضية من بيانات الاستشعار عن بُعد.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="11-field-chat">11. Field Chat<a class="headerlink" href="#11-field-chat" title="Permanent link">&para;</a></h3>
+<p><strong>محادثة الحقل</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-field-chat</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8099:8099</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Field-level chat and communication.</p>
+<p><strong>الوصف</strong>: المحادثة والتواصل على مستوى الحقل.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>nats</code> (healthy), <code>redis</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="12-equipment-service">12. Equipment Service<a class="headerlink" href="#12-equipment-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة المعدات</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-equipment-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8101:8101</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Equipment tracking and maintenance management.</p>
+<p><strong>الوصف</strong>: تتبع المعدات وإدارة الصيانة.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="13-task-service">13. Task Service<a class="headerlink" href="#13-task-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة المهام</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-task-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8103:8103</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Task management and scheduling for farm operations.</p>
+<p><strong>الوصف</strong>: إدارة المهام وجدولة عمليات المزرعة.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="14-provider-config">14. Provider Config<a class="headerlink" href="#14-provider-config" title="Permanent link">&para;</a></h3>
+<p><strong>تكوين مزودي الخدمات</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-provider-config</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8104:8104</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: External service provider configuration management.</p>
+<p><strong>الوصف</strong>: إدارة تكوين مزودي الخدمات الخارجيين.</p>
+<p><strong>Dependencies</strong>: <code>pgbouncer</code> (healthy), <code>redis</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.1 |
+| Memory | 512M | 128M |</p>
+<hr />
+<h3 id="15-iot-gateway">15. IoT Gateway<a class="headerlink" href="#15-iot-gateway" title="Permanent link">&para;</a></h3>
+<p><strong>بوابة IoT</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-iot-gateway</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8106:8106</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: IoT protocol gateway with MQTT bridge.</p>
+<p><strong>الوصف</strong>: بوابة بروتوكول IoT مع جسر MQTT.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>nats</code> (healthy), <code>mqtt</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /health</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 512M | 128M |</p>
+<hr />
+<h3 id="16-notification-service">16. Notification Service<a class="headerlink" href="#16-notification-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة الإشعارات</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-notification-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8110:8110</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Push notifications via Email (SMTP) and Firebase Cloud Messaging.</p>
+<p><strong>الوصف</strong>: إشعارات الدفع عبر البريد الإلكتروني (SMTP) و Firebase Cloud Messaging.</p>
+<p><strong>Dependencies</strong>: <code>pgbouncer</code> (healthy), <code>redis</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="17-astronomical-calendar">17. Astronomical Calendar<a class="headerlink" href="#17-astronomical-calendar" title="Permanent link">&para;</a></h3>
+<p><strong>التقويم الفلكي</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-astronomical-calendar</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8111:8111</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Islamic calendar, prayer times, and astronomical calculations.</p>
+<p><strong>الوصف</strong>: التقويم الإسلامي ومواقيت الصلاة والحسابات الفلكية.</p>
+<p><strong>Dependencies</strong>: <code>weather-service</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.25 | 0.1 |
+| Memory | 256M | 64M |</p>
+<hr />
+<h3 id="18-ai-advisor">18. AI Advisor<a class="headerlink" href="#18-ai-advisor" title="Permanent link">&para;</a></h3>
+<p><strong>المستشار الذكي</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-ai-advisor</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8112:8112</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Multi-provider LLM advisory (Anthropic Claude, OpenAI GPT-4, Google Gemini) with RAG.</p>
+<p><strong>الوصف</strong>: استشارات نماذج لغوية متعددة المزودين (Anthropic Claude، OpenAI GPT-4، Google Gemini) مع RAG.</p>
+<p><strong>LLM Providers</strong>:
+- Anthropic (Claude 3.5 Sonnet)
+- OpenAI (GPT-4o)
+- Google (Gemini 1.5 Pro)</p>
+<p><strong>Dependencies</strong>: <code>qdrant</code> (healthy), <code>nats</code> (healthy), <code>crop-intelligence-service</code> (healthy), <code>weather-service</code> (healthy), <code>advisory-service</code> (healthy), <code>vegetation-analysis-service</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 2 | 0.5 |
+| Memory | 2G | 512M |</p>
+<hr />
+<h3 id="19-alert-service">19. Alert Service<a class="headerlink" href="#19-alert-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة التنبيهات</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-alert-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8113:8113</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Alert management and escalation.</p>
+<p><strong>الوصف</strong>: إدارة التنبيهات والتصعيد.</p>
+<p><strong>Dependencies</strong>: <code>pgbouncer</code> (healthy), <code>nats</code> (healthy), <code>notification-service</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="20-field-service-deprecated">20. Field Service (Deprecated)<a class="headerlink" href="#20-field-service-deprecated" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة الحقول</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-field-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8115:8115</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>DEPRECATED - Use field-management-service (Port 3000)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="21-inventory-service">21. Inventory Service<a class="headerlink" href="#21-inventory-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة المخزون</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-inventory-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8116:8116</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Inventory management for farm supplies and products.</p>
+<p><strong>الوصف</strong>: إدارة مخزون اللوازم والمنتجات الزراعية.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="22-ndvi-processor">22. NDVI Processor<a class="headerlink" href="#22-ndvi-processor" title="Permanent link">&para;</a></h3>
+<p><strong>معالج NDVI</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-ndvi-processor</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8118:8118</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>DEPRECATED - Migrating to vegetation-analysis-service</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: NDVI processing from satellite imagery.</p>
+<p><strong>الوصف</strong>: معالجة NDVI من صور الأقمار الصناعية.</p>
+<p><strong>Dependencies</strong>: <code>postgres</code> (healthy), <code>nats</code> (healthy), <code>vegetation-analysis-service</code> (healthy)</p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 1 | 0.5 |
+| Memory | 768M | 256M |</p>
+<hr />
+<h3 id="23-field-intelligence">23. Field Intelligence<a class="headerlink" href="#23-field-intelligence" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة ذكاء الحقل</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-field-intelligence</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8120:8120</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Field analytics and intelligence aggregation.</p>
+<p><strong>الوصف</strong>: تحليلات الحقل وتجميع الذكاء.</p>
+<p><strong>Dependencies</strong>: <code>task-service</code> (healthy), <code>astronomical-calendar</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 512M | 128M |</p>
+<hr />
+<h3 id="24-skills-service">24. Skills Service<a class="headerlink" href="#24-skills-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة المهارات</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-skills-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8121:8121</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: AI model skill compression and memory management.</p>
+<p><strong>الوصف</strong>: ضغط نماذج الذكاء الاصطناعي وإدارة الذاكرة.</p>
+<p><strong>Dependencies</strong>: <code>redis</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="25-agro-rules-worker">25. Agro Rules Worker<a class="headerlink" href="#25-agro-rules-worker" title="Permanent link">&para;</a></h3>
+<p><strong>عامل القواعد الزراعية</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-agro-rules</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: NATS event-driven worker for agronomic rules processing.</p>
+<p><strong>الوصف</strong>: عامل مدفوع بأحداث NATS لمعالجة القواعد الزراعية.</p>
+<p><strong>Dependencies</strong>: <code>nats</code> (healthy), <code>field-management-service</code> (started)</p>
+<p><strong>Health Check</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;pgrep&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-f&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;python.*worker&quot;</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="26-mcp-server">26. MCP Server<a class="headerlink" href="#26-mcp-server" title="Permanent link">&para;</a></h3>
+<p><strong>خادم بروتوكول سياق النموذج</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-mcp-server</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8200:8200</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Model Context Protocol integration for AI assistants (Claude, ChatGPT).</p>
+<p><strong>الوصف</strong>: تكامل بروتوكول سياق النموذج لمساعدي الذكاء الاصطناعي (Claude، ChatGPT).</p>
+<p><strong>Dependencies</strong>: <code>kong</code> (healthy), <code>postgres</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /health</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 512M | 256M |</p>
+<hr />
+<h3 id="27-ai-agents-service">27. AI Agents Service<a class="headerlink" href="#27-ai-agents-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة الوكلاء الذكية</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-ai-agents-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8130:8130</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Autonomous AI agents for agricultural intelligence.</p>
+<p><strong>الوصف</strong>: وكلاء ذكاء اصطناعي مستقلون للذكاء الزراعي.</p>
+<p><strong>Dependencies</strong>: <code>pgbouncer</code> (healthy), <code>redis</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 512M | 256M |</p>
+<hr />
+<h3 id="28-crm-service">28. CRM Service<a class="headerlink" href="#28-crm-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة إدارة علاقات المزارعين</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-crm-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8131:8131</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Customer Relationship Management for farmers.</p>
+<p><strong>الوصف</strong>: إدارة علاقات العملاء للمزارعين.</p>
+<p><strong>Dependencies</strong>: <code>pgbouncer</code> (healthy), <code>redis</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="29-low-code-engine">29. Low-Code Engine<a class="headerlink" href="#29-low-code-engine" title="Permanent link">&para;</a></h3>
+<p><strong>محرك التطوير منخفض الكود</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-lowcode-engine</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8132:8132</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: Low-code application development platform.</p>
+<p><strong>الوصف</strong>: منصة تطوير التطبيقات منخفضة الكود.</p>
+<p><strong>Dependencies</strong>: <code>pgbouncer</code> (healthy), <code>redis</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h3 id="30-wechat-service">30. WeChat Service<a class="headerlink" href="#30-wechat-service" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة ويتشات</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Container Name</strong></td>
+<td><code>sahool-wechat-service</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>8133:8133</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>sahool-network</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description</strong>: WeChat integration for farmer communication and engagement.</p>
+<p><strong>الوصف</strong>: تكامل ويتشات للتواصل والتفاعل مع المزارعين.</p>
+<p><strong>Dependencies</strong>: <code>pgbouncer</code> (healthy), <code>redis</code> (healthy), <code>nats</code> (healthy)</p>
+<p><strong>Health Check Endpoint</strong>: <code>GET /healthz</code></p>
+<p><strong>Resource Limits</strong>:
+| Resource | Limit | Reservation |
+|----------|-------|-------------|
+| CPU | 0.5 | 0.25 |
+| Memory | 384M | 128M |</p>
+<hr />
+<h2 id="deprecated-services">Deprecated Services<a class="headerlink" href="#deprecated-services" title="Permanent link">&para;</a></h2>
+<h2 id="_3">الخدمات المهملة<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p>The following services are deprecated and will be removed in future versions. Use the <code>deprecated</code> or <code>legacy</code> profile to run them.</p>
+<p>الخدمات التالية مهملة وسيتم إزالتها في الإصدارات المستقبلية. استخدم ملف تعريف <code>deprecated</code> أو <code>legacy</code> لتشغيلها.</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Replacement</th>
+<th>Sunset Date</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field-ops</code></td>
+<td>8080</td>
+<td><code>field-management-service:3000</code></td>
+<td>Legacy</td>
+</tr>
+<tr>
+<td><code>agro-advisor</code></td>
+<td>8105</td>
+<td><code>advisory-service:8093</code></td>
+<td>v17.0.0</td>
+</tr>
+<tr>
+<td><code>ndvi-engine</code></td>
+<td>8107</td>
+<td><code>vegetation-analysis-service:8090</code></td>
+<td>2026-06-01</td>
+</tr>
+<tr>
+<td><code>weather-core</code></td>
+<td>8108</td>
+<td><code>weather-service:8092</code></td>
+<td>v17.0.0</td>
+</tr>
+<tr>
+<td><code>crop-health</code></td>
+<td>8100</td>
+<td><code>crop-intelligence-service:8095</code></td>
+<td>2026-06-01</td>
+</tr>
+<tr>
+<td><code>yield-prediction</code> (Node.js)</td>
+<td>3021</td>
+<td><code>yield-prediction-service:8098</code></td>
+<td>TBD</td>
+</tr>
+<tr>
+<td><code>lai-estimation</code></td>
+<td>3022</td>
+<td><code>vegetation-analysis-service:8090</code></td>
+<td>TBD</td>
+</tr>
+<tr>
+<td><code>crop-growth-model</code></td>
+<td>3023</td>
+<td><code>crop-intelligence-service:8095</code></td>
+<td>TBD</td>
+</tr>
+<tr>
+<td><code>community-chat</code></td>
+<td>8097</td>
+<td><code>chat-service:8114</code></td>
+<td>TBD</td>
+</tr>
+</tbody>
+</table>
+<h3 id="running-deprecated-services">Running Deprecated Services<a class="headerlink" href="#running-deprecated-services" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Run with deprecated profile</span>
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>deprecated<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Run with legacy profile</span>
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>legacy<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+
+<hr />
+<h2 id="network-configuration">Network Configuration<a class="headerlink" href="#network-configuration" title="Permanent link">&para;</a></h2>
+<h2 id="_4">تكوين الشبكة<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h3 id="network-definition">Network Definition<a class="headerlink" href="#network-definition" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">networks</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sahool-network</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bridge</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-network</span>
+</code></pre></div>
+
+<p>All services are connected to the <code>sahool-network</code> bridge network, enabling:
+- Service discovery by container name
+- Internal DNS resolution
+- Network isolation from host</p>
+<p>جميع الخدمات متصلة بشبكة الجسر <code>sahool-network</code>، مما يتيح:
+- اكتشاف الخدمات بواسطة اسم الحاوية
+- حل DNS الداخلي
+- عزل الشبكة عن المضيف</p>
+<h3 id="port-binding-security">Port Binding Security<a class="headerlink" href="#port-binding-security" title="Permanent link">&para;</a></h3>
+<p>Most infrastructure services bind to <code>127.0.0.1</code> (localhost only) for security:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Binding</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PostgreSQL</td>
+<td><code>127.0.0.1:5432</code></td>
+<td>Direct DB access restricted</td>
+</tr>
+<tr>
+<td>PgBouncer</td>
+<td><code>127.0.0.1:6432</code></td>
+<td>Connection pooler restricted</td>
+</tr>
+<tr>
+<td>Redis</td>
+<td><code>127.0.0.1:6379</code></td>
+<td>Cache access restricted</td>
+</tr>
+<tr>
+<td>NATS</td>
+<td><code>127.0.0.1:4222</code></td>
+<td>Message queue restricted</td>
+</tr>
+<tr>
+<td>Kong Admin</td>
+<td><code>127.0.0.1:8001</code></td>
+<td>Admin API restricted</td>
+</tr>
+<tr>
+<td>User Service</td>
+<td><code>127.0.0.1:3025</code></td>
+<td>Auth via Kong only</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Public Services</strong> (accessible from external network):
+- Kong Proxy: <code>8000:8000</code></p>
+<hr />
+<h2 id="volume-configuration">Volume Configuration<a class="headerlink" href="#volume-configuration" title="Permanent link">&para;</a></h2>
+<h2 id="_5">تكوين وحدات التخزين<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="named-volumes">Named Volumes<a class="headerlink" href="#named-volumes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Volume Name</th>
+<th>Container</th>
+<th>Mount Point</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool-postgres-data</code></td>
+<td>postgres</td>
+<td><code>/var/lib/postgresql/data</code></td>
+<td>PostgreSQL data</td>
+</tr>
+<tr>
+<td><code>sahool-nats-data</code></td>
+<td>nats</td>
+<td><code>/data</code></td>
+<td>NATS JetStream data</td>
+</tr>
+<tr>
+<td><code>sahool-redis-data</code></td>
+<td>redis</td>
+<td><code>/data</code></td>
+<td>Redis persistence</td>
+</tr>
+<tr>
+<td><code>sahool-qdrant-data</code></td>
+<td>qdrant</td>
+<td><code>/qdrant/storage</code></td>
+<td>Vector database</td>
+</tr>
+<tr>
+<td><code>sahool-mqtt-data</code></td>
+<td>mqtt</td>
+<td><code>/mosquitto/data</code></td>
+<td>MQTT persistence</td>
+</tr>
+<tr>
+<td><code>sahool-mqtt-logs</code></td>
+<td>mqtt</td>
+<td><code>/mosquitto/log</code></td>
+<td>MQTT logs</td>
+</tr>
+<tr>
+<td><code>sahool-mqtt-passwd</code></td>
+<td>mqtt</td>
+<td><code>/mosquitto/config</code></td>
+<td>MQTT credentials</td>
+</tr>
+<tr>
+<td><code>sahool-ollama-data</code></td>
+<td>ollama</td>
+<td><code>/root/.ollama</code></td>
+<td>LLM models</td>
+</tr>
+<tr>
+<td><code>sahool-code-review-logs</code></td>
+<td>code-review</td>
+<td><code>/app/logs</code></td>
+<td>Code review logs</td>
+</tr>
+<tr>
+<td><code>sahool-etcd-data</code></td>
+<td>etcd</td>
+<td><code>/etcd</code></td>
+<td>Etcd metadata</td>
+</tr>
+<tr>
+<td><code>sahool-minio-data</code></td>
+<td>minio</td>
+<td><code>/minio_data</code></td>
+<td>Object storage</td>
+</tr>
+<tr>
+<td><code>sahool-milvus-data</code></td>
+<td>milvus</td>
+<td><code>/var/lib/milvus</code></td>
+<td>Milvus data</td>
+</tr>
+<tr>
+<td><code>sahool-pgbouncer-userlist</code></td>
+<td>pgbouncer</td>
+<td>User list</td>
+<td>PgBouncer users</td>
+</tr>
+<tr>
+<td><code>kong_logs</code></td>
+<td>kong</td>
+<td><code>/var/log/kong</code></td>
+<td>Kong access logs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bind-mounts-configuration">Bind Mounts (Configuration)<a class="headerlink" href="#bind-mounts-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Target</th>
+<th>Service</th>
+<th>Mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>./infrastructure/core/postgres/init</code></td>
+<td><code>/docker-entrypoint-initdb.d</code></td>
+<td>postgres</td>
+<td>ro</td>
+</tr>
+<tr>
+<td><code>./infrastructure/gateway/kong/kong.yml</code></td>
+<td><code>/kong/declarative/kong.yml</code></td>
+<td>kong</td>
+<td>ro</td>
+</tr>
+<tr>
+<td><code>./config/certs</code></td>
+<td>Various</td>
+<td>Multiple</td>
+<td>ro</td>
+</tr>
+<tr>
+<td><code>./models</code></td>
+<td><code>/app/models</code></td>
+<td>crop-intelligence</td>
+<td>ro</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="service-dependencies">Service Dependencies<a class="headerlink" href="#service-dependencies" title="Permanent link">&para;</a></h2>
+<h2 id="_6">تبعيات الخدمات<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<h3 id="dependency-graph-simplified">Dependency Graph (Simplified)<a class="headerlink" href="#dependency-graph-simplified" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>                    ┌─────────────┐
+                    │  PostgreSQL │
+                    └──────┬──────┘
+                           │
+                    ┌──────▼──────┐
+                    │  PgBouncer  │
+                    └──────┬──────┘
+                           │
+         ┌─────────────────┼─────────────────┐
+         │                 │                 │
+    ┌────▼────┐      ┌─────▼─────┐     ┌─────▼─────┐
+    │  Redis  │      │   NATS    │     │   Kong    │
+    └────┬────┘      └─────┬─────┘     └─────┬─────┘
+         │                 │                 │
+         └─────────────────┼─────────────────┘
+                           │
+              ┌────────────┼────────────┐
+              │            │            │
+         ┌────▼────┐  ┌────▼────┐  ┌────▼────┐
+         │ Node.js │  │ Python  │  │   IoT   │
+         │Services │  │Services │  │Services │
+         └─────────┘  └─────────┘  └─────────┘
+</code></pre></div>
+
+<h3 id="critical-dependencies">Critical Dependencies<a class="headerlink" href="#critical-dependencies" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Required Dependencies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All Application Services</td>
+<td><code>postgres</code> OR <code>pgbouncer</code></td>
+</tr>
+<tr>
+<td>All Event-Driven Services</td>
+<td><code>nats</code></td>
+</tr>
+<tr>
+<td>Caching Services</td>
+<td><code>redis</code></td>
+</tr>
+<tr>
+<td>AI Services</td>
+<td><code>qdrant</code> (vector DB)</td>
+</tr>
+<tr>
+<td>IoT Services</td>
+<td><code>mqtt</code>, <code>nats</code></td>
+</tr>
+<tr>
+<td>User Service</td>
+<td><code>notification-service</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="resource-limits-summary">Resource Limits Summary<a class="headerlink" href="#resource-limits-summary" title="Permanent link">&para;</a></h2>
+<h2 id="_7">ملخص حدود الموارد<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<h3 id="high-resource-services">High Resource Services<a class="headerlink" href="#high-resource-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>CPU Limit</th>
+<th>Memory Limit</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PostgreSQL</td>
+<td>2</td>
+<td>2G</td>
+<td>Primary database</td>
+</tr>
+<tr>
+<td>Milvus</td>
+<td>2</td>
+<td>4G</td>
+<td>Vector database</td>
+</tr>
+<tr>
+<td>Ollama</td>
+<td>4</td>
+<td>8G</td>
+<td>LLM inference</td>
+</tr>
+<tr>
+<td>AI Advisor</td>
+<td>2</td>
+<td>2G</td>
+<td>LLM orchestration</td>
+</tr>
+<tr>
+<td>Kong</td>
+<td>2</td>
+<td>1G</td>
+<td>API Gateway</td>
+</tr>
+</tbody>
+</table>
+<h3 id="standard-services">Standard Services<a class="headerlink" href="#standard-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service Type</th>
+<th>CPU Limit</th>
+<th>Memory Limit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Most Python Services</td>
+<td>0.5</td>
+<td>384M</td>
+</tr>
+<tr>
+<td>Most Node.js Services</td>
+<td>1</td>
+<td>512M</td>
+</tr>
+<tr>
+<td>Utility Services</td>
+<td>0.25</td>
+<td>256M</td>
+</tr>
+</tbody>
+</table>
+<h3 id="total-resource-requirements-estimated">Total Resource Requirements (Estimated)<a class="headerlink" href="#total-resource-requirements-estimated" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Minimum</th>
+<th>Recommended</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU Cores</td>
+<td>16</td>
+<td>32+</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>32GB</td>
+<td>64GB+</td>
+</tr>
+<tr>
+<td>Storage</td>
+<td>100GB</td>
+<td>500GB+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="profiles">Profiles<a class="headerlink" href="#profiles" title="Permanent link">&para;</a></h2>
+<h2 id="_8">ملفات التعريف<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<p>Docker Compose profiles allow selective service startup:</p>
+<table>
+<thead>
+<tr>
+<th>Profile</th>
+<th>Description</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(default)</td>
+<td>Core services</td>
+<td><code>docker compose up -d</code></td>
+</tr>
+<tr>
+<td><code>gpu</code></td>
+<td>GPU-enabled services (Ollama)</td>
+<td><code>docker compose --profile gpu up -d</code></td>
+</tr>
+<tr>
+<td><code>deprecated</code></td>
+<td>Deprecated services</td>
+<td><code>docker compose --profile deprecated up -d</code></td>
+</tr>
+<tr>
+<td><code>legacy</code></td>
+<td>Legacy compatibility</td>
+<td><code>docker compose --profile legacy up -d</code></td>
+</tr>
+<tr>
+<td><code>demo</code></td>
+<td>Demo data service</td>
+<td><code>docker compose --profile demo up -d</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="profile-combinations">Profile Combinations<a class="headerlink" href="#profile-combinations" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Full stack with GPU support</span>
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>gpu<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Include deprecated services for migration testing</span>
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>deprecated<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Demo environment with sample data</span>
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>demo<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Everything</span>
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>gpu<span class="w"> </span>--profile<span class="w"> </span>demo<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+
+<hr />
+<h2 id="quick-reference">Quick Reference<a class="headerlink" href="#quick-reference" title="Permanent link">&para;</a></h2>
+<h2 id="_9">مرجع سريع<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<h3 id="common-commands">Common Commands<a class="headerlink" href="#common-commands" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Start all services</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># View logs</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span><span class="o">[</span>service-name<span class="o">]</span>
+
+<span class="c1"># Check service status</span>
+docker<span class="w"> </span>compose<span class="w"> </span>ps
+
+<span class="c1"># Stop all services</span>
+docker<span class="w"> </span>compose<span class="w"> </span>down
+
+<span class="c1"># Restart specific service</span>
+docker<span class="w"> </span>compose<span class="w"> </span>restart<span class="w"> </span><span class="o">[</span>service-name<span class="o">]</span>
+
+<span class="c1"># Scale a service</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--scale<span class="w"> </span><span class="o">[</span>service-name<span class="o">]=</span><span class="m">3</span>
+
+<span class="c1"># Execute command in container</span>
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="o">[</span>service-name<span class="o">]</span><span class="w"> </span>/bin/sh
+
+<span class="c1"># View resource usage</span>
+docker<span class="w"> </span>stats
+</code></pre></div>
+
+<h3 id="health-check-urls">Health Check URLs<a class="headerlink" href="#health-check-urls" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Health Endpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python Services</td>
+<td><code>GET /healthz</code></td>
+</tr>
+<tr>
+<td>Node.js Services</td>
+<td><code>GET /healthz</code> or <code>GET /api/v1/health</code></td>
+</tr>
+<tr>
+<td>Kong</td>
+<td><code>GET /status</code> (via admin API)</td>
+</tr>
+<tr>
+<td>NATS</td>
+<td><code>GET :8222/healthz</code></td>
+</tr>
+<tr>
+<td>Redis</td>
+<td><code>redis-cli ping</code></td>
+</tr>
+<tr>
+<td>PostgreSQL</td>
+<td><code>pg_isready</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Last Updated: January 2026</em>
+<em>Version: 16.0.0</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2721 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>GitHub Actions Workflows Reference - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#github-actions-workflows-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GitHub Actions Workflows Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="github-actions-workflows-reference">GitHub Actions Workflows Reference<a class="headerlink" href="#github-actions-workflows-reference" title="Permanent link">&para;</a></h1>
+<p>This document provides a comprehensive reference for all 37 GitHub Actions workflows in the SAHOOL platform repository.</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-cicd-core-5-workflows">CI/CD Core</a></li>
+<li><a href="#2-security-5-workflows">Security</a></li>
+<li><a href="#3-testing-9-workflows">Testing</a></li>
+<li><a href="#4-deployment-5-workflows">Deployment</a></li>
+<li><a href="#5-builddocker-2-workflows">Build/Docker</a></li>
+<li><a href="#6-governance-5-workflows">Governance</a></li>
+<li><a href="#7-documentation-1-workflow">Documentation</a></li>
+<li><a href="#8-mobile-3-workflows">Mobile</a></li>
+<li><a href="#9-frontend-1-workflow">Frontend</a></li>
+<li><a href="#10-aiagents-1-workflow">AI/Agents</a></li>
+<li><a href="#workflow-dependencies">Workflow Dependencies</a></li>
+<li><a href="#secrets-reference">Secrets Reference</a></li>
+</ol>
+<hr />
+<h2 id="1-cicd-core-5-workflows">1. CI/CD Core (5 Workflows)<a class="headerlink" href="#1-cicd-core-5-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="ciyml-main-ci-pipeline">ci.yml - Main CI Pipeline<a class="headerlink" href="#ciyml-main-ci-pipeline" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Primary continuous integration pipeline that runs on every push and pull request.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/ci.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (main, develop), <code>pull_request</code> (main, develop)</td>
+</tr>
+<tr>
+<td><strong>Runs On</strong></td>
+<td>ubuntu-latest</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>lint</code> - Code linting (Ruff for Python, ESLint for TypeScript)
+- <code>test</code> - Unit and integration tests
+- <code>build</code> - Build validation</p>
+<p><strong>Required Secrets</strong>: None (uses GITHUB_TOKEN)</p>
+<hr />
+<h3 id="cd-stagingyml-staging-deployment">cd-staging.yml - Staging Deployment<a class="headerlink" href="#cd-stagingyml-staging-deployment" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Continuous deployment to staging environment after successful CI.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/cd-staging.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (develop), <code>workflow_dispatch</code></td>
+</tr>
+<tr>
+<td><strong>Environment</strong></td>
+<td>staging</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>deploy</code> - Deploy to staging cluster
+- <code>smoke-test</code> - Post-deployment validation
+- <code>notify</code> - Slack/Teams notification</p>
+<p><strong>Required Secrets</strong>:
+- <code>STAGING_KUBECONFIG</code>
+- <code>SLACK_WEBHOOK_URL</code> (optional)</p>
+<hr />
+<h3 id="cd-productionyml-production-deployment">cd-production.yml - Production Deployment<a class="headerlink" href="#cd-productionyml-production-deployment" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Production deployment with approval gates.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/cd-production.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (main), <code>release</code> (published), <code>workflow_dispatch</code></td>
+</tr>
+<tr>
+<td><strong>Environment</strong></td>
+<td>production (requires approval)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>validate</code> - Pre-deployment checks
+- <code>deploy</code> - Blue-green deployment
+- <code>verify</code> - Health checks
+- <code>rollback</code> - Automatic rollback on failure</p>
+<p><strong>Required Secrets</strong>:
+- <code>PRODUCTION_KUBECONFIG</code>
+- <code>SLACK_WEBHOOK_URL</code></p>
+<hr />
+<h3 id="releaseyml-release-management">release.yml - Release Management<a class="headerlink" href="#releaseyml-release-management" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Automates release creation, changelog generation, and artifact publishing.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/release.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (tags: v*), <code>workflow_dispatch</code></td>
+</tr>
+<tr>
+<td><strong>Permissions</strong></td>
+<td>contents: write</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>validate</code> - Validate release requirements
+- <code>build</code> - Build release artifacts
+- <code>publish</code> - Create GitHub release
+- <code>notify</code> - Announcement notifications</p>
+<p><strong>Required Secrets</strong>:
+- <code>GITHUB_TOKEN</code> (automatic)</p>
+<hr />
+<h3 id="release-candidateyml-release-candidates">release-candidate.yml - Release Candidates<a class="headerlink" href="#release-candidateyml-release-candidates" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Creates and tests release candidates before production release.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/release-candidate.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (branches: release/*), <code>workflow_dispatch</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>create-rc</code> - Create release candidate tag
+- <code>test-rc</code> - Run full test suite
+- <code>deploy-staging</code> - Deploy RC to staging
+- <code>validate</code> - Acceptance testing</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h2 id="2-security-5-workflows">2. Security (5 Workflows)<a class="headerlink" href="#2-security-5-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="codeql-analysisyml-codeql-semantic-analysis">codeql-analysis.yml - CodeQL Semantic Analysis<a class="headerlink" href="#codeql-analysisyml-codeql-semantic-analysis" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: GitHub's semantic code analysis for security vulnerabilities.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/codeql-analysis.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code>, <code>pull_request</code>, <code>schedule</code> (weekly)</td>
+</tr>
+<tr>
+<td><strong>Languages</strong></td>
+<td>Python, JavaScript/TypeScript</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>analyze</code> - Run CodeQL analysis with auto-detection</p>
+<p><strong>Required Secrets</strong>: None (uses GITHUB_TOKEN)</p>
+<hr />
+<h3 id="security-checksyml-security-scanning">security-checks.yml - Security Scanning<a class="headerlink" href="#security-checksyml-security-scanning" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Comprehensive security scanning pipeline.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/security-checks.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code>, <code>pull_request</code>, <code>schedule</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>trivy-scan</code> - Container vulnerability scanning
+- <code>bandit-scan</code> - Python security linting
+- <code>gitleaks</code> - Secret detection
+- <code>dependency-check</code> - Dependency vulnerability scanning</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="securityyml-dependency-security">security.yml - Dependency Security<a class="headerlink" href="#securityyml-dependency-security" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Dependency vulnerability scanning and alerting.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/security.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code>, <code>pull_request</code>, <code>schedule</code> (daily)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>npm-audit</code> - Node.js dependency audit
+- <code>pip-audit</code> - Python dependency audit
+- <code>flutter-audit</code> - Dart/Flutter dependency audit</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="security-audityml-security-audit">security-audit.yml - Security Audit<a class="headerlink" href="#security-audityml-security-audit" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Deep security audit with reporting.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/security-audit.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>schedule</code> (weekly), <code>workflow_dispatch</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>audit</code> - Full security audit
+- <code>report</code> - Generate security report
+- <code>alert</code> - Send alerts for critical findings</p>
+<p><strong>Required Secrets</strong>:
+- <code>SECURITY_ALERT_EMAIL</code> (optional)</p>
+<hr />
+<h3 id="scorecardyml-ossf-scorecard">scorecard.yml - OSSF Scorecard<a class="headerlink" href="#scorecardyml-ossf-scorecard" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: OpenSSF Scorecard analysis for supply chain security.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/scorecard.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (main), <code>schedule</code> (weekly)</td>
+</tr>
+<tr>
+<td><strong>Permissions</strong></td>
+<td>security-events: write</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>analysis</code> - Run OSSF Scorecard
+- <code>upload</code> - Upload results to GitHub Security</p>
+<p><strong>Required Secrets</strong>:
+- <code>SCORECARD_TOKEN</code> (optional, for higher rate limits)</p>
+<hr />
+<h2 id="3-testing-9-workflows">3. Testing (9 Workflows)<a class="headerlink" href="#3-testing-9-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="testyml-python-unit-tests">test.yml - Python Unit Tests<a class="headerlink" href="#testyml-python-unit-tests" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Comprehensive Python testing with coverage reporting.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/test.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code>, <code>pull_request</code></td>
+</tr>
+<tr>
+<td><strong>Coverage Threshold</strong></td>
+<td>60%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>test</code> - Run pytest with coverage
+- <code>upload-coverage</code> - Upload to Codecov</p>
+<p><strong>Required Secrets</strong>:
+- <code>CODECOV_TOKEN</code> (optional)</p>
+<hr />
+<h3 id="container-testsyml-container-tests">container-tests.yml - Container Tests<a class="headerlink" href="#container-testsyml-container-tests" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Tests that run inside Docker containers with service dependencies.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/container-tests.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code>, <code>pull_request</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Services</strong>:
+- PostgreSQL 16 with PostGIS
+- Redis 7
+- NATS</p>
+<p><strong>Jobs</strong>:
+- <code>test-python</code> - Python service tests
+- <code>test-node</code> - Node.js service tests</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="frontend-testsyml-frontend-component-tests">frontend-tests.yml - Frontend Component Tests<a class="headerlink" href="#frontend-testsyml-frontend-component-tests" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: React/Next.js component and integration tests.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/frontend-tests.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code>, <code>pull_request</code> (apps/web/<strong>, apps/admin/</strong>, packages/**)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>test</code> - Vitest unit tests
+- <code>coverage</code> - Coverage reporting</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="e2e-testsyml-end-to-end-tests">e2e-tests.yml - End-to-End Tests<a class="headerlink" href="#e2e-testsyml-end-to-end-tests" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: End-to-end testing for critical user flows.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/e2e-tests.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (main), <code>workflow_dispatch</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>e2e</code> - Run E2E test suite
+- <code>report</code> - Generate test report</p>
+<p><strong>Required Secrets</strong>:
+- <code>E2E_BASE_URL</code> (optional)</p>
+<hr />
+<h3 id="playwright-e2eyml-playwright-e2e-tests">playwright-e2e.yml - Playwright E2E Tests<a class="headerlink" href="#playwright-e2eyml-playwright-e2e-tests" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Cross-browser E2E testing with Playwright.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/playwright-e2e.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code>, <code>pull_request</code> (apps/web/<strong>, tests/e2e/</strong>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>setup-tests</code> - Prepare test environment
+- <code>playwright-tests</code> - Run tests on Chromium, Firefox, WebKit
+- <code>visual-regression</code> - Screenshot comparison (PRs only)
+- <code>test-summary</code> - Generate summary report</p>
+<p><strong>Matrix</strong>:
+- Browsers: chromium, firefox, webkit</p>
+<p><strong>Required Secrets</strong>:
+- <code>E2E_BASE_URL</code> (optional)</p>
+<hr />
+<h3 id="load-testingyml-loadperformance-tests">load-testing.yml - Load/Performance Tests<a class="headerlink" href="#load-testingyml-loadperformance-tests" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Load testing with Locust for performance validation.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/load-testing.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>schedule</code> (nightly), <code>workflow_dispatch</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>load-test</code> - Run Locust load tests
+- <code>analyze</code> - Analyze results
+- <code>report</code> - Generate performance report</p>
+<p><strong>Required Secrets</strong>:
+- <code>LOAD_TEST_TARGET_URL</code></p>
+<hr />
+<h3 id="load-test-validationyml-load-test-validation">load-test-validation.yml - Load Test Validation<a class="headerlink" href="#load-test-validationyml-load-test-validation" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Validates load test configurations and baselines.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/load-test-validation.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>pull_request</code> (tests/load/**)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>validate</code> - Validate Locust configurations
+- <code>baseline</code> - Compare against baselines</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="skills-testsyml-ai-skills-tests">skills-tests.yml - AI Skills Tests<a class="headerlink" href="#skills-testsyml-ai-skills-tests" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Tests for AI skills and context engineering modules.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/skills-tests.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code>, <code>pull_request</code> (.claude/skills/**)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>test-skills</code> - Validate skill definitions
+- <code>test-context</code> - Test context compression</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="lighthouse-ciyml-lighthouse-performance">lighthouse-ci.yml - Lighthouse Performance<a class="headerlink" href="#lighthouse-ciyml-lighthouse-performance" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Frontend performance auditing with Lighthouse.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/lighthouse-ci.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (main, develop), <code>workflow_dispatch</code></td>
+</tr>
+<tr>
+<td><strong>Paths</strong></td>
+<td>apps/web/<strong>, apps/mobile/</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>lighthouse-web</code> - Web app performance audit
+- <code>lighthouse-flutter-web</code> - Flutter web build audit</p>
+<p><strong>Metrics Evaluated</strong>:
+- Performance (target: &gt;90%)
+- Accessibility (target: &gt;90%)
+- Best Practices (target: &gt;90%)
+- SEO (target: &gt;90%)</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h2 id="4-deployment-5-workflows">4. Deployment (5 Workflows)<a class="headerlink" href="#4-deployment-5-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="deploy-previewyml-preview-deployments">deploy-preview.yml - Preview Deployments<a class="headerlink" href="#deploy-previewyml-preview-deployments" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Deploys preview environments for pull requests.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/deploy-preview.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>pull_request</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>build</code> - Build preview artifacts
+- <code>deploy</code> - Deploy to preview environment
+- <code>comment</code> - Add preview URL to PR</p>
+<p><strong>Required Secrets</strong>:
+- <code>PREVIEW_DEPLOY_TOKEN</code></p>
+<hr />
+<h3 id="vercel-previewyml-vercel-preview">vercel-preview.yml - Vercel Preview<a class="headerlink" href="#vercel-previewyml-vercel-preview" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Deploys Next.js apps to Vercel for previews.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/vercel-preview.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>pull_request</code> (apps/web/<strong>, apps/admin/</strong>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>deploy-preview</code> - Deploy to Vercel preview</p>
+<p><strong>Required Secrets</strong>:
+- <code>VERCEL_TOKEN</code>
+- <code>VERCEL_ORG_ID</code>
+- <code>VERCEL_PROJECT_ID</code></p>
+<hr />
+<h3 id="blue-green-deployyml-blue-green-deployments">blue-green-deploy.yml - Blue-Green Deployments<a class="headerlink" href="#blue-green-deployyml-blue-green-deployments" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Zero-downtime deployments using blue-green strategy.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/blue-green-deploy.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>workflow_dispatch</code>, <code>workflow_call</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>prepare</code> - Prepare green environment
+- <code>deploy</code> - Deploy to green
+- <code>test</code> - Validate green environment
+- <code>switch</code> - Switch traffic to green
+- <code>cleanup</code> - Remove blue environment</p>
+<p><strong>Required Secrets</strong>:
+- <code>KUBECONFIG</code></p>
+<hr />
+<h3 id="canary-deployyml-canary-deployments">canary-deploy.yml - Canary Deployments<a class="headerlink" href="#canary-deployyml-canary-deployments" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Gradual rollout with traffic splitting.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/canary-deploy.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>workflow_dispatch</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Inputs</strong>:
+- <code>service</code> - Service to deploy
+- <code>percentage</code> - Initial traffic percentage (default: 10%)</p>
+<p><strong>Jobs</strong>:
+- <code>deploy-canary</code> - Deploy canary version
+- <code>monitor</code> - Monitor error rates
+- <code>promote</code> - Increase traffic or rollback</p>
+<p><strong>Required Secrets</strong>:
+- <code>KUBECONFIG</code></p>
+<hr />
+<h3 id="infra-syncyml-infrastructure-sync">infra-sync.yml - Infrastructure Sync<a class="headerlink" href="#infra-syncyml-infrastructure-sync" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Validates that generated infrastructure files are in sync with <code>governance/services.yaml</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/infra-sync.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>pull_request</code>, <code>push</code> (governance/services.yaml, docker/compose.generated.yml, helm/**)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>check-sync</code> - Verify generated files match source
+- <code>generate-report</code> - Create sync status report</p>
+<p><strong>Checks</strong>:
+- <code>docker/compose.generated.yml</code> is in sync
+- <code>helm/sahool/values.generated.yaml</code> is in sync
+- Docker Compose validates
+- Helm values are valid YAML</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h2 id="5-builddocker-2-workflows">5. Build/Docker (2 Workflows)<a class="headerlink" href="#5-builddocker-2-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="docker-imageyml-docker-image-ci">docker-image.yml - Docker Image CI<a class="headerlink" href="#docker-imageyml-docker-image-ci" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Builds and validates Docker images for all microservices.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/docker-image.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (main), <code>pull_request</code> (main)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>validate</code> - Validate Dockerfiles (PRs only)
+- <code>build</code> - Full Docker builds (push to main only)</p>
+<p><strong>Services Matrix</strong> (13 services):
+- crop-growth-model
+- indicators-service
+- irrigation-smart
+- yield-engine
+- notification-service
+- marketplace-service
+- iot-service
+- virtual-sensors
+- vegetation-analysis-service
+- advisory-service
+- weather-service
+- crop-intelligence-service
+- field-management-service</p>
+<p><strong>Required Secrets</strong>:
+- <code>DOCKERHUB_USERNAME</code>
+- <code>DOCKERHUB_TOKEN</code></p>
+<hr />
+<h3 id="docker-buildxyml-multi-platform-docker-builds">docker-buildx.yml - Multi-Platform Docker Builds<a class="headerlink" href="#docker-buildxyml-multi-platform-docker-builds" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Builds multi-architecture Docker images with buildx.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/docker-buildx.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (main), <code>release</code> (published), <code>workflow_dispatch</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Platforms</strong>:
+- linux/amd64
+- linux/arm64</p>
+<p><strong>Features</strong>:
+- SBOM generation
+- Provenance attestation
+- GHCR publishing
+- Docker Hub publishing</p>
+<p><strong>Required Secrets</strong>:
+- <code>DOCKERHUB_USERNAME</code>
+- <code>DOCKERHUB_TOKEN</code>
+- <code>GITHUB_TOKEN</code> (automatic)</p>
+<hr />
+<h2 id="6-governance-5-workflows">6. Governance (5 Workflows)<a class="headerlink" href="#6-governance-5-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="governance-ciyml-governance-validation">governance-ci.yml - Governance Validation<a class="headerlink" href="#governance-ciyml-governance-validation" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Validates governance policies, schemas, and security configurations.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/governance-ci.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code>, <code>pull_request</code> (governance/<strong>, gitops/</strong>, helm/<strong>, apps/</strong>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>validate-yaml</code> - YAML linting with yamllint
+- <code>validate-schemas</code> - JSON Schema validation with ajv-cli
+- <code>validate-kyverno</code> - Kyverno policy syntax validation
+- <code>security-checks</code> - Check for :latest tags and hardcoded secrets
+- <code>structure-guard</code> - Validate repository structure
+- <code>governance-report</code> - Generate summary report</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="governance-structureyml-structure-guard">governance-structure.yml - Structure Guard<a class="headerlink" href="#governance-structureyml-structure-guard" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Enforces repository structure conventions.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/governance-structure.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code>, <code>pull_request</code> (main, develop)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>structure-guard</code> - Validate structure
+- <code>summary</code> - Generate report</p>
+<p><strong>Forbidden Paths</strong> (will fail if exist):
+- <code>kernel/</code>
+- <code>kernel-services-v15.3/</code>
+- <code>frontend/</code>
+- <code>web_admin/</code>
+- <code>services/</code>
+- <code>advisor/</code>
+- <code>field_suite/</code>
+- <code>kernel_domain/</code></p>
+<p><strong>Allowed Paths</strong>:
+- <code>apps/services/</code> - Backend microservices
+- <code>apps/web/</code> - Web dashboard
+- <code>apps/admin/</code> - Admin panel
+- <code>apps/mobile/</code> - Mobile app
+- <code>packages/</code> - Shared packages
+- <code>shared/</code> - Shared domain
+- <code>archive/</code> - Legacy code</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="event-contracts-guardyml-event-contracts">event-contracts-guard.yml - Event Contracts<a class="headerlink" href="#event-contracts-guardyml-event-contracts" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Validates event schema contracts and backward compatibility.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/event-contracts-guard.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>pull_request</code> (shared/events/<strong>, packages/shared-events/</strong>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>validate</code> - Validate event schemas
+- <code>compatibility</code> - Check backward compatibility
+- <code>document</code> - Generate event documentation</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="generator-guardyml-generator-sync">generator-guard.yml - Generator Sync<a class="headerlink" href="#generator-guardyml-generator-sync" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Ensures generated files are kept in sync with source definitions.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/generator-guard.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>pull_request</code> (governance/services.yaml, scripts/generators/**)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>check</code> - Regenerate and compare files
+- <code>report</code> - Report differences</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="quality-gatesyml-quality-gates">quality-gates.yml - Quality Gates<a class="headerlink" href="#quality-gatesyml-quality-gates" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Comprehensive quality gates before merge.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/quality-gates.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>pull_request</code> (main, develop)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>python-quality</code> - Python linting and type checking
+- <code>frontend-quality</code> - TypeScript and ESLint checks
+- <code>security-gate</code> - Security scan must pass
+- <code>governance-gate</code> - Governance checks must pass
+- <code>agent-evaluation-gate</code> - AI agent evaluation (if applicable)</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h2 id="7-documentation-1-workflow">7. Documentation (1 Workflow)<a class="headerlink" href="#7-documentation-1-workflow" title="Permanent link">&para;</a></h2>
+<h3 id="docsyml-documentation-generation">docs.yml - Documentation Generation<a class="headerlink" href="#docsyml-documentation-generation" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Generates and publishes API documentation.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/docs.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (main), <code>workflow_dispatch</code></td>
+</tr>
+<tr>
+<td><strong>Paths</strong></td>
+<td>apps/services/<strong>, shared/</strong>, docs/**</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>generate-openapi</code> - Generate OpenAPI specs from FastAPI services
+- <code>build-redoc</code> - Build Redoc API documentation
+- <code>build-mkdocs</code> - Build MkDocs developer documentation
+- <code>deploy</code> - Deploy to GitHub Pages</p>
+<p><strong>Outputs</strong>:
+- OpenAPI specifications
+- Redoc HTML documentation
+- MkDocs developer documentation</p>
+<p><strong>Required Secrets</strong>:
+- <code>GITHUB_TOKEN</code> (automatic)</p>
+<hr />
+<h2 id="8-mobile-3-workflows">8. Mobile (3 Workflows)<a class="headerlink" href="#8-mobile-3-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="flutter-apkyml-flutter-apk-builds">flutter-apk.yml - Flutter APK Builds<a class="headerlink" href="#flutter-apkyml-flutter-apk-builds" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Builds Flutter APK for Android.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/flutter-apk.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (main, claude/*), <code>workflow_dispatch</code></td>
+</tr>
+<tr>
+<td><strong>Paths</strong></td>
+<td>apps/mobile/**</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Inputs</strong> (workflow_dispatch):
+- <code>build_type</code> - release or debug (default: release)</p>
+<p><strong>Jobs</strong>:
+- <code>build-apk</code> - Full APK build pipeline</p>
+<p><strong>Build Steps</strong>:
+1. Setup Java 17
+2. Setup Android SDK
+3. Setup Flutter 3.27.1
+4. Generate app icons
+5. Generate Drift database code
+6. Build APK (release/debug)
+7. Upload artifact</p>
+<p><strong>Required Secrets</strong>:
+- <code>WEATHER_API_KEY</code> (optional, uses placeholder if not set)
+- <code>MAPS_API_KEY</code> (optional, uses placeholder if not set)</p>
+<hr />
+<h3 id="mobile-ciyml-mobile-ci">mobile-ci.yml - Mobile CI<a class="headerlink" href="#mobile-ciyml-mobile-ci" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Comprehensive mobile CI pipeline for Flutter app.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/mobile-ci.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code>, <code>pull_request</code>, <code>workflow_dispatch</code></td>
+</tr>
+<tr>
+<td><strong>Paths</strong></td>
+<td>apps/mobile/**</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Concurrency</strong>: <code>mobile-ci-${{ github.ref }}</code> (cancels in-progress)</p>
+<p><strong>Environment Variables</strong>:
+- <code>FLUTTER_VERSION</code>: 3.27.1
+- <code>JAVA_VERSION</code>: 17
+- <code>ANDROID_COMPILE_SDK</code>: 34
+- <code>ANDROID_BUILD_TOOLS</code>: 34.0.0
+- <code>ANDROID_MIN_SDK</code>: 23</p>
+<p><strong>Jobs</strong>:
+- <code>analyze</code> - Flutter analyze and dart format check
+- <code>test</code> - Unit tests with coverage (60% threshold)
+- <code>build-debug</code> - Build debug APK
+- <code>integration-test</code> - Integration tests (schedule/manual only)
+- <code>ci-status</code> - Final status check</p>
+<p><strong>Required Secrets</strong>:
+- <code>WEATHER_API_KEY</code> (optional)
+- <code>MAPS_API_KEY</code> (optional)
+- <code>CODECOV_TOKEN</code> (optional)</p>
+<hr />
+<h3 id="mobile-releaseyml-mobile-release">mobile-release.yml - Mobile Release<a class="headerlink" href="#mobile-releaseyml-mobile-release" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Builds signed release APK and AAB for Play Store.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/mobile-release.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (tags: v<em>, mobile-v</em>), <code>release</code> (published), <code>workflow_dispatch</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Inputs</strong> (workflow_dispatch):
+- <code>version_bump</code> - major, minor, patch, none
+- <code>build_type</code> - apk, aab, both
+- <code>deploy_to_play_store</code> - true/false</p>
+<p><strong>Jobs</strong>:
+- <code>version</code> - Version management
+- <code>build-release-apk</code> - Signed APK build
+- <code>build-release-aab</code> - Signed AAB build (Play Store)
+- <code>deploy-play-store</code> - Upload to Play Store internal track
+- <code>create-release</code> - Create GitHub release
+- <code>release-status</code> - Summary report</p>
+<p><strong>Required Secrets</strong>:
+- <code>WEATHER_API_KEY</code>
+- <code>MAPS_API_KEY</code>
+- <code>ANDROID_KEYSTORE_BASE64</code>
+- <code>ANDROID_KEYSTORE_PASSWORD</code>
+- <code>ANDROID_KEY_PASSWORD</code>
+- <code>ANDROID_KEY_ALIAS</code>
+- <code>PLAY_STORE_SERVICE_ACCOUNT_JSON</code> (for Play Store deployment)
+- <code>GITHUB_TOKEN</code> (automatic)</p>
+<hr />
+<h2 id="9-frontend-1-workflow">9. Frontend (1 Workflow)<a class="headerlink" href="#9-frontend-1-workflow" title="Permanent link">&para;</a></h2>
+<h3 id="frontend-ciyml-frontend-ci">frontend-ci.yml - Frontend CI<a class="headerlink" href="#frontend-ciyml-frontend-ci" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Comprehensive frontend CI for web and admin apps.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/frontend-ci.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code>, <code>pull_request</code></td>
+</tr>
+<tr>
+<td><strong>Paths</strong></td>
+<td>apps/web/<strong>, apps/admin/</strong>, packages/shared-<em>/</em>*</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Permissions</strong>:
+- contents: read
+- issues: write
+- pull-requests: write</p>
+<p><strong>Jobs</strong>:
+- <code>lint</code> - ESLint on all packages
+- <code>typecheck</code> - TypeScript validation for web and admin
+- <code>test</code> - Vitest test suite
+- <code>build</code> - Build web and admin apps (depends on lint, typecheck)
+- <code>bundle-analysis</code> - Bundle size analysis (PRs only)
+- <code>accessibility</code> - Accessibility pattern checks</p>
+<p><strong>Artifacts</strong>:
+- <code>web-build</code> - Next.js build output
+- <code>admin-build</code> - Admin app build output</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h2 id="10-aiagents-1-workflow">10. AI/Agents (1 Workflow)<a class="headerlink" href="#10-aiagents-1-workflow" title="Permanent link">&para;</a></h2>
+<h3 id="agent-evaluationyml-agent-evaluation">agent-evaluation.yml - Agent Evaluation<a class="headerlink" href="#agent-evaluationyml-agent-evaluation" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Evaluates AI agent performance and quality.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/agent-evaluation.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (.claude/<strong>, shared/ai/</strong>), <code>schedule</code> (weekly), <code>workflow_dispatch</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Services</strong>:
+- Qdrant (vector database)
+- Redis</p>
+<p><strong>Jobs</strong>:
+- <code>evaluate</code> - Run agent evaluations
+- <code>compare</code> - Compare against baselines
+- <code>report</code> - Generate evaluation report
+- <code>update-baseline</code> - Update baselines (main only)</p>
+<p><strong>Required Secrets</strong>:
+- <code>OPENAI_API_KEY</code> (optional)
+- <code>ANTHROPIC_API_KEY</code> (optional)
+- <code>GOOGLE_API_KEY</code> (optional)</p>
+<hr />
+<h2 id="workflow-dependencies">Workflow Dependencies<a class="headerlink" href="#workflow-dependencies" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TD</span>
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;CI/CD Pipeline&quot;</span>
+<span class="w">        </span><span class="n">CI</span><span class="o">[</span><span class="n">ci.yml</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; CD_STAGING[cd-staging.yml]</span>
+<span class="w">        </span><span class="n">CD_STAGING</span><span class="w"> </span><span class="c1">--&gt; CD_PROD[cd-production.yml]</span>
+<span class="w">        </span><span class="n">CI</span><span class="w"> </span><span class="c1">--&gt; RELEASE_RC[release-candidate.yml]</span>
+<span class="w">        </span><span class="n">RELEASE_RC</span><span class="w"> </span><span class="c1">--&gt; RELEASE[release.yml]</span>
+<span class="w">    </span><span class="k">end</span>
+
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;Quality Gates&quot;</span>
+<span class="w">        </span><span class="n">LINT</span><span class="o">[</span><span class="n">Lint</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; QG[quality-gates.yml]</span>
+<span class="w">        </span><span class="n">TEST</span><span class="o">[</span><span class="n">Test</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; QG</span>
+<span class="w">        </span><span class="n">SEC</span><span class="o">[</span><span class="n">Security</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; QG</span>
+<span class="w">        </span><span class="n">GOV</span><span class="o">[</span><span class="n">Governance</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; QG</span>
+<span class="w">    </span><span class="k">end</span>
+
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;Deployment Strategies&quot;</span>
+<span class="w">        </span><span class="n">CD_PROD</span><span class="w"> </span><span class="c1">--&gt; BG[blue-green-deploy.yml]</span>
+<span class="w">        </span><span class="n">CD_PROD</span><span class="w"> </span><span class="c1">--&gt; CANARY[canary-deploy.yml]</span>
+<span class="w">    </span><span class="k">end</span>
+
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;Mobile Pipeline&quot;</span>
+<span class="w">        </span><span class="n">MOBILE_CI</span><span class="o">[</span><span class="n">mobile-ci.yml</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; MOBILE_REL[mobile-release.yml]</span>
+<span class="w">        </span><span class="n">FLUTTER_APK</span><span class="o">[</span><span class="n">flutter-apk.yml</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; MOBILE_REL</span>
+<span class="w">    </span><span class="k">end</span>
+
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;Frontend Pipeline&quot;</span>
+<span class="w">        </span><span class="n">FRONTEND_CI</span><span class="o">[</span><span class="n">frontend-ci.yml</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; LIGHTHOUSE[lighthouse-ci.yml]</span>
+<span class="w">        </span><span class="n">FRONTEND_CI</span><span class="w"> </span><span class="c1">--&gt; PLAYWRIGHT[playwright-e2e.yml]</span>
+<span class="w">    </span><span class="k">end</span>
+</code></pre></div>
+
+<h3 id="workflow-call-relationships">Workflow Call Relationships<a class="headerlink" href="#workflow-call-relationships" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Caller</th>
+<th>Callee</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cd-production.yml</code></td>
+<td><code>blue-green-deploy.yml</code></td>
+<td>Production deployment strategy</td>
+</tr>
+<tr>
+<td><code>cd-production.yml</code></td>
+<td><code>canary-deploy.yml</code></td>
+<td>Gradual rollout</td>
+</tr>
+<tr>
+<td><code>release.yml</code></td>
+<td><code>docker-buildx.yml</code></td>
+<td>Build release images</td>
+</tr>
+<tr>
+<td><code>mobile-ci.yml</code></td>
+<td><code>mobile-release.yml</code></td>
+<td>Triggered by tags</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="secrets-reference">Secrets Reference<a class="headerlink" href="#secrets-reference" title="Permanent link">&para;</a></h2>
+<h3 id="required-for-all-deployments">Required for All Deployments<a class="headerlink" href="#required-for-all-deployments" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Secret</th>
+<th>Used By</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GITHUB_TOKEN</code></td>
+<td>All</td>
+<td>Automatic token for GitHub API</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dockercontainer">Docker/Container<a class="headerlink" href="#dockercontainer" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Secret</th>
+<th>Used By</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DOCKERHUB_USERNAME</code></td>
+<td>docker-image.yml, docker-buildx.yml</td>
+<td>Docker Hub username</td>
+</tr>
+<tr>
+<td><code>DOCKERHUB_TOKEN</code></td>
+<td>docker-image.yml, docker-buildx.yml</td>
+<td>Docker Hub access token</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kubernetesinfrastructure">Kubernetes/Infrastructure<a class="headerlink" href="#kubernetesinfrastructure" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Secret</th>
+<th>Used By</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>STAGING_KUBECONFIG</code></td>
+<td>cd-staging.yml</td>
+<td>Staging cluster kubeconfig</td>
+</tr>
+<tr>
+<td><code>PRODUCTION_KUBECONFIG</code></td>
+<td>cd-production.yml</td>
+<td>Production cluster kubeconfig</td>
+</tr>
+<tr>
+<td><code>KUBECONFIG</code></td>
+<td>blue-green-deploy.yml, canary-deploy.yml</td>
+<td>Generic kubeconfig</td>
+</tr>
+</tbody>
+</table>
+<h3 id="vercel-frontend-previews">Vercel (Frontend Previews)<a class="headerlink" href="#vercel-frontend-previews" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Secret</th>
+<th>Used By</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VERCEL_TOKEN</code></td>
+<td>vercel-preview.yml</td>
+<td>Vercel API token</td>
+</tr>
+<tr>
+<td><code>VERCEL_ORG_ID</code></td>
+<td>vercel-preview.yml</td>
+<td>Vercel organization ID</td>
+</tr>
+<tr>
+<td><code>VERCEL_PROJECT_ID</code></td>
+<td>vercel-preview.yml</td>
+<td>Vercel project ID</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mobileflutter">Mobile/Flutter<a class="headerlink" href="#mobileflutter" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Secret</th>
+<th>Used By</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WEATHER_API_KEY</code></td>
+<td>flutter-apk.yml, mobile-ci.yml, mobile-release.yml</td>
+<td>Weather API key</td>
+</tr>
+<tr>
+<td><code>MAPS_API_KEY</code></td>
+<td>flutter-apk.yml, mobile-ci.yml, mobile-release.yml</td>
+<td>Maps API key</td>
+</tr>
+<tr>
+<td><code>ANDROID_KEYSTORE_BASE64</code></td>
+<td>mobile-release.yml</td>
+<td>Base64-encoded keystore</td>
+</tr>
+<tr>
+<td><code>ANDROID_KEYSTORE_PASSWORD</code></td>
+<td>mobile-release.yml</td>
+<td>Keystore password</td>
+</tr>
+<tr>
+<td><code>ANDROID_KEY_PASSWORD</code></td>
+<td>mobile-release.yml</td>
+<td>Key password</td>
+</tr>
+<tr>
+<td><code>ANDROID_KEY_ALIAS</code></td>
+<td>mobile-release.yml</td>
+<td>Key alias</td>
+</tr>
+<tr>
+<td><code>PLAY_STORE_SERVICE_ACCOUNT_JSON</code></td>
+<td>mobile-release.yml</td>
+<td>Play Store service account</td>
+</tr>
+</tbody>
+</table>
+<h3 id="aillm">AI/LLM<a class="headerlink" href="#aillm" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Secret</th>
+<th>Used By</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OPENAI_API_KEY</code></td>
+<td>agent-evaluation.yml</td>
+<td>OpenAI API key</td>
+</tr>
+<tr>
+<td><code>ANTHROPIC_API_KEY</code></td>
+<td>agent-evaluation.yml</td>
+<td>Anthropic API key</td>
+</tr>
+<tr>
+<td><code>GOOGLE_API_KEY</code></td>
+<td>agent-evaluation.yml</td>
+<td>Google AI API key</td>
+</tr>
+</tbody>
+</table>
+<h3 id="optionalnotifications">Optional/Notifications<a class="headerlink" href="#optionalnotifications" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Secret</th>
+<th>Used By</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SLACK_WEBHOOK_URL</code></td>
+<td>cd-staging.yml, cd-production.yml</td>
+<td>Slack notifications</td>
+</tr>
+<tr>
+<td><code>CODECOV_TOKEN</code></td>
+<td>test.yml, mobile-ci.yml</td>
+<td>Codecov upload token</td>
+</tr>
+<tr>
+<td><code>SCORECARD_TOKEN</code></td>
+<td>scorecard.yml</td>
+<td>OSSF Scorecard token</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quick-reference">Quick Reference<a class="headerlink" href="#quick-reference" title="Permanent link">&para;</a></h2>
+<h3 id="trigger-types">Trigger Types<a class="headerlink" href="#trigger-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Trigger</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>push</code></td>
+<td>Triggered on git push</td>
+</tr>
+<tr>
+<td><code>pull_request</code></td>
+<td>Triggered on PR open/sync</td>
+</tr>
+<tr>
+<td><code>workflow_dispatch</code></td>
+<td>Manual trigger via UI</td>
+</tr>
+<tr>
+<td><code>workflow_call</code></td>
+<td>Called by another workflow</td>
+</tr>
+<tr>
+<td><code>schedule</code></td>
+<td>Cron-based schedule</td>
+</tr>
+<tr>
+<td><code>release</code></td>
+<td>Triggered on release events</td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-path-filters">Common Path Filters<a class="headerlink" href="#common-path-filters" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Path Pattern</th>
+<th>Workflows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps/services/**</code></td>
+<td>ci.yml, docker-image.yml, docs.yml</td>
+</tr>
+<tr>
+<td><code>apps/web/**</code></td>
+<td>frontend-ci.yml, lighthouse-ci.yml, playwright-e2e.yml</td>
+</tr>
+<tr>
+<td><code>apps/admin/**</code></td>
+<td>frontend-ci.yml</td>
+</tr>
+<tr>
+<td><code>apps/mobile/**</code></td>
+<td>flutter-apk.yml, mobile-ci.yml, mobile-release.yml</td>
+</tr>
+<tr>
+<td><code>governance/**</code></td>
+<td>governance-ci.yml, infra-sync.yml</td>
+</tr>
+<tr>
+<td><code>shared/**</code></td>
+<td>ci.yml, docs.yml</td>
+</tr>
+<tr>
+<td><code>.claude/**</code></td>
+<td>agent-evaluation.yml, skills-tests.yml</td>
+</tr>
+<tr>
+<td><code>tests/e2e/**</code></td>
+<td>playwright-e2e.yml, e2e-tests.yml</td>
+</tr>
+<tr>
+<td><code>tests/load/**</code></td>
+<td>load-testing.yml, load-test-validation.yml</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="deprecated-services-note">Deprecated Services Note<a class="headerlink" href="#deprecated-services-note" title="Permanent link">&para;</a></h2>
+<p>The following services are deprecated and excluded from CI builds (see <code>docs/DEPRECATED_SERVICES.md</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Deprecated Service</th>
+<th>Replacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>satellite-service</td>
+<td>vegetation-analysis-service</td>
+</tr>
+<tr>
+<td>weather-advanced</td>
+<td>weather-service</td>
+</tr>
+<tr>
+<td>crop-health-ai</td>
+<td>crop-intelligence-service</td>
+</tr>
+<tr>
+<td>fertilizer-advisor</td>
+<td>advisory-service</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Last Updated: January 2026</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2244 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Imports/Exports Audit Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-importsexports-audit-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Imports/Exports Audit Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-importsexports-audit-report">SAHOOL Imports/Exports Audit Report<a class="headerlink" href="#sahool-importsexports-audit-report" title="Permanent link">&para;</a></h1>
+<p><strong>Audit Date</strong>: January 2026
+<strong>Platform Version</strong>: 16.0.0
+<strong>Auditor</strong>: Automated Code Analysis</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>This document provides a comprehensive audit of the SAHOOL platform's import/export structure across Python shared modules and TypeScript packages. The audit identifies structural issues, missing exports, version misalignments, and provides actionable recommendations.</p>
+<h3 id="key-findings">Key Findings<a class="headerlink" href="#key-findings" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Status</th>
+<th>Issues Found</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Circular Imports</td>
+<td>PASS</td>
+<td>None detected</td>
+</tr>
+<tr>
+<td>Root Module Exports</td>
+<td>FAIL</td>
+<td>Hollow <code>__init__.py</code></td>
+</tr>
+<tr>
+<td>Duplicate Locations</td>
+<td>WARN</td>
+<td>2 shared directories</td>
+</tr>
+<tr>
+<td>Missing Exports</td>
+<td>FAIL</td>
+<td>3 modules affected</td>
+</tr>
+<tr>
+<td>Version Alignment</td>
+<td>WARN</td>
+<td>15.3.3 vs 16.0.0 mismatch</td>
+</tr>
+<tr>
+<td>TypeScript Packages</td>
+<td>PASS</td>
+<td>All properly configured</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-summary-statistics">1. Summary Statistics<a class="headerlink" href="#1-summary-statistics" title="Permanent link">&para;</a></h2>
+<h3 id="python-shared-modules">Python Shared Modules<a class="headerlink" href="#python-shared-modules" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total Modules</td>
+<td>50</td>
+</tr>
+<tr>
+<td>Modules with Exports</td>
+<td>47</td>
+</tr>
+<tr>
+<td>Hollow Modules</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Version 16.0.0</td>
+<td>50</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Module List</strong> (<code>shared/</code>):</p>
+<div class="codehilite"><pre><span></span><code>a2a/                    agri_calendar/          ai/
+audit_trail/            auth/                   batch_operations/
+cache/                  contracts/              cooperatives/
+crop_insurance/         crop_rotation/          crm/
+domain/                 drone_integration/      edge_cloud/
+equipment_maintenance/  events/                 farm_documents/
+fertilizer_management/  field_boundaries/       file_validation/
+geofencing/             globalgap/              guardrails/
+harvest_quality/        integrations/           irrigation/
+labor_management/       learning_marketplace/   libs/
+lowcode/                market_prices/          mcp/
+middleware/             ml_irrigation/          mobile_sync/
+monitoring/             notification_preferences/ observability/
+pest_scouting/          pesticide_compliance/   secrets/
+security/               smart_agriculture/      soil_sensors/
+soil_testing/           telemetry/              traceability/
+water_management/       weather_alerts/
+</code></pre></div>
+
+<h3 id="typescript-packages">TypeScript Packages<a class="headerlink" href="#typescript-packages" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total Packages</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Properly Configured</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Version 16.0.0</td>
+<td>16</td>
+</tr>
+<tr>
+<td>With exports map</td>
+<td>14</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Package List</strong> (<code>packages/</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Exports</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>@sahool/api-client</td>
+<td>16.0.0</td>
+<td>3 entry points</td>
+</tr>
+<tr>
+<td>@sahool/design-system</td>
+<td>16.0.0</td>
+<td>1 entry point</td>
+</tr>
+<tr>
+<td>@sahool/field-shared</td>
+<td>16.0.0</td>
+<td>1 entry point</td>
+</tr>
+<tr>
+<td>@sahool/i18n</td>
+<td>16.0.0</td>
+<td>1 entry point</td>
+</tr>
+<tr>
+<td>@sahool/mock-data</td>
+<td>16.0.0</td>
+<td>1 entry point</td>
+</tr>
+<tr>
+<td>@sahool/nestjs-auth</td>
+<td>16.0.0</td>
+<td>1 entry point</td>
+</tr>
+<tr>
+<td>@sahool/shared-audit</td>
+<td>16.0.0</td>
+<td>1 entry point</td>
+</tr>
+<tr>
+<td>@sahool/shared-crypto</td>
+<td>16.0.0</td>
+<td>1 entry point</td>
+</tr>
+<tr>
+<td>@sahool/shared-db</td>
+<td>16.0.0</td>
+<td>1 entry point</td>
+</tr>
+<tr>
+<td>@sahool/shared-events</td>
+<td>16.0.0</td>
+<td>1 entry point</td>
+</tr>
+<tr>
+<td>@sahool/shared-hooks</td>
+<td>16.0.0</td>
+<td>1 entry point</td>
+</tr>
+<tr>
+<td>@sahool/shared-types</td>
+<td>16.0.0</td>
+<td>6 entry points</td>
+</tr>
+<tr>
+<td>@sahool/shared-ui</td>
+<td>16.0.0</td>
+<td>1 entry point</td>
+</tr>
+<tr>
+<td>@sahool/shared-utils</td>
+<td>16.0.0</td>
+<td>1 entry point</td>
+</tr>
+<tr>
+<td>@sahool/tailwind-config</td>
+<td>16.0.0</td>
+<td>Config only</td>
+</tr>
+<tr>
+<td>@sahool/typescript-config</td>
+<td>16.0.0</td>
+<td>Config only</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-python-shared-modules-analysis">2. Python Shared Modules Analysis<a class="headerlink" href="#2-python-shared-modules-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="21-root-__init__py-issue-critical">2.1 Root <code>__init__.py</code> Issue (CRITICAL)<a class="headerlink" href="#21-root-__init__py-issue-critical" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>/shared/__init__.py</code></p>
+<p><strong>Current State</strong> (Hollow):</p>
+<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;SAHOOL Shared Library - Common utilities and modules&quot;&quot;&quot;</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;16.0.0&quot;</span>
+</code></pre></div>
+
+<p><strong>Impact</strong>:
+- Cannot use <code>from shared import auth, cache, events</code>
+- Forces verbose imports: <code>from shared.auth import get_current_user</code>
+- Inconsistent with Python best practices</p>
+<p><strong>Recommended Fix</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;SAHOOL Shared Library - Common utilities and modules&quot;&quot;&quot;</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;16.0.0&quot;</span>
+
+<span class="c1"># Core Authentication</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">auth</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">cache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">events</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">domain</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">contracts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">middleware</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitoring</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">observability</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">security</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">telemetry</span>
+
+<span class="c1"># Convenience re-exports for common patterns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_current_user</span><span class="p">,</span>
+    <span class="n">get_current_active_user</span><span class="p">,</span>
+    <span class="n">create_access_token</span><span class="p">,</span>
+    <span class="n">verify_token</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">CacheManager</span><span class="p">,</span> <span class="n">get_cache_manager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.events</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventPublisher</span><span class="p">,</span> <span class="n">EventConsumer</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># Modules</span>
+    <span class="s2">&quot;auth&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cache&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;events&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;domain&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;contracts&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;middleware&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;monitoring&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;observability&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;security&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;telemetry&quot;</span><span class="p">,</span>
+    <span class="c1"># Common exports</span>
+    <span class="s2">&quot;get_current_user&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_current_active_user&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;create_access_token&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;verify_token&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CacheManager&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_cache_manager&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EventPublisher&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EventConsumer&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</code></pre></div>
+
+<h3 id="22-well-configured-module-example">2.2 Well-Configured Module Example<a class="headerlink" href="#22-well-configured-module-example" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>/shared/auth/__init__.py</code></p>
+<p>This module demonstrates proper export configuration with 76 exports:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">JWTConfig</span><span class="p">,</span> <span class="n">config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.dependencies</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_current_active_user</span><span class="p">,</span>
+    <span class="n">get_current_user</span><span class="p">,</span>
+    <span class="n">get_optional_user</span><span class="p">,</span>
+    <span class="c1"># ... more exports</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.jwt_handler</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">create_access_token</span><span class="p">,</span>
+    <span class="n">create_refresh_token</span><span class="p">,</span>
+    <span class="c1"># ... more exports</span>
+<span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;JWTConfig&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;config&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_current_user&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_current_active_user&quot;</span><span class="p">,</span>
+    <span class="c1"># ... 72 more items</span>
+<span class="p">]</span>
+</code></pre></div>
+
+<p><strong>Best Practices Demonstrated</strong>:
+- Explicit imports from submodules
+- Comprehensive <code>__all__</code> list
+- Logical grouping with comments
+- Version included</p>
+<h3 id="23-hollow-module-sharedlibs__init__py-needs-fix">2.3 Hollow Module: <code>shared/libs/__init__.py</code> (NEEDS FIX)<a class="headerlink" href="#23-hollow-module-sharedlibs__init__py-needs-fix" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>/shared/libs/__init__.py</code></p>
+<p><strong>Current State</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">SAHOOL Shared Libraries</span>
+<span class="sd">Common libraries used across domains</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;16.0.0&quot;</span>
+</code></pre></div>
+
+<p><strong>Available Files Not Exported</strong>:
+- <code>caching.py</code> - CacheConfig, CacheManager, InMemoryCache, RedisCache, cached decorator
+- <code>database.py</code> - Database utilities
+- <code>pagination.py</code> - Pagination utilities</p>
+<p><strong>Recommended Fix</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">SAHOOL Shared Libraries</span>
+<span class="sd">Common libraries used across domains</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;16.0.0&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.caching</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CacheConfig</span><span class="p">,</span>
+    <span class="n">CacheManager</span><span class="p">,</span>
+    <span class="n">InMemoryCache</span><span class="p">,</span>
+    <span class="n">RedisCache</span><span class="p">,</span>
+    <span class="n">cached</span><span class="p">,</span>
+    <span class="n">get_cache_manager</span><span class="p">,</span>
+    <span class="n">invalidate_field_cache</span><span class="p">,</span>
+    <span class="n">invalidate_tenant_cache</span><span class="p">,</span>
+    <span class="n">invalidate_user_cache</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.database</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="c1"># Add database exports</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pagination</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="c1"># Add pagination exports</span>
+<span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># Caching</span>
+    <span class="s2">&quot;CacheConfig&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CacheManager&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;InMemoryCache&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RedisCache&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cached&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_cache_manager&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;invalidate_field_cache&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;invalidate_tenant_cache&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;invalidate_user_cache&quot;</span><span class="p">,</span>
+    <span class="c1"># Database</span>
+    <span class="c1"># Pagination</span>
+<span class="p">]</span>
+</code></pre></div>
+
+<h3 id="24-hollow-module-shareddomain__init__py-needs-fix">2.4 Hollow Module: <code>shared/domain/__init__.py</code> (NEEDS FIX)<a class="headerlink" href="#24-hollow-module-shareddomain__init__py-needs-fix" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>/shared/domain/__init__.py</code></p>
+<p><strong>Current State</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">SAHOOL Kernel Domain</span>
+<span class="sd">Core platform capabilities: Identity, Auth, Tenancy, Users</span>
+
+<span class="sd">Architecture Rules:</span>
+<span class="sd">- kernel_domain can import from: shared</span>
+<span class="sd">- kernel_domain CANNOT import from: field_suite, advisor</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;16.0.0&quot;</span>
+</code></pre></div>
+
+<p><strong>Impact</strong>: Module exists but exports nothing. Services cannot import domain models.</p>
+<p><strong>Action Required</strong>:
+1. Identify domain model files within <code>shared/domain/</code>
+2. Create proper exports for domain entities
+3. Document import rules in exports</p>
+<h3 id="25-partial-exports-sharedcontracts__init__py-needs-fix">2.5 Partial Exports: <code>shared/contracts/__init__.py</code> (NEEDS FIX)<a class="headerlink" href="#25-partial-exports-sharedcontracts__init__py-needs-fix" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>/shared/contracts/__init__.py</code></p>
+<p><strong>Current State</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.contracts.events</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.contracts.actions</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;events&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;actions&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</code></pre></div>
+
+<p><strong>Issue</strong>: <code>__all__</code> exports module names ("events", "actions") but not actual objects. The star imports (<code>*</code>) bring in the objects, but they're not listed in <code>__all__</code>.</p>
+<p><strong>Recommended Fix</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">SAHOOL Contracts Module - API contracts and schemas</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.contracts.actions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ActionStatus</span><span class="p">,</span>
+    <span class="n">ActionStep</span><span class="p">,</span>
+    <span class="n">ActionTemplate</span><span class="p">,</span>
+    <span class="n">ActionTemplateFactory</span><span class="p">,</span>
+    <span class="n">ActionType</span><span class="p">,</span>
+    <span class="n">Resource</span><span class="p">,</span>
+    <span class="n">ResourceType</span><span class="p">,</span>
+    <span class="n">TimeWindow</span><span class="p">,</span>
+    <span class="n">UrgencyLevel</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.contracts.events</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BaseEvent</span><span class="p">,</span>
+    <span class="n">CropDiseaseDetectedEvent</span><span class="p">,</span>
+    <span class="n">CropHarvestedEvent</span><span class="p">,</span>
+    <span class="n">CropPlantedEvent</span><span class="p">,</span>
+    <span class="n">EventConsumer</span><span class="p">,</span>
+    <span class="n">EventMetadata</span><span class="p">,</span>
+    <span class="n">EventPublisher</span><span class="p">,</span>
+    <span class="n">EventRegistry</span><span class="p">,</span>
+    <span class="n">FieldCreatedEvent</span><span class="p">,</span>
+    <span class="n">FieldUpdatedEvent</span><span class="p">,</span>
+    <span class="n">NDVICalculatedEvent</span><span class="p">,</span>
+    <span class="n">SensorAlertEvent</span><span class="p">,</span>
+    <span class="n">SensorReadingEvent</span><span class="p">,</span>
+    <span class="n">WeatherAlertIssuedEvent</span><span class="p">,</span>
+    <span class="n">WeatherForecastUpdatedEvent</span><span class="p">,</span>
+    <span class="n">YieldPredictedEvent</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># Events</span>
+    <span class="s2">&quot;BaseEvent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EventMetadata&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FieldCreatedEvent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FieldUpdatedEvent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CropPlantedEvent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CropDiseaseDetectedEvent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CropHarvestedEvent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;WeatherForecastUpdatedEvent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;WeatherAlertIssuedEvent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SensorReadingEvent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SensorAlertEvent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NDVICalculatedEvent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;YieldPredictedEvent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EventPublisher&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EventConsumer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EventRegistry&quot;</span><span class="p">,</span>
+    <span class="c1"># Actions</span>
+    <span class="s2">&quot;ActionType&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ActionStatus&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UrgencyLevel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ResourceType&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ActionTemplate&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ActionStep&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Resource&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TimeWindow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ActionTemplateFactory&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;16.0.0&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="3-typescript-packages-analysis">3. TypeScript Packages Analysis<a class="headerlink" href="#3-typescript-packages-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="31-package-export-configuration">3.1 Package Export Configuration<a class="headerlink" href="#31-package-export-configuration" title="Permanent link">&para;</a></h3>
+<p>All TypeScript packages follow proper export patterns:</p>
+<p><strong>Example: @sahool/shared-types</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@sahool/shared-types&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;main&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./dist/index.js&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;types&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./dist/index.d.ts&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;exports&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;.&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;import&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./dist/index.js&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;require&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./dist/index.js&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;types&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./dist/index.d.ts&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;./auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;./api&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;./express&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;./websocket&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;./monitoring&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;./field&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Best Practices Followed</strong>:
+- Dual CJS/ESM support
+- TypeScript declaration files
+- Subpath exports for tree-shaking
+- Consistent versioning</p>
+<h3 id="32-package-index-files">3.2 Package Index Files<a class="headerlink" href="#32-package-index-files" title="Permanent link">&para;</a></h3>
+<p><strong>Example: @sahool/shared-types/src/index.ts</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * SAHOOL Shared Types Package</span>
+<span class="cm"> * @version 16.0.0</span>
+<span class="cm"> */</span>
+
+<span class="c1">// Auth types</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./auth&quot;</span><span class="p">;</span>
+
+<span class="c1">// API types</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./api&quot;</span><span class="p">;</span>
+
+<span class="c1">// Express types</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./express&quot;</span><span class="p">;</span>
+
+<span class="c1">// WebSocket types</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./websocket&quot;</span><span class="p">;</span>
+
+<span class="c1">// Monitoring types</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./monitoring&quot;</span><span class="p">;</span>
+
+<span class="c1">// Field types</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./field&quot;</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Example: @sahool/shared-events/src/index.ts</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Named exports for NATS client</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">NatsClient</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">NatsClientConfig</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">initializeNatsClient</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">getNatsConnection</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./nats-client&quot;</span><span class="p">;</span>
+
+<span class="c1">// Named exports for event types</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">BaseEvent</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">FieldCreatedEvent</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// ... 20+ event types</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./events&quot;</span><span class="p">;</span>
+
+<span class="c1">// Named exports for publishers</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">publishEvent</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">publishFieldCreated</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// ... 15+ publisher functions</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./publisher&quot;</span><span class="p">;</span>
+
+<span class="c1">// Named exports for subscribers</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">subscribe</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">subscribePattern</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// ... 10+ subscriber utilities</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./subscriber&quot;</span><span class="p">;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="4-duplicate-shared-locations-warning">4. Duplicate Shared Locations (WARNING)<a class="headerlink" href="#4-duplicate-shared-locations-warning" title="Permanent link">&para;</a></h2>
+<h3 id="41-issue-description">4.1 Issue Description<a class="headerlink" href="#41-issue-description" title="Permanent link">&para;</a></h3>
+<p>Two <code>shared/</code> directories exist with overlapping functionality:</p>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Purpose</th>
+<th>Modules</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/shared/</code></td>
+<td>Root shared library</td>
+<td>50 modules</td>
+</tr>
+<tr>
+<td><code>/apps/services/shared/</code></td>
+<td>Services-specific shared</td>
+<td>26 modules</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-duplicate-module-comparison">4.2 Duplicate Module Comparison<a class="headerlink" href="#42-duplicate-module-comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Root <code>/shared/</code></th>
+<th><code>/apps/services/shared/</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>auth</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>middleware</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>observability</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>mcp</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>file_validation</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>globalgap</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>libs</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>contracts</td>
+<td>Yes (events, actions)</td>
+<td>Yes (events, actions)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-recommended-actions">4.3 Recommended Actions<a class="headerlink" href="#43-recommended-actions" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Consolidate to root <code>/shared/</code></strong>:</li>
+<li>Root shared should be the single source of truth</li>
+<li>
+<p>Move unique modules from <code>apps/services/shared/</code> to root</p>
+</li>
+<li>
+<p><strong>Create symlinks for backward compatibility</strong>:
+   <code>bash
+   # In apps/services/shared/
+   ln -s ../../../shared/auth auth
+   ln -s ../../../shared/middleware middleware</code></p>
+</li>
+<li>
+<p><strong>Update import paths in services</strong>:
+   ```python
+   # Before
+   from apps.services.shared.auth import get_current_user</p>
+</li>
+</ol>
+<p># After
+   from shared.auth import get_current_user
+   ```</p>
+<ol>
+<li><strong>Add path configuration in pyproject.toml</strong>:
+   <code>toml
+   [tool.pytest.ini_options]
+   pythonpath = [".", "shared"]</code></li>
+</ol>
+<hr />
+<h2 id="5-version-alignment-issues">5. Version Alignment Issues<a class="headerlink" href="#5-version-alignment-issues" title="Permanent link">&para;</a></h2>
+<h3 id="51-version-mismatch-summary">5.1 Version Mismatch Summary<a class="headerlink" href="#51-version-mismatch-summary" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Expected</th>
+<th>Actual</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pyproject.toml</td>
+<td>16.0.0</td>
+<td>16.0.0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>shared/<strong>init</strong>.py</td>
+<td>16.0.0</td>
+<td>16.0.0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>TypeScript packages</td>
+<td>16.0.0</td>
+<td>16.0.0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>Python services</td>
+<td>16.0.0</td>
+<td>15.3.3</td>
+<td>MISMATCH</td>
+</tr>
+<tr>
+<td>Mobile app</td>
+<td>16.0.0</td>
+<td>15.3.3</td>
+<td>MISMATCH</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-services-still-at-v1533">5.2 Services Still at v15.3.3<a class="headerlink" href="#52-services-still-at-v1533" title="Permanent link">&para;</a></h3>
+<p><strong>Active Services</strong> (Priority: HIGH):</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>File</th>
+<th>Current Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>weather-service</td>
+<td><code>apps/services/weather-service/src/__init__.py</code></td>
+<td>15.3.3</td>
+</tr>
+<tr>
+<td>weather-core</td>
+<td><code>apps/services/weather-core/src/__init__.py</code></td>
+<td>15.3.3</td>
+</tr>
+<tr>
+<td>field-management-service</td>
+<td><code>apps/services/field-management-service/src/__init__.py</code></td>
+<td>15.3.3</td>
+</tr>
+<tr>
+<td>advisory-service</td>
+<td><code>apps/services/advisory-service/src/__init__.py</code></td>
+<td>15.3.3</td>
+</tr>
+<tr>
+<td>agro-advisor</td>
+<td><code>apps/services/agro-advisor/src/__init__.py</code></td>
+<td>15.3.3</td>
+</tr>
+<tr>
+<td>agro-rules</td>
+<td><code>apps/services/agro-rules/src/__init__.py</code></td>
+<td>15.3.3</td>
+</tr>
+<tr>
+<td>iot-gateway</td>
+<td><code>apps/services/iot-gateway/src/__init__.py</code></td>
+<td>15.3.3</td>
+</tr>
+<tr>
+<td>ndvi-engine</td>
+<td><code>apps/services/ndvi-engine/src/__init__.py</code></td>
+<td>15.3.3</td>
+</tr>
+<tr>
+<td>field-ops</td>
+<td><code>apps/services/field-ops/src/__init__.py</code></td>
+<td>15.3.3</td>
+</tr>
+<tr>
+<td>field-core</td>
+<td><code>apps/services/field-core/src/__init__.py</code></td>
+<td>15.3.3</td>
+</tr>
+<tr>
+<td>field-chat</td>
+<td><code>apps/services/field-chat/src/__init__.py</code></td>
+<td>15.3.3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mobile App</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Current Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps/mobile/lib/features/settings/ui/settings_screen.dart</code></td>
+<td>15.3.3</td>
+</tr>
+<tr>
+<td><code>apps/mobile/sahool_field_app/lib/features/settings/ui/settings_screen.dart</code></td>
+<td>15.3.3</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-recommended-version-update-script">5.3 Recommended Version Update Script<a class="headerlink" href="#53-recommended-version-update-script" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># update-versions.sh</span>
+
+<span class="nv">OLD_VERSION</span><span class="o">=</span><span class="s2">&quot;15.3.3&quot;</span>
+<span class="nv">NEW_VERSION</span><span class="o">=</span><span class="s2">&quot;16.0.0&quot;</span>
+
+<span class="c1"># Update Python __init__.py files</span>
+find<span class="w"> </span>apps/services<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;__init__.py&quot;</span><span class="w"> </span>-exec<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;s/__version__ = \&quot;</span><span class="nv">$OLD_VERSION</span><span class="s2">\&quot;/__version__ = \&quot;</span><span class="nv">$NEW_VERSION</span><span class="s2">\&quot;/g&quot;</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
+
+<span class="c1"># Update Python main.py files</span>
+find<span class="w"> </span>apps/services<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;main.py&quot;</span><span class="w"> </span>-exec<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;s/version=\&quot;</span><span class="nv">$OLD_VERSION</span><span class="s2">\&quot;/version=\&quot;</span><span class="nv">$NEW_VERSION</span><span class="s2">\&quot;/g&quot;</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
+
+<span class="c1"># Update Dart files</span>
+find<span class="w"> </span>apps/mobile<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.dart&quot;</span><span class="w"> </span>-exec<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;s/الإصدار </span><span class="nv">$OLD_VERSION</span><span class="s2">/الإصدار </span><span class="nv">$NEW_VERSION</span><span class="s2">/g&quot;</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Version update complete: </span><span class="nv">$OLD_VERSION</span><span class="s2"> -&gt; </span><span class="nv">$NEW_VERSION</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="6-circular-import-analysis">6. Circular Import Analysis<a class="headerlink" href="#6-circular-import-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="61-results-pass">6.1 Results: PASS<a class="headerlink" href="#61-results-pass" title="Permanent link">&para;</a></h3>
+<p>No circular imports were detected in the codebase. The dependency graph follows a clean hierarchy:</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">shared</span><span class="o">/</span>
+├──<span class="w"> </span><span class="nv">auth</span><span class="w"> </span><span class="ss">(</span><span class="nv">no</span><span class="w"> </span><span class="nv">internal</span><span class="w"> </span><span class="nv">deps</span><span class="ss">)</span>
+├──<span class="w"> </span><span class="nv">cache</span><span class="w"> </span><span class="ss">(</span><span class="nv">no</span><span class="w"> </span><span class="nv">internal</span><span class="w"> </span><span class="nv">deps</span><span class="ss">)</span>
+├──<span class="w"> </span><span class="nv">events</span><span class="w"> </span><span class="ss">(</span><span class="nv">imports</span>:<span class="w"> </span><span class="nv">auth</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nv">user</span><span class="w"> </span><span class="nv">context</span><span class="ss">)</span>
+├──<span class="w"> </span><span class="nv">contracts</span>
+│<span class="w">   </span>├──<span class="w"> </span><span class="nv">events</span><span class="w"> </span><span class="ss">(</span><span class="nv">imports</span>:<span class="w"> </span><span class="nv">pydantic</span><span class="w"> </span><span class="nv">only</span><span class="ss">)</span>
+│<span class="w">   </span>└──<span class="w"> </span><span class="nv">actions</span><span class="w"> </span><span class="ss">(</span><span class="nv">imports</span>:<span class="w"> </span><span class="nv">pydantic</span><span class="w"> </span><span class="nv">only</span><span class="ss">)</span>
+├──<span class="w"> </span><span class="nv">middleware</span><span class="w"> </span><span class="ss">(</span><span class="nv">imports</span>:<span class="w"> </span><span class="nv">auth</span>,<span class="w"> </span><span class="nv">observability</span><span class="ss">)</span>
+├──<span class="w"> </span><span class="nv">observability</span><span class="w"> </span><span class="ss">(</span><span class="nv">no</span><span class="w"> </span><span class="nv">internal</span><span class="w"> </span><span class="nv">deps</span><span class="ss">)</span>
+└──<span class="w"> </span><span class="nv">telemetry</span><span class="w"> </span><span class="ss">(</span><span class="nv">imports</span>:<span class="w"> </span><span class="nv">observability</span><span class="ss">)</span>
+</code></pre></div>
+
+<h3 id="62-import-best-practices">6.2 Import Best Practices<a class="headerlink" href="#62-import-best-practices" title="Permanent link">&para;</a></h3>
+<p><strong>DO</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Explicit imports at top of file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_current_user</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.events</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventPublisher</span>
+
+<span class="c1"># Type-only imports for circular prevention</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shared.domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
+</code></pre></div>
+
+<p><strong>DON'T</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Avoid star imports</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Avoid runtime conditional imports</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_user</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_current_user</span>  <span class="c1"># Bad practice</span>
+    <span class="k">return</span> <span class="n">get_current_user</span><span class="p">()</span>
+</code></pre></div>
+
+<hr />
+<h2 id="7-recommendations-summary">7. Recommendations Summary<a class="headerlink" href="#7-recommendations-summary" title="Permanent link">&para;</a></h2>
+<h3 id="priority-1-critical-fix-immediately">Priority 1: Critical (Fix Immediately)<a class="headerlink" href="#priority-1-critical-fix-immediately" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Action</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hollow root <code>shared/__init__.py</code></td>
+<td>Populate with core exports</td>
+<td>2 hours</td>
+</tr>
+<tr>
+<td>Missing exports in <code>shared/libs/</code></td>
+<td>Add exports for caching, database, pagination</td>
+<td>1 hour</td>
+</tr>
+<tr>
+<td>Missing exports in <code>shared/domain/</code></td>
+<td>Identify and export domain models</td>
+<td>2 hours</td>
+</tr>
+</tbody>
+</table>
+<h3 id="priority-2-high-fix-this-sprint">Priority 2: High (Fix This Sprint)<a class="headerlink" href="#priority-2-high-fix-this-sprint" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Action</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Version mismatch (15.3.3)</td>
+<td>Run version update script</td>
+<td>1 hour</td>
+</tr>
+<tr>
+<td>Incomplete <code>shared/contracts/</code> exports</td>
+<td>Update <code>__all__</code> with actual exports</td>
+<td>30 min</td>
+</tr>
+</tbody>
+</table>
+<h3 id="priority-3-medium-plan-for-next-sprint">Priority 3: Medium (Plan for Next Sprint)<a class="headerlink" href="#priority-3-medium-plan-for-next-sprint" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Action</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Duplicate shared directories</td>
+<td>Consolidate to single location</td>
+<td>4 hours</td>
+</tr>
+<tr>
+<td>Import path standardization</td>
+<td>Update all services to use root shared</td>
+<td>8 hours</td>
+</tr>
+</tbody>
+</table>
+<h3 id="priority-4-low-technical-debt-backlog">Priority 4: Low (Technical Debt Backlog)<a class="headerlink" href="#priority-4-low-technical-debt-backlog" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Action</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Documentation sync</td>
+<td>Update README files with version</td>
+<td>2 hours</td>
+</tr>
+<tr>
+<td>Add export validation CI</td>
+<td>Create pre-commit hook</td>
+<td>3 hours</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-implementation-checklist">8. Implementation Checklist<a class="headerlink" href="#8-implementation-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="81-python-shared-modules">8.1 Python Shared Modules<a class="headerlink" href="#81-python-shared-modules" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Update <code>/shared/__init__.py</code> with core exports</li>
+<li>[ ] Update <code>/shared/libs/__init__.py</code> with caching, database, pagination exports</li>
+<li>[ ] Update <code>/shared/domain/__init__.py</code> with domain model exports</li>
+<li>[ ] Update <code>/shared/contracts/__init__.py</code> with explicit exports</li>
+<li>[ ] Verify all 50 modules have proper <code>__all__</code> definitions</li>
+</ul>
+<h3 id="82-version-alignment">8.2 Version Alignment<a class="headerlink" href="#82-version-alignment" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Run version update script for Python services</li>
+<li>[ ] Update mobile app version strings</li>
+<li>[ ] Verify all services report 16.0.0 on <code>/healthz</code></li>
+</ul>
+<h3 id="83-directory-consolidation">8.3 Directory Consolidation<a class="headerlink" href="#83-directory-consolidation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Audit modules in <code>apps/services/shared/</code></li>
+<li>[ ] Migrate unique modules to root <code>/shared/</code></li>
+<li>[ ] Create backward compatibility symlinks</li>
+<li>[ ] Update service import paths</li>
+</ul>
+<h3 id="84-cicd-integration">8.4 CI/CD Integration<a class="headerlink" href="#84-cicd-integration" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Add export validation to pre-commit hooks</li>
+<li>[ ] Add version consistency check to CI pipeline</li>
+<li>[ ] Create automated audit report generation</li>
+</ul>
+<hr />
+<h2 id="appendix-a-module-export-counts">Appendix A: Module Export Counts<a class="headerlink" href="#appendix-a-module-export-counts" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Exports</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>shared.auth</td>
+<td>76</td>
+<td>Excellent</td>
+</tr>
+<tr>
+<td>shared.events</td>
+<td>TBD</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>shared.cache</td>
+<td>TBD</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>shared.contracts</td>
+<td>2 (module refs)</td>
+<td>Needs Fix</td>
+</tr>
+<tr>
+<td>shared.libs</td>
+<td>0</td>
+<td>Needs Fix</td>
+</tr>
+<tr>
+<td>shared.domain</td>
+<td>0</td>
+<td>Needs Fix</td>
+</tr>
+<tr>
+<td>shared.middleware</td>
+<td>TBD</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>shared.monitoring</td>
+<td>TBD</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>shared.observability</td>
+<td>TBD</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>shared.security</td>
+<td>TBD</td>
+<td>Good</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="appendix-b-typescript-package-dependencies">Appendix B: TypeScript Package Dependencies<a class="headerlink" href="#appendix-b-typescript-package-dependencies" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TD</span>
+<span class="w">    </span><span class="n">A</span><span class="o">[</span><span class="n">@sahool/shared-types</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; B[@sahool/api-client]</span>
+<span class="w">    </span><span class="n">A</span><span class="w"> </span><span class="c1">--&gt; C[@sahool/shared-hooks]</span>
+<span class="w">    </span><span class="n">A</span><span class="w"> </span><span class="c1">--&gt; D[@sahool/shared-ui]</span>
+<span class="w">    </span><span class="n">E</span><span class="o">[</span><span class="n">@sahool/shared-utils</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; D</span>
+<span class="w">    </span><span class="n">F</span><span class="o">[</span><span class="n">@sahool/shared-events</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; G[Services]</span>
+<span class="w">    </span><span class="n">H</span><span class="o">[</span><span class="n">@sahool/nestjs-auth</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; G</span>
+<span class="w">    </span><span class="n">I</span><span class="o">[</span><span class="n">@sahool/shared-db</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; G</span>
+</code></pre></div>
+
+<hr />
+<h2 id="appendix-c-service-health-endpoint-versions">Appendix C: Service Health Endpoint Versions<a class="headerlink" href="#appendix-c-service-health-endpoint-versions" title="Permanent link">&para;</a></h2>
+<p>Expected response format after version update:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;service_name&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;16.0.0&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<p><em>Last Updated: January 2026</em>
+<em>Next Review: February 2026</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

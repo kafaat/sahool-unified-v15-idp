@@ -1,0 +1,8337 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Platform - API Endpoints Reference - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-api-endpoints-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Platform - API Endpoints Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-api-endpoints-reference">SAHOOL Platform - API Endpoints Reference<a class="headerlink" href="#sahool-platform-api-endpoints-reference" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: 16.0.0
+<strong>Last Updated</strong>: 2026-01-25
+<strong>Total Services</strong>: 57+
+<strong>API Gateway</strong>: Kong</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#authentication">Authentication</a></li>
+<li><a href="#rate-limiting-tiers">Rate Limiting Tiers</a></li>
+<li><a href="#service-categories">Service Categories</a></li>
+<li><a href="#core-services-starter-package">Core Services (Starter Package)</a></li>
+<li><a href="#intelligence-services-professional-package">Intelligence Services (Professional Package)</a></li>
+<li><a href="#decision--advisory-services">Decision &amp; Advisory Services</a></li>
+<li><a href="#business--integration-services">Business &amp; Integration Services</a></li>
+<li><a href="#iot--acquisition-services">IoT &amp; Acquisition Services</a></li>
+<li><a href="#ai--agent-services">AI &amp; Agent Services</a></li>
+<li><a href="#infrastructure-services">Infrastructure Services</a></li>
+</ol>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The SAHOOL platform exposes its microservices through Kong API Gateway. All API endpoints follow RESTful conventions and are accessible via:</p>
+<div class="codehilite"><pre><span></span><code>https://api.sahool.io/api/v1/{service-path}
+</code></pre></div>
+
+<h3 id="base-url-patterns">Base URL Patterns<a class="headerlink" href="#base-url-patterns" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Environment</th>
+<th>Base URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Production</td>
+<td><code>https://api.sahool.io</code></td>
+</tr>
+<tr>
+<td>Staging</td>
+<td><code>https://staging-api.sahool.io</code></td>
+</tr>
+<tr>
+<td>Development</td>
+<td><code>http://localhost:8000</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-headers">Common Headers<a class="headerlink" href="#common-headers" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">Authorization: Bearer &lt;jwt_token&gt;</span>
+<span class="err">Content-Type: application/json</span>
+<span class="err">Accept: application/json</span>
+<span class="err">X-Request-ID: &lt;correlation_id&gt;</span>
+<span class="err">X-Tenant-ID: &lt;tenant_id&gt;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
+<p>All endpoints (except health checks) require JWT authentication.</p>
+<h3 id="authentication-flow">Authentication Flow<a class="headerlink" href="#authentication-flow" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Obtain JWT token via <code>/api/v1/auth/login</code></li>
+<li>Include token in <code>Authorization: Bearer &lt;token&gt;</code> header</li>
+<li>Token expiry: 24 hours (configurable)</li>
+</ol>
+<h3 id="acl-groups">ACL Groups<a class="headerlink" href="#acl-groups" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Access Level</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>starter-users</code></td>
+<td>Basic features</td>
+</tr>
+<tr>
+<td><code>professional-users</code></td>
+<td>Advanced features</td>
+</tr>
+<tr>
+<td><code>enterprise-users</code></td>
+<td>All features</td>
+</tr>
+<tr>
+<td><code>internal-services</code></td>
+<td>Service-to-service</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="rate-limiting-tiers">Rate Limiting Tiers<a class="headerlink" href="#rate-limiting-tiers" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Requests/Minute</th>
+<th>Requests/Hour</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Basic (Starter)</strong></td>
+<td>100</td>
+<td>5,000</td>
+<td>Field, Weather, Calendar, Notifications</td>
+</tr>
+<tr>
+<td><strong>Standard (Professional)</strong></td>
+<td>500</td>
+<td>25,000</td>
+<td>Satellite, NDVI, Crop Intelligence</td>
+</tr>
+<tr>
+<td><strong>Premium (Enterprise)</strong></td>
+<td>1,000</td>
+<td>50,000</td>
+<td>AI Advisor, Research, Advanced Analytics</td>
+</tr>
+<tr>
+<td><strong>Internal</strong></td>
+<td>5,000</td>
+<td>100,000</td>
+<td>Service-to-service communication</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="service-categories">Service Categories<a class="headerlink" href="#service-categories" title="Permanent link">&para;</a></h2>
+<h3 id="event-architecture-layers">Event Architecture Layers<a class="headerlink" href="#event-architecture-layers" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Services</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Acquisition</strong></td>
+<td>IoT Gateway, Weather Service, Satellite Service</td>
+<td>Data ingestion</td>
+</tr>
+<tr>
+<td><strong>Intelligence</strong></td>
+<td>Vegetation Analysis, Crop Intelligence, NDVI Processor</td>
+<td>Feature extraction</td>
+</tr>
+<tr>
+<td><strong>Decision</strong></td>
+<td>Advisory Service, Irrigation Smart, Yield Engine</td>
+<td>Recommendations</td>
+</tr>
+<tr>
+<td><strong>Business</strong></td>
+<td>Notification, Marketplace, Billing, Task</td>
+<td>User operations</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="core-services-starter-package">Core Services (Starter Package)<a class="headerlink" href="#core-services-starter-package" title="Permanent link">&para;</a></h2>
+<h3 id="field-management-service">Field Management Service<a class="headerlink" href="#field-management-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 3000</li>
+<li><strong>Base Path</strong>: <code>/api/v1/fields</code></li>
+<li><strong>Technology</strong>: Node.js (NestJS)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/profitability/crop/{crop_season_id}</code></td>
+<td>Get crop profitability</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/profitability/analyze</code></td>
+<td>Analyze field profitability</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/profitability/season</code></td>
+<td>Calculate season profitability</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/profitability/compare</code></td>
+<td>Compare profitability</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/profitability/break-even</code></td>
+<td>Get break-even analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/profitability/history/{field_id}/{crop_code}</code></td>
+<td>Get profitability history</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/profitability/benchmarks/{crop_code}</code></td>
+<td>Get crop benchmarks</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/profitability/cost-breakdown/{crop_code}</code></td>
+<td>Get cost breakdown</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/crops/list</code></td>
+<td>List available crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/costs/categories</code></td>
+<td>Get cost categories</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="field-service-legacy">Field Service (Legacy)<a class="headerlink" href="#field-service-legacy" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8102</li>
+<li><strong>Base Path</strong>: <code>/api/v1/fields</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fields</code></td>
+<td>Create new field</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}</code></td>
+<td>Get field details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields</code></td>
+<td>List all fields</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/fields/{field_id}</code></td>
+<td>Update field</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/fields/{field_id}</code></td>
+<td>Delete field</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/fields/{field_id}/boundary</code></td>
+<td>Update field boundary</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/area</code></td>
+<td>Get area calculation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fields/check-overlap</code></td>
+<td>Check field overlap</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/export/kml</code></td>
+<td>Export as KML</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/export/geojson</code></td>
+<td>Export as GeoJSON</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fields/{field_id}/crops</code></td>
+<td>Add crop season</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/crops/history</code></td>
+<td>Get crop history</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fields/{field_id}/crops/current/close</code></td>
+<td>Close current season</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fields/{field_id}/zones</code></td>
+<td>Create zone</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/zones</code></td>
+<td>List zones</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/zones/{zone_id}</code></td>
+<td>Delete zone</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/ndvi/history</code></td>
+<td>Get NDVI history</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fields/{field_id}/ndvi</code></td>
+<td>Add NDVI record</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/stats</code></td>
+<td>Get field statistics</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/users/{user_id}/fields/stats</code></td>
+<td>Get user field stats</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="weather-service">Weather Service<a class="headerlink" href="#weather-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8092</li>
+<li><strong>Base Path</strong>: <code>/api/v1/weather</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/weather/assess</code></td>
+<td>Assess weather impact</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/weather/current</code></td>
+<td>Get current weather</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/weather/forecast</code></td>
+<td>Get weather forecast</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/weather/irrigation</code></td>
+<td>Irrigation weather check</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/weather/heat-stress/{temp_c}</code></td>
+<td>Check heat stress</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/weather/providers</code></td>
+<td>List weather providers</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/weather/evapotranspiration</code></td>
+<td>Calculate ET</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/weather/gdd</code></td>
+<td>Calculate Growing Degree Days</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/weather/spray-window</code></td>
+<td>Check spray window</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/weather/agricultural-report</code></td>
+<td>Get agricultural report</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/weather/frost-risk</code></td>
+<td>Assess frost risk</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/weather/heat-stress</code></td>
+<td>Assess heat stress</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/weather/chill-hours</code></td>
+<td>Calculate chill hours</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/weather/drought-index</code></td>
+<td>Calculate drought index</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/weather/comprehensive-stress-report</code></td>
+<td>Get comprehensive stress report</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="notification-service">Notification Service<a class="headerlink" href="#notification-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8110</li>
+<li><strong>Base Path</strong>: <code>/api/v1/notifications</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/</code></td>
+<td>Create custom notification</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/weather</code></td>
+<td>Create weather alert</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/pest</code></td>
+<td>Create pest alert</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/irrigation</code></td>
+<td>Create irrigation reminder</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/farmer/{farmer_id}</code></td>
+<td>Get farmer notifications</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/{notification_id}/read</code></td>
+<td>Mark notification read</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/broadcast</code></td>
+<td>Get broadcast notifications</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/register</code></td>
+<td>Register farmer for notifications</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/{farmer_id}/preferences</code></td>
+<td>Update preferences</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/stats</code></td>
+<td>Get notification statistics</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="astronomical-calendar">Astronomical Calendar<a class="headerlink" href="#astronomical-calendar" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8111</li>
+<li><strong>Base Path</strong>: <code>/api/v1/astronomical</code>, <code>/api/v1/calendar</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/today</code></td>
+<td>Get today's astronomical data</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/date/{date_str}</code></td>
+<td>Get data for specific date</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/week</code></td>
+<td>Get weekly forecast</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/moon-phase</code></td>
+<td>Get current moon phase</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/lunar-mansion</code></td>
+<td>Get current lunar mansion</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/lunar-mansions</code></td>
+<td>List all lunar mansions</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/hijri</code></td>
+<td>Get Hijri date</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/hijri-months</code></td>
+<td>List Hijri months</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/zodiac</code></td>
+<td>Get zodiac info</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/zodiac-farming</code></td>
+<td>Get zodiac farming guide</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/seasons</code></td>
+<td>List seasons</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/current-season</code></td>
+<td>Get current season</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/crop-calendar/{crop_name}</code></td>
+<td>Get crop calendar</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/crops</code></td>
+<td>List crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/regions</code></td>
+<td>List Yemeni regions</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/regions/{region_id}</code></td>
+<td>Get region details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/regions/{region_id}/crops</code></td>
+<td>Get region crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/best-days</code></td>
+<td>Get best days for activities</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/integration/weather</code></td>
+<td>Weather integration</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/crop-details</code></td>
+<td>Get crop details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/crop-details/{crop_id}</code></td>
+<td>Get specific crop</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/crop-details/{crop_id}/planting-guide</code></td>
+<td>Get planting guide</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/what-to-plant</code></td>
+<td>What to plant now</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/proverbs</code></td>
+<td>List agricultural proverbs</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/proverbs/today</code></td>
+<td>Get today's proverb</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/proverbs/crop/{crop_name}</code></td>
+<td>Get crop proverbs</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/proverbs/mansion/{mansion_name}</code></td>
+<td>Get mansion proverbs</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/stars</code></td>
+<td>List agricultural stars</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/stars/{star_name}</code></td>
+<td>Get star details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/landmarks</code></td>
+<td>List heritage landmarks</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/landmarks/{category}</code></td>
+<td>Get landmarks by category</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/landmarks/{category}/{landmark_name}</code></td>
+<td>Get specific landmark</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/wisdom/today</code></td>
+<td>Get today's wisdom</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/techniques</code></td>
+<td>List heritage techniques</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/techniques/{category}</code></td>
+<td>Get techniques by category</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/techniques/{category}/{technique_id}</code></td>
+<td>Get specific technique</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="user-service">User Service<a class="headerlink" href="#user-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 3025</li>
+<li><strong>Base Path</strong>: <code>/api/v1/users</code>, <code>/api/v1/auth</code></li>
+<li><strong>Technology</strong>: Node.js (NestJS)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/users</code></td>
+<td>Create user</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/users</code></td>
+<td>List users</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/users/{id}</code></td>
+<td>Get user by ID</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/users/email/{email}</code></td>
+<td>Get user by email</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/users/{id}</code></td>
+<td>Update user</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/users/{id}</code></td>
+<td>Soft delete user</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/users/{id}/hard</code></td>
+<td>Hard delete user</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/users/stats/count/{tenantId}</code></td>
+<td>Get user count</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/users/stats/active</code></td>
+<td>Get active users</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/login</code></td>
+<td>User login</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/register</code></td>
+<td>User registration</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/forgot-password</code></td>
+<td>Forgot password</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/reset-password</code></td>
+<td>Reset password</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/send-otp</code></td>
+<td>Send OTP</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/verify-otp</code></td>
+<td>Verify OTP</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/logout</code></td>
+<td>Logout</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/logout-all</code></td>
+<td>Logout all sessions</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/refresh</code></td>
+<td>Refresh token</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/me</code></td>
+<td>Get current user</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="intelligence-services-professional-package">Intelligence Services (Professional Package)<a class="headerlink" href="#intelligence-services-professional-package" title="Permanent link">&para;</a></h2>
+<h3 id="vegetation-analysis-service">Vegetation Analysis Service<a class="headerlink" href="#vegetation-analysis-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8090</li>
+<li><strong>Base Path</strong>: <code>/api/v1/satellite</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/providers</code></td>
+<td>List satellite providers</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/cache/stats</code></td>
+<td>Get cache statistics</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/cache/health</code></td>
+<td>Cache health check</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/eo-status</code></td>
+<td>Earth observation status</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/satellites</code></td>
+<td>List available satellites</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/regions</code></td>
+<td>List coverage regions</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/imagery/request</code></td>
+<td>Request satellite imagery</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/analyze</code></td>
+<td>Analyze field vegetation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/analyze-with-action</code></td>
+<td>Analyze with action recommendations</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/analyze/real</code></td>
+<td>Real satellite analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/timeseries/{field_id}</code></td>
+<td>Get vegetation timeseries</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/ndvi-timeseries/analyze/{field_id}</code></td>
+<td>Analyze NDVI timeseries</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/ndvi-timeseries/compare/{field_id}</code></td>
+<td>Compare NDVI periods</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/phenology/{field_id}</code></td>
+<td>Get phenology data</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/phenology/{field_id}/timeline</code></td>
+<td>Get phenology timeline</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/phenology/recommendations/{crop_type}/{stage}</code></td>
+<td>Get stage recommendations</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/phenology/crops</code></td>
+<td>List supported crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/phenology/{field_id}/analyze-with-action</code></td>
+<td>Phenology analysis with actions</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/soil-moisture/{field_id}</code></td>
+<td>Get soil moisture data</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/irrigation-events/{field_id}</code></td>
+<td>Get irrigation events</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/sar-timeseries/{field_id}</code></td>
+<td>Get SAR timeseries</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/indices/{field_id}</code></td>
+<td>Get vegetation indices</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/indices/{field_id}/{index_name}</code></td>
+<td>Get specific index</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/indices/interpret</code></td>
+<td>Interpret vegetation indices</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/indices/guide</code></td>
+<td>Get indices guide</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/yield-prediction</code></td>
+<td>Predict yield</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/yield-history/{field_id}</code></td>
+<td>Get yield history</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/regional-yields/{governorate}</code></td>
+<td>Get regional yields</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/cloud-cover/{field_id}</code></td>
+<td>Get cloud cover data</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/clear-observations/{field_id}</code></td>
+<td>Get clear observations</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/best-observation/{field_id}</code></td>
+<td>Get best observation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/interpolate-cloudy</code></td>
+<td>Interpolate cloudy data</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/export/analysis/{field_id}</code></td>
+<td>Export analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/export/timeseries/{field_id}</code></td>
+<td>Export timeseries</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/export/boundaries</code></td>
+<td>Export boundaries</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/export/report/{field_id}</code></td>
+<td>Export report</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/changes/{field_id}</code></td>
+<td>Get change detection</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/changes/{field_id}/compare</code></td>
+<td>Compare changes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/changes/{field_id}/anomalies</code></td>
+<td>Get anomalies</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="crop-intelligence-service">Crop Intelligence Service<a class="headerlink" href="#crop-intelligence-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8095</li>
+<li><strong>Base Path</strong>: <code>/api/v1/crop-intelligence</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/</code></td>
+<td>Service info</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/fields/{field_id}/zones</code></td>
+<td>Create zones</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/fields/{field_id}/zones</code></td>
+<td>Get zones</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/fields/{field_id}/zones.geojson</code></td>
+<td>Get zones as GeoJSON</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/fields/{field_id}/zones/{zone_id}/observations</code></td>
+<td>Add zone observation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/fields/{field_id}/zones/{zone_id}/observations</code></td>
+<td>Get zone observations</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/fields/{field_id}/diagnosis</code></td>
+<td>Get field diagnosis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/fields/{field_id}/zones/{zone_id}/timeline</code></td>
+<td>Get zone timeline</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/fields/{field_id}/vrt</code></td>
+<td>Get Variable Rate Technology map</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/diagnose</code></td>
+<td>Diagnose crop issue</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/disease/detect</code></td>
+<td>Detect disease</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/fields/{field_id}/zones/{zone_id}/disease-analysis</code></td>
+<td>Zone disease analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/disease/types</code></td>
+<td>Get disease types</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/nutrients/detect</code></td>
+<td>Detect nutrient deficiency</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/nutrients/fertilizer-plan</code></td>
+<td>Generate fertilizer plan</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/fields/{field_id}/zones/{zone_id}/nutrient-analysis</code></td>
+<td>Zone nutrient analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/nutrients/types</code></td>
+<td>Get nutrient types</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/yield/predict</code></td>
+<td>Predict yield</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/fields/{field_id}/zones/{zone_id}/yield-prediction</code></td>
+<td>Zone yield prediction</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/yield/crop-parameters</code></td>
+<td>Get crop parameters</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/pests/assess</code></td>
+<td>Assess pest risk</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/fields/{field_id}/zones/{zone_id}/pest-assessment</code></td>
+<td>Zone pest assessment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/pests/types</code></td>
+<td>Get pest types</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/comprehensive-analysis</code></td>
+<td>Comprehensive field analysis</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="ndvi-processor">NDVI Processor<a class="headerlink" href="#ndvi-processor" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8118</li>
+<li><strong>Base Path</strong>: <code>/api/v1/ndvi</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/process</code></td>
+<td>Submit NDVI processing job</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/process/{job_id}/status</code></td>
+<td>Get job status</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/process/{job_id}</code></td>
+<td>Cancel job</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/process</code></td>
+<td>List jobs</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/ndvi</code></td>
+<td>Get field NDVI</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/ndvi/latest</code></td>
+<td>Get latest NDVI</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/ndvi/timeseries</code></td>
+<td>Get NDVI timeseries</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/ndvi/change</code></td>
+<td>Get NDVI change</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fields/{field_id}/ndvi/change</code></td>
+<td>Submit change analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/ndvi/seasonal</code></td>
+<td>Get seasonal analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/ndvi/anomaly</code></td>
+<td>Detect anomalies</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/ndvi/export</code></td>
+<td>Export NDVI data</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/composites/monthly</code></td>
+<td>Create monthly composite</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fields/{field_id}/composites</code></td>
+<td>Get composites</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/composites/{composite_id}</code></td>
+<td>Get composite details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/composites/{composite_id}/download</code></td>
+<td>Download composite</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="indicators-service">Indicators Service<a class="headerlink" href="#indicators-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8091</li>
+<li><strong>Base Path</strong>: <code>/api/v1/indicators</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/indicators/definitions</code></td>
+<td>Get indicator definitions</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/field/{field_id}/indicators</code></td>
+<td>Get field indicators</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/dashboard/{tenant_id}</code></td>
+<td>Get dashboard summary</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/alerts/{tenant_id}</code></td>
+<td>Get tenant alerts</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/trends/{field_id}/{indicator_id}</code></td>
+<td>Get indicator trends</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="lai-estimation-service">LAI Estimation Service<a class="headerlink" href="#lai-estimation-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 3022</li>
+<li><strong>Base Path</strong>: <code>/api/v1/lai</code></li>
+<li><strong>Technology</strong>: Node.js (NestJS)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/lai/estimate/{fieldId}</code></td>
+<td>Estimate LAI</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/lai/calculate</code></td>
+<td>Calculate LAI</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/lai/timeseries/{fieldId}</code></td>
+<td>Get LAI timeseries</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/lai/compare/{fieldId}</code></td>
+<td>Compare LAI values</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/lai/model/info</code></td>
+<td>Get model info</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/lai/stress-detection/{fieldId}</code></td>
+<td>Detect crop stress</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/lai/anomaly-check/{fieldId}</code></td>
+<td>Check for anomalies</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/indices/calculate</code></td>
+<td>Calculate vegetation indices</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/indices/calculate/{indexName}</code></td>
+<td>Calculate specific index</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/indices/health</code></td>
+<td>Assess vegetation health</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/indices/info</code></td>
+<td>Get indices info</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/indices/info/{indexName}</code></td>
+<td>Get specific index info</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/indices/list</code></td>
+<td>List available indices</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="field-intelligence">Field Intelligence<a class="headerlink" href="#field-intelligence" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8120</li>
+<li><strong>Base Path</strong>: <code>/api/v1/intelligence</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/</code></td>
+<td>Service info</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/dev/seed-demo-rules</code></td>
+<td>Seed demo rules (dev only)</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="decision-advisory-services">Decision &amp; Advisory Services<a class="headerlink" href="#decision-advisory-services" title="Permanent link">&para;</a></h2>
+<h3 id="advisory-service">Advisory Service<a class="headerlink" href="#advisory-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8093</li>
+<li><strong>Base Path</strong>: <code>/api/v1/advisory</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/disease/assess</code></td>
+<td>Assess disease</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/disease/symptoms</code></td>
+<td>Analyze symptoms</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/disease/search</code></td>
+<td>Search diseases</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/disease/crop/{crop}</code></td>
+<td>Get diseases by crop</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/disease/{disease_id}</code></td>
+<td>Get disease details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/nutrient/ndvi</code></td>
+<td>NDVI-based nutrient analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/nutrient/visual</code></td>
+<td>Visual nutrient analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/nutrient/{deficiency_id}</code></td>
+<td>Get deficiency details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fertilizer/plan</code></td>
+<td>Create fertilizer plan</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fertilizer/{fertilizer_id}</code></td>
+<td>Get fertilizer details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fertilizer/nutrient/{nutrient}</code></td>
+<td>Get fertilizers by nutrient</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/crops/categories</code></td>
+<td>Get crop categories</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/crops/search</code></td>
+<td>Search crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/crops</code></td>
+<td>List crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/crops/{crop_code}</code></td>
+<td>Get crop details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/crops/{crop_code}/varieties</code></td>
+<td>Get crop varieties</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/crops/{crop}/stages</code></td>
+<td>Get growth stages</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/crops/{crop}/requirements</code></td>
+<td>Get crop requirements</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/actions/{action_id}</code></td>
+<td>Get action details</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="irrigation-smart">Irrigation Smart<a class="headerlink" href="#irrigation-smart" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8094</li>
+<li><strong>Base Path</strong>: <code>/api/v1/irrigation</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/crops</code></td>
+<td>List supported crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/methods</code></td>
+<td>List irrigation methods</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/calculate</code></td>
+<td>Calculate irrigation plan</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/water-balance/{field_id}</code></td>
+<td>Get water balance</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/sensor-reading</code></td>
+<td>Submit sensor reading</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/efficiency-report/{field_id}</code></td>
+<td>Get efficiency report</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/calculate-with-action</code></td>
+<td>Calculate with action plan</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/sensor-reading-with-action</code></td>
+<td>Sensor reading with action</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="yield-engine">Yield Engine<a class="headerlink" href="#yield-engine" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8098</li>
+<li><strong>Base Path</strong>: <code>/api/v1/yield</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/predict</code></td>
+<td>Predict yield</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/crops</code></td>
+<td>List supported crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/price/{crop_type}</code></td>
+<td>Get crop prices</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="yield-prediction-service">Yield Prediction Service<a class="headerlink" href="#yield-prediction-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 3021</li>
+<li><strong>Base Path</strong>: <code>/api/v1/yield</code></li>
+<li><strong>Technology</strong>: Node.js (NestJS)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/yield/predict/{fieldId}</code></td>
+<td>Predict yield</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/yield/growth-stage/{fieldId}</code></td>
+<td>Get growth stage</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/yield/harvest-date/{fieldId}</code></td>
+<td>Predict harvest date</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/yield/regional/{governorate}</code></td>
+<td>Get regional yields</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/yield/history/{fieldId}</code></td>
+<td>Get yield history</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/yield/maturity/{fieldId}</code></td>
+<td>Check maturity</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/yield/predict-with-action/{fieldId}</code></td>
+<td>Predict with action</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/yield/harvest-readiness/{fieldId}</code></td>
+<td>Check harvest readiness</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="agro-advisor">Agro Advisor<a class="headerlink" href="#agro-advisor" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8105</li>
+<li><strong>Base Path</strong>: <code>/api/v1/agro</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/disease/assess</code></td>
+<td>Assess disease</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/disease/symptoms</code></td>
+<td>Analyze symptoms</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/disease/search</code></td>
+<td>Search diseases</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/disease/crop/{crop}</code></td>
+<td>Get diseases by crop</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/disease/{disease_id}</code></td>
+<td>Get disease details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/nutrient/ndvi</code></td>
+<td>NDVI-based nutrient analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/nutrient/visual</code></td>
+<td>Visual nutrient analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/nutrient/{deficiency_id}</code></td>
+<td>Get deficiency details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fertilizer/plan</code></td>
+<td>Create fertilizer plan</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fertilizer/{fertilizer_id}</code></td>
+<td>Get fertilizer details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fertilizer/nutrient/{nutrient}</code></td>
+<td>Get fertilizers by nutrient</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/crops/categories</code></td>
+<td>Get crop categories</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/crops/search</code></td>
+<td>Search crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/crops</code></td>
+<td>List crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/crops/{crop_code}</code></td>
+<td>Get crop details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/crops/{crop_code}/varieties</code></td>
+<td>Get crop varieties</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/crops/{crop}/stages</code></td>
+<td>Get growth stages</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/crops/{crop}/requirements</code></td>
+<td>Get crop requirements</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/actions/{action_id}</code></td>
+<td>Get action details</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="fertilizer-advisor-deprecated">Fertilizer Advisor (Deprecated)<a class="headerlink" href="#fertilizer-advisor-deprecated" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8104</li>
+<li><strong>Base Path</strong>: <code>/api/v1/fertilizer</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+<li><strong>Status</strong>: Deprecated - Use Advisory Service</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/crops</code></td>
+<td>List supported crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/fertilizers</code></td>
+<td>List fertilizers</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/recommend</code></td>
+<td>Get recommendation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/soil-analysis/interpret</code></td>
+<td>Interpret soil analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/deficiency-symptoms/{crop}</code></td>
+<td>Get deficiency symptoms</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/recommend-with-action</code></td>
+<td>Recommend with action</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/soil-analysis/interpret-with-action</code></td>
+<td>Interpret with action</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/recommend/evaluate</code></td>
+<td>Evaluate recommendation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/recommendations/recent</code></td>
+<td>Get recent recommendations</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/soil-analysis/compress</code></td>
+<td>Compress soil data</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/context-engineering/status</code></td>
+<td>Get context status</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="business-integration-services">Business &amp; Integration Services<a class="headerlink" href="#business-integration-services" title="Permanent link">&para;</a></h2>
+<h3 id="task-service">Task Service<a class="headerlink" href="#task-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8103</li>
+<li><strong>Base Path</strong>: <code>/api/v1/tasks</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/tasks</code></td>
+<td>List tasks</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/tasks/today</code></td>
+<td>Get today's tasks</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/tasks/upcoming</code></td>
+<td>Get upcoming tasks</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/tasks/stats</code></td>
+<td>Get task statistics</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/tasks/{task_id}</code></td>
+<td>Get task details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/tasks</code></td>
+<td>Create task</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/api/v1/tasks/{task_id}</code></td>
+<td>Update task</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/tasks/{task_id}/complete</code></td>
+<td>Complete task</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/tasks/{task_id}/start</code></td>
+<td>Start task</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/tasks/{task_id}/cancel</code></td>
+<td>Cancel task</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/api/v1/tasks/{task_id}</code></td>
+<td>Delete task</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/tasks/{task_id}/evidence</code></td>
+<td>Add evidence</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/tasks/from-ndvi-alert</code></td>
+<td>Create from NDVI alert</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/tasks/suggest-for-field/{field_id}</code></td>
+<td>Suggest tasks</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/fields/{field_id}/health</code></td>
+<td>Get field health</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/tasks/auto-create</code></td>
+<td>Auto-create tasks</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/tasks/best-days/{activity}</code></td>
+<td>Get best days</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/tasks/create-from-astronomical</code></td>
+<td>Create from astronomical</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/tasks/lunar-recommendations</code></td>
+<td>Get lunar recommendations</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="equipment-service">Equipment Service<a class="headerlink" href="#equipment-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8101</li>
+<li><strong>Base Path</strong>: <code>/api/v1/equipment</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/equipment</code></td>
+<td>List equipment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/equipment/stats</code></td>
+<td>Get equipment statistics</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/equipment/alerts</code></td>
+<td>Get maintenance alerts</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/equipment/{equipment_id}</code></td>
+<td>Get equipment details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/equipment/qr/{qr_code}</code></td>
+<td>Get by QR code</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/equipment</code></td>
+<td>Create equipment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/api/v1/equipment/{equipment_id}</code></td>
+<td>Update equipment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/equipment/{equipment_id}/status</code></td>
+<td>Update status</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/equipment/{equipment_id}/location</code></td>
+<td>Update location</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/equipment/{equipment_id}/telemetry</code></td>
+<td>Update telemetry</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/equipment/{equipment_id}/maintenance</code></td>
+<td>Get maintenance history</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/equipment/{equipment_id}/maintenance</code></td>
+<td>Add maintenance record</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/api/v1/equipment/{equipment_id}</code></td>
+<td>Delete equipment</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="billing-core">Billing Core<a class="headerlink" href="#billing-core" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8089</li>
+<li><strong>Base Path</strong>: <code>/api/v1/billing</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/plans</code></td>
+<td>List subscription plans</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/plans/{plan_id}</code></td>
+<td>Get plan details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/plans</code></td>
+<td>Create plan</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/tenants</code></td>
+<td>Create tenant</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/tenants/{tenant_id}</code></td>
+<td>Get tenant details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/tenants/{tenant_id}/subscription</code></td>
+<td>Get subscription</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/v1/tenants/{tenant_id}/subscription</code></td>
+<td>Update subscription</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/tenants/{tenant_id}/cancel</code></td>
+<td>Cancel subscription</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/tenants/{tenant_id}/usage</code></td>
+<td>Record usage</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/tenants/{tenant_id}/quota</code></td>
+<td>Get quota</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/enforce</code></td>
+<td>Enforce quota</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/tenants/{tenant_id}/invoices</code></td>
+<td>Get invoices</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/invoices/{invoice_id}</code></td>
+<td>Get invoice details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/tenants/{tenant_id}/invoices/generate</code></td>
+<td>Generate invoice</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/payments</code></td>
+<td>Process payment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/tenants/{tenant_id}/payments</code></td>
+<td>Get payments</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/webhooks/tharwatt</code></td>
+<td>Tharwatt webhook</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/webhooks/stripe</code></td>
+<td>Stripe webhook</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/reports/revenue</code></td>
+<td>Revenue report</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/reports/subscriptions</code></td>
+<td>Subscriptions report</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="marketplace-service">Marketplace Service<a class="headerlink" href="#marketplace-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 3010</li>
+<li><strong>Base Path</strong>: <code>/api/v1/market</code></li>
+<li><strong>Technology</strong>: Node.js (NestJS)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/market/products</code></td>
+<td>List products</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/market/products/{id}</code></td>
+<td>Get product details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/market/products</code></td>
+<td>Create product</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/market/list-harvest</code></td>
+<td>List harvest for sale</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/market/orders</code></td>
+<td>Create order</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/market/orders/{userId}</code></td>
+<td>Get user orders</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/market/stats</code></td>
+<td>Get marketplace stats</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fintech/wallet/{userId}</code></td>
+<td>Get wallet</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fintech/wallet/{walletId}/deposit</code></td>
+<td>Deposit</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fintech/wallet/{walletId}/withdraw</code></td>
+<td>Withdraw</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fintech/wallet/{walletId}/transactions</code></td>
+<td>Get transactions</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fintech/calculate-score</code></td>
+<td>Calculate credit score</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fintech/calculate-advanced-score</code></td>
+<td>Advanced credit score</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fintech/credit-factors/{userId}</code></td>
+<td>Get credit factors</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fintech/credit-history</code></td>
+<td>Add credit history</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fintech/credit-report/{userId}</code></td>
+<td>Get credit report</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fintech/loans</code></td>
+<td>Create loan</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/fintech/loans/{id}/approve</code></td>
+<td>Approve loan</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fintech/loans/{id}/repay</code></td>
+<td>Repay loan</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fintech/loans/{walletId}</code></td>
+<td>Get loans</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fintech/stats</code></td>
+<td>Get fintech stats</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fintech/wallet/{walletId}/limits</code></td>
+<td>Get wallet limits</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/fintech/wallet/{walletId}/limits</code></td>
+<td>Set wallet limits</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fintech/escrow</code></td>
+<td>Create escrow</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fintech/escrow/{id}/release</code></td>
+<td>Release escrow</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fintech/escrow/{id}/refund</code></td>
+<td>Refund escrow</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fintech/escrow/order/{orderId}</code></td>
+<td>Get order escrow</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fintech/wallet/{walletId}/escrows</code></td>
+<td>Get wallet escrows</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fintech/wallet/{walletId}/scheduled-payment</code></td>
+<td>Create scheduled payment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fintech/wallet/{walletId}/scheduled-payments</code></td>
+<td>Get scheduled payments</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fintech/scheduled-payment/{id}/cancel</code></td>
+<td>Cancel scheduled payment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/fintech/scheduled-payment/{id}/execute</code></td>
+<td>Execute scheduled payment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/fintech/wallet/{walletId}/dashboard</code></td>
+<td>Get wallet dashboard</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/profiles/sellers</code></td>
+<td>Create seller profile</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/profiles/sellers</code></td>
+<td>List seller profiles</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/profiles/sellers/user/{userId}</code></td>
+<td>Get seller by user</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/profiles/sellers/{id}</code></td>
+<td>Get seller profile</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/profiles/sellers/user/{userId}</code></td>
+<td>Update seller</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/profiles/sellers/user/{userId}/verify</code></td>
+<td>Verify seller</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/profiles/sellers/user/{userId}/stats</code></td>
+<td>Update seller stats</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/profiles/buyers</code></td>
+<td>Create buyer profile</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/profiles/buyers</code></td>
+<td>List buyer profiles</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/profiles/buyers/user/{userId}</code></td>
+<td>Get buyer by user</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/profiles/buyers/{id}</code></td>
+<td>Get buyer profile</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/profiles/buyers/user/{userId}</code></td>
+<td>Update buyer</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/profiles/buyers/user/{userId}/addresses</code></td>
+<td>Add address</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/profiles/buyers/user/{userId}/addresses/{label}</code></td>
+<td>Remove address</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/profiles/buyers/user/{userId}/loyalty-points</code></td>
+<td>Update loyalty points</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/profiles/buyers/user/{userId}/stats</code></td>
+<td>Update buyer stats</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/reviews</code></td>
+<td>Create review</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/reviews/product/{productId}/stats</code></td>
+<td>Get product review stats</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/reviews/product/{productId}</code></td>
+<td>Get product reviews</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/reviews/{id}</code></td>
+<td>Get review</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/reviews/buyer/{buyerId}</code></td>
+<td>Get buyer reviews</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/reviews/{id}/buyer/{buyerId}</code></td>
+<td>Update review</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/reviews/{id}/buyer/{buyerId}</code></td>
+<td>Delete review</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/reviews/{id}/helpful</code></td>
+<td>Mark helpful</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/reviews/{id}/report</code></td>
+<td>Report review</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/reviews/responses</code></td>
+<td>Create response</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/reviews/responses/seller/{sellerId}</code></td>
+<td>Get seller responses</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/reviews/responses/{id}/seller/{sellerId}</code></td>
+<td>Update response</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/reviews/responses/{id}/seller/{sellerId}</code></td>
+<td>Delete response</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="alert-service">Alert Service<a class="headerlink" href="#alert-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8113</li>
+<li><strong>Base Path</strong>: <code>/api/v1/alerts</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/alerts</code></td>
+<td>Create alert</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/alerts/{alert_id}</code></td>
+<td>Get alert details</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/alerts/field/{field_id}</code></td>
+<td>Get field alerts</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/alerts/{alert_id}</code></td>
+<td>Update alert</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/alerts/{alert_id}</code></td>
+<td>Delete alert</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/alerts/batch</code></td>
+<td>Create batch alerts</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/alerts/{alert_id}/resolve</code></td>
+<td>Resolve alert</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/alerts/{alert_id}/dismiss</code></td>
+<td>Dismiss alert</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/alerts/rules</code></td>
+<td>Create alert rule</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/alerts/rules</code></td>
+<td>List alert rules</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/alerts/rules/{rule_id}</code></td>
+<td>Delete rule</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/alerts/stats</code></td>
+<td>Get alert statistics</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="research-core">Research Core<a class="headerlink" href="#research-core" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 3015</li>
+<li><strong>Base Path</strong>: <code>/api/v1/research</code></li>
+<li><strong>Technology</strong>: Node.js (NestJS)</li>
+<li><strong>Rate Limit</strong>: 1000/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/experiments</code></td>
+<td>Create experiment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/experiments</code></td>
+<td>List experiments</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/experiments/{id}</code></td>
+<td>Get experiment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/experiments/{id}/summary</code></td>
+<td>Get summary</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/experiments/{id}</code></td>
+<td>Update experiment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/experiments/{id}/lock</code></td>
+<td>Lock experiment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/experiments/{id}</code></td>
+<td>Delete experiment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/experiments/{experimentId}/treatments</code></td>
+<td>Create treatment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/experiments/{experimentId}/treatments</code></td>
+<td>List treatments</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/experiments/{experimentId}/treatments/{id}</code></td>
+<td>Get treatment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/experiments/{experimentId}/treatments/{id}</code></td>
+<td>Update treatment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/experiments/{experimentId}/treatments/{id}</code></td>
+<td>Delete treatment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/experiments/{experimentId}/samples</code></td>
+<td>Create sample</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/experiments/{experimentId}/samples</code></td>
+<td>List samples</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/experiments/{experimentId}/samples/code/{sampleCode}</code></td>
+<td>Get by code</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/experiments/{experimentId}/samples/{id}</code></td>
+<td>Get sample</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/experiments/{experimentId}/samples/{id}</code></td>
+<td>Update sample</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/experiments/{experimentId}/samples/{id}/analysis</code></td>
+<td>Update analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/experiments/{experimentId}/samples/{id}</code></td>
+<td>Delete sample</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/experiments/{experimentId}/protocols</code></td>
+<td>Create protocol</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/experiments/{experimentId}/protocols</code></td>
+<td>List protocols</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/experiments/{experimentId}/protocols/{id}</code></td>
+<td>Get protocol</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/experiments/{experimentId}/protocols/{id}</code></td>
+<td>Update protocol</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/experiments/{experimentId}/protocols/{id}/approve</code></td>
+<td>Approve protocol</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/experiments/{experimentId}/protocols/{id}</code></td>
+<td>Delete protocol</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/experiments/{experimentId}/logs</code></td>
+<td>Create log</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/experiments/{experimentId}/logs</code></td>
+<td>List logs</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/experiments/{experimentId}/logs/{id}</code></td>
+<td>Get log</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/experiments/{experimentId}/logs/{id}/verify</code></td>
+<td>Verify log</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/experiments/{experimentId}/logs/{id}</code></td>
+<td>Update log</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/experiments/{experimentId}/logs/{id}</code></td>
+<td>Delete log</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/experiments/{experimentId}/logs/sync</code></td>
+<td>Sync logs</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/signatures/sign</code></td>
+<td>Sign document</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/signatures/verify</code></td>
+<td>Verify signature</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/signatures/{entityType}/{entityId}/history</code></td>
+<td>Get signature history</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/signatures/{id}/invalidate</code></td>
+<td>Invalidate signature</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="disaster-assessment">Disaster Assessment<a class="headerlink" href="#disaster-assessment" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 3020</li>
+<li><strong>Base Path</strong>: <code>/api/v1/disasters</code></li>
+<li><strong>Technology</strong>: Node.js (NestJS)</li>
+<li><strong>Rate Limit</strong>: 1000/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/disasters</code></td>
+<td>List disasters</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/disasters/{id}</code></td>
+<td>Get disaster</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/disasters/report</code></td>
+<td>Report disaster</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/disasters/assess/{fieldId}</code></td>
+<td>Assess field</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/disasters/risk/flood</code></td>
+<td>Flood risk</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/disasters/risk/drought</code></td>
+<td>Drought risk</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/disasters/stats/summary</code></td>
+<td>Get stats summary</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/disasters/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/alerts</code></td>
+<td>List alerts</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/alerts/weather</code></td>
+<td>Weather alerts</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/alerts/pest-disease</code></td>
+<td>Pest/disease alerts</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/alerts/subscribe</code></td>
+<td>Subscribe to alerts</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/alerts/{id}/read</code></td>
+<td>Mark alert read</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="inventory-service">Inventory Service<a class="headerlink" href="#inventory-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8116</li>
+<li><strong>Base Path</strong>: <code>/api/v1/inventory</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/categories</code></td>
+<td>Create category</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/analytics/forecast/{item_id}</code></td>
+<td>Forecast item</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/analytics/forecasts</code></td>
+<td>Get all forecasts</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/analytics/reorder-recommendations</code></td>
+<td>Reorder recommendations</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/analytics/valuation</code></td>
+<td>Get valuation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/analytics/turnover</code></td>
+<td>Get turnover</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/analytics/slow-moving</code></td>
+<td>Get slow-moving items</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/analytics/dead-stock</code></td>
+<td>Get dead stock</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/analytics/abc-analysis</code></td>
+<td>ABC analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/analytics/seasonal-patterns/{item_id}</code></td>
+<td>Seasonal patterns</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/analytics/cost-analysis</code></td>
+<td>Cost analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/analytics/waste-analysis</code></td>
+<td>Waste analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/analytics/dashboard</code></td>
+<td>Analytics dashboard</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="logistics-service">Logistics Service<a class="headerlink" href="#logistics-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8115</li>
+<li><strong>Base Path</strong>: <code>/api/v1/logistics</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/vehicles</code></td>
+<td>List vehicles</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/vehicles/{vehicle_id}</code></td>
+<td>Get vehicle</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/vehicles</code></td>
+<td>Create vehicle</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/api/v1/vehicles/{vehicle_id}</code></td>
+<td>Update vehicle</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/vehicles/{vehicle_id}/location</code></td>
+<td>Update location</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/storage-facilities</code></td>
+<td>List facilities</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/storage-facilities/{facility_id}</code></td>
+<td>Get facility</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/storage-facilities</code></td>
+<td>Create facility</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/storage-facilities/{facility_id}/conditions</code></td>
+<td>Update conditions</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/collections</code></td>
+<td>List collections</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/collections</code></td>
+<td>Create collection</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/collections/{collection_id}/assign</code></td>
+<td>Assign collection</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/collections/{collection_id}/status</code></td>
+<td>Update status</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/routes/optimize</code></td>
+<td>Optimize routes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/shipments</code></td>
+<td>List shipments</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/shipments</code></td>
+<td>Create shipment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/shipments/{shipment_id}/status</code></td>
+<td>Update status</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/stats</code></td>
+<td>Get logistics stats</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="crm-service">CRM Service<a class="headerlink" href="#crm-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8114</li>
+<li><strong>Base Path</strong>: <code>/api/v1/crm</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 100/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/farmers</code></td>
+<td>Create farmer</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/farmers</code></td>
+<td>List farmers</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/farmers/{farmer_id}</code></td>
+<td>Get farmer</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/api/v1/farmers/{farmer_id}</code></td>
+<td>Update farmer</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/deals</code></td>
+<td>Create deal</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/deals</code></td>
+<td>List deals</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/api/v1/deals/{deal_id}/stage</code></td>
+<td>Update deal stage</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/deals/pipeline</code></td>
+<td>Get pipeline stats</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/interactions</code></td>
+<td>Create interaction</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/interactions</code></td>
+<td>List interactions</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/query</code></td>
+<td>Query CRM data</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/metrics</code></td>
+<td>Prometheus metrics</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="iot-acquisition-services">IoT &amp; Acquisition Services<a class="headerlink" href="#iot-acquisition-services" title="Permanent link">&para;</a></h2>
+<h3 id="iot-gateway">IoT Gateway<a class="headerlink" href="#iot-gateway" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8106</li>
+<li><strong>Base Path</strong>: <code>/api/v1/iot</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 1000/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/sensor/reading</code></td>
+<td>Submit sensor reading</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/sensor/batch</code></td>
+<td>Submit batch readings</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/device/register</code></td>
+<td>Register device</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/device/{device_id}</code></td>
+<td>Get device</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/device/{device_id}/status</code></td>
+<td>Get device status</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/devices</code></td>
+<td>List devices</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/device/{device_id}</code></td>
+<td>Delete device</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/field/{field_id}/devices</code></td>
+<td>Get field devices</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/field/{field_id}/latest</code></td>
+<td>Get latest readings</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/stats</code></td>
+<td>Get gateway stats</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="iot-service">IoT Service<a class="headerlink" href="#iot-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8117</li>
+<li><strong>Base Path</strong>: <code>/api/v1/iot</code></li>
+<li><strong>Technology</strong>: Node.js (NestJS)</li>
+<li><strong>Rate Limit</strong>: 1000/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/iot/health</code></td>
+<td>IoT health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/iot/field/{fieldId}/sensors</code></td>
+<td>Get field sensors</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/iot/field/{fieldId}/sensor/{sensorType}</code></td>
+<td>Get sensor by type</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/iot/field/{fieldId}/pump</code></td>
+<td>Control pump</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/iot/field/{fieldId}/valve/{valveId}</code></td>
+<td>Control valve</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/iot/field/{fieldId}/irrigation/schedule</code></td>
+<td>Schedule irrigation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/iot/field/{fieldId}/actuators</code></td>
+<td>Get actuators</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/iot/devices</code></td>
+<td>List devices</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/iot/dashboard/{fieldId}</code></td>
+<td>Get IoT dashboard</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="virtual-sensors">Virtual Sensors<a class="headerlink" href="#virtual-sensors" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8119</li>
+<li><strong>Base Path</strong>: <code>/api/v1/virtual-sensors</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/info</code></td>
+<td>Service info</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/et0/calculate</code></td>
+<td>Calculate ET0</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/crops</code></td>
+<td>List supported crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/crops/{crop_type}/kc</code></td>
+<td>Get crop coefficient</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/etc/calculate</code></td>
+<td>Calculate crop ETc</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/soils</code></td>
+<td>List soil types</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/soil-moisture/estimate</code></td>
+<td>Estimate soil moisture</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/irrigation-methods</code></td>
+<td>List irrigation methods</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/irrigation/recommend</code></td>
+<td>Get irrigation recommendation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/irrigation/quick-check</code></td>
+<td>Quick irrigation check</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/irrigation/recommend-with-action</code></td>
+<td>Recommend with action</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/quick-check-with-action</code></td>
+<td>Quick check with action</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="ai-agent-services">AI &amp; Agent Services<a class="headerlink" href="#ai-agent-services" title="Permanent link">&para;</a></h2>
+<h3 id="ai-advisor">AI Advisor<a class="headerlink" href="#ai-advisor" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8112</li>
+<li><strong>Base Path</strong>: <code>/api/v1/ai-advisor</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 1000/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/advisor/ask</code></td>
+<td>Ask advisor</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/advisor/diagnose</code></td>
+<td>Diagnose issue</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/advisor/recommend</code></td>
+<td>Get recommendation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/advisor/analyze-field</code></td>
+<td>Analyze field</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/advisor/agents</code></td>
+<td>List agents</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/advisor/tools</code></td>
+<td>List tools</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/advisor/rag/info</code></td>
+<td>RAG system info</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/advisor/memory/context</code></td>
+<td>Get memory context</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/advisor/evaluation/stats</code></td>
+<td>Evaluation stats</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/advisor/context-engineering/status</code></td>
+<td>Context status</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/advisor/cost/usage</code></td>
+<td>Cost usage</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="ai-agents-service">AI Agents Service<a class="headerlink" href="#ai-agents-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8123</li>
+<li><strong>Base Path</strong>: <code>/api/v1/agents</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 1000/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/agents</code></td>
+<td>List agents</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/agents/execute</code></td>
+<td>Execute agent</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/agents/executions/{execution_id}</code></td>
+<td>Get execution</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/agents/executions/{execution_id}/status</code></td>
+<td>Get execution status</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/api/v1/agents/executions/{execution_id}</code></td>
+<td>Cancel execution</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/agents/executions</code></td>
+<td>List executions</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/agents/quick/analyze</code></td>
+<td>Quick analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/metrics</code></td>
+<td>Prometheus metrics</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="ai-agents-core">AI Agents Core<a class="headerlink" href="#ai-agents-core" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8122</li>
+<li><strong>Base Path</strong>: <code>/api/v1/ai-core</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 1000/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/analyze</code></td>
+<td>Analyze data</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/edge/sensor</code></td>
+<td>Edge sensor processing</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/edge/mobile</code></td>
+<td>Edge mobile processing</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/feedback</code></td>
+<td>Submit feedback</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/system/status</code></td>
+<td>System status</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/agents/{agent_id}/metrics</code></td>
+<td>Agent metrics</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="agent-registry">Agent Registry<a class="headerlink" href="#agent-registry" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8150</li>
+<li><strong>Base Path</strong>: <code>/api/v1/registry</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/registry/stats</code></td>
+<td>Registry statistics</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/registry/agents</code></td>
+<td>Register agent</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/registry/agents/{agent_id}</code></td>
+<td>Get agent</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/registry/agents</code></td>
+<td>List agents</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/v1/registry/agents/{agent_id}</code></td>
+<td>Deregister agent</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/registry/discover/capability</code></td>
+<td>Discover by capability</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/registry/discover/skill</code></td>
+<td>Discover by skill</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/registry/discover/tags</code></td>
+<td>Discover by tags</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/registry/agents/{agent_id}/health</code></td>
+<td>Agent health</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/registry/health/all</code></td>
+<td>All agents health</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="skills-service">Skills Service<a class="headerlink" href="#skills-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8121</li>
+<li><strong>Base Path</strong>: <code>/api/v1/skills</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/compress</code></td>
+<td>Compress data</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/memory/store</code></td>
+<td>Store memory</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/memory/recall</code></td>
+<td>Recall memory</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/evaluate</code></td>
+<td>Evaluate advisory</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/</code></td>
+<td>Service info</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="code-fix-agent">Code Fix Agent<a class="headerlink" href="#code-fix-agent" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8124</li>
+<li><strong>Base Path</strong>: <code>/api/v1/code-fix</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health/live</code></td>
+<td>Liveness (alias)</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health/ready</code></td>
+<td>Readiness (alias)</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Combined health</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/metrics</code></td>
+<td>Prometheus metrics</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/analyze</code></td>
+<td>Analyze code</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/fix</code></td>
+<td>Fix code issues</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/review</code></td>
+<td>Review code</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/generate-tests</code></td>
+<td>Generate tests</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/implement</code></td>
+<td>Implement feature</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/feedback</code></td>
+<td>Submit feedback</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/agent/info</code></td>
+<td>Agent info</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="code-review-service">Code Review Service<a class="headerlink" href="#code-review-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8096</li>
+<li><strong>Base Path</strong>: <code>/api/v1/code-review</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/models</code></td>
+<td>List models</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/review</code></td>
+<td>Review code</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/review/file</code></td>
+<td>Review file</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/review/pr</code></td>
+<td>Review pull request</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/webhook/github</code></td>
+<td>GitHub webhook</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/cache/stats</code></td>
+<td>Cache statistics</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/cache/clear</code></td>
+<td>Clear cache</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="crop-health-ai-deprecated">Crop Health AI (Deprecated)<a class="headerlink" href="#crop-health-ai-deprecated" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8097</li>
+<li><strong>Base Path</strong>: <code>/api/v1/crop-health-ai</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+<li><strong>Status</strong>: Deprecated - Use Crop Intelligence Service</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/diagnose</code></td>
+<td>Diagnose crop</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/diagnose/batch</code></td>
+<td>Batch diagnose</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/diseases</code></td>
+<td>List diseases</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/crops</code></td>
+<td>List crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/treatment/{disease_id}</code></td>
+<td>Get treatment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/expert-review</code></td>
+<td>Request expert review</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/diagnoses</code></td>
+<td>List diagnoses</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/diagnoses/stats</code></td>
+<td>Diagnosis stats</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/diagnoses/{diagnosis_id}</code></td>
+<td>Get diagnosis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/v1/diagnoses/{diagnosis_id}</code></td>
+<td>Update diagnosis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/field/{field_id}/health</code></td>
+<td>Field health</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/field/{field_id}/disease-patterns</code></td>
+<td>Disease patterns</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/field/{field_id}/risk-assessment</code></td>
+<td>Risk assessment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/field/{field_id}/diagnosis/{diagnosis_id}/mark-treated</code></td>
+<td>Mark treated</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/field/{field_id}/treatment-effectiveness</code></td>
+<td>Treatment effectiveness</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/fields/summary</code></td>
+<td>Fields summary</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/evaluation/record-outcome/{diagnosis_id}</code></td>
+<td>Record outcome</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/evaluation/accuracy-metrics</code></td>
+<td>Accuracy metrics</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/evaluation/per-disease-metrics</code></td>
+<td>Per-disease metrics</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/evaluation/model-drift</code></td>
+<td>Model drift</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/evaluation/report</code></td>
+<td>Evaluation report</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/v1/evaluation/statistics</code></td>
+<td>Evaluation statistics</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/v1/diagnose-with-action</code></td>
+<td>Diagnose with action</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="infrastructure-services">Infrastructure Services<a class="headerlink" href="#infrastructure-services" title="Permanent link">&para;</a></h2>
+<h3 id="crop-growth-model">Crop Growth Model<a class="headerlink" href="#crop-growth-model" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 3023</li>
+<li><strong>Base Path</strong>: <code>/api/v1/crop-model</code></li>
+<li><strong>Technology</strong>: Node.js (NestJS)</li>
+<li><strong>Rate Limit</strong>: 1000/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/simulation/run</code></td>
+<td>Run simulation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/simulation/demo</code></td>
+<td>Demo simulation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/simulation/quick-estimate</code></td>
+<td>Quick estimate</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/simulation/weather/sample</code></td>
+<td>Sample weather</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/simulation/info</code></td>
+<td>Simulation info</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/simulation/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/phenology/gdd</code></td>
+<td>Calculate GDD</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/phenology/dvs</code></td>
+<td>Calculate DVS</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/phenology/simulate</code></td>
+<td>Simulate phenology</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/phenology/predict</code></td>
+<td>Predict stage</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/phenology/parameters/{cropType}</code></td>
+<td>Crop parameters</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/phenology/crops</code></td>
+<td>List crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/phenology/stages/{cropType}</code></td>
+<td>Get stages</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/phenology/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/biomass/production</code></td>
+<td>Biomass production</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/biomass/distribute</code></td>
+<td>Biomass distribution</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/biomass/simulate</code></td>
+<td>Simulate biomass</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/biomass/yield</code></td>
+<td>Calculate yield</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/biomass/lai/{cropType}</code></td>
+<td>Get LAI</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/biomass/partitioning/{cropType}</code></td>
+<td>Partitioning</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/biomass/parameters/{cropType}</code></td>
+<td>Parameters</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/biomass/crops</code></td>
+<td>List crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/biomass/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/water/kc</code></td>
+<td>Calculate Kc</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/water/etc</code></td>
+<td>Calculate ETc</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/water/balance</code></td>
+<td>Water balance</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/water/irrigation/schedule</code></td>
+<td>Irrigation schedule</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/water/yield-response/{cropType}</code></td>
+<td>Yield response</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/water/parameters/{cropType}</code></td>
+<td>Parameters</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/water/crops</code></td>
+<td>List crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/water/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/photosynthesis/gpp</code></td>
+<td>Calculate GPP</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/photosynthesis/farquhar</code></td>
+<td>Farquhar model</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/photosynthesis/curve/light/{cropType}</code></td>
+<td>Light response</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/photosynthesis/curve/co2/{cropType}</code></td>
+<td>CO2 response</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/photosynthesis/curve/temperature/{cropType}</code></td>
+<td>Temp response</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/photosynthesis/parameters/{cropType}</code></td>
+<td>Parameters</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/photosynthesis/crops</code></td>
+<td>List crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/photosynthesis/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/roots/depth</code></td>
+<td>Root depth</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/roots/rld/{cropType}</code></td>
+<td>Root length density</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/roots/water-uptake</code></td>
+<td>Water uptake</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/roots/nutrient-uptake</code></td>
+<td>Nutrient uptake</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/roots/architecture</code></td>
+<td>Root architecture</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/roots/parameters/{cropType}</code></td>
+<td>Parameters</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/roots/crops</code></td>
+<td>List crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/roots/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/irrigation-decision/method-selector</code></td>
+<td>Select method</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/irrigation-decision/calculate-etc</code></td>
+<td>Calculate ETc</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/irrigation-decision/threshold-control</code></td>
+<td>Threshold control</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/irrigation-decision/smart-schedule</code></td>
+<td>Smart schedule</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/irrigation-decision/compare-methods</code></td>
+<td>Compare methods</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/irrigation-decision/quick-recommend</code></td>
+<td>Quick recommend</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/irrigation-decision/crops</code></td>
+<td>List crops</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/irrigation-decision/crops/{cropType}</code></td>
+<td>Crop info</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/irrigation-decision/soils</code></td>
+<td>List soils</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/irrigation-decision/soils/{soilType}</code></td>
+<td>Soil info</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/irrigation-decision/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/advisor-council/irrigation</code></td>
+<td>Irrigation advice</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/advisor-council/pest</code></td>
+<td>Pest advice</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/advisor-council/quick</code></td>
+<td>Quick advice</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/advisor-council/agents</code></td>
+<td>List agents</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/advisor-council/agents/{id}</code></td>
+<td>Get agent</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/advisor-council/demo</code></td>
+<td>Demo</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/advisor-council/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/digital-twin/architecture</code></td>
+<td>Architecture</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/digital-twin/architecture/{id}</code></td>
+<td>Get arch by ID</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/digital-twin/edge-nodes</code></td>
+<td>Edge nodes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/digital-twin/data/satellite</code></td>
+<td>Satellite data</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/digital-twin/data/drone</code></td>
+<td>Drone data</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/digital-twin/data/ground-sensors</code></td>
+<td>Ground sensors</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/digital-twin/data/fuse</code></td>
+<td>Fuse data</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/digital-twin/models/crops</code></td>
+<td>Crop models</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/digital-twin/models/crops/{cropType}</code></td>
+<td>Crop model</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/digital-twin/models/wofost</code></td>
+<td>WOFOST model</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/digital-twin/models/ml</code></td>
+<td>ML model</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/digital-twin/models/deep-learning</code></td>
+<td>DL model</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/digital-twin/models/llm</code></td>
+<td>LLM model</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/digital-twin/models/hybrid-ensemble</code></td>
+<td>Hybrid ensemble</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/digital-twin/assimilate</code></td>
+<td>Data assimilation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/digital-twin/state</code></td>
+<td>Twin state</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/digital-twin/demo</code></td>
+<td>Demo</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/digital-twin/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/satellite-data/select</code></td>
+<td>Select satellite</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/satellite-data/satellites</code></td>
+<td>List satellites</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/satellite-data/satellites/free</code></td>
+<td>Free satellites</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/satellite-data/satellites/{id}</code></td>
+<td>Get satellite</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/satellite-data/satellites/application/{application}</code></td>
+<td>By application</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/satellite-data/compare</code></td>
+<td>Compare satellites</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/satellite-data/indices</code></td>
+<td>List indices</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/satellite-data/indices/{name}</code></td>
+<td>Get index</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/satellite-data/recommend/{module}</code></td>
+<td>Recommend</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/satellite-data/quick-recommend</code></td>
+<td>Quick recommend</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/satellite-data/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/voice-guidance/voices</code></td>
+<td>List voices</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/voice-guidance/voices/{id}</code></td>
+<td>Get voice</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/voice-guidance/scripts</code></td>
+<td>List scripts</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/voice-guidance/scripts/{id}</code></td>
+<td>Get script</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/voice-guidance/categories</code></td>
+<td>Categories</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/voice-guidance/briefing</code></td>
+<td>Generate briefing</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/voice-guidance/podcast</code></td>
+<td>Generate podcast</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/voice-guidance/quick-tip</code></td>
+<td>Quick tip</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/voice-guidance/wisdom</code></td>
+<td>Wisdom</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/voice-guidance/demo/briefing</code></td>
+<td>Demo briefing</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/voice-guidance/demo/podcast</code></td>
+<td>Demo podcast</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/voice-guidance/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/data-collector/sources</code></td>
+<td>List sources</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/data-collector/sources/{id}</code></td>
+<td>Get source</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/data-collector/collect</code></td>
+<td>Collect data</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/data-collector/market/prices</code></td>
+<td>Market prices</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/data-collector/weather/alerts</code></td>
+<td>Weather alerts</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/data-collector/news</code></td>
+<td>News</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/data-collector/research</code></td>
+<td>Research</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/data-collector/intelligence</code></td>
+<td>Intelligence</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/data-collector/statistics</code></td>
+<td>Statistics</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/data-collector/demo</code></td>
+<td>Demo</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/data-collector/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/gis</code></td>
+<td>GIS info</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/gis/layers</code></td>
+<td>GIS layers</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/gis/layers/catalog</code></td>
+<td>Layer catalog</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/gis/layers/{layerId}</code></td>
+<td>Get layer</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/gis/wms/capabilities</code></td>
+<td>WMS capabilities</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/gis/wms/map</code></td>
+<td>WMS map</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/gis/wms/feature-info</code></td>
+<td>Feature info</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/gis/wfs/capabilities</code></td>
+<td>WFS capabilities</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/gis/wfs/features</code></td>
+<td>WFS features</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/gis/spatial/query</code></td>
+<td>Spatial query</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/gis/spatial/buffer</code></td>
+<td>Buffer analysis</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/gis/fields</code></td>
+<td>Field geometry</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/gis/fields/area</code></td>
+<td>Calculate area</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/gis/fields/centroid</code></td>
+<td>Calculate centroid</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/gis/analysis/zonal-stats</code></td>
+<td>Zonal statistics</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/gis/routing/route</code></td>
+<td>Route planning</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/gis/projects</code></td>
+<td>Create project</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/gis/basemaps</code></td>
+<td>List basemaps</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/gis/utils/validate</code></td>
+<td>Validate geometry</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/gis/utils/transform</code></td>
+<td>Transform CRS</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/gis/demo/fields</code></td>
+<td>Demo fields</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/gis/demo/wms</code></td>
+<td>Demo WMS</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/gis/demo/routing</code></td>
+<td>Demo routing</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/planting-strategy</code></td>
+<td>Strategy info</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/planting-strategy/methods</code></td>
+<td>List methods</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/planting-strategy/methods/{methodId}</code></td>
+<td>Get method</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/planting-strategy/methods/{methodId}/guidance</code></td>
+<td>Guidance</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/planting-strategy/optimize</code></td>
+<td>Optimize</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/planting-strategy/plan</code></td>
+<td>Create plan</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/planting-strategy/density</code></td>
+<td>Calculate density</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/planting-strategy/fertilizer</code></td>
+<td>Fertilizer plan</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/planting-strategy/irrigation</code></td>
+<td>Irrigation plan</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/planting-strategy/compare</code></td>
+<td>Compare strategies</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/planting-strategy/analyze-field</code></td>
+<td>Analyze field</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/planting-strategy/digital-twin</code></td>
+<td>Digital twin</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/planting-strategy/crops/{cropType}</code></td>
+<td>Crop info</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/rs-world-model/architecture</code></td>
+<td>Architecture</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/rs-world-model/scenarios</code></td>
+<td>Scenarios</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/rs-world-model/benchmarks</code></td>
+<td>Benchmarks</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/rs-world-model/capabilities</code></td>
+<td>Capabilities</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/rs-world-model/reason</code></td>
+<td>Reasoning</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/rs-world-model/expand</code></td>
+<td>Expansion</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/rs-world-model/partition</code></td>
+<td>Partitioning</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/rs-world-model/evaluate</code></td>
+<td>Evaluation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/rs-world-model/demo/reason</code></td>
+<td>Demo reasoning</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/rs-world-model/demo/expand</code></td>
+<td>Demo expansion</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/rs-world-model/demo/flood</code></td>
+<td>Demo flood</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/rs-world-model/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="mcp-server">MCP Server<a class="headerlink" href="#mcp-server" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8200</li>
+<li><strong>Base Path</strong>: <code>/api/v1/mcp</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 1000/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/ready</code></td>
+<td>Readiness</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/metrics</code></td>
+<td>Prometheus metrics</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/</code></td>
+<td>Service info</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/mcp</code></td>
+<td>MCP endpoint</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/mcp/sse</code></td>
+<td>SSE endpoint</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/tools</code></td>
+<td>List tools</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/resources</code></td>
+<td>List resources</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/prompts</code></td>
+<td>List prompts</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="websocket-gateway">WebSocket Gateway<a class="headerlink" href="#websocket-gateway" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8081</li>
+<li><strong>Base Path</strong>: <code>/api/v1/ws</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 1000/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/stats</code></td>
+<td>Connection stats</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/broadcast</code></td>
+<td>Broadcast message</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="audit-service">Audit Service<a class="headerlink" href="#audit-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8157</li>
+<li><strong>Base Path</strong>: <code>/api/v1/audit</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/audit/logs</code></td>
+<td>List audit logs</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/audit/logs/{log_id}</code></td>
+<td>Get audit log</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/audit/users/{user_id}/trail</code></td>
+<td>User audit trail</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/audit/resources/{resource_type}/{resource_id}/trail</code></td>
+<td>Resource trail</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/audit/chain/validate</code></td>
+<td>Validate hash chain</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/audit/chain/summary</code></td>
+<td>Chain summary</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/audit/compliance/report</code></td>
+<td>Compliance report</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/audit/stats</code></td>
+<td>Audit statistics</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/audit/security-events</code></td>
+<td>Security events</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/audit/failed-logins</code></td>
+<td>Failed logins</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/audit/export</code></td>
+<td>Export audit logs</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="globalgap-compliance">GlobalGAP Compliance<a class="headerlink" href="#globalgap-compliance" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8153</li>
+<li><strong>Base Path</strong>: <code>/api/v1/globalgap</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health/live</code></td>
+<td>Liveness</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health/ready</code></td>
+<td>Readiness</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/farms/{farm_id}/compliance</code></td>
+<td>Get compliance</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/farms/{farm_id}/compliance</code></td>
+<td>Create compliance</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/farms/{farm_id}/compliance/trends</code></td>
+<td>Compliance trends</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/checklists</code></td>
+<td>List checklists</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/checklists/{checklist_id}/items</code></td>
+<td>Get checklist items</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/farms/{farm_id}/assessments</code></td>
+<td>Create assessment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/farms/{farm_id}/assessments</code></td>
+<td>List assessments</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/audits</code></td>
+<td>Create audit</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/audits/{audit_id}</code></td>
+<td>Get audit</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/farms/{farm_id}/audits</code></td>
+<td>List farm audits</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/farms/{farm_id}/non-conformities</code></td>
+<td>Get non-conformities</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/non-conformities</code></td>
+<td>Create non-conformity</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/farms/{farm_id}/certificates</code></td>
+<td>Get certificates</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/certificates</code></td>
+<td>Create certificate</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/certificates/{certificate_id}</code></td>
+<td>Get certificate</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="provider-config">Provider Config<a class="headerlink" href="#provider-config" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8152</li>
+<li><strong>Base Path</strong>: <code>/api/v1/providers</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/</code></td>
+<td>Service info</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/providers</code></td>
+<td>List all providers</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/providers/maps</code></td>
+<td>Map providers</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/providers/weather</code></td>
+<td>Weather providers</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/providers/satellite</code></td>
+<td>Satellite providers</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/providers/payment</code></td>
+<td>Payment providers</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/providers/sms</code></td>
+<td>SMS providers</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/providers/notification</code></td>
+<td>Notification providers</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/providers/select/{provider_type}</code></td>
+<td>Select provider</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/providers/failover-chain/{provider_type}</code></td>
+<td>Failover chain</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/providers/check</code></td>
+<td>Check provider status</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/providers/check/all</code></td>
+<td>Check all providers</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/config/{tenant_id}</code></td>
+<td>Get tenant config</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/config/{tenant_id}</code></td>
+<td>Set tenant config</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/config/{tenant_id}</code></td>
+<td>Delete tenant config</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/config/{tenant_id}/history</code></td>
+<td>Config history</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/config/{tenant_id}/rollback</code></td>
+<td>Rollback config</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/providers/recommend</code></td>
+<td>Recommend providers</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="lowcode-engine">Lowcode Engine<a class="headerlink" href="#lowcode-engine" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8125</li>
+<li><strong>Base Path</strong>: <code>/api/v1/lowcode</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/components</code></td>
+<td>List components</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/components/categories</code></td>
+<td>Component categories</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/components/{component_name}</code></td>
+<td>Get component</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/models</code></td>
+<td>Create data model</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/models</code></td>
+<td>List models</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/models/{model_id}</code></td>
+<td>Get model</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/pages</code></td>
+<td>Create page</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/pages</code></td>
+<td>List pages</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/pages/{page_id}</code></td>
+<td>Get page</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/pages/{page_id}/publish</code></td>
+<td>Publish page</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/pages/{page_id}/render</code></td>
+<td>Render page</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/ai/suggest</code></td>
+<td>AI suggestions</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/ai/templates</code></td>
+<td>AI templates</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/ai/generate-page</code></td>
+<td>Generate page</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/metrics</code></td>
+<td>Prometheus metrics</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="chat-service">Chat Service<a class="headerlink" href="#chat-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8127</li>
+<li><strong>Base Path</strong>: <code>/api/v1/chat</code></li>
+<li><strong>Technology</strong>: Node.js (NestJS)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/livez</code></td>
+<td>Liveness</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/chat/health</code></td>
+<td>Chat health</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/chat/conversations</code></td>
+<td>Create conversation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/chat/conversations/me</code></td>
+<td>My conversations</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/chat/conversations/{id}</code></td>
+<td>Get conversation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/chat/conversations/{id}/messages</code></td>
+<td>Get messages</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/chat/messages</code></td>
+<td>Send message</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/chat/messages/{messageId}/read</code></td>
+<td>Mark read</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/chat/conversations/{id}/read</code></td>
+<td>Mark all read</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/chat/unread-count</code></td>
+<td>Unread count</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="ussd-gateway">USSD Gateway<a class="headerlink" href="#ussd-gateway" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8126</li>
+<li><strong>Base Path</strong>: <code>/api/v1/ussd</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health/live</code></td>
+<td>Liveness</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health/ready</code></td>
+<td>Readiness</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/ussd/callback</code></td>
+<td>USSD callback</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/ussd/simulate</code></td>
+<td>Simulate USSD</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/sms/send</code></td>
+<td>Send SMS</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/sms/receive</code></td>
+<td>Receive SMS</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/sms/bulk</code></td>
+<td>Bulk SMS</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/whatsapp/webhook</code></td>
+<td>WhatsApp webhook</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/whatsapp/send</code></td>
+<td>Send WhatsApp</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="wechat-service">WeChat Service<a class="headerlink" href="#wechat-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Port</strong>: 8128</li>
+<li><strong>Base Path</strong>: <code>/api/v1/wechat</code></li>
+<li><strong>Technology</strong>: Python (FastAPI)</li>
+<li><strong>Rate Limit</strong>: 500/min</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td>Liveness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/readyz</code></td>
+<td>Readiness probe</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/health</code></td>
+<td>Health check</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/messages/fetch</code></td>
+<td>Fetch messages</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/messages/send</code></td>
+<td>Send message</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/contacts/add</code></td>
+<td>Add contact</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/moments/publish</code></td>
+<td>Publish moment</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/chat/summarize</code></td>
+<td>Summarize chat</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/chat/insights</code></td>
+<td>Chat insights</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/metrics</code></td>
+<td>Prometheus metrics</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="deprecated-services">Deprecated Services<a class="headerlink" href="#deprecated-services" title="Permanent link">&para;</a></h2>
+<p>The following services are deprecated and should be migrated to their replacements:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Replacement</th>
+<th>Deprecation Date</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>satellite-service</code></td>
+<td><code>vegetation-analysis-service</code></td>
+<td>2026-01-11</td>
+</tr>
+<tr>
+<td><code>weather-advanced</code></td>
+<td><code>weather-service</code></td>
+<td>2026-01-11</td>
+</tr>
+<tr>
+<td><code>crop-health-ai</code></td>
+<td><code>crop-intelligence-service</code></td>
+<td>2026-01-11</td>
+</tr>
+<tr>
+<td><code>fertilizer-advisor</code></td>
+<td><code>advisory-service</code></td>
+<td>2026-01-11</td>
+</tr>
+<tr>
+<td><code>field-ops</code></td>
+<td><code>field-management-service</code></td>
+<td>Legacy</td>
+</tr>
+<tr>
+<td><code>field-core</code></td>
+<td><code>field-management-service</code></td>
+<td>Legacy</td>
+</tr>
+<tr>
+<td><code>field-service</code></td>
+<td><code>field-management-service</code></td>
+<td>Legacy</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="health-check-endpoints">Health Check Endpoints<a class="headerlink" href="#health-check-endpoints" title="Permanent link">&para;</a></h2>
+<p>All services expose standard health check endpoints:</p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Purpose</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/healthz</code></td>
+<td>Kubernetes liveness probe</td>
+<td><code>{"status": "ok"}</code></td>
+</tr>
+<tr>
+<td><code>/readyz</code></td>
+<td>Kubernetes readiness probe</td>
+<td><code>{"status": "ok", "database": true, "nats": true}</code></td>
+</tr>
+<tr>
+<td><code>/health</code></td>
+<td>Combined health status</td>
+<td>Full health report</td>
+</tr>
+<tr>
+<td><code>/metrics</code></td>
+<td>Prometheus metrics</td>
+<td>Prometheus format</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="error-responses">Error Responses<a class="headerlink" href="#error-responses" title="Permanent link">&para;</a></h2>
+<p>All endpoints return standardized error responses:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Validation error&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;error_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VALIDATION_ERROR&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;field&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;description of the error&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;request_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-25T12:00:00Z&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="http-status-codes">HTTP Status Codes<a class="headerlink" href="#http-status-codes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200</td>
+<td>Success</td>
+</tr>
+<tr>
+<td>201</td>
+<td>Created</td>
+</tr>
+<tr>
+<td>204</td>
+<td>No Content</td>
+</tr>
+<tr>
+<td>400</td>
+<td>Bad Request</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Unauthorized</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Forbidden</td>
+</tr>
+<tr>
+<td>404</td>
+<td>Not Found</td>
+</tr>
+<tr>
+<td>422</td>
+<td>Validation Error</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Rate Limited</td>
+</tr>
+<tr>
+<td>500</td>
+<td>Internal Server Error</td>
+</tr>
+<tr>
+<td>503</td>
+<td>Service Unavailable</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../API_GATEWAY/">API Gateway Configuration</a></li>
+<li><a href="./AUTHENTICATION.md">Authentication</a></li>
+<li><a href="../RATE_LIMITING/">Rate Limiting</a></li>
+<li><a href="./ERROR_HANDLING.md">Error Handling</a></li>
+<li><a href="../governance/services.yaml">Service Registry</a></li>
+</ul>
+<hr />
+<p><em>Generated: 2026-01-25</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

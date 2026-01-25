@@ -1,0 +1,5173 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Platform Environment Variables Reference - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-environment-variables-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Platform Environment Variables Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-environment-variables-reference">SAHOOL Platform Environment Variables Reference<a class="headerlink" href="#sahool-platform-environment-variables-reference" title="Permanent link">&para;</a></h1>
+<h1 id="_1">دليل متغيرات البيئة لمنصة سهول<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: 16.0.0
+<strong>Last Updated</strong>: January 2026</p>
+<p>This document provides a comprehensive reference for all environment variables used across the SAHOOL Agricultural Intelligence Platform.</p>
+<p>يقدم هذا المستند مرجعاً شاملاً لجميع متغيرات البيئة المستخدمة في منصة سهول للذكاء الزراعي.</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents | جدول المحتويات<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-core-application-settings">Core Application Settings</a></li>
+<li><a href="#2-database-configuration">Database Configuration</a></li>
+<li><a href="#3-pgbouncer-connection-pooling">PgBouncer Connection Pooling</a></li>
+<li><a href="#4-redis-configuration">Redis Configuration</a></li>
+<li><a href="#5-nats-message-queue">NATS Message Queue</a></li>
+<li><a href="#6-authentication--jwt">Authentication &amp; JWT</a></li>
+<li><a href="#7-kong-api-gateway">Kong API Gateway</a></li>
+<li><a href="#8-aiml-services">AI/ML Services</a></li>
+<li><a href="#9-ollama-local-llm">Ollama Local LLM</a></li>
+<li><a href="#10-monitoring--observability">Monitoring &amp; Observability</a></li>
+<li><a href="#11-external-apis">External APIs</a></li>
+<li><a href="#12-notification-services">Notification Services</a></li>
+<li><a href="#13-file-storage--cdn">File Storage &amp; CDN</a></li>
+<li><a href="#14-security--secrets">Security &amp; Secrets</a></li>
+<li><a href="#15-mobile-application">Mobile Application</a></li>
+<li><a href="#16-frontend-applications">Frontend Applications</a></li>
+<li><a href="#17-service-urls">Service URLs</a></li>
+<li><a href="#18-backup--disaster-recovery">Backup &amp; Disaster Recovery</a></li>
+<li><a href="#19-development--debug">Development &amp; Debug</a></li>
+</ol>
+<hr />
+<h2 id="1-core-application-settings">1. Core Application Settings<a class="headerlink" href="#1-core-application-settings" title="Permanent link">&para;</a></h2>
+<h3 id="_2">متغيرات التطبيق الأساسية<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+<th>Example</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ENVIRONMENT</code></td>
+<td>Deployment environment</td>
+<td>بيئة النشر</td>
+<td>Yes</td>
+<td><code>development</code></td>
+<td><code>development</code>, <code>staging</code>, <code>production</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><code>LOG_LEVEL</code></td>
+<td>Application log level</td>
+<td>مستوى السجلات</td>
+<td>No</td>
+<td><code>INFO</code></td>
+<td><code>DEBUG</code>, <code>INFO</code>, <code>WARNING</code>, <code>ERROR</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><code>NODE_ENV</code></td>
+<td>Node.js environment</td>
+<td>بيئة Node.js</td>
+<td>No</td>
+<td><code>production</code></td>
+<td><code>development</code>, <code>production</code></td>
+<td>Node.js services</td>
+</tr>
+<tr>
+<td><code>TZ</code></td>
+<td>Timezone setting</td>
+<td>إعداد المنطقة الزمنية</td>
+<td>No</td>
+<td><code>UTC</code></td>
+<td><code>Asia/Aden</code>, <code>Asia/Riyadh</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><code>PORT</code></td>
+<td>Service port</td>
+<td>منفذ الخدمة</td>
+<td>Yes</td>
+<td>Varies</td>
+<td><code>8080</code>, <code>3000</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><code>SERVICE_NAME</code></td>
+<td>Service identifier</td>
+<td>معرف الخدمة</td>
+<td>No</td>
+<td><code>sahool-platform</code></td>
+<td><code>field-management-service</code></td>
+<td>All</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-database-configuration">2. Database Configuration<a class="headerlink" href="#2-database-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="_3">تكوين قاعدة البيانات<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>PostgreSQL 16+ with PostGIS 3.4 for geospatial data storage.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+<th>Example</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POSTGRES_USER</code></td>
+<td>PostgreSQL username</td>
+<td>اسم مستخدم PostgreSQL</td>
+<td><strong>Yes</strong></td>
+<td><code>sahool</code></td>
+<td><code>sahool</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><code>POSTGRES_PASSWORD</code></td>
+<td>PostgreSQL password</td>
+<td>كلمة مرور PostgreSQL</td>
+<td><strong>Yes</strong></td>
+<td>-</td>
+<td><code>secure_password_here</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><code>POSTGRES_DB</code></td>
+<td>Database name</td>
+<td>اسم قاعدة البيانات</td>
+<td>Yes</td>
+<td><code>sahool</code></td>
+<td><code>sahool</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><code>POSTGRES_HOST</code></td>
+<td>Database host</td>
+<td>مضيف قاعدة البيانات</td>
+<td>No</td>
+<td><code>postgres</code></td>
+<td><code>postgres</code>, <code>localhost</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><code>POSTGRES_PORT</code></td>
+<td>Database port</td>
+<td>منفذ قاعدة البيانات</td>
+<td>No</td>
+<td><code>5432</code></td>
+<td><code>5432</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><code>POSTGRES_SSL_MODE</code></td>
+<td>SSL connection mode</td>
+<td>وضع اتصال SSL</td>
+<td>Yes</td>
+<td><code>require</code></td>
+<td><code>require</code>, <code>verify-full</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><code>POSTGRES_SSL_CERT</code></td>
+<td>Client certificate path</td>
+<td>مسار شهادة العميل</td>
+<td>No</td>
+<td><code>/certs/client.crt</code></td>
+<td><code>/certs/client.crt</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><code>POSTGRES_SSL_KEY</code></td>
+<td>Client key path</td>
+<td>مسار مفتاح العميل</td>
+<td>No</td>
+<td><code>/certs/client.key</code></td>
+<td><code>/certs/client.key</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><code>POSTGRES_SSL_ROOT_CERT</code></td>
+<td>CA certificate path</td>
+<td>مسار شهادة CA</td>
+<td>No</td>
+<td><code>/certs/ca.crt</code></td>
+<td><code>/certs/ca.crt</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><code>POSTGRES_CONTAINER</code></td>
+<td>Container name for backups</td>
+<td>اسم الحاوية للنسخ الاحتياطي</td>
+<td>No</td>
+<td><code>sahool-postgres</code></td>
+<td><code>sahool-postgres</code></td>
+<td>Backup</td>
+</tr>
+</tbody>
+</table>
+<h3 id="connection-urls">Connection URLs | روابط الاتصال<a class="headerlink" href="#connection-urls" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DATABASE_URL</code></td>
+<td>Primary connection URL (via PgBouncer)</td>
+<td>رابط الاتصال الرئيسي</td>
+<td><strong>Yes</strong></td>
+<td>-</td>
+<td><code>postgresql://sahool:pass@pgbouncer:6432/sahool?sslmode=require</code></td>
+</tr>
+<tr>
+<td><code>DATABASE_URL_DIRECT</code></td>
+<td>Direct PostgreSQL connection (for migrations)</td>
+<td>اتصال مباشر (للترحيل)</td>
+<td>No</td>
+<td>-</td>
+<td><code>postgresql://sahool:pass@postgres:5432/sahool?sslmode=require</code></td>
+</tr>
+<tr>
+<td><code>DATABASE_URL_POOLED</code></td>
+<td>Pooled connection URL</td>
+<td>رابط الاتصال المجمّع</td>
+<td>No</td>
+<td>-</td>
+<td>Same as <code>DATABASE_URL</code></td>
+</tr>
+<tr>
+<td><code>DATABASE_URL_HIGH_TRAFFIC</code></td>
+<td>High traffic services (10 connections)</td>
+<td>خدمات الحركة العالية</td>
+<td>No</td>
+<td>-</td>
+<td>Connection with <code>connection_limit=10</code></td>
+</tr>
+<tr>
+<td><code>DATABASE_URL_MEDIUM_TRAFFIC</code></td>
+<td>Medium traffic services (8 connections)</td>
+<td>خدمات الحركة المتوسطة</td>
+<td>No</td>
+<td>-</td>
+<td>Connection with <code>connection_limit=8</code></td>
+</tr>
+<tr>
+<td><code>DATABASE_URL_LOW_TRAFFIC</code></td>
+<td>Low traffic services (6 connections)</td>
+<td>خدمات الحركة المنخفضة</td>
+<td>No</td>
+<td>-</td>
+<td>Connection with <code>connection_limit=6</code></td>
+</tr>
+<tr>
+<td><code>SQLALCHEMY_DATABASE_URL</code></td>
+<td>SQLAlchemy async connection</td>
+<td>اتصال SQLAlchemy غير متزامن</td>
+<td>No</td>
+<td>-</td>
+<td><code>postgresql+asyncpg://...</code></td>
+</tr>
+<tr>
+<td><code>PRISMA_DATABASE_URL</code></td>
+<td>Prisma ORM connection</td>
+<td>اتصال Prisma ORM</td>
+<td>No</td>
+<td>-</td>
+<td>Same as <code>DATABASE_URL</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="connection-pool-settings">Connection Pool Settings | إعدادات تجمع الاتصالات<a class="headerlink" href="#connection-pool-settings" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DB_POOL_SIZE</code></td>
+<td>SQLAlchemy pool size</td>
+<td>حجم تجمع SQLAlchemy</td>
+<td>No</td>
+<td><code>20</code></td>
+<td><code>20</code></td>
+</tr>
+<tr>
+<td><code>DB_MAX_OVERFLOW</code></td>
+<td>Max overflow connections</td>
+<td>الفائض الأقصى للاتصالات</td>
+<td>No</td>
+<td><code>10</code></td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><code>DB_POOL_TIMEOUT</code></td>
+<td>Pool timeout (seconds)</td>
+<td>مهلة التجمع (ثانية)</td>
+<td>No</td>
+<td><code>30</code></td>
+<td><code>30</code></td>
+</tr>
+<tr>
+<td><code>DB_POOL_RECYCLE</code></td>
+<td>Connection recycle time (seconds)</td>
+<td>وقت إعادة تدوير الاتصال</td>
+<td>No</td>
+<td><code>3600</code></td>
+<td><code>3600</code></td>
+</tr>
+<tr>
+<td><code>DB_POOL_PRE_PING</code></td>
+<td>Enable pre-ping</td>
+<td>تمكين الفحص المسبق</td>
+<td>No</td>
+<td><code>true</code></td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="prisma-settings-prisma">Prisma Settings | إعدادات Prisma<a class="headerlink" href="#prisma-settings-prisma" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PRISMA_POOL_TIMEOUT</code></td>
+<td>Pool timeout (seconds)</td>
+<td>مهلة التجمع</td>
+<td>No</td>
+<td><code>20</code></td>
+</tr>
+<tr>
+<td><code>PRISMA_CONNECT_TIMEOUT</code></td>
+<td>Connection timeout (seconds)</td>
+<td>مهلة الاتصال</td>
+<td>No</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><code>PRISMA_QUERY_TIMEOUT</code></td>
+<td>Query timeout (ms)</td>
+<td>مهلة الاستعلام</td>
+<td>No</td>
+<td><code>30000</code></td>
+</tr>
+<tr>
+<td><code>PRISMA_STATEMENT_TIMEOUT</code></td>
+<td>Statement timeout (ms)</td>
+<td>مهلة البيان</td>
+<td>No</td>
+<td><code>30000</code></td>
+</tr>
+<tr>
+<td><code>PRISMA_IDLE_TIMEOUT</code></td>
+<td>Idle timeout (seconds)</td>
+<td>مهلة الخمول</td>
+<td>No</td>
+<td><code>600</code></td>
+</tr>
+<tr>
+<td><code>PRISMA_CONNECTION_LIFETIME</code></td>
+<td>Max connection lifetime (seconds)</td>
+<td>عمر الاتصال الأقصى</td>
+<td>No</td>
+<td><code>3600</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-pgbouncer-connection-pooling">3. PgBouncer Connection Pooling<a class="headerlink" href="#3-pgbouncer-connection-pooling" title="Permanent link">&para;</a></h2>
+<h3 id="pgbouncer">تجمع اتصالات PgBouncer<a class="headerlink" href="#pgbouncer" title="Permanent link">&para;</a></h3>
+<p>PgBouncer optimized for 39+ services with transaction pooling mode.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PGBOUNCER_POOL_MODE</code></td>
+<td>Pool mode</td>
+<td>وضع التجمع</td>
+<td>No</td>
+<td><code>transaction</code></td>
+</tr>
+<tr>
+<td><code>PGBOUNCER_MAX_DB_CONNECTIONS</code></td>
+<td>Max PostgreSQL connections</td>
+<td>أقصى اتصالات PostgreSQL</td>
+<td>No</td>
+<td><code>250</code></td>
+</tr>
+<tr>
+<td><code>PGBOUNCER_DEFAULT_POOL_SIZE</code></td>
+<td>Default pool size per user/db</td>
+<td>حجم التجمع الافتراضي</td>
+<td>No</td>
+<td><code>30</code></td>
+</tr>
+<tr>
+<td><code>PGBOUNCER_MIN_POOL_SIZE</code></td>
+<td>Minimum pool size</td>
+<td>الحد الأدنى لحجم التجمع</td>
+<td>No</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><code>PGBOUNCER_RESERVE_POOL_SIZE</code></td>
+<td>Reserve pool for maintenance</td>
+<td>تجمع احتياطي للصيانة</td>
+<td>No</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><code>PGBOUNCER_MAX_CLIENT_CONN</code></td>
+<td>Max client connections</td>
+<td>أقصى اتصالات العميل</td>
+<td>No</td>
+<td><code>800</code></td>
+</tr>
+<tr>
+<td><code>PGBOUNCER_CLIENT_IDLE_TIMEOUT</code></td>
+<td>Client idle timeout (seconds)</td>
+<td>مهلة خمول العميل</td>
+<td>No</td>
+<td><code>900</code></td>
+</tr>
+<tr>
+<td><code>PGBOUNCER_SERVER_IDLE_TIMEOUT</code></td>
+<td>Server idle timeout (seconds)</td>
+<td>مهلة خمول الخادم</td>
+<td>No</td>
+<td><code>600</code></td>
+</tr>
+<tr>
+<td><code>PGBOUNCER_QUERY_TIMEOUT</code></td>
+<td>Query timeout (seconds)</td>
+<td>مهلة الاستعلام</td>
+<td>No</td>
+<td><code>120</code></td>
+</tr>
+<tr>
+<td><code>PGBOUNCER_QUERY_WAIT_TIMEOUT</code></td>
+<td>Query wait timeout (seconds)</td>
+<td>مهلة انتظار الاستعلام</td>
+<td>No</td>
+<td><code>30</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-redis-configuration">4. Redis Configuration<a class="headerlink" href="#4-redis-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="redis">تكوين Redis<a class="headerlink" href="#redis" title="Permanent link">&para;</a></h3>
+<p>Redis 7.x for caching, sessions, and rate limiting.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>REDIS_PASSWORD</code></td>
+<td>Redis authentication password</td>
+<td>كلمة مرور Redis</td>
+<td><strong>Yes</strong></td>
+<td>-</td>
+<td><code>secure_redis_password</code></td>
+</tr>
+<tr>
+<td><code>REDIS_HOST</code></td>
+<td>Redis server host</td>
+<td>مضيف خادم Redis</td>
+<td>No</td>
+<td><code>redis</code></td>
+<td><code>redis</code>, <code>localhost</code></td>
+</tr>
+<tr>
+<td><code>REDIS_PORT</code></td>
+<td>Redis server port</td>
+<td>منفذ خادم Redis</td>
+<td>No</td>
+<td><code>6379</code></td>
+<td><code>6379</code></td>
+</tr>
+<tr>
+<td><code>REDIS_DB</code></td>
+<td>Redis database number</td>
+<td>رقم قاعدة بيانات Redis</td>
+<td>No</td>
+<td><code>0</code></td>
+<td><code>0</code>, <code>1</code></td>
+</tr>
+<tr>
+<td><code>REDIS_MAXMEMORY</code></td>
+<td>Max memory limit</td>
+<td>حد الذاكرة الأقصى</td>
+<td>No</td>
+<td><code>512mb</code></td>
+<td><code>512mb</code>, <code>1gb</code></td>
+</tr>
+<tr>
+<td><code>REDIS_URL</code></td>
+<td>Full Redis connection URL</td>
+<td>رابط اتصال Redis الكامل</td>
+<td>No</td>
+<td>-</td>
+<td><code>redis://:password@redis:6379/0</code></td>
+</tr>
+<tr>
+<td><code>REDIS_CONTAINER</code></td>
+<td>Container name for backups</td>
+<td>اسم الحاوية للنسخ الاحتياطي</td>
+<td>No</td>
+<td><code>sahool-redis</code></td>
+<td><code>sahool-redis</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="redis-tls-configuration-tls-redis">Redis TLS Configuration | تكوين TLS لـ Redis<a class="headerlink" href="#redis-tls-configuration-tls-redis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>REDIS_SSL_ENABLED</code></td>
+<td>Enable SSL/TLS</td>
+<td>تمكين SSL/TLS</td>
+<td>No</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>REDIS_TLS_PORT</code></td>
+<td>TLS port</td>
+<td>منفذ TLS</td>
+<td>No</td>
+<td><code>6380</code></td>
+</tr>
+<tr>
+<td><code>REDIS_SSL_CERT</code></td>
+<td>Client certificate</td>
+<td>شهادة العميل</td>
+<td>No</td>
+<td><code>/certs/redis-client.crt</code></td>
+</tr>
+<tr>
+<td><code>REDIS_SSL_KEY</code></td>
+<td>Client key</td>
+<td>مفتاح العميل</td>
+<td>No</td>
+<td><code>/certs/redis-client.key</code></td>
+</tr>
+<tr>
+<td><code>REDIS_SSL_CA</code></td>
+<td>CA certificate</td>
+<td>شهادة CA</td>
+<td>No</td>
+<td><code>/certs/ca.crt</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="redis-acl-users-enhanced-security-acl-redis">Redis ACL Users (Enhanced Security) | مستخدمو ACL لـ Redis<a class="headerlink" href="#redis-acl-users-enhanced-security-acl-redis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>REDIS_APP_PASSWORD</code></td>
+<td>Application user password</td>
+<td>كلمة مرور مستخدم التطبيق</td>
+<td>No</td>
+<td><code>${REDIS_PASSWORD}</code></td>
+</tr>
+<tr>
+<td><code>REDIS_ADMIN_PASSWORD</code></td>
+<td>Admin user password</td>
+<td>كلمة مرور المسؤول</td>
+<td>No</td>
+<td><code>${REDIS_PASSWORD}</code></td>
+</tr>
+<tr>
+<td><code>REDIS_KONG_PASSWORD</code></td>
+<td>Kong user password</td>
+<td>كلمة مرور Kong</td>
+<td>No</td>
+<td><code>${REDIS_PASSWORD}</code></td>
+</tr>
+<tr>
+<td><code>REDIS_READONLY_PASSWORD</code></td>
+<td>Read-only user password</td>
+<td>كلمة مرور القراءة فقط</td>
+<td>No</td>
+<td><code>${REDIS_PASSWORD}</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-nats-message-queue">5. NATS Message Queue<a class="headerlink" href="#5-nats-message-queue" title="Permanent link">&para;</a></h2>
+<h3 id="nats">طابور رسائل NATS<a class="headerlink" href="#nats" title="Permanent link">&para;</a></h3>
+<p>NATS 2.x with JetStream for event-driven architecture.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NATS_USER</code></td>
+<td>NATS application username</td>
+<td>اسم مستخدم تطبيق NATS</td>
+<td><strong>Yes</strong></td>
+<td><code>sahool_app</code></td>
+</tr>
+<tr>
+<td><code>NATS_PASSWORD</code></td>
+<td>NATS application password</td>
+<td>كلمة مرور تطبيق NATS</td>
+<td><strong>Yes</strong></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>NATS_ADMIN_USER</code></td>
+<td>NATS admin username</td>
+<td>اسم مستخدم مسؤول NATS</td>
+<td><strong>Yes</strong></td>
+<td><code>nats_admin</code></td>
+</tr>
+<tr>
+<td><code>NATS_ADMIN_PASSWORD</code></td>
+<td>NATS admin password</td>
+<td>كلمة مرور مسؤول NATS</td>
+<td><strong>Yes</strong></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>NATS_MONITOR_USER</code></td>
+<td>NATS monitor username</td>
+<td>اسم مستخدم مراقب NATS</td>
+<td><strong>Yes</strong></td>
+<td><code>nats_monitor</code></td>
+</tr>
+<tr>
+<td><code>NATS_MONITOR_PASSWORD</code></td>
+<td>NATS monitor password</td>
+<td>كلمة مرور مراقب NATS</td>
+<td><strong>Yes</strong></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>NATS_CLUSTER_USER</code></td>
+<td>NATS cluster username</td>
+<td>اسم مستخدم مجموعة NATS</td>
+<td>Yes</td>
+<td><code>nats_cluster</code></td>
+</tr>
+<tr>
+<td><code>NATS_CLUSTER_PASSWORD</code></td>
+<td>NATS cluster password</td>
+<td>كلمة مرور مجموعة NATS</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>NATS_SYSTEM_USER</code></td>
+<td>NATS system username</td>
+<td>اسم مستخدم نظام NATS</td>
+<td>No</td>
+<td><code>nats_system</code></td>
+</tr>
+<tr>
+<td><code>NATS_SYSTEM_PASSWORD</code></td>
+<td>NATS system password</td>
+<td>كلمة مرور نظام NATS</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>NATS_JETSTREAM_KEY</code></td>
+<td>JetStream encryption key (AES-256)</td>
+<td>مفتاح تشفير JetStream</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>NATS_URL</code></td>
+<td>Full NATS connection URL</td>
+<td>رابط اتصال NATS الكامل</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>NATS_SUBJECT</code></td>
+<td>Default subscription pattern</td>
+<td>نمط الاشتراك الافتراضي</td>
+<td>No</td>
+<td><code>sahool.notifications.*</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="nats-tls-configuration-tls-nats">NATS TLS Configuration | تكوين TLS لـ NATS<a class="headerlink" href="#nats-tls-configuration-tls-nats" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NATS_TLS_ENABLED</code></td>
+<td>Enable TLS</td>
+<td>تمكين TLS</td>
+<td>No</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>NATS_TLS_PORT</code></td>
+<td>TLS port</td>
+<td>منفذ TLS</td>
+<td>No</td>
+<td><code>4223</code></td>
+</tr>
+<tr>
+<td><code>NATS_TLS_CERT</code></td>
+<td>Client certificate</td>
+<td>شهادة العميل</td>
+<td>No</td>
+<td><code>/certs/nats-client.crt</code></td>
+</tr>
+<tr>
+<td><code>NATS_TLS_KEY</code></td>
+<td>Client key</td>
+<td>مفتاح العميل</td>
+<td>No</td>
+<td><code>/certs/nats-client.key</code></td>
+</tr>
+<tr>
+<td><code>NATS_TLS_CA</code></td>
+<td>CA certificate</td>
+<td>شهادة CA</td>
+<td>No</td>
+<td><code>/certs/ca.crt</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="nats-prometheus-exporter-prometheus-nats">NATS Prometheus Exporter | مُصدِّر Prometheus لـ NATS<a class="headerlink" href="#nats-prometheus-exporter-prometheus-nats" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NATS_EXPORTER_LISTEN_ADDRESS</code></td>
+<td>Exporter listen address</td>
+<td>عنوان الاستماع</td>
+<td>No</td>
+<td><code>0.0.0.0:7777</code></td>
+</tr>
+<tr>
+<td><code>NATS_EXPORTER_LISTEN_PATH</code></td>
+<td>Metrics path</td>
+<td>مسار المقاييس</td>
+<td>No</td>
+<td><code>/metrics</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-authentication-jwt">6. Authentication &amp; JWT<a class="headerlink" href="#6-authentication-jwt" title="Permanent link">&para;</a></h2>
+<h3 id="jwt">المصادقة و JWT<a class="headerlink" href="#jwt" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JWT_SECRET_KEY</code></td>
+<td>JWT signing secret (min 32 chars)</td>
+<td>مفتاح توقيع JWT</td>
+<td><strong>Yes</strong></td>
+<td>-</td>
+<td><code>your-secure-secret-key-min-32-chars</code></td>
+</tr>
+<tr>
+<td><code>JWT_SECRET</code></td>
+<td>Alias for JWT_SECRET_KEY</td>
+<td>اسم بديل</td>
+<td>No</td>
+<td><code>${JWT_SECRET_KEY}</code></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>JWT_ALGORITHM</code></td>
+<td>JWT signing algorithm</td>
+<td>خوارزمية التوقيع</td>
+<td>No</td>
+<td><code>HS256</code></td>
+<td><code>HS256</code>, <code>RS256</code></td>
+</tr>
+<tr>
+<td><code>JWT_ACCESS_TOKEN_EXPIRE_MINUTES</code></td>
+<td>Access token expiry (minutes)</td>
+<td>انتهاء رمز الوصول</td>
+<td>No</td>
+<td><code>60</code></td>
+<td><code>60</code>, <code>30</code></td>
+</tr>
+<tr>
+<td><code>JWT_REFRESH_TOKEN_EXPIRE_DAYS</code></td>
+<td>Refresh token expiry (days)</td>
+<td>انتهاء رمز التحديث</td>
+<td>No</td>
+<td><code>7</code></td>
+<td><code>7</code>, <code>14</code></td>
+</tr>
+<tr>
+<td><code>JWT_AUDIENCE</code></td>
+<td>JWT audience claim</td>
+<td>مطالبة الجمهور</td>
+<td>No</td>
+<td><code>sahool-api</code></td>
+<td><code>sahool-api</code></td>
+</tr>
+<tr>
+<td><code>JWT_ISSUER</code></td>
+<td>JWT issuer claim</td>
+<td>مطالبة المُصدر</td>
+<td>No</td>
+<td><code>sahool-platform</code></td>
+<td><code>sahool-platform</code></td>
+</tr>
+<tr>
+<td><code>JWT_EXPIRES_IN</code></td>
+<td>Token expiry (alternative format)</td>
+<td>انتهاء الرمز</td>
+<td>No</td>
+<td><code>7d</code></td>
+<td><code>7d</code>, <code>24h</code></td>
+</tr>
+<tr>
+<td><code>TOKEN_REVOCATION_ENABLED</code></td>
+<td>Enable token revocation</td>
+<td>تمكين إلغاء الرمز</td>
+<td>No</td>
+<td><code>true</code></td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="kong-jwt-secrets-jwt-kong">Kong JWT Secrets | أسرار JWT لـ Kong<a class="headerlink" href="#kong-jwt-secrets-jwt-kong" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>STARTER_JWT_SECRET</code></td>
+<td>Starter package JWT secret</td>
+<td>سر JWT للباقة المبدئية</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>PROFESSIONAL_JWT_SECRET</code></td>
+<td>Professional package JWT secret</td>
+<td>سر JWT للباقة المهنية</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>ENTERPRISE_JWT_SECRET</code></td>
+<td>Enterprise package JWT secret</td>
+<td>سر JWT للباقة المؤسسية</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>RESEARCH_JWT_SECRET</code></td>
+<td>Research JWT secret</td>
+<td>سر JWT للبحث</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>ADMIN_JWT_SECRET</code></td>
+<td>Admin JWT secret</td>
+<td>سر JWT للمسؤول</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>SERVICE_JWT_SECRET</code></td>
+<td>Service-to-service JWT secret</td>
+<td>سر JWT بين الخدمات</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>TRIAL_JWT_SECRET</code></td>
+<td>Trial JWT secret</td>
+<td>سر JWT للتجربة</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mfa-configuration">MFA Configuration | تكوين المصادقة متعددة العوامل<a class="headerlink" href="#mfa-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MFA_ENABLED</code></td>
+<td>Enable MFA</td>
+<td>تمكين MFA</td>
+<td>No</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>MFA_ENFORCEMENT_LEVEL</code></td>
+<td>MFA enforcement level</td>
+<td>مستوى فرض MFA</td>
+<td>No</td>
+<td><code>required_for_admin</code></td>
+</tr>
+<tr>
+<td><code>TOTP_ISSUER</code></td>
+<td>TOTP issuer name</td>
+<td>اسم مُصدر TOTP</td>
+<td>No</td>
+<td><code>SAHOOL</code></td>
+</tr>
+<tr>
+<td><code>MAX_LOGIN_ATTEMPTS</code></td>
+<td>Max failed login attempts</td>
+<td>أقصى محاولات تسجيل دخول فاشلة</td>
+<td>No</td>
+<td><code>5</code></td>
+</tr>
+<tr>
+<td><code>LOCKOUT_DURATION_MINUTES</code></td>
+<td>Account lockout duration</td>
+<td>مدة قفل الحساب</td>
+<td>No</td>
+<td><code>30</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-kong-api-gateway">7. Kong API Gateway<a class="headerlink" href="#7-kong-api-gateway" title="Permanent link">&para;</a></h2>
+<h3 id="kong-api">بوابة Kong API<a class="headerlink" href="#kong-api" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KONG_DATABASE</code></td>
+<td>Kong database type</td>
+<td>نوع قاعدة بيانات Kong</td>
+<td>No</td>
+<td><code>off</code> (declarative)</td>
+</tr>
+<tr>
+<td><code>KONG_PG_HOST</code></td>
+<td>Kong PostgreSQL host</td>
+<td>مضيف PostgreSQL لـ Kong</td>
+<td>No</td>
+<td><code>kong-database</code></td>
+</tr>
+<tr>
+<td><code>KONG_PG_USER</code></td>
+<td>Kong PostgreSQL user</td>
+<td>مستخدم PostgreSQL لـ Kong</td>
+<td>No</td>
+<td><code>kong</code></td>
+</tr>
+<tr>
+<td><code>KONG_PG_PASSWORD</code></td>
+<td>Kong PostgreSQL password</td>
+<td>كلمة مرور PostgreSQL لـ Kong</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>KONG_PG_DATABASE</code></td>
+<td>Kong database name</td>
+<td>اسم قاعدة بيانات Kong</td>
+<td>No</td>
+<td><code>kong</code></td>
+</tr>
+<tr>
+<td><code>KONG_DECLARATIVE_CONFIG</code></td>
+<td>Declarative config path</td>
+<td>مسار التكوين التصريحي</td>
+<td>No</td>
+<td><code>/kong/declarative/kong.yml</code></td>
+</tr>
+<tr>
+<td><code>KONG_ADMIN_LISTEN</code></td>
+<td>Admin API listen address</td>
+<td>عنوان استماع Admin API</td>
+<td>No</td>
+<td><code>127.0.0.1:8001</code></td>
+</tr>
+<tr>
+<td><code>KONG_PROXY_LISTEN</code></td>
+<td>Proxy listen address</td>
+<td>عنوان استماع البروكسي</td>
+<td>No</td>
+<td><code>0.0.0.0:8000</code></td>
+</tr>
+<tr>
+<td><code>KONG_PLUGINS</code></td>
+<td>Enabled plugins</td>
+<td>الإضافات المُمكّنة</td>
+<td>No</td>
+<td><code>bundled,cors,rate-limiting,jwt,acl,prometheus</code></td>
+</tr>
+<tr>
+<td><code>KONG_LOG_LEVEL</code></td>
+<td>Kong log level</td>
+<td>مستوى سجل Kong</td>
+<td>No</td>
+<td><code>notice</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="kong-performance-kong">Kong Performance | أداء Kong<a class="headerlink" href="#kong-performance-kong" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KONG_NGINX_WORKER_PROCESSES</code></td>
+<td>Nginx worker processes</td>
+<td>عمليات عامل Nginx</td>
+<td><code>auto</code></td>
+</tr>
+<tr>
+<td><code>KONG_NGINX_WORKER_CONNECTIONS</code></td>
+<td>Worker connections</td>
+<td>اتصالات العامل</td>
+<td><code>4096</code></td>
+</tr>
+<tr>
+<td><code>KONG_NGINX_KEEPALIVE_TIMEOUT</code></td>
+<td>Keepalive timeout</td>
+<td>مهلة الحفاظ على الاتصال</td>
+<td><code>60s</code></td>
+</tr>
+<tr>
+<td><code>KONG_UPSTREAM_KEEPALIVE_POOL_SIZE</code></td>
+<td>Upstream keepalive pool</td>
+<td>تجمع الحفاظ على الاتصال</td>
+<td><code>60</code></td>
+</tr>
+<tr>
+<td><code>KONG_MEM_CACHE_SIZE</code></td>
+<td>Memory cache size</td>
+<td>حجم ذاكرة التخزين المؤقت</td>
+<td><code>128m</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="kong-dns-configuration-dns-kong">Kong DNS Configuration | تكوين DNS لـ Kong<a class="headerlink" href="#kong-dns-configuration-dns-kong" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KONG_DNS_RESOLVER</code></td>
+<td>DNS resolver address</td>
+<td>عنوان محلل DNS</td>
+<td><code>127.0.0.11:53</code></td>
+</tr>
+<tr>
+<td><code>KONG_DNS_ORDER</code></td>
+<td>DNS resolution order</td>
+<td>ترتيب حل DNS</td>
+<td><code>LAST,A,CNAME</code></td>
+</tr>
+<tr>
+<td><code>KONG_DNS_CACHE_TTL</code></td>
+<td>DNS cache TTL (seconds)</td>
+<td>TTL ذاكرة DNS</td>
+<td><code>300</code></td>
+</tr>
+<tr>
+<td><code>KONG_DNS_STALE_TTL</code></td>
+<td>Stale DNS TTL</td>
+<td>TTL DNS القديم</td>
+<td><code>30</code></td>
+</tr>
+<tr>
+<td><code>KONG_DNS_ERROR_TTL</code></td>
+<td>DNS error TTL</td>
+<td>TTL خطأ DNS</td>
+<td><code>30</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="kong-rate-limiting-kong">Kong Rate Limiting | تحديد معدل Kong<a class="headerlink" href="#kong-rate-limiting-kong" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KONG_RATE_LIMIT_REDIS_HOST</code></td>
+<td>Redis host for rate limiting</td>
+<td>مضيف Redis لتحديد المعدل</td>
+<td><code>redis</code></td>
+</tr>
+<tr>
+<td><code>KONG_RATE_LIMIT_REDIS_PORT</code></td>
+<td>Redis port</td>
+<td>منفذ Redis</td>
+<td><code>6379</code></td>
+</tr>
+<tr>
+<td><code>KONG_RATE_LIMIT_REDIS_DB</code></td>
+<td>Redis database number</td>
+<td>رقم قاعدة بيانات Redis</td>
+<td><code>1</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-aiml-services">8. AI/ML Services<a class="headerlink" href="#8-aiml-services" title="Permanent link">&para;</a></h2>
+<h3 id="_4">خدمات الذكاء الاصطناعي والتعلم الآلي<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<h3 id="multi-provider-llm-configuration">Multi-Provider LLM Configuration | تكوين متعدد المزودين<a class="headerlink" href="#multi-provider-llm-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PRIMARY_LLM_PROVIDER</code></td>
+<td>Primary LLM provider</td>
+<td>المزود الرئيسي</td>
+<td>No</td>
+<td><code>anthropic</code></td>
+<td>ai-advisor</td>
+</tr>
+<tr>
+<td><code>ANTHROPIC_API_KEY</code></td>
+<td>Anthropic Claude API key</td>
+<td>مفتاح API لـ Claude</td>
+<td>No</td>
+<td>-</td>
+<td>ai-advisor</td>
+</tr>
+<tr>
+<td><code>CLAUDE_MODEL</code></td>
+<td>Claude model ID</td>
+<td>معرف نموذج Claude</td>
+<td>No</td>
+<td><code>claude-3-5-sonnet-20241022</code></td>
+<td>ai-advisor</td>
+</tr>
+<tr>
+<td><code>OPENAI_API_KEY</code></td>
+<td>OpenAI API key</td>
+<td>مفتاح API لـ OpenAI</td>
+<td>No</td>
+<td>-</td>
+<td>ai-advisor</td>
+</tr>
+<tr>
+<td><code>OPENAI_MODEL</code></td>
+<td>OpenAI model ID</td>
+<td>معرف نموذج OpenAI</td>
+<td>No</td>
+<td><code>gpt-4o</code></td>
+<td>ai-advisor</td>
+</tr>
+<tr>
+<td><code>GOOGLE_API_KEY</code></td>
+<td>Google AI API key</td>
+<td>مفتاح API لـ Google AI</td>
+<td>No</td>
+<td>-</td>
+<td>ai-advisor</td>
+</tr>
+<tr>
+<td><code>GEMINI_MODEL</code></td>
+<td>Gemini model ID</td>
+<td>معرف نموذج Gemini</td>
+<td>No</td>
+<td><code>gemini-1.5-pro</code></td>
+<td>ai-advisor</td>
+</tr>
+</tbody>
+</table>
+<h3 id="qdrant-vector-database-qdrant">Qdrant Vector Database | قاعدة بيانات Qdrant الشعاعية<a class="headerlink" href="#qdrant-vector-database-qdrant" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>QDRANT_HOST</code></td>
+<td>Qdrant server host</td>
+<td>مضيف خادم Qdrant</td>
+<td>No</td>
+<td><code>qdrant</code></td>
+</tr>
+<tr>
+<td><code>QDRANT_PORT</code></td>
+<td>Qdrant HTTP port</td>
+<td>منفذ HTTP لـ Qdrant</td>
+<td>No</td>
+<td><code>6333</code></td>
+</tr>
+<tr>
+<td><code>QDRANT_GRPC_PORT</code></td>
+<td>Qdrant gRPC port</td>
+<td>منفذ gRPC لـ Qdrant</td>
+<td>No</td>
+<td><code>6334</code></td>
+</tr>
+<tr>
+<td><code>QDRANT_API_KEY</code></td>
+<td>Qdrant API key (production)</td>
+<td>مفتاح API لـ Qdrant</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>QDRANT__LOG_LEVEL</code></td>
+<td>Qdrant log level</td>
+<td>مستوى سجل Qdrant</td>
+<td>No</td>
+<td><code>INFO</code></td>
+</tr>
+<tr>
+<td><code>EMBEDDING_MODEL</code></td>
+<td>Embedding model name</td>
+<td>اسم نموذج التضمين</td>
+<td>No</td>
+<td><code>paraphrase-multilingual-MiniLM-L12-v2</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ai-model-configuration">AI Model Configuration | تكوين نموذج الذكاء الاصطناعي<a class="headerlink" href="#ai-model-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AI_MODEL_ENDPOINT</code></td>
+<td>AI model prediction endpoint</td>
+<td>نقطة نهاية التنبؤ</td>
+<td>No</td>
+<td><code>http://localhost:8080/predict</code></td>
+</tr>
+<tr>
+<td><code>MODEL_PATH</code></td>
+<td>Path to ML models</td>
+<td>مسار نماذج ML</td>
+<td>No</td>
+<td><code>/models</code></td>
+</tr>
+<tr>
+<td><code>USE_LOCAL_MODEL</code></td>
+<td>Use local model</td>
+<td>استخدام نموذج محلي</td>
+<td>No</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>CONFIDENCE_THRESHOLD</code></td>
+<td>Prediction confidence threshold</td>
+<td>عتبة ثقة التنبؤ</td>
+<td>No</td>
+<td><code>0.8</code></td>
+</tr>
+<tr>
+<td><code>EXPERT_REVIEW_THRESHOLD</code></td>
+<td>Expert review threshold</td>
+<td>عتبة مراجعة الخبير</td>
+<td>No</td>
+<td><code>0.6</code></td>
+</tr>
+<tr>
+<td><code>SIGNIFICANT_CHANGE_PERCENT</code></td>
+<td>Significant change threshold</td>
+<td>عتبة التغيير المهم</td>
+<td>No</td>
+<td><code>10</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-ollama-local-llm">9. Ollama Local LLM<a class="headerlink" href="#9-ollama-local-llm" title="Permanent link">&para;</a></h2>
+<h3 id="ollama">Ollama للنماذج اللغوية المحلية<a class="headerlink" href="#ollama" title="Permanent link">&para;</a></h3>
+<p>Local LLM hosting for offline-first code analysis and agricultural advisory.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OLLAMA_HOST</code></td>
+<td>Ollama server host</td>
+<td>مضيف خادم Ollama</td>
+<td>No</td>
+<td><code>0.0.0.0</code></td>
+</tr>
+<tr>
+<td><code>OLLAMA_URL</code></td>
+<td>Ollama server URL</td>
+<td>رابط خادم Ollama</td>
+<td>No</td>
+<td><code>http://ollama:11434</code></td>
+</tr>
+<tr>
+<td><code>OLLAMA_MODEL</code></td>
+<td>Default model to use</td>
+<td>النموذج الافتراضي</td>
+<td>No</td>
+<td><code>llama3.2</code></td>
+</tr>
+<tr>
+<td><code>OLLAMA_ORIGINS</code></td>
+<td>Allowed CORS origins</td>
+<td>أصول CORS المسموحة</td>
+<td>No</td>
+<td><code>*</code></td>
+</tr>
+<tr>
+<td><code>OLLAMA_KEEP_ALIVE</code></td>
+<td>Model keep-alive duration</td>
+<td>مدة إبقاء النموذج</td>
+<td>No</td>
+<td><code>24h</code></td>
+</tr>
+<tr>
+<td><code>OLLAMA_NUM_PARALLEL</code></td>
+<td>Max parallel requests</td>
+<td>أقصى طلبات متوازية</td>
+<td>No</td>
+<td><code>24</code></td>
+</tr>
+<tr>
+<td><code>OLLAMA_MAX_LOADED_MODELS</code></td>
+<td>Max loaded models</td>
+<td>أقصى نماذج محملة</td>
+<td>No</td>
+<td><code>2</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ollama-gpu-configuration-gpu-ollama">Ollama GPU Configuration | تكوين GPU لـ Ollama<a class="headerlink" href="#ollama-gpu-configuration-gpu-ollama" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OLLAMA_NUM_GPU</code></td>
+<td>Number of GPUs to use</td>
+<td>عدد وحدات GPU</td>
+<td>No</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><code>CUDA_VISIBLE_DEVICES</code></td>
+<td>CUDA device IDs</td>
+<td>معرفات أجهزة CUDA</td>
+<td>No</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><code>OLLAMA_GPU_LAYERS</code></td>
+<td>GPU layers (999=all)</td>
+<td>طبقات GPU</td>
+<td>No</td>
+<td><code>999</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-monitoring-observability">10. Monitoring &amp; Observability<a class="headerlink" href="#10-monitoring-observability" title="Permanent link">&para;</a></h2>
+<h3 id="_5">المراقبة والرؤية<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<h3 id="grafana">Grafana | جرافانا<a class="headerlink" href="#grafana" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GRAFANA_ADMIN_USER</code></td>
+<td>Grafana admin username</td>
+<td>اسم مستخدم مسؤول Grafana</td>
+<td>No</td>
+<td><code>admin</code></td>
+</tr>
+<tr>
+<td><code>GRAFANA_ADMIN_PASSWORD</code></td>
+<td>Grafana admin password</td>
+<td>كلمة مرور مسؤول Grafana</td>
+<td><strong>Yes</strong></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>GRAFANA_ROOT_URL</code></td>
+<td>Grafana root URL</td>
+<td>رابط جذر Grafana</td>
+<td>No</td>
+<td><code>http://localhost:3002</code></td>
+</tr>
+<tr>
+<td><code>GRAFANA_DOMAIN</code></td>
+<td>Grafana domain</td>
+<td>نطاق Grafana</td>
+<td>No</td>
+<td><code>localhost</code></td>
+</tr>
+<tr>
+<td><code>GF_LOG_LEVEL</code></td>
+<td>Grafana log level</td>
+<td>مستوى سجل Grafana</td>
+<td>No</td>
+<td><code>info</code></td>
+</tr>
+<tr>
+<td><code>GF_INSTALL_PLUGINS</code></td>
+<td>Plugins to install</td>
+<td>الإضافات للتثبيت</td>
+<td>No</td>
+<td><code>grafana-clock-panel,...</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="prometheus">Prometheus | بروميثيوس<a class="headerlink" href="#prometheus" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PROMETHEUS_METRICS_ENABLED</code></td>
+<td>Enable Prometheus metrics</td>
+<td>تمكين مقاييس Prometheus</td>
+<td>No</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>PROMETHEUS_MULTIPROC_DIR</code></td>
+<td>Multiprocess metrics directory</td>
+<td>دليل المقاييس متعددة العمليات</td>
+<td>No</td>
+<td><code>/tmp/prometheus_multiproc</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="opentelemetry-opentelemetry">OpenTelemetry | OpenTelemetry<a class="headerlink" href="#opentelemetry-opentelemetry" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OTEL_EXPORTER_OTLP_ENDPOINT</code></td>
+<td>OTLP exporter endpoint</td>
+<td>نقطة نهاية مُصدر OTLP</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>OTEL_EXPORTER_OTLP_PROTOCOL</code></td>
+<td>OTLP protocol</td>
+<td>بروتوكول OTLP</td>
+<td>No</td>
+<td><code>grpc</code></td>
+</tr>
+<tr>
+<td><code>OTEL_SERVICE_NAME</code></td>
+<td>Service name for tracing</td>
+<td>اسم الخدمة للتتبع</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>OTEL_TRACES_SAMPLER</code></td>
+<td>Trace sampler</td>
+<td>عينة التتبع</td>
+<td>No</td>
+<td><code>parentbased_traceidratio</code></td>
+</tr>
+<tr>
+<td><code>OTEL_TRACES_SAMPLER_ARG</code></td>
+<td>Sampler argument</td>
+<td>معامل العينة</td>
+<td>No</td>
+<td><code>0.1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="jaeger-jaeger">Jaeger | Jaeger<a class="headerlink" href="#jaeger-jaeger" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JAEGER_ENDPOINT</code></td>
+<td>Jaeger collector endpoint</td>
+<td>نقطة نهاية جامع Jaeger</td>
+<td>No</td>
+<td><code>jaeger:14250</code></td>
+</tr>
+<tr>
+<td><code>JAEGER_LOG_LEVEL</code></td>
+<td>Jaeger log level</td>
+<td>مستوى سجل Jaeger</td>
+<td>No</td>
+<td><code>info</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="health-checks">Health Checks | فحوصات الصحة<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HEALTH_CHECK_INTERVAL_SECONDS</code></td>
+<td>Health check interval</td>
+<td>فترة فحص الصحة</td>
+<td>No</td>
+<td><code>30</code></td>
+</tr>
+<tr>
+<td><code>HEALTH_CHECK_TIMEOUT_SECONDS</code></td>
+<td>Health check timeout</td>
+<td>مهلة فحص الصحة</td>
+<td>No</td>
+<td><code>5</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-external-apis">11. External APIs<a class="headerlink" href="#11-external-apis" title="Permanent link">&para;</a></h2>
+<h3 id="_6">واجهات برمجة التطبيقات الخارجية<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<h3 id="weather-apis">Weather APIs | واجهات الطقس<a class="headerlink" href="#weather-apis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>USE_MULTI_PROVIDER</code></td>
+<td>Enable multi-provider weather</td>
+<td>تمكين متعدد المزودين</td>
+<td>No</td>
+<td><code>true</code></td>
+<td>weather-service</td>
+</tr>
+<tr>
+<td><code>USE_MOCK_WEATHER</code></td>
+<td>Use mock weather data</td>
+<td>استخدام بيانات وهمية</td>
+<td>No</td>
+<td><code>false</code></td>
+<td>weather-service</td>
+</tr>
+<tr>
+<td><code>OPENWEATHERMAP_API_KEY</code></td>
+<td>OpenWeatherMap API key</td>
+<td>مفتاح OpenWeatherMap</td>
+<td>No</td>
+<td>-</td>
+<td>weather-service</td>
+</tr>
+<tr>
+<td><code>OPENWEATHER_API_KEY</code></td>
+<td>Alias for OpenWeatherMap</td>
+<td>اسم بديل</td>
+<td>No</td>
+<td>-</td>
+<td>weather-service</td>
+</tr>
+<tr>
+<td><code>WEATHERAPI_KEY</code></td>
+<td>WeatherAPI.com API key</td>
+<td>مفتاح WeatherAPI</td>
+<td>No</td>
+<td>-</td>
+<td>weather-service</td>
+</tr>
+<tr>
+<td><code>YEMEN_MET_ENABLED</code></td>
+<td>Enable Yemen Met Service</td>
+<td>تمكين خدمة الأرصاد اليمنية</td>
+<td>No</td>
+<td><code>false</code></td>
+<td>weather-service</td>
+</tr>
+<tr>
+<td><code>YEMEN_MET_API_KEY</code></td>
+<td>Yemen Met API key</td>
+<td>مفتاح Yemen Met</td>
+<td>No</td>
+<td>-</td>
+<td>weather-service</td>
+</tr>
+</tbody>
+</table>
+<h3 id="weather-cache-configuration">Weather Cache Configuration | تكوين ذاكرة التخزين المؤقت للطقس<a class="headerlink" href="#weather-cache-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WEATHER_CACHE_ENABLED</code></td>
+<td>Enable weather caching</td>
+<td>تمكين التخزين المؤقت</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>WEATHER_CACHE_TTL_MINUTES</code></td>
+<td>Cache TTL (minutes)</td>
+<td>TTL التخزين المؤقت</td>
+<td><code>30</code></td>
+</tr>
+<tr>
+<td><code>WEATHER_CACHE_CURRENT_TTL</code></td>
+<td>Current weather cache TTL</td>
+<td>TTL الطقس الحالي</td>
+<td><code>1800</code></td>
+</tr>
+<tr>
+<td><code>WEATHER_CACHE_FORECAST_TTL</code></td>
+<td>Forecast cache TTL</td>
+<td>TTL التوقعات</td>
+<td><code>3600</code></td>
+</tr>
+<tr>
+<td><code>WEATHER_ALERTS_ENABLED</code></td>
+<td>Enable weather alerts</td>
+<td>تمكين تنبيهات الطقس</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>WEATHER_AG_INDICES_ENABLED</code></td>
+<td>Enable agricultural indices</td>
+<td>تمكين المؤشرات الزراعية</td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="agricultural-weather-thresholds">Agricultural Weather Thresholds | عتبات الطقس الزراعية<a class="headerlink" href="#agricultural-weather-thresholds" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GDD_BASE_TEMP</code></td>
+<td>Growing Degree Days base temp</td>
+<td>درجة حرارة أساس GDD</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><code>CHILL_HOURS_THRESHOLD</code></td>
+<td>Chill hours threshold</td>
+<td>عتبة ساعات البرودة</td>
+<td><code>7.2</code></td>
+</tr>
+<tr>
+<td><code>FROST_CRITICAL_TEMP</code></td>
+<td>Critical frost temperature</td>
+<td>درجة حرارة الصقيع الحرجة</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><code>HEAT_WAVE_CRITICAL_TEMP</code></td>
+<td>Critical heat wave temperature</td>
+<td>درجة حرارة موجة الحر</td>
+<td><code>35</code></td>
+</tr>
+<tr>
+<td><code>HEAVY_RAIN_CRITICAL_MM</code></td>
+<td>Critical rainfall (mm)</td>
+<td>هطول الأمطار الحرج</td>
+<td><code>50</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="satellite-imagery-apis">Satellite Imagery APIs | واجهات صور الأقمار الصناعية<a class="headerlink" href="#satellite-imagery-apis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SENTINEL_HUB_CLIENT_ID</code></td>
+<td>Sentinel Hub client ID</td>
+<td>معرف عميل Sentinel Hub</td>
+<td>No</td>
+<td>vegetation-analysis-service</td>
+</tr>
+<tr>
+<td><code>SENTINEL_HUB_CLIENT_SECRET</code></td>
+<td>Sentinel Hub client secret</td>
+<td>سر عميل Sentinel Hub</td>
+<td>No</td>
+<td>vegetation-analysis-service</td>
+</tr>
+<tr>
+<td><code>NASA_EARTHDATA_USERNAME</code></td>
+<td>NASA Earthdata username</td>
+<td>اسم مستخدم NASA Earthdata</td>
+<td>No</td>
+<td>vegetation-analysis-service</td>
+</tr>
+<tr>
+<td><code>NASA_EARTHDATA_PASSWORD</code></td>
+<td>NASA Earthdata password</td>
+<td>كلمة مرور NASA Earthdata</td>
+<td>No</td>
+<td>vegetation-analysis-service</td>
+</tr>
+<tr>
+<td><code>PLANET_API_KEY</code></td>
+<td>Planet Labs API key</td>
+<td>مفتاح Planet Labs</td>
+<td>No</td>
+<td>vegetation-analysis-service</td>
+</tr>
+<tr>
+<td><code>PLANET_CLIENT_ID</code></td>
+<td>Planet Labs client ID</td>
+<td>معرف عميل Planet Labs</td>
+<td>No</td>
+<td>vegetation-analysis-service</td>
+</tr>
+</tbody>
+</table>
+<h3 id="payment-gateways">Payment Gateways | بوابات الدفع<a class="headerlink" href="#payment-gateways" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>STRIPE_API_KEY</code></td>
+<td>Stripe API key</td>
+<td>مفتاح Stripe API</td>
+<td>No</td>
+<td>billing-core</td>
+</tr>
+<tr>
+<td><code>STRIPE_WEBHOOK_SECRET</code></td>
+<td>Stripe webhook secret</td>
+<td>سر webhook لـ Stripe</td>
+<td>No</td>
+<td>billing-core</td>
+</tr>
+<tr>
+<td><code>STRIPE_PUBLISHABLE_KEY</code></td>
+<td>Stripe publishable key</td>
+<td>مفتاح Stripe العام</td>
+<td>No</td>
+<td>web, mobile</td>
+</tr>
+<tr>
+<td><code>THARWATT_BASE_URL</code></td>
+<td>Tharwatt API base URL</td>
+<td>رابط قاعدة Tharwatt API</td>
+<td>No</td>
+<td>billing-core</td>
+</tr>
+<tr>
+<td><code>THARWATT_API_KEY</code></td>
+<td>Tharwatt API key</td>
+<td>مفتاح Tharwatt API</td>
+<td>No</td>
+<td>billing-core</td>
+</tr>
+<tr>
+<td><code>THARWATT_MERCHANT_ID</code></td>
+<td>Tharwatt merchant ID</td>
+<td>معرف تاجر Tharwatt</td>
+<td>No</td>
+<td>billing-core</td>
+</tr>
+<tr>
+<td><code>THARWATT_WEBHOOK_SECRET</code></td>
+<td>Tharwatt webhook secret</td>
+<td>سر webhook لـ Tharwatt</td>
+<td>No</td>
+<td>billing-core</td>
+</tr>
+<tr>
+<td><code>DEFAULT_CURRENCY</code></td>
+<td>Default currency</td>
+<td>العملة الافتراضية</td>
+<td>No</td>
+<td>billing-core</td>
+</tr>
+<tr>
+<td><code>YER_EXCHANGE_RATE</code></td>
+<td>YER exchange rate</td>
+<td>سعر صرف الريال اليمني</td>
+<td>No</td>
+<td>billing-core</td>
+</tr>
+</tbody>
+</table>
+<h3 id="maps-apis">Maps APIs | واجهات الخرائط<a class="headerlink" href="#maps-apis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GOOGLE_MAPS_API_KEY</code></td>
+<td>Google Maps API key</td>
+<td>مفتاح Google Maps API</td>
+<td>No</td>
+<td>mobile, web</td>
+</tr>
+<tr>
+<td><code>MAPBOX_ACCESS_TOKEN</code></td>
+<td>Mapbox access token</td>
+<td>رمز وصول Mapbox</td>
+<td>No</td>
+<td>mobile</td>
+</tr>
+<tr>
+<td><code>MAPBOX_STYLE_URL</code></td>
+<td>Mapbox style URL</td>
+<td>رابط نمط Mapbox</td>
+<td>No</td>
+<td>mobile</td>
+</tr>
+<tr>
+<td><code>MAP_TILE_URL</code></td>
+<td>Custom map tile URL</td>
+<td>رابط بلاطات الخريطة</td>
+<td>No</td>
+<td>mobile</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="12-notification-services">12. Notification Services<a class="headerlink" href="#12-notification-services" title="Permanent link">&para;</a></h2>
+<h3 id="_7">خدمات الإشعارات<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<h3 id="smtp-email-configuration-smtp">SMTP Email Configuration | تكوين بريد SMTP<a class="headerlink" href="#smtp-email-configuration-smtp" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SMTP_HOST</code></td>
+<td>SMTP server host</td>
+<td>مضيف خادم SMTP</td>
+<td>No</td>
+<td><code>smtp.gmail.com</code></td>
+</tr>
+<tr>
+<td><code>SMTP_PORT</code></td>
+<td>SMTP server port</td>
+<td>منفذ خادم SMTP</td>
+<td>No</td>
+<td><code>587</code></td>
+</tr>
+<tr>
+<td><code>SMTP_USER</code></td>
+<td>SMTP username</td>
+<td>اسم مستخدم SMTP</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>SMTP_PASSWORD</code></td>
+<td>SMTP password</td>
+<td>كلمة مرور SMTP</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>SMTP_FROM_EMAIL</code></td>
+<td>From email address</td>
+<td>عنوان البريد المرسل</td>
+<td>No</td>
+<td><code>noreply@sahool.com</code></td>
+</tr>
+<tr>
+<td><code>SMTP_FROM_NAME</code></td>
+<td>From name</td>
+<td>اسم المرسل</td>
+<td>No</td>
+<td><code>SAHOOL Platform</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="sendgrid-configuration-sendgrid">SendGrid Configuration | تكوين SendGrid<a class="headerlink" href="#sendgrid-configuration-sendgrid" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SENDGRID_API_KEY</code></td>
+<td>SendGrid API key</td>
+<td>مفتاح SendGrid API</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>SENDGRID_FROM_EMAIL</code></td>
+<td>SendGrid from email</td>
+<td>بريد SendGrid المرسل</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>SENDGRID_FROM_NAME</code></td>
+<td>SendGrid from name</td>
+<td>اسم SendGrid المرسل</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="firebase-push-notifications-firebase">Firebase Push Notifications | إشعارات Firebase<a class="headerlink" href="#firebase-push-notifications-firebase" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FIREBASE_PROJECT_ID</code></td>
+<td>Firebase project ID</td>
+<td>معرف مشروع Firebase</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>FIREBASE_CREDENTIALS</code></td>
+<td>Firebase credentials JSON</td>
+<td>اعتمادات Firebase</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>FIREBASE_CREDENTIALS_PATH</code></td>
+<td>Path to credentials file</td>
+<td>مسار ملف الاعتمادات</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>FIREBASE_CREDENTIALS_JSON</code></td>
+<td>Credentials as JSON string</td>
+<td>الاعتمادات كنص JSON</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>FCM_SERVER_KEY</code></td>
+<td>FCM server key</td>
+<td>مفتاح خادم FCM</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sms-configuration">SMS Configuration | تكوين الرسائل القصيرة<a class="headerlink" href="#sms-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SMS_PROVIDER</code></td>
+<td>SMS provider name</td>
+<td>اسم مزود SMS</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>SMS_API_KEY</code></td>
+<td>SMS API key</td>
+<td>مفتاح SMS API</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>SMS_API_SECRET</code></td>
+<td>SMS API secret</td>
+<td>سر SMS API</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>SMS_FROM_NUMBER</code></td>
+<td>SMS sender number</td>
+<td>رقم المرسل</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>TWILIO_ACCOUNT_SID</code></td>
+<td>Twilio account SID</td>
+<td>معرف حساب Twilio</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>TWILIO_AUTH_TOKEN</code></td>
+<td>Twilio auth token</td>
+<td>رمز مصادقة Twilio</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>TWILIO_PHONE_NUMBER</code></td>
+<td>Twilio phone number</td>
+<td>رقم هاتف Twilio</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="13-file-storage-cdn">13. File Storage &amp; CDN<a class="headerlink" href="#13-file-storage-cdn" title="Permanent link">&para;</a></h2>
+<h3 id="cdn">تخزين الملفات و CDN<a class="headerlink" href="#cdn" title="Permanent link">&para;</a></h3>
+<h3 id="minio-object-storage-minio">MinIO Object Storage | تخزين كائنات MinIO<a class="headerlink" href="#minio-object-storage-minio" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MINIO_ROOT_USER</code></td>
+<td>MinIO root username (min 16 chars)</td>
+<td>اسم مستخدم جذر MinIO</td>
+<td><strong>Yes</strong></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>MINIO_ROOT_PASSWORD</code></td>
+<td>MinIO root password (min 16 chars)</td>
+<td>كلمة مرور جذر MinIO</td>
+<td><strong>Yes</strong></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>MINIO_ACCESS_KEY</code></td>
+<td>Alias for MINIO_ROOT_USER</td>
+<td>اسم بديل</td>
+<td>No</td>
+<td><code>${MINIO_ROOT_USER}</code></td>
+</tr>
+<tr>
+<td><code>MINIO_SECRET_KEY</code></td>
+<td>Alias for MINIO_ROOT_PASSWORD</td>
+<td>اسم بديل</td>
+<td>No</td>
+<td><code>${MINIO_ROOT_PASSWORD}</code></td>
+</tr>
+<tr>
+<td><code>MINIO_ENDPOINT</code></td>
+<td>MinIO server endpoint</td>
+<td>نقطة نهاية خادم MinIO</td>
+<td>No</td>
+<td><code>https://minio:9000</code></td>
+</tr>
+<tr>
+<td><code>MINIO_BROWSER</code></td>
+<td>Enable MinIO console</td>
+<td>تمكين وحدة تحكم MinIO</td>
+<td>No</td>
+<td><code>off</code></td>
+</tr>
+<tr>
+<td><code>MINIO_PROMETHEUS_AUTH_TYPE</code></td>
+<td>Prometheus auth type</td>
+<td>نوع مصادقة Prometheus</td>
+<td>No</td>
+<td><code>jwt</code></td>
+</tr>
+<tr>
+<td><code>MINIO_DOMAIN</code></td>
+<td>MinIO domain for virtual-host</td>
+<td>نطاق MinIO للمضيف الافتراضي</td>
+<td>No</td>
+<td><code>minio.sahool.local</code></td>
+</tr>
+<tr>
+<td><code>MINIO_REGION</code></td>
+<td>MinIO region</td>
+<td>منطقة MinIO</td>
+<td>No</td>
+<td><code>us-east-1</code></td>
+</tr>
+<tr>
+<td><code>MINIO_BUCKETS</code></td>
+<td>Default buckets to create</td>
+<td>الدلاء الافتراضية</td>
+<td>No</td>
+<td><code>uploads,documents,images,backups</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="minio-encryption-minio">MinIO Encryption | تشفير MinIO<a class="headerlink" href="#minio-encryption-minio" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MINIO_ENCRYPTION_MASTER_KEY</code></td>
+<td>SSE master key</td>
+<td>مفتاح تشفير رئيسي</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>MINIO_KMS_SECRET_KEY</code></td>
+<td>KMS secret key</td>
+<td>مفتاح KMS السري</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="general-file-storage">General File Storage | تخزين الملفات العام<a class="headerlink" href="#general-file-storage" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UPLOAD_DIR</code></td>
+<td>Upload directory</td>
+<td>دليل التحميل</td>
+<td>No</td>
+<td><code>/uploads</code></td>
+</tr>
+<tr>
+<td><code>AVATAR_UPLOAD_PATH</code></td>
+<td>Avatar upload path</td>
+<td>مسار تحميل الصور الشخصية</td>
+<td>No</td>
+<td><code>/uploads/avatars</code></td>
+</tr>
+<tr>
+<td><code>CDN_BASE_URL</code></td>
+<td>CDN base URL</td>
+<td>رابط قاعدة CDN</td>
+<td>No</td>
+<td><code>https://cdn.sahool.com</code></td>
+</tr>
+<tr>
+<td><code>CDN_URL</code></td>
+<td>CDN URL</td>
+<td>رابط CDN</td>
+<td>No</td>
+<td><code>https://cdn.sahool.com</code></td>
+</tr>
+<tr>
+<td><code>MAX_FILE_SIZE</code></td>
+<td>Max file size (bytes)</td>
+<td>أقصى حجم ملف</td>
+<td>No</td>
+<td><code>10485760</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="14-security-secrets">14. Security &amp; Secrets<a class="headerlink" href="#14-security-secrets" title="Permanent link">&para;</a></h2>
+<h3 id="_8">الأمان والأسرار<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<h3 id="general-security">General Security | الأمان العام<a class="headerlink" href="#general-security" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>APP_SECRET_KEY</code></td>
+<td>Application secret key</td>
+<td>مفتاح التطبيق السري</td>
+<td><strong>Yes</strong></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>SIGNATURE_SECRET_KEY</code></td>
+<td>Signature secret key</td>
+<td>مفتاح التوقيع السري</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>SAHOOL_AUTH_ENABLED</code></td>
+<td>Enable SAHOOL authentication</td>
+<td>تمكين مصادقة سهول</td>
+<td>No</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>WS_REQUIRE_AUTH</code></td>
+<td>Require WebSocket auth</td>
+<td>طلب مصادقة WebSocket</td>
+<td>No</td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="secrets-backend-configuration">Secrets Backend Configuration | تكوين خلفية الأسرار<a class="headerlink" href="#secrets-backend-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SECRET_BACKEND</code></td>
+<td>Secrets backend type</td>
+<td>نوع خلفية الأسرار</td>
+<td>No</td>
+<td><code>environment</code></td>
+</tr>
+</tbody>
+</table>
+<p>Options: <code>environment</code>, <code>vault</code>, <code>aws_secrets_manager</code>, <code>azure_key_vault</code></p>
+<h3 id="hashicorp-vault-hashicorp-vault">HashiCorp Vault | HashiCorp Vault<a class="headerlink" href="#hashicorp-vault-hashicorp-vault" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VAULT_ADDR</code></td>
+<td>Vault server address</td>
+<td>عنوان خادم Vault</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>VAULT_TOKEN</code></td>
+<td>Vault authentication token</td>
+<td>رمز مصادقة Vault</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>VAULT_ROLE_ID</code></td>
+<td>Vault AppRole role ID</td>
+<td>معرف دور AppRole</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>VAULT_SECRET_ID</code></td>
+<td>Vault AppRole secret ID</td>
+<td>معرف سر AppRole</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>VAULT_NAMESPACE</code></td>
+<td>Vault namespace (Enterprise)</td>
+<td>مساحة اسم Vault</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>VAULT_MOUNT_POINT</code></td>
+<td>KV secrets mount point</td>
+<td>نقطة تثبيت أسرار KV</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>VAULT_PATH_PREFIX</code></td>
+<td>Secrets path prefix</td>
+<td>بادئة مسار الأسرار</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="aws-secrets-manager-aws-secrets-manager">AWS Secrets Manager | AWS Secrets Manager<a class="headerlink" href="#aws-secrets-manager-aws-secrets-manager" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AWS_REGION</code></td>
+<td>AWS region</td>
+<td>منطقة AWS</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>AWS_ACCESS_KEY_ID</code></td>
+<td>AWS access key ID</td>
+<td>معرف مفتاح وصول AWS</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>AWS_SECRET_ACCESS_KEY</code></td>
+<td>AWS secret access key</td>
+<td>مفتاح وصول AWS السري</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>AWS_SECRETS_PREFIX</code></td>
+<td>Secrets prefix</td>
+<td>بادئة الأسرار</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="azure-key-vault-azure-key-vault">Azure Key Vault | Azure Key Vault<a class="headerlink" href="#azure-key-vault-azure-key-vault" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AZURE_KEY_VAULT_URL</code></td>
+<td>Key Vault URL</td>
+<td>رابط Key Vault</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>AZURE_TENANT_ID</code></td>
+<td>Azure tenant ID</td>
+<td>معرف مستأجر Azure</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>AZURE_CLIENT_ID</code></td>
+<td>Azure client ID</td>
+<td>معرف عميل Azure</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>AZURE_CLIENT_SECRET</code></td>
+<td>Azure client secret</td>
+<td>سر عميل Azure</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="local-encryption">Local Encryption | التشفير المحلي<a class="headerlink" href="#local-encryption" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ENCRYPTION_KEY</code></td>
+<td>Local encryption key</td>
+<td>مفتاح التشفير المحلي</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>ENCRYPTION_KEY_FILE</code></td>
+<td>Encryption key file path</td>
+<td>مسار ملف مفتاح التشفير</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>ENCRYPTED_SECRETS_FILE</code></td>
+<td>Encrypted secrets file path</td>
+<td>مسار ملف الأسرار المشفرة</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="etcd-configuration-etcd">etcd Configuration | تكوين etcd<a class="headerlink" href="#etcd-configuration-etcd" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ETCD_ROOT_USERNAME</code></td>
+<td>etcd root username</td>
+<td>اسم مستخدم جذر etcd</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td><code>ETCD_ROOT_PASSWORD</code></td>
+<td>etcd root password</td>
+<td>كلمة مرور جذر etcd</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td><code>ETCDCTL_API</code></td>
+<td>etcdctl API version</td>
+<td>إصدار API لـ etcdctl</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>ETCDCTL_ENDPOINTS</code></td>
+<td>etcd endpoints</td>
+<td>نقاط نهاية etcd</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mqtt-iot-security-mqtt-iot">MQTT IoT Security | أمان MQTT IoT<a class="headerlink" href="#mqtt-iot-security-mqtt-iot" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MQTT_BROKER</code></td>
+<td>MQTT broker host</td>
+<td>مضيف وسيط MQTT</td>
+<td>No</td>
+<td><code>mqtt</code></td>
+</tr>
+<tr>
+<td><code>MQTT_PORT</code></td>
+<td>MQTT broker port</td>
+<td>منفذ وسيط MQTT</td>
+<td>No</td>
+<td><code>1883</code></td>
+</tr>
+<tr>
+<td><code>MQTT_USER</code></td>
+<td>MQTT username</td>
+<td>اسم مستخدم MQTT</td>
+<td>No</td>
+<td><code>sahool_iot</code></td>
+</tr>
+<tr>
+<td><code>MQTT_PASSWORD</code></td>
+<td>MQTT password</td>
+<td>كلمة مرور MQTT</td>
+<td><strong>Yes</strong></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>MQTT_TOPIC</code></td>
+<td>Default MQTT topic pattern</td>
+<td>نمط موضوع MQTT</td>
+<td>No</td>
+<td><code>sahool/sensors/#</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="15-mobile-application">15. Mobile Application<a class="headerlink" href="#15-mobile-application" title="Permanent link">&para;</a></h2>
+<h3 id="_9">تطبيق الجوال<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<h3 id="api-configuration-api">API Configuration | تكوين API<a class="headerlink" href="#api-configuration-api" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ENV</code></td>
+<td>Environment name</td>
+<td>اسم البيئة</td>
+<td>No</td>
+<td><code>development</code></td>
+</tr>
+<tr>
+<td><code>API_BASE_URL</code></td>
+<td>API base URL</td>
+<td>رابط قاعدة API</td>
+<td><strong>Yes</strong></td>
+<td><code>http://10.0.2.2:8000/api/v1</code></td>
+</tr>
+<tr>
+<td><code>API_VERSION</code></td>
+<td>API version</td>
+<td>إصدار API</td>
+<td>No</td>
+<td><code>v1</code></td>
+</tr>
+<tr>
+<td><code>DEV_HOST</code></td>
+<td>Development host</td>
+<td>مضيف التطوير</td>
+<td>No</td>
+<td><code>10.0.2.2</code></td>
+</tr>
+<tr>
+<td><code>PROD_HOST</code></td>
+<td>Production host</td>
+<td>مضيف الإنتاج</td>
+<td>No</td>
+<td><code>api.sahool.app</code></td>
+</tr>
+<tr>
+<td><code>STAGING_HOST</code></td>
+<td>Staging host</td>
+<td>مضيف التجهيز</td>
+<td>No</td>
+<td><code>api-staging.sahool.app</code></td>
+</tr>
+<tr>
+<td><code>WS_GATEWAY_URL</code></td>
+<td>WebSocket gateway URL</td>
+<td>رابط بوابة WebSocket</td>
+<td>No</td>
+<td><code>ws://10.0.2.2:8081</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="feature-flags">Feature Flags | أعلام الميزات<a class="headerlink" href="#feature-flags" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ENABLE_OFFLINE_MODE</code></td>
+<td>Enable offline-first mode</td>
+<td>تمكين وضع عدم الاتصال</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>ENABLE_BACKGROUND_SYNC</code></td>
+<td>Enable background sync</td>
+<td>تمكين المزامنة الخلفية</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>ENABLE_CAMERA</code></td>
+<td>Enable camera features</td>
+<td>تمكين ميزات الكاميرا</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>ENABLE_PUSH_NOTIFICATIONS</code></td>
+<td>Enable push notifications</td>
+<td>تمكين الإشعارات</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>ENABLE_EDGE_AI</code></td>
+<td>Enable on-device AI</td>
+<td>تمكين الذكاء الاصطناعي على الجهاز</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>ENABLE_VOICE</code></td>
+<td>Enable voice commands</td>
+<td>تمكين الأوامر الصوتية</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>ENABLE_AR</code></td>
+<td>Enable AR features</td>
+<td>تمكين ميزات الواقع المعزز</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>ENABLE_ANALYTICS</code></td>
+<td>Enable analytics</td>
+<td>تمكين التحليلات</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>ENABLE_CRASH_REPORTING</code></td>
+<td>Enable crash reporting</td>
+<td>تمكين تقارير الأعطال</td>
+<td><code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="security-settings">Security Settings | إعدادات الأمان<a class="headerlink" href="#security-settings" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ENABLE_BIOMETRIC_AUTH</code></td>
+<td>Enable biometric auth</td>
+<td>تمكين المصادقة البيومترية</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>ENABLE_CERTIFICATE_PINNING</code></td>
+<td>Enable cert pinning</td>
+<td>تمكين تثبيت الشهادة</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>ENABLE_DEVICE_INTEGRITY</code></td>
+<td>Enable integrity checks</td>
+<td>تمكين فحوصات السلامة</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>ENABLE_DATABASE_ENCRYPTION</code></td>
+<td>Enable DB encryption</td>
+<td>تمكين تشفير قاعدة البيانات</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>SKIP_DEVICE_CHECKS</code></td>
+<td>Skip device security checks</td>
+<td>تخطي فحوصات الأمان</td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="sync-configuration">Sync Configuration | تكوين المزامنة<a class="headerlink" href="#sync-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SYNC_INTERVAL_SECONDS</code></td>
+<td>Foreground sync interval</td>
+<td>فترة المزامنة الأمامية</td>
+<td><code>30</code></td>
+</tr>
+<tr>
+<td><code>BG_SYNC_INTERVAL_MINUTES</code></td>
+<td>Background sync interval</td>
+<td>فترة المزامنة الخلفية</td>
+<td><code>15</code></td>
+</tr>
+<tr>
+<td><code>MAX_RETRY_COUNT</code></td>
+<td>Max retry attempts</td>
+<td>أقصى محاولات إعادة</td>
+<td><code>5</code></td>
+</tr>
+<tr>
+<td><code>OUTBOX_BATCH_SIZE</code></td>
+<td>Outbox batch size</td>
+<td>حجم دفعة الصندوق الصادر</td>
+<td><code>50</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="monitoring">Monitoring | المراقبة<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SENTRY_DSN</code></td>
+<td>Sentry DSN for crash reporting</td>
+<td>DSN Sentry لتقارير الأعطال</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>SENTRY_ENVIRONMENT</code></td>
+<td>Sentry environment</td>
+<td>بيئة Sentry</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="16-frontend-applications">16. Frontend Applications<a class="headerlink" href="#16-frontend-applications" title="Permanent link">&para;</a></h2>
+<h3 id="_10">تطبيقات الواجهة الأمامية<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<h3 id="web-dashboard-admin-portal">Web Dashboard &amp; Admin Portal | لوحة تحكم الويب وبوابة الإدارة<a class="headerlink" href="#web-dashboard-admin-portal" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NEXT_PUBLIC_API_URL</code></td>
+<td>API gateway URL</td>
+<td>رابط بوابة API</td>
+<td><strong>Yes</strong></td>
+<td><code>http://localhost:8000</code></td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_WS_URL</code></td>
+<td>WebSocket gateway URL</td>
+<td>رابط بوابة WebSocket</td>
+<td>No</td>
+<td><code>ws://localhost:8081</code></td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_API_BASE</code></td>
+<td>API base URL</td>
+<td>رابط قاعدة API</td>
+<td>No</td>
+<td><code>http://localhost</code></td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_AUTH_URL</code></td>
+<td>Auth service URL</td>
+<td>رابط خدمة المصادقة</td>
+<td>No</td>
+<td><code>http://localhost:8001</code></td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_APP_NAME</code></td>
+<td>Application name</td>
+<td>اسم التطبيق</td>
+<td>No</td>
+<td><code>SAHOOL</code></td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_APP_VERSION</code></td>
+<td>Application version</td>
+<td>إصدار التطبيق</td>
+<td>No</td>
+<td><code>16.0.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="feature-flags_1">Feature Flags | أعلام الميزات<a class="headerlink" href="#feature-flags_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NEXT_PUBLIC_FEATURE_OFFLINE</code></td>
+<td>Enable offline feature</td>
+<td>تمكين ميزة عدم الاتصال</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_FEATURE_NDVI</code></td>
+<td>Enable NDVI feature</td>
+<td>تمكين ميزة NDVI</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_FEATURE_ADVISOR</code></td>
+<td>Enable advisor feature</td>
+<td>تمكين ميزة المستشار</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_FEATURE_MAPS</code></td>
+<td>Enable maps feature</td>
+<td>تمكين ميزة الخرائط</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_FEATURE_CHARTS</code></td>
+<td>Enable charts feature</td>
+<td>تمكين ميزة الرسوم البيانية</td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="monitoring_1">Monitoring | المراقبة<a class="headerlink" href="#monitoring_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NEXT_PUBLIC_SENTRY_DSN</code></td>
+<td>Sentry DSN (client-side)</td>
+<td>DSN Sentry (جانب العميل)</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>SENTRY_DSN</code></td>
+<td>Sentry DSN (server-side)</td>
+<td>DSN Sentry (جانب الخادم)</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="17-service-urls">17. Service URLs<a class="headerlink" href="#17-service-urls" title="Permanent link">&para;</a></h2>
+<h3 id="_11">روابط الخدمات<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<h3 id="primary-service-urls-current">Primary Service URLs (Current) | روابط الخدمات الرئيسية<a class="headerlink" href="#primary-service-urls-current" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Service</th>
+<th>Port</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FIELD_MANAGEMENT_URL</code></td>
+<td>field-management-service</td>
+<td>3000</td>
+<td>Unified field operations</td>
+</tr>
+<tr>
+<td><code>USER_SERVICE_URL</code></td>
+<td>user-service</td>
+<td>3025</td>
+<td>Authentication &amp; user management</td>
+</tr>
+<tr>
+<td><code>MARKETPLACE_SERVICE_URL</code></td>
+<td>marketplace-service</td>
+<td>3010</td>
+<td>Agricultural marketplace</td>
+</tr>
+<tr>
+<td><code>WEATHER_SERVICE_URL</code></td>
+<td>weather-service</td>
+<td>8092</td>
+<td>Weather data</td>
+</tr>
+<tr>
+<td><code>VEGETATION_ANALYSIS_URL</code></td>
+<td>vegetation-analysis-service</td>
+<td>8090</td>
+<td>Satellite &amp; NDVI analysis</td>
+</tr>
+<tr>
+<td><code>ADVISORY_SERVICE_URL</code></td>
+<td>advisory-service</td>
+<td>8093</td>
+<td>Agricultural advisory</td>
+</tr>
+<tr>
+<td><code>CROP_INTELLIGENCE_URL</code></td>
+<td>crop-intelligence-service</td>
+<td>8095</td>
+<td>Crop health AI</td>
+</tr>
+<tr>
+<td><code>YIELD_PREDICTION_URL</code></td>
+<td>yield-prediction-service</td>
+<td>8098</td>
+<td>Yield estimation</td>
+</tr>
+<tr>
+<td><code>NOTIFICATION_SERVICE_URL</code></td>
+<td>notification-service</td>
+<td>8110</td>
+<td>Push notifications</td>
+</tr>
+<tr>
+<td><code>IOT_GATEWAY_URL</code></td>
+<td>iot-gateway</td>
+<td>8106</td>
+<td>IoT protocol gateway</td>
+</tr>
+<tr>
+<td><code>TASK_SERVICE_URL</code></td>
+<td>task-service</td>
+<td>8103</td>
+<td>Task management</td>
+</tr>
+<tr>
+<td><code>ASTRONOMICAL_SERVICE_URL</code></td>
+<td>astronomical-calendar</td>
+<td>8111</td>
+<td>Islamic calendar</td>
+</tr>
+<tr>
+<td><code>ALERT_SERVICE_URL</code></td>
+<td>alert-service</td>
+<td>8113</td>
+<td>Alert management</td>
+</tr>
+<tr>
+<td><code>FIELD_INTELLIGENCE_URL</code></td>
+<td>field-intelligence</td>
+<td>8120</td>
+<td>Field analytics</td>
+</tr>
+<tr>
+<td><code>CHAT_SERVICE_URL</code></td>
+<td>chat-service</td>
+<td>8114</td>
+<td>Chat &amp; messaging</td>
+</tr>
+<tr>
+<td><code>KONG_URL</code></td>
+<td>kong</td>
+<td>8000</td>
+<td>API Gateway</td>
+</tr>
+<tr>
+<td><code>SAHOOL_API_URL</code></td>
+<td>kong</td>
+<td>8000</td>
+<td>Main API URL</td>
+</tr>
+</tbody>
+</table>
+<h3 id="legacy-urls-deprecated">Legacy URLs (Deprecated) | روابط قديمة (مهملة)<a class="headerlink" href="#legacy-urls-deprecated" title="Permanent link">&para;</a></h3>
+<p>These URLs are maintained for backward compatibility and will be removed in v17.0.0:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Replacement</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FIELDOPS_URL</code></td>
+<td><code>FIELD_MANAGEMENT_URL</code></td>
+<td>Legacy field-ops</td>
+</tr>
+<tr>
+<td><code>WEATHER_URL</code></td>
+<td><code>WEATHER_SERVICE_URL</code></td>
+<td>Legacy weather</td>
+</tr>
+<tr>
+<td><code>SATELLITE_URL</code></td>
+<td><code>VEGETATION_ANALYSIS_URL</code></td>
+<td>Legacy satellite</td>
+</tr>
+<tr>
+<td><code>SATELLITE_SERVICE_URL</code></td>
+<td><code>VEGETATION_ANALYSIS_URL</code></td>
+<td>Legacy satellite</td>
+</tr>
+<tr>
+<td><code>FERTILIZER_URL</code></td>
+<td><code>ADVISORY_SERVICE_URL</code></td>
+<td>Legacy fertilizer</td>
+</tr>
+<tr>
+<td><code>IRRIGATION_URL</code></td>
+<td><code>irrigation-smart:8094</code></td>
+<td>Legacy irrigation</td>
+</tr>
+<tr>
+<td><code>INDICATORS_URL</code></td>
+<td><code>indicators-service:8091</code></td>
+<td>Indicators service</td>
+</tr>
+<tr>
+<td><code>CROP_HEALTH_URL</code></td>
+<td><code>CROP_INTELLIGENCE_URL</code></td>
+<td>Legacy crop health</td>
+</tr>
+<tr>
+<td><code>AGRO_ADVISOR_URL</code></td>
+<td><code>ADVISORY_SERVICE_URL</code></td>
+<td>Legacy agro advisor</td>
+</tr>
+<tr>
+<td><code>NDVI_URL</code></td>
+<td><code>VEGETATION_ANALYSIS_URL</code></td>
+<td>Legacy NDVI</td>
+</tr>
+<tr>
+<td><code>NDVI_SERVICE_URL</code></td>
+<td><code>VEGETATION_ANALYSIS_URL</code></td>
+<td>Legacy NDVI</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="18-backup-disaster-recovery">18. Backup &amp; Disaster Recovery<a class="headerlink" href="#18-backup-disaster-recovery" title="Permanent link">&para;</a></h2>
+<h3 id="_12">النسخ الاحتياطي والتعافي من الكوارث<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<h3 id="general-backup">General Backup | النسخ الاحتياطي العام<a class="headerlink" href="#general-backup" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BACKUP_DIR</code></td>
+<td>Base backup directory</td>
+<td>دليل النسخ الاحتياطي الأساسي</td>
+<td>No</td>
+<td><code>/backups</code></td>
+</tr>
+<tr>
+<td><code>BACKUP_COMPRESSION</code></td>
+<td>Compression method</td>
+<td>طريقة الضغط</td>
+<td>No</td>
+<td><code>gzip</code></td>
+</tr>
+<tr>
+<td><code>BACKUP_ENCRYPTION_ENABLED</code></td>
+<td>Enable encryption</td>
+<td>تمكين التشفير</td>
+<td>No</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>BACKUP_ENCRYPTION_KEY</code></td>
+<td>Encryption key</td>
+<td>مفتاح التشفير</td>
+<td><strong>Yes</strong>*</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>BACKUP_ENCRYPTION_ALGORITHM</code></td>
+<td>Encryption algorithm</td>
+<td>خوارزمية التشفير</td>
+<td>No</td>
+<td><code>aes-256-cbc</code></td>
+</tr>
+</tbody>
+</table>
+<p>*Required when BACKUP_ENCRYPTION_ENABLED=true</p>
+<h3 id="wal-archiving-pitr-wal">WAL Archiving (PITR) | أرشفة WAL<a class="headerlink" href="#wal-archiving-pitr-wal" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WAL_ARCHIVE_ENABLED</code></td>
+<td>Enable WAL archiving</td>
+<td>تمكين أرشفة WAL</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>WAL_ARCHIVE_MODE</code></td>
+<td>Archive mode</td>
+<td>وضع الأرشفة</td>
+<td><code>always</code></td>
+</tr>
+<tr>
+<td><code>WAL_LEVEL</code></td>
+<td>WAL level</td>
+<td>مستوى WAL</td>
+<td><code>replica</code></td>
+</tr>
+<tr>
+<td><code>MAX_WAL_SENDERS</code></td>
+<td>Max WAL senders</td>
+<td>أقصى مرسلي WAL</td>
+<td><code>3</code></td>
+</tr>
+<tr>
+<td><code>WAL_RETENTION_DAYS</code></td>
+<td>WAL retention period</td>
+<td>فترة الاحتفاظ بـ WAL</td>
+<td><code>7</code></td>
+</tr>
+<tr>
+<td><code>BASE_BACKUP_RETENTION_DAYS</code></td>
+<td>Base backup retention</td>
+<td>الاحتفاظ بالنسخة الأساسية</td>
+<td><code>30</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="retention-policies">Retention Policies | سياسات الاحتفاظ<a class="headerlink" href="#retention-policies" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RETENTION_DAILY</code></td>
+<td>Daily backup retention (days)</td>
+<td>الاحتفاظ بالنسخ اليومية</td>
+<td><code>7</code></td>
+</tr>
+<tr>
+<td><code>RETENTION_WEEKLY</code></td>
+<td>Weekly backup retention (days)</td>
+<td>الاحتفاظ بالنسخ الأسبوعية</td>
+<td><code>28</code></td>
+</tr>
+<tr>
+<td><code>RETENTION_MONTHLY</code></td>
+<td>Monthly backup retention (days)</td>
+<td>الاحتفاظ بالنسخ الشهرية</td>
+<td><code>365</code></td>
+</tr>
+<tr>
+<td><code>RETENTION_MANUAL</code></td>
+<td>Manual backup retention (days)</td>
+<td>الاحتفاظ بالنسخ اليدوية</td>
+<td><code>90</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="s3minio-backup-storage-s3minio">S3/MinIO Backup Storage | تخزين النسخ الاحتياطية في S3/MinIO<a class="headerlink" href="#s3minio-backup-storage-s3minio" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>S3_BACKUP_ENABLED</code></td>
+<td>Enable S3 backup</td>
+<td>تمكين نسخ S3</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>S3_ENDPOINT</code></td>
+<td>S3/MinIO endpoint</td>
+<td>نقطة نهاية S3/MinIO</td>
+<td><code>http://minio:9000</code></td>
+</tr>
+<tr>
+<td><code>S3_BUCKET</code></td>
+<td>S3 backup bucket</td>
+<td>دلو النسخ الاحتياطي</td>
+<td><code>sahool-backups</code></td>
+</tr>
+<tr>
+<td><code>S3_ACCESS_KEY</code></td>
+<td>S3 access key</td>
+<td>مفتاح وصول S3</td>
+<td><code>${MINIO_ROOT_USER}</code></td>
+</tr>
+<tr>
+<td><code>S3_SECRET_KEY</code></td>
+<td>S3 secret key</td>
+<td>مفتاح S3 السري</td>
+<td><code>${MINIO_ROOT_PASSWORD}</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="aws-s3-off-site-backup-aws-s3">AWS S3 Off-Site Backup | نسخ AWS S3 خارج الموقع<a class="headerlink" href="#aws-s3-off-site-backup-aws-s3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AWS_S3_BACKUP_ENABLED</code></td>
+<td>Enable AWS S3 backup</td>
+<td>تمكين نسخ AWS S3</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>AWS_S3_BACKUP_BUCKET</code></td>
+<td>AWS S3 bucket</td>
+<td>دلو AWS S3</td>
+<td><code>sahool-backups-offsite</code></td>
+</tr>
+<tr>
+<td><code>AWS_S3_REGION</code></td>
+<td>AWS S3 region</td>
+<td>منطقة AWS S3</td>
+<td><code>eu-central-1</code></td>
+</tr>
+<tr>
+<td><code>AWS_S3_STORAGE_CLASS</code></td>
+<td>S3 storage class</td>
+<td>فئة تخزين S3</td>
+<td><code>STANDARD_IA</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="disaster-recovery">Disaster Recovery | التعافي من الكوارث<a class="headerlink" href="#disaster-recovery" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RTO_TARGET_HOURS</code></td>
+<td>Recovery Time Objective</td>
+<td>هدف وقت الاستعادة</td>
+<td><code>6</code></td>
+</tr>
+<tr>
+<td><code>RPO_TARGET_HOURS</code></td>
+<td>Recovery Point Objective</td>
+<td>هدف نقطة الاستعادة</td>
+<td><code>24</code></td>
+</tr>
+<tr>
+<td><code>DR_DRILL_SCHEDULE</code></td>
+<td>DR drill schedule (cron)</td>
+<td>جدول تدريب DR</td>
+<td><code>0 0 1 */3 *</code></td>
+</tr>
+<tr>
+<td><code>DR_CONTACT_EMAIL</code></td>
+<td>DR contact email</td>
+<td>بريد اتصال DR</td>
+<td><code>dr-team@sahool.com</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="notification-settings">Notification Settings | إعدادات الإشعارات<a class="headerlink" href="#notification-settings" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SLACK_NOTIFICATIONS_ENABLED</code></td>
+<td>Enable Slack notifications</td>
+<td>تمكين إشعارات Slack</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>SLACK_WEBHOOK_URL</code></td>
+<td>Slack webhook URL</td>
+<td>رابط webhook لـ Slack</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>EMAIL_NOTIFICATIONS_ENABLED</code></td>
+<td>Enable email notifications</td>
+<td>تمكين إشعارات البريد</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>BACKUP_EMAIL_TO</code></td>
+<td>Backup notification email</td>
+<td>بريد إشعارات النسخ الاحتياطي</td>
+<td><code>admin@sahool.com</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="19-development-debug">19. Development &amp; Debug<a class="headerlink" href="#19-development-debug" title="Permanent link">&para;</a></h2>
+<h3 id="_13">التطوير والتصحيح<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<p><strong>WARNING</strong>: Set these to <code>false</code> in production environments!</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+<th>Production</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DEBUG</code></td>
+<td>Enable debug mode</td>
+<td>تمكين وضع التصحيح</td>
+<td><code>false</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>RELOAD</code></td>
+<td>Enable hot reload</td>
+<td>تمكين إعادة التحميل الساخن</td>
+<td><code>false</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>SQL_ECHO</code></td>
+<td>Echo SQL queries</td>
+<td>عرض استعلامات SQL</td>
+<td><code>false</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>DB_ECHO</code></td>
+<td>Echo database operations</td>
+<td>عرض عمليات قاعدة البيانات</td>
+<td><code>false</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>ALLOW_DEV_DEFAULTS</code></td>
+<td>Allow development defaults</td>
+<td>السماح بالقيم الافتراضية للتطوير</td>
+<td><code>false</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>SEED_DEMO_DATA</code></td>
+<td>Seed demo data on startup</td>
+<td>زرع بيانات تجريبية</td>
+<td><code>false</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>CREATE_DB_SCHEMA</code></td>
+<td>Create database schema</td>
+<td>إنشاء مخطط قاعدة البيانات</td>
+<td><code>false</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>INCLUDE_STACK_TRACE</code></td>
+<td>Include stack traces in errors</td>
+<td>تضمين تتبع المكدس</td>
+<td><code>false</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>LOG_REQUEST_BODY</code></td>
+<td>Log request bodies</td>
+<td>تسجيل نصوص الطلبات</td>
+<td><code>false</code></td>
+<td><code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="demo-mode">Demo Mode | وضع العرض التوضيحي<a class="headerlink" href="#demo-mode" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DEMO_MODE</code></td>
+<td>Demo mode type</td>
+<td>نوع وضع العرض</td>
+<td><code>continuous</code></td>
+</tr>
+<tr>
+<td><code>DEMO_INTERVAL_SECONDS</code></td>
+<td>Demo data interval</td>
+<td>فترة بيانات العرض</td>
+<td><code>30</code></td>
+</tr>
+<tr>
+<td><code>DEMO_TENANT_ID</code></td>
+<td>Demo tenant ID</td>
+<td>معرف مستأجر العرض</td>
+<td><code>a0000000-0000-0000-0000-000000000001</code></td>
+</tr>
+<tr>
+<td><code>DEMO_USER_ID</code></td>
+<td>Demo user ID</td>
+<td>معرف مستخدم العرض</td>
+<td><code>b0000000-0000-0000-0000-000000000001</code></td>
+</tr>
+<tr>
+<td><code>DEMO_BATCH_COUNT</code></td>
+<td>Demo batch count</td>
+<td>عدد دفعات العرض</td>
+<td><code>100</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="mcp-server-configuration-mcp">MCP Server Configuration | تكوين خادم MCP<a class="headerlink" href="#mcp-server-configuration-mcp" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MCP_SERVER_HOST</code></td>
+<td>MCP server host</td>
+<td>مضيف خادم MCP</td>
+<td><code>0.0.0.0</code></td>
+</tr>
+<tr>
+<td><code>MCP_SERVER_PORT</code></td>
+<td>MCP server port</td>
+<td>منفذ خادم MCP</td>
+<td><code>8200</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="rate-limiting-configuration">Rate Limiting Configuration<a class="headerlink" href="#rate-limiting-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="_14">تكوين تحديد المعدل<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RATE_LIMIT_ENABLED</code></td>
+<td>Enable rate limiting</td>
+<td>تمكين تحديد المعدل</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>RATE_LIMIT_REQUESTS</code></td>
+<td>General rate limit</td>
+<td>حد المعدل العام</td>
+<td><code>100</code></td>
+</tr>
+<tr>
+<td><code>RATE_LIMIT_WINDOW_SECONDS</code></td>
+<td>Rate limit window</td>
+<td>نافذة تحديد المعدل</td>
+<td><code>60</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="tier-based-rate-limits">Tier-Based Rate Limits | حدود المعدل حسب المستوى<a class="headerlink" href="#tier-based-rate-limits" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>RPM</th>
+<th>RPH</th>
+<th>Burst</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Free</td>
+<td><code>RATE_LIMIT_FREE_RPM=30</code></td>
+<td><code>RATE_LIMIT_FREE_RPH=500</code></td>
+<td><code>RATE_LIMIT_FREE_BURST=5</code></td>
+</tr>
+<tr>
+<td>Standard</td>
+<td><code>RATE_LIMIT_STANDARD_RPM=60</code></td>
+<td><code>RATE_LIMIT_STANDARD_RPH=2000</code></td>
+<td><code>RATE_LIMIT_STANDARD_BURST=10</code></td>
+</tr>
+<tr>
+<td>Premium</td>
+<td><code>RATE_LIMIT_PREMIUM_RPM=120</code></td>
+<td><code>RATE_LIMIT_PREMIUM_RPH=5000</code></td>
+<td><code>RATE_LIMIT_PREMIUM_BURST=20</code></td>
+</tr>
+<tr>
+<td>Internal</td>
+<td><code>RATE_LIMIT_INTERNAL_RPM=1000</code></td>
+<td><code>RATE_LIMIT_INTERNAL_RPH=50000</code></td>
+<td><code>RATE_LIMIT_INTERNAL_BURST=100</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="cache-configuration">Cache Configuration<a class="headerlink" href="#cache-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="_15">تكوين التخزين المؤقت<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CACHE_ENABLED</code></td>
+<td>Enable caching</td>
+<td>تمكين التخزين المؤقت</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>CACHE_TTL_SECONDS</code></td>
+<td>Default cache TTL</td>
+<td>TTL التخزين المؤقت الافتراضي</td>
+<td><code>300</code></td>
+</tr>
+<tr>
+<td><code>CACHE_MAX_SIZE</code></td>
+<td>Max cache entries</td>
+<td>أقصى إدخالات التخزين المؤقت</td>
+<td><code>10000</code></td>
+</tr>
+<tr>
+<td><code>CACHE_TTL_USER_DATA</code></td>
+<td>User data cache TTL</td>
+<td>TTL بيانات المستخدم</td>
+<td><code>600</code></td>
+</tr>
+<tr>
+<td><code>CACHE_TTL_FIELD_DATA</code></td>
+<td>Field data cache TTL</td>
+<td>TTL بيانات الحقل</td>
+<td><code>300</code></td>
+</tr>
+<tr>
+<td><code>CACHE_TTL_WEATHER_DATA</code></td>
+<td>Weather data cache TTL</td>
+<td>TTL بيانات الطقس</td>
+<td><code>1800</code></td>
+</tr>
+<tr>
+<td><code>CACHE_TTL_SATELLITE_DATA</code></td>
+<td>Satellite data cache TTL</td>
+<td>TTL بيانات الأقمار الصناعية</td>
+<td><code>3600</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="api-configuration">API Configuration<a class="headerlink" href="#api-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="api">تكوين API<a class="headerlink" href="#api" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DEFAULT_PAGE_SIZE</code></td>
+<td>Default pagination size</td>
+<td>حجم الترقيم الافتراضي</td>
+<td><code>50</code></td>
+</tr>
+<tr>
+<td><code>MAX_PAGE_SIZE</code></td>
+<td>Maximum page size</td>
+<td>أقصى حجم صفحة</td>
+<td><code>1000</code></td>
+</tr>
+<tr>
+<td><code>ENABLE_STREAMING_RESPONSES</code></td>
+<td>Enable streaming</td>
+<td>تمكين البث</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>CORS_ALLOWED_ORIGINS</code></td>
+<td>Allowed CORS origins</td>
+<td>أصول CORS المسموحة</td>
+<td><code>http://localhost:3000,...</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="application-limits">Application Limits<a class="headerlink" href="#application-limits" title="Permanent link">&para;</a></h2>
+<h3 id="_16">حدود التطبيق<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MAX_NOTIFICATIONS_PER_HOUR</code></td>
+<td>Max notifications per hour</td>
+<td>أقصى إشعارات في الساعة</td>
+<td><code>100</code></td>
+</tr>
+<tr>
+<td><code>MAX_RETRIES</code></td>
+<td>Max retry attempts</td>
+<td>أقصى محاولات إعادة</td>
+<td><code>3</code></td>
+</tr>
+<tr>
+<td><code>RETRY_DELAY_SECONDS</code></td>
+<td>Retry delay</td>
+<td>تأخير إعادة المحاولة</td>
+<td><code>5</code></td>
+</tr>
+<tr>
+<td><code>MAINTENANCE_CHECK_INTERVAL</code></td>
+<td>Maintenance check interval</td>
+<td>فترة فحص الصيانة</td>
+<td><code>3600</code></td>
+</tr>
+<tr>
+<td><code>PLAN_LIMITS</code></td>
+<td>Plan limits JSON</td>
+<td>حدود الخطة (JSON)</td>
+<td><code>{"free":{"fields":10},...}</code></td>
+</tr>
+<tr>
+<td><code>TRIAL_DAYS</code></td>
+<td>Trial period days</td>
+<td>أيام الفترة التجريبية</td>
+<td><code>14</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quick-reference-environment-files">Quick Reference - Environment Files<a class="headerlink" href="#quick-reference-environment-files" title="Permanent link">&para;</a></h2>
+<h3 id="-">مرجع سريع - ملفات البيئة<a class="headerlink" href="#-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.env.example</code></td>
+<td>Main environment template</td>
+<td>قالب البيئة الرئيسي</td>
+</tr>
+<tr>
+<td><code>.env.development.template</code></td>
+<td>Development environment (no TLS)</td>
+<td>بيئة التطوير (بدون TLS)</td>
+</tr>
+<tr>
+<td><code>apps/admin/.env.example</code></td>
+<td>Admin portal configuration</td>
+<td>تكوين بوابة الإدارة</td>
+</tr>
+<tr>
+<td><code>apps/web/.env.example</code></td>
+<td>Web dashboard configuration</td>
+<td>تكوين لوحة تحكم الويب</td>
+</tr>
+<tr>
+<td><code>apps/mobile/.env.example</code></td>
+<td>Mobile app configuration</td>
+<td>تكوين تطبيق الجوال</td>
+</tr>
+<tr>
+<td><code>apps/mobile/sahool_field_app/.env.example</code></td>
+<td>Field app configuration</td>
+<td>تكوين تطبيق الحقل</td>
+</tr>
+<tr>
+<td><code>apps/mobile/sahol_atmosphere/.env.example</code></td>
+<td>Atmosphere app configuration</td>
+<td>تكوين تطبيق الأجواء</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="security-best-practices">Security Best Practices<a class="headerlink" href="#security-best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="_17">أفضل ممارسات الأمان<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Never commit secrets</strong> - استخدم ملفات <code>.env</code> المحلية فقط</li>
+<li><strong>Use strong passwords</strong> - استخدم كلمات مرور قوية (32+ حرفاً)</li>
+<li><strong>Rotate credentials regularly</strong> - قم بتدوير الاعتمادات بانتظام</li>
+<li><strong>Enable TLS in production</strong> - مكّن TLS في الإنتاج</li>
+<li><strong>Use Vault for production</strong> - استخدم Vault للإنتاج</li>
+<li><strong>Set DEBUG=false in production</strong> - اضبط DEBUG على false في الإنتاج</li>
+</ol>
+<h3 id="generating-secure-values">Generating Secure Values | توليد قيم آمنة<a class="headerlink" href="#generating-secure-values" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate secure password (32 characters)</span>
+openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span>
+
+<span class="c1"># Generate encryption key</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import base64, os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())&quot;</span>
+
+<span class="c1"># Generate JWT secret</span>
+openssl<span class="w"> </span>rand<span class="w"> </span>-hex<span class="w"> </span><span class="m">32</span>
+</code></pre></div>
+
+<hr />
+<p><em>Last Updated: January 2026</em>
+<em>Version: 16.0.0</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

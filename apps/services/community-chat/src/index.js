@@ -943,28 +943,30 @@ process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 // ═══════════════════════════════════════════════════════════════════════════════
 
 async function startServer() {
+  // Try to connect to database, but don't fail if unavailable
+  let dbConnected = false;
   try {
-    // Test database connection
     await prisma.$connect();
     console.log("✅ Database connected successfully");
+    dbConnected = true;
+  } catch (error) {
+    console.warn("⚠️ Database connection failed:", error.message);
+    console.warn("⚠️ Service will start in degraded mode (no persistence)");
+  }
 
-    server.listen(PORT, () => {
-      console.log(`
+  server.listen(PORT, () => {
+    console.log(`
 ╔═══════════════════════════════════════════════════════════════╗
 ║         🌿 Sahool Community Chat Service 🌿                   ║
 ║                                                               ║
 ║   Service: ${SERVICE_NAME.padEnd(20)} Version: ${SERVICE_VERSION}        ║
 ║   Port: ${PORT}                                                ║
-║   Database: PostgreSQL (Prisma)                               ║
+║   Database: ${dbConnected ? "Connected ✅" : "Disconnected ⚠️"}                            ║
 ║                                                               ║
 ║   خدمة الدردشة الحية لمجتمع سهول الزراعي                     ║
 ╚═══════════════════════════════════════════════════════════════╝
-      `);
-    });
-  } catch (error) {
-    console.error("❌ Failed to start server:", error.message);
-    process.exit(1);
-  }
+    `);
+  });
 }
 
 startServer();

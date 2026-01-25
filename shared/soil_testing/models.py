@@ -427,8 +427,8 @@ class SoilTestResult:
     currency: str = "SAR"
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     notes: str = ""
     notes_ar: str = ""
 
@@ -602,7 +602,7 @@ class InterpretationReport:
     # Reference
     soil_test_id: str
     field_id: str
-    interpretation_date: datetime = field(default_factory=datetime.utcnow)
+    interpretation_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Nutrient interpretations
     interpretations: list[NutrientInterpretation] = field(default_factory=list)
@@ -752,7 +752,7 @@ class AmendmentPlan:
     field_area_ha: float = 0.0
 
     # Plan details
-    plan_date: datetime = field(default_factory=datetime.utcnow)
+    plan_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     valid_until: datetime | None = None
 
     # Recommendations
@@ -891,7 +891,7 @@ class TrendReport:
     # Identification
     field_id: str
     tenant_id: str
-    report_date: datetime = field(default_factory=datetime.utcnow)
+    report_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Analysis period
     period_start: datetime | None = None

@@ -6,7 +6,7 @@
 Pydantic models for irrigation scheduling and water management
 """
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -382,10 +382,10 @@ class IrrigationSchedule(BaseModel):
 
     # البيانات الإضافية - Metadata
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="تاريخ الإنشاء - Created at"
+        default_factory=lambda: datetime.now(timezone.utc), description="تاريخ الإنشاء - Created at"
     )
     updated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="تاريخ التحديث - Updated at"
+        default_factory=lambda: datetime.now(timezone.utc), description="تاريخ التحديث - Updated at"
     )
     metadata: dict[str, Any] = Field(
         default_factory=dict, description="بيانات إضافية - Additional metadata"
@@ -400,14 +400,14 @@ class IrrigationSchedule(BaseModel):
         self.total_water_mm += event.water_amount_mm
         if event.water_amount_m3:
             self.total_water_m3 += event.water_amount_m3
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
 
     def get_upcoming_events(self, days: int = 7) -> list[IrrigationEvent]:
         """
         الحصول على أحداث الري القادمة
         Get upcoming irrigation events
         """
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         future_date = now + timedelta(days=days)
         return [
             event

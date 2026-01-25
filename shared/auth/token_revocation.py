@@ -176,7 +176,7 @@ class RedisTokenRevocationStore:
             await self._redis.setex(
                 key,
                 ttl,
-                str(value),  # Store as string for simplicity
+                json.dumps(value),  # Store as JSON for proper deserialization
             )
 
             logger.info(f"Token revoked: jti={jti[:8]}..., reason={reason}, ttl={ttl}s")
@@ -290,7 +290,7 @@ class RedisTokenRevocationStore:
 
             # Store with long TTL (30 days)
             # This ensures old tokens are rejected even if they haven't expired
-            await self._redis.setex(key, 2592000, str(value))  # 30 days
+            await self._redis.setex(key, 2592000, json.dumps(value))  # 30 days
 
             logger.info(f"All user tokens revoked: user_id={user_id}, reason={reason}")
             return True
@@ -412,7 +412,7 @@ class RedisTokenRevocationStore:
             }
 
             # Store with long TTL (30 days)
-            await self._redis.setex(key, 2592000, str(value))
+            await self._redis.setex(key, 2592000, json.dumps(value))
 
             logger.warning(f"All tenant tokens revoked: tenant_id={tenant_id}, reason={reason}")
             return True

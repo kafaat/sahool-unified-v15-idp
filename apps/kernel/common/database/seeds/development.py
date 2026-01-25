@@ -8,7 +8,7 @@ Seeds the database with sample data for development and testing.
 
 import random
 import uuid
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
 from sqlalchemy import text
@@ -31,7 +31,7 @@ class DevelopmentSeeder(BaseSeeder):
         تعبئة قاعدة البيانات ببيانات التطوير
         Seed database with development data
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         results = {
             "success": True,
             "tenants": 0,
@@ -73,7 +73,7 @@ class DevelopmentSeeder(BaseSeeder):
                 # تنفيذ جميع التغييرات / Commit all changes
                 session.commit()
 
-                end_time = datetime.utcnow()
+                end_time = datetime.now(timezone.utc)
                 results["execution_time_ms"] = (end_time - start_time).total_seconds() * 1000
 
                 self._log(

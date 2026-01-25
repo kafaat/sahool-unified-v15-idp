@@ -43,22 +43,20 @@ receivers:
           static_configs:
             # Core services
             - targets:
-                - 'field_core:9090'
-                - 'field_ops:9090'
-                - 'field_service:9090'
+                - 'field_management_service:9090'
               labels:
                 service_group: 'core'
 
             # Weather services
             - targets:
                 - 'weather_core:9090'
-                - 'weather_advanced:9090'
+                - 'weather_service:9090'
               labels:
                 service_group: 'weather'
 
             # Satellite services
             - targets:
-                - 'satellite_service:9090'
+                - 'vegetation_analysis_service:9090'
                 - 'ndvi_engine:9090'
                 - 'ndvi_processor:9090'
               labels:
@@ -66,8 +64,7 @@ receivers:
 
             # AI/ML services
             - targets:
-                - 'crop_health_ai:9090'
-                - 'crop_health:9090'
+                - 'crop_intelligence_service:9090'
                 - 'crop_growth_model:9090'
                 - 'lai_estimation:9090'
                 - 'yield_engine:9090'
@@ -80,7 +77,7 @@ receivers:
                 - 'ai_advisor:9090'
                 - 'agro_advisor:9090'
                 - 'agro_rules:9090'
-                - 'fertilizer_advisor:9090'
+                - 'advisory_service:9090'
                 - 'irrigation_smart:9090'
               labels:
                 service_group: 'advisory'

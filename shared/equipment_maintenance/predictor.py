@@ -171,7 +171,7 @@ class ComponentHealth:
     urgency: MaintenancePriority = MaintenancePriority.LOW
 
     # Last assessment - آخر تقييم
-    assessed_at: datetime = field(default_factory=datetime.now(timezone.utc))
+    assessed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     assessed_at_hours: float = 0.0
 
     def to_dict(self) -> dict:
@@ -240,7 +240,7 @@ class PredictiveInsight:
     data_quality: float = 0.8  # 0-1
 
     # Metadata
-    generated_at: datetime = field(default_factory=datetime.now(timezone.utc))
+    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     valid_until: datetime | None = None
     is_active: bool = True
     acknowledged: bool = False

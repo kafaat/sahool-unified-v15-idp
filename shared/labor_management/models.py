@@ -444,14 +444,14 @@ class Task:
         """Check if task is blocked due to REI restriction"""
         if not self.rei_restricted or not self.rei_expiry_time:
             return False
-        check = check_time or datetime.utcnow()
+        check = check_time or datetime.now(timezone.utc)
         return check < self.rei_expiry_time
 
     def get_rei_remaining_hours(self, check_time: datetime | None = None) -> float | None:
         """Get remaining REI hours"""
         if not self.rei_restricted or not self.rei_expiry_time:
             return None
-        check = check_time or datetime.utcnow()
+        check = check_time or datetime.now(timezone.utc)
         if check >= self.rei_expiry_time:
             return 0.0
         return (self.rei_expiry_time - check).total_seconds() / 3600
@@ -757,12 +757,12 @@ class REIZone:
         """Check if zone is currently restricted"""
         if not self.is_active:
             return False
-        check = check_time or datetime.utcnow()
+        check = check_time or datetime.now(timezone.utc)
         return check < self.rei_expiry_time
 
     def get_remaining_hours(self, check_time: datetime | None = None) -> float:
         """Get remaining REI hours"""
-        check = check_time or datetime.utcnow()
+        check = check_time or datetime.now(timezone.utc)
         if check >= self.rei_expiry_time:
             return 0.0
         return (self.rei_expiry_time - check).total_seconds() / 3600

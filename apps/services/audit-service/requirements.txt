@@ -12,14 +12,11 @@ pydantic==2.9.2
 # HTTP Client
 httpx==0.28.1
 
-# Database & ORM
+# Database & ORM (sync SQLAlchemy - uses psycopg2)
+# Note: Tortoise ORM removed - using SQLAlchemy only for consistency
 sqlalchemy==2.0.23
 alembic==1.13.1
 psycopg2-binary==2.9.9
-asyncpg==0.30.0
-
-# Tortoise ORM for audit models
-tortoise-orm==0.21.7
 
 # NATS Messaging
 nats-py==2.9.0

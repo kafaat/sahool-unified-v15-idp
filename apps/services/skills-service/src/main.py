@@ -734,16 +734,10 @@ async def create_learning_path(
             for module in skill_modules[skill]:
                 if len(modules) < request.max_modules:
                     # Filter by difficulty preference
-                    if request.preferred_difficulty == "beginner" and module.difficulty in ["beginner"]:
-                        modules.append(module)
-                    elif request.preferred_difficulty == "intermediate" and module.difficulty in [
+                    if request.preferred_difficulty == "beginner" and module.difficulty in ["beginner"] or request.preferred_difficulty == "intermediate" and module.difficulty in [
                         "beginner",
                         "intermediate",
-                    ]:
-                        modules.append(module)
-                    elif request.preferred_difficulty == "advanced":
-                        modules.append(module)
-                    elif request.preferred_difficulty not in ["beginner", "intermediate", "advanced"]:
+                    ] or request.preferred_difficulty == "advanced" or request.preferred_difficulty not in ["beginner", "intermediate", "advanced"]:
                         modules.append(module)
 
     # If no modules matched, add some defaults

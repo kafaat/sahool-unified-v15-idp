@@ -107,7 +107,7 @@ class Diagnostic:
     suggestion_ar: str | None = None
     documentation_url: str | None = None
     related_diagnostics: list[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -152,7 +152,7 @@ class CodeFix:
     breaking_change: bool = False
     test_required: bool = False
     related_fixes: list[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -214,7 +214,7 @@ class DiagnosticReport:
     total_hints: int = 0
     tools_used: list[ToolType] = field(default_factory=list)
     scan_duration_ms: float = 0.0
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def __post_init__(self):
         """Calculate totals from diagnostics."""
@@ -273,7 +273,7 @@ class FixPlan:
     review_required: int = 0
     estimated_impact: str | None = None
     estimated_impact_ar: str | None = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def __post_init__(self):
         """Calculate fix statistics."""
@@ -311,7 +311,7 @@ class AuditEntry:
     severity: DiagnosticSeverity | None = None
     success: bool = True
     error: str | None = None
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""

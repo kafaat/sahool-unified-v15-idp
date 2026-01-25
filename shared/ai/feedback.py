@@ -103,8 +103,8 @@ class FeedbackItem:
     sentiment_score: float = 0.0  # -1.0 to 1.0
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     source: str = "mobile_app"  # mobile_app, web, api, sms
 
     # Tags for categorization

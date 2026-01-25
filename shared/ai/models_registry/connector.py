@@ -54,7 +54,7 @@ class ConnectorResponse:
     tokens_used: int | None = None
     latency_ms: float = 0.0
     metadata: dict[str, Any] = field(default_factory=dict)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""

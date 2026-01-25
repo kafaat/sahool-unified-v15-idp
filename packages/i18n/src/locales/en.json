@@ -51,6 +51,11 @@
     "documents": "Documents",
     "analytics": "Analytics",
     "pivotIrrigation": "Pivot Irrigation",
+    "satellite": "Satellite Imagery",
+    "research": "Research & Trials",
+    "logistics": "Logistics",
+    "compliance": "Compliance & Quality",
+    "disasterAssessment": "Disaster Assessment",
     "mainNav": "Main Navigation",
     "version": "Version"
   },

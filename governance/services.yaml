@@ -393,7 +393,7 @@ services:
     category: analytics
     layer: acquisition
     path: "apps/services/ground-vision-service"
-    port: 8180
+    port: 8182
     protocol: http
     health_endpoint: "/healthz"
     status: active

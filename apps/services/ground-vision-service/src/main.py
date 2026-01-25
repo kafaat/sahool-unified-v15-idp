@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 # Service configuration
 SERVICE_NAME = "ground-vision-service"
 SERVICE_VERSION = "16.0.0"
-SERVICE_PORT = int(os.getenv("PORT", "8180"))
+SERVICE_PORT = int(os.getenv("PORT", "8182"))
 
 
 # Health check response models

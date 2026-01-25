@@ -1,82 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { FlaskConical, Plus, Calendar, MapPin, BarChart3, Users } from "lucide-react";
-
-interface Trial {
-  id: string;
-  name: string;
-  nameAr: string;
-  description: string;
-  crop: string;
-  cropAr: string;
-  startDate: string;
-  endDate: string;
-  status: "planning" | "active" | "completed" | "on_hold";
-  fieldId: string;
-  fieldName: string;
-  researchers: number;
-  progress: number;
-}
-
-const mockTrials: Trial[] = [
-  {
-    id: "1",
-    name: "Wheat Drought Resistance Study",
-    nameAr: "دراسة مقاومة القمح للجفاف",
-    description: "تقييم أصناف القمح المختلفة لتحمل الإجهاد المائي",
-    crop: "Wheat",
-    cropAr: "القمح",
-    startDate: "2026-01-01",
-    endDate: "2026-06-30",
-    status: "active",
-    fieldId: "F001",
-    fieldName: "حقل التجارب 1",
-    researchers: 5,
-    progress: 45,
-  },
-  {
-    id: "2",
-    name: "Organic Fertilizer Efficiency",
-    nameAr: "كفاءة الأسمدة العضوية",
-    description: "مقارنة بين الأسمدة العضوية والكيميائية",
-    crop: "Tomato",
-    cropAr: "الطماطم",
-    startDate: "2026-02-15",
-    endDate: "2026-08-15",
-    status: "planning",
-    fieldId: "F002",
-    fieldName: "حقل التجارب 2",
-    researchers: 3,
-    progress: 0,
-  },
-  {
-    id: "3",
-    name: "Date Palm Yield Optimization",
-    nameAr: "تحسين إنتاجية النخيل",
-    description: "دراسة تأثير الري بالتنقيط على إنتاج التمور",
-    crop: "Date Palm",
-    cropAr: "النخيل",
-    startDate: "2025-06-01",
-    endDate: "2025-12-31",
-    status: "completed",
-    fieldId: "F003",
-    fieldName: "بستان النخيل",
-    researchers: 4,
-    progress: 100,
-  },
-];
+import React, { useState, useMemo } from "react";
+import { FlaskConical, Plus, Calendar, MapPin, BarChart3, Users, AlertTriangle } from "lucide-react";
+import { useResearchTrials, useResearchStats } from "@/features/research";
+import type { ResearchTrial } from "@/features/research";
 
 export default function ResearchClient() {
-  const [trials, setTrials] = useState<Trial[]>(mockTrials);
-  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"all" | "active" | "completed">("all");
 
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 500);
-  }, []);
+  // Fetch data using React Query hooks
+  const { data: trials = [], isLoading, error } = useResearchTrials();
+  const { data: stats } = useResearchStats();
 
-  const getStatusBadge = (status: Trial["status"]) => {
+  const getStatusBadge = (status: ResearchTrial["status"]) => {
     const styles = {
       planning: "bg-blue-100 text-blue-800",
       active: "bg-green-100 text-green-800",
@@ -96,16 +32,30 @@ export default function ResearchClient() {
     );
   };
 
-  const filteredTrials = trials.filter((trial) => {
-    if (activeTab === "all") return true;
-    if (activeTab === "active") return trial.status === "active" || trial.status === "planning";
-    return trial.status === "completed";
-  });
+  const filteredTrials = useMemo(() => {
+    return trials.filter((trial) => {
+      if (activeTab === "all") return true;
+      if (activeTab === "active") return trial.status === "active" || trial.status === "planning";
+      return trial.status === "completed";
+    });
+  }, [trials, activeTab]);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sahool-green-600" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-red-600">فشل في تحميل بيانات التجارب البحثية</p>
+          <p className="text-gray-500 text-sm">Failed to load research trials data</p>
+        </div>
       </div>
     );
   }
@@ -133,7 +83,7 @@ export default function ResearchClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">إجمالي التجارب</div>
-              <div className="text-xl font-bold text-gray-900">{trials.length}</div>
+              <div className="text-xl font-bold text-gray-900">{stats?.totalTrials ?? trials.length}</div>
             </div>
           </div>
         </div>
@@ -145,7 +95,7 @@ export default function ResearchClient() {
             <div>
               <div className="text-sm text-gray-500">نشطة</div>
               <div className="text-xl font-bold text-green-600">
-                {trials.filter((t) => t.status === "active").length}
+                {stats?.activeTrials ?? trials.filter((t) => t.status === "active").length}
               </div>
             </div>
           </div>
@@ -158,7 +108,7 @@ export default function ResearchClient() {
             <div>
               <div className="text-sm text-gray-500">مكتملة</div>
               <div className="text-xl font-bold text-gray-600">
-                {trials.filter((t) => t.status === "completed").length}
+                {stats?.completedTrials ?? trials.filter((t) => t.status === "completed").length}
               </div>
             </div>
           </div>
@@ -171,7 +121,7 @@ export default function ResearchClient() {
             <div>
               <div className="text-sm text-gray-500">الباحثين</div>
               <div className="text-xl font-bold text-purple-600">
-                {trials.reduce((acc, t) => acc + t.researchers, 0)}
+                {stats?.totalResearchers ?? trials.reduce((acc, t) => acc + t.researchers, 0)}
               </div>
             </div>
           </div>
@@ -203,51 +153,57 @@ export default function ResearchClient() {
 
       {/* Trials Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredTrials.map((trial) => (
-          <div key={trial.id} className="bg-white rounded-lg border p-4 hover:shadow-md transition-shadow">
-            <div className="flex items-start justify-between mb-3">
-              <div className="w-10 h-10 bg-sahool-green-100 rounded-lg flex items-center justify-center">
-                <FlaskConical className="w-5 h-5 text-sahool-green-600" />
-              </div>
-              {getStatusBadge(trial.status)}
-            </div>
-
-            <h3 className="font-semibold text-gray-900 mb-1">{trial.nameAr}</h3>
-            <p className="text-sm text-gray-500 mb-3">{trial.name}</p>
-
-            <p className="text-sm text-gray-600 mb-4 line-clamp-2">{trial.description}</p>
-
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2 text-gray-500">
-                <MapPin className="w-4 h-4" />
-                <span>{trial.fieldName}</span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-500">
-                <Calendar className="w-4 h-4" />
-                <span>{trial.startDate} - {trial.endDate}</span>
-              </div>
-            </div>
-
-            {trial.status === "active" && (
-              <div className="mt-4">
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-500">التقدم</span>
-                  <span className="font-medium">{trial.progress}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-sahool-green-600 h-2 rounded-full transition-all"
-                    style={{ width: `${trial.progress}%` }}
-                  />
-                </div>
-              </div>
-            )}
-
-            <button className="w-full mt-4 px-4 py-2 border border-sahool-green-600 text-sahool-green-600 rounded-lg hover:bg-sahool-green-50 transition-colors text-sm font-medium">
-              عرض التفاصيل
-            </button>
+        {filteredTrials.length === 0 ? (
+          <div className="col-span-full text-center py-8 text-gray-500">
+            لا توجد تجارب بحثية
           </div>
-        ))}
+        ) : (
+          filteredTrials.map((trial) => (
+            <div key={trial.id} className="bg-white rounded-lg border p-4 hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-3">
+                <div className="w-10 h-10 bg-sahool-green-100 rounded-lg flex items-center justify-center">
+                  <FlaskConical className="w-5 h-5 text-sahool-green-600" />
+                </div>
+                {getStatusBadge(trial.status)}
+              </div>
+
+              <h3 className="font-semibold text-gray-900 mb-1">{trial.nameAr}</h3>
+              <p className="text-sm text-gray-500 mb-3">{trial.name}</p>
+
+              <p className="text-sm text-gray-600 mb-4 line-clamp-2">{trial.description}</p>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 text-gray-500">
+                  <MapPin className="w-4 h-4" />
+                  <span>{trial.fieldName}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-500">
+                  <Calendar className="w-4 h-4" />
+                  <span>{trial.startDate} - {trial.endDate}</span>
+                </div>
+              </div>
+
+              {trial.status === "active" && (
+                <div className="mt-4">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-gray-500">التقدم</span>
+                    <span className="font-medium">{trial.progress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-sahool-green-600 h-2 rounded-full transition-all"
+                      style={{ width: `${trial.progress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <button className="w-full mt-4 px-4 py-2 border border-sahool-green-600 text-sahool-green-600 rounded-lg hover:bg-sahool-green-50 transition-colors text-sm font-medium">
+                عرض التفاصيل
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

@@ -1,116 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useMemo } from "react";
 import { AlertTriangle, Shield, CloudRain, Thermometer, Wind, MapPin, Clock, FileText } from "lucide-react";
-
-interface RiskAssessment {
-  id: string;
-  type: "flood" | "drought" | "frost" | "pest" | "disease" | "storm";
-  typeAr: string;
-  riskLevel: "low" | "medium" | "high" | "critical";
-  affectedArea: string;
-  affectedAreaAr: string;
-  probability: number;
-  potentialLoss: number;
-  lastUpdated: string;
-  mitigationPlan?: string;
-}
-
-interface DisasterEvent {
-  id: string;
-  type: string;
-  typeAr: string;
-  date: string;
-  location: string;
-  locationAr: string;
-  severity: "minor" | "moderate" | "severe";
-  status: "active" | "monitoring" | "resolved";
-  damageEstimate: number;
-}
-
-const mockRisks: RiskAssessment[] = [
-  {
-    id: "1",
-    type: "drought",
-    typeAr: "جفاف",
-    riskLevel: "medium",
-    affectedArea: "Central Region",
-    affectedAreaAr: "المنطقة الوسطى",
-    probability: 45,
-    potentialLoss: 150000,
-    lastUpdated: "2026-01-25",
-    mitigationPlan: "Activate emergency irrigation reserves",
-  },
-  {
-    id: "2",
-    type: "frost",
-    typeAr: "صقيع",
-    riskLevel: "high",
-    affectedArea: "Northern Farms",
-    affectedAreaAr: "المزارع الشمالية",
-    probability: 70,
-    potentialLoss: 85000,
-    lastUpdated: "2026-01-25",
-    mitigationPlan: "Deploy frost protection covers",
-  },
-  {
-    id: "3",
-    type: "pest",
-    typeAr: "آفات",
-    riskLevel: "low",
-    affectedArea: "Al-Kharj Fields",
-    affectedAreaAr: "حقول الخرج",
-    probability: 25,
-    potentialLoss: 45000,
-    lastUpdated: "2026-01-24",
-  },
-  {
-    id: "4",
-    type: "storm",
-    typeAr: "عاصفة",
-    riskLevel: "critical",
-    affectedArea: "Eastern Province",
-    affectedAreaAr: "المنطقة الشرقية",
-    probability: 85,
-    potentialLoss: 320000,
-    lastUpdated: "2026-01-25",
-    mitigationPlan: "Secure equipment, harvest ripe crops immediately",
-  },
-];
-
-const mockEvents: DisasterEvent[] = [
-  {
-    id: "1",
-    type: "Sandstorm",
-    typeAr: "عاصفة رملية",
-    date: "2026-01-20",
-    location: "Qassim Region",
-    locationAr: "منطقة القصيم",
-    severity: "moderate",
-    status: "resolved",
-    damageEstimate: 25000,
-  },
-  {
-    id: "2",
-    type: "Flash Flood",
-    typeAr: "سيول",
-    date: "2026-01-18",
-    location: "Asir Mountains",
-    locationAr: "جبال عسير",
-    severity: "severe",
-    status: "monitoring",
-    damageEstimate: 180000,
-  },
-];
+import { useDisasterRisks, useDisasterEvents, useDisasterStats } from "@/features/disaster-assessment";
+import type { RiskAssessment, DisasterEvent } from "@/features/disaster-assessment";
 
 export default function DisasterAssessmentClient() {
-  const [risks, setRisks] = useState<RiskAssessment[]>(mockRisks);
-  const [events, setEvents] = useState<DisasterEvent[]>(mockEvents);
-  const [isLoading, setIsLoading] = useState(true);
+  // Fetch data using React Query hooks
+  const { data: risks = [], isLoading: risksLoading, error: risksError } = useDisasterRisks();
+  const { data: events = [], isLoading: eventsLoading } = useDisasterEvents();
+  const { data: stats } = useDisasterStats();
 
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 500);
-  }, []);
+  const isLoading = risksLoading || eventsLoading;
 
   const getRiskColor = (level: RiskAssessment["riskLevel"]) => {
     const colors = {
@@ -180,9 +81,12 @@ export default function DisasterAssessmentClient() {
     return labels[status];
   };
 
-  const criticalRisks = risks.filter(r => r.riskLevel === "critical" || r.riskLevel === "high").length;
-  const totalPotentialLoss = risks.reduce((acc, r) => acc + r.potentialLoss, 0);
-  const activeEvents = events.filter(e => e.status !== "resolved").length;
+  const localStats = useMemo(() => {
+    const criticalRisks = risks.filter(r => r.riskLevel === "critical" || r.riskLevel === "high").length;
+    const totalPotentialLoss = risks.reduce((acc, r) => acc + r.potentialLoss, 0);
+    const activeEvents = events.filter(e => e.status !== "resolved").length;
+    return { criticalRisks, totalPotentialLoss, activeEvents, totalRisks: risks.length };
+  }, [risks, events]);
 
   if (isLoading) {
     return (
@@ -191,6 +95,20 @@ export default function DisasterAssessmentClient() {
       </div>
     );
   }
+
+  if (risksError) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-red-600">فشل في تحميل بيانات تقييم الكوارث</p>
+          <p className="text-gray-500 text-sm">Failed to load disaster assessment data</p>
+        </div>
+      </div>
+    );
+  }
+
+  const criticalRisks = stats?.criticalRisks ?? localStats.criticalRisks;
 
   return (
     <div className="space-y-6">
@@ -245,7 +163,7 @@ export default function DisasterAssessmentClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">إجمالي المخاطر</div>
-              <div className="text-lg font-bold text-amber-600">{risks.length}</div>
+              <div className="text-lg font-bold text-amber-600">{stats?.totalRisks ?? localStats.totalRisks}</div>
             </div>
           </div>
         </div>
@@ -256,7 +174,7 @@ export default function DisasterAssessmentClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">حوادث نشطة</div>
-              <div className="text-lg font-bold text-purple-600">{activeEvents}</div>
+              <div className="text-lg font-bold text-purple-600">{stats?.activeEvents ?? localStats.activeEvents}</div>
             </div>
           </div>
         </div>
@@ -268,7 +186,7 @@ export default function DisasterAssessmentClient() {
             <div>
               <div className="text-sm text-gray-500">الخسائر المحتملة</div>
               <div className="text-lg font-bold text-blue-600">
-                {(totalPotentialLoss / 1000).toFixed(0)}K ريال
+                {((stats?.potentialLoss ?? localStats.totalPotentialLoss) / 1000).toFixed(0)}K ريال
               </div>
             </div>
           </div>
@@ -279,60 +197,66 @@ export default function DisasterAssessmentClient() {
       <div>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">تقييم المخاطر الحالية</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {risks.map((risk) => (
-            <div
-              key={risk.id}
-              className={`bg-white rounded-lg border-2 p-4 ${getRiskColor(risk.riskLevel)}`}
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getRiskColor(risk.riskLevel)}`}>
-                    {getRiskIcon(risk.type)}
+          {risks.length === 0 ? (
+            <div className="col-span-full text-center py-8 text-gray-500">
+              لا توجد مخاطر مسجلة
+            </div>
+          ) : (
+            risks.map((risk) => (
+              <div
+                key={risk.id}
+                className={`bg-white rounded-lg border-2 p-4 ${getRiskColor(risk.riskLevel)}`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getRiskColor(risk.riskLevel)}`}>
+                      {getRiskIcon(risk.type)}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{risk.typeAr}</h3>
+                      <p className="text-sm text-gray-500">{risk.affectedAreaAr}</p>
+                    </div>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRiskColor(risk.riskLevel)}`}>
+                    {getRiskLabel(risk.riskLevel)}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-3 text-sm">
+                  <div>
+                    <span className="text-gray-500">الاحتمالية:</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="flex-1 h-2 bg-gray-200 rounded-full">
+                        <div
+                          className={`h-full rounded-full ${risk.probability >= 70 ? "bg-red-500" : risk.probability >= 40 ? "bg-yellow-500" : "bg-green-500"}`}
+                          style={{ width: `${risk.probability}%` }}
+                        />
+                      </div>
+                      <span className="font-medium">{risk.probability}%</span>
+                    </div>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{risk.typeAr}</h3>
-                    <p className="text-sm text-gray-500">{risk.affectedAreaAr}</p>
+                    <span className="text-gray-500">الخسائر المحتملة:</span>
+                    <div className="font-medium mt-1">{risk.potentialLoss.toLocaleString()} ريال</div>
                   </div>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRiskColor(risk.riskLevel)}`}>
-                  {getRiskLabel(risk.riskLevel)}
-                </span>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-3 text-sm">
-                <div>
-                  <span className="text-gray-500">الاحتمالية:</span>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 h-2 bg-gray-200 rounded-full">
-                      <div
-                        className={`h-full rounded-full ${risk.probability >= 70 ? "bg-red-500" : risk.probability >= 40 ? "bg-yellow-500" : "bg-green-500"}`}
-                        style={{ width: `${risk.probability}%` }}
-                      />
-                    </div>
-                    <span className="font-medium">{risk.probability}%</span>
+                {risk.mitigationPlan && (
+                  <div className="bg-white/50 rounded-lg p-3 text-sm">
+                    <span className="text-gray-500">خطة التخفيف:</span>
+                    <p className="text-gray-700 mt-1">{risk.mitigationPlan}</p>
                   </div>
-                </div>
-                <div>
-                  <span className="text-gray-500">الخسائر المحتملة:</span>
-                  <div className="font-medium mt-1">{risk.potentialLoss.toLocaleString()} ريال</div>
+                )}
+
+                <div className="flex items-center justify-between mt-3 pt-3 border-t text-xs text-gray-500">
+                  <span>آخر تحديث: {risk.lastUpdated}</span>
+                  <button className="text-sahool-green-600 hover:text-sahool-green-700 font-medium">
+                    عرض التفاصيل
+                  </button>
                 </div>
               </div>
-
-              {risk.mitigationPlan && (
-                <div className="bg-white/50 rounded-lg p-3 text-sm">
-                  <span className="text-gray-500">خطة التخفيف:</span>
-                  <p className="text-gray-700 mt-1">{risk.mitigationPlan}</p>
-                </div>
-              )}
-
-              <div className="flex items-center justify-between mt-3 pt-3 border-t text-xs text-gray-500">
-                <span>آخر تحديث: {risk.lastUpdated}</span>
-                <button className="text-sahool-green-600 hover:text-sahool-green-700 font-medium">
-                  عرض التفاصيل
-                </button>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
@@ -342,41 +266,47 @@ export default function DisasterAssessmentClient() {
           <h2 className="font-semibold text-gray-900">الحوادث الأخيرة</h2>
         </div>
         <div className="divide-y">
-          {events.map((event) => (
-            <div key={event.id} className="p-4 hover:bg-gray-50 transition-colors">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-start gap-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getSeverityColor(event.severity)}`}>
-                    <AlertTriangle className="w-5 h-5" />
+          {events.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              لا توجد حوادث مسجلة
+            </div>
+          ) : (
+            events.map((event) => (
+              <div key={event.id} className="p-4 hover:bg-gray-50 transition-colors">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getSeverityColor(event.severity)}`}>
+                      <AlertTriangle className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-900">{event.typeAr}</h3>
+                      <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                        <MapPin className="w-4 h-4" />
+                        <span>{event.locationAr}</span>
+                        <span className="text-gray-300">|</span>
+                        <Clock className="w-4 h-4" />
+                        <span>{event.date}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">{event.typeAr}</h3>
-                    <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                      <MapPin className="w-4 h-4" />
-                      <span>{event.locationAr}</span>
-                      <span className="text-gray-300">|</span>
-                      <Clock className="w-4 h-4" />
-                      <span>{event.date}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="text-sm text-gray-500">الأضرار المقدرة</div>
+                      <div className="font-semibold text-gray-900">{event.damageEstimate.toLocaleString()} ريال</div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(event.severity)}`}>
+                        {getSeverityLabel(event.severity)}
+                      </span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(event.status)}`}>
+                        {getStatusLabel(event.status)}
+                      </span>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <div className="text-sm text-gray-500">الأضرار المقدرة</div>
-                    <div className="font-semibold text-gray-900">{event.damageEstimate.toLocaleString()} ريال</div>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(event.severity)}`}>
-                      {getSeverityLabel(event.severity)}
-                    </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(event.status)}`}>
-                      {getStatusLabel(event.status)}
-                    </span>
-                  </div>
-                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 

@@ -1,57 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Satellite, MapPin, Calendar, Layers, TrendingUp, Download } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { Satellite, MapPin, Layers, TrendingUp, Download, AlertTriangle } from "lucide-react";
+import { useSatelliteFields, useSatelliteStats } from "@/features/satellite";
+import type { SatelliteField, IndexType } from "@/features/satellite";
 
-interface FieldSatellite {
-  id: string;
-  fieldName: string;
-  fieldNameAr: string;
-  area: number;
-  lastCapture: string;
-  ndvi: number;
-  ndviChange: number;
-  healthStatus: "excellent" | "good" | "moderate" | "poor";
-  coordinates: { lat: number; lng: number };
-}
-
-const mockFields: FieldSatellite[] = [
-  {
-    id: "1",
-    fieldName: "Wheat Field A",
-    fieldNameAr: "حقل القمح أ",
-    area: 15.5,
-    lastCapture: "2026-01-24",
-    ndvi: 0.78,
-    ndviChange: 0.05,
-    healthStatus: "excellent",
-    coordinates: { lat: 24.7136, lng: 46.6753 },
-  },
-  {
-    id: "2",
-    fieldName: "Barley Field B",
-    fieldNameAr: "حقل الشعير ب",
-    area: 12.3,
-    lastCapture: "2026-01-24",
-    ndvi: 0.62,
-    ndviChange: -0.03,
-    healthStatus: "good",
-    coordinates: { lat: 24.7200, lng: 46.6800 },
-  },
-  {
-    id: "3",
-    fieldName: "Vegetable Plot C",
-    fieldNameAr: "قطعة الخضروات ج",
-    area: 8.7,
-    lastCapture: "2026-01-23",
-    ndvi: 0.45,
-    ndviChange: -0.08,
-    healthStatus: "moderate",
-    coordinates: { lat: 24.7050, lng: 46.6700 },
-  },
-];
-
-const indexTypes = [
+const indexTypes: Array<{ value: IndexType; label: string; labelAr: string }> = [
   { value: "ndvi", label: "NDVI", labelAr: "مؤشر الغطاء النباتي" },
   { value: "ndwi", label: "NDWI", labelAr: "مؤشر المياه" },
   { value: "evi", label: "EVI", labelAr: "مؤشر الغطاء المحسن" },
@@ -59,16 +13,14 @@ const indexTypes = [
 ];
 
 export default function SatelliteClient() {
-  const [fields, setFields] = useState<FieldSatellite[]>(mockFields);
-  const [selectedIndex, setSelectedIndex] = useState("ndvi");
+  const [selectedIndex, setSelectedIndex] = useState<IndexType>("ndvi");
   const [selectedField, setSelectedField] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 500);
-  }, []);
+  // Fetch data using React Query hooks
+  const { data: fields = [], isLoading, error } = useSatelliteFields();
+  const { data: stats } = useSatelliteStats();
 
-  const getHealthColor = (status: FieldSatellite["healthStatus"]) => {
+  const getHealthColor = (status: SatelliteField["healthStatus"]) => {
     const colors = {
       excellent: "text-green-600 bg-green-100",
       good: "text-blue-600 bg-blue-100",
@@ -78,7 +30,7 @@ export default function SatelliteClient() {
     return colors[status];
   };
 
-  const getHealthLabel = (status: FieldSatellite["healthStatus"]) => {
+  const getHealthLabel = (status: SatelliteField["healthStatus"]) => {
     const labels = {
       excellent: "ممتاز",
       good: "جيد",
@@ -88,12 +40,31 @@ export default function SatelliteClient() {
     return labels[status];
   };
 
-  const avgNdvi = (fields.reduce((acc, f) => acc + f.ndvi, 0) / fields.length).toFixed(2);
+  const avgNdvi = useMemo(() => {
+    if (fields.length === 0) return "0.00";
+    return (fields.reduce((acc, f) => acc + f.ndvi, 0) / fields.length).toFixed(2);
+  }, [fields]);
+
+  const totalArea = useMemo(() => {
+    return fields.reduce((acc, f) => acc + f.area, 0).toFixed(1);
+  }, [fields]);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sahool-green-600" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-red-600">فشل في تحميل بيانات الأقمار الصناعية</p>
+          <p className="text-gray-500 text-sm">Failed to load satellite data</p>
+        </div>
       </div>
     );
   }
@@ -109,7 +80,7 @@ export default function SatelliteClient() {
         <div className="flex gap-2">
           <select
             value={selectedIndex}
-            onChange={(e) => setSelectedIndex(e.target.value)}
+            onChange={(e) => setSelectedIndex(e.target.value as IndexType)}
             className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
           >
             {indexTypes.map((idx) => (
@@ -134,7 +105,7 @@ export default function SatelliteClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">آخر التقاط</div>
-              <div className="text-lg font-bold text-gray-900">2026-01-24</div>
+              <div className="text-lg font-bold text-gray-900">{stats?.lastCapture ?? "2026-01-24"}</div>
             </div>
           </div>
         </div>
@@ -145,7 +116,7 @@ export default function SatelliteClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">متوسط NDVI</div>
-              <div className="text-lg font-bold text-green-600">{avgNdvi}</div>
+              <div className="text-lg font-bold text-green-600">{stats?.averageNdvi?.toFixed(2) ?? avgNdvi}</div>
             </div>
           </div>
         </div>
@@ -156,7 +127,7 @@ export default function SatelliteClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">الحقول المراقبة</div>
-              <div className="text-lg font-bold text-purple-600">{fields.length}</div>
+              <div className="text-lg font-bold text-purple-600">{stats?.totalFields ?? fields.length}</div>
             </div>
           </div>
         </div>
@@ -168,7 +139,7 @@ export default function SatelliteClient() {
             <div>
               <div className="text-sm text-gray-500">المساحة الكلية</div>
               <div className="text-lg font-bold text-amber-600">
-                {fields.reduce((acc, f) => acc + f.area, 0).toFixed(1)} هـ
+                {stats?.totalArea?.toFixed(1) ?? totalArea} هـ
               </div>
             </div>
           </div>
@@ -213,49 +184,55 @@ export default function SatelliteClient() {
             <h2 className="font-semibold text-gray-900">الحقول</h2>
           </div>
           <div className="divide-y max-h-[500px] overflow-y-auto">
-            {fields.map((field) => (
-              <div
-                key={field.id}
-                className={`p-4 cursor-pointer transition-colors ${
-                  selectedField === field.id ? "bg-sahool-green-50" : "hover:bg-gray-50"
-                }`}
-                onClick={() => setSelectedField(field.id)}
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <h3 className="font-medium text-gray-900">{field.fieldNameAr}</h3>
-                    <p className="text-sm text-gray-500">{field.fieldName}</p>
-                  </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getHealthColor(field.healthStatus)}`}>
-                    {getHealthLabel(field.healthStatus)}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-gray-500">NDVI:</span>
-                    <span className="font-medium mr-1">{field.ndvi.toFixed(2)}</span>
-                    <span className={field.ndviChange >= 0 ? "text-green-600" : "text-red-600"}>
-                      ({field.ndviChange >= 0 ? "+" : ""}{field.ndviChange.toFixed(2)})
+            {fields.length === 0 ? (
+              <div className="p-4 text-center text-gray-500">
+                لا توجد حقول مراقبة
+              </div>
+            ) : (
+              fields.map((field) => (
+                <div
+                  key={field.id}
+                  className={`p-4 cursor-pointer transition-colors ${
+                    selectedField === field.id ? "bg-sahool-green-50" : "hover:bg-gray-50"
+                  }`}
+                  onClick={() => setSelectedField(field.id)}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h3 className="font-medium text-gray-900">{field.fieldNameAr}</h3>
+                      <p className="text-sm text-gray-500">{field.fieldName}</p>
+                    </div>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getHealthColor(field.healthStatus)}`}>
+                      {getHealthLabel(field.healthStatus)}
                     </span>
                   </div>
-                  <div className="text-gray-500">
-                    {field.area} هكتار
-                  </div>
-                </div>
 
-                <div className="mt-2">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full ${
-                        field.ndvi > 0.6 ? "bg-green-500" : field.ndvi > 0.4 ? "bg-yellow-500" : "bg-red-500"
-                      }`}
-                      style={{ width: `${field.ndvi * 100}%` }}
-                    />
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-gray-500">NDVI:</span>
+                      <span className="font-medium mr-1">{field.ndvi.toFixed(2)}</span>
+                      <span className={field.ndviChange >= 0 ? "text-green-600" : "text-red-600"}>
+                        ({field.ndviChange >= 0 ? "+" : ""}{field.ndviChange.toFixed(2)})
+                      </span>
+                    </div>
+                    <div className="text-gray-500">
+                      {field.area} هكتار
+                    </div>
+                  </div>
+
+                  <div className="mt-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full ${
+                          field.ndvi > 0.6 ? "bg-green-500" : field.ndvi > 0.4 ? "bg-yellow-500" : "bg-red-500"
+                        }`}
+                        style={{ width: `${field.ndvi * 100}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

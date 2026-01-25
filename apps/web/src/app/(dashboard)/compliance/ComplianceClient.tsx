@@ -1,132 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Shield, CheckCircle, AlertTriangle, FileText, Calendar, TrendingUp, Award } from "lucide-react";
-
-interface ComplianceItem {
-  id: string;
-  category: string;
-  categoryAr: string;
-  requirement: string;
-  requirementAr: string;
-  status: "compliant" | "partial" | "non_compliant" | "pending_review";
-  lastAudit: string;
-  nextAudit: string;
-  score: number;
-  notes?: string;
-}
-
-interface Certification {
-  id: string;
-  name: string;
-  nameAr: string;
-  issuer: string;
-  issuerAr: string;
-  status: "active" | "expired" | "pending";
-  issueDate: string;
-  expiryDate: string;
-}
-
-const mockCompliance: ComplianceItem[] = [
-  {
-    id: "1",
-    category: "Food Safety",
-    categoryAr: "سلامة الغذاء",
-    requirement: "Pesticide Residue Limits",
-    requirementAr: "حدود بقايا المبيدات",
-    status: "compliant",
-    lastAudit: "2026-01-15",
-    nextAudit: "2026-04-15",
-    score: 95,
-  },
-  {
-    id: "2",
-    category: "Worker Safety",
-    categoryAr: "سلامة العمال",
-    requirement: "PPE Requirements",
-    requirementAr: "متطلبات معدات الحماية",
-    status: "compliant",
-    lastAudit: "2026-01-10",
-    nextAudit: "2026-04-10",
-    score: 100,
-  },
-  {
-    id: "3",
-    category: "Environment",
-    categoryAr: "البيئة",
-    requirement: "Water Usage Records",
-    requirementAr: "سجلات استخدام المياه",
-    status: "partial",
-    lastAudit: "2026-01-12",
-    nextAudit: "2026-04-12",
-    score: 75,
-    notes: "Missing irrigation logs for December",
-  },
-  {
-    id: "4",
-    category: "Traceability",
-    categoryAr: "التتبع",
-    requirement: "Batch Identification",
-    requirementAr: "تعريف الدفعات",
-    status: "compliant",
-    lastAudit: "2026-01-08",
-    nextAudit: "2026-04-08",
-    score: 92,
-  },
-  {
-    id: "5",
-    category: "Documentation",
-    categoryAr: "التوثيق",
-    requirement: "Training Records",
-    requirementAr: "سجلات التدريب",
-    status: "pending_review",
-    lastAudit: "2026-01-20",
-    nextAudit: "2026-04-20",
-    score: 85,
-  },
-];
-
-const mockCertifications: Certification[] = [
-  {
-    id: "1",
-    name: "GlobalGAP",
-    nameAr: "جلوبال جاب",
-    issuer: "GLOBALG.A.P.",
-    issuerAr: "منظمة جلوبال جاب",
-    status: "active",
-    issueDate: "2025-06-01",
-    expiryDate: "2026-06-01",
-  },
-  {
-    id: "2",
-    name: "Organic Certification",
-    nameAr: "شهادة العضوية",
-    issuer: "Saudi Organic Authority",
-    issuerAr: "هيئة الزراعة العضوية",
-    status: "active",
-    issueDate: "2025-03-15",
-    expiryDate: "2026-03-15",
-  },
-  {
-    id: "3",
-    name: "ISO 22000",
-    nameAr: "آيزو 22000",
-    issuer: "SGS",
-    issuerAr: "إس جي إس",
-    status: "pending",
-    issueDate: "",
-    expiryDate: "",
-  },
-];
+import React, { useMemo } from "react";
+import { CheckCircle, AlertTriangle, Calendar, TrendingUp, Award } from "lucide-react";
+import { useCompliance, useCertifications, useComplianceStats } from "@/features/compliance";
+import type { ComplianceItem, Certification } from "@/features/compliance";
 
 export default function ComplianceClient() {
-  const [compliance, setCompliance] = useState<ComplianceItem[]>(mockCompliance);
-  const [certifications, setCertifications] = useState<Certification[]>(mockCertifications);
-  const [isLoading, setIsLoading] = useState(true);
+  // Fetch data using React Query hooks
+  const { data: compliance = [], isLoading: complianceLoading, error: complianceError } = useCompliance();
+  const { data: certifications = [], isLoading: certsLoading } = useCertifications();
+  const { data: stats } = useComplianceStats();
 
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 500);
-  }, []);
+  const isLoading = complianceLoading || certsLoading;
 
   const getStatusColor = (status: ComplianceItem["status"]) => {
     const colors = {
@@ -166,14 +51,34 @@ export default function ComplianceClient() {
     return labels[status];
   };
 
-  const overallScore = Math.round(compliance.reduce((acc, c) => acc + c.score, 0) / compliance.length);
-  const compliantCount = compliance.filter(c => c.status === "compliant").length;
-  const activeCerts = certifications.filter(c => c.status === "active").length;
+  const localStats = useMemo(() => {
+    const overallScore = compliance.length > 0
+      ? Math.round(compliance.reduce((acc, c) => acc + c.score, 0) / compliance.length)
+      : 0;
+    const compliantCount = compliance.filter(c => c.status === "compliant").length;
+    const activeCerts = certifications.filter(c => c.status === "active").length;
+    const nextAudit = compliance.length > 0
+      ? compliance.reduce((min, c) => c.nextAudit < min ? c.nextAudit : min, compliance[0].nextAudit)
+      : "N/A";
+    return { overallScore, compliantCount, activeCerts, nextAudit };
+  }, [compliance, certifications]);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sahool-green-600" />
+      </div>
+    );
+  }
+
+  if (complianceError) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-red-600">فشل في تحميل بيانات الامتثال</p>
+          <p className="text-gray-500 text-sm">Failed to load compliance data</p>
+        </div>
       </div>
     );
   }
@@ -205,7 +110,7 @@ export default function ComplianceClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">نسبة الامتثال</div>
-              <div className="text-lg font-bold text-green-600">{overallScore}%</div>
+              <div className="text-lg font-bold text-green-600">{stats?.overallScore ?? localStats.overallScore}%</div>
             </div>
           </div>
         </div>
@@ -216,7 +121,9 @@ export default function ComplianceClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">متطلبات متوافقة</div>
-              <div className="text-lg font-bold text-blue-600">{compliantCount}/{compliance.length}</div>
+              <div className="text-lg font-bold text-blue-600">
+                {stats?.compliantItems ?? localStats.compliantCount}/{stats?.totalItems ?? compliance.length}
+              </div>
             </div>
           </div>
         </div>
@@ -227,7 +134,7 @@ export default function ComplianceClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">شهادات نشطة</div>
-              <div className="text-lg font-bold text-purple-600">{activeCerts}</div>
+              <div className="text-lg font-bold text-purple-600">{stats?.activeCertifications ?? localStats.activeCerts}</div>
             </div>
           </div>
         </div>
@@ -238,7 +145,7 @@ export default function ComplianceClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">التدقيق القادم</div>
-              <div className="text-lg font-bold text-amber-600">2026-04-08</div>
+              <div className="text-lg font-bold text-amber-600">{stats?.nextAuditDate ?? localStats.nextAudit}</div>
             </div>
           </div>
         </div>
@@ -262,39 +169,47 @@ export default function ComplianceClient() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {compliance.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-gray-900">{item.categoryAr}</div>
-                      <div className="text-xs text-gray-500">{item.category}</div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="text-gray-900">{item.requirementAr}</div>
-                      {item.notes && (
-                        <div className="text-xs text-amber-600 mt-1">{item.notes}</div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
-                        {getStatusLabel(item.status)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full ${item.score >= 90 ? "bg-green-500" : item.score >= 70 ? "bg-yellow-500" : "bg-red-500"}`}
-                            style={{ width: `${item.score}%` }}
-                          />
-                        </div>
-                        <span className="text-sm font-medium">{item.score}%</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-500">
-                      {item.nextAudit}
+                {compliance.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                      لا توجد بيانات امتثال
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  compliance.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-gray-900">{item.categoryAr}</div>
+                        <div className="text-xs text-gray-500">{item.category}</div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="text-gray-900">{item.requirementAr}</div>
+                        {item.notes && (
+                          <div className="text-xs text-amber-600 mt-1">{item.notes}</div>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
+                          {getStatusLabel(item.status)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full ${item.score >= 90 ? "bg-green-500" : item.score >= 70 ? "bg-yellow-500" : "bg-red-500"}`}
+                              style={{ width: `${item.score}%` }}
+                            />
+                          </div>
+                          <span className="text-sm font-medium">{item.score}%</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-center text-sm text-gray-500">
+                        {item.nextAudit}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -306,31 +221,37 @@ export default function ComplianceClient() {
             <h2 className="font-semibold text-gray-900">الشهادات</h2>
           </div>
           <div className="divide-y">
-            {certifications.map((cert) => (
-              <div key={cert.id} className="p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-5 h-5 text-sahool-green-600" />
-                    <div>
-                      <h3 className="font-medium text-gray-900">{cert.nameAr}</h3>
-                      <p className="text-xs text-gray-500">{cert.name}</p>
-                    </div>
-                  </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCertStatusColor(cert.status)}`}>
-                    {getCertStatusLabel(cert.status)}
-                  </span>
-                </div>
-                <div className="text-sm text-gray-600">
-                  <div>الجهة: {cert.issuerAr}</div>
-                  {cert.status === "active" && (
-                    <>
-                      <div>تاريخ الإصدار: {cert.issueDate}</div>
-                      <div>تاريخ الانتهاء: {cert.expiryDate}</div>
-                    </>
-                  )}
-                </div>
+            {certifications.length === 0 ? (
+              <div className="p-4 text-center text-gray-500">
+                لا توجد شهادات
               </div>
-            ))}
+            ) : (
+              certifications.map((cert) => (
+                <div key={cert.id} className="p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Award className="w-5 h-5 text-sahool-green-600" />
+                      <div>
+                        <h3 className="font-medium text-gray-900">{cert.nameAr}</h3>
+                        <p className="text-xs text-gray-500">{cert.name}</p>
+                      </div>
+                    </div>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCertStatusColor(cert.status)}`}>
+                      {getCertStatusLabel(cert.status)}
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    <div>الجهة: {cert.issuerAr}</div>
+                    {cert.status === "active" && (
+                      <>
+                        <div>تاريخ الإصدار: {cert.issueDate}</div>
+                        <div>تاريخ الانتهاء: {cert.expiryDate}</div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

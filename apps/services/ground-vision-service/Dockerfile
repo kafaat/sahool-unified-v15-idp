@@ -1,0 +1,81 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Ground Vision Service Dockerfile
+# خدمة الرؤية الأرضية
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Build stage for dependencies
+FROM python:3.12-slim as builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    libgdal-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Production stage
+# ═══════════════════════════════════════════════════════════════════════════════
+
+FROM python:3.12-slim
+
+LABEL org.opencontainers.image.title="Ground Vision Service"
+LABEL org.opencontainers.image.description="High-frequency agricultural monitoring using tower cameras"
+LABEL org.opencontainers.image.version="16.0.0"
+LABEL org.opencontainers.image.vendor="KAFAAT"
+LABEL org.opencontainers.image.source="https://github.com/kafaat/sahool-unified-v15-idp"
+
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    libgdal32 \
+    libgeos-c1v5 \
+    libproj25 \
+    # OpenCV dependencies
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash appuser
+
+# Copy installed packages from builder
+COPY --from=builder /install /usr/local
+
+# Copy application code
+COPY src/ ./src/
+
+# Set ownership
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Environment configuration
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app \
+    PORT=8180 \
+    LOG_LEVEL=INFO \
+    ENVIRONMENT=production
+
+# Expose port
+EXPOSE 8180
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8180/healthz')" || exit 1
+
+# Run application
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8180"]

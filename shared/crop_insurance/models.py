@@ -11,7 +11,7 @@ Updated: January 2026
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from decimal import Decimal
 from enum import Enum
 from typing import Any
@@ -516,8 +516,8 @@ class InsurancePolicy:
     total_claims_paid: Decimal = Decimal("0")
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
     approved_by: str = ""
     approved_at: datetime | None = None
@@ -641,7 +641,7 @@ class ClaimEvidence:
     verified_by: str | None = None
     verified_at: datetime | None = None
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -701,7 +701,7 @@ class ClaimPayout:
     approval_notes: str = ""
     approval_notes_ar: str = ""
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def calculate_net_payout(self) -> Decimal:
         """Calculate net payout after deductible"""
@@ -809,8 +809,8 @@ class InsuranceClaim:
     # [{"status": "submitted", "timestamp": "...", "by": "...", "notes": "..."}]
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     submitted_at: datetime | None = None
     resolved_at: datetime | None = None
 
@@ -824,12 +824,12 @@ class InsuranceClaim:
         self.status_history.append({
             "previous_status": self.status.value,
             "new_status": new_status.value,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "by": by,
             "notes": notes,
         })
         self.status = new_status
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
 
     def can_be_submitted(self) -> tuple[bool, str, str]:
         """Check if claim can be submitted"""
@@ -985,7 +985,7 @@ class FieldRiskProfile:
     suggested_deductible_percentage: float = 10.0
 
     # Assessment metadata
-    assessed_at: datetime = field(default_factory=datetime.utcnow)
+    assessed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     assessment_version: str = "1.0"
     data_sources: list[str] = field(default_factory=list)
     confidence_score: float = 0.8
@@ -1097,7 +1097,7 @@ class PremiumQuote:
     accepted_provider_id: str | None = None
     policy_id: str | None = None  # If converted to policy
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         return {

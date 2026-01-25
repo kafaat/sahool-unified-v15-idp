@@ -400,8 +400,6 @@ async def store_in_memory(
         )
 
     # In production, this would store in Redis or in-memory cache
-    from datetime import datetime, timezone
-
     stored_at = datetime.now(timezone.utc).isoformat()
 
     return MemoryStoreResponse(
@@ -434,8 +432,6 @@ async def recall_from_memory(
 
     # In production, this would retrieve from Redis or in-memory cache
     # For now, return simulated response
-    from datetime import datetime, timezone
-
     retrieved_at = datetime.now(timezone.utc).isoformat()
 
     return MemoryRecallResponse(

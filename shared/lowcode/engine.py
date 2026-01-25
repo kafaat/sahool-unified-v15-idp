@@ -145,7 +145,7 @@ class ComponentMaterial:
 
     # Metadata
     author: str = "SAHOOL"
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -225,7 +225,7 @@ class DataModel:
     # Permissions
     permissions: dict[str, list[str]] = field(default_factory=dict)
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def get_field(self, name: str) -> FieldDefinition | None:
         return next((f for f in self.fields if f.name == name), None)
@@ -281,8 +281,8 @@ class PageDefinition:
     description: str | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str | None = None
 
     def to_json(self) -> str:
@@ -730,7 +730,7 @@ class LowCodeEngine:
         else:
             page.blocks.append(block)
 
-        page.updated_at = datetime.utcnow()
+        page.updated_at = datetime.now(timezone.utc)
         self._emit("block:added", {"page_id": page_id, "block": block})
         return block
 

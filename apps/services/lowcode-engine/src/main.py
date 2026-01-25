@@ -232,8 +232,8 @@ class InternalDataModel:
     description: str | None = None
     description_ar: str | None = None
     fields: list[dict[str, Any]] = internal_field(default_factory=list)
-    created_at: datetime = internal_field(default_factory=datetime.utcnow)
-    updated_at: datetime = internal_field(default_factory=datetime.utcnow)
+    created_at: datetime = internal_field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = internal_field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @internal_dataclass
@@ -259,8 +259,8 @@ class InternalPage:
     data_model_id: str | None = None
     is_published: bool = False
     version: int = 1
-    created_at: datetime = internal_field(default_factory=datetime.utcnow)
-    updated_at: datetime = internal_field(default_factory=datetime.utcnow)
+    created_at: datetime = internal_field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = internal_field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

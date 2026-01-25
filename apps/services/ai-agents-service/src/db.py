@@ -34,7 +34,7 @@ async def init_pool() -> asyncpg.Pool | None:
             max_size=10,
             command_timeout=60,
         )
-        print(f"✅ Database connection pool initialized")
+        print("✅ Database connection pool initialized")
         return _pool
     except Exception as e:
         print(f"⚠️ Failed to initialize database pool: {e}")

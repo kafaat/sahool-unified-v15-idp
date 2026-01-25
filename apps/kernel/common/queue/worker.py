@@ -15,7 +15,7 @@ import threading
 import time
 import uuid
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any
 
 from redis import Redis
@@ -137,7 +137,7 @@ class TaskWorker:
         self.is_running = True
         self.is_shutting_down = False
         self.status = WorkerStatus.IDLE
-        self.stats["started_at"] = datetime.now(timezone.utc)
+        self.stats["started_at"] = datetime.now(UTC)
 
         # تسجيل العامل في Redis
         # Register worker in Redis
@@ -373,7 +373,7 @@ class TaskWorker:
             else "all",
             "max_tasks": self.max_tasks,
             "started_at": self.stats["started_at"].isoformat(),
-            "last_heartbeat": datetime.now(timezone.utc).isoformat(),
+            "last_heartbeat": datetime.now(UTC).isoformat(),
         }
 
         self.redis.hset(self.worker_key, mapping=worker_data)
@@ -394,7 +394,7 @@ class TaskWorker:
                 "total_processed": self.stats["total_processed"],
                 "total_succeeded": self.stats["total_succeeded"],
                 "total_failed": self.stats["total_failed"],
-                "last_heartbeat": datetime.now(timezone.utc).isoformat(),
+                "last_heartbeat": datetime.now(UTC).isoformat(),
             },
         )
         self.redis.expire(self.worker_key, 3600)

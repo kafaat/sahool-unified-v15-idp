@@ -915,7 +915,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8121
+    port: 8170
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -931,13 +931,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8121'
+      value: '8170'
     serviceAccount:
       create: true
       name: sahool-skills-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8121'
+      prometheus.io/port: '8170'
       prometheus.io/path: /metrics
   advisory-service:
     enabled: true
@@ -1644,7 +1644,7 @@ services:
       prometheus.io/port: '8124'
       prometheus.io/path: /metrics
   crop-health:
-    enabled: true
+    enabled: false
     name: crop-health
     image:
       repository: ghcr.io/kafaat/sahool-crop-health
@@ -1747,7 +1747,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8162
+    port: 8181
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -1763,13 +1763,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8162'
+      value: '8181'
     serviceAccount:
       create: true
       name: sahool-logistics-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8162'
+      prometheus.io/port: '8181'
       prometheus.io/path: /metrics
   ndvi-engine:
     enabled: true
@@ -1811,7 +1811,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8163
+    port: 8180
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -1827,13 +1827,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8163'
+      value: '8180'
     serviceAccount:
       create: true
       name: sahool-ussd-gateway
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8163'
+      prometheus.io/port: '8180'
       prometheus.io/path: /metrics
   weather-core:
     enabled: true
@@ -2136,7 +2136,7 @@ ingress:
     - path: /api/v1/skills/service
       pathType: Prefix
       service: skills-service
-      port: 8121
+      port: 8170
     - path: /api/v1/advisory/service
       pathType: Prefix
       service: advisory-service
@@ -2240,7 +2240,7 @@ ingress:
     - path: /api/v1/logistics/service
       pathType: Prefix
       service: logistics-service
-      port: 8162
+      port: 8181
     - path: /api/v1/ndvi/engine
       pathType: Prefix
       service: ndvi-engine
@@ -2248,7 +2248,7 @@ ingress:
     - path: /api/v1/ussd/gateway
       pathType: Prefix
       service: ussd-gateway
-      port: 8163
+      port: 8180
     - path: /api/v1/weather/core
       pathType: Prefix
       service: weather-core

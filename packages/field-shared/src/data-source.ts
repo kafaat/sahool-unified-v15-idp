@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { DataSource } from "typeorm";
+import { DataSource, DataSourceOptions } from "typeorm";
 import { Field } from "./entity/Field";
 import { FieldBoundaryHistory } from "./entity/FieldBoundaryHistory";
 import { SyncStatus } from "./entity/SyncStatus";
@@ -10,20 +10,56 @@ import { PestTreatment } from "./entity/PestTreatment";
  * SAHOOL Field Core - Database Configuration
  * PostGIS-enabled PostgreSQL connection for geospatial operations
  *
- * Environment Variables:
- * - DB_HOST: PostgreSQL host (default: postgres for docker-compose)
+ * Environment Variables (supports two modes):
+ *
+ * Mode 1 - Connection URL (preferred):
+ * - DATABASE_URL: Full PostgreSQL connection string
+ *   Example: postgresql://user:pass@host:5432/dbname
+ *
+ * Mode 2 - Individual variables:
+ * - DB_HOST: PostgreSQL host (default: localhost)
  * - DB_PORT: PostgreSQL port (default: 5432)
  * - DB_USER: Database user (default: sahool)
- * - DB_PASSWORD: Database password (default: sahool - MUST match POSTGRES_PASSWORD in .env)
+ * - DB_PASSWORD: Database password (default: sahool)
  * - DB_NAME: Database name (default: sahool)
  */
+
+// Parse DATABASE_URL if provided
+function getConnectionConfig(): Partial<DataSourceOptions> {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (databaseUrl) {
+    try {
+      const url = new URL(databaseUrl);
+      return {
+        type: "postgres",
+        host: url.hostname,
+        port: parseInt(url.port || "5432"),
+        username: url.username,
+        password: url.password,
+        database: url.pathname.slice(1), // Remove leading '/'
+      };
+    } catch {
+      console.warn("Invalid DATABASE_URL format, falling back to individual env vars");
+    }
+  }
+
+  // Fallback to individual environment variables
+  return {
+    type: "postgres",
+    host: process.env.DB_HOST || "localhost",
+    port: parseInt(process.env.DB_PORT || "5432"),
+    username: process.env.DB_USER || "sahool",
+    password: process.env.DB_PASSWORD || "sahool",
+    database: process.env.DB_NAME || "sahool",
+  };
+}
+
+const connectionConfig = getConnectionConfig();
+
 export const AppDataSource = new DataSource({
+  ...connectionConfig,
   type: "postgres",
-  host: process.env.DB_HOST || "postgres",
-  port: parseInt(process.env.DB_PORT || "5432"),
-  username: process.env.DB_USER || "sahool",
-  password: process.env.DB_PASSWORD || "sahool",
-  database: process.env.DB_NAME || "sahool",
 
   // In production, set synchronize to false and use migrations
   synchronize: process.env.NODE_ENV !== "production",

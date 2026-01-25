@@ -49,11 +49,12 @@ COPY --from=builder /app/package-lock.json ./
 # Copy Prisma schema for migrations
 COPY --from=builder /app/prisma/ ./prisma/
 
-RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
-# Generate Prisma client in production stage
-RUN npx prisma generate
+# Copy the generated Prisma client from builder stage
+COPY --from=builder /app/node_modules/.prisma/ ./node_modules/.prisma/
+COPY --from=builder /app/node_modules/@prisma/client/ ./node_modules/@prisma/client/
 
 RUN npm cache clean --force
 

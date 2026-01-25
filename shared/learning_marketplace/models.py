@@ -158,7 +158,7 @@ class ContentResource:
     has_transcript: bool = False
 
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -201,8 +201,8 @@ class ContentResource:
             has_captions=data.get("has_captions", False),
             caption_languages=data.get("caption_languages", []),
             has_transcript=data.get("has_transcript", False),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.utcnow(),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.utcnow(),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(timezone.utc),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(timezone.utc),
         )
 
 
@@ -290,7 +290,7 @@ class Quiz:
     total_points: int = 0
 
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def __post_init__(self):
         """Calculate total points"""
@@ -330,8 +330,8 @@ class Quiz:
             shuffle_questions=data.get("shuffle_questions", True),
             shuffle_options=data.get("shuffle_options", True),
             show_correct_answers=data.get("show_correct_answers", True),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.utcnow(),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.utcnow(),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(timezone.utc),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(timezone.utc),
         )
         return quiz
 
@@ -377,7 +377,7 @@ class Lesson:
 
     # Timestamps
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     published_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -424,8 +424,8 @@ class Lesson:
             prerequisite_lesson_ids=data.get("prerequisite_lesson_ids", []),
             skills=[SkillCategory(s) for s in data.get("skills", [])],
             status=CourseStatus(data.get("status", "draft")),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.utcnow(),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.utcnow(),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(timezone.utc),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(timezone.utc),
             published_at=datetime.fromisoformat(data["published_at"]) if data.get("published_at") else None,
         )
 
@@ -516,7 +516,7 @@ class Expert:
     is_active: bool = True
 
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -561,8 +561,8 @@ class Expert:
             is_verified=data.get("is_verified", False),
             verified_at=datetime.fromisoformat(data["verified_at"]) if data.get("verified_at") else None,
             is_active=data.get("is_active", True),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.utcnow(),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.utcnow(),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(timezone.utc),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(timezone.utc),
         )
 
 
@@ -624,7 +624,7 @@ class Course:
 
     # Timestamps
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     published_at: datetime | None = None
 
     # Tenant
@@ -716,8 +716,8 @@ class Course:
             rating_count=data.get("rating_count", 0),
             certification_id=data.get("certification_id"),
             offers_certificate=data.get("offers_certificate", True),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.utcnow(),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.utcnow(),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(timezone.utc),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(timezone.utc),
             published_at=datetime.fromisoformat(data["published_at"]) if data.get("published_at") else None,
             tenant_id=data.get("tenant_id", ""),
         )
@@ -758,7 +758,7 @@ class Certification:
 
     # Timestamps
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Tenant
     tenant_id: str = ""
@@ -799,8 +799,8 @@ class Certification:
             badge_color=data.get("badge_color", "#4CAF50"),
             is_active=data.get("is_active", True),
             total_issued=data.get("total_issued", 0),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.utcnow(),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.utcnow(),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(timezone.utc),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(timezone.utc),
             tenant_id=data.get("tenant_id", ""),
         )
 
@@ -819,7 +819,7 @@ class FarmerCertification:
     certificate_number: str = ""
 
     # Issue info
-    issued_at: datetime = field(default_factory=datetime.utcnow)
+    issued_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     expires_at: datetime | None = None
 
     # Score achieved
@@ -846,7 +846,7 @@ class FarmerCertification:
         """Check if certification is expired"""
         if not self.expires_at:
             return False
-        return datetime.utcnow() > self.expires_at
+        return datetime.now(timezone.utc) > self.expires_at
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -874,7 +874,7 @@ class FarmerCertification:
             farmer_id=data.get("farmer_id", ""),
             certification_id=data.get("certification_id", ""),
             certificate_number=data.get("certificate_number", ""),
-            issued_at=datetime.fromisoformat(data["issued_at"]) if data.get("issued_at") else datetime.utcnow(),
+            issued_at=datetime.fromisoformat(data["issued_at"]) if data.get("issued_at") else datetime.now(timezone.utc),
             expires_at=datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None,
             score=data.get("score", 0),
             is_valid=data.get("is_valid", True),
@@ -915,7 +915,7 @@ class FarmerSkill:
 
     # Timestamps
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     @property
     def level_progress(self) -> float:
@@ -975,8 +975,8 @@ class FarmerSkill:
             best_quiz_score=data.get("best_quiz_score", 0.0),
             total_learning_minutes=data.get("total_learning_minutes", 0),
             last_activity_at=datetime.fromisoformat(data["last_activity_at"]) if data.get("last_activity_at") else None,
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.utcnow(),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.utcnow(),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(timezone.utc),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(timezone.utc),
         )
 
 
@@ -1022,7 +1022,7 @@ class FarmerProfile:
 
     # Timestamps
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     @property
     def overall_level(self) -> DifficultyLevel:
@@ -1099,6 +1099,6 @@ class FarmerProfile:
             longest_streak_days=data.get("longest_streak_days", 0),
             last_learning_date=datetime.fromisoformat(data["last_learning_date"]) if data.get("last_learning_date") else None,
             weekly_learning_goal_minutes=data.get("weekly_learning_goal_minutes", 60),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.utcnow(),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.utcnow(),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(timezone.utc),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(timezone.utc),
         )

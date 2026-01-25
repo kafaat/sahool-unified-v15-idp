@@ -513,7 +513,7 @@ class SAHOOLMCPServer:
                 "server": self.name,
                 "server_ar": self.name_ar,
                 "version": self.version,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "active_agents": len(self.tools.list_active_agents()),
             }
 
@@ -587,7 +587,7 @@ class SAHOOLMCPServer:
                             break
 
                         # Send heartbeat
-                        yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.utcnow().isoformat()})}\n\n"
+                        yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.now(timezone.utc).isoformat()})}\n\n"
 
                         await asyncio.sleep(30)
 

@@ -117,7 +117,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
         # Prepare request log data
         request_log = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
             "service": self.service_name,
             "type": "request",
             "correlation_id": correlation_id,
@@ -161,7 +161,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
             # Log exception
             exception_log = {
-                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
                 "service": self.service_name,
                 "type": "error",
                 "correlation_id": correlation_id,
@@ -185,7 +185,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
             # Prepare response log
             response_log = {
-                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
                 "service": self.service_name,
                 "type": "response",
                 "correlation_id": correlation_id,

@@ -123,7 +123,7 @@ class WeatherFeatures:
     forecast_hours: int = 24  # Hours ahead of forecast
 
     # Timestamp
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -150,7 +150,7 @@ class WeatherFeatures:
         if isinstance(timestamp, str):
             timestamp = datetime.fromisoformat(timestamp)
         elif timestamp is None:
-            timestamp = datetime.utcnow()
+            timestamp = datetime.now(timezone.utc)
 
         return cls(
             temperature_current=data["temperature_current"],
@@ -214,7 +214,7 @@ class SoilFeatures:
     sensor_depth_cm: float = 30.0
 
     # Timestamp
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     @property
     def available_water(self) -> float:
@@ -262,7 +262,7 @@ class SoilFeatures:
         if isinstance(timestamp, str):
             timestamp = datetime.fromisoformat(timestamp)
         elif timestamp is None:
-            timestamp = datetime.utcnow()
+            timestamp = datetime.now(timezone.utc)
 
         return cls(
             moisture_current=data["moisture_current"],
@@ -415,7 +415,7 @@ class IrrigationFeatures:
     request_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     tenant_id: str = ""
     field_id: str = ""
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     @property
     def days_since_irrigation(self) -> float | None:
@@ -500,7 +500,7 @@ class IrrigationPrediction:
     model_version: str = ""
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -570,7 +570,7 @@ class WaterOptimizationResult:
 
     # Metadata
     analysis_period_days: int = 7
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -636,7 +636,7 @@ class IrrigationAnomaly:
     detection_method: str = ""
 
     # Timestamps
-    detected_at: datetime = field(default_factory=datetime.utcnow)
+    detected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     first_occurrence: datetime | None = None
 
     # Status
@@ -723,7 +723,7 @@ class HistoricalPattern:
     recommendations_ar: list[str] = field(default_factory=list)
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""

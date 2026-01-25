@@ -171,7 +171,7 @@ class SatelliteDataReadyEvent(BaseEvent):
     satellite_source: str = Field(..., description="Satellite source (e.g., Sentinel-2, Landsat)")
     capture_date: datetime = Field(..., description="Image capture date")
     processing_date: datetime = Field(
-        default_factory=datetime.utcnow, description="Processing date"
+        default_factory=lambda: datetime.now(timezone.utc), description="Processing date"
     )
     cloud_coverage: float | None = Field(
         None, ge=0, le=100, description="Cloud coverage percentage"
@@ -216,7 +216,7 @@ class SatelliteAnomalyEvent(BaseEvent):
     affected_area_percentage: float | None = Field(
         None, ge=0, le=100, description="Percentage of field affected"
     )
-    detection_date: datetime = Field(default_factory=datetime.utcnow, description="Detection date")
+    detection_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Detection date")
 
     # Comparison values
     current_value: float | None = Field(None, description="Current index value")
@@ -308,7 +308,7 @@ class CropStressEvent(BaseEvent):
     soil_moisture_value: float | None = Field(None, ge=0, le=100, description="Soil moisture %")
 
     affected_area_hectares: float | None = Field(None, ge=0, description="Affected area")
-    detection_date: datetime = Field(default_factory=datetime.utcnow, description="Detection date")
+    detection_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Detection date")
 
     # Recommendations
     action_required: str | None = Field(None, description="Required action")
@@ -452,7 +452,7 @@ class PaymentCompletedEvent(BaseEvent):
     payment_provider: str | None = Field(None, description="Payment provider (Stripe, Tap, etc.)")
 
     transaction_id: str = Field(..., description="Payment gateway transaction ID")
-    payment_date: datetime = Field(default_factory=datetime.utcnow, description="Payment date")
+    payment_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Payment date")
 
     # Payment details
     description: str | None = Field(None, description="Payment description")
@@ -476,7 +476,7 @@ class SubscriptionRenewedEvent(BaseEvent):
 
     subscription_id: UUID = Field(..., description="Subscription identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
-    renewal_date: datetime = Field(default_factory=datetime.utcnow, description="Renewal date")
+    renewal_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Renewal date")
     previous_end_date: datetime = Field(..., description="Previous end date")
     new_end_date: datetime = Field(..., description="New end date")
     payment_id: UUID | None = Field(None, description="Related payment")
@@ -749,7 +749,7 @@ class WeChatMessageReceivedEvent(BaseEvent):
     media_id: str | None = Field(None, description="Media ID (for media messages)")
     location_lat: float | None = Field(None, ge=-90, le=90, description="Location latitude")
     location_lon: float | None = Field(None, ge=-180, le=180, description="Location longitude")
-    received_at: datetime = Field(default_factory=datetime.utcnow, description="Message received time")
+    received_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Message received time")
 
 
 class WeChatMessageSentEvent(BaseEvent):
@@ -770,7 +770,7 @@ class WeChatMessageSentEvent(BaseEvent):
     content: str | None = Field(None, description="Message content")
     template_id: str | None = Field(None, description="Template ID for template messages")
     status: str = Field(default="sent", description="Send status (sent, delivered, failed)")
-    sent_at: datetime = Field(default_factory=datetime.utcnow, description="Message sent time")
+    sent_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Message sent time")
     error_message: str | None = Field(None, description="Error message if failed")
 
 
@@ -791,7 +791,7 @@ class WeChatContactAddedEvent(BaseEvent):
     country: str | None = Field(None, description="Country")
     language: str | None = Field(None, description="Language preference")
     farmer_id: str | None = Field(None, description="Linked farmer ID in CRM")
-    subscribed_at: datetime = Field(default_factory=datetime.utcnow, description="Subscription time")
+    subscribed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Subscription time")
 
 
 class WeChatMomentPublishedEvent(BaseEvent):
@@ -809,7 +809,7 @@ class WeChatMomentPublishedEvent(BaseEvent):
     link_url: str | None = Field(None, description="External link URL")
     link_title: str | None = Field(None, description="Link title")
     visibility: str = Field(default="public", description="Visibility (public, contacts, private)")
-    published_at: datetime = Field(default_factory=datetime.utcnow, description="Publish time")
+    published_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Publish time")
     target_audience: list[str] = Field(default_factory=list, description="Target audience tags")
 
 

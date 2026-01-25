@@ -90,7 +90,7 @@ class GeneratedQRCode:
 
     # Metadata
     size_pixels: int = 256
-    generated_at: datetime = field(default_factory=datetime.utcnow)
+    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Checksum for verification
     checksum: str = ""

@@ -317,8 +317,8 @@ class QualityStandard:
     description: str = ""
     description_ar: str = ""
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def get_parameter(self, parameter_name: str) -> QualityParameter | None:
         """Get parameter by name"""
@@ -395,7 +395,7 @@ class QualityTestResult:
     # Performed by
     tester_id: str = ""
     tester_name: str = ""
-    test_timestamp: datetime = field(default_factory=datetime.utcnow)
+    test_timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Notes
     notes: str = ""
@@ -499,8 +499,8 @@ class QualityTestRecord:
     test_facility_name_ar: str = ""
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
 
     notes: str = ""
@@ -656,8 +656,8 @@ class BuyerRequirement:
     # Priority
     priority: int = 0  # Higher = more important
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     notes: str = ""
     notes_ar: str = ""
@@ -773,7 +773,7 @@ class BuyerMatch:
     recommendation: str = ""
     recommendation_ar: str = ""
 
-    matched_at: datetime = field(default_factory=datetime.utcnow)
+    matched_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -876,7 +876,7 @@ class QualityTrendAnalysis:
     recommendations_ar: list[str] = field(default_factory=list)
 
     # Analysis metadata
-    analyzed_at: datetime = field(default_factory=datetime.utcnow)
+    analyzed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     sample_count: int = 0
     confidence_score: float = 0.0
 
@@ -986,8 +986,8 @@ class GradePriceMatrix:
     source: str = "market"  # market, contract, government
     source_id: str = ""
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def get_price_for_grade(self, grade: QualityGrade) -> Decimal:
         """Get price for a specific grade"""
@@ -1084,7 +1084,7 @@ class PriceCalculation:
     vs_market_average_percent: float = 0.0
 
     # Calculation metadata
-    calculated_at: datetime = field(default_factory=datetime.utcnow)
+    calculated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     calculated_by: str = ""
 
     notes: str = ""

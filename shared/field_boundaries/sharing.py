@@ -83,7 +83,7 @@ class SharePermission:
     permission_level: PermissionLevel = PermissionLevel.VIEW
 
     # Validity | الصلاحية
-    granted_at: datetime = field(default_factory=datetime.utcnow)
+    granted_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     expires_at: datetime | None = None
     is_active: bool = True
 
@@ -116,7 +116,7 @@ class ApprovalRequest:
     requested_changes: dict[str, Any] | None = None
 
     # Timestamps | الطوابع الزمنية
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     responded_at: datetime | None = None
     expires_at: datetime | None = None
 
@@ -148,7 +148,7 @@ class ConflictResolution:
     survey_reference: str | None = None
 
     # Timestamps | الطوابع الزمنية
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     finalized_at: datetime | None = None
 
 

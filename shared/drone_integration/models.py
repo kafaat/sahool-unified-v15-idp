@@ -8,7 +8,7 @@ Version: 1.0.0
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 import uuid
@@ -268,8 +268,8 @@ class Drone:
     last_seen: datetime | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     notes: str = ""
     notes_ar: str = ""
 
@@ -369,7 +369,7 @@ class FlightPath:
     safe_altitude_m: float = 30  # ارتفاع آمن للعودة (متر)
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     notes: str = ""
 
     def to_dict(self) -> dict:
@@ -540,8 +540,8 @@ class SprayMission:
     compliance_checked: bool = False
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
     notes: str = ""
     notes_ar: str = ""
@@ -615,8 +615,8 @@ class MappingMission:
     pilot_id: str | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     notes: str = ""
     notes_ar: str = ""
 
@@ -763,8 +763,8 @@ class FlightLog:
     abort_reason_ar: str | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     notes: str = ""
     notes_ar: str = ""
 
@@ -842,7 +842,7 @@ class VRAZone:
     recommendation_ar: str = ""
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict:
         """Convert to dictionary"""
@@ -922,8 +922,8 @@ class PrescriptionMap:
     validated_at: datetime | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
     notes: str = ""
     notes_ar: str = ""
@@ -1046,7 +1046,7 @@ class ProcessedImagery:
 
     # Source - المصدر
     source_image_count: int = 0
-    processing_date: datetime = field(default_factory=datetime.utcnow)
+    processing_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     processing_software: str = ""
 
     # Coverage - التغطية
@@ -1071,7 +1071,7 @@ class ProcessedImagery:
     georef_accuracy_cm: float | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     notes: str = ""
     notes_ar: str = ""
 

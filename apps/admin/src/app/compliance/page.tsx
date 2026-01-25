@@ -1,0 +1,416 @@
+"use client";
+
+// Compliance Reports Page
+// صفحة تقارير الامتثال
+
+import { useEffect, useState, useMemo } from "react";
+import Header from "@/components/layout/Header";
+import DataTable from "@/components/ui/DataTable";
+import { formatDate, cn } from "@/lib/utils";
+import {
+  Shield,
+  Search,
+  RefreshCw,
+  Download,
+  Eye,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  FileText,
+  Award,
+  Clock,
+} from "lucide-react";
+import { logger } from "../../lib/logger";
+
+interface ComplianceRecord {
+  id: string;
+  farmId: string;
+  farmName: string;
+  farmNameAr: string;
+  standard: "globalgap" | "organic" | "iso" | "haccp";
+  status: "compliant" | "partial" | "non_compliant" | "pending" | "expired";
+  score: number;
+  lastAudit: string;
+  nextAudit: string;
+  auditor: string;
+  findings: number;
+  criticalFindings: number;
+}
+
+const MOCK_RECORDS: ComplianceRecord[] = [
+  {
+    id: "1",
+    farmId: "F001",
+    farmName: "Al-Rashid Farm",
+    farmNameAr: "مزرعة الراشد",
+    standard: "globalgap",
+    status: "compliant",
+    score: 95,
+    lastAudit: "2026-01-15",
+    nextAudit: "2027-01-15",
+    auditor: "SGS Arabia",
+    findings: 2,
+    criticalFindings: 0,
+  },
+  {
+    id: "2",
+    farmId: "F002",
+    farmName: "Green Valley",
+    farmNameAr: "الوادي الأخضر",
+    standard: "organic",
+    status: "compliant",
+    score: 88,
+    lastAudit: "2025-12-10",
+    nextAudit: "2026-12-10",
+    auditor: "Control Union",
+    findings: 5,
+    criticalFindings: 0,
+  },
+  {
+    id: "3",
+    farmId: "F003",
+    farmName: "Desert Oasis",
+    farmNameAr: "واحة الصحراء",
+    standard: "globalgap",
+    status: "partial",
+    score: 72,
+    lastAudit: "2026-01-05",
+    nextAudit: "2026-04-05",
+    auditor: "Bureau Veritas",
+    findings: 12,
+    criticalFindings: 2,
+  },
+  {
+    id: "4",
+    farmId: "F004",
+    farmName: "Palm Gardens",
+    farmNameAr: "حدائق النخيل",
+    standard: "iso",
+    status: "pending",
+    score: 0,
+    lastAudit: "",
+    nextAudit: "2026-02-20",
+    auditor: "TUV",
+    findings: 0,
+    criticalFindings: 0,
+  },
+  {
+    id: "5",
+    farmId: "F005",
+    farmName: "Old Farms",
+    farmNameAr: "المزارع القديمة",
+    standard: "globalgap",
+    status: "expired",
+    score: 65,
+    lastAudit: "2024-06-15",
+    nextAudit: "2025-06-15",
+    auditor: "SGS Arabia",
+    findings: 18,
+    criticalFindings: 5,
+  },
+];
+
+export default function CompliancePage() {
+  const [records, setRecords] = useState<ComplianceRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [standardFilter, setStandardFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
+  useEffect(() => {
+    loadRecords();
+  }, []);
+
+  async function loadRecords() {
+    setIsLoading(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setRecords(MOCK_RECORDS);
+    } catch (error) {
+      logger.error("Failed to load compliance records:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const filteredRecords = useMemo(() => {
+    return records.filter((r) => {
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        if (
+          !r.farmName.toLowerCase().includes(query) &&
+          !r.farmNameAr.includes(query)
+        ) {
+          return false;
+        }
+      }
+      if (standardFilter && r.standard !== standardFilter) return false;
+      if (statusFilter && r.status !== statusFilter) return false;
+      return true;
+    });
+  }, [records, searchQuery, standardFilter, statusFilter]);
+
+  const stats = useMemo(() => ({
+    total: records.length,
+    compliant: records.filter((r) => r.status === "compliant").length,
+    partial: records.filter((r) => r.status === "partial").length,
+    expired: records.filter((r) => r.status === "expired").length,
+    avgScore: Math.round(records.filter(r => r.score > 0).reduce((acc, r) => acc + r.score, 0) / records.filter(r => r.score > 0).length) || 0,
+  }), [records]);
+
+  const getStandardLabel = (standard: ComplianceRecord["standard"]) => {
+    const labels: Record<ComplianceRecord["standard"], string> = {
+      globalgap: "GlobalGAP",
+      organic: "عضوي",
+      iso: "ISO 22000",
+      haccp: "HACCP",
+    };
+    return labels[standard];
+  };
+
+  const getStatusLabel = (status: ComplianceRecord["status"]) => {
+    const labels: Record<ComplianceRecord["status"], string> = {
+      compliant: "متوافق",
+      partial: "جزئي",
+      non_compliant: "غير متوافق",
+      pending: "قيد التدقيق",
+      expired: "منتهي",
+    };
+    return labels[status];
+  };
+
+  const getStatusColor = (status: ComplianceRecord["status"]) => {
+    const colors: Record<ComplianceRecord["status"], string> = {
+      compliant: "bg-green-100 text-green-800",
+      partial: "bg-yellow-100 text-yellow-800",
+      non_compliant: "bg-red-100 text-red-800",
+      pending: "bg-blue-100 text-blue-800",
+      expired: "bg-gray-100 text-gray-800",
+    };
+    return colors[status];
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 85) return "text-green-600";
+    if (score >= 70) return "text-yellow-600";
+    if (score > 0) return "text-red-600";
+    return "text-gray-400";
+  };
+
+  const columns = [
+    {
+      key: "farm",
+      header: "المزرعة",
+      render: (record: ComplianceRecord) => (
+        <div>
+          <p className="font-medium text-gray-900">{record.farmNameAr}</p>
+          <p className="text-xs text-gray-500">{record.farmId}</p>
+        </div>
+      ),
+    },
+    {
+      key: "standard",
+      header: "المعيار",
+      render: (record: ComplianceRecord) => (
+        <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
+          {getStandardLabel(record.standard)}
+        </span>
+      ),
+    },
+    {
+      key: "score",
+      header: "النتيجة",
+      render: (record: ComplianceRecord) => (
+        <span className={cn("text-lg font-bold", getScoreColor(record.score))}>
+          {record.score > 0 ? `${record.score}%` : "—"}
+        </span>
+      ),
+    },
+    {
+      key: "findings",
+      header: "الملاحظات",
+      render: (record: ComplianceRecord) => (
+        <div className="text-sm">
+          <span className="text-gray-600">{record.findings} ملاحظة</span>
+          {record.criticalFindings > 0 && (
+            <span className="text-red-600 font-medium mr-2">
+              ({record.criticalFindings} حرجة)
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "audit",
+      header: "التدقيق",
+      render: (record: ComplianceRecord) => (
+        <div className="text-sm">
+          {record.lastAudit && (
+            <p className="text-gray-500">آخر: {formatDate(record.lastAudit)}</p>
+          )}
+          <p className="text-sahool-600">التالي: {formatDate(record.nextAudit)}</p>
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      header: "الحالة",
+      render: (record: ComplianceRecord) => (
+        <span className={cn("px-2 py-1 rounded-full text-xs font-medium", getStatusColor(record.status))}>
+          {getStatusLabel(record.status)}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      render: (record: ComplianceRecord) => (
+        <div className="flex items-center gap-1">
+          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="عرض التقرير">
+            <Eye className="w-4 h-4 text-gray-500" />
+          </button>
+          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="تحميل">
+            <Download className="w-4 h-4 text-gray-500" />
+          </button>
+        </div>
+      ),
+      className: "w-24",
+    },
+  ];
+
+  return (
+    <div className="p-6">
+      <Header title="تقارير الامتثال" subtitle={`${records.length} سجل امتثال`} />
+
+      {/* Stats */}
+      <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <FileText className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+              <p className="text-sm text-gray-500">إجمالي السجلات</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{stats.compliant}</p>
+              <p className="text-sm text-gray-500">متوافق</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-yellow-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{stats.partial}</p>
+              <p className="text-sm text-gray-500">جزئي</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+              <Clock className="w-5 h-5 text-red-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{stats.expired}</p>
+              <p className="text-sm text-gray-500">منتهي</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-sahool-100 rounded-lg flex items-center justify-center">
+              <Award className="w-5 h-5 text-sahool-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{stats.avgScore}%</p>
+              <p className="text-sm text-gray-500">متوسط النتيجة</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="relative flex-1 min-w-[200px]">
+            <input
+              type="text"
+              placeholder="بحث بالمزرعة..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          </div>
+
+          <select
+            value={standardFilter}
+            onChange={(e) => setStandardFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+          >
+            <option value="">كل المعايير</option>
+            <option value="globalgap">GlobalGAP</option>
+            <option value="organic">عضوي</option>
+            <option value="iso">ISO 22000</option>
+            <option value="haccp">HACCP</option>
+          </select>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+          >
+            <option value="">كل الحالات</option>
+            <option value="compliant">متوافق</option>
+            <option value="partial">جزئي</option>
+            <option value="non_compliant">غير متوافق</option>
+            <option value="pending">قيد التدقيق</option>
+            <option value="expired">منتهي</option>
+          </select>
+
+          <button
+            onClick={loadRecords}
+            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <RefreshCw className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")} />
+          </button>
+          <button className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <Download className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="mt-6">
+        {isLoading ? (
+          <div className="bg-white rounded-xl border border-gray-100 p-8">
+            <div className="animate-pulse space-y-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <DataTable
+            columns={columns}
+            data={filteredRecords}
+            keyExtractor={(record) => record.id}
+            emptyMessage="لا توجد سجلات مطابقة للبحث"
+          />
+        )}
+      </div>
+    </div>
+  );
+}

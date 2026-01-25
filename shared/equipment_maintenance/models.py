@@ -426,7 +426,7 @@ class MaintenanceTask:
         """Check if task is overdue - التحقق من التأخر"""
         if self.status in [MaintenanceStatus.COMPLETED, MaintenanceStatus.CANCELLED]:
             return False
-        if self.due_date and datetime.now(timezone.utc)() > self.due_date:
+        if self.due_date and datetime.now(timezone.utc) > self.due_date:
             return True
         return False
 

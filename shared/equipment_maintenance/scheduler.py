@@ -691,7 +691,7 @@ class MaintenanceScheduler:
         Calculate the next due date for a schedule
         حساب تاريخ الاستحقاق التالي للجدول
         """
-        from_date = from_date or datetime.now(timezone.utc)()
+        from_date = from_date or datetime.now(timezone.utc)
 
         # Hours-based scheduling
         if schedule.hours_interval:
@@ -777,7 +777,7 @@ class MaintenanceScheduler:
         Returns:
             List of tuples (schedule, trigger_reason)
         """
-        check_date = check_date or datetime.now(timezone.utc)()
+        check_date = check_date or datetime.now(timezone.utc)
         due_schedules: list[tuple[MaintenanceSchedule, str]] = []
 
         for schedule in self._schedules.values():
@@ -841,7 +841,7 @@ class MaintenanceScheduler:
         Generate a maintenance task from a schedule
         إنشاء مهمة صيانة من جدول
         """
-        scheduled_date = scheduled_date or datetime.now(timezone.utc)()
+        scheduled_date = scheduled_date or datetime.now(timezone.utc)
         equipment = self._equipment.get(schedule.equipment_id)
 
         # Create checklist items from template
@@ -1067,7 +1067,7 @@ class MaintenanceScheduler:
         if equipment:
             schedule.next_due_at = self.calculate_next_due_date(schedule, equipment, completed_at)
 
-        schedule.updated_at = datetime.now(timezone.utc)()
+        schedule.updated_at = datetime.now(timezone.utc)
 
     def generate_maintenance_alerts(
         self,
@@ -1077,7 +1077,7 @@ class MaintenanceScheduler:
         Generate maintenance alerts for all equipment
         إنشاء تنبيهات الصيانة لجميع المعدات
         """
-        check_date = check_date or datetime.now(timezone.utc)()
+        check_date = check_date or datetime.now(timezone.utc)
         alerts: list[MaintenanceAlert] = []
 
         due_schedules = self.get_due_schedules(check_date=check_date, include_approaching=True)

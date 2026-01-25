@@ -50,7 +50,7 @@ services:
           memory: 512Mi
     depends_on:
     - crop-growth-model
-    - weather-advanced
+    - weather-service
     - lai-estimation
   yield-engine:
     build:
@@ -78,10 +78,10 @@ services:
           memory: 512Mi
     depends_on:
     - crop-growth-model
-    - weather-advanced
+    - weather-service
   fertilizer-advisor:
     build:
-      context: ../../apps/services/fertilizer-advisor
+      context: ../../archive/deprecated-services/fertilizer-advisor
       dockerfile: Dockerfile
     ports:
     - 9093:9093
@@ -105,7 +105,7 @@ services:
           memory: 384Mi
     depends_on:
     - crop-growth-model
-    - satellite-service
+    - vegetation-analysis-service
   irrigation-smart:
     build:
       context: ../../apps/services/irrigation-smart
@@ -131,7 +131,7 @@ services:
           cpus: '400'
           memory: 384Mi
     depends_on:
-    - weather-advanced
+    - weather-service
     - virtual-sensors
   advisory-service:
     build:

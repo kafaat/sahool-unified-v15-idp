@@ -1,7 +1,7 @@
 """
 SAHOOL Skills Service - Main API
 Manages AI model skill compression, memory storage/recall, and evaluation
-Port: 8121
+Port: 8170
 """
 
 import json
@@ -80,7 +80,7 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             print(f"⚠️ Token revocation store failed (running without revocation): {e}")
 
-    print("✅ Skills Service ready on port 8121")
+    print("✅ Skills Service ready on port 8170")
     yield
 
     # Shutdown
@@ -427,5 +427,5 @@ def root():
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", 8110))
+    port = int(os.getenv("PORT", 8170))
     uvicorn.run(app, host="0.0.0.0", port=port)

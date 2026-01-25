@@ -55,9 +55,9 @@ RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt &&
 
 USER sahool
 
-EXPOSE 8131
+EXPOSE 8181
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8131/healthz')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8181/healthz')" || exit 1
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8131"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8181"]

@@ -26,7 +26,7 @@ services:
           memory: 512Mi
   satellite-service:
     build:
-      context: ../../apps/services/satellite-service
+      context: ../../archive/deprecated-services/satellite-service
       dockerfile: Dockerfile
     ports:
     - 9190:9190
@@ -50,7 +50,7 @@ services:
           memory: 768Mi
   weather-advanced:
     build:
-      context: ../../apps/services/weather-advanced
+      context: ../../archive/deprecated-services/weather-advanced
       dockerfile: Dockerfile
     ports:
     - 9092:9092
@@ -97,8 +97,8 @@ services:
           cpus: '400'
           memory: 384Mi
     depends_on:
-    - weather-advanced
-    - satellite-service
+    - weather-service
+    - vegetation-analysis-service
   weather-service:
     build:
       context: ../../apps/services/weather-service

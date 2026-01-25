@@ -3,8 +3,8 @@
 # Single Source of Truth for all microservices
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: "3.1.0"
-last_updated: "2026-01-23"
+version: "3.2.0"
+last_updated: "2026-01-25"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Architecture Layers
@@ -1034,7 +1034,7 @@ services:
     category: crop
     layer: intelligence
     path: "apps/services/skills-service"
-    port: 8121
+    port: 8170
     protocol: http
     health_endpoint: "/health"
     readiness_endpoint: "/readyz"
@@ -2098,7 +2098,7 @@ services:
     category: core
     layer: business
     path: "apps/services/logistics-service"
-    port: 8162  # Changed from 8131 (conflict with crm-service) to 8162
+    port: 8181  # Changed from 8131 (conflict with crm-service) to 8181
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2162,7 +2162,7 @@ services:
     category: integration
     layer: business
     path: "apps/services/ussd-gateway"
-    port: 8163  # Changed from 8130 (conflict with ai-agents-service) to 8163
+    port: 8180  # Changed from 8130 (conflict with ai-agents-service) to 8180
     protocol: http
     health_endpoint: "/healthz"
     status: active

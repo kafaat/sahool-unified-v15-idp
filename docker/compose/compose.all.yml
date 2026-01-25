@@ -50,7 +50,7 @@ services:
           memory: 512Mi
     depends_on:
     - crop-growth-model
-    - weather-advanced
+    - weather-service
     - lai-estimation
   yield-engine:
     build:
@@ -78,10 +78,10 @@ services:
           memory: 512Mi
     depends_on:
     - crop-growth-model
-    - weather-advanced
+    - weather-service
   fertilizer-advisor:
     build:
-      context: ../../apps/services/fertilizer-advisor
+      context: ../../archive/deprecated-services/fertilizer-advisor
       dockerfile: Dockerfile
     ports:
     - 9093:9093
@@ -105,7 +105,7 @@ services:
           memory: 384Mi
     depends_on:
     - crop-growth-model
-    - satellite-service
+    - vegetation-analysis-service
   irrigation-smart:
     build:
       context: ../../apps/services/irrigation-smart
@@ -131,7 +131,7 @@ services:
           cpus: '400'
           memory: 384Mi
     depends_on:
-    - weather-advanced
+    - weather-service
     - virtual-sensors
   advisory-service:
     build:
@@ -242,8 +242,8 @@ services:
           cpus: '300'
           memory: 256Mi
     depends_on:
-    - weather-advanced
-    - satellite-service
+    - weather-service
+    - vegetation-analysis-service
   lai-estimation:
     build:
       context: ../../apps/services/lai-estimation
@@ -269,7 +269,7 @@ services:
           cpus: '400'
           memory: 384Mi
     depends_on:
-    - satellite-service
+    - vegetation-analysis-service
   indicators-service:
     build:
       context: ../../apps/services/indicators-service
@@ -295,10 +295,10 @@ services:
           cpus: '400'
           memory: 384Mi
     depends_on:
-    - satellite-service
+    - vegetation-analysis-service
   crop-health-ai:
     build:
-      context: ../../apps/services/crop-health-ai
+      context: ../../archive/deprecated-services/crop-health-ai
       dockerfile: Dockerfile
     ports:
     - 9095:9095
@@ -321,7 +321,7 @@ services:
           cpus: '800'
           memory: 1Gi
     depends_on:
-    - satellite-service
+    - vegetation-analysis-service
   agro-rules:
     build:
       context: ../../apps/services/agro-rules
@@ -373,7 +373,7 @@ services:
           cpus: '500'
           memory: 512Mi
     depends_on:
-    - satellite-service
+    - vegetation-analysis-service
   ndvi-processor:
     build:
       context: ../../apps/services/ndvi-processor
@@ -399,7 +399,7 @@ services:
           cpus: '500'
           memory: 512Mi
     depends_on:
-    - satellite-service
+    - vegetation-analysis-service
   field-intelligence:
     build:
       context: ../../apps/services/field-intelligence
@@ -459,16 +459,16 @@ services:
       context: ../../apps/services/skills-service
       dockerfile: Dockerfile
     ports:
-    - 8121:8121
+    - 8170:8170
     environment:
-    - PORT=8121
+    - PORT=8170
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8121/health
+      - http://localhost:8170/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -590,7 +590,7 @@ services:
     - nats
   crop-health:
     build:
-      context: ../../apps/services/crop-health
+      context: ../../archive/deprecated-services/crop-health
       dockerfile: Dockerfile
     ports:
     - 8100:8100
@@ -1278,16 +1278,16 @@ services:
       context: ../../apps/services/logistics-service
       dockerfile: Dockerfile
     ports:
-    - 8162:8162
+    - 8181:8181
     environment:
-    - PORT=8162
+    - PORT=8181
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8162/healthz
+      - http://localhost:8181/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1306,16 +1306,16 @@ services:
       context: ../../apps/services/ussd-gateway
       dockerfile: Dockerfile
     ports:
-    - 8163:8163
+    - 8180:8180
     environment:
-    - PORT=8163
+    - PORT=8180
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8163/healthz
+      - http://localhost:8180/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1330,7 +1330,7 @@ services:
     - nats
   field-core:
     build:
-      context: ../../apps/services/field-core
+      context: ../../archive/deprecated-services/field-core
       dockerfile: Dockerfile
     ports:
     - 3005:3005
@@ -1354,7 +1354,7 @@ services:
           memory: 384Mi
   field-ops:
     build:
-      context: ../../apps/services/field-ops
+      context: ../../archive/deprecated-services/field-ops
       dockerfile: Dockerfile
     ports:
     - 8155:8155
@@ -1378,7 +1378,7 @@ services:
           memory: 384Mi
   field-service:
     build:
-      context: ../../apps/services/field-service
+      context: ../../archive/deprecated-services/field-service
       dockerfile: Dockerfile
     ports:
     - 8156:8156
@@ -1426,7 +1426,7 @@ services:
           memory: 512Mi
   satellite-service:
     build:
-      context: ../../apps/services/satellite-service
+      context: ../../archive/deprecated-services/satellite-service
       dockerfile: Dockerfile
     ports:
     - 9190:9190
@@ -1450,7 +1450,7 @@ services:
           memory: 768Mi
   weather-advanced:
     build:
-      context: ../../apps/services/weather-advanced
+      context: ../../archive/deprecated-services/weather-advanced
       dockerfile: Dockerfile
     ports:
     - 9092:9092
@@ -1497,8 +1497,8 @@ services:
           cpus: '400'
           memory: 384Mi
     depends_on:
-    - weather-advanced
-    - satellite-service
+    - weather-service
+    - vegetation-analysis-service
   weather-service:
     build:
       context: ../../apps/services/weather-service

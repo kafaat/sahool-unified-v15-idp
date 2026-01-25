@@ -448,7 +448,7 @@ services:
     - traefik.http.routers.billing-core.rule=PathPrefix(`/api/v1/billing/core`)
   satellite-service:
     build:
-      context: ./apps/services/satellite-service
+      context: ./archive/deprecated-services/satellite-service
       dockerfile: Dockerfile
     container_name: sahool-satellite-service
     ports:
@@ -488,7 +488,7 @@ services:
     - traefik.http.routers.satellite-service.rule=PathPrefix(`/api/v1/satellite/service`)
   weather-advanced:
     build:
-      context: ./apps/services/weather-advanced
+      context: ./archive/deprecated-services/weather-advanced
       dockerfile: Dockerfile
     container_name: sahool-weather-advanced
     ports:
@@ -568,7 +568,7 @@ services:
     - traefik.http.routers.indicators-service.rule=PathPrefix(`/api/v1/indicators/service`)
   crop-health-ai:
     build:
-      context: ./apps/services/crop-health-ai
+      context: ./archive/deprecated-services/crop-health-ai
       dockerfile: Dockerfile
     container_name: sahool-crop-health-ai
     ports:
@@ -685,7 +685,7 @@ services:
     - traefik.http.routers.yield-engine.rule=PathPrefix(`/api/v1/yield/engine`)
   fertilizer-advisor:
     build:
-      context: ./apps/services/fertilizer-advisor
+      context: ./archive/deprecated-services/fertilizer-advisor
       dockerfile: Dockerfile
     container_name: sahool-fertilizer-advisor
     ports:
@@ -1201,10 +1201,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-skills-service
     ports:
-    - 8121:8121
+    - 8170:8170
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8121
+    - PORT=8170
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -1214,7 +1214,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8121/health
+      - http://localhost:8170/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1231,7 +1231,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=skills-service
-    - sahool.port=8121
+    - sahool.port=8170
     - sahool.category=crop
     - traefik.enable=true
     - traefik.http.routers.skills-service.rule=PathPrefix(`/api/v1/skills/service`)
@@ -2099,7 +2099,7 @@ services:
     - traefik.http.routers.code-review-service.rule=PathPrefix(`/api/v1/code/review/service`)
   crop-health:
     build:
-      context: ./apps/services/crop-health
+      context: ./archive/deprecated-services/crop-health
       dockerfile: Dockerfile
     container_name: sahool-crop-health
     ports:
@@ -2221,10 +2221,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-logistics-service
     ports:
-    - 8162:8162
+    - 8181:8181
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8162
+    - PORT=8181
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -2234,7 +2234,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8162/healthz
+      - http://localhost:8181/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2251,7 +2251,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=logistics-service
-    - sahool.port=8162
+    - sahool.port=8181
     - sahool.category=core
     - traefik.enable=true
     - traefik.http.routers.logistics-service.rule=PathPrefix(`/api/v1/logistics/service`)
@@ -2300,10 +2300,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-ussd-gateway
     ports:
-    - 8163:8163
+    - 8180:8180
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8163
+    - PORT=8180
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -2312,7 +2312,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8163/healthz
+      - http://localhost:8180/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2329,7 +2329,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=ussd-gateway
-    - sahool.port=8163
+    - sahool.port=8180
     - sahool.category=integration
     - traefik.enable=true
     - traefik.http.routers.ussd-gateway.rule=PathPrefix(`/api/v1/ussd/gateway`)
@@ -2374,7 +2374,7 @@ services:
     - traefik.http.routers.weather-core.rule=PathPrefix(`/api/v1/weather/core`)
   field-core:
     build:
-      context: ./apps/services/field-core
+      context: ./archive/deprecated-services/field-core
       dockerfile: Dockerfile
     container_name: sahool-field-core
     ports:
@@ -2413,7 +2413,7 @@ services:
     - traefik.http.routers.field-core.rule=PathPrefix(`/api/v1/field/core`)
   field-ops:
     build:
-      context: ./apps/services/field-ops
+      context: ./archive/deprecated-services/field-ops
       dockerfile: Dockerfile
     container_name: sahool-field-ops
     ports:
@@ -2452,7 +2452,7 @@ services:
     - traefik.http.routers.field-ops.rule=PathPrefix(`/api/v1/field/ops`)
   field-service:
     build:
-      context: ./apps/services/field-service
+      context: ./archive/deprecated-services/field-service
       dockerfile: Dockerfile
     container_name: sahool-field-service
     ports:

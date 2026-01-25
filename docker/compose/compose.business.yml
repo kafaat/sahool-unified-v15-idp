@@ -610,16 +610,16 @@ services:
       context: ../../apps/services/logistics-service
       dockerfile: Dockerfile
     ports:
-    - 8162:8162
+    - 8181:8181
     environment:
-    - PORT=8162
+    - PORT=8181
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8162/healthz
+      - http://localhost:8181/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -638,16 +638,16 @@ services:
       context: ../../apps/services/ussd-gateway
       dockerfile: Dockerfile
     ports:
-    - 8163:8163
+    - 8180:8180
     environment:
-    - PORT=8163
+    - PORT=8180
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8163/healthz
+      - http://localhost:8180/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -662,7 +662,7 @@ services:
     - nats
   field-core:
     build:
-      context: ../../apps/services/field-core
+      context: ../../archive/deprecated-services/field-core
       dockerfile: Dockerfile
     ports:
     - 3005:3005
@@ -686,7 +686,7 @@ services:
           memory: 384Mi
   field-ops:
     build:
-      context: ../../apps/services/field-ops
+      context: ../../archive/deprecated-services/field-ops
       dockerfile: Dockerfile
     ports:
     - 8155:8155
@@ -710,7 +710,7 @@ services:
           memory: 384Mi
   field-service:
     build:
-      context: ../../apps/services/field-service
+      context: ../../archive/deprecated-services/field-service
       dockerfile: Dockerfile
     ports:
     - 8156:8156

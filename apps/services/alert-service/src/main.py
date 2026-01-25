@@ -406,7 +406,7 @@ async def create_alert_internal(alert_data: AlertCreate) -> dict:
             message_en=alert_data.message_en,
             recommendations=alert_data.recommendations or [],
             recommendations_en=alert_data.recommendations_en or [],
-            metadata=alert_data.metadata or {},
+            extra_metadata=alert_data.metadata or {},
             source_service=alert_data.source_service,
             correlation_id=alert_data.correlation_id,
             expires_at=alert_data.expires_at,
@@ -542,7 +542,7 @@ async def update_alert_endpoint(
 
     old_status = alert.status
 
-    if update_data.status:
+    if update_data and update_data.status:
         user_id = update_data.acknowledged_by or update_data.dismissed_by or update_data.resolved_by
 
         updated_alert = update_alert_status(

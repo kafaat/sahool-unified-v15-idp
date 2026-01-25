@@ -14,3 +14,12 @@ python-dotenv==1.0.1
 python-dateutil==2.8.2
 
 structlog>=24.1.0
+
+# NATS messaging
+nats-py>=2.6.0
+
+# Database
+asyncpg>=0.30.0
+
+# JWT Authentication
+PyJWT>=2.8.0

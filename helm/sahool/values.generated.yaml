@@ -915,7 +915,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8170
+    port: 8121
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -931,13 +931,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8170'
+      value: '8121'
     serviceAccount:
       create: true
       name: sahool-skills-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8170'
+      prometheus.io/port: '8121'
       prometheus.io/path: /metrics
   advisory-service:
     enabled: true
@@ -2136,7 +2136,7 @@ ingress:
     - path: /api/v1/skills/service
       pathType: Prefix
       service: skills-service
-      port: 8170
+      port: 8121
     - path: /api/v1/advisory/service
       pathType: Prefix
       service: advisory-service

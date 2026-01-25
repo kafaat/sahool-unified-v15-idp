@@ -2050,7 +2050,7 @@ async def auto_create_tasks(
 
         return {
             "field_id": data.field_id,
-            "created": [t.model_dump() for t in created_tasks],
+            "created": created_tasks,  # Already dicts from db_task_to_dict()
             "failed": failed_tasks,
             "summary": {
                 "total_requested": len(data.suggestions),

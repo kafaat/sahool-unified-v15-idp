@@ -1201,10 +1201,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-skills-service
     ports:
-    - 8170:8170
+    - 8121:8121
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8170
+    - PORT=8121
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -1214,7 +1214,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8170/health
+      - http://localhost:8121/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1231,7 +1231,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=skills-service
-    - sahool.port=8170
+    - sahool.port=8121
     - sahool.category=crop
     - traefik.enable=true
     - traefik.http.routers.skills-service.rule=PathPrefix(`/api/v1/skills/service`)

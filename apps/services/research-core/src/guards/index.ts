@@ -1,1 +1,1 @@
-export * from "./scientific-lock.guard";
+export * from "../core/guards/scientific-lock.guard";

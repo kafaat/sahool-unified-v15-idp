@@ -206,9 +206,10 @@ except ImportError as e:
 # NATS publisher (optional)
 _nats_available = False
 try:
-    import sys
-
-    sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
+    # Add project root to path for shared imports (dynamic path instead of hardcoded)
+    _project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+    if _project_root not in sys.path:
+        sys.path.insert(0, _project_root)
     from shared.libs.events.nats_publisher import publish_analysis_completed_sync
 
     _nats_available = True
@@ -307,7 +308,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="SAHOOL Satellite Service | خدمة الأقمار الصناعية",
-    version="15.8.0",
+    version="16.0.0",
     description="Multi-provider satellite monitoring with automatic fallback. Supports Sentinel Hub, Copernicus STAC, NASA Earthdata. Includes Sentinel-1 SAR for soil moisture estimation. Now with GDD (Growing Degree Days) tracking for 40+ Yemen crops.",
     lifespan=lifespan,
 )
@@ -2753,9 +2754,10 @@ async def get_yield_history(
 
     # Import shared crop catalog
     try:
-        import sys
-
-        sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
+        # Add project root to path for shared imports (dynamic path instead of hardcoded)
+        _proj_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+        if _proj_root not in sys.path:
+            sys.path.insert(0, _proj_root)
         from apps.services.shared.crops import ALL_CROPS
 
         # Get crops for this region (simulated)
@@ -2864,9 +2866,10 @@ async def get_regional_yields(
 
     # Import crop catalog
     try:
-        import sys
-
-        sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
+        # Add project root to path for shared imports (dynamic path instead of hardcoded)
+        _proj_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+        if _proj_root not in sys.path:
+            sys.path.insert(0, _proj_root)
         from apps.services.shared.crops import ALL_CROPS
 
         # Get crops suitable for this region

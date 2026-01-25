@@ -1,0 +1,276 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// SAHOOL Disaster Assessment Service - Prisma Schema
+// خدمة تقييم الكوارث الزراعية
+// Database: PostgreSQL with PostGIS Extension
+// ═══════════════════════════════════════════════════════════════════════════════
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Disaster Report - تقارير الكوارث
+// Core entity for tracking agricultural disasters
+// ─────────────────────────────────────────────────────────────────────────────
+
+model DisasterReport {
+  id String @id @default(uuid()) @db.Uuid
+
+  // Disaster Classification
+  type     DisasterType   @default(flood)
+  severity DisasterSeverity @default(medium)
+  status   DisasterStatus @default(reported)
+
+  // Basic Info
+  title       String  @db.VarChar(255)
+  titleAr     String? @map("title_ar") @db.VarChar(255)
+  description String? @db.Text
+  descriptionAr String? @map("description_ar") @db.Text
+
+  // Location - GeoJSON point stored as JSON
+  governorate   String  @db.VarChar(100)
+  district      String? @db.VarChar(100)
+  location      Json    @db.JsonB // { lat: number, lng: number }
+
+  // Impact Assessment
+  affectedRadiusKm       Float?   @map("affected_radius_km")
+  affectedArea           Float?   @map("affected_area") // hectares
+  affectedFieldsCount    Int      @default(0) @map("affected_fields_count")
+  totalAffectedAreaHectares Float? @map("total_affected_area_hectares")
+  totalEstimatedLossYER  BigInt?  @map("total_estimated_loss_yer")
+
+  // Reporting
+  reportedBy String  @map("reported_by") @db.VarChar(255)
+  tenantId   String  @map("tenant_id") @db.VarChar(100)
+
+  // Lifecycle Dates
+  startDate  DateTime? @map("start_date") @db.Timestamptz
+  endDate    DateTime? @map("end_date") @db.Timestamptz
+  verifiedAt DateTime? @map("verified_at") @db.Timestamptz
+  resolvedAt DateTime? @map("resolved_at") @db.Timestamptz
+
+  // Images & Evidence
+  images Json? @db.JsonB // Array of image URLs
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  alerts            DisasterAlert[]
+  fieldAssessments  FieldAssessment[]
+
+  // Indexes
+  @@index([tenantId], name: "idx_disaster_tenant")
+  @@index([governorate], name: "idx_disaster_governorate")
+  @@index([type], name: "idx_disaster_type")
+  @@index([status], name: "idx_disaster_status")
+  @@index([severity], name: "idx_disaster_severity")
+  @@index([createdAt], name: "idx_disaster_created")
+  @@map("disaster_reports")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Disaster Alert - تنبيهات الكوارث
+// Early warning alerts linked to disasters
+// ─────────────────────────────────────────────────────────────────────────────
+
+model DisasterAlert {
+  id String @id @default(uuid()) @db.Uuid
+
+  // Alert Type
+  alertType DisasterAlertType @map("alert_type") @default(weather)
+  severity  DisasterSeverity  @default(medium)
+
+  // Content
+  title            String  @db.VarChar(255)
+  titleAr          String? @map("title_ar") @db.VarChar(255)
+  message          String  @db.Text
+  messageAr        String? @map("message_ar") @db.Text
+  description      String? @db.Text
+  descriptionAr    String? @map("description_ar") @db.Text
+
+  // Location
+  governorate   String  @db.VarChar(100)
+  governorateAr String? @map("governorate_ar") @db.VarChar(100)
+
+  // Timing
+  startTime DateTime  @map("start_time") @db.Timestamptz
+  endTime   DateTime? @map("end_time") @db.Timestamptz
+
+  // Status
+  isActive Boolean @default(true) @map("is_active")
+
+  // Recommendations
+  recommendations   Json? @db.JsonB // Array of strings
+  recommendationsAr Json? @map("recommendations_ar") @db.JsonB // Array of strings
+
+  // Optional link to disaster
+  reportId String? @map("report_id") @db.Uuid
+  report   DisasterReport? @relation(fields: [reportId], references: [id], onDelete: SetNull)
+
+  // Multi-tenancy
+  tenantId String @map("tenant_id") @db.VarChar(100)
+
+  // Timestamps
+  sentAt    DateTime @default(now()) @map("sent_at") @db.Timestamptz
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  subscriptions AlertSubscription[]
+
+  // Indexes
+  @@index([tenantId], name: "idx_alert_tenant")
+  @@index([governorate], name: "idx_alert_governorate")
+  @@index([alertType], name: "idx_alert_type")
+  @@index([isActive], name: "idx_alert_active")
+  @@index([severity], name: "idx_alert_severity")
+  @@map("disaster_alerts")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field Assessment - تقييم أضرار الحقول
+// Damage assessments for individual fields
+// ─────────────────────────────────────────────────────────────────────────────
+
+model FieldAssessment {
+  id String @id @default(uuid()) @db.Uuid
+
+  // Field & Disaster References
+  fieldId    String @map("field_id") @db.VarChar(100)
+  disasterId String @map("disaster_id") @db.Uuid
+  disaster   DisasterReport @relation(fields: [disasterId], references: [id], onDelete: Cascade)
+
+  // Damage Assessment
+  damagePercentage      Float   @map("damage_percentage") // 0-100
+  damageLevel           String  @map("damage_level") @db.VarChar(50) // minimal, light, moderate, severe, catastrophic
+  damageLevelAr         String? @map("damage_level_ar") @db.VarChar(50)
+  affectedAreaHectares  Float   @map("affected_area_hectares")
+  estimatedLossYER      BigInt  @map("estimated_loss_yer")
+
+  // Crop Info
+  affectedCropType String? @map("affected_crop_type") @db.VarChar(100)
+
+  // Recommendations
+  recommendations   Json? @db.JsonB // Array of strings
+  recommendationsAr Json? @map("recommendations_ar") @db.JsonB
+
+  // Insurance
+  insuranceEligible    Boolean @default(false) @map("insurance_eligible")
+  insuranceClaimAmount BigInt? @map("insurance_claim_amount")
+
+  // Assessment Details
+  assessmentNotes  String? @map("assessment_notes") @db.Text
+  assessmentImages Json?   @map("assessment_images") @db.JsonB // Array of image URLs
+  assessedBy       String? @map("assessed_by") @db.VarChar(255)
+
+  // Multi-tenancy
+  tenantId String @map("tenant_id") @db.VarChar(100)
+
+  // Timestamps
+  assessedAt DateTime @default(now()) @map("assessed_at") @db.Timestamptz
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Indexes
+  @@index([fieldId], name: "idx_assessment_field")
+  @@index([disasterId], name: "idx_assessment_disaster")
+  @@index([tenantId], name: "idx_assessment_tenant")
+  @@map("field_assessments")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Alert Subscription - اشتراكات التنبيهات
+// User subscriptions for alerts
+// ─────────────────────────────────────────────────────────────────────────────
+
+model AlertSubscription {
+  id String @id @default(uuid()) @db.Uuid
+
+  // User Info
+  userId   String @map("user_id") @db.VarChar(255)
+  tenantId String @map("tenant_id") @db.VarChar(100)
+
+  // Subscription Settings
+  governorate String @db.VarChar(100)
+  types       Json   @db.JsonB // Array of alert types
+
+  // Notification Channels
+  channels Json @db.JsonB // Array of channels: sms, push, email
+
+  // Status
+  isActive Boolean @default(true) @map("is_active")
+
+  // Optional link to alert
+  alertId String? @map("alert_id") @db.Uuid
+  alert   DisasterAlert? @relation(fields: [alertId], references: [id], onDelete: SetNull)
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Indexes
+  @@unique([userId, governorate], name: "idx_subscription_user_gov")
+  @@index([tenantId], name: "idx_subscription_tenant")
+  @@map("alert_subscriptions")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Enums - التعدادات
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum DisasterType {
+  flood     // فيضان
+  drought   // جفاف
+  frost     // صقيع
+  hail      // بَرَد
+  storm     // عاصفة
+  pest      // آفات
+  disease   // أمراض نباتية
+  locust    // جراد
+  wildfire  // حرائق
+
+  @@map("disaster_type")
+}
+
+enum DisasterSeverity {
+  low      // منخفض
+  medium   // متوسط
+  high     // عالي
+  critical // حرج
+
+  @@map("disaster_severity")
+}
+
+enum DisasterStatus {
+  reported    // مُبلَّغ
+  verified    // مُحقَّق
+  active      // نشط
+  monitoring  // تحت المراقبة
+  resolved    // مُنتهي
+  archived    // مؤرشف
+
+  @@map("disaster_status")
+}
+
+enum DisasterAlertType {
+  weather  // طقس
+  pest     // آفات
+  disease  // أمراض
+  flood    // فيضان
+  drought  // جفاف
+  frost    // صقيع
+  locust   // جراد
+  general  // عام
+
+  @@map("disaster_alert_type")
+}

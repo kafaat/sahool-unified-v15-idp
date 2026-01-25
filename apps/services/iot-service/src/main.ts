@@ -23,6 +23,9 @@ async function bootstrap() {
   // Global exception filter for unified error handling
   app.useGlobalFilters(new HttpExceptionFilter());
 
+  // Global request logging interceptor (BUG-006 fix)
+  app.useGlobalInterceptors(new RequestLoggingInterceptor("iot-service", false, false));
+
   // CORS configuration - restrict to allowed origins
   const allowedOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(",")
@@ -55,7 +58,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle("SAHOOL IoT Service")
     .setDescription("Smart Irrigation & Sensor Management API")
-    .setVersion("1.0")
+    .setVersion("16.0.0")
     .addTag("sensors", "Sensor data endpoints")
     .addTag("actuators", "Pump & valve control")
     .addTag("devices", "Device management")

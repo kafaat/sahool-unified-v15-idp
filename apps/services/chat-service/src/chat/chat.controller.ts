@@ -69,6 +69,8 @@ export class ChatController {
    * POST /api/v1/chat/conversations
    */
   @Post("conversations")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: "Create new conversation",
@@ -82,9 +84,20 @@ export class ChatController {
     status: 400,
     description: "Bad request - invalid data",
   })
+  @ApiResponse({
+    status: 401,
+    description: "Unauthorized - Valid JWT token required",
+  })
   async createConversation(
     @Body() createConversationDto: CreateConversationDto,
+    @UserId() userId: string,
   ) {
+    // Security: Ensure the authenticated user is one of the participants
+    if (!createConversationDto.participantIds.includes(userId)) {
+      throw new UnauthorizedException(
+        "User must be a participant in the conversation",
+      );
+    }
     return this.chatService.createConversation(createConversationDto);
   }
 

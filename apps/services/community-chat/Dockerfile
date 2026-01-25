@@ -27,6 +27,9 @@ RUN npx prisma generate
 # Copy source code
 COPY apps/services/community-chat/src/ ./src/
 
+# Copy OpenAPI specification
+COPY apps/services/community-chat/openapi.yaml ./openapi.yaml
+
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production - Minimal runtime image
 # ───────────────────────────────────────────────────────────────────────────────
@@ -60,6 +63,9 @@ RUN npm cache clean --force
 
 # Copy source code
 COPY --from=builder /app/src/ ./src/
+
+# Copy OpenAPI specification
+COPY --from=builder /app/openapi.yaml ./openapi.yaml
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \

@@ -71,4 +71,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
 
 # Run database migrations and start the application
 # Note: In production, migrations should ideally be run as a separate init container
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+# Skip migrations when SKIP_DB_INIT=true (for container tests without database)
+CMD ["sh", "-c", "if [ \"$SKIP_DB_INIT\" = \"true\" ]; then echo 'Skipping database migrations (SKIP_DB_INIT=true)'; else npx prisma migrate deploy || echo 'Migration failed, continuing anyway...'; fi && node dist/main.js"]

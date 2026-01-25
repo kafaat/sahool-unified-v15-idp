@@ -14,7 +14,7 @@ event_architecture:
   layers:
     acquisition:
       description: "Data ingestion layer - طبقة جمع البيانات"
-      services: [satellite-service, iot-service, iot-gateway, weather-advanced, weather-service, weather-core, virtual-sensors, ussd-gateway]
+      services: [vegetation-analysis-service, iot-service, iot-gateway, weather-service, weather-core, virtual-sensors, ussd-gateway]
       rules:
         - "No business logic"
         - "Only ingestion + normalization"
@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [indicators-service, lai-estimation, crop-health-ai, crop-health, disaster-assessment, agro-rules, crop-intelligence-service, ndvi-processor, ndvi-engine, field-intelligence, vegetation-analysis-service, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph]
+      services: [indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, ndvi-engine, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -30,7 +30,7 @@ event_architecture:
 
     decision:
       description: "Advisory & planning layer - طبقة القرار"
-      services: [crop-growth-model, fertilizer-advisor, irrigation-smart, yield-engine, yield-prediction, advisory-service, ai-advisor, agro-advisor]
+      services: [crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, ai-advisor, agro-advisor]
       rules:
         - "Consumes from Intelligence"
         - "Produces recommendations/plans"
@@ -38,7 +38,7 @@ event_architecture:
 
     business:
       description: "Business operations layer - طبقة الأعمال"
-      services: [notification-service, marketplace-service, billing-core, community-chat, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service, field-management-service, field-core, field-ops, field-service, user-service, alert-service, inventory-service, field-chat, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service]
+      services: [notification-service, marketplace-service, billing-core, community-chat, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service, field-management-service, user-service, alert-service, inventory-service, field-chat, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service]
       rules:
         - "Consumes from Decision"
         - "User-facing operations"
@@ -224,8 +224,8 @@ services:
       type: postgresql
       name: sahool_disaster
     dependencies:
-      - weather-advanced
-      - satellite-service
+      - weather-service
+      - vegetation-analysis-service
     resources:
       cpu: "300m"
       memory: "256Mi"
@@ -252,7 +252,7 @@ services:
         - IndexTileReady.v1
         - FieldIndicatorsComputed.v1
     dependencies:
-      - satellite-service
+      - vegetation-analysis-service
     resources:
       cpu: "400m"
       memory: "384Mi"
@@ -282,7 +282,7 @@ services:
         - FieldIndicatorsComputed.v1
     dependencies:
       - crop-growth-model
-      - weather-advanced
+      - weather-service
       - lai-estimation
     resources:
       cpu: "500m"
@@ -544,7 +544,7 @@ services:
       type: postgresql
       name: sahool_indicators
     dependencies:
-      - satellite-service
+      - vegetation-analysis-service
     resources:
       cpu: "400m"
       memory: "384Mi"
@@ -575,7 +575,7 @@ services:
         - LAIEstimated.v1
         - WeatherObserved.v1
     dependencies:
-      - satellite-service
+      - vegetation-analysis-service
     resources:
       cpu: "800m"
       memory: "1Gi"
@@ -603,8 +603,8 @@ services:
         - WeatherObserved.v1
         - IndexTileReady.v1
     dependencies:
-      - weather-advanced
-      - satellite-service
+      - weather-service
+      - vegetation-analysis-service
     resources:
       cpu: "400m"
       memory: "384Mi"
@@ -633,7 +633,7 @@ services:
         - FieldIndicatorsComputed.v1
     dependencies:
       - crop-growth-model
-      - weather-advanced
+      - weather-service
     resources:
       cpu: "500m"
       memory: "512Mi"
@@ -667,7 +667,7 @@ services:
       name: sahool_fertilizer
     dependencies:
       - crop-growth-model
-      - satellite-service
+      - vegetation-analysis-service
     resources:
       cpu: "400m"
       memory: "384Mi"
@@ -699,7 +699,7 @@ services:
       type: postgresql
       name: sahool_irrigation
     dependencies:
-      - weather-advanced
+      - weather-service
       - virtual-sensors
     resources:
       cpu: "400m"
@@ -813,7 +813,7 @@ services:
         - IndexTileReady.v1
         - SatelliteSceneIngested.v1
     dependencies:
-      - satellite-service
+      - vegetation-analysis-service
     resources:
       cpu: "500m"
       memory: "512Mi"
@@ -921,7 +921,7 @@ services:
       consumes:
         - SatelliteSceneIngested.v1
     dependencies:
-      - satellite-service
+      - vegetation-analysis-service
     resources:
       cpu: "500m"
       memory: "512Mi"

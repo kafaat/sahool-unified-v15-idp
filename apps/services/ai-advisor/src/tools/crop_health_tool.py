@@ -2,8 +2,8 @@
 Crop Health Tool
 أداة صحة المحاصيل
 
-Tool for calling the crop-health-ai service.
-أداة لاستدعاء خدمة الذكاء الاصطناعي لصحة المحاصيل.
+Tool for calling the crop-intelligence-service (replaces deprecated crop-health-ai).
+أداة لاستدعاء خدمة ذكاء المحاصيل (تستبدل crop-health-ai المهملة).
 """
 
 from typing import Any
@@ -18,8 +18,11 @@ logger = structlog.get_logger()
 
 class CropHealthTool:
     """
-    Tool to interact with crop-health-ai service
-    أداة للتفاعل مع خدمة الذكاء الاصطناعي لصحة المحاصيل
+    Tool to interact with crop-intelligence-service
+    أداة للتفاعل مع خدمة ذكاء المحاصيل
+
+    Note: Connects to crop-intelligence-service:8095 (replaces crop-health-ai)
+    ملاحظة: تتصل بـ crop-intelligence-service:8095 (تستبدل crop-health-ai)
     """
 
     def __init__(self):

@@ -2,8 +2,8 @@
 Satellite Tool
 أداة الأقمار الصناعية
 
-Tool for calling the satellite-service.
-أداة لاستدعاء خدمة الأقمار الصناعية.
+Tool for calling the vegetation-analysis-service (replaces deprecated satellite-service).
+أداة لاستدعاء خدمة تحليل الغطاء النباتي (تستبدل satellite-service المهملة).
 """
 
 from typing import Any
@@ -18,8 +18,11 @@ logger = structlog.get_logger()
 
 class SatelliteTool:
     """
-    Tool to interact with satellite-service
-    أداة للتفاعل مع خدمة الأقمار الصناعية
+    Tool to interact with vegetation-analysis-service
+    أداة للتفاعل مع خدمة تحليل الغطاء النباتي
+
+    Note: Connects to vegetation-analysis-service:8090 (replaces satellite-service)
+    ملاحظة: تتصل بـ vegetation-analysis-service:8090 (تستبدل satellite-service)
     """
 
     def __init__(self):

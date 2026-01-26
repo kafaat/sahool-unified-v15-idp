@@ -74,7 +74,10 @@ class PublisherConfig(BaseModel):
 
     # JetStream
     enable_jetstream: bool = Field(default=True, description="Enable JetStream for persistence")
-    jetstream_domain: str | None = Field(None, description="JetStream domain")
+    jetstream_domain: str | None = Field(
+        default_factory=lambda: os.getenv("JETSTREAM_DOMAIN", "sahool"),
+        description="JetStream domain (default: sahool)",
+    )
 
     # Publishing options
     default_timeout: float = Field(default=5.0, description="Default publish timeout")

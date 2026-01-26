@@ -167,14 +167,30 @@ check_flutter() {
         return
     fi
 
+    # Check if we should use Melos
+    USE_MELOS=false
+    if command -v melos &> /dev/null && [ -f "apps/mobile/melos.yaml" ]; then
+        USE_MELOS=true
+        echo "Using Melos for monorepo management..."
+    fi
+
     # Flutter analyze
     echo "Running Flutter analyze..."
-    if cd apps/mobile && flutter analyze --no-fatal-infos 2>/dev/null; then
-        print_status "Flutter analyze" 0
+    if [ "$USE_MELOS" = true ]; then
+        if cd apps/mobile && melos run analyze 2>/dev/null; then
+            print_status "Flutter analyze (Melos)" 0
+        else
+            print_warning "Flutter analyze found issues"
+        fi
+        cd - > /dev/null
     else
-        print_warning "Flutter analyze found issues"
+        if cd apps/mobile && flutter analyze --no-fatal-infos 2>/dev/null; then
+            print_status "Flutter analyze" 0
+        else
+            print_warning "Flutter analyze found issues"
+        fi
+        cd - > /dev/null
     fi
-    cd - > /dev/null
 
     # Dart format check
     echo "Checking Dart formatting..."
@@ -185,13 +201,44 @@ check_flutter() {
     fi
     cd - > /dev/null
 
+    # Import sorting check (if import_sorter is available)
+    if [ -f "apps/mobile/import_sorter.yaml" ]; then
+        echo "Checking import sorting..."
+        if cd apps/mobile && dart run import_sorter:main --exit-if-changed 2>/dev/null; then
+            print_status "Import sorting" 0
+        else
+            print_warning "Some imports need sorting (run: dart run import_sorter:main)"
+        fi
+        cd - > /dev/null
+    fi
+
     # Flutter tests
     if [ "$QUICK" != "true" ]; then
         echo "Running Flutter tests..."
-        if cd apps/mobile && flutter test --reporter=compact 2>/dev/null; then
-            print_status "Flutter tests" 0
+        if [ "$USE_MELOS" = true ]; then
+            if cd apps/mobile && melos run test 2>/dev/null; then
+                print_status "Flutter tests (Melos)" 0
+            else
+                print_status "Flutter tests" 1
+            fi
+            cd - > /dev/null
         else
-            print_status "Flutter tests" 1
+            if cd apps/mobile && flutter test --reporter=compact 2>/dev/null; then
+                print_status "Flutter tests" 0
+            else
+                print_status "Flutter tests" 1
+            fi
+            cd - > /dev/null
+        fi
+    fi
+
+    # Code generation check (build_runner)
+    if [ "$QUICK" != "true" ]; then
+        echo "Checking code generation..."
+        if cd apps/mobile && dart run build_runner build --delete-conflicting-outputs 2>/dev/null; then
+            print_status "Code generation" 0
+        else
+            print_warning "Code generation needs update (run: dart run build_runner build)"
         fi
         cd - > /dev/null
     fi

@@ -110,6 +110,15 @@ repos:
         types: [file]
         stages: [pre-commit]
 
+      # Flutter/Dart import sorting
+      - id: dart-imports
+        name: "Flutter: Import sorting check"
+        entry: bash -c 'if git diff --cached --name-only | grep -E "apps/mobile/.*\.dart$"; then cd apps/mobile && dart run import_sorter:main --exit-if-changed 2>/dev/null || echo "⚠️ Some imports need sorting (run: dart run import_sorter:main)"; fi'
+        language: system
+        pass_filenames: false
+        types: [file]
+        stages: [pre-commit]
+
       # Python type checking with mypy (optional - slower)
       - id: mypy-check
         name: "Python: Type check (mypy)"

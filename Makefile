@@ -409,6 +409,39 @@ quality-flutter: ## فحص Flutter فقط - Flutter quality checks only
 	@echo "$(BLUE)🦋 فحص Flutter - Flutter Quality$(RESET)"
 	@./scripts/quality-belt.sh flutter
 
+flutter-analyze: ## تحليل Flutter - Flutter static analysis
+	@echo "$(BLUE)🦋 تحليل Flutter - Flutter Analyze$(RESET)"
+	@cd apps/mobile && flutter analyze --no-fatal-infos
+
+flutter-format: ## تنسيق Dart - Format Dart files
+	@echo "$(BLUE)🦋 تنسيق Dart - Dart Format$(RESET)"
+	@cd apps/mobile && dart format lib/
+
+flutter-imports: ## ترتيب الاستيرادات - Sort Dart imports
+	@echo "$(BLUE)🦋 ترتيب الاستيرادات - Sort Imports$(RESET)"
+	@cd apps/mobile && dart run import_sorter:main
+
+flutter-fix: ## إصلاح تلقائي - Apply automatic fixes
+	@echo "$(BLUE)🦋 إصلاح تلقائي - Dart Fix$(RESET)"
+	@cd apps/mobile && dart fix --apply
+
+flutter-test: ## اختبارات Flutter - Flutter tests
+	@echo "$(BLUE)🦋 اختبارات Flutter - Flutter Tests$(RESET)"
+	@cd apps/mobile && flutter test --reporter=compact
+
+flutter-build: ## توليد الكود - Code generation (build_runner)
+	@echo "$(BLUE)🦋 توليد الكود - Build Runner$(RESET)"
+	@cd apps/mobile && dart run build_runner build --delete-conflicting-outputs
+
+melos-bootstrap: ## تثبيت Melos وتهيئة المشاريع - Bootstrap Melos packages
+	@echo "$(BLUE)🦋 تهيئة Melos - Melos Bootstrap$(RESET)"
+	@dart pub global activate melos
+	@cd apps/mobile && melos bootstrap
+
+melos-quality: ## فحص جودة Melos - Melos quality checks
+	@echo "$(BLUE)🦋 فحص Melos - Melos Quality$(RESET)"
+	@cd apps/mobile && melos run quality
+
 security-check: ## فحص أمني - Security checks (secrets, vulnerabilities)
 	@echo "$(BLUE)🔒 فحص أمني - Security Check$(RESET)"
 	@./scripts/quality-belt.sh security

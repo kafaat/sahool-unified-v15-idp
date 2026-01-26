@@ -30,7 +30,7 @@
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
-    "@nestjs/testing": "^10.4.15",
+    "@nestjs/testing": "^10.4.22",
     "@types/node": "^22.10.2"
   },
   "engines": {

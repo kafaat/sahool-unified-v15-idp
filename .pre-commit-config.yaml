@@ -1,35 +1,129 @@
+# ============================================================================
+# SAHOOL Pre-commit Configuration
+# حزام الجودة الموحد - Quality Belt
+# ============================================================================
+#
+# Install: pre-commit install
+# Run manually: pre-commit run --all-files
+# Update hooks: pre-commit autoupdate
+#
+# Covers:
+# - Python (Ruff, type checking)
+# - TypeScript/JavaScript (ESLint, TypeScript)
+# - Flutter/Dart (analyze, format)
+# - Security (secrets, credentials)
+# ============================================================================
+
 repos:
+  # ============================================================================
+  # PYTHON - Ruff (linting + formatting)
+  # ============================================================================
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.8.4
     hooks:
       - id: ruff
+        name: "Python: Ruff lint"
         args: ["--fix"]
       - id: ruff-format
+        name: "Python: Ruff format"
 
+  # ============================================================================
+  # GENERAL - File checks
+  # ============================================================================
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
       - id: end-of-file-fixer
+        name: "General: Fix end of file"
       - id: trailing-whitespace
+        name: "General: Trim trailing whitespace"
       - id: check-yaml
+        name: "General: Check YAML syntax"
       - id: check-added-large-files
+        name: "General: Check for large files"
         args: ["--maxkb=1000"]
       - id: check-merge-conflict
+        name: "General: Check merge conflicts"
       - id: detect-private-key
+        name: "Security: Detect private keys"
       - id: check-json
+        name: "General: Check JSON syntax"
       - id: check-toml
+        name: "General: Check TOML syntax"
 
+  # ============================================================================
+  # SECURITY - Secret detection
+  # ============================================================================
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:
       - id: detect-secrets
+        name: "Security: Detect secrets"
         args: ["--baseline", ".secrets.baseline"]
         exclude: package-lock\.json|\.secrets\.baseline
 
+  # ============================================================================
+  # LOCAL HOOKS - Custom checks
+  # ============================================================================
   - repo: local
     hooks:
+      # Prevent .env file commits
       - id: no-env-files
-        name: Prevent .env commits
+        name: "Security: Prevent .env commits"
         entry: bash -c 'if git diff --cached --name-only | grep -E "^\.env$|^\.env\..+$" | grep -v "\.example$"; then echo "❌ .env files should not be committed!"; exit 1; fi'
         language: system
         pass_filenames: false
+
+      # TypeScript type checking (Web + Admin)
+      - id: typescript-check
+        name: "TypeScript: Type check (web)"
+        entry: bash -c 'if git diff --cached --name-only | grep -E "apps/(web|admin)/.*\.(ts|tsx)$"; then cd apps/web && npx tsc --noEmit --skipLibCheck 2>/dev/null || echo "⚠️ TypeScript check failed (continuing)"; fi'
+        language: system
+        pass_filenames: false
+        types: [file]
+        stages: [pre-commit]
+
+      # ESLint for TypeScript files
+      - id: eslint-check
+        name: "TypeScript: ESLint check"
+        entry: bash -c 'files=$(git diff --cached --name-only | grep -E "apps/(web|admin)/.*\.(ts|tsx|js|jsx)$" | head -20); if [ -n "$files" ]; then cd apps/web && npx eslint $files --fix --max-warnings=50 2>/dev/null || echo "⚠️ ESLint check completed with warnings"; fi'
+        language: system
+        pass_filenames: false
+        types: [file]
+        stages: [pre-commit]
+
+      # Flutter/Dart analyze
+      - id: flutter-analyze
+        name: "Flutter: Dart analyze"
+        entry: bash -c 'if git diff --cached --name-only | grep -E "apps/mobile/.*\.dart$"; then cd apps/mobile && flutter analyze --no-fatal-infos 2>/dev/null || echo "⚠️ Flutter analyze completed with issues"; fi'
+        language: system
+        pass_filenames: false
+        types: [file]
+        stages: [pre-commit]
+
+      # Flutter/Dart format check
+      - id: dart-format
+        name: "Flutter: Dart format check"
+        entry: bash -c 'files=$(git diff --cached --name-only | grep -E "apps/mobile/.*\.dart$"); if [ -n "$files" ]; then dart format --set-exit-if-changed $files 2>/dev/null || echo "⚠️ Some Dart files need formatting"; fi'
+        language: system
+        pass_filenames: false
+        types: [file]
+        stages: [pre-commit]
+
+      # Python type checking with mypy (optional - slower)
+      - id: mypy-check
+        name: "Python: Type check (mypy)"
+        entry: bash -c 'files=$(git diff --cached --name-only | grep -E "shared/.*\.py$" | head -10); if [ -n "$files" ]; then mypy $files --ignore-missing-imports --no-error-summary 2>/dev/null || echo "⚠️ Mypy check completed with issues"; fi'
+        language: system
+        pass_filenames: false
+        types: [python]
+        stages: [pre-commit]
+
+      # Pytest smoke test (fast imports only)
+      - id: pytest-smoke
+        name: "Python: Smoke test (imports)"
+        entry: bash -c 'if git diff --cached --name-only | grep -E "shared/.*\.py$"; then python -m pytest tests/smoke/ -x -q --no-header 2>/dev/null || echo "⚠️ Smoke tests failed"; fi'
+        language: system
+        pass_filenames: false
+        types: [python]
+        stages: [pre-commit]

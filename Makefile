@@ -389,6 +389,40 @@ fmt: ## تنسيق الكود - Format code
 	@cd apps/web && npm run format || true
 	@echo "$(GREEN)✅ تم تنسيق الكود - Code formatted!$(RESET)"
 
+quality: ## حزام الجودة الموحد - Run unified quality belt (all platforms)
+	@echo "$(BLUE)🎯 حزام الجودة الموحد - Quality Belt$(RESET)"
+	@./scripts/quality-belt.sh all
+
+quality-quick: ## فحص سريع - Quick quality check (no tests)
+	@echo "$(BLUE)⚡ فحص سريع - Quick Quality Check$(RESET)"
+	@./scripts/quality-belt.sh quick
+
+quality-python: ## فحص Python فقط - Python quality checks only
+	@echo "$(BLUE)🐍 فحص Python - Python Quality$(RESET)"
+	@./scripts/quality-belt.sh python
+
+quality-ts: ## فحص TypeScript فقط - TypeScript quality checks only
+	@echo "$(BLUE)📘 فحص TypeScript - TypeScript Quality$(RESET)"
+	@./scripts/quality-belt.sh typescript
+
+quality-flutter: ## فحص Flutter فقط - Flutter quality checks only
+	@echo "$(BLUE)🦋 فحص Flutter - Flutter Quality$(RESET)"
+	@./scripts/quality-belt.sh flutter
+
+security-check: ## فحص أمني - Security checks (secrets, vulnerabilities)
+	@echo "$(BLUE)🔒 فحص أمني - Security Check$(RESET)"
+	@./scripts/quality-belt.sh security
+
+pre-commit-install: ## تثبيت pre-commit hooks - Install pre-commit hooks
+	@echo "$(BLUE)🪝 تثبيت pre-commit - Installing pre-commit hooks...$(RESET)"
+	pre-commit install
+	pre-commit install --hook-type commit-msg
+	@echo "$(GREEN)✅ تم تثبيت pre-commit - Pre-commit installed!$(RESET)"
+
+pre-commit-run: ## تشغيل pre-commit على جميع الملفات - Run pre-commit on all files
+	@echo "$(BLUE)🪝 تشغيل pre-commit - Running pre-commit...$(RESET)"
+	pre-commit run --all-files
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Infrastructure Management - إدارة البنية التحتية
 # ═══════════════════════════════════════════════════════════════════════════════

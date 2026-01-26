@@ -30,6 +30,6 @@ nats-py==2.9.0
 python-dotenv==1.0.1
 
 # Scheduling (for recurring billing)
-apscheduler==3.10.4
+apscheduler==3.11.2
 
 structlog>=24.1.0

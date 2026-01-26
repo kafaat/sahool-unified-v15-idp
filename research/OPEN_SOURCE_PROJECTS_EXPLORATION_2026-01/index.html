@@ -1,0 +1,2385 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Open Source Projects Deep Exploration - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#open-source-projects-deep-exploration" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Open Source Projects Deep Exploration
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="open-source-projects-deep-exploration">Open Source Projects Deep Exploration<a class="headerlink" href="#open-source-projects-deep-exploration" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: January 2026
+<strong>Author</strong>: AI Research Team
+<strong>Status</strong>: Complete</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#executive-summary">Executive Summary</a></li>
+<li><a href="#eigent---multi-agent-platform">Eigent - Multi-Agent Platform</a></li>
+<li><a href="#remotion---programmatic-video">Remotion - Programmatic Video</a></li>
+<li><a href="#tambo---generative-ui-sdk">Tambo - Generative UI SDK</a></li>
+<li><a href="#aionui---ai-desktop-gui">AionUi - AI Desktop GUI</a></li>
+<li><a href="#sahool-integration-recommendations">SAHOOL Integration Recommendations</a></li>
+<li><a href="#implementation-roadmap">Implementation Roadmap</a></li>
+</ol>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Type</th>
+<th>Stars</th>
+<th>License</th>
+<th>SAHOOL Relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Eigent</strong></td>
+<td>Multi-Agent Platform</td>
+<td>-</td>
+<td>Apache 2.0</td>
+<td>⭐⭐⭐⭐⭐ High</td>
+</tr>
+<tr>
+<td><strong>Remotion</strong></td>
+<td>Video as Code</td>
+<td>31.4k</td>
+<td>Special</td>
+<td>⭐⭐⭐ Medium</td>
+</tr>
+<tr>
+<td><strong>Tambo</strong></td>
+<td>Generative UI SDK</td>
+<td>-</td>
+<td>MIT</td>
+<td>⭐⭐⭐⭐⭐ High</td>
+</tr>
+<tr>
+<td><strong>AionUi</strong></td>
+<td>AI Desktop GUI</td>
+<td>10.9k</td>
+<td>Apache 2.0</td>
+<td>⭐⭐⭐ Medium</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-insights">Key Insights<a class="headerlink" href="#key-insights" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Eigent</strong> could replace/enhance SAHOOL's multi-agent orchestration system</li>
+<li><strong>Tambo</strong> enables dynamic advisory UI based on farmer conversations</li>
+<li><strong>Remotion</strong> can generate educational agricultural videos programmatically</li>
+<li><strong>AionUi</strong> provides a unified GUI for all SAHOOL AI agents</li>
+</ol>
+<hr />
+<h2 id="eigent-multi-agent-platform">Eigent - Multi-Agent Platform<a class="headerlink" href="#eigent-multi-agent-platform" title="Permanent link">&para;</a></h2>
+<h3 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GitHub</strong></td>
+<td><a href="https://github.com/eigent-ai/eigent">eigent-ai/eigent</a></td>
+</tr>
+<tr>
+<td><strong>License</strong></td>
+<td>Apache 2.0</td>
+</tr>
+<tr>
+<td><strong>Framework</strong></td>
+<td>CAMEL (Multi-Agent)</td>
+</tr>
+<tr>
+<td><strong>Stack</strong></td>
+<td>FastAPI + React + Electron</td>
+</tr>
+</tbody>
+</table>
+<h3 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────┐
+│                        Eigent Desktop                        │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │  React UI   │  │  Electron   │  │    React Flow       │ │
+│  │  (Tailwind) │  │  (Desktop)  │  │  (Visualization)    │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+├─────────────────────────────────────────────────────────────┤
+│                      FastAPI Backend                         │
+├──────────┬──────────┬──────────┬──────────┬────────────────┤
+│Developer │ Browser  │ Document │MultiModal│   Custom       │
+│  Agent   │  Agent   │  Agent   │  Agent   │   Agents       │
+├──────────┴──────────┴──────────┴──────────┴────────────────┤
+│                     CAMEL Framework                          │
+├─────────────────────────────────────────────────────────────┤
+│  vLLM  │  Ollama  │  LM Studio  │  OpenAI  │  Anthropic    │
+└─────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="pre-built-agents">Pre-built Agents<a class="headerlink" href="#pre-built-agents" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>Description</th>
+<th>Capabilities</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Developer</strong></td>
+<td>Code execution</td>
+<td>Terminal commands, file operations</td>
+</tr>
+<tr>
+<td><strong>Browser</strong></td>
+<td>Web research</td>
+<td>Search, content extraction</td>
+</tr>
+<tr>
+<td><strong>Document</strong></td>
+<td>File management</td>
+<td>Create, edit, organize</td>
+</tr>
+<tr>
+<td><strong>MultiModal</strong></td>
+<td>Media processing</td>
+<td>Image, audio analysis</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mcp-integration">MCP Integration<a class="headerlink" href="#mcp-integration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Built-in MCP tools</span>
+<span class="o">-</span> <span class="n">Web</span> <span class="n">browsing</span>
+<span class="o">-</span> <span class="n">Code</span> <span class="n">execution</span>
+<span class="o">-</span> <span class="n">Notion</span> <span class="n">integration</span>
+<span class="o">-</span> <span class="n">Google</span> <span class="n">Suite</span>
+<span class="o">-</span> <span class="n">Slack</span> <span class="n">integration</span>
+
+<span class="c1"># Custom tools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">eigent</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_mcp_tool</span>
+
+<span class="nd">@register_mcp_tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sahool_field_data</span><span class="p">(</span><span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch SAHOOL field data&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_field_by_id</span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="human-in-the-loop">Human-in-the-Loop<a class="headerlink" href="#human-in-the-loop" title="Permanent link">&para;</a></h3>
+<p>Automatic human intervention requests when:
+- Task encounters uncertainty
+- Critical decisions required
+- Error recovery needed</p>
+<h3 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Quick start</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/eigent-ai/eigent.git
+<span class="nb">cd</span><span class="w"> </span>eigent
+npm<span class="w"> </span>install
+npm<span class="w"> </span>run<span class="w"> </span>dev
+
+<span class="c1"># Backend</span>
+<span class="nb">cd</span><span class="w"> </span>backend<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>sync
+</code></pre></div>
+
+<h3 id="use-cases-demonstrated">Use Cases Demonstrated<a class="headerlink" href="#use-cases-demonstrated" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Travel itinerary planning with Slack integration</li>
+<li>Financial reporting from CSV with HTML visualization</li>
+<li>Market research report generation</li>
+<li>SEO audits and competitive analysis</li>
+<li>Duplicate file detection</li>
+<li>PDF processing with signatures</li>
+</ol>
+<hr />
+<h2 id="remotion-programmatic-video">Remotion - Programmatic Video<a class="headerlink" href="#remotion-programmatic-video" title="Permanent link">&para;</a></h2>
+<h3 id="overview_1">Overview<a class="headerlink" href="#overview_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GitHub</strong></td>
+<td><a href="https://github.com/remotion-dev/remotion">remotion-dev/remotion</a></td>
+</tr>
+<tr>
+<td><strong>Stars</strong></td>
+<td>31.4k ⭐</td>
+</tr>
+<tr>
+<td><strong>License</strong></td>
+<td>Special (may require commercial license)</td>
+</tr>
+<tr>
+<td><strong>Stack</strong></td>
+<td>React + TypeScript</td>
+</tr>
+</tbody>
+</table>
+<h3 id="core-concept">Core Concept<a class="headerlink" href="#core-concept" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Traditional Video Editing:    Remotion:
+┌──────────────────┐         ┌──────────────────┐
+│  Timeline-based  │         │   Code-based     │
+│  Point &amp; Click   │    →    │   Programmable   │
+│  Manual edits    │         │   Reusable       │
+│  Export once     │         │   Infinite scale │
+└──────────────────┘         └──────────────────┘
+</code></pre></div>
+
+<h3 id="architecture_1">Architecture<a class="headerlink" href="#architecture_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Video as React Component</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Composition</span><span class="p">,</span><span class="w"> </span><span class="nx">useCurrentFrame</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;remotion&#39;</span><span class="p">;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">MyVideo</span><span class="o">:</span><span class="w"> </span><span class="kt">React.FC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useCurrentFrame</span><span class="p">();</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">Composition</span>
+<span class="w">      </span><span class="na">id</span><span class="o">=</span><span class="s">&quot;AgriculturalTip&quot;</span>
+<span class="w">      </span><span class="na">component</span><span class="o">=</span><span class="p">{</span><span class="nx">AgriculturalTip</span><span class="p">}</span>
+<span class="w">      </span><span class="na">durationInFrames</span><span class="o">=</span><span class="p">{</span><span class="mf">150</span><span class="p">}</span>
+<span class="w">      </span><span class="na">fps</span><span class="o">=</span><span class="p">{</span><span class="mf">30</span><span class="p">}</span>
+<span class="w">      </span><span class="na">width</span><span class="o">=</span><span class="p">{</span><span class="mf">1920</span><span class="p">}</span>
+<span class="w">      </span><span class="na">height</span><span class="o">=</span><span class="p">{</span><span class="mf">1080</span><span class="p">}</span>
+<span class="w">    </span><span class="p">/&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="c1">// Dynamic content from API</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">AgriculturalTip</span><span class="o">:</span><span class="w"> </span><span class="kt">React.FC</span><span class="o">&lt;</span><span class="p">{</span><span class="nx">tipId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">}</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">({</span><span class="nx">tipId</span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">tip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useFetch</span><span class="p">(</span><span class="sb">`/api/tips/</span><span class="si">${</span><span class="nx">tipId</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">AbsoluteFill</span><span class="w"> </span><span class="na">style</span><span class="o">=</span><span class="p">{{</span><span class="nx">background</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#1a5f2a&#39;</span><span class="p">}}&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">Title</span><span class="w"> </span><span class="na">text</span><span class="o">=</span><span class="p">{</span><span class="nx">tip</span><span class="p">.</span><span class="nx">title_ar</span><span class="p">}</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">Animation</span><span class="w"> </span><span class="na">data</span><span class="o">=</span><span class="p">{</span><span class="nx">tip</span><span class="p">.</span><span class="nx">animation</span><span class="p">}</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">Narration</span><span class="w"> </span><span class="na">audio</span><span class="o">=</span><span class="p">{</span><span class="nx">tip</span><span class="p">.</span><span class="nx">audio_ar</span><span class="p">}</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">AbsoluteFill</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<h3 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Web Technologies</strong></td>
+<td>HTML, CSS, SVG, Canvas, WebGL</td>
+</tr>
+<tr>
+<td><strong>Programming</strong></td>
+<td>Variables, functions, APIs, algorithms</td>
+</tr>
+<tr>
+<td><strong>React Ecosystem</strong></td>
+<td>Reusable components, Fast Refresh</td>
+</tr>
+<tr>
+<td><strong>Real-time Preview</strong></td>
+<td>Instant feedback during development</td>
+</tr>
+</tbody>
+</table>
+<h3 id="supported-formats">Supported Formats<a class="headerlink" href="#supported-formats" title="Permanent link">&para;</a></h3>
+<ul>
+<li>MP4, WebM (video)</li>
+<li>GIF (animation)</li>
+<li>PNG sequence (frames)</li>
+<li>Audio integration</li>
+</ul>
+<h3 id="installation_1">Installation<a class="headerlink" href="#installation_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Create new project</span>
+npx<span class="w"> </span>create-video@latest
+
+<span class="c1"># Or add to existing project</span>
+npm<span class="w"> </span>install<span class="w"> </span>remotion<span class="w"> </span>@remotion/cli
+</code></pre></div>
+
+<h3 id="statistics">Statistics<a class="headerlink" href="#statistics" title="Permanent link">&para;</a></h3>
+<ul>
+<li>31.4k stars</li>
+<li>1.9k forks</li>
+<li>29,604 commits</li>
+<li>301 contributors</li>
+<li>571 releases</li>
+</ul>
+<hr />
+<h2 id="tambo-generative-ui-sdk">Tambo - Generative UI SDK<a class="headerlink" href="#tambo-generative-ui-sdk" title="Permanent link">&para;</a></h2>
+<h3 id="overview_2">Overview<a class="headerlink" href="#overview_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GitHub</strong></td>
+<td><a href="https://github.com/tambo-ai/tambo">tambo-ai/tambo</a></td>
+</tr>
+<tr>
+<td><strong>License</strong></td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><strong>Stack</strong></td>
+<td>React + TypeScript + NestJS</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>Generative UI SDK</td>
+</tr>
+</tbody>
+</table>
+<h3 id="core-concept_1">Core Concept<a class="headerlink" href="#core-concept_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">Traditional</span><span class="w"> </span><span class="nv">Chat</span>:<span class="w">              </span><span class="nv">Tambo</span><span class="w"> </span><span class="nv">Generative</span><span class="w"> </span><span class="nv">UI</span>:
+┌──────────────────┐<span class="w">          </span>┌──────────────────┐
+│<span class="w"> </span><span class="nv">User</span>:<span class="w"> </span><span class="k">Show</span><span class="w"> </span><span class="nv">sales</span><span class="w"> </span>│<span class="w">          </span>│<span class="w"> </span><span class="nv">User</span>:<span class="w"> </span><span class="k">Show</span><span class="w"> </span><span class="nv">sales</span><span class="w"> </span>│
+│<span class="w"> </span><span class="nv">Bot</span>:<span class="w"> </span><span class="nv">Here</span><span class="err">&#39;s data │    →     │ ┌──────────────┐ │</span>
+<span class="err">│      in text...  │          │ │ 📊 LineChart │ │</span>
+<span class="err">│                  │          │ │ Interactive  │ │</span>
+<span class="err">└──────────────────┘          │ └──────────────┘ │</span>
+<span class="err">                              └──────────────────┘</span>
+</code></pre></div>
+
+<h3 id="architecture_2">Architecture<a class="headerlink" href="#architecture_2" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────┐
+│                     TamboProvider                            │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
+│  │ useTamboThread  │  │ useTamboInput   │  │ Suggestions │ │
+│  │ Messages/Stream │  │ User Input      │  │ AI-powered  │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────┘ │
+├─────────────────────────────────────────────────────────────┤
+│                    Component Registry                        │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐   │
+│  │  Graph   │ │   Form   │ │   Card   │ │  DataTable   │   │
+│  │ (Chart)  │ │ (Input)  │ │ (Display)│ │ (Grid)       │   │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────────┘   │
+├─────────────────────────────────────────────────────────────┤
+│                       LLM Router                             │
+│  OpenAI │ Anthropic │ Gemini │ Mistral │ Local (Ollama)    │
+└─────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="component-types">Component Types<a class="headerlink" href="#component-types" title="Permanent link">&para;</a></h3>
+<h4 id="1-generative-components">1. Generative Components<a class="headerlink" href="#1-generative-components" title="Permanent link">&para;</a></h4>
+<p>Created on-demand, render once:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Register chart component</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">components</span><span class="o">:</span><span class="w"> </span><span class="kt">TamboComponent</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[{</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;IrrigationChart&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Displays irrigation schedule as a chart&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">IrrigationChart</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">propsSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
+<span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">z.array</span><span class="p">(</span><span class="nx">z</span><span class="p">.</span><span class="nx">object</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">date</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
+<span class="w">      </span><span class="nx">amount_mm</span><span class="o">:</span><span class="w"> </span><span class="kt">z.number</span><span class="p">(),</span>
+<span class="w">    </span><span class="p">})),</span>
+<span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="kd">enum</span><span class="p">([</span><span class="s2">&quot;line&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;bar&quot;</span><span class="p">]),</span>
+<span class="w">  </span><span class="p">}),</span>
+<span class="p">}];</span>
+</code></pre></div>
+
+<h4 id="2-interactable-components">2. Interactable Components<a class="headerlink" href="#2-interactable-components" title="Permanent link">&para;</a></h4>
+<p>Persistent state, user can refine:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Persistent task board</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">TaskBoard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">withInteractable</span><span class="p">(</span>
+<span class="w">  </span><span class="nx">TaskBoardBase</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">z</span><span class="p">.</span><span class="nx">object</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">tasks</span><span class="o">:</span><span class="w"> </span><span class="kt">z.array</span><span class="p">(</span><span class="nx">taskSchema</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">filter</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">optional</span><span class="p">(),</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<h3 id="integration-example">Integration Example<a class="headerlink" href="#integration-example" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Setup</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TamboProvider</span><span class="p">,</span><span class="w"> </span><span class="nx">useTamboThread</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@tambo-ai/react&#39;</span><span class="p">;</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">App</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">TamboProvider</span>
+<span class="w">      </span><span class="na">apiKey</span><span class="o">=</span><span class="p">{</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">TAMBO_API_KEY</span><span class="p">}</span>
+<span class="w">      </span><span class="na">components</span><span class="o">=</span><span class="p">{</span><span class="nx">agriculturalComponents</span><span class="p">}</span>
+<span class="w">    </span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">FarmerChat</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">TamboProvider</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Chat component</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">FarmerChat</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">messages</span><span class="p">,</span><span class="w"> </span><span class="nx">sendMessage</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useTamboThread</span><span class="p">();</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">{</span><span class="nx">messages</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">msg</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="nx">msg</span><span class="p">.</span><span class="nx">renderedComponent</span>
+<span class="w">          </span><span class="o">?</span><span class="w"> </span><span class="p">&lt;</span><span class="nt">msg</span><span class="p">.</span><span class="na">renderedComponent</span><span class="w"> </span><span class="p">{</span><span class="na">...msg.props</span><span class="p">}</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">          </span><span class="o">:</span><span class="w"> </span><span class="p">&lt;</span><span class="nt">TextMessage</span><span class="w"> </span><span class="na">text</span><span class="o">=</span><span class="p">{</span><span class="nx">msg</span><span class="p">.</span><span class="nx">content</span><span class="p">}</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">      </span><span class="p">))}</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="mcp-integration_1">MCP Integration<a class="headerlink" href="#mcp-integration_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// External tool integration</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">tools</span><span class="o">:</span><span class="w"> </span><span class="kt">TamboTool</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[{</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;getFieldNDVI&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">tool</span><span class="o">:</span><span class="w"> </span><span class="kt">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">    </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`/api/fields/</span><span class="si">${</span><span class="nx">fieldId</span><span class="si">}</span><span class="sb">/ndvi`</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">json</span><span class="p">()),</span>
+<span class="w">  </span><span class="nx">inputSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">()</span><span class="w"> </span><span class="p">}),</span>
+<span class="w">  </span><span class="nx">outputSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">ndvi</span><span class="o">:</span><span class="w"> </span><span class="kt">z.number</span><span class="p">(),</span>
+<span class="w">    </span><span class="nx">health</span><span class="o">:</span><span class="w"> </span><span class="kt">z.enum</span><span class="p">([</span><span class="s2">&quot;good&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;moderate&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;poor&quot;</span><span class="p">])</span>
+<span class="w">  </span><span class="p">}),</span>
+<span class="p">}];</span>
+</code></pre></div>
+
+<h3 id="comparison">Comparison<a class="headerlink" href="#comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Tambo</th>
+<th>Vercel AI SDK</th>
+<th>CopilotKit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI Component Selection</strong></td>
+<td>✅ Built-in</td>
+<td>❌ Manual</td>
+<td>⚠️ Via agents</td>
+</tr>
+<tr>
+<td><strong>MCP Integration</strong></td>
+<td>✅ Native</td>
+<td>⚠️ Experimental</td>
+<td>⚠️ Recent</td>
+</tr>
+<tr>
+<td><strong>Stateful Components</strong></td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>⚠️ Patterns</td>
+</tr>
+<tr>
+<td><strong>Client-side Tools</strong></td>
+<td>✅ Declarative</td>
+<td>❌ Manual</td>
+<td>❌ Agent-side</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pricing">Pricing<a class="headerlink" href="#pricing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Price</th>
+<th>Messages/month</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Free</td>
+<td>$0</td>
+<td>10,000</td>
+</tr>
+<tr>
+<td>Growth</td>
+<td>$25</td>
+<td>200,000</td>
+</tr>
+<tr>
+<td>Enterprise</td>
+<td>Custom</td>
+<td>Unlimited</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="aionui-ai-desktop-gui">AionUi - AI Desktop GUI<a class="headerlink" href="#aionui-ai-desktop-gui" title="Permanent link">&para;</a></h2>
+<h3 id="overview_3">Overview<a class="headerlink" href="#overview_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GitHub</strong></td>
+<td><a href="https://github.com/iOfficeAI/AionUi">iOfficeAI/AionUi</a></td>
+</tr>
+<tr>
+<td><strong>Stars</strong></td>
+<td>10.9k ⭐</td>
+</tr>
+<tr>
+<td><strong>License</strong></td>
+<td>Apache 2.0</td>
+</tr>
+<tr>
+<td><strong>Stack</strong></td>
+<td>TypeScript + Electron + Python</td>
+</tr>
+</tbody>
+</table>
+<h3 id="supported-ai-tools">Supported AI Tools<a class="headerlink" href="#supported-ai-tools" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────┐
+│                        AionUi                                │
+├─────────────────────────────────────────────────────────────┤
+│  Command-Line Tools (Auto-detected):                        │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│  │ Gemini   │ │ Claude   │ │ Qwen     │ │ Goose    │       │
+│  │ CLI      │ │ Code     │ │ Code     │ │ CLI      │       │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+├─────────────────────────────────────────────────────────────┤
+│  Cloud Models:                                               │
+│  Google Gemini │ OpenAI │ Anthropic │ Qwen │ DeepSeek      │
+├─────────────────────────────────────────────────────────────┤
+│  Local Models:                                               │
+│  Ollama │ LM Studio │ Custom API                            │
+└─────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="key-features_1">Key Features<a class="headerlink" href="#key-features_1" title="Permanent link">&para;</a></h3>
+<h4 id="multi-agent-mode">Multi-Agent Mode<a class="headerlink" href="#multi-agent-mode" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────┐
+│  Session 1: Gemini (Research)           │
+│  Session 2: Claude Code (Development)   │
+│  Session 3: Qwen (Documentation)        │
+│  Each with independent context memory   │
+└─────────────────────────────────────────┘
+</code></pre></div>
+
+<h4 id="file-management">File Management<a class="headerlink" href="#file-management" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Tree-based file browsing</li>
+<li>Drag-and-drop upload</li>
+<li>AI-powered folder organization</li>
+<li>Batch renaming</li>
+</ul>
+<h4 id="preview-panel-9-formats">Preview Panel (9+ formats)<a class="headerlink" href="#preview-panel-9-formats" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Support</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PDF</td>
+<td>✅ Full</td>
+</tr>
+<tr>
+<td>Word</td>
+<td>✅ Full</td>
+</tr>
+<tr>
+<td>Excel</td>
+<td>✅ Full</td>
+</tr>
+<tr>
+<td>PowerPoint</td>
+<td>✅ Full</td>
+</tr>
+<tr>
+<td>Code</td>
+<td>✅ Syntax highlighting</td>
+</tr>
+<tr>
+<td>Markdown</td>
+<td>✅ Rendered + Edit</td>
+</tr>
+<tr>
+<td>Images</td>
+<td>✅ View + AI analysis</td>
+</tr>
+<tr>
+<td>HTML</td>
+<td>✅ Rendered</td>
+</tr>
+<tr>
+<td>Diff</td>
+<td>✅ Side-by-side</td>
+</tr>
+</tbody>
+</table>
+<h4 id="webui-remote-access">WebUI Remote Access<a class="headerlink" href="#webui-remote-access" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Local access</span>
+AionUi<span class="w"> </span>--webui
+
+<span class="c1"># Remote access (LAN)</span>
+AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
+</code></pre></div>
+
+<h3 id="comparison-with-claude-cowork">Comparison with Claude Cowork<a class="headerlink" href="#comparison-with-claude-cowork" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Claude Cowork</th>
+<th>AionUi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OS</strong></td>
+<td>macOS only</td>
+<td>Windows, macOS, Linux</td>
+</tr>
+<tr>
+<td><strong>Models</strong></td>
+<td>Claude only</td>
+<td>5+ providers + local</td>
+</tr>
+<tr>
+<td><strong>Interface</strong></td>
+<td>GUI</td>
+<td>GUI + WebUI</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>$100/month</td>
+<td>Free</td>
+</tr>
+<tr>
+<td><strong>Preview</strong></td>
+<td>Limited</td>
+<td>9+ formats</td>
+</tr>
+</tbody>
+</table>
+<h3 id="system-requirements">System Requirements<a class="headerlink" href="#system-requirements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>OS</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>macOS</td>
+<td>10.15+</td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>10+</td>
+</tr>
+<tr>
+<td>Linux</td>
+<td>Ubuntu 18.04+, Debian 10+, Fedora 32+</td>
+</tr>
+<tr>
+<td>RAM</td>
+<td>4GB minimum</td>
+</tr>
+<tr>
+<td>Storage</td>
+<td>500MB</td>
+</tr>
+</tbody>
+</table>
+<h3 id="privacy">Privacy<a class="headerlink" href="#privacy" title="Permanent link">&para;</a></h3>
+<ul>
+<li>All data stored in local SQLite</li>
+<li>No cloud upload (unless configured)</li>
+<li>WebUI still uses local storage</li>
+</ul>
+<hr />
+<h2 id="sahool-integration-recommendations">SAHOOL Integration Recommendations<a class="headerlink" href="#sahool-integration-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="1-eigent-sahool-multi-agent-system">1. Eigent → SAHOOL Multi-Agent System<a class="headerlink" href="#1-eigent-sahool-multi-agent-system" title="Permanent link">&para;</a></h3>
+<p><strong>Current SAHOOL Architecture</strong>:</p>
+<div class="codehilite"><pre><span></span><code>shared/ai/
+├── agents/
+│   ├── farm_advisor.py
+│   ├── planner.py
+│   └── react_agent.py
+└── orchestration/
+    ├── swarm.py
+    └── consensus.py
+</code></pre></div>
+
+<p><strong>Recommended Enhancement</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># shared/ai/eigent_integration.py</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">eigent</span><span class="w"> </span><span class="kn">import</span> <span class="n">EigentOrchestrator</span><span class="p">,</span> <span class="n">Agent</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SAHOOLEigentOrchestrator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integrate Eigent&#39;s CAMEL-based multi-agent system</span>
+<span class="sd">    with SAHOOL&#39;s agricultural domain.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">orchestrator</span> <span class="o">=</span> <span class="n">EigentOrchestrator</span><span class="p">()</span>
+
+        <span class="c1"># Register SAHOOL-specific agents</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">register_agent</span><span class="p">(</span>
+            <span class="n">IrrigationAdvisorAgent</span><span class="p">(),</span>
+            <span class="n">FertilizerExpertAgent</span><span class="p">(),</span>
+            <span class="n">PestControlAgent</span><span class="p">(),</span>
+            <span class="n">CropPlannerAgent</span><span class="p">(),</span>
+            <span class="n">MarketAnalystAgent</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">execute_complex_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute complex agricultural task with</span>
+<span class="sd">        multiple agents working in parallel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
+            <span class="n">human_in_the_loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">max_iterations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<span class="c1"># Usage</span>
+<span class="n">orchestrator</span> <span class="o">=</span> <span class="n">SAHOOLEigentOrchestrator</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">orchestrator</span><span class="o">.</span><span class="n">execute_complex_task</span><span class="p">(</span>
+    <span class="s2">&quot;تحليل شامل لحقل القمح: الري، التسميد، مكافحة الآفات&quot;</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Benefits</strong>:
+- ✅ Parallel agent execution
+- ✅ Human-in-the-loop for critical decisions
+- ✅ MCP integration for external tools
+- ✅ Visual workflow in React Flow</p>
+<hr />
+<h3 id="2-tambo-sahool-advisory-chat">2. Tambo → SAHOOL Advisory Chat<a class="headerlink" href="#2-tambo-sahool-advisory-chat" title="Permanent link">&para;</a></h3>
+<p><strong>Recommended Implementation</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// apps/web/src/components/FarmerChat.tsx</span>
+
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TamboProvider</span><span class="p">,</span><span class="w"> </span><span class="nx">useTamboThread</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@tambo-ai/react&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">z</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;zod&#39;</span><span class="p">;</span>
+
+<span class="c1">// Register agricultural components</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">agriculturalComponents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;IrrigationSchedule&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;عرض جدول الري للحقل&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">IrrigationScheduleChart</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">propsSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
+<span class="w">      </span><span class="nx">schedule</span><span class="o">:</span><span class="w"> </span><span class="kt">z.array</span><span class="p">(</span><span class="nx">z</span><span class="p">.</span><span class="nx">object</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">date</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
+<span class="w">        </span><span class="nx">amount_mm</span><span class="o">:</span><span class="w"> </span><span class="kt">z.number</span><span class="p">(),</span>
+<span class="w">        </span><span class="nx">duration_hours</span><span class="o">:</span><span class="w"> </span><span class="kt">z.number</span><span class="p">(),</span>
+<span class="w">      </span><span class="p">})),</span>
+<span class="w">    </span><span class="p">}),</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;NDVIMap&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;خريطة صحة المحصول NDVI&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">NDVIMapVisualization</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">propsSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
+<span class="w">      </span><span class="nx">ndviData</span><span class="o">:</span><span class="w"> </span><span class="kt">z.array</span><span class="p">(</span><span class="nx">z</span><span class="p">.</span><span class="nx">object</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">lat</span><span class="o">:</span><span class="w"> </span><span class="kt">z.number</span><span class="p">(),</span>
+<span class="w">        </span><span class="nx">lng</span><span class="o">:</span><span class="w"> </span><span class="kt">z.number</span><span class="p">(),</span>
+<span class="w">        </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">z.number</span><span class="p">(),</span>
+<span class="w">      </span><span class="p">})),</span>
+<span class="w">    </span><span class="p">}),</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;CropAdvisoryCard&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;بطاقة استشارة زراعية&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">CropAdvisoryCard</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">propsSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
+<span class="w">      </span><span class="nx">title_ar</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
+<span class="w">      </span><span class="nx">priority</span><span class="o">:</span><span class="w"> </span><span class="kt">z.enum</span><span class="p">([</span><span class="s2">&quot;critical&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;warning&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">]),</span>
+<span class="w">      </span><span class="nx">actions</span><span class="o">:</span><span class="w"> </span><span class="kt">z.array</span><span class="p">(</span><span class="nx">z</span><span class="p">.</span><span class="nx">object</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
+<span class="w">        </span><span class="nx">action_ar</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
+<span class="w">        </span><span class="nx">deadline</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">optional</span><span class="p">(),</span>
+<span class="w">      </span><span class="p">})),</span>
+<span class="w">    </span><span class="p">}),</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;WeatherForecast&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;توقعات الطقس للمزرعة&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">WeatherForecastWidget</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">propsSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">farmId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
+<span class="w">      </span><span class="nx">days</span><span class="o">:</span><span class="w"> </span><span class="kt">z.number</span><span class="p">().</span><span class="k">default</span><span class="p">(</span><span class="mf">7</span><span class="p">),</span>
+<span class="w">    </span><span class="p">}),</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">];</span>
+
+<span class="c1">// SAHOOL tools for Tambo</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">sahoolTools</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;getFieldData&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">tool</span><span class="o">:</span><span class="w"> </span><span class="kt">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">      </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`/api/fields/</span><span class="si">${</span><span class="nx">fieldId</span><span class="si">}</span><span class="sb">`</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">json</span><span class="p">()),</span>
+<span class="w">    </span><span class="nx">inputSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">()</span><span class="w"> </span><span class="p">}),</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;getNDVI&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">tool</span><span class="o">:</span><span class="w"> </span><span class="kt">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">      </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`/api/fields/</span><span class="si">${</span><span class="nx">fieldId</span><span class="si">}</span><span class="sb">/ndvi`</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">json</span><span class="p">()),</span>
+<span class="w">    </span><span class="nx">inputSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">()</span><span class="w"> </span><span class="p">}),</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;getIrrigationRecommendation&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">tool</span><span class="o">:</span><span class="w"> </span><span class="kt">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">      </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`/api/advisory/irrigation/</span><span class="si">${</span><span class="nx">fieldId</span><span class="si">}</span><span class="sb">`</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">json</span><span class="p">()),</span>
+<span class="w">    </span><span class="nx">inputSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">()</span><span class="w"> </span><span class="p">}),</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">];</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">FarmerAdvisoryChat</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">TamboProvider</span>
+<span class="w">      </span><span class="na">apiKey</span><span class="o">=</span><span class="p">{</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_TAMBO_API_KEY</span><span class="p">}</span>
+<span class="w">      </span><span class="na">components</span><span class="o">=</span><span class="p">{</span><span class="nx">agriculturalComponents</span><span class="p">}</span>
+<span class="w">      </span><span class="na">tools</span><span class="o">=</span><span class="p">{</span><span class="nx">sahoolTools</span><span class="p">}</span>
+<span class="w">    </span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">ChatInterface</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">TamboProvider</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>User Experience</strong>:</p>
+<div class="codehilite"><pre><span></span><code>المزارع: &quot;أرني حالة حقل القمح رقم 3&quot;
+
+┌────────────────────────────────────────┐
+│  🌾 حقل القمح #3                       │
+│  ├─ NDVI: 0.72 (جيد)                   │
+│  ├─ رطوبة التربة: 45%                  │
+│  └─ المرحلة: التفريع                   │
+│                                        │
+│  📊 [NDVI Map Interactive]             │
+│                                        │
+│  ⚠️ توصية: الري خلال 48 ساعة          │
+│  └─ [تنفيذ] [تأجيل] [المزيد]          │
+└────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h3 id="3-remotion-agricultural-education-videos">3. Remotion → Agricultural Education Videos<a class="headerlink" href="#3-remotion-agricultural-education-videos" title="Permanent link">&para;</a></h3>
+<p><strong>Recommended Implementation</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// packages/video-generator/src/compositions/IrrigationTip.tsx</span>
+
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Composition</span><span class="p">,</span><span class="w"> </span><span class="nx">useCurrentFrame</span><span class="p">,</span><span class="w"> </span><span class="nx">interpolate</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;remotion&#39;</span><span class="p">;</span>
+
+<span class="kd">interface</span><span class="w"> </span><span class="nx">IrrigationTipProps</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">cropType</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">cropType_ar</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">tipText</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">tipText_ar</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">schedule</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">day</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w"> </span><span class="nx">amount_mm</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">}[];</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">IrrigationTipVideo</span><span class="o">:</span><span class="w"> </span><span class="kt">React.FC</span><span class="p">&lt;</span><span class="nt">IrrigationTipProps</span><span class="p">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">({</span>
+<span class="w">  </span><span class="nx">cropType_ar</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">tipText_ar</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">schedule</span><span class="p">,</span>
+<span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useCurrentFrame</span><span class="p">();</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">titleOpacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">interpolate</span><span class="p">(</span><span class="nx">frame</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">30</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">]);</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">chartProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">interpolate</span><span class="p">(</span><span class="nx">frame</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">30</span><span class="p">,</span><span class="w"> </span><span class="mf">90</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">]);</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">AbsoluteFill</span><span class="w"> </span><span class="na">style</span><span class="o">=</span><span class="p">{{</span><span class="w"> </span><span class="nx">background</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#1a5f2a&#39;</span><span class="w"> </span><span class="p">}}&gt;</span>
+<span class="w">      </span><span class="p">{</span><span class="cm">/* Title */</span><span class="p">}</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">style</span><span class="o">=</span><span class="p">{{</span><span class="w"> </span><span class="nx">opacity</span><span class="o">:</span><span class="w"> </span><span class="kt">titleOpacity</span><span class="p">,</span><span class="w"> </span><span class="nx">textAlign</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;right&#39;</span><span class="w"> </span><span class="p">}}&gt;</span>
+<span class="w">        </span><span class="p">&lt;</span><span class="nt">h1</span><span class="w"> </span><span class="na">style</span><span class="o">=</span><span class="p">{{</span><span class="w"> </span><span class="nx">color</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;white&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">fontSize</span><span class="o">:</span><span class="w"> </span><span class="kt">48</span><span class="w"> </span><span class="p">}}&gt;</span>
+<span class="w">          </span><span class="nx">نصيحة</span><span class="w"> </span><span class="nx">ري</span><span class="w"> </span><span class="p">{</span><span class="nx">cropType_ar</span><span class="p">}</span>
+<span class="w">        </span><span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+<span class="w">      </span><span class="p">{</span><span class="cm">/* Animated Chart */</span><span class="p">}</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">AnimatedIrrigationChart</span>
+<span class="w">        </span><span class="na">data</span><span class="o">=</span><span class="p">{</span><span class="nx">schedule</span><span class="p">}</span>
+<span class="w">        </span><span class="na">progress</span><span class="o">=</span><span class="p">{</span><span class="nx">chartProgress</span><span class="p">}</span>
+<span class="w">      </span><span class="p">/&gt;</span>
+
+<span class="w">      </span><span class="p">{</span><span class="cm">/* Tip Text */</span><span class="p">}</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">style</span><span class="o">=</span><span class="p">{{</span>
+<span class="w">        </span><span class="nx">position</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;absolute&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">bottom</span><span class="o">:</span><span class="w"> </span><span class="kt">100</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">right</span><span class="o">:</span><span class="w"> </span><span class="kt">50</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">color</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;white&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">fontSize</span><span class="o">:</span><span class="w"> </span><span class="kt">32</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">textAlign</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;right&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">}}&gt;</span>
+<span class="w">        </span><span class="p">{</span><span class="nx">tipText_ar</span><span class="p">}</span>
+<span class="w">      </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+<span class="w">      </span><span class="p">{</span><span class="cm">/* SAHOOL Logo */</span><span class="p">}</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">Logo</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">AbsoluteFill</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="c1">// Register composition</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">RemotionRoot</span><span class="o">:</span><span class="w"> </span><span class="kt">React.FC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">Composition</span>
+<span class="w">        </span><span class="na">id</span><span class="o">=</span><span class="s">&quot;IrrigationTip&quot;</span>
+<span class="w">        </span><span class="na">component</span><span class="o">=</span><span class="p">{</span><span class="nx">IrrigationTipVideo</span><span class="p">}</span>
+<span class="w">        </span><span class="na">durationInFrames</span><span class="o">=</span><span class="p">{</span><span class="mf">150</span><span class="p">}</span>
+<span class="w">        </span><span class="na">fps</span><span class="o">=</span><span class="p">{</span><span class="mf">30</span><span class="p">}</span>
+<span class="w">        </span><span class="na">width</span><span class="o">=</span><span class="p">{</span><span class="mf">1920</span><span class="p">}</span>
+<span class="w">        </span><span class="na">height</span><span class="o">=</span><span class="p">{</span><span class="mf">1080</span><span class="p">}</span>
+<span class="w">        </span><span class="na">defaultProps</span><span class="o">=</span><span class="p">{{</span>
+<span class="w">          </span><span class="nx">cropType</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">cropType_ar</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;القمح&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">tipText_ar</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;يُنصح بالري كل 10-14 يوم في مرحلة التفريع&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">schedule</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="nx">day</span><span class="o">:</span><span class="w"> </span><span class="kt">1</span><span class="p">,</span><span class="w"> </span><span class="nx">amount_mm</span><span class="o">:</span><span class="w"> </span><span class="kt">25</span><span class="w"> </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="nx">day</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span><span class="w"> </span><span class="nx">amount_mm</span><span class="o">:</span><span class="w"> </span><span class="kt">30</span><span class="w"> </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="nx">day</span><span class="o">:</span><span class="w"> </span><span class="kt">20</span><span class="p">,</span><span class="w"> </span><span class="nx">amount_mm</span><span class="o">:</span><span class="w"> </span><span class="kt">25</span><span class="w"> </span><span class="p">},</span>
+<span class="w">          </span><span class="p">],</span>
+<span class="w">        </span><span class="p">}}</span>
+<span class="w">      </span><span class="p">/&gt;</span>
+<span class="w">    </span><span class="p">&lt;/&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p><strong>Batch Video Generation</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// scripts/generate-advisory-videos.ts</span>
+
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">bundle</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@remotion/bundler&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">renderMedia</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@remotion/renderer&#39;</span><span class="p">;</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">generateAdvisoryVideos</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">tips</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;/api/advisory/tips&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">json</span><span class="p">());</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">bundled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">bundle</span><span class="p">(</span><span class="s1">&#39;./src/index.ts&#39;</span><span class="p">);</span>
+
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">tip</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">tips</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">renderMedia</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">composition</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;IrrigationTip&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">serveUrl</span><span class="o">:</span><span class="w"> </span><span class="kt">bundled</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">codec</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;h264&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">outputLocation</span><span class="o">:</span><span class="w"> </span><span class="sb">`./output/</span><span class="si">${</span><span class="nx">tip</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="sb">.mp4`</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">inputProps</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">cropType_ar</span><span class="o">:</span><span class="w"> </span><span class="kt">tip.crop_ar</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">tipText_ar</span><span class="o">:</span><span class="w"> </span><span class="kt">tip.text_ar</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">schedule</span><span class="o">:</span><span class="w"> </span><span class="kt">tip.schedule</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Generated video for tip: </span><span class="si">${</span><span class="nx">tip</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="4-aionui-sahool-admin-interface">4. AionUi → SAHOOL Admin Interface<a class="headerlink" href="#4-aionui-sahool-admin-interface" title="Permanent link">&para;</a></h3>
+<p><strong>Recommended Use Cases</strong>:</p>
+<ol>
+<li><strong>Unified Agent Management</strong></li>
+<li>GUI for all SAHOOL AI agents</li>
+<li>Switch between Claude, Gemini, local Ollama</li>
+<li>
+<p>Independent sessions per task</p>
+</li>
+<li>
+<p><strong>Document Processing</strong></p>
+</li>
+<li>Farm contracts (PDF)</li>
+<li>Soil analysis reports (Word/Excel)</li>
+<li>
+<p>Compliance documents</p>
+</li>
+<li>
+<p><strong>Preview Integration</strong></p>
+</li>
+<li>NDVI maps</li>
+<li>Agricultural reports</li>
+<li>Generated videos</li>
+</ol>
+<p><strong>Configuration</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># AionUi with SAHOOL custom tools</span>
+AionUi<span class="w"> </span>--config<span class="w"> </span>sahool-config.json<span class="w"> </span>--webui<span class="w"> </span>--remote
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="c1">// sahool-config.json</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;agents&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SAHOOL Advisor&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python -m sahool.advisor&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ollama:llama3&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Field Analyst&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python -m sahool.analyst&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gemini-2.5-flash&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;sahool_api&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8000&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="implementation-roadmap">Implementation Roadmap<a class="headerlink" href="#implementation-roadmap" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-tambo-integration-2-3-weeks">Phase 1: Tambo Integration (2-3 weeks)<a class="headerlink" href="#phase-1-tambo-integration-2-3-weeks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Priority</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Setup TamboProvider</td>
+<td>High</td>
+<td>2 days</td>
+</tr>
+<tr>
+<td>Register agricultural components</td>
+<td>High</td>
+<td>1 week</td>
+</tr>
+<tr>
+<td>Implement SAHOOL tools</td>
+<td>High</td>
+<td>3 days</td>
+</tr>
+<tr>
+<td>Testing &amp; refinement</td>
+<td>Medium</td>
+<td>3 days</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-2-eigent-multi-agent-3-4-weeks">Phase 2: Eigent Multi-Agent (3-4 weeks)<a class="headerlink" href="#phase-2-eigent-multi-agent-3-4-weeks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Priority</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Eigent setup &amp; configuration</td>
+<td>High</td>
+<td>3 days</td>
+</tr>
+<tr>
+<td>Create SAHOOL-specific agents</td>
+<td>High</td>
+<td>2 weeks</td>
+</tr>
+<tr>
+<td>MCP tool integration</td>
+<td>Medium</td>
+<td>1 week</td>
+</tr>
+<tr>
+<td>Human-in-the-loop flows</td>
+<td>Medium</td>
+<td>3 days</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-3-remotion-video-generator-2-weeks">Phase 3: Remotion Video Generator (2 weeks)<a class="headerlink" href="#phase-3-remotion-video-generator-2-weeks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Priority</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Remotion setup</td>
+<td>Medium</td>
+<td>2 days</td>
+</tr>
+<tr>
+<td>Create agricultural compositions</td>
+<td>Medium</td>
+<td>1 week</td>
+</tr>
+<tr>
+<td>Batch generation pipeline</td>
+<td>Medium</td>
+<td>3 days</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-4-aionui-admin-optional">Phase 4: AionUi Admin (Optional)<a class="headerlink" href="#phase-4-aionui-admin-optional" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Priority</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Deploy AionUi</td>
+<td>Low</td>
+<td>1 day</td>
+</tr>
+<tr>
+<td>Configure SAHOOL agents</td>
+<td>Low</td>
+<td>2 days</td>
+</tr>
+<tr>
+<td>Custom tool integration</td>
+<td>Low</td>
+<td>3 days</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<h3 id="highest-priority-for-sahool">Highest Priority for SAHOOL<a class="headerlink" href="#highest-priority-for-sahool" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Tambo</strong> - Immediate value for farmer-facing advisory chat</li>
+<li><strong>Eigent</strong> - Enhance multi-agent orchestration capabilities</li>
+<li><strong>Remotion</strong> - Scalable educational content generation</li>
+<li><strong>AionUi</strong> - Admin productivity tool</li>
+</ol>
+<h3 id="technical-alignment">Technical Alignment<a class="headerlink" href="#technical-alignment" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>SAHOOL Stack Compatibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Eigent</td>
+<td>✅ FastAPI, React, Python</td>
+</tr>
+<tr>
+<td>Tambo</td>
+<td>✅ React, TypeScript, NestJS</td>
+</tr>
+<tr>
+<td>Remotion</td>
+<td>✅ React, TypeScript</td>
+</tr>
+<tr>
+<td>AionUi</td>
+<td>✅ Electron, TypeScript</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://github.com/eigent-ai/eigent">Eigent GitHub</a></li>
+<li><a href="https://github.com/remotion-dev/remotion">Remotion GitHub</a></li>
+<li><a href="https://github.com/tambo-ai/tambo">Tambo GitHub</a></li>
+<li><a href="https://github.com/iOfficeAI/AionUi">AionUi GitHub</a></li>
+<li><a href="https://github.com/camel-ai/camel">CAMEL Framework</a></li>
+<li><a href="https://remotion.dev/docs">Remotion Documentation</a></li>
+<li><a href="https://tambo.ai/docs">Tambo Documentation</a></li>
+</ul>
+<hr />
+<p><em>Document generated: January 2026</em>
+<em>Last updated: 2026-01-26</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1843 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>NATS Integration Guide | دليل تكامل NATS - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nats-integration-guide-nats" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              NATS Integration Guide | دليل تكامل NATS
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="nats-integration-guide-nats">NATS Integration Guide | دليل تكامل NATS<a class="headerlink" href="#nats-integration-guide-nats" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>SAHOOL platform uses NATS as its core messaging infrastructure for event-driven communication between services. This document provides comprehensive guidance on NATS integration, including the shared event library, configuration, and best practices.</p>
+<p>تستخدم منصة سهول NATS كبنية تحتية أساسية للرسائل للتواصل القائم على الأحداث بين الخدمات. يوفر هذا المستند إرشادات شاملة حول تكامل NATS.</p>
+<hr />
+<h2 id="architecture">Architecture | البنية المعمارية<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<h3 id="event-flow">Event Flow | تدفق الأحداث<a class="headerlink" href="#event-flow" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────┐     ┌──────────────┐     ┌─────────────┐
+│   Service   │────▶│    NATS      │────▶│   Service   │
+│  Publisher  │     │  JetStream   │     │  Subscriber │
+└─────────────┘     └──────────────┘     └─────────────┘
+       │                   │                    │
+       ▼                   ▼                    ▼
+┌─────────────┐     ┌──────────────┐     ┌─────────────┐
+│ EventPublisher    │  Persistence │     │EventSubscriber
+│ (shared/events)   │   + DLQ      │     │(shared/events)
+└─────────────┘     └──────────────┘     └─────────────┘
+</code></pre></div>
+
+<h3 id="4-layer-event-architecture-4">4-Layer Event Architecture | بنية الأحداث ذات 4 طبقات<a class="headerlink" href="#4-layer-event-architecture-4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Services</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Acquisition</strong></td>
+<td>satellite, iot, weather, virtual-sensors</td>
+<td>Data ingestion</td>
+</tr>
+<tr>
+<td><strong>Intelligence</strong></td>
+<td>indicators, lai, crop-intelligence, ndvi</td>
+<td>Feature extraction &amp; AI</td>
+</tr>
+<tr>
+<td><strong>Decision</strong></td>
+<td>crop-growth-model, advisory, irrigation, yield</td>
+<td>Recommendations</td>
+</tr>
+<tr>
+<td><strong>Business</strong></td>
+<td>notification, marketplace, billing, task</td>
+<td>User operations</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="shared-event-library">Shared Event Library | مكتبة الأحداث المشتركة<a class="headerlink" href="#shared-event-library" title="Permanent link">&para;</a></h2>
+<p>The platform provides a shared event library in <code>shared/events/</code> that all services should use for consistency.</p>
+<h3 id="eventpublisher">EventPublisher<a class="headerlink" href="#eventpublisher" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.events.publisher</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventPublisher</span><span class="p">,</span> <span class="n">PublisherConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.events.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseEvent</span>
+
+<span class="c1"># Configuration</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">PublisherConfig</span><span class="p">(</span>
+    <span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span>
+    <span class="n">enable_jetstream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">jetstream_domain</span><span class="o">=</span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>  <span class="c1"># Default domain</span>
+    <span class="n">enable_retry</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">max_retry_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Initialize publisher</span>
+<span class="n">publisher</span> <span class="o">=</span> <span class="n">EventPublisher</span><span class="p">(</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span>
+    <span class="n">service_version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Connect and publish</span>
+<span class="k">async</span> <span class="k">with</span> <span class="n">publisher</span><span class="p">:</span>
+    <span class="c1"># Publish typed event</span>
+    <span class="n">event</span> <span class="o">=</span> <span class="n">MyEvent</span><span class="p">(</span><span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;123&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;created&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_event</span><span class="p">(</span><span class="s2">&quot;sahool.field.created&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+
+    <span class="c1"># Publish raw JSON</span>
+    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_json</span><span class="p">(</span><span class="s2">&quot;sahool.alerts.new&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;warning&quot;</span><span class="p">})</span>
+
+    <span class="c1"># Batch publish</span>
+    <span class="n">events</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;sahool.task.created&quot;</span><span class="p">,</span> <span class="n">task_event_1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;sahool.task.created&quot;</span><span class="p">,</span> <span class="n">task_event_2</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_events</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="eventsubscriber">EventSubscriber<a class="headerlink" href="#eventsubscriber" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.events.subscriber</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventSubscriber</span><span class="p">,</span> <span class="n">SubscriberConfig</span>
+
+<span class="c1"># Configuration</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">SubscriberConfig</span><span class="p">(</span>
+    <span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-service-subscriber&quot;</span><span class="p">,</span>
+    <span class="n">enable_jetstream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">jetstream_domain</span><span class="o">=</span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>
+    <span class="n">enable_dlq</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Dead Letter Queue</span>
+    <span class="n">max_dlq_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Initialize subscriber</span>
+<span class="n">subscriber</span> <span class="o">=</span> <span class="n">EventSubscriber</span><span class="p">(</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Message handler</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_field_event</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">msg</span><span class="o">.</span><span class="n">ack</span><span class="p">()</span>
+
+<span class="c1"># Subscribe with JetStream</span>
+<span class="k">async</span> <span class="k">with</span> <span class="n">subscriber</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span>
+        <span class="n">subject</span><span class="o">=</span><span class="s2">&quot;sahool.field.&gt;&quot;</span><span class="p">,</span>
+        <span class="n">handler</span><span class="o">=</span><span class="n">handle_field_event</span><span class="p">,</span>
+        <span class="n">stream_name</span><span class="o">=</span><span class="s2">&quot;SAHOOL_FIELDS&quot;</span><span class="p">,</span>
+        <span class="n">durable_name</span><span class="o">=</span><span class="s2">&quot;my-service-fields&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Health check for Kubernetes readiness</span>
+    <span class="n">health</span> <span class="o">=</span> <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">health_check</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Status: </span><span class="si">{</span><span class="n">health</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># healthy, degraded, warning, unhealthy</span>
+</code></pre></div>
+
+<h3 id="health-check-response">Health Check Response | استجابة فحص الصحة<a class="headerlink" href="#health-check-response" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">health</span> <span class="o">=</span> <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">health_check</span><span class="p">()</span>
+<span class="c1"># Returns:</span>
+<span class="p">{</span>
+    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;healthy&quot;</span><span class="p">,</span>  <span class="c1"># healthy, degraded, warning, unhealthy</span>
+    <span class="s2">&quot;nats_connected&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">&quot;jetstream_enabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">&quot;dlq_initialized&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">&quot;active_subscriptions&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s2">&quot;error_count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;dlq_count&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+    <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;nats&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;connected&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;server_id&quot;</span><span class="p">:</span> <span class="s2">&quot;NATS-123&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;max_payload&quot;</span><span class="p">:</span> <span class="mi">8388608</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;jetstream&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;memory_used&quot;</span><span class="p">:</span> <span class="mi">1024000</span><span class="p">,</span>
+            <span class="s2">&quot;storage_used&quot;</span><span class="p">:</span> <span class="mi">5120000</span><span class="p">,</span>
+            <span class="s2">&quot;streams&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;consumers&quot;</span><span class="p">:</span> <span class="mi">12</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;dlq&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;stream&quot;</span><span class="p">:</span> <span class="s2">&quot;SAHOOL_DLQ&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+            <span class="s2">&quot;bytes&quot;</span><span class="p">:</span> <span class="mi">4096</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="subject-naming-convention">Subject Naming Convention | اصطلاح تسمية المواضيع<a class="headerlink" href="#subject-naming-convention" title="Permanent link">&para;</a></h2>
+<p>All NATS subjects must follow this pattern:</p>
+<div class="codehilite"><pre><span></span><code>sahool.{domain}.{entity}.{action}
+sahool.tenant.{tenant_id}.{domain}.{action}
+</code></pre></div>
+
+<h3 id="examples">Examples | أمثلة<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Subject</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.field.created</code></td>
+<td>Field creation event</td>
+</tr>
+<tr>
+<td><code>sahool.field.updated</code></td>
+<td>Field update event</td>
+</tr>
+<tr>
+<td><code>sahool.tenant.T001.field.created</code></td>
+<td>Tenant-scoped field creation</td>
+</tr>
+<tr>
+<td><code>sahool.task.assigned</code></td>
+<td>Task assignment event</td>
+</tr>
+<tr>
+<td><code>sahool.compliance.audit.completed</code></td>
+<td>Compliance audit completed</td>
+</tr>
+<tr>
+<td><code>sahool.alerts.inventory</code></td>
+<td>Inventory alert notification</td>
+</tr>
+</tbody>
+</table>
+<h3 id="wildcards">Wildcards | الأحرف البديلة<a class="headerlink" href="#wildcards" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>sahool.field.*</code> - Match single token (created, updated, deleted)</li>
+<li><code>sahool.field.&gt;</code> - Match all tokens (created, updated, boundary.changed)</li>
+<li><code>sahool.tenant.*.field.&gt;</code> - Match all tenants, all field events</li>
+</ul>
+<hr />
+<h2 id="jetstream-configuration-jetstream">JetStream Configuration | تكوين JetStream<a class="headerlink" href="#jetstream-configuration-jetstream" title="Permanent link">&para;</a></h2>
+<h3 id="domain">Domain | النطاق<a class="headerlink" href="#domain" title="Permanent link">&para;</a></h3>
+<p>All services use the <code>sahool</code> JetStream domain by default:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">config</span> <span class="o">=</span> <span class="n">PublisherConfig</span><span class="p">(</span>
+    <span class="n">jetstream_domain</span><span class="o">=</span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>  <span class="c1"># or set JETSTREAM_DOMAIN env var</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="stream-definitions">Stream Definitions | تعريفات التدفقات<a class="headerlink" href="#stream-definitions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Stream Name</th>
+<th>Subjects</th>
+<th>Retention</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SAHOOL_EVENTS</code></td>
+<td><code>sahool.&gt;</code></td>
+<td>Limits</td>
+<td>All platform events</td>
+</tr>
+<tr>
+<td><code>SAHOOL_TENANT_*</code></td>
+<td><code>sahool.tenant.{id}.&gt;</code></td>
+<td>Limits</td>
+<td>Per-tenant events</td>
+</tr>
+<tr>
+<td><code>SAHOOL_DLQ</code></td>
+<td><code>sahool.dlq.&gt;</code></td>
+<td>WorkQueue</td>
+<td>Failed messages</td>
+</tr>
+<tr>
+<td><code>SAHOOL_ALERTS</code></td>
+<td><code>sahool.alerts.&gt;</code></td>
+<td>Interest</td>
+<td>Alert notifications</td>
+</tr>
+</tbody>
+</table>
+<h3 id="consumer-configuration">Consumer Configuration | تكوين المستهلكين<a class="headerlink" href="#consumer-configuration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Durable consumer for reliable delivery</span>
+<span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span>
+    <span class="n">subject</span><span class="o">=</span><span class="s2">&quot;sahool.field.&gt;&quot;</span><span class="p">,</span>
+    <span class="n">stream_name</span><span class="o">=</span><span class="s2">&quot;SAHOOL_EVENTS&quot;</span><span class="p">,</span>
+    <span class="n">durable_name</span><span class="o">=</span><span class="s2">&quot;field-service-consumer&quot;</span><span class="p">,</span>
+    <span class="n">deliver_policy</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>  <span class="c1"># or &quot;new&quot;, &quot;last&quot;</span>
+    <span class="n">ack_policy</span><span class="o">=</span><span class="s2">&quot;explicit&quot;</span><span class="p">,</span>
+    <span class="n">max_deliver</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>  <span class="c1"># Max redelivery attempts</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="service-integration-patterns">Service Integration Patterns | أنماط تكامل الخدمات<a class="headerlink" href="#service-integration-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-adapter-for-backward-compatibility">Pattern 1: Adapter for Backward Compatibility | محول للتوافق مع الإصدارات السابقة<a class="headerlink" href="#pattern-1-adapter-for-backward-compatibility" title="Permanent link">&para;</a></h3>
+<p>For services with existing NATS publishers, use an adapter pattern:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.events.publisher</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventPublisher</span><span class="p">,</span> <span class="n">PublisherConfig</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">NatsPublisher</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adapter wrapping shared EventPublisher for backward compatibility.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;my-service&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_publisher</span><span class="p">:</span> <span class="n">EventPublisher</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service_name</span> <span class="o">=</span> <span class="n">service_name</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nats_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">PublisherConfig</span><span class="p">(</span><span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="n">nats_url</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_service_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_publisher</span> <span class="o">=</span> <span class="n">EventPublisher</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_service_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publisher</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">publish_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># Ensure sahool. prefix</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">subject</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;sahool.&quot;</span><span class="p">):</span>
+            <span class="n">subject</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sahool.</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">event</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;eventId&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()),</span>
+            <span class="s2">&quot;eventType&quot;</span><span class="p">:</span> <span class="n">event_type</span><span class="p">,</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+            <span class="s2">&quot;sourceService&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_name</span><span class="p">,</span>
+            <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="n">payload</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publisher</span><span class="o">.</span><span class="n">publish_json</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="pattern-2-direct-eventpublisher-usage">Pattern 2: Direct EventPublisher Usage | الاستخدام المباشر<a class="headerlink" href="#pattern-2-direct-eventpublisher-usage" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.events.publisher</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventPublisher</span><span class="p">,</span> <span class="n">get_publisher</span><span class="p">,</span> <span class="n">close_publisher</span>
+
+<span class="c1"># In service startup</span>
+<span class="n">publisher</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_publisher</span><span class="p">(</span>
+    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;advisory-service&quot;</span><span class="p">,</span>
+    <span class="n">service_version</span><span class="o">=</span><span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># In endpoint</span>
+<span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_event</span><span class="p">(</span><span class="s2">&quot;sahool.advisory.generated&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+
+<span class="c1"># In service shutdown</span>
+<span class="k">await</span> <span class="n">close_publisher</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="pattern-3-fastapi-lifespan-integration-fastapi-lifespan">Pattern 3: FastAPI Lifespan Integration | تكامل FastAPI Lifespan<a class="headerlink" href="#pattern-3-fastapi-lifespan-integration-fastapi-lifespan" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">asynccontextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.events.publisher</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventPublisher</span><span class="p">,</span> <span class="n">PublisherConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.events.subscriber</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventSubscriber</span><span class="p">,</span> <span class="n">SubscriberConfig</span>
+
+<span class="nd">@asynccontextmanager</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">lifespan</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">FastAPI</span><span class="p">):</span>
+    <span class="c1"># Startup</span>
+    <span class="n">publisher_config</span> <span class="o">=</span> <span class="n">PublisherConfig</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">publisher</span> <span class="o">=</span> <span class="n">EventPublisher</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">publisher_config</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">publisher</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+    <span class="n">subscriber_config</span> <span class="o">=</span> <span class="n">SubscriberConfig</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">-subscriber&quot;</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">subscriber</span> <span class="o">=</span> <span class="n">EventSubscriber</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">subscriber_config</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">subscriber</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+    <span class="k">yield</span>
+
+    <span class="c1"># Shutdown</span>
+    <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">publisher</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">subscriber</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span> <span class="n">lifespan</span><span class="o">=</span><span class="n">lifespan</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="dead-letter-queue-dlq">Dead Letter Queue (DLQ) | قائمة انتظار الرسائل الفاشلة<a class="headerlink" href="#dead-letter-queue-dlq" title="Permanent link">&para;</a></h2>
+<h3 id="configuration">Configuration | التكوين<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">config</span> <span class="o">=</span> <span class="n">SubscriberConfig</span><span class="p">(</span>
+    <span class="n">enable_dlq</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">max_dlq_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+    <span class="n">dlq_retention_days</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="dlq-message-format-dlq">DLQ Message Format | تنسيق رسالة DLQ<a class="headerlink" href="#dlq-message-format-dlq" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;original_subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool.field.created&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;original_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Processing failed: database timeout&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;failed_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-26T10:30:00Z&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;retry_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-service&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="reprocessing-dlq-messages-dlq">Reprocessing DLQ Messages | إعادة معالجة رسائل DLQ<a class="headerlink" href="#reprocessing-dlq-messages-dlq" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Get DLQ statistics</span>
+<span class="n">stats</span> <span class="o">=</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">get_dlq_stats</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DLQ messages: </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Reprocess failed messages</span>
+<span class="n">reprocessed</span> <span class="o">=</span> <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">reprocess_dlq</span><span class="p">(</span>
+    <span class="n">max_messages</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">handler</span><span class="o">=</span><span class="n">handle_field_event</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="security-configuration">Security Configuration | تكوين الأمان<a class="headerlink" href="#security-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="authorization">Authorization | التفويض<a class="headerlink" href="#authorization" title="Permanent link">&para;</a></h3>
+<p>NATS authorization is configured in <code>config/nats/nats.conf</code>:</p>
+<div class="codehilite"><pre><span></span><code>authorization {
+    default_permissions = {
+        publish = {
+            allow = [&quot;sahool.&gt;&quot;, &quot;_INBOX.&gt;&quot;]
+            deny = [&quot;$SYS.&gt;&quot;, &quot;$JS.API.STREAM.DELETE.&gt;&quot;, &quot;$JS.API.CONSUMER.DELETE.&gt;&quot;]
+        }
+        subscribe = {
+            allow = [&quot;sahool.&gt;&quot;, &quot;_INBOX.&gt;&quot;]
+            deny = [&quot;$SYS.&gt;&quot;]
+        }
+    }
+}
+</code></pre></div>
+
+<h3 id="user-roles">User Roles | أدوار المستخدمين<a class="headerlink" href="#user-roles" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Permissions</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Admin</strong></td>
+<td>Full access (<code>&gt;</code>)</td>
+<td>Administrative tasks</td>
+</tr>
+<tr>
+<td><strong>App User</strong></td>
+<td><code>sahool.&gt;</code>, <code>field.&gt;</code>, etc.</td>
+<td>Service-to-service communication</td>
+</tr>
+<tr>
+<td><strong>Monitor</strong></td>
+<td>Subscribe only, no publish</td>
+<td>Read-only monitoring</td>
+</tr>
+</tbody>
+</table>
+<h3 id="environment-variables">Environment Variables | متغيرات البيئة<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Required for NATS connection</span>
+<span class="nv">NATS_URL</span><span class="o">=</span>nats://localhost:4222
+<span class="nv">NATS_USER</span><span class="o">=</span>service_user
+<span class="nv">NATS_PASSWORD</span><span class="o">=</span>secure_password
+
+<span class="c1"># JetStream configuration</span>
+<span class="nv">JETSTREAM_DOMAIN</span><span class="o">=</span>sahool
+
+<span class="c1"># Service identification</span>
+<span class="nv">SERVICE_NAME</span><span class="o">=</span>my-service
+</code></pre></div>
+
+<hr />
+<h2 id="monitoring-observability">Monitoring &amp; Observability | المراقبة والرصد<a class="headerlink" href="#monitoring-observability" title="Permanent link">&para;</a></h2>
+<h3 id="health-endpoint-integration">Health Endpoint Integration | تكامل نقطة الصحة<a class="headerlink" href="#health-endpoint-integration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/readyz&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">readiness</span><span class="p">():</span>
+    <span class="n">health</span> <span class="o">=</span> <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">subscriber</span><span class="o">.</span><span class="n">health_check</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">health</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;unhealthy&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">503</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="n">health</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ok&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nats&quot;</span><span class="p">:</span> <span class="n">health</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="n">health</span><span class="p">[</span><span class="s2">&quot;details&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+</code></pre></div>
+
+<h3 id="prometheus-metrics-prometheus">Prometheus Metrics | مقاييس Prometheus<a class="headerlink" href="#prometheus-metrics-prometheus" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">prometheus_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">Gauge</span>
+
+<span class="c1"># Publisher metrics</span>
+<span class="n">nats_publish_total</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span>
+    <span class="s2">&quot;nats_publish_total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Total NATS messages published&quot;</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">&quot;service&quot;</span><span class="p">,</span> <span class="s2">&quot;subject&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">nats_publish_errors</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span>
+    <span class="s2">&quot;nats_publish_errors_total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Total NATS publish errors&quot;</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">&quot;service&quot;</span><span class="p">,</span> <span class="s2">&quot;subject&quot;</span><span class="p">,</span> <span class="s2">&quot;error_type&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># Subscriber metrics</span>
+<span class="n">nats_subscribe_total</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span>
+    <span class="s2">&quot;nats_subscribe_total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Total NATS messages received&quot;</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">&quot;service&quot;</span><span class="p">,</span> <span class="s2">&quot;subject&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">nats_dlq_size</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span>
+    <span class="s2">&quot;nats_dlq_size&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Current DLQ message count&quot;</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">&quot;service&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="logging">Logging | التسجيل<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+<span class="c1"># Publish logging</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+    <span class="s2">&quot;event_published&quot;</span><span class="p">,</span>
+    <span class="n">subject</span><span class="o">=</span><span class="s2">&quot;sahool.field.created&quot;</span><span class="p">,</span>
+    <span class="n">event_id</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">event_id</span><span class="p">,</span>
+    <span class="n">service</span><span class="o">=</span><span class="s2">&quot;field-service&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Error logging</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+    <span class="s2">&quot;publish_failed&quot;</span><span class="p">,</span>
+    <span class="n">subject</span><span class="o">=</span><span class="s2">&quot;sahool.field.created&quot;</span><span class="p">,</span>
+    <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+    <span class="n">retry_count</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="testing">Testing | الاختبار<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<h3 id="unit-tests">Unit Tests | اختبارات الوحدة<a class="headerlink" href="#unit-tests" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncMock</span><span class="p">,</span> <span class="n">MagicMock</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_publish_event</span><span class="p">():</span>
+    <span class="n">publisher</span> <span class="o">=</span> <span class="n">EventPublisher</span><span class="p">()</span>
+    <span class="n">publisher</span><span class="o">.</span><span class="n">_nc</span> <span class="o">=</span> <span class="n">AsyncMock</span><span class="p">()</span>
+    <span class="n">publisher</span><span class="o">.</span><span class="n">_connected</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_json</span><span class="p">(</span><span class="s2">&quot;sahool.test&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">})</span>
+
+    <span class="k">assert</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="n">publisher</span><span class="o">.</span><span class="n">_nc</span><span class="o">.</span><span class="n">publish</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="integration-tests">Integration Tests | اختبارات التكامل<a class="headerlink" href="#integration-tests" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">integration</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_pubsub_integration</span><span class="p">():</span>
+    <span class="n">received</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+        <span class="n">received</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+        <span class="k">await</span> <span class="n">msg</span><span class="o">.</span><span class="n">ack</span><span class="p">()</span>
+
+    <span class="n">subscriber</span> <span class="o">=</span> <span class="n">EventSubscriber</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;sahool.test.&gt;&quot;</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+
+    <span class="n">publisher</span> <span class="o">=</span> <span class="n">EventPublisher</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_json</span><span class="p">(</span><span class="s2">&quot;sahool.test.event&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">})</span>
+
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">received</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="n">received</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">42</span>
+</code></pre></div>
+
+<hr />
+<h2 id="troubleshooting">Troubleshooting | استكشاف الأخطاء وإصلاحها<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="common-issues">Common Issues | المشاكل الشائعة<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Cause</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Connection timeout</td>
+<td>NATS server unreachable</td>
+<td>Check NATS_URL, network connectivity</td>
+</tr>
+<tr>
+<td>Permission denied</td>
+<td>Invalid credentials</td>
+<td>Verify NATS_USER/NATS_PASSWORD</td>
+</tr>
+<tr>
+<td>Subject not allowed</td>
+<td>Authorization restriction</td>
+<td>Check subject matches allowed patterns</td>
+</tr>
+<tr>
+<td>JetStream not available</td>
+<td>JS not enabled</td>
+<td>Enable JetStream in nats.conf</td>
+</tr>
+<tr>
+<td>DLQ overflow</td>
+<td>Too many failed messages</td>
+<td>Increase max_dlq_size or reprocess DLQ</td>
+</tr>
+</tbody>
+</table>
+<h3 id="debug-commands">Debug Commands | أوامر التصحيح<a class="headerlink" href="#debug-commands" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check NATS server status</span>
+nats<span class="w"> </span>server<span class="w"> </span>info
+
+<span class="c1"># List streams</span>
+nats<span class="w"> </span>stream<span class="w"> </span>list
+
+<span class="c1"># View stream info</span>
+nats<span class="w"> </span>stream<span class="w"> </span>info<span class="w"> </span>SAHOOL_EVENTS
+
+<span class="c1"># Check consumer status</span>
+nats<span class="w"> </span>consumer<span class="w"> </span>info<span class="w"> </span>SAHOOL_EVENTS<span class="w"> </span>my-consumer
+
+<span class="c1"># View DLQ messages</span>
+nats<span class="w"> </span>stream<span class="w"> </span>view<span class="w"> </span>SAHOOL_DLQ
+
+<span class="c1"># Publish test message</span>
+nats<span class="w"> </span>pub<span class="w"> </span>sahool.test.ping<span class="w"> </span><span class="s1">&#39;{&quot;test&quot;: true}&#39;</span>
+
+<span class="c1"># Subscribe to all events</span>
+nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">&quot;sahool.&gt;&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="migration-guide">Migration Guide | دليل الترحيل<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
+<h3 id="from-custom-publisher-to-shared-eventpublisher">From Custom Publisher to Shared EventPublisher<a class="headerlink" href="#from-custom-publisher-to-shared-eventpublisher" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Replace imports</strong>:</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Before</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">my_service.nats</span><span class="w"> </span><span class="kn">import</span> <span class="n">NatsPublisher</span>
+
+<span class="c1"># After</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.events.publisher</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventPublisher</span><span class="p">,</span> <span class="n">PublisherConfig</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Update initialization</strong>:</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Before</span>
+<span class="n">publisher</span> <span class="o">=</span> <span class="n">NatsPublisher</span><span class="p">(</span><span class="n">nats_url</span><span class="o">=</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="c1"># After</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">PublisherConfig</span><span class="p">(</span><span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">])</span>
+<span class="n">publisher</span> <span class="o">=</span> <span class="n">EventPublisher</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Update publish calls</strong>:</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Before</span>
+<span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;field.created&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># After (ensure sahool. prefix)</span>
+<span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_json</span><span class="p">(</span><span class="s2">&quot;sahool.field.created&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="best-practices">Best Practices | أفضل الممارسات<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Always use sahool. prefix</strong> for subjects to ensure proper authorization</li>
+<li><strong>Enable JetStream</strong> for reliable message delivery and persistence</li>
+<li><strong>Implement health checks</strong> for Kubernetes readiness probes</li>
+<li><strong>Use DLQ</strong> to capture and reprocess failed messages</li>
+<li><strong>Set appropriate timeouts</strong> for publish operations</li>
+<li><strong>Use durable consumers</strong> for reliable subscription</li>
+<li><strong>Monitor DLQ size</strong> to detect processing issues early</li>
+<li><strong>Use structured logging</strong> for debugging and observability</li>
+<li><strong>Test with mocked NATS</strong> for unit tests, real NATS for integration tests</li>
+<li><strong>Version your events</strong> to support backward compatibility</li>
+</ol>
+<hr />
+<h2 id="related-documentation">Related Documentation | الوثائق ذات الصلة<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="./EVENT_ARCHITECTURE.md">Event Architecture</a></li>
+<li><a href="./SERVICE_COMMUNICATION.md">Service Communication</a></li>
+<li><a href="../DEPLOYMENT/">Deployment Guide</a></li>
+<li><a href="../SECURITY/">Security Guide</a></li>
+<li><a href="../OBSERVABILITY/">Monitoring &amp; Observability</a></li>
+</ul>
+<hr />
+<p><em>Last Updated: January 2026</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

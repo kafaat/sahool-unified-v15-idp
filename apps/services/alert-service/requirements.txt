@@ -28,7 +28,7 @@ python-dotenv==1.0.1
 python-dateutil==2.8.2
 
 # APScheduler for alert expiration checks
-apscheduler==3.10.4
+apscheduler==3.11.2
 
 # Testing
 pytest==8.3.4

@@ -27,7 +27,7 @@ redis==5.2.1
 nats-py==2.9.0
 
 # APScheduler for scheduled notifications
-apscheduler==3.10.4
+apscheduler==3.11.2
 
 # Utilities
 python-dotenv==1.0.1

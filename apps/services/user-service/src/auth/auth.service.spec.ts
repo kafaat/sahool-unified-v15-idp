@@ -3,6 +3,7 @@
  * اختبارات وحدة خدمة المصادقة
  *
  * Tests for:
+ * - User registration (new accounts, validations, edge cases)
  * - User login (valid/invalid credentials)
  * - Token generation and refresh
  * - Logout (single and all devices)
@@ -69,6 +70,7 @@ describe("AuthService", () => {
       user: {
         findUnique: jest.fn(),
         update: jest.fn(),
+        create: jest.fn(),
       },
       refreshToken: {
         create: jest.fn(),
@@ -497,6 +499,302 @@ describe("AuthService", () => {
       await expect(service.refreshToken(mockRefreshToken)).rejects.toThrow(
         "Invalid refresh token",
       );
+    });
+  });
+
+  describe("register", () => {
+    const registerDto = {
+      email: "newuser@example.com",
+      password: "NewPassword123!",
+      firstName: "محمد",
+      lastName: "الأحمد",
+      phone: "+967712345678",
+      tenantId: "custom-tenant-id",
+    };
+
+    const mockNewUser = {
+      id: "new-user-id",
+      email: registerDto.email,
+      passwordHash: "$2a$12$mockHashedPassword",
+      firstName: registerDto.firstName,
+      lastName: registerDto.lastName,
+      phone: registerDto.phone,
+      tenantId: registerDto.tenantId,
+      role: "FARMER",
+      status: UserStatus.ACTIVE,
+      emailVerified: false,
+      phoneVerified: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    it("should successfully register a new user with all fields", async () => {
+      // Mock: user does not exist
+      prismaService.user.findUnique.mockResolvedValue(null);
+
+      // Mock bcrypt.hash
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve(mockNewUser.passwordHash));
+
+      // Mock user creation
+      prismaService.user.create.mockResolvedValue(mockNewUser);
+
+      // Mock token generation
+      jwtService.sign
+        .mockReturnValueOnce(mockAccessToken)
+        .mockReturnValueOnce(mockRefreshToken);
+      prismaService.refreshToken.create.mockResolvedValue(
+        mockRefreshTokenRecord,
+      );
+
+      const result = await service.register(registerDto);
+
+      // Verify user was checked for existence
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { email: registerDto.email },
+      });
+
+      // Verify password was hashed with 12 salt rounds
+      expect(bcrypt.hash).toHaveBeenCalledWith(registerDto.password, 12);
+
+      // Verify user was created with correct data
+      expect(prismaService.user.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          email: registerDto.email,
+          passwordHash: mockNewUser.passwordHash,
+          firstName: registerDto.firstName,
+          lastName: registerDto.lastName,
+          phone: registerDto.phone,
+          tenantId: registerDto.tenantId,
+          role: "FARMER",
+          status: UserStatus.ACTIVE,
+          emailVerified: false,
+          phoneVerified: false,
+        }),
+      });
+
+      // Verify tokens were generated
+      expect(result).toMatchObject({
+        access_token: mockAccessToken,
+        refresh_token: mockRefreshToken,
+        token_type: "Bearer",
+        user: {
+          id: mockNewUser.id,
+          email: mockNewUser.email,
+          firstName: mockNewUser.firstName,
+          lastName: mockNewUser.lastName,
+          role: "FARMER",
+          tenantId: mockNewUser.tenantId,
+        },
+      });
+    });
+
+    it("should register user with default tenant when tenantId not provided", async () => {
+      const registerDtoWithoutTenant = {
+        email: "farmer@example.com",
+        password: "Password123!",
+        firstName: "Ahmed",
+        lastName: "Ali",
+      };
+
+      const userWithDefaultTenant = {
+        ...mockNewUser,
+        email: registerDtoWithoutTenant.email,
+        firstName: registerDtoWithoutTenant.firstName,
+        lastName: registerDtoWithoutTenant.lastName,
+        phone: null,
+        tenantId: "a0000000-0000-0000-0000-000000000001", // default tenant
+      };
+
+      prismaService.user.findUnique.mockResolvedValue(null);
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashedPassword"));
+      prismaService.user.create.mockResolvedValue(userWithDefaultTenant);
+      jwtService.sign
+        .mockReturnValueOnce(mockAccessToken)
+        .mockReturnValueOnce(mockRefreshToken);
+      prismaService.refreshToken.create.mockResolvedValue(
+        mockRefreshTokenRecord,
+      );
+
+      await service.register(registerDtoWithoutTenant);
+
+      expect(prismaService.user.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          tenantId: "a0000000-0000-0000-0000-000000000001",
+        }),
+      });
+    });
+
+    it("should register user without phone number (optional field)", async () => {
+      const registerDtoWithoutPhone = {
+        email: "nophone@example.com",
+        password: "Password123!",
+        firstName: "Test",
+        lastName: "User",
+      };
+
+      const userWithoutPhone = {
+        ...mockNewUser,
+        email: registerDtoWithoutPhone.email,
+        firstName: registerDtoWithoutPhone.firstName,
+        lastName: registerDtoWithoutPhone.lastName,
+        phone: null,
+      };
+
+      prismaService.user.findUnique.mockResolvedValue(null);
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashedPassword"));
+      prismaService.user.create.mockResolvedValue(userWithoutPhone);
+      jwtService.sign
+        .mockReturnValueOnce(mockAccessToken)
+        .mockReturnValueOnce(mockRefreshToken);
+      prismaService.refreshToken.create.mockResolvedValue(
+        mockRefreshTokenRecord,
+      );
+
+      const result = await service.register(registerDtoWithoutPhone);
+
+      expect(prismaService.user.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          phone: null,
+        }),
+      });
+      expect(result.user.email).toBe(registerDtoWithoutPhone.email);
+    });
+
+    it("should throw UnauthorizedException when email already exists", async () => {
+      // Mock: user already exists
+      prismaService.user.findUnique.mockResolvedValue(mockUser);
+
+      await expect(service.register(registerDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
+      await expect(service.register(registerDto)).rejects.toThrow(
+        "Email already registered",
+      );
+
+      // Verify user creation was not attempted
+      expect(prismaService.user.create).not.toHaveBeenCalled();
+    });
+
+    it("should assign FARMER role by default for self-registration", async () => {
+      prismaService.user.findUnique.mockResolvedValue(null);
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashedPassword"));
+      prismaService.user.create.mockResolvedValue(mockNewUser);
+      jwtService.sign
+        .mockReturnValueOnce(mockAccessToken)
+        .mockReturnValueOnce(mockRefreshToken);
+      prismaService.refreshToken.create.mockResolvedValue(
+        mockRefreshTokenRecord,
+      );
+
+      const result = await service.register(registerDto);
+
+      expect(prismaService.user.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          role: "FARMER",
+        }),
+      });
+      expect(result.user.role).toBe("FARMER");
+    });
+
+    it("should set user status to ACTIVE for immediate login", async () => {
+      prismaService.user.findUnique.mockResolvedValue(null);
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashedPassword"));
+      prismaService.user.create.mockResolvedValue(mockNewUser);
+      jwtService.sign
+        .mockReturnValueOnce(mockAccessToken)
+        .mockReturnValueOnce(mockRefreshToken);
+      prismaService.refreshToken.create.mockResolvedValue(
+        mockRefreshTokenRecord,
+      );
+
+      await service.register(registerDto);
+
+      expect(prismaService.user.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          status: UserStatus.ACTIVE,
+        }),
+      });
+    });
+
+    it("should set emailVerified and phoneVerified to false", async () => {
+      prismaService.user.findUnique.mockResolvedValue(null);
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashedPassword"));
+      prismaService.user.create.mockResolvedValue(mockNewUser);
+      jwtService.sign
+        .mockReturnValueOnce(mockAccessToken)
+        .mockReturnValueOnce(mockRefreshToken);
+      prismaService.refreshToken.create.mockResolvedValue(
+        mockRefreshTokenRecord,
+      );
+
+      await service.register(registerDto);
+
+      expect(prismaService.user.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          emailVerified: false,
+          phoneVerified: false,
+        }),
+      });
+    });
+
+    it("should generate JWT tokens after successful registration", async () => {
+      prismaService.user.findUnique.mockResolvedValue(null);
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashedPassword"));
+      prismaService.user.create.mockResolvedValue(mockNewUser);
+      jwtService.sign
+        .mockReturnValueOnce(mockAccessToken)
+        .mockReturnValueOnce(mockRefreshToken);
+      prismaService.refreshToken.create.mockResolvedValue(
+        mockRefreshTokenRecord,
+      );
+
+      const result = await service.register(registerDto);
+
+      expect(jwtService.sign).toHaveBeenCalled();
+      expect(result.access_token).toBe(mockAccessToken);
+      expect(result.refresh_token).toBe(mockRefreshToken);
+      expect(result.token_type).toBe("Bearer");
+    });
+
+    it("should handle database errors during registration", async () => {
+      prismaService.user.findUnique.mockResolvedValue(null);
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashedPassword"));
+      prismaService.user.create.mockRejectedValue(
+        new Error("Database connection error"),
+      );
+
+      await expect(service.register(registerDto)).rejects.toThrow(
+        "Database connection error",
+      );
+    });
+
+    it("should handle bcrypt hashing errors", async () => {
+      prismaService.user.findUnique.mockResolvedValue(null);
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockRejectedValue(new Error("Hashing failed"));
+
+      await expect(service.register(registerDto)).rejects.toThrow(
+        "Hashing failed",
+      );
+
+      expect(prismaService.user.create).not.toHaveBeenCalled();
     });
   });
 

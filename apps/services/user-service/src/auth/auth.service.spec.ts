@@ -28,6 +28,7 @@ describe("AuthService", () => {
   // Mock data
   const mockUserId = "user-123";
   const mockTenantId = "tenant-123";
+  const mockDefaultTenantId = "a0000000-0000-0000-0000-000000000001"; // Default tenant for self-registration
   const mockEmail = "test@example.com";
   const mockPassword = "Password123!";
   const mockPasswordHash = "$2a$10$mockHashedPassword";
@@ -120,6 +121,13 @@ describe("AuthService", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
+
+  // Helper function to mock bcrypt.hash for registration tests
+  const mockBcryptHash = (hashedValue: string = mockPasswordHash) => {
+    jest
+      .spyOn(bcrypt, "hash")
+      .mockImplementation(() => Promise.resolve(hashedValue));
+  };
 
   describe("login", () => {
     const loginDto: LoginDto = {
@@ -533,9 +541,7 @@ describe("AuthService", () => {
       prismaService.user.findUnique.mockResolvedValue(null);
 
       // Mock bcrypt.hash
-      jest
-        .spyOn(bcrypt, "hash")
-        .mockImplementation(() => Promise.resolve(mockNewUser.passwordHash));
+      mockBcryptHash(mockNewUser.passwordHash);
 
       // Mock user creation
       prismaService.user.create.mockResolvedValue(mockNewUser);
@@ -604,13 +610,11 @@ describe("AuthService", () => {
         firstName: registerDtoWithoutTenant.firstName,
         lastName: registerDtoWithoutTenant.lastName,
         phone: null,
-        tenantId: "a0000000-0000-0000-0000-000000000001", // default tenant
+        tenantId: mockDefaultTenantId,
       };
 
       prismaService.user.findUnique.mockResolvedValue(null);
-      jest
-        .spyOn(bcrypt, "hash")
-        .mockImplementation(() => Promise.resolve("hashedPassword"));
+      mockBcryptHash("hashedPassword");
       prismaService.user.create.mockResolvedValue(userWithDefaultTenant);
       jwtService.sign
         .mockReturnValueOnce(mockAccessToken)
@@ -623,7 +627,7 @@ describe("AuthService", () => {
 
       expect(prismaService.user.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          tenantId: "a0000000-0000-0000-0000-000000000001",
+          tenantId: mockDefaultTenantId,
         }),
       });
     });
@@ -645,9 +649,7 @@ describe("AuthService", () => {
       };
 
       prismaService.user.findUnique.mockResolvedValue(null);
-      jest
-        .spyOn(bcrypt, "hash")
-        .mockImplementation(() => Promise.resolve("hashedPassword"));
+      mockBcryptHash("hashedPassword");
       prismaService.user.create.mockResolvedValue(userWithoutPhone);
       jwtService.sign
         .mockReturnValueOnce(mockAccessToken)
@@ -683,9 +685,7 @@ describe("AuthService", () => {
 
     it("should assign FARMER role by default for self-registration", async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
-      jest
-        .spyOn(bcrypt, "hash")
-        .mockImplementation(() => Promise.resolve("hashedPassword"));
+      mockBcryptHash("hashedPassword");
       prismaService.user.create.mockResolvedValue(mockNewUser);
       jwtService.sign
         .mockReturnValueOnce(mockAccessToken)
@@ -706,9 +706,7 @@ describe("AuthService", () => {
 
     it("should set user status to ACTIVE for immediate login", async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
-      jest
-        .spyOn(bcrypt, "hash")
-        .mockImplementation(() => Promise.resolve("hashedPassword"));
+      mockBcryptHash("hashedPassword");
       prismaService.user.create.mockResolvedValue(mockNewUser);
       jwtService.sign
         .mockReturnValueOnce(mockAccessToken)
@@ -728,9 +726,7 @@ describe("AuthService", () => {
 
     it("should set emailVerified and phoneVerified to false", async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
-      jest
-        .spyOn(bcrypt, "hash")
-        .mockImplementation(() => Promise.resolve("hashedPassword"));
+      mockBcryptHash("hashedPassword");
       prismaService.user.create.mockResolvedValue(mockNewUser);
       jwtService.sign
         .mockReturnValueOnce(mockAccessToken)
@@ -751,9 +747,7 @@ describe("AuthService", () => {
 
     it("should generate JWT tokens after successful registration", async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
-      jest
-        .spyOn(bcrypt, "hash")
-        .mockImplementation(() => Promise.resolve("hashedPassword"));
+      mockBcryptHash("hashedPassword");
       prismaService.user.create.mockResolvedValue(mockNewUser);
       jwtService.sign
         .mockReturnValueOnce(mockAccessToken)
@@ -772,9 +766,7 @@ describe("AuthService", () => {
 
     it("should handle database errors during registration", async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
-      jest
-        .spyOn(bcrypt, "hash")
-        .mockImplementation(() => Promise.resolve("hashedPassword"));
+      mockBcryptHash("hashedPassword");
       prismaService.user.create.mockRejectedValue(
         new Error("Database connection error"),
       );

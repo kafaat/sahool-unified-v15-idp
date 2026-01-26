@@ -15,7 +15,7 @@ asyncpg==0.30.0
 alembic==1.14.0
 
 # Payment Processing
-stripe==11.3.0
+stripe==14.2.0
 
 # Date/Time handling
 python-dateutil==2.8.2

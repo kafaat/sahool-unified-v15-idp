@@ -9,7 +9,7 @@ Port: 8104
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -766,7 +766,7 @@ async def publish_config_updated(
             "provider_type": provider_type,
             "key": key,
             "tenant_id": tenant_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         await nc.publish(
             "sahool.config.updated",
@@ -801,7 +801,7 @@ async def publish_provider_status_changed(
             "provider_type": provider_type,
             "enabled": enabled,
             "tenant_id": tenant_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         await nc.publish(
             "sahool.config.provider_status_changed",
@@ -832,7 +832,7 @@ async def check_map_provider_health(
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
-            last_check=datetime.utcnow(),
+            last_check=datetime.now(timezone.utc),
             error_message="Unknown provider",
         )
 
@@ -844,36 +844,36 @@ async def check_map_provider_health(
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
-            start = datetime.utcnow()
+            start = datetime.now(timezone.utc)
             response = await client.head(test_url)
-            response_time = (datetime.utcnow() - start).total_seconds() * 1000
+            response_time = (datetime.now(timezone.utc) - start).total_seconds() * 1000
 
             if response.status_code == 200:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.AVAILABLE,
-                    last_check=datetime.utcnow(),
+                    last_check=datetime.now(timezone.utc),
                     response_time_ms=response_time,
                 )
             elif response.status_code == 429:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.RATE_LIMITED,
-                    last_check=datetime.utcnow(),
+                    last_check=datetime.now(timezone.utc),
                     response_time_ms=response_time,
                 )
             else:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.UNAVAILABLE,
-                    last_check=datetime.utcnow(),
+                    last_check=datetime.now(timezone.utc),
                     error_message=f"HTTP {response.status_code}",
                 )
     except Exception as e:
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
-            last_check=datetime.utcnow(),
+            last_check=datetime.now(timezone.utc),
             error_message=str(e),
         )
 
@@ -887,7 +887,7 @@ async def check_weather_provider_health(
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
-            last_check=datetime.utcnow(),
+            last_check=datetime.now(timezone.utc),
             error_message="Unknown provider",
         )
 
@@ -902,7 +902,7 @@ async def check_weather_provider_health(
             return ProviderStatusResponse(
                 provider_name=provider_name.value,
                 status=ProviderStatus.ERROR,
-                last_check=datetime.utcnow(),
+                last_check=datetime.now(timezone.utc),
                 error_message="API key required",
             )
         test_url = f"{provider['base_url']}/weather?lat=15.37&lon=44.19&appid={api_key}"
@@ -911,42 +911,42 @@ async def check_weather_provider_health(
             return ProviderStatusResponse(
                 provider_name=provider_name.value,
                 status=ProviderStatus.ERROR,
-                last_check=datetime.utcnow(),
+                last_check=datetime.now(timezone.utc),
                 error_message="API key required",
             )
         test_url = f"{provider['base_url']}/current.json?key={api_key}&q=15.37,44.19"
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
-            start = datetime.utcnow()
+            start = datetime.now(timezone.utc)
             response = await client.get(test_url)
-            response_time = (datetime.utcnow() - start).total_seconds() * 1000
+            response_time = (datetime.now(timezone.utc) - start).total_seconds() * 1000
 
             if response.status_code == 200:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.AVAILABLE,
-                    last_check=datetime.utcnow(),
+                    last_check=datetime.now(timezone.utc),
                     response_time_ms=response_time,
                 )
             elif response.status_code == 429:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.RATE_LIMITED,
-                    last_check=datetime.utcnow(),
+                    last_check=datetime.now(timezone.utc),
                 )
             else:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.UNAVAILABLE,
-                    last_check=datetime.utcnow(),
+                    last_check=datetime.now(timezone.utc),
                     error_message=f"HTTP {response.status_code}",
                 )
     except Exception as e:
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
-            last_check=datetime.utcnow(),
+            last_check=datetime.now(timezone.utc),
             error_message=str(e),
         )
 
@@ -970,7 +970,7 @@ async def root():
 @app.get("/healthz")
 async def health_check():
     """Health check endpoint"""
-    return {"status": "healthy", "timestamp": datetime.utcnow()}
+    return {"status": "healthy", "timestamp": datetime.now(timezone.utc)}
 
 
 @app.get("/readyz")
@@ -1288,7 +1288,7 @@ async def check_all_free_providers():
     results = {
         "map_providers": [],
         "weather_providers": [],
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
     # Check free map providers

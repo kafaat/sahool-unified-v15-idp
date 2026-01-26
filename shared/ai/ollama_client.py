@@ -20,7 +20,7 @@ import asyncio
 import json
 import os
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, AsyncIterator
 
@@ -254,7 +254,7 @@ class OllamaClient:
                     response=data.get("response", ""),
                     done=data.get("done", True),
                     created_at=datetime.fromisoformat(
-                        data.get("created_at", datetime.utcnow().isoformat())
+                        data.get("created_at", datetime.now(timezone.utc).isoformat())
                     ),
                     total_duration_ns=data.get("total_duration"),
                     load_duration_ns=data.get("load_duration"),
@@ -365,7 +365,7 @@ class OllamaClient:
                 response=data.get("message", {}).get("content", ""),
                 done=data.get("done", True),
                 created_at=datetime.fromisoformat(
-                    data.get("created_at", datetime.utcnow().isoformat())
+                    data.get("created_at", datetime.now(timezone.utc).isoformat())
                 ),
                 total_duration_ns=data.get("total_duration"),
                 eval_count=data.get("eval_count"),

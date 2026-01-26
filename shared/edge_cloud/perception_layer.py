@@ -22,7 +22,7 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Callable
 from uuid import uuid4
 
@@ -160,7 +160,7 @@ class MQTTAdapter(ProtocolAdapter):
             self._connections[config.device_id] = {
                 "host": config.host,
                 "port": config.port or 1883,
-                "connected_at": datetime.utcnow(),
+                "connected_at": datetime.now(timezone.utc),
                 "status": "connected",
             }
             self.is_connected = True
@@ -281,7 +281,7 @@ class HTTPAdapter(ProtocolAdapter):
             self._endpoints[config.device_id] = {
                 "base_url": base_url,
                 "username": config.username,
-                "connected_at": datetime.utcnow(),
+                "connected_at": datetime.now(timezone.utc),
             }
             self.is_connected = True
             self._logger.info(
@@ -386,7 +386,7 @@ class ModbusAdapter(ProtocolAdapter):
             self._connections[config.device_id] = {
                 "host": config.host,
                 "port": config.port or 502,
-                "connected_at": datetime.utcnow(),
+                "connected_at": datetime.now(timezone.utc),
                 "protocol_type": "tcp",  # or "rtu"
             }
             self.is_connected = True
@@ -479,7 +479,7 @@ class OPCUAAdapter(ProtocolAdapter):
             endpoint = f"opc.tcp://{config.host}:{config.port or 4840}"
             self._connections[config.device_id] = {
                 "endpoint": endpoint,
-                "connected_at": datetime.utcnow(),
+                "connected_at": datetime.now(timezone.utc),
                 "security_mode": "SignAndEncrypt" if config.use_tls else "None",
             }
             self.is_connected = True
@@ -571,7 +571,7 @@ class CoAPAdapter(ProtocolAdapter):
             self._endpoints[config.device_id] = {
                 "host": config.host,
                 "port": config.port or 5683,
-                "connected_at": datetime.utcnow(),
+                "connected_at": datetime.now(timezone.utc),
             }
             self.is_connected = True
             self._logger.info(
@@ -729,7 +729,7 @@ class PerceptionLayer:
         self._reading_buffer: list[SensorReading] = []
         self._buffer_max_size = 10000
         self._buffer_flush_interval = timedelta(minutes=5)
-        self._last_flush = datetime.utcnow()
+        self._last_flush = datetime.now(timezone.utc)
 
         # Callbacks
         self._on_reading_callbacks: list[Callable[[SensorReading], None]] = []
@@ -943,7 +943,7 @@ class PerceptionLayer:
         if len(self._reading_buffer) > self._buffer_max_size:
             self._reading_buffer = self._reading_buffer[-self._buffer_max_size:]
 
-        self._last_collection_time = datetime.utcnow()
+        self._last_collection_time = datetime.now(timezone.utc)
 
         self._logger.info(
             "sensor_data_collected",
@@ -1087,7 +1087,7 @@ class PerceptionLayer:
         """
         count = len(self._reading_buffer)
         self._reading_buffer.clear()
-        self._last_flush = datetime.utcnow()
+        self._last_flush = datetime.now(timezone.utc)
         return count
 
     def get_statistics(self) -> dict[str, Any]:

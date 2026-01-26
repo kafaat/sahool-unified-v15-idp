@@ -20,7 +20,7 @@ Updated: January 2025
 import json
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import httpx
@@ -349,7 +349,7 @@ class SAHOOLSkillsTools:
                     "supporting_data": data.get("supporting_data", {}),
                 },
                 metadata={
-                    "advisory_date": datetime.utcnow().isoformat(),
+                    "advisory_date": datetime.now(timezone.utc).isoformat(),
                     "ai_model": data.get("model_used", "unknown"),
                     "analysis_time_ms": data.get("processing_time_ms", 0),
                 },
@@ -500,7 +500,7 @@ class SAHOOLSkillsTools:
                 metadata={
                     "data_type": data_type,
                     "preserve_critical": preserve_critical,
-                    "compression_timestamp": datetime.utcnow().isoformat(),
+                    "compression_timestamp": datetime.now(timezone.utc).isoformat(),
                 },
             )
         except Exception as e:
@@ -582,7 +582,7 @@ class SAHOOLSkillsTools:
                         },
                     },
                     metadata={
-                        "query_timestamp": datetime.utcnow().isoformat(),
+                        "query_timestamp": datetime.now(timezone.utc).isoformat(),
                         "memory_backend": "local",
                     },
                 )
@@ -610,7 +610,7 @@ class SAHOOLSkillsTools:
                         },
                     },
                     metadata={
-                        "query_timestamp": datetime.utcnow().isoformat(),
+                        "query_timestamp": datetime.now(timezone.utc).isoformat(),
                         "memory_backend": "api",
                     },
                 )

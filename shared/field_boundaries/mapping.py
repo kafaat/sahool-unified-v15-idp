@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 from .geometry import (
@@ -201,7 +201,7 @@ class GPSMapper:
             config=config or self.config,
         )
         session.is_active = True
-        session.started_at = datetime.utcnow()
+        session.started_at = datetime.now(timezone.utc)
         session.track.start_time = session.started_at
 
         self.active_sessions[session.id] = session
@@ -246,7 +246,7 @@ class GPSMapper:
             return (False, "Session is not active | الجلسة غير نشطة")
 
         session.total_points_received += 1
-        timestamp = timestamp or datetime.utcnow()
+        timestamp = timestamp or datetime.now(timezone.utc)
 
         # Create point
         point = BoundaryPoint(
@@ -388,7 +388,7 @@ class GPSMapper:
             )
 
         session.is_active = False
-        session.ended_at = datetime.utcnow()
+        session.ended_at = datetime.now(timezone.utc)
         session.track.end_time = session.ended_at
 
         # Force close if requested
@@ -475,8 +475,8 @@ class GPSMapper:
             field_id=field_id or str(uuid.uuid4()),
             tenant_id="",  # To be set by caller
             owner_id=track.user_id,
-            name=f"Field Boundary {datetime.utcnow().strftime('%Y-%m-%d')}",
-            name_ar=f"حدود الحقل {datetime.utcnow().strftime('%Y-%m-%d')}",
+            name=f"Field Boundary {datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
+            name_ar=f"حدود الحقل {datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
             boundary_type=BoundaryType.FIELD,
             status=BoundaryStatus.DRAFT,
             geometry=Polygon(coordinates=[simplified]),

@@ -20,7 +20,7 @@ import logging
 import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import asyncpg
@@ -414,7 +414,7 @@ class RulesRepository(BaseRepository):
         Create a new automation rule
         إنشاء قاعدة أتمتة جديدة
         """
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         query = """
             INSERT INTO field_intelligence_rules (
                 rule_id, tenant_id, name, name_ar, description, description_ar,
@@ -557,7 +557,7 @@ class RulesRepository(BaseRepository):
 
         # Always update updated_at
         set_clauses.append(f"updated_at = ${param_idx}")
-        params.append(datetime.utcnow())
+        params.append(datetime.now(timezone.utc))
 
         set_clause = ", ".join(set_clauses)
 

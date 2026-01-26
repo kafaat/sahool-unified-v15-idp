@@ -20,7 +20,7 @@ Updated: January 2026
 import json
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Callable
 
 from .diagnostics import CodeDiagnostics, DiagnosticError
@@ -450,7 +450,7 @@ class AutoFixEngine:
             "# Auto-Fix Audit Log | سجل التدقيق للإصلاح التلقائي",
             "",
             f"**Total Entries | إجمالي السجلات**: {len(self._audit_log)}",
-            f"**Generated | تاريخ التوليد**: {datetime.utcnow().isoformat()}",
+            f"**Generated | تاريخ التوليد**: {datetime.now(timezone.utc).isoformat()}",
             "",
             "## Entries | السجلات",
             "",

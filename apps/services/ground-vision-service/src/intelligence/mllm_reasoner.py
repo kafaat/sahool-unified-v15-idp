@@ -9,7 +9,7 @@ and provide semantic understanding of agricultural operations.
 import base64
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Protocol
 
 from pydantic import BaseModel, Field
@@ -415,7 +415,7 @@ maturity/نضج, harvest_ready/جاهز للحصاد, harvested/محصود
 
         # Convert response to CropTimelineAnalysis
         analysis = CropTimelineAnalysis(
-            analysis_id=f"analysis_{field_id}_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+            analysis_id=f"analysis_{field_id}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
             field_id=field_id,
             crop_type=self._parse_crop_type(response.crop_type),
             crop_type_ar=response.crop_type_ar or CROP_TYPE_AR.get(
@@ -495,7 +495,7 @@ class TimelineEntryGenerator:
     ) -> CropTimelineEntry:
         """Create a timeline entry from analysis."""
         return CropTimelineEntry(
-            entry_id=f"entry_{analysis.field_id}_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+            entry_id=f"entry_{analysis.field_id}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
             field_id=analysis.field_id,
             crop_type=analysis.crop_type,
             crop_type_ar=analysis.crop_type_ar,

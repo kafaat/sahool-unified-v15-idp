@@ -19,7 +19,7 @@ Updated: January 2026
 """
 
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Callable
 from uuid import UUID, uuid4
 import structlog
@@ -106,7 +106,7 @@ class HMCDimension(ABC):
 
     def _record_action(self, action_name: str, details: dict[str, Any] | None = None) -> None:
         """Record an action taken in this dimension."""
-        self._last_action_at = datetime.utcnow()
+        self._last_action_at = datetime.now(timezone.utc)
         self._action_count += 1
         logger.info(
             "hmc_dimension_action",
@@ -802,7 +802,7 @@ class ExperienceInjectionDimension(HMCDimension):
             "original_text": knowledge_text,
             "language": language,
             "translated_rule_id": str(rule.id),
-            "translated_at": datetime.utcnow().isoformat(),
+            "translated_at": datetime.now(timezone.utc).isoformat(),
         })
 
         self._record_action("translate_tacit_knowledge", {
@@ -1272,7 +1272,7 @@ class SupervisionCalibrationDimension(HMCDimension):
             control_method=control_method,
             test_area_hectares=trial_area_hectares,
             duration_hours=duration_days * 24,
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
         )
 
         # In reality, this would be async and completed after the trial
@@ -1424,7 +1424,7 @@ class SupervisionCalibrationDimension(HMCDimension):
             "feedback_type": feedback_type,
             "rating": rating,
             "related_program_id": str(related_program_id) if related_program_id else None,
-            "submitted_at": datetime.utcnow().isoformat(),
+            "submitted_at": datetime.now(timezone.utc).isoformat(),
             "session_id": str(self._session_id) if self._session_id else None,
         }
 
@@ -1461,7 +1461,7 @@ class SupervisionCalibrationDimension(HMCDimension):
         """
         for result in self._field_trial_results:
             if result.id == trial_id:
-                result.completed_at = datetime.utcnow()
+                result.completed_at = datetime.now(timezone.utc)
                 result.field_test_passed = actual_results.get("success", False)
                 result.predicted_water_saving = actual_results.get("water_saving")
                 result.predicted_yield_impact = actual_results.get("yield_impact")
@@ -1527,8 +1527,8 @@ class SupervisionCalibrationDimension(HMCDimension):
         result = CalibrationResult(
             method=CalibrationMethod.SIMULATION,
             simulation_passed=True,
-            started_at=datetime.utcnow(),
-            completed_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
+            completed_at=datetime.now(timezone.utc),
         )
 
         issues: list[str] = []
@@ -1695,7 +1695,7 @@ class ValueUpgradeDimension(HMCDimension):
                 confidence=confidence,
                 metadata={
                     "extracted_from": "field_observation",
-                    "extraction_timestamp": datetime.utcnow().isoformat(),
+                    "extraction_timestamp": datetime.now(timezone.utc).isoformat(),
                     "original_observation": obs,
                 },
             )
@@ -1746,7 +1746,7 @@ class ValueUpgradeDimension(HMCDimension):
         self._integration_status[integration_name] = {
             "endpoint": fertilization_endpoint,
             "status": "active",
-            "connected_at": datetime.utcnow().isoformat(),
+            "connected_at": datetime.now(timezone.utc).isoformat(),
             "features": ["fertigation_scheduling", "nutrient_optimization", "ec_management"],
         }
 
@@ -1791,7 +1791,7 @@ class ValueUpgradeDimension(HMCDimension):
         self._integration_status[integration_name] = {
             "endpoint": weather_endpoint,
             "status": "active",
-            "connected_at": datetime.utcnow().isoformat(),
+            "connected_at": datetime.now(timezone.utc).isoformat(),
             "features": [
                 "rain_forecast_adjustment",
                 "wind_speed_optimization",
@@ -1866,7 +1866,7 @@ class ValueUpgradeDimension(HMCDimension):
             ],
             "total_potential": 25.0,
             "feasibility": "high" if target_reduction_percent <= 25 else "medium",
-            "explored_at": datetime.utcnow().isoformat(),
+            "explored_at": datetime.now(timezone.utc).isoformat(),
         }
 
         self._exploration_goals.append(exploration_result)
@@ -1908,7 +1908,7 @@ class ValueUpgradeDimension(HMCDimension):
                 rule.is_active = is_valid
                 rule.validation_count += 1
                 rule.metadata["validation_notes"] = validation_notes
-                rule.metadata["validated_at"] = datetime.utcnow().isoformat()
+                rule.metadata["validated_at"] = datetime.now(timezone.utc).isoformat()
 
                 if is_valid:
                     self._learning_metrics["rules_validated"] += 1

@@ -24,7 +24,7 @@ import uuid
 import hashlib
 import re
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from enum import Enum
 
@@ -75,7 +75,7 @@ class Citation:
     url: str | None = None
     doi: str | None = None
     publisher: str | None = None
-    accessed_at: datetime = field(default_factory=datetime.utcnow)
+    accessed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     relevance_score: float = 0.8
     language: str = "en"  # en, ar, or both
 
@@ -157,7 +157,7 @@ class ResearchFinding:
     confidence: ConfidenceAssessment | None = None
     data_sources_used: list[ResearchSourceType] = field(default_factory=list)
     recommendations: list[dict[str, Any]] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -790,7 +790,7 @@ Output valid JSON array only."""
         # Simulated response (connect to vegetation-analysis-service)
         return {
             "field_id": field_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "ndvi_values": [0.68, 0.71, 0.72, 0.69, 0.70],
             "ndvi_mean": 0.70,
             "ndvi_trend": "stable",
@@ -836,7 +836,7 @@ Output valid JSON array only."""
 
         return {
             "field_id": field_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "readings": {
                 "soil_moisture": {
                     "value": 38,
@@ -913,7 +913,7 @@ Output valid JSON array only."""
                 },
             },
             "issues_detected": [],
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     async def _generate_recommendations(
@@ -961,7 +961,7 @@ Output valid JSON array only."""
         return {
             "field_id": field_id,
             "crop_type": crop_type,
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "actions": actions,
             "summary": f"Field health score: {health_score}%. {len(actions)} recommendations generated.",
             "summary_ar": f"درجة صحة الحقل: {health_score}%. تم توليد {len(actions)} توصيات.",

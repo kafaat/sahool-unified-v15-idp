@@ -19,7 +19,7 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from typing import Any
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import redis.asyncio as redis_client
@@ -232,8 +232,8 @@ class InternalDataModel:
     description: str | None = None
     description_ar: str | None = None
     fields: list[dict[str, Any]] = internal_field(default_factory=list)
-    created_at: datetime = internal_field(default_factory=datetime.utcnow)
-    updated_at: datetime = internal_field(default_factory=datetime.utcnow)
+    created_at: datetime = internal_field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = internal_field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @internal_dataclass
@@ -259,8 +259,8 @@ class InternalPage:
     data_model_id: str | None = None
     is_published: bool = False
     version: int = 1
-    created_at: datetime = internal_field(default_factory=datetime.utcnow)
-    updated_at: datetime = internal_field(default_factory=datetime.utcnow)
+    created_at: datetime = internal_field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = internal_field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1174,7 +1174,7 @@ def get_component(component_name: str):
 async def create_data_model(request: DataModelCreateRequest):
     """Create a data model | إنشاء نموذج بيانات"""
     model_id = str(uuid4())
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     # Parse fields - keep as dict for internal storage
     fields = []
@@ -1306,7 +1306,7 @@ async def get_data_model(model_id: str):
 async def create_page(request: PageCreateRequest):
     """Create a page | إنشاء صفحة"""
     page_id = str(uuid4())
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     # Parse blocks using internal format
     blocks = []
@@ -1472,7 +1472,7 @@ async def get_page(page_id: str):
 @app.post("/api/v1/pages/{page_id}/publish", response_model=PageResponse, tags=["Pages"])
 async def publish_page(page_id: str, tenant_id: str = Query(None)):
     """Publish a page | نشر صفحة"""
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     # Try to get from database first
     p = await db_get_page(page_id)
@@ -1675,7 +1675,7 @@ async def generate_page_from_template(
 
     template = templates[template_id]
     page_id = str(uuid4())
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     route = f"{template['route']}/{page_id[:8]}"
     description = f"Generated from template: {template_id}"
 

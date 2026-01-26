@@ -15,7 +15,7 @@ Updated: January 2026
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -36,7 +36,7 @@ class MetricValue:
     name: str
     value: float
     labels: dict[str, str] = field(default_factory=dict)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     metric_type: MetricType = MetricType.GAUGE
 
     def to_prometheus(self) -> str:
@@ -130,10 +130,10 @@ class AIMetricsCollector:
             self._agent_latencies[key] = self._agent_latencies[key][-1000:]
 
         if success:
-            self._last_success[key] = datetime.utcnow()
+            self._last_success[key] = datetime.now(timezone.utc)
         else:
             self._agent_errors[key] = self._agent_errors.get(key, 0) + 1
-            self._last_error[key] = datetime.utcnow()
+            self._last_error[key] = datetime.now(timezone.utc)
 
     def record_agent_error(
         self,
@@ -148,7 +148,7 @@ class AIMetricsCollector:
         """
         key = f"{agent_id}:{tenant_id}:{error_type}"
         self._agent_errors[key] = self._agent_errors.get(key, 0) + 1
-        self._last_error[f"{agent_id}:{tenant_id}"] = datetime.utcnow()
+        self._last_error[f"{agent_id}:{tenant_id}"] = datetime.now(timezone.utc)
 
     def record_llm_call(
         self,

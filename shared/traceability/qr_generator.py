@@ -13,7 +13,7 @@ import base64
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from io import BytesIO
 from urllib.parse import urlencode
@@ -90,7 +90,7 @@ class GeneratedQRCode:
 
     # Metadata
     size_pixels: int = 256
-    generated_at: datetime = field(default_factory=datetime.utcnow)
+    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Checksum for verification
     checksum: str = ""

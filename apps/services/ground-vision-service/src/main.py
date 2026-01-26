@@ -9,7 +9,7 @@ cameras, integrating with SAHOOL's existing satellite and IoT infrastructure.
 import logging
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -208,7 +208,7 @@ def health():
         status="ok",
         service=SERVICE_NAME,
         version=SERVICE_VERSION,
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(timezone.utc).isoformat(),
     )
 
 
@@ -279,7 +279,7 @@ async def register_camera(request: CameraRegistration):
         name_ar=request.name_ar,
         status="online",
         status_ar="متصل",
-        created_at=datetime.utcnow().isoformat(),
+        created_at=datetime.now(timezone.utc).isoformat(),
     )
 
 
@@ -453,7 +453,7 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
     processing_time = int((time.time() - start_time) * 1000)
 
     return TimelineAnalysisResponse(
-        analysis_id=f"analysis_{request.field_id}_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+        analysis_id=f"analysis_{request.field_id}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
         field_id=request.field_id,
         crop_type="wheat",
         crop_type_ar="قمح",
@@ -541,7 +541,7 @@ async def acknowledge_anomaly(anomaly_id: str, request: AnomalyAcknowledgeReques
     return {
         "anomaly_id": anomaly_id,
         "status": "acknowledged",
-        "acknowledged_at": datetime.utcnow().isoformat(),
+        "acknowledged_at": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -563,7 +563,7 @@ async def resolve_anomaly(anomaly_id: str, request: AnomalyResolveRequest):
     return {
         "anomaly_id": anomaly_id,
         "status": "resolved",
-        "resolved_at": datetime.utcnow().isoformat(),
+        "resolved_at": datetime.now(timezone.utc).isoformat(),
     }
 
 

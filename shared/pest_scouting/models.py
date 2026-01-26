@@ -21,7 +21,7 @@ Updated: January 2026
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from enum import Enum
 from typing import Any
 import uuid
@@ -382,8 +382,8 @@ class ScoutReport:
     reviewed_at: datetime | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -499,7 +499,7 @@ class PestAlert:
     area_affected_ha: float | None = None
 
     # Time
-    detected_at: datetime = field(default_factory=datetime.utcnow)
+    detected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     response_deadline: datetime | None = None
 
     # Status
@@ -645,7 +645,7 @@ class OutbreakRecord:
     previous_outbreak_ids: list[str] = field(default_factory=list)
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
     verified: bool = False
     verified_by: str | None = None
@@ -782,7 +782,7 @@ class TreatmentRecommendation:
 
     # Status
     status: str = "pending"  # pending, approved, rejected, implemented, completed
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
     approved_by: str | None = None
     approved_at: datetime | None = None

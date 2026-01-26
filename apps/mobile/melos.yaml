@@ -1,0 +1,205 @@
+# ============================================================================
+# SAHOOL Mobile - Melos Monorepo Configuration
+# إعدادات Melos لإدارة المشاريع المتعددة
+# ============================================================================
+#
+# Melos is a CLI tool for managing Dart & Flutter monorepos.
+# Install: dart pub global activate melos
+# Bootstrap: melos bootstrap
+# Run commands: melos run <script>
+#
+# https://melos.invertase.dev/
+# ============================================================================
+
+name: sahool_mobile
+repository: https://github.com/kafaat/sahool-unified-v15-idp
+
+packages:
+  # Main field app
+  - "."
+  # Sub-packages
+  - "sahool_field_app/**"
+  - "sahol_atmosphere/**"
+
+# IDE Integration
+ide:
+  intellij:
+    enabled: true
+
+# ============================================================================
+# Commands - أوامر سريعة
+# ============================================================================
+command:
+  bootstrap:
+    # Run pub get for all packages
+    runPubGetInParallel: true
+
+  version:
+    # Versioning configuration
+    branch: main
+    message: "chore(release): publish packages"
+
+# ============================================================================
+# Scripts - سكربتات
+# ============================================================================
+scripts:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Analysis & Linting - التحليل والفحص
+  # ─────────────────────────────────────────────────────────────────────────
+
+  analyze:
+    run: flutter analyze --no-fatal-infos
+    description: Run Flutter analyzer on all packages (تشغيل محلل Flutter)
+
+  analyze:strict:
+    run: flutter analyze
+    description: Run Flutter analyzer with strict mode (وضع صارم)
+
+  format:
+    run: dart format --set-exit-if-changed .
+    description: Check Dart formatting (فحص التنسيق)
+
+  format:fix:
+    run: dart format .
+    description: Fix Dart formatting (إصلاح التنسيق)
+
+  fix:
+    run: dart fix --apply
+    description: Apply automatic fixes (تطبيق الإصلاحات التلقائية)
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Testing - الاختبارات
+  # ─────────────────────────────────────────────────────────────────────────
+
+  test:
+    run: flutter test --reporter=compact
+    description: Run all unit tests (تشغيل اختبارات الوحدة)
+    packageFilters:
+      flutter: true
+
+  test:coverage:
+    run: flutter test --coverage
+    description: Run tests with coverage (اختبارات مع التغطية)
+    packageFilters:
+      flutter: true
+
+  test:integration:
+    run: flutter test integration_test/
+    description: Run integration tests (اختبارات التكامل)
+    packageFilters:
+      flutter: true
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Build - البناء
+  # ─────────────────────────────────────────────────────────────────────────
+
+  build:runner:
+    run: dart run build_runner build --delete-conflicting-outputs
+    description: Run code generation (توليد الكود)
+    packageFilters:
+      dependsOn: build_runner
+
+  build:runner:watch:
+    run: dart run build_runner watch --delete-conflicting-outputs
+    description: Watch and regenerate code (مراقبة وإعادة التوليد)
+    packageFilters:
+      dependsOn: build_runner
+
+  clean:
+    run: flutter clean
+    description: Clean build artifacts (تنظيف ملفات البناء)
+    packageFilters:
+      flutter: true
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Quality - الجودة
+  # ─────────────────────────────────────────────────────────────────────────
+
+  quality:
+    run: |
+      melos run analyze && \
+      melos run format && \
+      melos run test
+    description: Run all quality checks (فحص الجودة الكامل)
+
+  quality:quick:
+    run: |
+      melos run analyze && \
+      melos run format
+    description: Quick quality check without tests (فحص سريع بدون اختبارات)
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Import Sorting - ترتيب الاستيرادات
+  # ─────────────────────────────────────────────────────────────────────────
+
+  imports:sort:
+    run: dart run import_sorter:main
+    description: Sort imports in Dart files (ترتيب الاستيرادات)
+    packageFilters:
+      dependsOn: import_sorter
+
+  imports:check:
+    run: dart run import_sorter:main --exit-if-changed
+    description: Check import ordering (فحص ترتيب الاستيرادات)
+    packageFilters:
+      dependsOn: import_sorter
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Dependencies - التبعيات
+  # ─────────────────────────────────────────────────────────────────────────
+
+  deps:upgrade:
+    run: flutter pub upgrade
+    description: Upgrade dependencies (ترقية التبعيات)
+
+  deps:outdated:
+    run: flutter pub outdated
+    description: Check for outdated dependencies (فحص التبعيات القديمة)
+
+  deps:get:
+    run: flutter pub get
+    description: Get dependencies (جلب التبعيات)
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Localization - الترجمة
+  # ─────────────────────────────────────────────────────────────────────────
+
+  l10n:
+    run: flutter gen-l10n
+    description: Generate localization files (توليد ملفات الترجمة)
+    packageFilters:
+      flutter: true
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Assets - الأصول
+  # ─────────────────────────────────────────────────────────────────────────
+
+  icons:
+    run: dart run flutter_launcher_icons
+    description: Generate app icons (توليد أيقونات التطبيق)
+    packageFilters:
+      dependsOn: flutter_launcher_icons
+
+  splash:
+    run: dart run flutter_native_splash:create
+    description: Generate splash screen (توليد شاشة البداية)
+    packageFilters:
+      dependsOn: flutter_native_splash
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # CI/CD Helpers
+  # ─────────────────────────────────────────────────────────────────────────
+
+  ci:
+    run: |
+      melos run analyze:strict && \
+      melos run format && \
+      melos run test:coverage
+    description: Full CI pipeline (خط أنابيب CI الكامل)
+
+  pre-commit:
+    run: |
+      melos run analyze && \
+      melos run format && \
+      melos run imports:check
+    description: Pre-commit checks (فحوصات ما قبل الالتزام)

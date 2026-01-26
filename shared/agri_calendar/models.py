@@ -15,7 +15,7 @@ Updated: January 2026
 """
 
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 import uuid
@@ -713,7 +713,7 @@ class CalendarEvent:
     notes_ar: str = ""
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
 
     def get_priority_icon(self) -> str:
@@ -829,7 +829,7 @@ class PlantingRecommendation:
     tips_ar: list[str] = field(default_factory=list)
 
     # Metadata
-    generated_at: datetime = field(default_factory=datetime.utcnow)
+    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     model_version: str = "1.0.0"
 
     def to_dict(self) -> dict[str, Any]:
@@ -925,8 +925,8 @@ class SeasonalCalendar:
     notes_en: str = ""
 
     # Metadata
-    generated_at: datetime = field(default_factory=datetime.utcnow)
-    last_updated: datetime = field(default_factory=datetime.utcnow)
+    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    last_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def get_current_season(self, check_date: date | None = None) -> SeasonDefinition | None:
         """Get the season for a specific date"""

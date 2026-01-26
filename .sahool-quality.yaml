@@ -1,0 +1,267 @@
+# SAHOOL Quality Configuration - إعدادات جودة سهول
+# ===================================================
+#
+# Unified quality configuration for all platforms
+# إعدادات جودة موحدة لجميع المنصات
+#
+# This file is used by:
+# - AI Agents (code-fix-agent, code-review-agent)
+# - Quality Belt (scripts/quality-belt.sh)
+# - Pre-commit hooks
+# - CI/CD pipelines
+
+# =============================================================================
+# Global Settings - الإعدادات العامة
+# =============================================================================
+version: "1.0.0"
+fail_on_warning: false
+auto_fix: true
+parallel: true
+max_parallel_tools: 4
+
+# Cache Configuration - إعدادات التخزين المؤقت
+cache:
+  enabled: true
+  ttl: 300  # seconds - ثواني
+
+# =============================================================================
+# Python Tools - أدوات Python
+# =============================================================================
+python:
+  enabled: true
+  paths:
+    - apps/services/
+    - apps/kernel/
+    - shared/
+  tools:
+    # Primary Tools - الأدوات الأساسية
+    - ruff      # Fast linting & formatting - فحص وتنسيق سريع
+    - mypy      # Type checking - فحص الأنواع
+    - bandit    # Security scanning - فحص أمني
+    # Optional Tools - أدوات اختيارية
+    # - pylint  # Advanced analysis - تحليل متقدم
+    # - semgrep # Security patterns - أنماط أمنية
+
+  # Ruff Configuration - إعدادات Ruff
+  ruff:
+    select:
+      - E    # pycodestyle errors
+      - F    # pyflakes
+      - W    # pycodestyle warnings
+      - I    # isort
+      - UP   # pyupgrade
+      - B    # flake8-bugbear
+      - C4   # flake8-comprehensions
+      - S    # flake8-bandit
+    ignore:
+      - E501  # line too long (handled by formatter)
+    fixable: ["ALL"]
+    line-length: 120
+
+  # Mypy Configuration - إعدادات Mypy
+  mypy:
+    ignore_missing_imports: true
+    warn_return_any: true
+    warn_unused_ignores: true
+    strict_optional: true
+
+  # Bandit Configuration - إعدادات Bandit
+  bandit:
+    severity: medium  # low, medium, high
+    confidence: medium
+    exclude:
+      - tests/
+      - "*_test.py"
+
+# =============================================================================
+# TypeScript/JavaScript Tools - أدوات TypeScript/JavaScript
+# =============================================================================
+typescript:
+  enabled: true
+  paths:
+    - apps/web/
+    - apps/admin/
+    - packages/
+  tools:
+    - eslint    # Linting - فحص الكود
+    - tsc       # Type checking - فحص الأنواع
+    # - prettier # Formatting - التنسيق
+
+  # ESLint Configuration - إعدادات ESLint
+  eslint:
+    max_warnings: 50
+    fix: true
+    cache: true
+    extensions:
+      - .ts
+      - .tsx
+      - .js
+      - .jsx
+
+  # TypeScript Configuration - إعدادات TypeScript
+  tsc:
+    no_emit: true
+    skip_lib_check: true
+
+# =============================================================================
+# Dart/Flutter Tools - أدوات Dart/Flutter
+# =============================================================================
+dart:
+  enabled: true
+  paths:
+    - apps/mobile/
+  tools:
+    - dart_analyze    # Static analysis - تحليل ثابت
+    - dart_format     # Formatting - التنسيق
+    - import_sorter   # Import organization - تنظيم الاستيرادات
+    - flutter_analyze # Flutter-specific - خاص بـ Flutter
+
+  # Dart Analyze Configuration - إعدادات Dart Analyze
+  dart_analyze:
+    fatal_infos: false
+    fatal_warnings: true
+
+  # Import Sorter Configuration - إعدادات Import Sorter
+  import_sorter:
+    emojis: false
+    comments: true
+
+# =============================================================================
+# Security Tools - أدوات الأمان
+# =============================================================================
+security:
+  enabled: true
+  tools:
+    - gitleaks       # Secret detection - كشف الأسرار
+    - detect_secrets # Secret baseline - قاعدة الأسرار
+    # - semgrep      # Security patterns - أنماط أمنية
+    # - trivy        # Container scanning - فحص الحاويات
+
+  # Gitleaks Configuration - إعدادات Gitleaks
+  gitleaks:
+    no_git: true
+    verbose: false
+
+  # Detect Secrets Configuration - إعدادات Detect Secrets
+  detect_secrets:
+    baseline: ".secrets.baseline"
+
+# =============================================================================
+# Testing Tools - أدوات الاختبار
+# =============================================================================
+testing:
+  enabled: true
+  tools:
+    python:
+      - pytest        # Unit tests - اختبارات الوحدة
+    typescript:
+      - vitest        # Unit tests - اختبارات الوحدة
+      - playwright    # E2E tests - اختبارات E2E
+    dart:
+      - flutter_test  # Flutter tests - اختبارات Flutter
+
+  # Pytest Configuration - إعدادات Pytest
+  pytest:
+    coverage: true
+    min_coverage: 60
+    markers:
+      - unit
+      - integration
+      - smoke
+
+  # Vitest Configuration - إعدادات Vitest
+  vitest:
+    coverage: true
+    reporter: "compact"
+
+# =============================================================================
+# AI Agent Settings - إعدادات وكلاء الذكاء
+# =============================================================================
+ai_agents:
+  enabled: true
+
+  # Code Fix Agent - وكيل إصلاح الكود
+  code_fix_agent:
+    enabled: true
+    auto_run: true  # Run automatically on file changes
+    fix_strategy: "safe"  # minimal, safe, comprehensive, refactor
+    max_fixes_per_run: 50
+    languages:
+      - python
+      - typescript
+      - dart
+
+  # Code Review Agent - وكيل مراجعة الكود
+  code_review_agent:
+    enabled: true
+    auto_run: false  # Only on PR
+    review_depth: "standard"  # quick, standard, thorough
+    check_security: true
+    check_performance: true
+    check_best_practices: true
+
+  # Observability - المراقبة
+  observability:
+    sentry_enabled: true
+    tracing_enabled: true
+    metrics_enabled: true
+
+# =============================================================================
+# CI/CD Integration - تكامل CI/CD
+# =============================================================================
+ci:
+  # GitHub Actions - إجراءات GitHub
+  github_actions:
+    enabled: true
+    fail_on_quality_issues: true
+    create_annotations: true
+    upload_sarif: true
+
+  # Quality Gates - بوابات الجودة
+  quality_gates:
+    min_coverage: 60
+    max_critical_issues: 0
+    max_high_issues: 5
+    max_warnings: 50
+
+# =============================================================================
+# Excluded Paths - المسارات المستبعدة
+# =============================================================================
+exclude:
+  # Node.js
+  - "**/node_modules/**"
+  # Build artifacts
+  - "**/build/**"
+  - "**/dist/**"
+  - "**/.next/**"
+  # Generated code
+  - "**/*.g.dart"
+  - "**/*.freezed.dart"
+  - "**/generated/**"
+  - "**/__pycache__/**"
+  # Version control
+  - "**/.git/**"
+  # IDE
+  - "**/.idea/**"
+  - "**/.vscode/**"
+  # Docker
+  - "**/Dockerfile"
+  # Documentation
+  - "**/docs/**"
+
+# =============================================================================
+# Notifications - الإشعارات
+# =============================================================================
+notifications:
+  # Slack Integration
+  slack:
+    enabled: false
+    webhook_url: "${SLACK_QUALITY_WEBHOOK}"
+    notify_on:
+      - critical_issues
+      - quality_gate_failure
+
+  # Email Notifications
+  email:
+    enabled: false
+    recipients: []

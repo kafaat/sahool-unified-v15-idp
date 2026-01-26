@@ -8,7 +8,7 @@ from tower camera frames.
 
 import logging
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -391,7 +391,7 @@ class OperationTracker:
             List of completed operations
         """
         completed = []
-        current_time = datetime.utcnow()
+        current_time = datetime.now(timezone.utc)
 
         # Group detections by operation type and field
         detection_groups: dict[str, list[FieldOperationDetection]] = {}
@@ -450,7 +450,7 @@ class OperationTracker:
                 "operation_type": op["operation_type"].value,
                 "started_at": op["started_at"].isoformat(),
                 "duration_minutes": int(
-                    (datetime.utcnow() - op["started_at"]).total_seconds() / 60
+                    (datetime.now(timezone.utc) - op["started_at"]).total_seconds() / 60
                 ),
                 "detection_count": op["detection_count"],
             }

@@ -11,7 +11,7 @@ Updated: January 2026
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -279,9 +279,9 @@ class SyncItem:
     device_id: str = ""
 
     # Timestamps
-    local_modified_at: datetime = field(default_factory=datetime.utcnow)
+    local_modified_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     server_modified_at: datetime | None = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     queued_at: datetime | None = None
     synced_at: datetime | None = None
 
@@ -300,7 +300,7 @@ class SyncItem:
         """Check if sync item is too old."""
         if not self.created_at:
             return False
-        age = (datetime.utcnow() - self.created_at).total_seconds() / 3600
+        age = (datetime.now(timezone.utc) - self.created_at).total_seconds() / 3600
         return age > max_age_hours
 
     def can_retry(self) -> bool:
@@ -315,7 +315,7 @@ class SyncItem:
         # Exponential backoff: 1, 2, 4, 8... minutes
         backoff_seconds = 60 * (2 ** (self.retry_count - 1))
         from datetime import timedelta
-        self.next_retry_at = datetime.utcnow() + timedelta(seconds=backoff_seconds)
+        self.next_retry_at = datetime.now(timezone.utc) + timedelta(seconds=backoff_seconds)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -367,8 +367,8 @@ class SyncConflict:
 
     # Conflict details
     conflicting_fields: list[str] = field(default_factory=list)
-    local_modified_at: datetime = field(default_factory=datetime.utcnow)
-    server_modified_at: datetime = field(default_factory=datetime.utcnow)
+    local_modified_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    server_modified_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     local_modified_by: str | None = None
     server_modified_by: str | None = None
 
@@ -382,7 +382,7 @@ class SyncConflict:
 
     # Metadata
     tenant_id: str = ""
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     auto_resolvable: bool = False
 
     def get_field_conflicts(self) -> list[dict[str, Any]]:
@@ -519,12 +519,12 @@ class SyncSession:
     # Metadata
     sync_token: str | None = None              # For incremental sync
     server_timestamp: datetime | None = None
-    client_timestamp: datetime = field(default_factory=datetime.utcnow)
+    client_timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def add_error(self, error: str, error_ar: str | None = None, entity_id: str | None = None):
         """Add an error to the session."""
         self.errors.append({
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "error": error,
             "error_ar": error_ar,
             "entity_id": entity_id,
@@ -565,7 +565,7 @@ class DeltaChange:
     old_value: Any = None                      # القيمة القديمة
     new_value: Any = None                      # القيمة الجديدة
     operation: str = "set"                     # set, unset, increment, append
-    changed_at: datetime = field(default_factory=datetime.utcnow)
+    changed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -596,7 +596,7 @@ class DeltaPacket:
     compression_ratio: float = 0.0             # Savings ratio
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     checksum: str | None = None
 
     @property

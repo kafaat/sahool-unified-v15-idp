@@ -7,7 +7,7 @@ Provides the foundational event structure for all SAHOOL domain events.
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, ClassVar
 from uuid import UUID, uuid4
@@ -78,7 +78,7 @@ class BaseEvent:
 
     # Auto-generated fields
     event_id: UUID = field(default_factory=uuid4)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Optional metadata
     metadata: EventMetadata | None = None

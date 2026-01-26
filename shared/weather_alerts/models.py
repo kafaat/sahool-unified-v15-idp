@@ -11,7 +11,7 @@ Updated: January 2026
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timezone
 from enum import Enum
 from typing import Any
 import uuid
@@ -185,7 +185,7 @@ class WeatherAlert:
     longitude: float | None = None
 
     # Time validity
-    issued_at: datetime = field(default_factory=datetime.utcnow)
+    issued_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     valid_from: datetime | None = None
     valid_until: datetime | None = None
 

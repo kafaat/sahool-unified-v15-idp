@@ -6,7 +6,7 @@ Publishes alert notifications to NATS for the notification service to consume
 import json
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -116,7 +116,7 @@ class NATSPublisher:
                 "event_type": "inventory_alert",
                 "event_id": alert["id"],
                 "source_service": "inventory-service",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "alert": alert,
                 "recipients": recipients or ["farm_manager", "owner"],
                 "notification_priority": alert["priority"],

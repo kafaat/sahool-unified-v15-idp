@@ -5,7 +5,7 @@ Publishes task-related events to NATS event bus
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
 
@@ -79,7 +79,7 @@ class NatsPublisher:
             event = {
                 "eventId": str(uuid4()),
                 "eventType": event_type,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "version": "1.0",
                 "payload": payload,
                 "metadata": metadata or {},
@@ -155,7 +155,7 @@ async def publish_task_created(
             "fieldId": field_id,
             "assignedTo": assigned_to,
             "dueDate": due_date,
-            "createdAt": datetime.utcnow().isoformat(),
+            "createdAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -187,7 +187,7 @@ async def publish_task_updated(
             "taskId": task_id,
             "tenantId": tenant_id,
             "changes": changes,
-            "updatedAt": datetime.utcnow().isoformat(),
+            "updatedAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -222,7 +222,7 @@ async def publish_task_assigned(
             "tenantId": tenant_id,
             "assignedTo": assigned_to,
             "assignedBy": assigned_by,
-            "assignedAt": datetime.utcnow().isoformat(),
+            "assignedAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -254,7 +254,7 @@ async def publish_task_started(
             "taskId": task_id,
             "tenantId": tenant_id,
             "startedBy": started_by,
-            "startedAt": datetime.utcnow().isoformat(),
+            "startedAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -289,7 +289,7 @@ async def publish_task_completed(
             "tenantId": tenant_id,
             "completedBy": completed_by,
             "actualDurationMinutes": actual_duration_minutes,
-            "completedAt": datetime.utcnow().isoformat(),
+            "completedAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -324,6 +324,6 @@ async def publish_task_cancelled(
             "tenantId": tenant_id,
             "cancelledBy": cancelled_by,
             "reason": reason,
-            "cancelledAt": datetime.utcnow().isoformat(),
+            "cancelledAt": datetime.now(timezone.utc).isoformat(),
         },
     )

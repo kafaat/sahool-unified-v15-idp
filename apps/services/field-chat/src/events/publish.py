@@ -7,7 +7,7 @@ import json
 import logging
 import os
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import nats
@@ -59,7 +59,7 @@ class EventEnvelope:
             aggregate_id=aggregate_id,
             tenant_id=tenant_id,
             correlation_id=correlation_id,
-            timestamp=datetime.utcnow().isoformat() + "Z",
+            timestamp=datetime.now(timezone.utc).isoformat() + "Z",
             payload=payload,
         )
 

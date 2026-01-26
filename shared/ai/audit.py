@@ -25,7 +25,7 @@ import json
 import os
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable
@@ -304,7 +304,7 @@ class AIAuditLogger:
         """Create a new audit event."""
         event = AuditEvent(
             id=str(uuid.uuid4()),
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             event_type=event_type,
             tenant_id=self.tenant_id,
             **kwargs,
@@ -606,7 +606,7 @@ class AIAuditLogger:
 
         # Write to file if storage path configured
         if self.storage_path:
-            filename = f"ai_audit_{datetime.utcnow().strftime('%Y%m%d')}.jsonl"
+            filename = f"ai_audit_{datetime.now(timezone.utc).strftime('%Y%m%d')}.jsonl"
             filepath = os.path.join(self.storage_path, filename)
 
             with open(filepath, "a", encoding="utf-8") as f:

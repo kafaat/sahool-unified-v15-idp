@@ -5,7 +5,7 @@ Core geofencing logic with point-in-polygon and distance calculations
 
 import math
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .models import (
     Geofence,
@@ -607,7 +607,7 @@ class GeofenceEngine:
             if alert.alert_id == alert_id:
                 alert.acknowledged = True
                 alert.acknowledged_by = acknowledged_by
-                alert.acknowledged_at = datetime.utcnow()
+                alert.acknowledged_at = datetime.now(timezone.utc)
                 return True
         return False
 

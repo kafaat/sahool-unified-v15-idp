@@ -66,7 +66,7 @@ Example Usage:
     schedule = scheduler.schedule_batch(
         batch,
         schedule_type=ScheduleType.SCHEDULED,
-        scheduled_time=datetime.utcnow() + timedelta(hours=1)
+        scheduled_time=datetime.now(timezone.utc) + timedelta(hours=1)
     )
 
     await scheduler.stop()

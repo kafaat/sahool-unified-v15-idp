@@ -18,7 +18,7 @@ Updated: January 2026
 import asyncio
 import time
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Callable, TypeVar
 
@@ -177,7 +177,7 @@ class CircuitBreaker:
         self._stats.successful_calls += 1
         self._stats.consecutive_successes += 1
         self._stats.consecutive_failures = 0
-        self._stats.last_success_time = datetime.utcnow()
+        self._stats.last_success_time = datetime.now(timezone.utc)
 
         if self._state == CircuitState.HALF_OPEN:
             if self._stats.consecutive_successes >= self.config.success_threshold:
@@ -189,7 +189,7 @@ class CircuitBreaker:
         self._stats.failed_calls += 1
         self._stats.consecutive_failures += 1
         self._stats.consecutive_successes = 0
-        self._stats.last_failure_time = datetime.utcnow()
+        self._stats.last_failure_time = datetime.now(timezone.utc)
         self._last_failure_time = time.time()
 
         if self._state == CircuitState.CLOSED:

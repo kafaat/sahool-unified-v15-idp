@@ -4,7 +4,7 @@ Alert generation helpers for different scenarios
 """
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from .models import (
@@ -27,7 +27,7 @@ def generate_exit_alert(
     إنشاء تنبيه خروج للنشر عبر NATS
     """
     lat, lng = position
-    timestamp = datetime.utcnow()
+    timestamp = datetime.now(timezone.utc)
 
     severity = "critical" if geofence.geofence_type.value == "farm_boundary" else "high"
 
@@ -98,7 +98,7 @@ def generate_entry_alert(
     إنشاء تنبيه دخول للنشر عبر NATS
     """
     lat, lng = position
-    timestamp = datetime.utcnow()
+    timestamp = datetime.now(timezone.utc)
 
     severity = "high" if geofence.geofence_type.value == "restricted" else "medium"
     if geofence.geofence_type.value == "sensitive":
@@ -151,7 +151,7 @@ def generate_speed_alert(
     إنشاء تنبيه تجاوز حد السرعة
     """
     lat, lng = position
-    timestamp = datetime.utcnow()
+    timestamp = datetime.now(timezone.utc)
     max_speed = geofence.max_speed_kmh or 0
 
     return {
@@ -208,7 +208,7 @@ def generate_theft_alert(
     This is a CRITICAL alert that should trigger immediate response
     """
     lat, lng = position
-    timestamp = datetime.utcnow()
+    timestamp = datetime.now(timezone.utc)
 
     # Translate reasons to Arabic
     reason_translations = {
@@ -318,7 +318,7 @@ def generate_daily_summary(
         "report_type_ar": "ملخص السياج الجغرافي اليومي",
         "tenant_id": tenant_id,
         "date": date.strftime("%Y-%m-%d"),
-        "generated_at": datetime.utcnow().isoformat(),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
 
         # Statistics
         "statistics": {

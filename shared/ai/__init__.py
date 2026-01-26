@@ -798,6 +798,45 @@ __all__.extend([
     "list_open_source_models",
 ])
 
+# Tool Registry (Dynamic tool management for AI agents)
+try:
+    from .tool_registry import (
+        ToolRegistry,
+        ToolInfo,
+        ToolResult,
+        QualityConfig,
+        ToolMetrics,
+        ToolCategory,
+        ToolCapability,
+        ToolStatus,
+        Language,
+        get_tool_registry,
+        reset_tool_registry,
+        generate_default_config,
+    )
+    TOOL_REGISTRY_AVAILABLE = True
+except ImportError:
+    TOOL_REGISTRY_AVAILABLE = False
+
+# Quality Orchestrator (Automated quality management with auto-audit)
+try:
+    from .quality_orchestrator import (
+        QualityOrchestrator,
+        QualityReport,
+        QualityIssue,
+        QualityGateResult,
+        AutoAudit,
+        AuditEntry as QualityAuditEntry,
+        QualityLevel,
+        IssueSeverity,
+        AuditAction,
+        run_quality_check,
+        generate_quality_report_markdown,
+    )
+    QUALITY_ORCHESTRATOR_AVAILABLE = True
+except ImportError:
+    QUALITY_ORCHESTRATOR_AVAILABLE = False
+
 # Add Observability exports if available
 if OBSERVABILITY_AVAILABLE:
     __all__.extend([
@@ -815,4 +854,41 @@ if OBSERVABILITY_AVAILABLE:
         "get_agent_tracer",
         "get_ci_integration",
         "get_sentry_integration",
+    ])
+
+# Add Tool Registry exports if available
+if TOOL_REGISTRY_AVAILABLE:
+    __all__.extend([
+        # Tool Registry
+        "ToolRegistry",
+        "ToolInfo",
+        "ToolResult",
+        "QualityConfig",
+        "ToolMetrics",
+        "ToolCategory",
+        "ToolCapability",
+        "ToolStatus",
+        "Language",
+        "get_tool_registry",
+        "reset_tool_registry",
+        "generate_default_config",
+        "TOOL_REGISTRY_AVAILABLE",
+    ])
+
+# Add Quality Orchestrator exports if available
+if QUALITY_ORCHESTRATOR_AVAILABLE:
+    __all__.extend([
+        # Quality Orchestrator
+        "QualityOrchestrator",
+        "QualityReport",
+        "QualityIssue",
+        "QualityGateResult",
+        "AutoAudit",
+        "QualityAuditEntry",
+        "QualityLevel",
+        "IssueSeverity",
+        "AuditAction",
+        "run_quality_check",
+        "generate_quality_report_markdown",
+        "QUALITY_ORCHESTRATOR_AVAILABLE",
     ])

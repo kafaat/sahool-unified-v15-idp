@@ -66,6 +66,30 @@ try:
 except ImportError:
     OBSERVABILITY_AVAILABLE = False
 
+# Import Tool Registry for dynamic tool management
+try:
+    from shared.ai.tool_registry import (
+        ToolRegistry,
+        Language,
+        get_tool_registry,
+    )
+
+    TOOL_REGISTRY_AVAILABLE = True
+except ImportError:
+    TOOL_REGISTRY_AVAILABLE = False
+
+# Import Quality Orchestrator for automated quality management
+try:
+    from shared.ai.quality_orchestrator import (
+        QualityOrchestrator,
+        QualityReport,
+        run_quality_check,
+    )
+
+    QUALITY_ORCHESTRATOR_AVAILABLE = True
+except ImportError:
+    QUALITY_ORCHESTRATOR_AVAILABLE = False
+
 logger = structlog.get_logger(__name__)
 
 
@@ -360,6 +384,26 @@ class CodeFixAgent:
                 logger.info("AutoFixEngine diagnostics initialized")
             except Exception as e:
                 logger.warning(f"Failed to initialize AutoFixEngine diagnostics: {e}")
+
+        # Initialize Tool Registry for dynamic tool management
+        self._tool_registry: ToolRegistry | None = None
+        if TOOL_REGISTRY_AVAILABLE:
+            try:
+                self._tool_registry = get_tool_registry()
+                logger.info("Tool Registry initialized")
+            except Exception as e:
+                logger.warning(f"Failed to initialize Tool Registry: {e}")
+
+        # Initialize Quality Orchestrator for automated quality management
+        self._quality_orchestrator: QualityOrchestrator | None = None
+        if QUALITY_ORCHESTRATOR_AVAILABLE:
+            try:
+                self._quality_orchestrator = QualityOrchestrator(
+                    agent_id=self.agent_id,
+                )
+                logger.info("Quality Orchestrator initialized")
+            except Exception as e:
+                logger.warning(f"Failed to initialize Quality Orchestrator: {e}")
 
         # Initialize Ollama client for LLM-based fixes
         self._ollama_client: Any | None = None
@@ -1686,6 +1730,237 @@ Provide ONLY the fixed code without any explanation. Return the complete fixed c
             "breaking_changes": fix.breaking_changes,
             "requires_review": fix.requires_review,
         }
+
+    # ========================================================================
+    # QUALITY ORCHESTRATION METHODS
+    # ========================================================================
+
+    async def run_quality_analysis(
+        self,
+        paths: list[str],
+        languages: list[str] | None = None,
+        fix: bool = True,
+        audit: bool = True,
+    ) -> dict[str, Any]:
+        """
+        تشغيل تحليل الجودة الشامل باستخدام Quality Orchestrator
+        Run comprehensive quality analysis using Quality Orchestrator
+
+        This method uses the dynamic tool registry and quality orchestrator
+        to provide automated, configurable quality analysis with full audit trail.
+
+        Args:
+            paths: المسارات للتحليل - Paths to analyze
+            languages: اللغات (اختياري، اكتشاف تلقائي) - Languages (optional, auto-detect)
+            fix: تطبيق الإصلاحات التلقائية - Apply auto-fixes
+            audit: تمكين التدقيق - Enable audit logging
+
+        Returns:
+            dict with quality report including:
+            - quality_score: نتيجة الجودة (0-100)
+            - total_issues: إجمالي المشاكل
+            - fixed_count: عدد الإصلاحات
+            - gates_passed: حالة بوابات الجودة
+            - audit_entries: إدخالات التدقيق
+        """
+        if not self._quality_orchestrator:
+            logger.warning("Quality Orchestrator not available, falling back to basic analysis")
+            return {
+                "success": False,
+                "error": "Quality Orchestrator not available",
+                "error_ar": "منسق الجودة غير متوفر",
+            }
+
+        try:
+            # Run comprehensive quality analysis
+            report: QualityReport = await self._quality_orchestrator.analyze(
+                paths=paths,
+                languages=languages,
+                fix=fix,
+                audit=audit,
+            )
+
+            # Update agent metrics
+            self.total_requests += 1
+            if report.status == "completed":
+                self.successful_requests += 1
+
+            # Record performance
+            if report.duration_ms:
+                self.total_response_time_ms += report.duration_ms
+
+            # Return comprehensive report
+            return {
+                "success": True,
+                "report_id": report.id,
+                "session_id": report.session_id,
+                "status": report.status,
+                "quality_score": report.quality_score,
+                "quality_level": report.quality_level.value,
+                "total_issues": report.total_issues,
+                "critical_issues": report.critical_issues,
+                "high_issues": report.high_issues,
+                "medium_issues": report.medium_issues,
+                "low_issues": report.low_issues,
+                "fixed_count": report.fixed_count,
+                "fixable_count": report.fixable_count,
+                "files_analyzed": report.files_analyzed,
+                "tools_executed": report.tools_executed,
+                "gates_passed": report.gates_passed,
+                "quality_gates": [
+                    {
+                        "gate_name": g.gate_name,
+                        "passed": g.passed,
+                        "threshold": g.threshold,
+                        "actual_value": g.actual_value,
+                        "message": g.message,
+                        "message_ar": g.message_ar,
+                    }
+                    for g in report.quality_gates
+                ],
+                "duration_ms": report.duration_ms,
+                "errors": report.errors,
+                "audit_entries_count": len(report.audit_entries),
+                # Full issues list (can be large)
+                "issues": [
+                    {
+                        "id": i.id,
+                        "tool": i.tool,
+                        "file_path": i.file_path,
+                        "line": i.line,
+                        "severity": i.severity.value,
+                        "message": i.message,
+                        "code": i.code,
+                        "auto_fixable": i.auto_fixable,
+                        "fixed": i.fixed,
+                    }
+                    for i in report.issues[:100]  # Limit to first 100
+                ],
+            }
+
+        except Exception as e:
+            logger.error("quality_analysis_failed", error=str(e))
+            return {
+                "success": False,
+                "error": str(e),
+                "error_ar": f"فشل تحليل الجودة: {e}",
+            }
+
+    async def get_available_tools(
+        self,
+        language: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        الحصول على الأدوات المتاحة
+        Get available quality tools
+
+        Args:
+            language: اللغة لتصفية الأدوات - Language to filter tools
+
+        Returns:
+            dict with available tools and their status
+        """
+        if not self._tool_registry:
+            return {
+                "success": False,
+                "error": "Tool Registry not available",
+                "error_ar": "سجل الأدوات غير متوفر",
+            }
+
+        try:
+            # Check tool availability
+            availability = await self._tool_registry.check_availability()
+
+            # Get tools for language if specified
+            if language:
+                try:
+                    lang = Language(language.lower())
+                    tools = self._tool_registry.get_tools_for_language(lang)
+                except ValueError:
+                    tools = self._tool_registry.get_all_tools()
+            else:
+                tools = self._tool_registry.get_all_tools()
+
+            return {
+                "success": True,
+                "tools": [
+                    {
+                        "id": t.id,
+                        "name": t.name,
+                        "name_ar": t.name_ar,
+                        "category": t.category.value,
+                        "languages": [l.value for l in t.languages],
+                        "status": t.status.value,
+                        "version": t.version,
+                        "available": availability.get(t.id, False),
+                        "capabilities": [c.value for c in t.capabilities],
+                        "priority": t.priority,
+                    }
+                    for t in tools
+                ],
+                "total_tools": len(tools),
+                "available_count": sum(1 for t in tools if availability.get(t.id, False)),
+            }
+
+        except Exception as e:
+            logger.error("get_tools_failed", error=str(e))
+            return {
+                "success": False,
+                "error": str(e),
+                "error_ar": f"فشل الحصول على الأدوات: {e}",
+            }
+
+    async def run_tool(
+        self,
+        tool_id: str,
+        target: str,
+        auto_fix: bool = True,
+    ) -> dict[str, Any]:
+        """
+        تشغيل أداة محددة
+        Run a specific quality tool
+
+        Args:
+            tool_id: معرف الأداة - Tool identifier
+            target: الهدف (ملف أو مجلد) - Target file or directory
+            auto_fix: تطبيق الإصلاحات - Apply auto-fixes
+
+        Returns:
+            dict with tool execution result
+        """
+        if not self._tool_registry:
+            return {
+                "success": False,
+                "error": "Tool Registry not available",
+                "error_ar": "سجل الأدوات غير متوفر",
+            }
+
+        try:
+            result = await self._tool_registry.run_tool(
+                tool_id=tool_id,
+                target=target,
+                auto_fix=auto_fix,
+            )
+
+            return {
+                "success": result.success,
+                "tool_id": result.tool_id,
+                "exit_code": result.exit_code,
+                "issues_count": result.issues_count,
+                "fixed_count": result.fixed_count,
+                "duration_ms": result.duration_ms,
+                "stdout": result.stdout[:5000] if result.stdout else None,  # Truncate
+                "stderr": result.stderr[:2000] if result.stderr else None,  # Truncate
+                "error_message": result.error_message,
+            }
+
+        except Exception as e:
+            logger.error("run_tool_failed", tool_id=tool_id, error=str(e))
+            return {
+                "success": False,
+                "error": str(e),
+                "error_ar": f"فشل تشغيل الأداة: {e}",
+            }
 
     def get_metrics(self) -> dict[str, Any]:
         """الحصول على مقاييس الأداء"""

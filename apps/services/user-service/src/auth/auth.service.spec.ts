@@ -614,7 +614,7 @@ describe("AuthService", () => {
       };
 
       prismaService.user.findUnique.mockResolvedValue(null);
-      mockBcryptHash("hashedPassword");
+      mockBcryptHash();
       prismaService.user.create.mockResolvedValue(userWithDefaultTenant);
       jwtService.sign
         .mockReturnValueOnce(mockAccessToken)
@@ -649,7 +649,7 @@ describe("AuthService", () => {
       };
 
       prismaService.user.findUnique.mockResolvedValue(null);
-      mockBcryptHash("hashedPassword");
+      mockBcryptHash();
       prismaService.user.create.mockResolvedValue(userWithoutPhone);
       jwtService.sign
         .mockReturnValueOnce(mockAccessToken)
@@ -685,7 +685,7 @@ describe("AuthService", () => {
 
     it("should assign FARMER role by default for self-registration", async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
-      mockBcryptHash("hashedPassword");
+      mockBcryptHash();
       prismaService.user.create.mockResolvedValue(mockNewUser);
       jwtService.sign
         .mockReturnValueOnce(mockAccessToken)
@@ -706,7 +706,7 @@ describe("AuthService", () => {
 
     it("should set user status to ACTIVE for immediate login", async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
-      mockBcryptHash("hashedPassword");
+      mockBcryptHash();
       prismaService.user.create.mockResolvedValue(mockNewUser);
       jwtService.sign
         .mockReturnValueOnce(mockAccessToken)
@@ -726,7 +726,7 @@ describe("AuthService", () => {
 
     it("should set emailVerified and phoneVerified to false", async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
-      mockBcryptHash("hashedPassword");
+      mockBcryptHash();
       prismaService.user.create.mockResolvedValue(mockNewUser);
       jwtService.sign
         .mockReturnValueOnce(mockAccessToken)
@@ -747,7 +747,7 @@ describe("AuthService", () => {
 
     it("should generate JWT tokens after successful registration", async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
-      mockBcryptHash("hashedPassword");
+      mockBcryptHash();
       prismaService.user.create.mockResolvedValue(mockNewUser);
       jwtService.sign
         .mockReturnValueOnce(mockAccessToken)
@@ -766,7 +766,7 @@ describe("AuthService", () => {
 
     it("should handle database errors during registration", async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
-      mockBcryptHash("hashedPassword");
+      mockBcryptHash();
       prismaService.user.create.mockRejectedValue(
         new Error("Database connection error"),
       );

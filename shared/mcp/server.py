@@ -22,6 +22,7 @@ Updated: January 2026
 import asyncio
 import json
 import logging
+import os
 import sys
 from datetime import datetime, timezone
 from typing import Any
@@ -652,10 +653,13 @@ MCPServer = SAHOOLMCPServer
 
 async def run_server(
     transport: str = "stdio",
-    host: str = "0.0.0.0",
+    host: str | None = None,
     port: int = 8200,
     config: MCPConfig | None = None,
 ):
+    # Default to localhost for security; use MCP_HOST env var or explicit param for containers
+    if host is None:
+        host = os.getenv("MCP_HOST", "127.0.0.1")
     """
     Run MCP server with specified transport
 
@@ -698,8 +702,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--host",
-        default="0.0.0.0",
-        help="Host for HTTP/SSE transport (default: 0.0.0.0)",
+        default=None,  # Will use MCP_HOST env var or 127.0.0.1; use --host 0.0.0.0 for containers
+        help="Host for HTTP/SSE transport (default: 127.0.0.1, use 0.0.0.0 for containers)",
     )
     parser.add_argument(
         "--port",

@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -490,4 +491,8 @@ app = create_app()
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Use environment variable for host binding, default to localhost for security
+    # In production/containers, set DLQ_HOST=0.0.0.0
+    host = os.getenv("DLQ_HOST", "127.0.0.1")
+    port = int(os.getenv("DLQ_PORT", "8000"))
+    uvicorn.run(app, host=host, port=port)

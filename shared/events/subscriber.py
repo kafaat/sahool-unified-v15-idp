@@ -89,7 +89,10 @@ class SubscriberConfig(BaseModel):
 
     # JetStream
     enable_jetstream: bool = Field(default=True, description="Use JetStream consumers")
-    jetstream_domain: str | None = Field(None, description="JetStream domain")
+    jetstream_domain: str | None = Field(
+        default_factory=lambda: os.getenv("JETSTREAM_DOMAIN", "sahool"),
+        description="JetStream domain (default: sahool)",
+    )
 
     # Error handling (DEPRECATED - use dlq_config instead)
     enable_error_retry: bool = Field(default=True, description="Retry failed messages")
@@ -203,6 +206,83 @@ class EventSubscriber:
             "service_version": self.service_version,
             "dlq_enabled": self.config.enable_dlq,
         }
+
+    async def health_check(self) -> dict[str, Any]:
+        """
+        Perform comprehensive health check for NATS subscriber.
+        فحص صحة شامل لمشترك NATS
+
+        Returns:
+            dict with health status including NATS connection, JetStream, and DLQ status
+        """
+        health = {
+            "status": "healthy",
+            "nats_connected": self._connected,
+            "jetstream_enabled": self._js is not None,
+            "dlq_initialized": self._dlq_initialized,
+            "active_subscriptions": len(self._subscriptions),
+            "error_count": self._error_count,
+            "dlq_count": self._dlq_count,
+            "details": {},
+        }
+
+        # Check NATS connection
+        if not self._connected or not self._nc:
+            health["status"] = "unhealthy"
+            health["details"]["nats"] = "Not connected to NATS"
+            return health
+
+        # Check JetStream if enabled
+        if self.config.enable_jetstream:
+            if not self._js:
+                health["status"] = "degraded"
+                health["details"]["jetstream"] = "JetStream not initialized"
+            else:
+                try:
+                    # Verify JetStream is responsive
+                    account_info = await self._js.account_info()
+                    health["details"]["jetstream"] = {
+                        "status": "connected",
+                        "streams": account_info.streams,
+                        "consumers": account_info.consumers,
+                        "memory_used": account_info.memory,
+                        "storage_used": account_info.storage,
+                    }
+                except Exception as e:
+                    health["status"] = "degraded"
+                    health["details"]["jetstream"] = f"JetStream check failed: {e}"
+
+        # Check DLQ if enabled
+        if self.config.enable_dlq:
+            if not self._dlq_initialized:
+                health["status"] = "degraded"
+                health["details"]["dlq"] = "DLQ not initialized"
+            else:
+                try:
+                    # Check DLQ stream exists and is healthy
+                    dlq_stream_name = self._dlq_config.stream_name
+                    stream_info = await self._js.stream_info(dlq_stream_name)
+                    health["details"]["dlq"] = {
+                        "status": "healthy",
+                        "stream_name": dlq_stream_name,
+                        "messages": stream_info.state.messages,
+                        "bytes": stream_info.state.bytes,
+                        "first_seq": stream_info.state.first_seq,
+                        "last_seq": stream_info.state.last_seq,
+                    }
+
+                    # Warning if DLQ has many messages
+                    if stream_info.state.messages > 1000:
+                        health["status"] = "warning"
+                        health["details"]["dlq"]["warning"] = (
+                            f"DLQ has {stream_info.state.messages} unprocessed messages"
+                        )
+
+                except Exception as e:
+                    health["status"] = "degraded"
+                    health["details"]["dlq"] = f"DLQ check failed: {e}"
+
+        return health
 
     async def connect(self) -> bool:
         """

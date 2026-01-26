@@ -8,7 +8,7 @@
 -r base.txt
 
 # Observability (for MCP server)
-prometheus-client==0.21.1
+prometheus-client==0.24.1
 structlog==24.4.0
 
 # Note: MCP protocol is implemented directly using FastAPI and Pydantic

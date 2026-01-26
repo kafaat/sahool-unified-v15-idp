@@ -29,7 +29,7 @@ class MockWindowFunctionQueries:
                 n1.obs_date,
                 n1.ndvi_mean as current_ndvi,
                 LAG(n1.ndvi_mean) OVER (
-                    PARTITION BY n1.field_id 
+                    PARTITION BY n1.field_id
                     ORDER BY n1.obs_date
                 ) as previous_ndvi
             FROM ndvi_observations n1
@@ -55,13 +55,13 @@ class MockWindowFunctionQueries:
         """
         return """
         WITH numbered_samples AS (
-            SELECT 
-                id, 
+            SELECT
+                id,
                 ROW_NUMBER() OVER (ORDER BY created_at) as row_num
             FROM lab_samples
             WHERE batch_id IS NULL
         )
-        SELECT 
+        SELECT
             id,
             row_num,
             'SOIL-' || LPAD(row_num::TEXT, 4, '0') as barcode
@@ -76,7 +76,7 @@ class TestWindowFunctionSyntax:
     def test_lag_function_has_partition_by(self):
         """Test that LAG function includes PARTITION BY clause."""
         query = MockWindowFunctionQueries.ndvi_lag_query_template()
-        
+
         # Verify query contains window function components
         assert "LAG" in query
         assert "PARTITION BY" in query
@@ -86,21 +86,21 @@ class TestWindowFunctionSyntax:
     def test_lag_function_partitions_by_field_id(self):
         """Test that LAG function partitions by field_id for correct grouping."""
         query = MockWindowFunctionQueries.ndvi_lag_query_template()
-        
+
         # Verify correct partition column
         assert "PARTITION BY n1.field_id" in query
 
     def test_lag_function_orders_by_observation_date(self):
         """Test that LAG function orders by obs_date for time-series."""
         query = MockWindowFunctionQueries.ndvi_lag_query_template()
-        
+
         # Verify correct ordering for temporal data
         assert "ORDER BY n1.obs_date" in query
 
     def test_row_number_has_order_by(self):
         """Test that ROW_NUMBER function includes ORDER BY clause."""
         query = MockWindowFunctionQueries.row_number_query_template()
-        
+
         # Verify query contains window function components
         assert "ROW_NUMBER" in query
         assert "ORDER BY" in query
@@ -109,14 +109,14 @@ class TestWindowFunctionSyntax:
     def test_row_number_orders_by_created_at(self):
         """Test that ROW_NUMBER orders by created_at for deterministic numbering."""
         query = MockWindowFunctionQueries.row_number_query_template()
-        
+
         # Verify correct ordering column
         assert "ORDER BY created_at" in query
 
     def test_row_number_no_partition_needed(self):
         """Test that ROW_NUMBER doesn't use PARTITION BY (global numbering)."""
         query = MockWindowFunctionQueries.row_number_query_template()
-        
+
         # For global numbering across all samples, no partition is needed
         # This is intentional and correct
         assert "PARTITION BY" not in query
@@ -131,10 +131,10 @@ class TestWindowFunctionLogic:
         # Simulated data
         previous_ndvi = 0.75
         current_ndvi = 0.60
-        
+
         # Formula from query: ((previous_ndvi - current_ndvi) / previous_ndvi * 100)
         expected_deviation = ((previous_ndvi - current_ndvi) / previous_ndvi * 100)
-        
+
         assert expected_deviation == pytest.approx(20.0, abs=0.01)
 
     def test_lag_detects_significant_drops(self):
@@ -147,9 +147,9 @@ class TestWindowFunctionLogic:
             (0.80, 0.67, True),   # 16.25% drop - should alert
             (0.65, 0.62, False),  # 4.62% drop - no alert
         ]
-        
+
         alert_threshold = 15  # 15% threshold from query
-        
+
         for prev, curr, should_alert in scenarios:
             deviation_pct = ((prev - curr) / prev * 100)
             is_alert = deviation_pct > alert_threshold
@@ -165,7 +165,7 @@ class TestWindowFunctionLogic:
             (999, "SOIL-0999"),
             (1234, "SOIL-1234"),
         ]
-        
+
         for row_num, expected_barcode in test_cases:
             # Formula from query: 'SOIL-' || LPAD(row_num::TEXT, 4, '0')
             barcode = f"SOIL-{str(row_num).zfill(4)}"
@@ -174,14 +174,14 @@ class TestWindowFunctionLogic:
     def test_lag_handles_first_observation(self):
         """Test that LAG correctly returns NULL for first observation per field."""
         query = MockWindowFunctionQueries.ndvi_lag_query_template()
-        
+
         # Query should handle NULL previous_ndvi
         assert "WHERE previous_ndvi IS NOT NULL" in query
 
     def test_lag_time_window_filter(self):
         """Test that LAG query filters to last 90 days."""
         query = MockWindowFunctionQueries.ndvi_lag_query_template()
-        
+
         # Verify time-based filtering
         assert "INTERVAL '90 days'" in query
         assert "CURRENT_DATE - INTERVAL '90 days'" in query
@@ -194,7 +194,7 @@ class TestWindowFunctionPerformance:
     def test_lag_uses_indexed_columns(self):
         """Test that LAG query uses indexed columns for performance."""
         query = MockWindowFunctionQueries.ndvi_lag_query_template()
-        
+
         # These columns should be indexed for performance:
         # - field_id (PARTITION BY)
         # - obs_date (ORDER BY)
@@ -204,7 +204,7 @@ class TestWindowFunctionPerformance:
     def test_row_number_uses_indexed_created_at(self):
         """Test that ROW_NUMBER query orders by indexed created_at."""
         query = MockWindowFunctionQueries.row_number_query_template()
-        
+
         # created_at should be indexed for performance
         assert "created_at" in query
 
@@ -212,7 +212,7 @@ class TestWindowFunctionPerformance:
         """Test that queries use CTEs for readability and potential optimization."""
         lag_query = MockWindowFunctionQueries.ndvi_lag_query_template()
         row_num_query = MockWindowFunctionQueries.row_number_query_template()
-        
+
         # Both queries should use WITH clause (CTE)
         assert "WITH" in lag_query
         assert "WITH" in row_num_query
@@ -232,7 +232,7 @@ class TestWindowFunctionEdgeCases:
     def test_row_number_with_null_batch_id(self):
         """Test ROW_NUMBER only processes samples without batch_id."""
         query = MockWindowFunctionQueries.row_number_query_template()
-        
+
         # Should only number samples where batch_id IS NULL
         assert "batch_id IS NULL" in query
 
@@ -241,7 +241,7 @@ class TestWindowFunctionEdgeCases:
         # In practice, NDVI should never be exactly 0 in valid observations
         # But the query divides by previous_ndvi
         # PostgreSQL will return NULL or error if previous_ndvi = 0
-        
+
         # This is a documentation test - actual protection should be at application level
         # or with NULLIF in the query
         pass
@@ -249,7 +249,7 @@ class TestWindowFunctionEdgeCases:
     def test_row_number_deterministic_ordering(self):
         """Test that ROW_NUMBER produces deterministic results."""
         query = MockWindowFunctionQueries.row_number_query_template()
-        
+
         # With ORDER BY created_at, same data should always produce same numbering
         # This assumes created_at is unique or has a secondary sort
         assert "ORDER BY created_at" in query
@@ -264,7 +264,7 @@ class TestWindowFunctionDocumentation:
         # LAG query purpose: Detect NDVI changes over time
         lag_query = MockWindowFunctionQueries.ndvi_lag_query_template()
         assert "ndvi_changes" in lag_query  # CTE name indicates purpose
-        
+
         # ROW_NUMBER query purpose: Generate sequential barcodes
         row_num_query = MockWindowFunctionQueries.row_number_query_template()
         assert "numbered_samples" in row_num_query  # CTE name indicates purpose
@@ -278,7 +278,7 @@ class TestWindowFunctionDocumentation:
             "cte": "Improves readability and potential query optimization",
             "null_handling": "Filters or handles NULL values from window functions",
         }
-        
+
         # This is a documentation test
         assert all(key in best_practices for key in ["partition_by", "order_by", "cte", "null_handling"])
 

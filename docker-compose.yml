@@ -53,7 +53,7 @@ services:
   # OPTIMIZED: Enhanced pool settings based on PgBouncer audit (score 7/10 -> 9/10)
   # FIXED: Added custom entrypoint to generate userlist.txt dynamically
   pgbouncer:
-    image: edoburu/pgbouncer:latest
+    image: edoburu/pgbouncer:1.23.1
     container_name: sahool-pgbouncer
     # Custom entrypoint generates userlist.txt from environment variables
     entrypoint: [ "/entrypoint-custom.sh" ]
@@ -199,6 +199,47 @@ services:
     networks:
       - sahool-network
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # VAULT - HashiCorp Vault for Secrets Management
+  # ═══════════════════════════════════════════════════════════════════════════
+  # SECURITY: Development mode only - use proper backend in production
+  # Access UI: http://localhost:8200/ui
+  # Dev Token: dev-root-token (DO NOT use in production)
+  vault:
+    image: hashicorp/vault:1.17
+    container_name: sahool-vault
+    hostname: vault
+    ports:
+      - "127.0.0.1:8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "${VAULT_DEV_TOKEN:-dev-root-token}"
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+      VAULT_LOG_LEVEL: "info"
+      VAULT_ADDR: "http://127.0.0.1:8200"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault_data:/vault/data
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    networks:
+      - sahool-network
+
   # NATS JetStream - Message Queue with Authentication
   # SECURITY: NATS credentials MUST be set in .env file
   # HARDENED: TLS enforced, encryption at rest, rate limiting enabled
@@ -294,6 +335,59 @@ services:
         reservations:
           cpus: '0.1'
           memory: 64M
+    networks:
+      - sahool-network
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # MLFLOW - AI/ML Model Registry & Experiment Tracking
+  # ═══════════════════════════════════════════════════════════════════════════
+  # MLflow provides:
+  # - Model versioning and registry
+  # - Experiment tracking
+  # - Model serving (optional)
+  # - Artifact storage
+  #
+  # Access UI: http://localhost:5000
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.15.1
+    container_name: sahool-mlflow
+    hostname: mlflow
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/mlflow
+      --default-artifact-root /mlflow/artifacts
+      --serve-artifacts
+    environment:
+      - MLFLOW_TRACKING_URI=http://localhost:5000
+      - MLFLOW_S3_ENDPOINT_URL=${MLFLOW_S3_ENDPOINT_URL:-}
+      - AWS_ACCESS_KEY_ID=${MLFLOW_AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${MLFLOW_AWS_SECRET_ACCESS_KEY:-}
+    volumes:
+      - mlflow_artifacts:/mlflow/artifacts
+    ports:
+      - "127.0.0.1:5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     networks:
       - sahool-network
 
@@ -3073,6 +3167,10 @@ volumes:
     name: sahool-pgbouncer-userlist
   nats_data:
     name: sahool-nats-data
+  vault_data:
+    name: sahool-vault-data
+  mlflow_artifacts:
+    name: sahool-mlflow-artifacts
   redis_data:
     name: sahool-redis-data
   qdrant_data:

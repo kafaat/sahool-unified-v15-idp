@@ -110,8 +110,9 @@ jobs:
           # Minimum coverage threshold - enforced to maintain code quality
           # Coverage strategy: Gradually increase threshold as test suite matures
           # SAHOOL Coverage Threshold
-          # Current minimum: 3.4% - adjusted after adding 30 agricultural modules (92k+ lines)
-          MIN_COVERAGE=3.4
+          # Target: 60% (pyproject.toml) - incrementally raising from 3.4%
+          # 2026-01-26: Raised to 20% after comprehensive test improvements
+          MIN_COVERAGE=20
 
           # Check if coverage meets minimum - FAIL if below threshold
           python -c "

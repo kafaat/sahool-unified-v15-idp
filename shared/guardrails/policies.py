@@ -8,6 +8,8 @@ Author: SAHOOL Platform Team
 Updated: December 2025
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from enum import Enum
 

@@ -11,6 +11,8 @@ Data models for equipment maintenance management including:
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal

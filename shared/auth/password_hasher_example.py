@@ -14,6 +14,8 @@ the new Argon2id password hasher into your application.
 # مثال 1: الاستخدام الأساسي
 # ========================================
 
+from __future__ import annotations
+
 from shared.auth.password_hasher import hash_password, verify_password
 
 

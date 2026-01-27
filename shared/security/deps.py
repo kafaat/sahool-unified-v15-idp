@@ -3,6 +3,8 @@ FastAPI Security Dependencies
 Authentication and authorization dependencies for route handlers
 """
 
+from __future__ import annotations
+
 import logging
 from typing import Annotated
 

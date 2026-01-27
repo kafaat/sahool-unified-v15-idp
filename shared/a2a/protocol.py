@@ -6,6 +6,8 @@ Core protocol message types, state management, and conversation handling.
 أنواع رسائل البروتوكول الأساسية وإدارة الحالة ومعالجة المحادثات.
 """
 
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 from enum import Enum

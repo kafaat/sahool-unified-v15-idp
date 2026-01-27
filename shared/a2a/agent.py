@@ -6,6 +6,8 @@ Base agent implementation with agent card generation and task handling.
 تطبيق الوكيل الأساسي مع توليد بطاقة الوكيل ومعالجة المهام.
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
 from datetime import datetime

@@ -5,6 +5,8 @@ FastAPI Middleware for Observability
 Provides automatic tracing, metrics, and logging for all requests.
 """
 
+from __future__ import annotations
+
 import logging
 import time
 import uuid

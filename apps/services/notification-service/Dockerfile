@@ -16,11 +16,11 @@ RUN groupadd --system --gid 1000 sahool && \
 # No system dependencies needed - Using Python for healthcheck
 
 # Upgrade pip to latest version
-RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip
 
 # Copy requirements first for better caching
 COPY apps/services/notification-service/requirements.txt .
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
 # Copy shared modules
 COPY apps/services/shared ./shared/

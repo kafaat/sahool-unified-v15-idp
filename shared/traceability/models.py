@@ -9,6 +9,8 @@ certifications, and consumer-facing product journey display.
 الشهادات، وعرض رحلة المنتج للمستهلك.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum

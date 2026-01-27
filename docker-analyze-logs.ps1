@@ -17,7 +17,7 @@
     Number of concurrent analysis agents. Default: 20
 
 .PARAMETER OnlyErrors
-    Only analyze services with errors
+    Only analyze services with d
 
 .PARAMETER OutputFile
     Save analysis report to file
@@ -89,7 +89,7 @@ function Test-DeepSeekModel {
 
 # Pull deepseek-coder model if not available
 function Install-DeepSeekModel {
-    Write-ColorOutput "Downloading deepseek-coder:6.7b model..." "Yellow"
+    Write-ColorOutput "Downloading deepseek-coder:latest model..." "Yellow"
     try {
         $body = @{ name = "deepseek-coder" } | ConvertTo-Json
         $response = Invoke-RestMethod -Uri "http://localhost:11434/api/pull" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 3600
@@ -199,7 +199,7 @@ Provide your analysis in a structured format with clear sections.
 
     try {
         $body = @{
-            model = "deepseek-coder:6.7b"
+            model = "deepseek-coder:latest"
             prompt = $prompt
             stream = $false
             options = @{
@@ -252,7 +252,7 @@ Write-ColorOutput "Ollama is running" "Green"
 # Check model
 Write-ColorOutput "Checking deepseek-coder model..." "Yellow"
 if (-not (Test-DeepSeekModel)) {
-    Write-ColorOutput "Model not found. Installing deepseek-coder:6.7b..." "Yellow"
+    Write-ColorOutput "Model not found. Installing deepseek-coder:latest..." "Yellow"
     if (-not (Install-DeepSeekModel)) {
         Write-ColorOutput "ERROR: Failed to install deepseek-coder model" "Red"
         exit 1
@@ -373,7 +373,7 @@ $Logs
 
         try {
             $body = @{
-                model = "deepseek-coder:6.7b"
+                model = "deepseek-coder:latest"
                 prompt = $prompt
                 stream = $false
                 options = @{

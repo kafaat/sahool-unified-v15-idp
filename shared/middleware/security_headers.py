@@ -17,6 +17,8 @@ Security Headers Implemented:
 Based on GAPS_AND_RECOMMENDATIONS.md - Phase 1 (High Priority)
 """
 
+from __future__ import annotations
+
 import os
 from collections.abc import Callable
 

@@ -8,6 +8,8 @@ from harvest to consumer, with full event history and verification.
 من الحصاد إلى المستهلك، مع سجل الأحداث الكامل والتحقق.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable

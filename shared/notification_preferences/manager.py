@@ -10,6 +10,8 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 import logging
 from datetime import datetime, time
 from typing import Any, Protocol

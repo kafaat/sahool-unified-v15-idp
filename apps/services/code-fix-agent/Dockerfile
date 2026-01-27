@@ -22,8 +22,8 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 COPY apps/services/code-fix-agent/requirements.txt .
 
 # Install dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
+    pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
 # ============================================================================
 # Production Image

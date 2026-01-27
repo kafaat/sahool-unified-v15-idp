@@ -4,6 +4,8 @@ Fertilizer Recommendations - توصيات التسميد
 Nutrient recommendations based on soil tests, crop requirements, and growth stage.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal

@@ -36,6 +36,8 @@ Usage:
     )
 """
 
+from __future__ import annotations
+
 from datetime import date, datetime, timedelta
 from enum import Enum
 from typing import Any

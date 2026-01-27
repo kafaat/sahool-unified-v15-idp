@@ -6,6 +6,8 @@ Client for connecting to MCP servers and invoking tools/resources.
 Supports both stdio and HTTP transports.
 """
 
+from __future__ import annotations
+
 import asyncio
 import json
 import logging

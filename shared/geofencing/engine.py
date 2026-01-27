@@ -3,6 +3,8 @@ Geofencing Engine - محرك السياج الجغرافي
 Core geofencing logic with point-in-polygon and distance calculations
 """
 
+from __future__ import annotations
+
 import math
 import uuid
 from datetime import datetime

@@ -10,6 +10,8 @@ SAHOOL Action Template
 - Fallback: تعليمات للعمل بدون اتصال
 """
 
+from __future__ import annotations
+
 import uuid
 from datetime import date, datetime, time
 from typing import Any

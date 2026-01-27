@@ -8,6 +8,8 @@ compliance assessment.
 قائمة تحقق شاملة لتقييم امتثال SPRING (البرنامج المستدام للري والمياه الجوفية).
 """
 
+from __future__ import annotations
+
 from enum import Enum
 
 # ==================== Categories ====================

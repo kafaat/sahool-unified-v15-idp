@@ -25,8 +25,8 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Upgrade pip and install build tools
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade "setuptools>=68.0" wheel build
 
 # Configure pip for better network resilience
 RUN mkdir -p /root/.pip && \
@@ -39,7 +39,7 @@ RUN mkdir -p /root/.pip && \
 
 # Install Python dependencies
 COPY apps/services/knowledge-graph/requirements.txt .
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production - Minimal runtime image

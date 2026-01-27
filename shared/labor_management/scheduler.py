@@ -11,6 +11,8 @@ Provides intelligent worker scheduling with:
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime, date, time
 from enum import Enum

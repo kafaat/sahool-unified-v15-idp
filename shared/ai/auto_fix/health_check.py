@@ -14,6 +14,8 @@ Author: SAHOOL Platform Team
 Created: January 2026
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from dataclasses import dataclass, field

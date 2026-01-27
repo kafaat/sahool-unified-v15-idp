@@ -5,6 +5,8 @@ Two-Factor Authentication Configuration for SAHOOL Platform
 Configuration for 2FA enforcement, grace periods, and security settings.
 """
 
+from __future__ import annotations
+
 import logging
 from dataclasses import dataclass
 from datetime import timezone, datetime, timedelta, UTC

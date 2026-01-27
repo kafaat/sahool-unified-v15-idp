@@ -26,11 +26,11 @@ RUN groupadd --system sahool && \
 
 
 # Upgrade pip (non-fatal in case of network issues)
-RUN pip install --no-cache-dir --upgrade pip || true
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip || true
 
 # Install dependencies (using shared requirements)
 COPY apps/services/advisory-service/requirements.txt .
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
 # Copy shared libraries
 COPY apps/services/shared/ ./shared/

@@ -3,6 +3,8 @@ Sensor Protocol Adapters - محولات بروتوكولات المجسات
 Support for MQTT, LoRaWAN, HTTP protocols
 """
 
+from __future__ import annotations
+
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass

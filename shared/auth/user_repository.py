@@ -5,6 +5,8 @@ User Repository for JWT Authentication
 Provides database access for user validation.
 """
 
+from __future__ import annotations
+
 import logging
 
 try:

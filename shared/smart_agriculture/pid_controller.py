@@ -14,6 +14,8 @@ Key Benefits:
 - مثال: الطماطم - تكلفة الأسمدة -200 يوان، المحصول +15%
 """
 
+from __future__ import annotations
+
 import time
 from dataclasses import dataclass, field
 from datetime import datetime

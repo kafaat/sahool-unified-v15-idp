@@ -4,6 +4,8 @@ Fertilizer Application Rate Calculator - حاسبة معدلات التسميد
 Calculate application rates, costs, and environmental compliance.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from decimal import Decimal
 

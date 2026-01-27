@@ -15,6 +15,8 @@ Inspired by Acontext concepts, this module enables AI agents to:
 ٤. التحسين المستمر عبر حلقات التغذية الراجعة
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
 from enum import Enum

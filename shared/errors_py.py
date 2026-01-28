@@ -9,6 +9,8 @@ Provides consistent error handling across all Python services:
 - Success response wrapper
 """
 
+from __future__ import annotations
+
 from enum import Enum
 from typing import Any
 from uuid import uuid4

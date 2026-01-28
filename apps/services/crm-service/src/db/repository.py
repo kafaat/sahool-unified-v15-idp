@@ -10,7 +10,7 @@ for farmers, harvest deals, and interactions.
 from __future__ import annotations
 
 import json
-from datetime import datetime, date, timezone
+from datetime import datetime, date
 from typing import Any
 from uuid import UUID
 
@@ -360,7 +360,7 @@ class DealRepository:
     ) -> dict[str, Any] | None:
         """Update deal stage and probability."""
         probability = self.STAGE_PROBABILITIES.get(stage, 0.5)
-        closed_at = datetime.now(timezone.utc) if stage in ("paid", "closed_lost") else None
+        closed_at = datetime.utcnow() if stage in ("paid", "closed_lost") else None
 
         query = """
             UPDATE harvest_deals

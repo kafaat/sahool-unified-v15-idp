@@ -118,25 +118,6 @@ class TestPublisherConfig:
         assert "nats://env-server:4222" in config.servers
         assert config.name == "env-service"
 
-    def test_default_jetstream_domain(self):
-        """Test default JetStream domain is 'sahool'."""
-        config = PublisherConfig()
-        assert config.jetstream_domain == "sahool"
-
-    def test_jetstream_domain_from_env(self, monkeypatch):
-        """Test JetStream domain from environment variable."""
-        monkeypatch.setenv("JETSTREAM_DOMAIN", "custom-domain")
-
-        config = PublisherConfig()
-
-        assert config.jetstream_domain == "custom-domain"
-
-    def test_custom_jetstream_domain(self):
-        """Test custom JetStream domain configuration."""
-        config = PublisherConfig(jetstream_domain="production")
-
-        assert config.jetstream_domain == "production"
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # EventPublisher Initialization Tests

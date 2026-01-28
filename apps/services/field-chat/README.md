@@ -61,8 +61,7 @@ Real-time chat service for field workers, agronomists, and farm managers. Suppor
 ### Connect
 
 ```javascript
-// Use wss:// in production, ws:// only for local development
-const ws = new WebSocket("wss://your-domain.com/ws/field_001?token=JWT_TOKEN");
+const ws = new WebSocket("ws://localhost:8091/ws/field_001?token=JWT_TOKEN");
 ```
 
 ### Send Message

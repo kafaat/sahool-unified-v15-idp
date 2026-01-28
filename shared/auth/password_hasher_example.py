@@ -14,6 +14,8 @@ the new Argon2id password hasher into your application.
 # مثال 1: الاستخدام الأساسي
 # ========================================
 
+from __future__ import annotations
+
 from shared.auth.password_hasher import hash_password, verify_password
 
 
@@ -40,7 +42,7 @@ def basic_usage_example():
 # مثال 2: تسجيل مستخدم جديد
 # ========================================
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 
 class UserRegistrationService:
@@ -75,7 +77,7 @@ class UserRegistrationService:
             "password_hash": password_hash,
             "password_algorithm": "argon2id",
             "password_needs_migration": False,
-            "created_at": datetime.now(timezone.utc),
+            "created_at": datetime.utcnow(),
             "is_active": True,
         }
 
@@ -127,7 +129,7 @@ class SQLAlchemyUserRepository:
                     "password_hash": password_hash,
                     "password_algorithm": "argon2id",
                     "password_needs_migration": False,
-                    "updated_at": datetime.now(timezone.utc),
+                    "updated_at": datetime.utcnow(),
                 }
             )
         )
@@ -139,7 +141,7 @@ class SQLAlchemyUserRepository:
         result = (
             self.db.query(User)
             .filter(User.id == user_id)
-            .update({"password_needs_migration": False, "updated_at": datetime.now(timezone.utc)})
+            .update({"password_needs_migration": False, "updated_at": datetime.utcnow()})
         )
         self.db.commit()
         return result > 0
@@ -323,7 +325,7 @@ async def change_password(
     current_user.password_hash = new_hash
     current_user.password_algorithm = 'argon2id'
     current_user.password_needs_migration = False
-    current_user.updated_at = datetime.now(timezone.utc)
+    current_user.updated_at = datetime.utcnow()
 
     db.commit()
 

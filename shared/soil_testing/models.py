@@ -16,8 +16,10 @@ Author: SAHOOL Platform Team
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from decimal import Decimal
 from enum import Enum
 from typing import Any
@@ -427,8 +429,8 @@ class SoilTestResult:
     currency: str = "SAR"
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
     notes: str = ""
     notes_ar: str = ""
 
@@ -602,7 +604,7 @@ class InterpretationReport:
     # Reference
     soil_test_id: str
     field_id: str
-    interpretation_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    interpretation_date: datetime = field(default_factory=datetime.utcnow)
 
     # Nutrient interpretations
     interpretations: list[NutrientInterpretation] = field(default_factory=list)
@@ -752,7 +754,7 @@ class AmendmentPlan:
     field_area_ha: float = 0.0
 
     # Plan details
-    plan_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    plan_date: datetime = field(default_factory=datetime.utcnow)
     valid_until: datetime | None = None
 
     # Recommendations
@@ -891,7 +893,7 @@ class TrendReport:
     # Identification
     field_id: str
     tenant_id: str
-    report_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    report_date: datetime = field(default_factory=datetime.utcnow)
 
     # Analysis period
     period_start: datetime | None = None

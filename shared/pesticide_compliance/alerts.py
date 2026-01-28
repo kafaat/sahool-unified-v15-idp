@@ -3,7 +3,9 @@ Pesticide Compliance Alerts - تنبيهات امتثال المبيدات
 Generate alerts for compliance violations
 """
 
-from datetime import datetime, timezone
+from __future__ import annotations
+
+from datetime import datetime
 from typing import Any
 
 from .models import (
@@ -27,7 +29,7 @@ def generate_phi_alert(violation: PHIViolation) -> dict[str, Any]:
         "alert_type": "phi_violation",
         "alert_type_ar": "انتهاك فترة ما قبل الحصاد",
         "priority": priority,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.utcnow().isoformat(),
 
         # Violation details
         "field_id": violation.field_id,
@@ -75,7 +77,7 @@ def generate_rei_alert(violation: REIViolation) -> dict[str, Any]:
         "alert_type": "rei_violation",
         "alert_type_ar": "انتهاك فترة إعادة الدخول",
         "priority": priority,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.utcnow().isoformat(),
 
         # Violation details
         "field_id": violation.field_id,
@@ -151,7 +153,7 @@ def generate_tank_mix_alert(compatibility: TankMixCompatibility) -> dict[str, An
         "alert_type": "tank_mix_compatibility",
         "alert_type_ar": "توافق خلط المبيدات",
         "priority": priority,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.utcnow().isoformat(),
 
         # Products
         "product_a_id": compatibility.product_a_id,
@@ -219,7 +221,7 @@ def generate_spray_drift_alert(
         "alert_type": "spray_drift_risk",
         "alert_type_ar": "خطر انجراف الرش",
         "priority": priority,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.utcnow().isoformat(),
 
         # Field
         "field_id": field_id,
@@ -284,7 +286,7 @@ def generate_compliance_summary_alert(
         "alert_type": "compliance_summary",
         "alert_type_ar": "ملخص الامتثال",
         "priority": priority,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.utcnow().isoformat(),
 
         # Field
         "field_id": field_id,

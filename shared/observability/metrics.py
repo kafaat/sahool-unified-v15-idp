@@ -5,6 +5,8 @@ Metrics Collection for Python Services
 Provides Prometheus-compatible metrics for monitoring.
 """
 
+from __future__ import annotations
+
 import time
 from collections.abc import Callable
 from contextlib import contextmanager

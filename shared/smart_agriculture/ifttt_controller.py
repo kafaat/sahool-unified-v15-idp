@@ -16,6 +16,8 @@ Example rules:
 - "IF humidity > 90% THEN activate_ventilation"
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime, time
 from enum import Enum

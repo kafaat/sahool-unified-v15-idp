@@ -20,7 +20,7 @@ import re
 import sys
 from contextlib import asynccontextmanager
 from typing import Any
-from datetime import datetime, date, timezone
+from datetime import datetime, date
 from uuid import uuid4
 
 import redis.asyncio as redis_client
@@ -875,7 +875,7 @@ async def create_farmer(
                 "name_ar": data["name_ar"],
                 "phone": data["phone"],
                 "status": data["status"],
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.utcnow().isoformat(),
             }
         )
 
@@ -899,7 +899,7 @@ async def create_farmer(
     else:
         # Fallback to in-memory
         farmer_id = str(uuid4())
-        now = datetime.now(timezone.utc)
+        now = datetime.utcnow()
 
         farmer = Farmer(
             id=farmer_id,
@@ -932,7 +932,7 @@ async def create_farmer(
                 "name_ar": farmer.name_ar,
                 "phone": farmer.phone,
                 "status": farmer.status.value,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.utcnow().isoformat(),
             }
         )
 
@@ -1138,177 +1138,88 @@ async def update_farmer(
     user: User = Depends(get_current_user),
 ):
     """Update farmer | تحديث مزارع"""
-    crm_repo = get_crm_repo(request)
+    if farmer_id not in farmers:
+        raise ResourceNotFoundError(resource_type="Farmer", resource_id=farmer_id)
 
-    if crm_repo:
-        # Use database
-        existing = await crm_repo.farmers.get_by_id(farmer_id)
-        if not existing:
-            raise ResourceNotFoundError(resource_type="Farmer", resource_id=farmer_id)
+    f = farmers[farmer_id]
 
-        # Validate tenant access
-        validate_tenant_access(user, existing["tenant_id"])
+    # Validate tenant access
+    validate_tenant_access(user, f.tenant_id)
 
-        # Track old status for status change event
-        old_status = existing["status"]
+    # Track old status for status change event
+    old_status = f.status
 
-        # Build update dict from non-None fields
-        update_dict = {}
-        if update_data.name is not None:
-            update_dict["name"] = update_data.name
-        if update_data.name_ar is not None:
-            update_dict["name_ar"] = update_data.name_ar
-        if update_data.phone is not None:
-            update_dict["phone"] = update_data.phone
-        if update_data.email is not None:
-            update_dict["email"] = update_data.email
-        if update_data.farm_location is not None:
-            update_dict["location"] = update_data.farm_location
-        if update_data.farm_location_ar is not None:
-            update_dict["location_ar"] = update_data.farm_location_ar
-        if update_data.farm_size_hectares is not None:
-            update_dict["farm_size_hectares"] = update_data.farm_size_hectares
-        if update_data.primary_crops is not None:
-            update_dict["crops"] = update_data.primary_crops
-        if update_data.status is not None:
-            update_dict["status"] = update_data.status
-        if update_data.tags is not None:
-            update_dict["tags"] = update_data.tags
+    if update_data.name is not None:
+        f.name = update_data.name
+    if update_data.name_ar is not None:
+        f.name_ar = update_data.name_ar
+    if update_data.phone is not None:
+        f.phone = update_data.phone
+    if update_data.email is not None:
+        f.email = update_data.email
+    if update_data.farm_location is not None:
+        f.farm_location = update_data.farm_location
+    if update_data.farm_location_ar is not None:
+        f.farm_location_ar = update_data.farm_location_ar
+    if update_data.farm_size_hectares is not None:
+        f.farm_size_hectares = update_data.farm_size_hectares
+    if update_data.primary_crops is not None:
+        f.primary_crops = update_data.primary_crops
+    if update_data.status is not None:
+        f.status = FarmerStatus(update_data.status)
+    if update_data.tags is not None:
+        f.tags = update_data.tags
 
-        data = await crm_repo.farmers.update(farmer_id, update_dict)
+    f.updated_at = datetime.utcnow()
 
-        # Invalidate cache for this farmer
-        await cache_delete(f"crm:farmer:{existing['tenant_id']}:{farmer_id}")
+    # Invalidate cache for this farmer
+    await cache_delete(f"crm:farmer:{f.tenant_id}:{farmer_id}")
 
-        # Publish farmer updated event
+    # Publish farmer updated event
+    await publish_event(
+        f"sahool.{f.tenant_id}.crm.farmer.updated",
+        {
+            "event_type": "farmer.updated",
+            "farmer_id": f.id,
+            "tenant_id": f.tenant_id,
+            "name": f.name,
+            "name_ar": f.name_ar,
+            "status": f.status.value,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    )
+
+    # Publish status changed event if status was updated
+    if update_data.status is not None and old_status != f.status:
         await publish_event(
-            f"sahool.{existing['tenant_id']}.crm.farmer.updated",
+            f"sahool.{f.tenant_id}.crm.farmer.status_changed",
             {
-                "event_type": "farmer.updated",
-                "farmer_id": data["id"],
-                "tenant_id": existing["tenant_id"],
-                "name": data["name"],
-                "name_ar": data["name_ar"],
-                "status": data["status"],
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            }
-        )
-
-        # Publish status changed event if status was updated
-        if update_data.status is not None and old_status != data["status"]:
-            await publish_event(
-                f"sahool.{existing['tenant_id']}.crm.farmer.status_changed",
-                {
-                    "event_type": "farmer.status_changed",
-                    "farmer_id": data["id"],
-                    "tenant_id": existing["tenant_id"],
-                    "old_status": old_status,
-                    "new_status": data["status"],
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                }
-            )
-
-        return FarmerResponse(
-            id=data["id"],
-            name=data["name"],
-            name_ar=data["name_ar"],
-            phone=data["phone"],
-            email=data["email"],
-            national_id=data["national_id"],
-            farm_location=data["location"],
-            farm_location_ar=data["location_ar"],
-            farm_size_hectares=data["farm_size_hectares"],
-            primary_crops=data["crops"] or [],
-            status=data["status"],
-            tags=data["tags"] or [],
-            created_at=data["created_at"],
-            updated_at=data["updated_at"],
-            last_interaction_at=data["last_interaction_at"],
-        )
-    else:
-        # Fallback to in-memory
-        if farmer_id not in farmers:
-            raise ResourceNotFoundError(resource_type="Farmer", resource_id=farmer_id)
-
-        f = farmers[farmer_id]
-
-        # Validate tenant access
-        validate_tenant_access(user, f.tenant_id)
-
-        # Track old status for status change event
-        old_status = f.status
-
-        if update_data.name is not None:
-            f.name = update_data.name
-        if update_data.name_ar is not None:
-            f.name_ar = update_data.name_ar
-        if update_data.phone is not None:
-            f.phone = update_data.phone
-        if update_data.email is not None:
-            f.email = update_data.email
-        if update_data.farm_location is not None:
-            f.farm_location = update_data.farm_location
-        if update_data.farm_location_ar is not None:
-            f.farm_location_ar = update_data.farm_location_ar
-        if update_data.farm_size_hectares is not None:
-            f.farm_size_hectares = update_data.farm_size_hectares
-        if update_data.primary_crops is not None:
-            f.primary_crops = update_data.primary_crops
-        if update_data.status is not None:
-            f.status = FarmerStatus(update_data.status)
-        if update_data.tags is not None:
-            f.tags = update_data.tags
-
-        f.updated_at = datetime.now(timezone.utc)
-
-        # Invalidate cache for this farmer
-        await cache_delete(f"crm:farmer:{f.tenant_id}:{farmer_id}")
-
-        # Publish farmer updated event
-        await publish_event(
-            f"sahool.{f.tenant_id}.crm.farmer.updated",
-            {
-                "event_type": "farmer.updated",
+                "event_type": "farmer.status_changed",
                 "farmer_id": f.id,
                 "tenant_id": f.tenant_id,
-                "name": f.name,
-                "name_ar": f.name_ar,
-                "status": f.status.value,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "old_status": old_status.value,
+                "new_status": f.status.value,
+                "timestamp": datetime.utcnow().isoformat(),
             }
         )
 
-        # Publish status changed event if status was updated
-        if update_data.status is not None and old_status != f.status:
-            await publish_event(
-                f"sahool.{f.tenant_id}.crm.farmer.status_changed",
-                {
-                    "event_type": "farmer.status_changed",
-                    "farmer_id": f.id,
-                    "tenant_id": f.tenant_id,
-                    "old_status": old_status.value,
-                    "new_status": f.status.value,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                }
-            )
-
-        return FarmerResponse(
-            id=f.id,
-            name=f.name,
-            name_ar=f.name_ar,
-            phone=f.phone,
-            email=f.email,
-            national_id=f.national_id,
-            farm_location=f.farm_location,
-            farm_location_ar=f.farm_location_ar,
-            farm_size_hectares=f.farm_size_hectares,
-            primary_crops=f.primary_crops,
-            status=f.status.value,
-            tags=f.tags,
-            created_at=f.created_at,
-            updated_at=f.updated_at,
-            last_interaction_at=f.last_interaction_at,
-        )
+    return FarmerResponse(
+        id=f.id,
+        name=f.name,
+        name_ar=f.name_ar,
+        phone=f.phone,
+        email=f.email,
+        national_id=f.national_id,
+        farm_location=f.farm_location,
+        farm_location_ar=f.farm_location_ar,
+        farm_size_hectares=f.farm_size_hectares,
+        primary_crops=f.primary_crops,
+        status=f.status.value,
+        tags=f.tags,
+        created_at=f.created_at,
+        updated_at=f.updated_at,
+        last_interaction_at=f.last_interaction_at,
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1323,138 +1234,76 @@ async def create_deal(
     user: User = Depends(get_current_user),
 ):
     """Create a harvest deal | إنشاء صفقة حصاد"""
-    crm_repo = get_crm_repo(request)
+    if deal_data.farmer_id not in farmers:
+        raise ResourceNotFoundError(resource_type="Farmer", resource_id=deal_data.farmer_id)
 
-    if crm_repo:
-        # Use database - first verify farmer exists
-        farmer_data = await crm_repo.farmers.get_by_id(deal_data.farmer_id)
-        if not farmer_data:
-            raise ResourceNotFoundError(resource_type="Farmer", resource_id=deal_data.farmer_id)
+    # Validate tenant access via farmer's tenant_id
+    farmer = farmers[deal_data.farmer_id]
+    validate_tenant_access(user, farmer.tenant_id)
 
-        # Validate tenant access via farmer's tenant_id
-        validate_tenant_access(user, farmer_data["tenant_id"])
+    deal_id = str(uuid4())
+    now = datetime.utcnow()
 
-        data = await crm_repo.deals.create(
-            farmer_id=deal_data.farmer_id,
-            crop_type=deal_data.crop_type,
-            crop_type_ar=deal_data.crop_type_ar,
-            expected_quantity_tons=deal_data.expected_quantity_tons,
-            expected_harvest_date=deal_data.expected_harvest_date,
-            price_per_ton=deal_data.price_per_ton,
-            notes=deal_data.notes,
-            notes_ar=deal_data.notes_ar,
-        )
+    deal = HarvestDeal(
+        id=deal_id,
+        farmer_id=deal_data.farmer_id,
+        crop_type=deal_data.crop_type,
+        crop_type_ar=deal_data.crop_type_ar,
+        expected_quantity_tons=deal_data.expected_quantity_tons,
+        expected_harvest_date=deal_data.expected_harvest_date,
+        price_per_ton=deal_data.price_per_ton,
+        stage=DealStage.PROSPECTING,
+        notes=deal_data.notes,
+        notes_ar=deal_data.notes_ar,
+        created_at=now,
+        updated_at=now,
+    )
 
-        # Invalidate pipeline stats cache
-        await cache_delete(f"crm:pipeline_stats:{farmer_data['tenant_id']}")
+    deals[deal_id] = deal
 
-        # Publish deal created event
-        await publish_event(
-            f"sahool.{farmer_data['tenant_id']}.crm.deal.created",
-            {
-                "event_type": "deal.created",
-                "deal_id": data["id"],
-                "farmer_id": data["farmer_id"],
-                "tenant_id": farmer_data["tenant_id"],
-                "crop_type": data["crop_type"],
-                "crop_type_ar": data["crop_type_ar"],
-                "expected_quantity_tons": data["expected_quantity_tons"],
-                "expected_harvest_date": data["expected_harvest_date"].isoformat() if data["expected_harvest_date"] else None,
-                "price_per_ton": data["price_per_ton"],
-                "stage": data["stage"],
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            }
-        )
+    # Invalidate pipeline stats cache
+    await cache_delete(f"crm:pipeline_stats:{farmer.tenant_id}")
 
-        return HarvestDealResponse(
-            id=data["id"],
-            farmer_id=data["farmer_id"],
-            crop_type=data["crop_type"],
-            crop_type_ar=data["crop_type_ar"],
-            expected_quantity_tons=data["expected_quantity_tons"],
-            actual_quantity_tons=data["actual_quantity_tons"],
-            expected_harvest_date=data["expected_harvest_date"],
-            actual_harvest_date=data["actual_harvest_date"],
-            price_per_ton=data["price_per_ton"],
-            total_value=data["total_value"],
-            stage=data["stage"],
-            notes=data["notes"],
-            notes_ar=data["notes_ar"],
-            created_at=data["created_at"],
-            updated_at=data["updated_at"],
-        )
-    else:
-        # Fallback to in-memory
-        if deal_data.farmer_id not in farmers:
-            raise ResourceNotFoundError(resource_type="Farmer", resource_id=deal_data.farmer_id)
+    # Publish deal created event
+    await publish_event(
+        f"sahool.{farmer.tenant_id}.crm.deal.created",
+        {
+            "event_type": "deal.created",
+            "deal_id": deal.id,
+            "farmer_id": deal.farmer_id,
+            "tenant_id": farmer.tenant_id,
+            "crop_type": deal.crop_type,
+            "crop_type_ar": deal.crop_type_ar,
+            "expected_quantity_tons": deal.expected_quantity_tons,
+            "expected_harvest_date": deal.expected_harvest_date.isoformat(),
+            "price_per_ton": deal.price_per_ton,
+            "stage": deal.stage.value,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    )
 
-        # Validate tenant access via farmer's tenant_id
-        farmer = farmers[deal_data.farmer_id]
-        validate_tenant_access(user, farmer.tenant_id)
-
-        deal_id = str(uuid4())
-        now = datetime.now(timezone.utc)
-
-        deal = HarvestDeal(
-            id=deal_id,
-            farmer_id=deal_data.farmer_id,
-            crop_type=deal_data.crop_type,
-            crop_type_ar=deal_data.crop_type_ar,
-            expected_quantity_tons=deal_data.expected_quantity_tons,
-            expected_harvest_date=deal_data.expected_harvest_date,
-            price_per_ton=deal_data.price_per_ton,
-            stage=DealStage.PROSPECTING,
-            notes=deal_data.notes,
-            notes_ar=deal_data.notes_ar,
-            created_at=now,
-            updated_at=now,
-        )
-
-        deals[deal_id] = deal
-
-        # Invalidate pipeline stats cache
-        await cache_delete(f"crm:pipeline_stats:{farmer.tenant_id}")
-
-        # Publish deal created event
-        await publish_event(
-            f"sahool.{farmer.tenant_id}.crm.deal.created",
-            {
-                "event_type": "deal.created",
-                "deal_id": deal.id,
-                "farmer_id": deal.farmer_id,
-                "tenant_id": farmer.tenant_id,
-                "crop_type": deal.crop_type,
-                "crop_type_ar": deal.crop_type_ar,
-                "expected_quantity_tons": deal.expected_quantity_tons,
-                "expected_harvest_date": deal.expected_harvest_date.isoformat(),
-                "price_per_ton": deal.price_per_ton,
-                "stage": deal.stage.value,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            }
-        )
-
-        return HarvestDealResponse(
-            id=deal.id,
-            farmer_id=deal.farmer_id,
-            crop_type=deal.crop_type,
-            crop_type_ar=deal.crop_type_ar,
-            expected_quantity_tons=deal.expected_quantity_tons,
-            actual_quantity_tons=deal.actual_quantity_tons,
-            expected_harvest_date=deal.expected_harvest_date,
-            actual_harvest_date=deal.actual_harvest_date,
-            price_per_ton=deal.price_per_ton,
-            total_value=deal.total_value,
-            stage=deal.stage.value,
-            notes=deal.notes,
-            notes_ar=deal.notes_ar,
-            created_at=deal.created_at,
-            updated_at=deal.updated_at,
-        )
+    return HarvestDealResponse(
+        id=deal.id,
+        farmer_id=deal.farmer_id,
+        crop_type=deal.crop_type,
+        crop_type_ar=deal.crop_type_ar,
+        expected_quantity_tons=deal.expected_quantity_tons,
+        actual_quantity_tons=deal.actual_quantity_tons,
+        expected_harvest_date=deal.expected_harvest_date,
+        actual_harvest_date=deal.actual_harvest_date,
+        price_per_ton=deal.price_per_ton,
+        total_value=deal.total_value,
+        stage=deal.stage.value,
+        notes=deal.notes,
+        notes_ar=deal.notes_ar,
+        created_at=deal.created_at,
+        updated_at=deal.updated_at,
+    )
 
 
 @app.get("/api/v1/deals", response_model=list[HarvestDealResponse], tags=["Deals"])
 @limiter.limit("60/minute")
-async def list_deals(
+def list_deals(
     request: Request,
     tenant_id: str = Query(...),
     farmer_id: str | None = Query(None),
@@ -1466,70 +1315,37 @@ async def list_deals(
     # Validate tenant access
     validate_tenant_access(user, tenant_id)
 
-    crm_repo = get_crm_repo(request)
+    # Filter deals by tenant_id (via farmer's tenant_id)
+    results = [
+        d for d in deals.values()
+        if d.farmer_id in farmers and farmers[d.farmer_id].tenant_id == tenant_id
+    ]
 
-    if crm_repo:
-        # Use database
-        deals_data = await crm_repo.deals.list(
-            tenant_id=tenant_id,
-            farmer_id=farmer_id,
-            stage=stage,
-            limit=limit,
+    if farmer_id:
+        results = [d for d in results if d.farmer_id == farmer_id]
+    if stage:
+        results = [d for d in results if d.stage.value == stage]
+
+    return [
+        HarvestDealResponse(
+            id=d.id,
+            farmer_id=d.farmer_id,
+            crop_type=d.crop_type,
+            crop_type_ar=d.crop_type_ar,
+            expected_quantity_tons=d.expected_quantity_tons,
+            actual_quantity_tons=d.actual_quantity_tons,
+            expected_harvest_date=d.expected_harvest_date,
+            actual_harvest_date=d.actual_harvest_date,
+            price_per_ton=d.price_per_ton,
+            total_value=d.total_value,
+            stage=d.stage.value,
+            notes=d.notes,
+            notes_ar=d.notes_ar,
+            created_at=d.created_at,
+            updated_at=d.updated_at,
         )
-
-        return [
-            HarvestDealResponse(
-                id=d["id"],
-                farmer_id=d["farmer_id"],
-                crop_type=d["crop_type"],
-                crop_type_ar=d["crop_type_ar"],
-                expected_quantity_tons=d["expected_quantity_tons"],
-                actual_quantity_tons=d["actual_quantity_tons"],
-                expected_harvest_date=d["expected_harvest_date"],
-                actual_harvest_date=d["actual_harvest_date"],
-                price_per_ton=d["price_per_ton"],
-                total_value=d["total_value"],
-                stage=d["stage"],
-                notes=d["notes"],
-                notes_ar=d["notes_ar"],
-                created_at=d["created_at"],
-                updated_at=d["updated_at"],
-            )
-            for d in deals_data
-        ]
-    else:
-        # Fallback to in-memory
-        # Filter deals by tenant_id (via farmer's tenant_id)
-        results = [
-            d for d in deals.values()
-            if d.farmer_id in farmers and farmers[d.farmer_id].tenant_id == tenant_id
-        ]
-
-        if farmer_id:
-            results = [d for d in results if d.farmer_id == farmer_id]
-        if stage:
-            results = [d for d in results if d.stage.value == stage]
-
-        return [
-            HarvestDealResponse(
-                id=d.id,
-                farmer_id=d.farmer_id,
-                crop_type=d.crop_type,
-                crop_type_ar=d.crop_type_ar,
-                expected_quantity_tons=d.expected_quantity_tons,
-                actual_quantity_tons=d.actual_quantity_tons,
-                expected_harvest_date=d.expected_harvest_date,
-                actual_harvest_date=d.actual_harvest_date,
-                price_per_ton=d.price_per_ton,
-                total_value=d.total_value,
-                stage=d.stage.value,
-                notes=d.notes,
-                notes_ar=d.notes_ar,
-                created_at=d.created_at,
-                updated_at=d.updated_at,
-            )
-            for d in results[:limit]
-        ]
+        for d in results[:limit]
+    ]
 
 
 @app.patch("/api/v1/deals/{deal_id}/stage", response_model=HarvestDealResponse, tags=["Deals"])
@@ -1541,117 +1357,59 @@ async def update_deal_stage(
     user: User = Depends(get_current_user),
 ):
     """Update deal stage | تحديث مرحلة الصفقة"""
-    crm_repo = get_crm_repo(request)
+    if deal_id not in deals:
+        raise ResourceNotFoundError(resource_type="Deal", resource_id=deal_id)
 
-    if crm_repo:
-        # Use database
-        deal_data = await crm_repo.deals.get_by_id(deal_id)
-        if not deal_data:
-            raise ResourceNotFoundError(resource_type="Deal", resource_id=deal_id)
+    deal = deals[deal_id]
 
-        # Get farmer for tenant validation
-        farmer_data = await crm_repo.farmers.get_by_id(deal_data["farmer_id"])
-        if not farmer_data:
-            raise ResourceNotFoundError(resource_type="Farmer", resource_id=deal_data["farmer_id"])
-        validate_tenant_access(user, farmer_data["tenant_id"])
+    # Validate tenant access via farmer's tenant_id
+    if deal.farmer_id not in farmers:
+        raise ResourceNotFoundError(resource_type="Farmer", resource_id=deal.farmer_id)
+    farmer = farmers[deal.farmer_id]
+    validate_tenant_access(user, farmer.tenant_id)
 
-        # Track old stage for event
-        old_stage = deal_data["stage"]
+    # Track old stage for event
+    old_stage = deal.stage
 
-        # Update the deal stage
-        data = await crm_repo.deals.update_stage(deal_id, stage)
+    deal.stage = DealStage(stage)
+    deal.updated_at = datetime.utcnow()
 
-        # Invalidate pipeline stats cache
-        await cache_delete(f"crm:pipeline_stats:{farmer_data['tenant_id']}")
+    # Invalidate pipeline stats cache
+    await cache_delete(f"crm:pipeline_stats:{farmer.tenant_id}")
 
-        # Publish deal stage advanced event
-        await publish_event(
-            f"sahool.{farmer_data['tenant_id']}.crm.deal.stage_advanced",
-            {
-                "event_type": "deal.stage_advanced",
-                "deal_id": data["id"],
-                "farmer_id": data["farmer_id"],
-                "tenant_id": farmer_data["tenant_id"],
-                "crop_type": data["crop_type"],
-                "old_stage": old_stage,
-                "new_stage": data["stage"],
-                "expected_quantity_tons": data["expected_quantity_tons"],
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            }
-        )
+    # Publish deal stage advanced event
+    await publish_event(
+        f"sahool.{farmer.tenant_id}.crm.deal.stage_advanced",
+        {
+            "event_type": "deal.stage_advanced",
+            "deal_id": deal.id,
+            "farmer_id": deal.farmer_id,
+            "tenant_id": farmer.tenant_id,
+            "crop_type": deal.crop_type,
+            "old_stage": old_stage.value,
+            "new_stage": deal.stage.value,
+            "expected_quantity_tons": deal.expected_quantity_tons,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    )
 
-        return HarvestDealResponse(
-            id=data["id"],
-            farmer_id=data["farmer_id"],
-            crop_type=data["crop_type"],
-            crop_type_ar=data["crop_type_ar"],
-            expected_quantity_tons=data["expected_quantity_tons"],
-            actual_quantity_tons=data["actual_quantity_tons"],
-            expected_harvest_date=data["expected_harvest_date"],
-            actual_harvest_date=data["actual_harvest_date"],
-            price_per_ton=data["price_per_ton"],
-            total_value=data["total_value"],
-            stage=data["stage"],
-            notes=data["notes"],
-            notes_ar=data["notes_ar"],
-            created_at=data["created_at"],
-            updated_at=data["updated_at"],
-        )
-    else:
-        # Fallback to in-memory
-        if deal_id not in deals:
-            raise ResourceNotFoundError(resource_type="Deal", resource_id=deal_id)
-
-        deal = deals[deal_id]
-
-        # Validate tenant access via farmer's tenant_id
-        if deal.farmer_id not in farmers:
-            raise ResourceNotFoundError(resource_type="Farmer", resource_id=deal.farmer_id)
-        farmer = farmers[deal.farmer_id]
-        validate_tenant_access(user, farmer.tenant_id)
-
-        # Track old stage for event
-        old_stage = deal.stage
-
-        deal.stage = DealStage(stage)
-        deal.updated_at = datetime.now(timezone.utc)
-
-        # Invalidate pipeline stats cache
-        await cache_delete(f"crm:pipeline_stats:{farmer.tenant_id}")
-
-        # Publish deal stage advanced event
-        await publish_event(
-            f"sahool.{farmer.tenant_id}.crm.deal.stage_advanced",
-            {
-                "event_type": "deal.stage_advanced",
-                "deal_id": deal.id,
-                "farmer_id": deal.farmer_id,
-                "tenant_id": farmer.tenant_id,
-                "crop_type": deal.crop_type,
-                "old_stage": old_stage.value,
-                "new_stage": deal.stage.value,
-                "expected_quantity_tons": deal.expected_quantity_tons,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            }
-        )
-
-        return HarvestDealResponse(
-            id=deal.id,
-            farmer_id=deal.farmer_id,
-            crop_type=deal.crop_type,
-            crop_type_ar=deal.crop_type_ar,
-            expected_quantity_tons=deal.expected_quantity_tons,
-            actual_quantity_tons=deal.actual_quantity_tons,
-            expected_harvest_date=deal.expected_harvest_date,
-            actual_harvest_date=deal.actual_harvest_date,
-            price_per_ton=deal.price_per_ton,
-            total_value=deal.total_value,
-            stage=deal.stage.value,
-            notes=deal.notes,
-            notes_ar=deal.notes_ar,
-            created_at=deal.created_at,
-            updated_at=deal.updated_at,
-        )
+    return HarvestDealResponse(
+        id=deal.id,
+        farmer_id=deal.farmer_id,
+        crop_type=deal.crop_type,
+        crop_type_ar=deal.crop_type_ar,
+        expected_quantity_tons=deal.expected_quantity_tons,
+        actual_quantity_tons=deal.actual_quantity_tons,
+        expected_harvest_date=deal.expected_harvest_date,
+        actual_harvest_date=deal.actual_harvest_date,
+        price_per_ton=deal.price_per_ton,
+        total_value=deal.total_value,
+        stage=deal.stage.value,
+        notes=deal.notes,
+        notes_ar=deal.notes_ar,
+        created_at=deal.created_at,
+        updated_at=deal.updated_at,
+    )
 
 
 @app.get("/api/v1/deals/pipeline", response_model=PipelineStatsResponse, tags=["Deals"])
@@ -1671,8 +1429,13 @@ async def get_pipeline_stats(
     if cached:
         return PipelineStatsResponse(**cached)
 
-    crm_repo = get_crm_repo(request)
+    # Filter deals by tenant_id (via farmer's tenant_id)
+    all_deals = [
+        d for d in deals.values()
+        if d.farmer_id in farmers and farmers[d.farmer_id].tenant_id == tenant_id
+    ]
 
+    by_stage: dict[str, dict[str, Any]] = {}
     stage_names_ar = {
         "prospecting": "استكشاف",
         "qualification": "تأهيل",
@@ -1682,61 +1445,32 @@ async def get_pipeline_stats(
         "paid": "مدفوع",
         "closed_lost": "خسارة",
     }
-
-    if crm_repo:
-        # Use database
-        stats = await crm_repo.deals.get_pipeline_stats(tenant_id=tenant_id)
-
-        # Add Arabic names to by_stage
-        by_stage = {}
-        for stage_value, stage_data in stats.get("by_stage", {}).items():
-            by_stage[stage_value] = {
-                **stage_data,
-                "name_ar": stage_names_ar.get(stage_value, stage_value),
-            }
-
-        response = PipelineStatsResponse(
-            total_deals=stats.get("total_deals", 0),
-            total_value=stats.get("total_value", 0.0),
-            by_stage=by_stage,
-            conversion_rate=stats.get("conversion_rate", 0.0),
-            average_deal_size=stats.get("average_deal_size", 0.0),
-        )
-    else:
-        # Fallback to in-memory
-        # Filter deals by tenant_id (via farmer's tenant_id)
-        all_deals = [
-            d for d in deals.values()
-            if d.farmer_id in farmers and farmers[d.farmer_id].tenant_id == tenant_id
-        ]
-
-        by_stage: dict[str, dict[str, Any]] = {}
-        for stage in list(DealStage):
-            stage_deals = [d for d in all_deals if d.stage == stage]
-            total_value = sum(
-                (d.price_per_ton or 0) * d.expected_quantity_tons
-                for d in stage_deals
-            )
-            by_stage[stage.value] = {
-                "count": len(stage_deals),
-                "total_value": total_value,
-                "name_ar": stage_names_ar.get(stage.value, stage.value),
-            }
-
-        total_deals = len(all_deals)
-        won_deals = len([d for d in all_deals if d.stage == DealStage.PAID])
+    for stage in list(DealStage):
+        stage_deals = [d for d in all_deals if d.stage == stage]
         total_value = sum(
             (d.price_per_ton or 0) * d.expected_quantity_tons
-            for d in all_deals
+            for d in stage_deals
         )
+        by_stage[stage.value] = {
+            "count": len(stage_deals),
+            "total_value": total_value,
+            "name_ar": stage_names_ar.get(stage.value, stage.value),
+        }
 
-        response = PipelineStatsResponse(
-            total_deals=total_deals,
-            total_value=total_value,
-            by_stage=by_stage,
-            conversion_rate=(won_deals / total_deals * 100) if total_deals > 0 else 0,
-            average_deal_size=(total_value / total_deals) if total_deals > 0 else 0,
-        )
+    total_deals = len(all_deals)
+    won_deals = len([d for d in all_deals if d.stage == DealStage.PAID])
+    total_value = sum(
+        (d.price_per_ton or 0) * d.expected_quantity_tons
+        for d in all_deals
+    )
+
+    response = PipelineStatsResponse(
+        total_deals=total_deals,
+        total_value=total_value,
+        by_stage=by_stage,
+        conversion_rate=(won_deals / total_deals * 100) if total_deals > 0 else 0,
+        average_deal_size=(total_value / total_deals) if total_deals > 0 else 0,
+    )
 
     # Cache the result (shorter TTL since deals change frequently)
     await cache_set(cache_key, response.model_dump(), ttl=60)
@@ -1756,129 +1490,69 @@ async def log_interaction(
     user: User = Depends(get_current_user),
 ):
     """Log an interaction with a farmer | تسجيل تفاعل مع مزارع"""
-    crm_repo = get_crm_repo(request)
+    if interaction_data.farmer_id not in farmers:
+        raise ResourceNotFoundError(resource_type="Farmer", resource_id=interaction_data.farmer_id)
 
-    if crm_repo:
-        # Use database - first verify farmer exists
-        farmer_data = await crm_repo.farmers.get_by_id(interaction_data.farmer_id)
-        if not farmer_data:
-            raise ResourceNotFoundError(resource_type="Farmer", resource_id=interaction_data.farmer_id)
+    # Validate tenant access via farmer's tenant_id
+    farmer = farmers[interaction_data.farmer_id]
+    validate_tenant_access(user, farmer.tenant_id)
 
-        # Validate tenant access via farmer's tenant_id
-        validate_tenant_access(user, farmer_data["tenant_id"])
+    interaction_id = str(uuid4())
+    now = datetime.utcnow()
 
-        data = await crm_repo.interactions.create(
-            farmer_id=interaction_data.farmer_id,
-            interaction_type=interaction_data.interaction_type,
-            subject=interaction_data.subject,
-            subject_ar=interaction_data.subject_ar,
-            notes=interaction_data.notes,
-            notes_ar=interaction_data.notes_ar,
-            outcome=interaction_data.outcome,
-            follow_up_date=interaction_data.follow_up_date,
-            created_by=user.id,
-        )
+    interaction = Interaction(
+        id=interaction_id,
+        farmer_id=interaction_data.farmer_id,
+        interaction_type=InteractionType(interaction_data.interaction_type),
+        subject=interaction_data.subject,
+        subject_ar=interaction_data.subject_ar,
+        notes=interaction_data.notes,
+        notes_ar=interaction_data.notes_ar,
+        outcome=interaction_data.outcome,
+        follow_up_date=interaction_data.follow_up_date,
+        created_at=now,
+    )
 
-        # Update farmer's last interaction
-        await crm_repo.farmers.update(interaction_data.farmer_id, {
-            "last_interaction_at": datetime.now(timezone.utc)
-        })
+    interactions[interaction_id] = interaction
 
-        # Publish interaction logged event
-        await publish_event(
-            f"sahool.{farmer_data['tenant_id']}.crm.interaction.logged",
-            {
-                "event_type": "interaction.logged",
-                "interaction_id": data["id"],
-                "farmer_id": data["farmer_id"],
-                "tenant_id": farmer_data["tenant_id"],
-                "interaction_type": data["interaction_type"],
-                "subject": data["subject"],
-                "subject_ar": data["subject_ar"],
-                "outcome": data["outcome"],
-                "follow_up_date": data["follow_up_date"].isoformat() if data["follow_up_date"] else None,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            }
-        )
+    # Update farmer's last interaction
+    farmers[interaction_data.farmer_id].last_interaction_at = now
 
-        return InteractionResponse(
-            id=data["id"],
-            farmer_id=data["farmer_id"],
-            interaction_type=data["interaction_type"],
-            subject=data["subject"],
-            subject_ar=data["subject_ar"],
-            notes=data["notes"],
-            notes_ar=data["notes_ar"],
-            outcome=data["outcome"],
-            follow_up_date=data["follow_up_date"],
-            created_at=data["created_at"],
-            created_by=data["created_by"],
-        )
-    else:
-        # Fallback to in-memory
-        if interaction_data.farmer_id not in farmers:
-            raise ResourceNotFoundError(resource_type="Farmer", resource_id=interaction_data.farmer_id)
+    # Publish interaction logged event
+    await publish_event(
+        f"sahool.{farmer.tenant_id}.crm.interaction.logged",
+        {
+            "event_type": "interaction.logged",
+            "interaction_id": interaction.id,
+            "farmer_id": interaction.farmer_id,
+            "tenant_id": farmer.tenant_id,
+            "interaction_type": interaction.interaction_type.value,
+            "subject": interaction.subject,
+            "subject_ar": interaction.subject_ar,
+            "outcome": interaction.outcome,
+            "follow_up_date": interaction.follow_up_date.isoformat() if interaction.follow_up_date else None,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    )
 
-        # Validate tenant access via farmer's tenant_id
-        farmer = farmers[interaction_data.farmer_id]
-        validate_tenant_access(user, farmer.tenant_id)
-
-        interaction_id = str(uuid4())
-        now = datetime.now(timezone.utc)
-
-        interaction = Interaction(
-            id=interaction_id,
-            farmer_id=interaction_data.farmer_id,
-            interaction_type=InteractionType(interaction_data.interaction_type),
-            subject=interaction_data.subject,
-            subject_ar=interaction_data.subject_ar,
-            notes=interaction_data.notes,
-            notes_ar=interaction_data.notes_ar,
-            outcome=interaction_data.outcome,
-            follow_up_date=interaction_data.follow_up_date,
-            created_at=now,
-        )
-
-        interactions[interaction_id] = interaction
-
-        # Update farmer's last interaction
-        farmers[interaction_data.farmer_id].last_interaction_at = now
-
-        # Publish interaction logged event
-        await publish_event(
-            f"sahool.{farmer.tenant_id}.crm.interaction.logged",
-            {
-                "event_type": "interaction.logged",
-                "interaction_id": interaction.id,
-                "farmer_id": interaction.farmer_id,
-                "tenant_id": farmer.tenant_id,
-                "interaction_type": interaction.interaction_type.value,
-                "subject": interaction.subject,
-                "subject_ar": interaction.subject_ar,
-                "outcome": interaction.outcome,
-                "follow_up_date": interaction.follow_up_date.isoformat() if interaction.follow_up_date else None,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            }
-        )
-
-        return InteractionResponse(
-            id=interaction.id,
-            farmer_id=interaction.farmer_id,
-            interaction_type=interaction.interaction_type.value,
-            subject=interaction.subject,
-            subject_ar=interaction.subject_ar,
-            notes=interaction.notes,
-            notes_ar=interaction.notes_ar,
-            outcome=interaction.outcome,
-            follow_up_date=interaction.follow_up_date,
-            created_at=interaction.created_at,
-            created_by=interaction.created_by,
-        )
+    return InteractionResponse(
+        id=interaction.id,
+        farmer_id=interaction.farmer_id,
+        interaction_type=interaction.interaction_type.value,
+        subject=interaction.subject,
+        subject_ar=interaction.subject_ar,
+        notes=interaction.notes,
+        notes_ar=interaction.notes_ar,
+        outcome=interaction.outcome,
+        follow_up_date=interaction.follow_up_date,
+        created_at=interaction.created_at,
+        created_by=interaction.created_by,
+    )
 
 
 @app.get("/api/v1/interactions", response_model=list[InteractionResponse], tags=["Interactions"])
 @limiter.limit("60/minute")
-async def list_interactions(
+def list_interactions(
     request: Request,
     farmer_id: str = Query(...),
     interaction_type: str | None = Query(None),
@@ -1886,69 +1560,36 @@ async def list_interactions(
     user: User = Depends(get_current_user),
 ):
     """List interactions for a farmer | قائمة التفاعلات لمزارع"""
-    crm_repo = get_crm_repo(request)
+    # Validate farmer exists and tenant access
+    if farmer_id not in farmers:
+        raise ResourceNotFoundError(resource_type="Farmer", resource_id=farmer_id)
+    farmer = farmers[farmer_id]
+    validate_tenant_access(user, farmer.tenant_id)
 
-    if crm_repo:
-        # Use database - first verify farmer exists
-        farmer_data = await crm_repo.farmers.get_by_id(farmer_id)
-        if not farmer_data:
-            raise ResourceNotFoundError(resource_type="Farmer", resource_id=farmer_id)
-        validate_tenant_access(user, farmer_data["tenant_id"])
+    results = [i for i in interactions.values() if i.farmer_id == farmer_id]
 
-        interactions_data = await crm_repo.interactions.list(
-            farmer_id=farmer_id,
-            interaction_type=interaction_type,
-            limit=limit,
+    if interaction_type:
+        results = [i for i in results if i.interaction_type.value == interaction_type]
+
+    # Sort by created_at descending
+    results.sort(key=lambda x: x.created_at, reverse=True)
+
+    return [
+        InteractionResponse(
+            id=i.id,
+            farmer_id=i.farmer_id,
+            interaction_type=i.interaction_type.value,
+            subject=i.subject,
+            subject_ar=i.subject_ar,
+            notes=i.notes,
+            notes_ar=i.notes_ar,
+            outcome=i.outcome,
+            follow_up_date=i.follow_up_date,
+            created_at=i.created_at,
+            created_by=i.created_by,
         )
-
-        return [
-            InteractionResponse(
-                id=i["id"],
-                farmer_id=i["farmer_id"],
-                interaction_type=i["interaction_type"],
-                subject=i["subject"],
-                subject_ar=i["subject_ar"],
-                notes=i["notes"],
-                notes_ar=i["notes_ar"],
-                outcome=i["outcome"],
-                follow_up_date=i["follow_up_date"],
-                created_at=i["created_at"],
-                created_by=i["created_by"],
-            )
-            for i in interactions_data
-        ]
-    else:
-        # Fallback to in-memory
-        # Validate farmer exists and tenant access
-        if farmer_id not in farmers:
-            raise ResourceNotFoundError(resource_type="Farmer", resource_id=farmer_id)
-        farmer = farmers[farmer_id]
-        validate_tenant_access(user, farmer.tenant_id)
-
-        results = [i for i in interactions.values() if i.farmer_id == farmer_id]
-
-        if interaction_type:
-            results = [i for i in results if i.interaction_type.value == interaction_type]
-
-        # Sort by created_at descending
-        results.sort(key=lambda x: x.created_at, reverse=True)
-
-        return [
-            InteractionResponse(
-                id=i.id,
-                farmer_id=i.farmer_id,
-                interaction_type=i.interaction_type.value,
-                subject=i.subject,
-                subject_ar=i.subject_ar,
-                notes=i.notes,
-                notes_ar=i.notes_ar,
-                outcome=i.outcome,
-                follow_up_date=i.follow_up_date,
-                created_at=i.created_at,
-                created_by=i.created_by,
-            )
-            for i in results[:limit]
-        ]
+        for i in results[:limit]
+    ]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

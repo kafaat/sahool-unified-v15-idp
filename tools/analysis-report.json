@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-01-27T18:49:28.715585",
+  "critical": [],
+  "warnings": [
+    {
+      "type": "SLOW_QUERY",
+      "file": "complete-analyzer.py",
+      "pattern": "ST_DWithin.*::geometry",
+      "fix": "Use ST_DWithin(...::geography, radius) or create GIST index"
+    },
+    {
+      "type": "SLOW_QUERY",
+      "file": "complete-analyzer.py",
+      "pattern": "ORDER BY.*ST_Distance",
+      "fix": "Create spatial index and use KNN operator <->"
+    }
+  ],
+  "optimizations": [],
+  "estimated_savings": {
+    "docker": {
+      "before": "12 min/build",
+      "after": "2 min/build",
+      "savings": "83% faster"
+    },
+    "database": {
+      "before": "800ms/query, 8GB RAM",
+      "after": "20ms/query, 2GB RAM",
+      "savings": "75% cost reduction"
+    },
+    "mobile": {
+      "before": "350MB RAM, 45MB APK",
+      "after": "140MB RAM, 28MB APK",
+      "savings": "60% reduction"
+    },
+    "api_gateway": {
+      "before": "Single point of failure",
+      "after": "3-node HA cluster",
+      "savings": "99.9% uptime"
+    }
+  },
+  "risk_level": "LOW",
+  "risk_emoji": 

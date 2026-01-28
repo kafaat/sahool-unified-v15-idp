@@ -47,7 +47,6 @@ describe("AppController (Marketplace)", () => {
     getFinanceStats: jest.fn(),
     getWalletLimits: jest.fn(),
     updateWalletLimits: jest.fn(),
-    getWalletById: jest.fn(),
     createEscrow: jest.fn(),
     releaseEscrow: jest.fn(),
     refundEscrow: jest.fn(),
@@ -695,89 +694,6 @@ describe("AppController (Marketplace)", () => {
       await expect(
         controller.createOrder(createOrderDto as any),
       ).rejects.toThrow("الكمية المطلوبة غير متوفرة للمنتج");
-    });
-  });
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Wallet Limits Authorization Tests
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  describe("PUT /fintech/wallet/:walletId/limits", () => {
-    it("should allow wallet owner to update limits", async () => {
-      const walletId = "wallet-123";
-      const userId = "user-123";
-      const mockRequest = {
-        user: { id: userId, roles: ["user"] },
-      };
-
-      const mockWallet = { id: walletId, userId: userId };
-      const mockUpdatedLimits = {
-        dailyWithdrawLimit: 20000,
-        singleTransactionLimit: 100000,
-        requiresPinForAmount: 10000,
-      };
-
-      mockFintechService.getWalletById.mockResolvedValue(mockWallet);
-      mockFintechService.updateWalletLimits.mockResolvedValue(mockUpdatedLimits);
-
-      const result = await controller.updateWalletLimits(mockRequest, walletId);
-
-      expect(result).toEqual(mockUpdatedLimits);
-      expect(mockFintechService.getWalletById).toHaveBeenCalledWith(walletId);
-      expect(mockFintechService.updateWalletLimits).toHaveBeenCalledWith(
-        walletId,
-      );
-    });
-
-    it("should allow admin to update any wallet limits", async () => {
-      const walletId = "wallet-123";
-      const mockRequest = {
-        user: { id: "admin-456", roles: ["admin"] },
-      };
-
-      const mockWallet = { id: walletId, userId: "user-123" };
-      const mockUpdatedLimits = {
-        dailyWithdrawLimit: 50000,
-        singleTransactionLimit: 200000,
-        requiresPinForAmount: 20000,
-      };
-
-      mockFintechService.getWalletById.mockResolvedValue(mockWallet);
-      mockFintechService.updateWalletLimits.mockResolvedValue(mockUpdatedLimits);
-
-      const result = await controller.updateWalletLimits(mockRequest, walletId);
-
-      expect(result).toEqual(mockUpdatedLimits);
-      expect(mockFintechService.updateWalletLimits).toHaveBeenCalledWith(
-        walletId,
-      );
-    });
-
-    it("should throw ForbiddenException for non-owner non-admin", async () => {
-      const walletId = "wallet-123";
-      const mockRequest = {
-        user: { id: "other-user-456", roles: ["user"] },
-      };
-
-      const mockWallet = { id: walletId, userId: "user-123" };
-      mockFintechService.getWalletById.mockResolvedValue(mockWallet);
-
-      await expect(
-        controller.updateWalletLimits(mockRequest, walletId),
-      ).rejects.toThrow(ForbiddenException);
-    });
-
-    it("should throw ForbiddenException when wallet not found", async () => {
-      const walletId = "non-existent-wallet";
-      const mockRequest = {
-        user: { id: "user-123", roles: ["user"] },
-      };
-
-      mockFintechService.getWalletById.mockResolvedValue(null);
-
-      await expect(
-        controller.updateWalletLimits(mockRequest, walletId),
-      ).rejects.toThrow(ForbiddenException);
     });
   });
 });

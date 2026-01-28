@@ -53,7 +53,7 @@ services:
   # OPTIMIZED: Enhanced pool settings based on PgBouncer audit (score 7/10 -> 9/10)
   # FIXED: Added custom entrypoint to generate userlist.txt dynamically
   pgbouncer:
-    image: edoburu/pgbouncer:1.23.1
+    image: edoburu/pgbouncer:latest
     container_name: sahool-pgbouncer
     # Custom entrypoint generates userlist.txt from environment variables
     entrypoint: [ "/entrypoint-custom.sh" ]
@@ -199,47 +199,6 @@ services:
     networks:
       - sahool-network
 
-  # ═══════════════════════════════════════════════════════════════════════════
-  # VAULT - HashiCorp Vault for Secrets Management
-  # ═══════════════════════════════════════════════════════════════════════════
-  # SECURITY: Development mode only - use proper backend in production
-  # Access UI: http://localhost:8200/ui
-  # Dev Token: dev-root-token (DO NOT use in production)
-  vault:
-    image: hashicorp/vault:1.17
-    container_name: sahool-vault
-    hostname: vault
-    ports:
-      - "127.0.0.1:8200:8200"
-    environment:
-      VAULT_DEV_ROOT_TOKEN_ID: "${VAULT_DEV_TOKEN:-dev-root-token}"
-      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
-      VAULT_LOG_LEVEL: "info"
-      VAULT_ADDR: "http://127.0.0.1:8200"
-    cap_add:
-      - IPC_LOCK
-    volumes:
-      - vault_data:/vault/data
-    healthcheck:
-      test: ["CMD", "vault", "status"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.1'
-          memory: 64M
-    networks:
-      - sahool-network
-
   # NATS JetStream - Message Queue with Authentication
   # SECURITY: NATS credentials MUST be set in .env file
   # HARDENED: TLS enforced, encryption at rest, rate limiting enabled
@@ -335,59 +294,6 @@ services:
         reservations:
           cpus: '0.1'
           memory: 64M
-    networks:
-      - sahool-network
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # MLFLOW - AI/ML Model Registry & Experiment Tracking
-  # ═══════════════════════════════════════════════════════════════════════════
-  # MLflow provides:
-  # - Model versioning and registry
-  # - Experiment tracking
-  # - Model serving (optional)
-  # - Artifact storage
-  #
-  # Access UI: http://localhost:5000
-  mlflow:
-    image: ghcr.io/mlflow/mlflow:v2.15.1
-    container_name: sahool-mlflow
-    hostname: mlflow
-    command: >
-      mlflow server
-      --host 0.0.0.0
-      --port 5000
-      --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/mlflow
-      --default-artifact-root /mlflow/artifacts
-      --serve-artifacts
-    environment:
-      - MLFLOW_TRACKING_URI=http://localhost:5000
-      - MLFLOW_S3_ENDPOINT_URL=${MLFLOW_S3_ENDPOINT_URL:-}
-      - AWS_ACCESS_KEY_ID=${MLFLOW_AWS_ACCESS_KEY_ID:-}
-      - AWS_SECRET_ACCESS_KEY=${MLFLOW_AWS_SECRET_ACCESS_KEY:-}
-    volumes:
-      - mlflow_artifacts:/mlflow/artifacts
-    ports:
-      - "127.0.0.1:5000:5000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1G
-        reservations:
-          cpus: '0.25'
-          memory: 256M
     networks:
       - sahool-network
 
@@ -1333,60 +1239,6 @@ services:
     networks:
       - sahool-network
 
-  # Ground Vision Service - Tower Camera Agricultural Monitoring
-  # Based on: Qin et al. (2026) - Tower-Based Agricultural Monitoring Framework
-  ground-vision-service:
-    build:
-      context: .
-      dockerfile: apps/services/ground-vision-service/Dockerfile
-    container_name: sahool-ground-vision-service
-    environment:
-      - PORT=8182
-      - ENVIRONMENT=production
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
-      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
-      - SAM_CHECKPOINT_PATH=/models/sam_vit_h.pth
-      - YOLO_MODEL_PATH=/models/yolo_agri_ops.pt
-      - MLLM_PROVIDER=${MLLM_PROVIDER:-ollama}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - CHANGE_DETECTION_THRESHOLD=0.15
-      - SAM_IOU_THRESHOLD=0.85
-      - MAX_FRAMES_PER_ANALYSIS=5
-    volumes:
-      - ./models:/models:ro
-    ports:
-      - "8182:8182"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8182/healthz')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 4G
-        reservations:
-          cpus: '1.0'
-          memory: 2G
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    networks:
-      - sahool-network
-
   # ⚠️ DEPRECATED: community_chat - Migrating to chat-service
   # This service is being consolidated into chat-service (Port 8114)
   # Kept temporarily for backwards compatibility
@@ -1644,7 +1496,8 @@ services:
       - SENTINEL_HUB_CLIENT_SECRET=${SENTINEL_HUB_CLIENT_SECRET:-}
       - NASA_EARTHDATA_USERNAME=${NASA_EARTHDATA_USERNAME:-}
       - NASA_EARTHDATA_PASSWORD=${NASA_EARTHDATA_PASSWORD:-}
-      # NOTE: Planet provider not implemented - env vars removed (see vegetation-analysis-service docs)
+      - PLANET_API_KEY=${PLANET_API_KEY:-}
+      - PLANET_CLIENT_ID=${PLANET_CLIENT_ID:-}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
@@ -1727,21 +1580,8 @@ services:
       - PORT=8092
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # Weather API Provider Keys
-      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
       - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
       - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
-      # Multi-Provider Configuration
-      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
-      - USE_MOCK_WEATHER=${USE_MOCK_WEATHER:-false}
-      # Cache Configuration (TTL in minutes)
-      - WEATHER_CACHE_ENABLED=${WEATHER_CACHE_ENABLED:-true}
-      - WEATHER_CACHE_CURRENT_TTL=${WEATHER_CACHE_CURRENT_TTL:-10}
-      - WEATHER_CACHE_FORECAST_TTL=${WEATHER_CACHE_FORECAST_TTL:-60}
-      # Feature Toggles
-      - WEATHER_ALERTS_ENABLED=${WEATHER_ALERTS_ENABLED:-true}
-      - WEATHER_AG_INDICES_ENABLED=${WEATHER_AG_INDICES_ENABLED:-true}
-      # Database and Messaging
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
@@ -1824,8 +1664,6 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - IOT_GATEWAY_URL=http://iot-gateway:8106
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
-      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "8094:8094"
     depends_on:
@@ -1869,8 +1707,6 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
-      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "8095:8095"
     volumes:
@@ -2208,7 +2044,6 @@ services:
       - PORT=8106
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
       - MQTT_BROKER=mqtt
       - MQTT_PORT=1883
       - MQTT_USER=${MQTT_USER:-sahool_iot}
@@ -2226,8 +2061,6 @@ services:
       nats:
         condition: service_healthy
       mqtt:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8106/health'); exit(0) if r.getcode()==200 else exit(1)" ]
@@ -2379,31 +2212,12 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
-      # SMTP Configuration (Email fallback)
       - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER:-}
       - SMTP_PASSWORD=${SMTP_PASSWORD:-}
       - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-noreply@sahool.com}
-      # Twilio SMS Configuration
-      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID:-}
-      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN:-}
-      - TWILIO_FROM_NUMBER=${TWILIO_FROM_NUMBER:-}
-      # Twilio WhatsApp Configuration
-      - TWILIO_WHATSAPP_NUMBER=${TWILIO_WHATSAPP_NUMBER:-}
-      # SendGrid Email Configuration
-      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
-      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-notifications@sahool.app}
-      - SENDGRID_FROM_NAME=${SENDGRID_FROM_NAME:-SAHOOL Agriculture Platform}
-      # Firebase Push Notifications Configuration
       - FCM_SERVER_KEY=${FCM_SERVER_KEY:-}
-      - FIREBASE_CREDENTIALS_PATH=${FIREBASE_CREDENTIALS_PATH:-}
-      - FIREBASE_CREDENTIALS_JSON=${FIREBASE_CREDENTIALS_JSON:-}
-      # Meta WhatsApp Cloud API Configuration
-      - META_WHATSAPP_ACCESS_TOKEN=${META_WHATSAPP_ACCESS_TOKEN:-}
-      - META_WHATSAPP_PHONE_NUMBER_ID=${META_WHATSAPP_PHONE_NUMBER_ID:-}
-      # Telegram Bot Configuration
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
     ports:
       - "8110:8110"
     depends_on:
@@ -2530,12 +2344,6 @@ services:
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-pro}
-      # Ollama Local LLM Configuration (for offline/local deployments)
-      - OLLAMA_BASE_URL=${OLLAMA_URL:-http://ollama:11434}
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2}
-      # LLM Generation Settings
-      - MAX_TOKENS=${LLM_MAX_TOKENS:-4096}
-      - TEMPERATURE=${LLM_TEMPERATURE:-0.7}
       # External service URLs - Updated to consolidated services
       - CROP_HEALTH_URL=http://crop-intelligence-service:8095
       - WEATHER_URL=http://weather-service:8092
@@ -3167,10 +2975,6 @@ volumes:
     name: sahool-pgbouncer-userlist
   nats_data:
     name: sahool-nats-data
-  vault_data:
-    name: sahool-vault-data
-  mlflow_artifacts:
-    name: sahool-mlflow-artifacts
   redis_data:
     name: sahool-redis-data
   qdrant_data:

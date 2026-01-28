@@ -21,7 +21,7 @@ Field-First Architecture:
 
 import logging
 import uuid
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -499,7 +499,7 @@ def create_growth_timing_action(
             }
             for r in recommendations
         ],
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.utcnow().isoformat(),
     }
 
 

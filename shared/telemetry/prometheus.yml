@@ -56,8 +56,9 @@ scrape_configs:
     scrape_interval: 30s
     static_configs:
       - targets:
-          # field_core, field_ops, field_service → DEPRECATED: replaced by field-management-service
-          - 'field_management_service:9090'
+          - 'field_core:9090'
+          - 'field_ops:9090'
+          - 'field_service:9090'
         labels:
           service_group: 'core'
           category: 'field'
@@ -69,9 +70,8 @@ scrape_configs:
     scrape_interval: 30s
     static_configs:
       - targets:
-          - 'weather_service:9090'
           - 'weather_core:9090'
-          # weather_advanced → DEPRECATED: replaced by weather-service
+          - 'weather_advanced:9090'
         labels:
           service_group: 'weather'
           category: 'data'
@@ -83,8 +83,7 @@ scrape_configs:
     scrape_interval: 30s
     static_configs:
       - targets:
-          # satellite_service → DEPRECATED: replaced by vegetation-analysis-service
-          - 'vegetation_analysis_service:9090'
+          - 'satellite_service:9090'
           - 'ndvi_engine:9090'
           - 'ndvi_processor:9090'
         labels:
@@ -98,8 +97,8 @@ scrape_configs:
     scrape_interval: 30s
     static_configs:
       - targets:
-          # crop_health_ai, crop_health → DEPRECATED: replaced by crop-intelligence-service
-          - 'crop_intelligence_service:9090'
+          - 'crop_health_ai:9090'
+          - 'crop_health:9090'
           - 'crop_growth_model:9090'
           - 'lai_estimation:9090'
           - 'yield_engine:9090'
@@ -118,8 +117,7 @@ scrape_configs:
           - 'ai_advisor:9090'
           - 'agro_advisor:9090'
           - 'agro_rules:9090'
-          # fertilizer_advisor → DEPRECATED: replaced by advisory-service
-          - 'advisory_service:9090'
+          - 'fertilizer_advisor:9090'
           - 'irrigation_smart:9090'
         labels:
           service_group: 'advisory'

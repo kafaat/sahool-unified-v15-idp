@@ -12,8 +12,10 @@ Provides predictive maintenance functionality including:
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import Enum
 import math
@@ -171,7 +173,7 @@ class ComponentHealth:
     urgency: MaintenancePriority = MaintenancePriority.LOW
 
     # Last assessment - آخر تقييم
-    assessed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    assessed_at: datetime = field(default_factory=datetime.utcnow)
     assessed_at_hours: float = 0.0
 
     def to_dict(self) -> dict:
@@ -240,7 +242,7 @@ class PredictiveInsight:
     data_quality: float = 0.8  # 0-1
 
     # Metadata
-    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = field(default_factory=datetime.utcnow)
     valid_until: datetime | None = None
     is_active: bool = True
     acknowledged: bool = False
@@ -533,7 +535,7 @@ class PredictiveMaintenanceEngine:
         if not equipment:
             return None
 
-        end_date = datetime.now(timezone.utc)
+        end_date = datetime.utcnow()
         start_date = end_date - timedelta(days=period_days)
 
         # Get service records in period
@@ -544,7 +546,7 @@ class PredictiveMaintenanceEngine:
         ]
 
         # Calculate metrics (simplified - real implementation would use telemetry)
-        avg_daily_hours = equipment.total_hours / max((datetime.now(timezone.utc) - (equipment.created_at or datetime.now(timezone.utc))).days, 1)
+        avg_daily_hours = equipment.total_hours / max((datetime.utcnow() - (equipment.created_at or datetime.utcnow())).days, 1)
 
         metrics = UsageMetrics(
             equipment_id=equipment_id,
@@ -555,7 +557,7 @@ class PredictiveMaintenanceEngine:
             max_daily_hours=avg_daily_hours * 1.5,  # Estimate
             operating_days=int(period_days * 0.7),  # Estimate 70% utilization
             idle_days=int(period_days * 0.3),
-            total_hectares=equipment.total_hectares / max((datetime.now(timezone.utc) - (equipment.created_at or datetime.now(timezone.utc))).days, 1) * period_days,
+            total_hectares=equipment.total_hectares / max((datetime.utcnow() - (equipment.created_at or datetime.utcnow())).days, 1) * period_days,
         )
 
         return metrics
@@ -772,7 +774,7 @@ class PredictiveMaintenanceEngine:
         predictions: list[FailurePrediction] = []
         health_assessments = self.assess_equipment_health(equipment_id)
 
-        now = datetime.now(timezone.utc)
+        now = datetime.utcnow()
 
         for health in health_assessments:
             if health.failure_probability_90d > 0.1:  # At least 10% probability
@@ -877,7 +879,7 @@ class PredictiveMaintenanceEngine:
         health_assessments = self.assess_equipment_health(equipment_id)
         predictions = self.predict_failures(equipment_id)
 
-        now = datetime.now(timezone.utc)
+        now = datetime.utcnow()
 
         # Insight 1: Overall equipment health
         avg_health = statistics.mean([h.health_score for h in health_assessments]) if health_assessments else 100

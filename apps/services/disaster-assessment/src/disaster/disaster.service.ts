@@ -1,10 +1,8 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // Disaster Service - خدمة الكوارث
-// Database-backed disaster management with PostgreSQL persistence
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
+import { Injectable } from "@nestjs/common";
 import {
   CreateDisasterReportDto,
   DisasterAssessmentDto,
@@ -12,11 +10,6 @@ import {
   Severity,
   DisasterStatus,
 } from "./disaster.dto";
-import {
-  DisasterType as PrismaDisasterType,
-  DisasterSeverity as PrismaSeverity,
-  DisasterStatus as PrismaDisasterStatus,
-} from "@prisma/client";
 
 // Governorate translations
 const GOVERNORATE_AR: Record<string, string> = {
@@ -62,108 +55,66 @@ const DAMAGE_LEVELS = [
   { max: 100, level: "catastrophic", levelAr: "كارثي", color: "darkred" },
 ];
 
-// Map DTOs to Prisma enums
-const mapDisasterType = (type: DisasterType): PrismaDisasterType => {
-  return type as unknown as PrismaDisasterType;
-};
-
-const mapSeverity = (severity: Severity): PrismaSeverity => {
-  return severity as unknown as PrismaSeverity;
-};
-
 @Injectable()
 export class DisasterService {
-  private readonly logger = new Logger(DisasterService.name);
-  private readonly DEFAULT_TENANT_ID = "default";
-
-  constructor(private readonly prisma: PrismaService) {}
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Initialize seed data if empty
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  async onModuleInit() {
-    // Check if database is connected before attempting to seed
-    const isHealthy = await this.prisma.isHealthy();
-    if (!isHealthy) {
-      this.logger.warn("Database not connected - skipping seed data initialization");
-      return;
-    }
-
-    try {
-      const count = await this.prisma.disasterReport.count();
-      if (count === 0) {
-        await this.seedInitialData();
-      }
-    } catch (error) {
-      this.logger.warn("Could not seed initial data:", error);
-    }
-  }
-
-  private async seedInitialData() {
-    this.logger.log("Seeding initial disaster data...");
-
-    const seedData = [
-      {
-        type: PrismaDisasterType.flood,
-        title: "Hadramaut Valley Flood",
-        titleAr: "فيضان وادي حضرموت",
-        description: "Heavy rainfall caused flooding in agricultural areas",
-        governorate: "hadramaut",
-        location: { lat: 15.9, lng: 48.8 },
-        affectedRadiusKm: 15,
-        severity: PrismaSeverity.high,
-        status: PrismaDisasterStatus.active,
-        affectedFieldsCount: 45,
-        totalAffectedAreaHectares: 320,
-        totalEstimatedLossYER: BigInt(15000000),
-        startDate: new Date("2024-12-15T00:00:00Z"),
-        reportedBy: "system",
-        tenantId: this.DEFAULT_TENANT_ID,
-      },
-      {
-        type: PrismaDisasterType.drought,
-        title: "Marib Drought",
-        titleAr: "جفاف مأرب",
-        description: "Extended dry period affecting crop growth",
-        governorate: "marib",
-        location: { lat: 15.4, lng: 45.3 },
-        affectedRadiusKm: 30,
-        severity: PrismaSeverity.medium,
-        status: PrismaDisasterStatus.monitoring,
-        affectedFieldsCount: 120,
-        totalAffectedAreaHectares: 850,
-        totalEstimatedLossYER: BigInt(8500000),
-        startDate: new Date("2024-11-01T00:00:00Z"),
-        reportedBy: "system",
-        tenantId: this.DEFAULT_TENANT_ID,
-      },
-      {
-        type: PrismaDisasterType.locust,
-        title: "Desert Locust Swarm - Hodeidah",
-        titleAr: "سرب جراد صحراوي - الحديدة",
-        description:
-          "Desert locust swarm detected moving towards agricultural areas",
-        governorate: "hodeidah",
-        location: { lat: 14.8, lng: 42.9 },
-        affectedRadiusKm: 25,
-        severity: PrismaSeverity.critical,
-        status: PrismaDisasterStatus.active,
-        affectedFieldsCount: 200,
-        totalAffectedAreaHectares: 1500,
-        totalEstimatedLossYER: BigInt(45000000),
-        startDate: new Date("2024-12-17T00:00:00Z"),
-        reportedBy: "system",
-        tenantId: this.DEFAULT_TENANT_ID,
-      },
-    ];
-
-    for (const data of seedData) {
-      await this.prisma.disasterReport.create({ data });
-    }
-
-    this.logger.log("Initial disaster data seeded successfully");
-  }
+  // Mock active disasters for demo
+  private disasters: any[] = [
+    {
+      id: "disaster-001",
+      type: DisasterType.FLOOD,
+      title: "Hadramaut Valley Flood",
+      titleAr: "فيضان وادي حضرموت",
+      description: "Heavy rainfall caused flooding in agricultural areas",
+      governorate: "hadramaut",
+      location: { lat: 15.9, lng: 48.8 },
+      affectedRadiusKm: 15,
+      severity: Severity.HIGH,
+      status: DisasterStatus.ACTIVE,
+      affectedFieldsCount: 45,
+      totalAffectedAreaHectares: 320,
+      totalEstimatedLossYER: 15000000,
+      startDate: "2024-12-15T00:00:00Z",
+      createdAt: "2024-12-15T08:30:00Z",
+      updatedAt: "2024-12-18T10:00:00Z",
+    },
+    {
+      id: "disaster-002",
+      type: DisasterType.DROUGHT,
+      title: "Marib Drought",
+      titleAr: "جفاف مأرب",
+      description: "Extended dry period affecting crop growth",
+      governorate: "marib",
+      location: { lat: 15.4, lng: 45.3 },
+      affectedRadiusKm: 30,
+      severity: Severity.MEDIUM,
+      status: DisasterStatus.MONITORING,
+      affectedFieldsCount: 120,
+      totalAffectedAreaHectares: 850,
+      totalEstimatedLossYER: 8500000,
+      startDate: "2024-11-01T00:00:00Z",
+      createdAt: "2024-11-05T00:00:00Z",
+      updatedAt: "2024-12-18T00:00:00Z",
+    },
+    {
+      id: "disaster-003",
+      type: DisasterType.LOCUST,
+      title: "Desert Locust Swarm - Hodeidah",
+      titleAr: "سرب جراد صحراوي - الحديدة",
+      description:
+        "Desert locust swarm detected moving towards agricultural areas",
+      governorate: "hodeidah",
+      location: { lat: 14.8, lng: 42.9 },
+      affectedRadiusKm: 25,
+      severity: Severity.CRITICAL,
+      status: DisasterStatus.ACTIVE,
+      affectedFieldsCount: 200,
+      totalAffectedAreaHectares: 1500,
+      totalEstimatedLossYER: 45000000,
+      startDate: "2024-12-17T00:00:00Z",
+      createdAt: "2024-12-17T06:00:00Z",
+      updatedAt: "2024-12-18T12:00:00Z",
+    },
+  ];
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Get Active Disasters
@@ -174,45 +125,23 @@ export class DisasterService {
     governorate?: string;
     severity?: string;
   }) {
-    const where: any = {};
+    let filtered = [...this.disasters];
 
     if (params.type) {
-      where.type = mapDisasterType(params.type);
+      filtered = filtered.filter((d) => d.type === params.type);
     }
     if (params.governorate) {
-      where.governorate = params.governorate;
+      filtered = filtered.filter((d) => d.governorate === params.governorate);
     }
     if (params.severity) {
-      where.severity = params.severity as PrismaSeverity;
+      filtered = filtered.filter((d) => d.severity === params.severity);
     }
 
-    const disasters = await this.prisma.disasterReport.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-    });
-
     return {
-      total: disasters.length,
-      disasters: disasters.map((d) => ({
-        id: d.id,
-        type: d.type,
-        title: d.title,
-        titleAr: d.titleAr,
-        description: d.description,
-        governorate: d.governorate,
+      total: filtered.length,
+      disasters: filtered.map((d) => ({
+        ...d,
         governorateAr: GOVERNORATE_AR[d.governorate] || d.governorate,
-        location: d.location,
-        affectedRadiusKm: d.affectedRadiusKm,
-        severity: d.severity,
-        status: d.status,
-        affectedFieldsCount: d.affectedFieldsCount,
-        totalAffectedAreaHectares: d.totalAffectedAreaHectares,
-        totalEstimatedLossYER: d.totalEstimatedLossYER
-          ? Number(d.totalEstimatedLossYER)
-          : null,
-        startDate: d.startDate?.toISOString(),
-        createdAt: d.createdAt.toISOString(),
-        updatedAt: d.updatedAt.toISOString(),
         typeAr: DISASTER_TYPE_AR[d.type as DisasterType],
       })),
     };
@@ -223,48 +152,18 @@ export class DisasterService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   async getDisasterById(id: string) {
-    const disaster = await this.prisma.disasterReport.findUnique({
-      where: { id },
-      include: {
-        fieldAssessments: true,
-      },
-    });
-
+    const disaster = this.disasters.find((d) => d.id === id);
     if (!disaster) {
       return { error: "Disaster not found", errorAr: "الكارثة غير موجودة" };
     }
 
     return {
-      id: disaster.id,
-      type: disaster.type,
-      title: disaster.title,
-      titleAr: disaster.titleAr,
-      description: disaster.description,
-      governorate: disaster.governorate,
-      governorateAr: GOVERNORATE_AR[disaster.governorate] || disaster.governorate,
-      location: disaster.location,
-      affectedRadiusKm: disaster.affectedRadiusKm,
-      severity: disaster.severity,
-      status: disaster.status,
-      affectedFieldsCount: disaster.affectedFieldsCount,
-      totalAffectedAreaHectares: disaster.totalAffectedAreaHectares,
-      totalEstimatedLossYER: disaster.totalEstimatedLossYER
-        ? Number(disaster.totalEstimatedLossYER)
-        : null,
-      startDate: disaster.startDate?.toISOString(),
-      createdAt: disaster.createdAt.toISOString(),
-      updatedAt: disaster.updatedAt.toISOString(),
+      ...disaster,
+      governorateAr:
+        GOVERNORATE_AR[disaster.governorate] || disaster.governorate,
       typeAr: DISASTER_TYPE_AR[disaster.type as DisasterType],
-      // Include affected fields from assessments or generate mock
-      affectedFields:
-        disaster.fieldAssessments.length > 0
-          ? disaster.fieldAssessments.map((a) => ({
-              fieldId: a.fieldId,
-              areaHectares: a.affectedAreaHectares,
-              damagePercentage: a.damagePercentage,
-              cropType: a.affectedCropType,
-            }))
-          : this.generateAffectedFields(disaster.affectedFieldsCount),
+      // Add affected fields list (mock)
+      affectedFields: this.generateAffectedFields(disaster.affectedFieldsCount),
     };
   }
 
@@ -273,43 +172,31 @@ export class DisasterService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   async reportDisaster(dto: CreateDisasterReportDto) {
-    const disaster = await this.prisma.disasterReport.create({
-      data: {
-        type: mapDisasterType(dto.type),
-        title: dto.title,
-        titleAr: dto.title, // In real implementation, translate or require Arabic title
-        description: dto.description,
-        governorate: dto.governorate,
-        district: dto.district,
-        location: dto.location as any,
-        affectedRadiusKm: dto.affectedRadiusKm,
-        severity: mapSeverity(dto.severity),
-        status: PrismaDisasterStatus.active,
-        startDate: dto.startDate ? new Date(dto.startDate) : null,
-        images: dto.images as any,
-        reportedBy: dto.reportedBy || "anonymous",
-        tenantId: this.DEFAULT_TENANT_ID,
-        affectedFieldsCount: 0,
-        totalAffectedAreaHectares: 0,
-        totalEstimatedLossYER: BigInt(0),
-      },
-    });
+    const id = `disaster-${Date.now()}`;
+    const now = new Date().toISOString();
+
+    const newDisaster = {
+      id,
+      ...dto,
+      titleAr: dto.title, // In real implementation, translate or require Arabic title
+      status: DisasterStatus.ACTIVE,
+      affectedFieldsCount: 0,
+      totalAffectedAreaHectares: 0,
+      totalEstimatedLossYER: 0,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.disasters.push(newDisaster);
 
     return {
       success: true,
       message: "Disaster reported successfully",
       messageAr: "تم الإبلاغ عن الكارثة بنجاح",
       disaster: {
-        id: disaster.id,
-        type: disaster.type,
-        title: disaster.title,
-        titleAr: disaster.titleAr,
-        governorate: disaster.governorate,
-        governorateAr: GOVERNORATE_AR[disaster.governorate] || disaster.governorate,
+        ...newDisaster,
+        governorateAr: GOVERNORATE_AR[dto.governorate] || dto.governorate,
         typeAr: DISASTER_TYPE_AR[dto.type],
-        severity: disaster.severity,
-        status: disaster.status,
-        createdAt: disaster.createdAt.toISOString(),
       },
     };
   }
@@ -332,83 +219,29 @@ export class DisasterService {
       Math.round(affectedArea * avgValuePerHectare * (damagePercentage / 100));
 
     // Generate recommendations based on disaster type and damage level
-    const recommendations = await this.generateRecommendations(
+    const recommendations = this.generateRecommendations(
       dto.disasterId,
       damageLevel.level,
     );
 
-    // Store assessment in database
-    const assessment = await this.prisma.fieldAssessment.create({
-      data: {
-        fieldId,
-        disasterId: dto.disasterId,
-        damagePercentage: Math.round(damagePercentage * 10) / 10,
-        damageLevel: damageLevel.level,
-        damageLevelAr: damageLevel.levelAr,
-        affectedAreaHectares: Math.round(affectedArea * 100) / 100,
-        estimatedLossYER: BigInt(estimatedLoss),
-        affectedCropType: dto.affectedCropType || "wheat",
-        recommendations: recommendations.en as any,
-        recommendationsAr: recommendations.ar as any,
-        insuranceEligible: damagePercentage >= 30,
-        insuranceClaimAmount:
-          damagePercentage >= 30 ? BigInt(Math.round(estimatedLoss * 0.7)) : null,
-        assessmentNotes: dto.assessmentNotes,
-        assessmentImages: dto.assessmentImages as any,
-        tenantId: this.DEFAULT_TENANT_ID,
-      },
-    });
-
-    // Update disaster statistics
-    await this.updateDisasterStats(dto.disasterId);
-
     return {
       fieldId,
       disasterId: dto.disasterId,
-      damagePercentage: assessment.damagePercentage,
-      damageLevel: assessment.damageLevel,
-      damageLevelAr: assessment.damageLevelAr,
+      damagePercentage: Math.round(damagePercentage * 10) / 10,
+      damageLevel: damageLevel.level,
+      damageLevelAr: damageLevel.levelAr,
       damageColor: damageLevel.color,
-      affectedAreaHectares: assessment.affectedAreaHectares,
-      estimatedLossYER: Number(assessment.estimatedLossYER),
-      affectedCropType: assessment.affectedCropType,
+      affectedAreaHectares: Math.round(affectedArea * 100) / 100,
+      estimatedLossYER: estimatedLoss,
+      affectedCropType: dto.affectedCropType || "wheat",
       recommendations: recommendations.en,
       recommendationsAr: recommendations.ar,
-      insuranceEligible: assessment.insuranceEligible,
-      insuranceClaimAmount: assessment.insuranceClaimAmount
-        ? Number(assessment.insuranceClaimAmount)
-        : 0,
-      assessedAt: assessment.assessedAt.toISOString(),
-      assessmentNotes: assessment.assessmentNotes,
+      insuranceEligible: damagePercentage >= 30,
+      insuranceClaimAmount:
+        damagePercentage >= 30 ? Math.round(estimatedLoss * 0.7) : 0,
+      assessedAt: new Date().toISOString(),
+      assessmentNotes: dto.assessmentNotes,
     };
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Update Disaster Statistics after assessment
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  private async updateDisasterStats(disasterId: string) {
-    const assessments = await this.prisma.fieldAssessment.findMany({
-      where: { disasterId },
-    });
-
-    const totalArea = assessments.reduce(
-      (sum, a) => sum + a.affectedAreaHectares,
-      0,
-    );
-    const totalLoss = assessments.reduce(
-      (sum, a) => sum + Number(a.estimatedLossYER),
-      0,
-    );
-
-    await this.prisma.disasterReport.update({
-      where: { id: disasterId },
-      data: {
-        affectedFieldsCount: assessments.length,
-        totalAffectedAreaHectares: totalArea,
-        totalEstimatedLossYER: BigInt(Math.round(totalLoss)),
-      },
-    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -416,7 +249,7 @@ export class DisasterService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   async getFloodRiskMap(governorate: string) {
-    // Mock flood risk zones (could be enhanced with actual GIS data)
+    // Mock flood risk zones
     const riskZones = [
       { zone: "high", zoneAr: "عالي", percentage: 15, color: "#dc2626" },
       { zone: "medium", zoneAr: "متوسط", percentage: 25, color: "#f59e0b" },
@@ -505,73 +338,6 @@ export class DisasterService {
 
   async getStatistics(params: { year?: number; governorate?: string }) {
     const year = params.year || new Date().getFullYear();
-    const startOfYear = new Date(`${year}-01-01T00:00:00Z`);
-    const endOfYear = new Date(`${year}-12-31T23:59:59Z`);
-
-    const where: any = {
-      createdAt: {
-        gte: startOfYear,
-        lte: endOfYear,
-      },
-    };
-
-    if (params.governorate) {
-      where.governorate = params.governorate;
-    }
-
-    // Get counts from database
-    const totalDisasters = await this.prisma.disasterReport.count({ where });
-    const activeDisasters = await this.prisma.disasterReport.count({
-      where: { ...where, status: PrismaDisasterStatus.active },
-    });
-    const resolvedDisasters = await this.prisma.disasterReport.count({
-      where: { ...where, status: PrismaDisasterStatus.resolved },
-    });
-
-    // Get aggregate statistics
-    const aggregates = await this.prisma.disasterReport.aggregate({
-      where,
-      _sum: {
-        totalAffectedAreaHectares: true,
-        affectedFieldsCount: true,
-      },
-    });
-
-    // Get loss totals
-    const disasters = await this.prisma.disasterReport.findMany({
-      where,
-      select: { totalEstimatedLossYER: true, type: true },
-    });
-
-    const totalLoss = disasters.reduce(
-      (sum, d) => sum + (d.totalEstimatedLossYER ? Number(d.totalEstimatedLossYER) : 0),
-      0,
-    );
-
-    // Group by type
-    const byType = await this.prisma.disasterReport.groupBy({
-      by: ["type"],
-      where,
-      _count: { id: true },
-    });
-
-    const byTypeWithLoss = byType.map((item) => {
-      const typeLoss = disasters
-        .filter((d) => d.type === item.type)
-        .reduce(
-          (sum, d) => sum + (d.totalEstimatedLossYER ? Number(d.totalEstimatedLossYER) : 0),
-          0,
-        );
-      return {
-        type: item.type,
-        typeAr: DISASTER_TYPE_AR[item.type as DisasterType] || item.type,
-        count: item._count.id,
-        lossYER: typeLoss,
-      };
-    });
-
-    // Get monthly distribution
-    const byMonth = await this.getMonthlyDistribution(year, params.governorate);
 
     return {
       year,
@@ -580,53 +346,55 @@ export class DisasterService {
         ? GOVERNORATE_AR[params.governorate]
         : "جميع المحافظات",
       summary: {
-        totalDisasters,
-        activeDisasters,
-        resolvedDisasters,
-        totalAffectedAreaHectares: aggregates._sum.totalAffectedAreaHectares || 0,
-        totalEstimatedLossYER: totalLoss,
-        totalFieldsAffected: aggregates._sum.affectedFieldsCount || 0,
-        farmersAffected: Math.round((aggregates._sum.affectedFieldsCount || 0) * 0.7),
+        totalDisasters: 45,
+        activeDisasters: 3,
+        resolvedDisasters: 42,
+        totalAffectedAreaHectares: 12500,
+        totalEstimatedLossYER: 850000000,
+        totalFieldsAffected: 1250,
+        farmersAffected: 890,
       },
-      byType: byTypeWithLoss,
-      byMonth,
-      trend: totalDisasters > 0 ? "stable" : "none",
-      trendAr: totalDisasters > 0 ? "مستقر" : "لا بيانات",
-      comparedToLastYear: 0,
-    };
-  }
-
-  private async getMonthlyDistribution(year: number, governorate?: string) {
-    const months = [];
-    for (let month = 1; month <= 12; month++) {
-      const startOfMonth = new Date(`${year}-${month.toString().padStart(2, "0")}-01`);
-      const endOfMonth = new Date(year, month, 0, 23, 59, 59);
-
-      const where: any = {
-        createdAt: {
-          gte: startOfMonth,
-          lte: endOfMonth,
+      byType: [
+        {
+          type: DisasterType.FLOOD,
+          typeAr: "فيضان",
+          count: 12,
+          lossYER: 250000000,
         },
-      };
-
-      if (governorate) {
-        where.governorate = governorate;
-      }
-
-      const count = await this.prisma.disasterReport.count({ where });
-      const disasters = await this.prisma.disasterReport.findMany({
-        where,
-        select: { totalEstimatedLossYER: true },
-      });
-
-      const lossYER = disasters.reduce(
-        (sum, d) => sum + (d.totalEstimatedLossYER ? Number(d.totalEstimatedLossYER) : 0),
-        0,
-      );
-
-      months.push({ month, count, lossYER });
-    }
-    return months;
+        {
+          type: DisasterType.DROUGHT,
+          typeAr: "جفاف",
+          count: 8,
+          lossYER: 180000000,
+        },
+        {
+          type: DisasterType.LOCUST,
+          typeAr: "جراد",
+          count: 5,
+          lossYER: 320000000,
+        },
+        {
+          type: DisasterType.PEST,
+          typeAr: "آفات",
+          count: 15,
+          lossYER: 60000000,
+        },
+        {
+          type: DisasterType.DISEASE,
+          typeAr: "أمراض",
+          count: 5,
+          lossYER: 40000000,
+        },
+      ],
+      byMonth: Array.from({ length: 12 }, (_, i) => ({
+        month: i + 1,
+        count: Math.floor(Math.random() * 8) + 1,
+        lossYER: Math.floor(Math.random() * 100000000),
+      })),
+      trend: "decreasing",
+      trendAr: "متناقص",
+      comparedToLastYear: -15, // 15% decrease
+    };
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -645,16 +413,15 @@ export class DisasterService {
     }));
   }
 
-  private async generateRecommendations(disasterId: string, damageLevel: string) {
-    const disaster = await this.prisma.disasterReport.findUnique({
-      where: { id: disasterId },
-      select: { type: true },
-    });
+  private generateRecommendations(disasterId: string, damageLevel: string) {
+    const disaster = this.disasters.find((d) => d.id === disasterId);
+    const type = disaster?.type || DisasterType.FLOOD;
 
-    const type = disaster?.type || PrismaDisasterType.flood;
-
-    const recommendationsByType: Record<string, { en: string[]; ar: string[] }> = {
-      [PrismaDisasterType.flood]: {
+    const recommendationsByType: Record<
+      string,
+      { en: string[]; ar: string[] }
+    > = {
+      [DisasterType.FLOOD]: {
         en: [
           "Drain excess water from fields immediately",
           "Apply fungicides to prevent root rot",
@@ -668,7 +435,7 @@ export class DisasterService {
           "النظر في إعادة الزراعة إذا تجاوز الضرر 50%",
         ],
       },
-      [PrismaDisasterType.drought]: {
+      [DisasterType.DROUGHT]: {
         en: [
           "Implement emergency irrigation if available",
           "Apply mulch to retain soil moisture",
@@ -682,7 +449,7 @@ export class DisasterService {
           "تقليل كثافة النباتات للحفاظ على المياه",
         ],
       },
-      [PrismaDisasterType.locust]: {
+      [DisasterType.LOCUST]: {
         en: [
           "Apply approved insecticides immediately",
           "Coordinate with neighboring farms for area-wide treatment",

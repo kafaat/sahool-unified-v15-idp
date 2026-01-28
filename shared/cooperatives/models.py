@@ -14,8 +14,10 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any
 from decimal import Decimal
@@ -236,8 +238,8 @@ class Cooperative:
     total_land_area_ha: float = 0.0
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
     tags: list[str] = field(default_factory=list)
     custom_fields: dict[str, Any] = field(default_factory=dict)
 
@@ -368,8 +370,8 @@ class CooperativeMember:
     last_activity_date: datetime | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
     notes: str | None = None
     notes_ar: str | None = None
 
@@ -527,8 +529,8 @@ class SharedResource:
     member_discount_percent: Decimal = Decimal("0")
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
     images: list[str] = field(default_factory=list)
     documents: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
@@ -556,7 +558,7 @@ class SharedResource:
         """Check if resource is currently available"""
         if self.status != ResourceStatus.AVAILABLE:
             return False
-        now = datetime.now(timezone.utc)
+        now = datetime.utcnow()
         if self.available_from and now < self.available_from:
             return False
         if self.available_until and now > self.available_until:
@@ -566,7 +568,7 @@ class SharedResource:
     def needs_maintenance(self) -> bool:
         """Check if resource needs maintenance"""
         if self.next_maintenance_date:
-            return datetime.now(timezone.utc) >= self.next_maintenance_date
+            return datetime.utcnow() >= self.next_maintenance_date
         if self.maintenance_interval_hours:
             return self.total_usage_hours >= self.maintenance_interval_hours
         return False
@@ -651,7 +653,7 @@ class ResourceBooking:
     field_id: str | None = None            # Target field for equipment
 
     # Timing
-    start_time: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    start_time: datetime = field(default_factory=datetime.utcnow)
     end_time: datetime | None = None
     duration_hours: float = 0.0
 
@@ -674,8 +676,8 @@ class ResourceBooking:
     completion_notes: str | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
 
     @classmethod
     def create(
@@ -782,8 +784,8 @@ class GroupPurchaseOrder:
     batch_number: str | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
     created_by: str | None = None
     notes: str | None = None
 
@@ -871,7 +873,7 @@ class MemberOrderLine:
     status: str = "pending"                # pending, confirmed, allocated, delivered
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=datetime.utcnow)
     notes: str | None = None
 
     @classmethod

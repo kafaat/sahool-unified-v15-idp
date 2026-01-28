@@ -8,7 +8,6 @@ import { PrismaService } from "@/config/prisma.service";
 import { Prisma } from "@prisma/client";
 import { SignatureService } from "@/core/services/signature.service";
 import { CreateLogDto, UpdateLogDto, SyncLogDto } from "./dto/log.dto";
-import { MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE } from "../../utils/db-utils";
 
 @Injectable()
 export class LogsService {
@@ -72,8 +71,7 @@ export class LogsService {
     },
   ) {
     const page = filters?.page || 1;
-    // Enforce maximum page size to prevent memory exhaustion
-    const limit = Math.min(filters?.limit || DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
+    const limit = filters?.limit || 50;
     const skip = (page - 1) * limit;
 
     const where: any = { experimentId };

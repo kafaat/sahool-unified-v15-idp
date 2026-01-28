@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -83,7 +83,7 @@ class SharePermission:
     permission_level: PermissionLevel = PermissionLevel.VIEW
 
     # Validity | الصلاحية
-    granted_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    granted_at: datetime = field(default_factory=datetime.utcnow)
     expires_at: datetime | None = None
     is_active: bool = True
 
@@ -116,7 +116,7 @@ class ApprovalRequest:
     requested_changes: dict[str, Any] | None = None
 
     # Timestamps | الطوابع الزمنية
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=datetime.utcnow)
     responded_at: datetime | None = None
     expires_at: datetime | None = None
 
@@ -148,7 +148,7 @@ class ConflictResolution:
     survey_reference: str | None = None
 
     # Timestamps | الطوابع الزمنية
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=datetime.utcnow)
     finalized_at: datetime | None = None
 
 
@@ -206,7 +206,7 @@ class BoundarySharingManager:
             message_ar=message_ar,
             permission_level=permission_level.value,
             status=ShareStatus.PENDING.value,
-            expires_at=datetime.now(timezone.utc) + timedelta(days=expires_in_days)
+            expires_at=datetime.utcnow() + timedelta(days=expires_in_days)
         )
 
         self._share_requests[request.id] = request
@@ -242,13 +242,13 @@ class BoundarySharingManager:
         if request.status != ShareStatus.PENDING.value:
             return (False, f"Request is {request.status} | الطلب {request.status}", None)
 
-        if request.expires_at and datetime.now(timezone.utc) > request.expires_at:
+        if request.expires_at and datetime.utcnow() > request.expires_at:
             request.status = ShareStatus.EXPIRED.value
             return (False, "Request expired | انتهت صلاحية الطلب", None)
 
         # Update request
         request.status = ShareStatus.ACCEPTED.value
-        request.responded_at = datetime.now(timezone.utc)
+        request.responded_at = datetime.utcnow()
         request.response_message = response_message
         request.response_message_ar = response_message_ar
 
@@ -281,7 +281,7 @@ class BoundarySharingManager:
             return (False, "Not authorized | غير مصرح")
 
         request.status = ShareStatus.REJECTED.value
-        request.responded_at = datetime.now(timezone.utc)
+        request.responded_at = datetime.utcnow()
         request.response_message = response_message
         request.response_message_ar = response_message_ar
 
@@ -355,7 +355,7 @@ class BoundarySharingManager:
         for perm in permissions:
             if perm.user_id == user_id and perm.is_active:
                 # Check expiry
-                if perm.expires_at and datetime.now(timezone.utc) > perm.expires_at:
+                if perm.expires_at and datetime.utcnow() > perm.expires_at:
                     perm.is_active = False
                     continue
                 return perm
@@ -406,7 +406,7 @@ class BoundarySharingManager:
         for boundary_id, permissions in self._permissions.items():
             for perm in permissions:
                 if perm.user_id == user_id and perm.is_active:
-                    if perm.expires_at and datetime.now(timezone.utc) > perm.expires_at:
+                    if perm.expires_at and datetime.utcnow() > perm.expires_at:
                         perm.is_active = False
                         continue
                     result.append((boundary_id, perm))
@@ -445,7 +445,7 @@ class BoundarySharingManager:
             approver_id=neighbor_id,
             message=message,
             message_ar=message_ar,
-            expires_at=datetime.now(timezone.utc) + timedelta(days=expires_in_days)
+            expires_at=datetime.utcnow() + timedelta(days=expires_in_days)
         )
 
         self._approval_requests[request.id] = request
@@ -473,7 +473,7 @@ class BoundarySharingManager:
             return (False, f"Request already {request.status}")
 
         request.status = ApprovalStatus.APPROVED.value
-        request.responded_at = datetime.now(timezone.utc)
+        request.responded_at = datetime.utcnow()
         request.response_message = response_message
         request.response_message_ar = response_message_ar
 
@@ -504,7 +504,7 @@ class BoundarySharingManager:
         else:
             request.status = ApprovalStatus.REJECTED.value
 
-        request.responded_at = datetime.now(timezone.utc)
+        request.responded_at = datetime.utcnow()
         request.response_message = response_message
         request.response_message_ar = response_message_ar
 
@@ -725,9 +725,9 @@ class BoundarySharingManager:
 
         # Check if fully resolved
         if resolution.party_a_approved and resolution.party_b_approved:
-            resolution.finalized_at = datetime.now(timezone.utc)
+            resolution.finalized_at = datetime.utcnow()
             conflict.is_resolved = True
-            conflict.resolved_at = datetime.now(timezone.utc)
+            conflict.resolved_at = datetime.utcnow()
             conflict.resolved_by = resolution.mediator_id or "parties"
 
             return (True, "Conflict resolved | تم حل التعارض")

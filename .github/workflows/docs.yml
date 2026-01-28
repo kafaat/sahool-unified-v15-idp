@@ -38,10 +38,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -121,7 +121,7 @@ jobs:
           done
 
       - name: Upload OpenAPI specs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: openapi-specs
           path: ${{ env.DOCS_DIR }}/openapi/*.json
@@ -136,16 +136,16 @@ jobs:
     needs: [generate-openapi]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download OpenAPI specs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: openapi-specs
           path: ${{ env.DOCS_DIR }}/openapi
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -334,7 +334,7 @@ jobs:
           EOF
 
       - name: Upload API docs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: api-documentation
           path: ${{ env.DOCS_DIR }}/api
@@ -348,10 +348,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -424,7 +424,7 @@ jobs:
           mkdocs build --clean || true
 
       - name: Upload developer docs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: developer-documentation
@@ -445,16 +445,16 @@ jobs:
       id-token: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download API docs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: api-documentation
           path: public/api
 
       - name: Download developer docs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: developer-documentation
           path: public/

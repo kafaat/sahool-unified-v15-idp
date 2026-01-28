@@ -1,5 +1,5 @@
 """
-Virtual Sensors Engine - Sahool Smart Irrigation v16.0
+Virtual Sensors Engine - Sahool Smart Irrigation v15.5
 محرك المستشعرات الافتراضية - الري الذكي سهول
 
 Software-based sensor calculations for irrigation management without physical hardware.
@@ -21,7 +21,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -52,7 +52,7 @@ except ImportError:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 SERVICE_NAME = "virtual-sensors"
-SERVICE_VERSION = "16.0.0"
+SERVICE_VERSION = "15.5.0"
 SERVICE_PORT = int(os.getenv("PORT", "8119"))
 
 
@@ -837,6 +837,7 @@ def calculate_irrigation_recommendation(
     إنشاء توصية الري
     """
     crop = CROP_COEFFICIENTS.get(crop_type, CROP_COEFFICIENTS["wheat"])
+    SOIL_PROPERTIES[soil_type]
     efficiency = IRRIGATION_EFFICIENCY[irrigation_method]
 
     kc = get_crop_kc(crop_type, growth_stage)
@@ -951,19 +952,7 @@ async def lifespan(app: FastAPI):
     print(f"🌱 {SERVICE_NAME} v{SERVICE_VERSION} starting on port {SERVICE_PORT}")
     print(f"📊 Loaded {len(CROP_COEFFICIENTS)} crop types with Kc values")
     print(f"🌍 Loaded {len(SOIL_PROPERTIES)} soil types")
-
-    # Initialize NATS connection state for health checks
-    # Note: This service uses sync NATS publisher, not async client
-    app.state.nats_client = True if _nats_available else None
-    if _nats_available:
-        print("📡 NATS publisher available")
-    else:
-        print("⚠️ NATS publisher not available - running in degraded mode")
-
     yield
-
-    # Cleanup
-    app.state.nats_client = None
     print(f"👋 {SERVICE_NAME} shutting down")
 
 
@@ -1006,7 +995,6 @@ app.add_middleware(
 
 
 @app.get("/healthz")
-@app.get("/health")
 async def health_check():
     """Health check endpoint with dependency status"""
     nats_connected = hasattr(app.state, "nats_client") and app.state.nats_client is not None
@@ -1016,7 +1004,7 @@ async def health_check():
         "service": SERVICE_NAME,
         "version": SERVICE_VERSION,
         "nats_connected": nats_connected,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
 
@@ -1318,7 +1306,7 @@ async def get_irrigation_recommendation(input_data: IrrigationRecommendationInpu
 
     return IrrigationRecommendation(
         recommendation_id=str(uuid.uuid4()),
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.utcnow(),
         crop_type=input_data.crop_type,
         crop_name_ar=crop["name_ar"],
         growth_stage=input_data.growth_stage.value,
@@ -1383,6 +1371,7 @@ async def quick_irrigation_check(
 
     # Typical irrigation amount assumption
     typical_irrigation = 30  # mm
+    typical_irrigation - total_et_loss
     depletion = (total_et_loss / typical_irrigation) * 100
 
     # Quick assessment
@@ -1508,7 +1497,7 @@ def _create_virtual_sensor_action(
             "label_en": "Virtual Estimate",
             "color": "#6366F1",  # Indigo for virtual
         },
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.utcnow().isoformat(),
     }
 
 

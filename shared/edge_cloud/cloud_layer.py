@@ -14,10 +14,12 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 import asyncio
 import statistics
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Any
 from uuid import uuid4
 
@@ -642,11 +644,11 @@ class CloudAILayer:
             if confidence > 0.8:
                 print(f"Detected: {pest_type} with {confidence:.0%} confidence")
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.utcnow()
 
         detections = await self._pest_model.detect(image, confidence_threshold)
 
-        processing_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+        processing_time = (datetime.utcnow() - start_time).total_seconds() * 1000
 
         # Get highest confidence detection
         if detections:
@@ -679,7 +681,7 @@ class CloudAILayer:
             input_type="image",
             farm_id=self.farm_id,
         )
-        inference.completed_at = datetime.now(timezone.utc)
+        inference.completed_at = datetime.utcnow()
         self._record_inference(inference)
 
         self._logger.info(
@@ -741,7 +743,7 @@ class CloudAILayer:
             predictions = await cloud.moisture_prediction(history, days=3)
             # Returns [36.5, 34.2, 32.1]
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.utcnow()
 
         prediction = await self._moisture_model.predict(
             history=history,
@@ -751,7 +753,7 @@ class CloudAILayer:
             crop_type=crop_type,
         )
 
-        processing_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+        processing_time = (datetime.utcnow() - start_time).total_seconds() * 1000
 
         # Record inference
         inference = CloudInference(
@@ -769,7 +771,7 @@ class CloudAILayer:
             input_summary=f"History: {len(history)} points, Last: {history[-1] if history else 'N/A'}",
             farm_id=self.farm_id,
         )
-        inference.completed_at = datetime.now(timezone.utc)
+        inference.completed_at = datetime.utcnow()
         self._record_inference(inference)
 
         self._logger.info(
@@ -835,7 +837,7 @@ class CloudAILayer:
             weather = {"temperature": 25, "humidity": 60}
             yield_curve = await cloud.yield_estimation(field_data, weather, days=15)
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.utcnow()
 
         estimation = await self._yield_model.estimate(
             field_data=field_data,
@@ -843,7 +845,7 @@ class CloudAILayer:
             days=days,
         )
 
-        processing_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+        processing_time = (datetime.utcnow() - start_time).total_seconds() * 1000
 
         # Record inference
         inference = CloudInference(
@@ -864,7 +866,7 @@ class CloudAILayer:
             farm_id=self.farm_id,
             field_id=field_data.get("field_id", ""),
         )
-        inference.completed_at = datetime.now(timezone.utc)
+        inference.completed_at = datetime.utcnow()
         self._record_inference(inference)
 
         self._logger.info(
@@ -938,7 +940,7 @@ class CloudAILayer:
             "model_type": model_type,
             "samples_used": len(training_data),
             "total_samples": len(self._training_data[model_type]),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.utcnow().isoformat(),
             "metrics": {
                 "accuracy": 0.92,
                 "precision": 0.91,

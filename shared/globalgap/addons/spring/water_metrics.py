@@ -6,6 +6,8 @@ Pydantic models for tracking water usage, efficiency, and quality metrics.
 نماذج Pydantic لتتبع استخدام المياه والكفاءة ومقاييس الجودة.
 """
 
+from __future__ import annotations
+
 from datetime import date
 from enum import Enum
 

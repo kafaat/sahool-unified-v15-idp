@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Weather Domain Events"""
 
 from dataclasses import dataclass, field

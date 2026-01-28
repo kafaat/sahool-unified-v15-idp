@@ -6,6 +6,8 @@ Provides caching for user validation to improve performance.
 Includes TTL management, cache invalidation, batch operations, and health checks.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import time

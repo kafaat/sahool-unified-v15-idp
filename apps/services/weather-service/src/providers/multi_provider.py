@@ -12,7 +12,7 @@ Supported Providers:
 import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -225,7 +225,7 @@ class OpenMeteoProvider(WeatherProvider):
             condition=self._wmo_to_condition(weather_code),
             condition_ar=self._wmo_to_condition_ar(weather_code),
             icon=self._wmo_to_icon(weather_code),
-            timestamp=current.get("time", datetime.now(timezone.utc).isoformat()),
+            timestamp=current.get("time", datetime.utcnow().isoformat()),
             provider=self.name,
         )
 
@@ -441,7 +441,7 @@ class OpenWeatherMapProvider(WeatherProvider):
             condition=condition,
             condition_ar=self._condition_to_ar(condition),
             icon=data.get("weather", [{}])[0].get("icon", "01d"),
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.utcnow().isoformat(),
             provider=self.name,
         )
 
@@ -599,7 +599,7 @@ class WeatherAPIProvider(WeatherProvider):
             condition=current.get("condition", {}).get("text", "Unknown"),
             condition_ar=current.get("condition", {}).get("text", "غير معروف"),
             icon=current.get("condition", {}).get("icon", ""),
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.utcnow().isoformat(),
             provider=self.name,
         )
 
@@ -723,14 +723,14 @@ class MultiWeatherService:
         """Get cached result if still valid"""
         if key in self._cache:
             data, timestamp = self._cache[key]
-            if datetime.now(timezone.utc) - timestamp < self._cache_duration:
+            if datetime.utcnow() - timestamp < self._cache_duration:
                 return data
             del self._cache[key]
         return None
 
     def _set_cached(self, key: str, data: Any):
         """Cache a result"""
-        self._cache[key] = (data, datetime.now(timezone.utc))
+        self._cache[key] = (data, datetime.utcnow())
 
     async def get_current(self, lat: float, lon: float) -> WeatherResult:
         """Get current weather with automatic fallback"""

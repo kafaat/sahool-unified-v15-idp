@@ -6,7 +6,7 @@ SAHOOL Equipment Service - Database Configuration
 import os
 from collections.abc import Generator
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from .db_models import Base
@@ -100,7 +100,7 @@ def check_db_connection() -> bool:
     """
     try:
         db = SessionLocal()
-        db.execute(text("SELECT 1"))
+        db.execute("SELECT 1")
         db.close()
         return True
     except Exception:

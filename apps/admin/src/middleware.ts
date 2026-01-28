@@ -118,7 +118,27 @@ export async function middleware(request: NextRequest) {
   try {
     // Verify JWT signature and extract role
     const payload = await verifyToken(token);
-    userRole = payload.role || "viewer";
+
+    // FIXED: Backend sends "roles" (array), not "role" (singular)
+    // Extract role from roles array or fallback to role field for backward compatibility
+    let extractedRole: string;
+    if (payload.roles && Array.isArray(payload.roles) && payload.roles.length > 0) {
+      extractedRole = payload.roles[0];
+    } else if (payload.role) {
+      extractedRole = payload.role;
+    } else {
+      extractedRole = "viewer"; // Default fallback
+    }
+
+    // Normalize role to lowercase and map to admin panel roles
+    const normalizedRole = extractedRole.toLowerCase();
+    if (normalizedRole === "admin" || normalizedRole === "administrator") {
+      userRole = "admin";
+    } else if (normalizedRole === "supervisor" || normalizedRole === "manager") {
+      userRole = "supervisor";
+    } else {
+      userRole = "viewer"; // Default for farmer, viewer, or any other role
+    }
   } catch (error) {
     // Token verification failed (invalid signature, malformed, etc.)
     logger.error("Token verification failed:", error);

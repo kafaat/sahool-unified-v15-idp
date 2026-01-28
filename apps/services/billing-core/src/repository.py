@@ -10,7 +10,7 @@ This module provides database operations for:
 """
 
 import uuid
-from datetime import UTC, date, datetime
+from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
 
@@ -103,7 +103,7 @@ class PlanRepository:
         query = select(Plan)
 
         if active_only:
-            query = query.where(Plan.is_active == True)  # noqa: E712 - SQLAlchemy comparison
+            query = query.where(Plan.is_active is True)
 
         query = query.order_by(asc(Plan.tier)).limit(limit).offset(offset)
 
@@ -116,7 +116,7 @@ class PlanRepository:
         **kwargs,
     ) -> Plan | None:
         """Update plan - تحديث الخطة"""
-        kwargs["updated_at"] = datetime.now(UTC)
+        kwargs["updated_at"] = datetime.utcnow()
 
         await self.db.execute(update(Plan).where(Plan.plan_id == plan_id).values(**kwargs))
         await self.db.commit()
@@ -128,7 +128,7 @@ class PlanRepository:
         result = await self.db.execute(
             update(Plan)
             .where(Plan.plan_id == plan_id)
-            .values(is_active=False, updated_at=datetime.now(UTC))
+            .values(is_active=False, updated_at=datetime.utcnow())
         )
         await self.db.commit()
 
@@ -242,7 +242,7 @@ class TenantRepository:
         query = select(Tenant)
 
         if active_only:
-            query = query.where(Tenant.is_active == True)  # noqa: E712 - SQLAlchemy comparison
+            query = query.where(Tenant.is_active is True)
 
         query = query.order_by(desc(Tenant.created_at)).limit(limit).offset(offset)
 
@@ -255,7 +255,7 @@ class TenantRepository:
         **kwargs,
     ) -> Tenant | None:
         """Update tenant - تحديث المستأجر"""
-        kwargs["updated_at"] = datetime.now(UTC)
+        kwargs["updated_at"] = datetime.utcnow()
 
         await self.db.execute(update(Tenant).where(Tenant.tenant_id == tenant_id).values(**kwargs))
         await self.db.commit()
@@ -267,7 +267,7 @@ class TenantRepository:
         result = await self.db.execute(
             update(Tenant)
             .where(Tenant.tenant_id == tenant_id)
-            .values(is_active=False, updated_at=datetime.now(UTC))
+            .values(is_active=False, updated_at=datetime.utcnow())
         )
         await self.db.commit()
 
@@ -278,7 +278,7 @@ class TenantRepository:
         query = select(func.count(Tenant.id))
 
         if active_only:
-            query = query.where(Tenant.is_active == True)  # noqa: E712 - SQLAlchemy comparison
+            query = query.where(Tenant.is_active is True)
 
         result = await self.db.execute(query)
         return result.scalar_one()
@@ -383,7 +383,7 @@ class SubscriptionRepository:
     ) -> Subscription | None:
         """Update subscription - تحديث الاشتراك"""
         # Add updated_at timestamp
-        kwargs["updated_at"] = datetime.now(UTC)
+        kwargs["updated_at"] = datetime.utcnow()
 
         await self.db.execute(
             update(Subscription).where(Subscription.id == subscription_id).values(**kwargs)
@@ -403,8 +403,8 @@ class SubscriptionRepository:
             return None
 
         update_data = {
-            "canceled_at": datetime.now(UTC),
-            "updated_at": datetime.now(UTC),
+            "canceled_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow(),
         }
 
         if immediate:
@@ -751,8 +751,8 @@ class PaymentRepository:
         """Mark payment as succeeded - تحديد الدفعة كناجحة"""
         update_data = {
             "status": PaymentStatus.SUCCEEDED,
-            "paid_at": processed_at or datetime.now(UTC),
-            "processed_at": processed_at or datetime.now(UTC),
+            "paid_at": processed_at or datetime.utcnow(),
+            "processed_at": processed_at or datetime.utcnow(),
         }
 
         if external_id:

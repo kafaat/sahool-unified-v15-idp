@@ -11,7 +11,7 @@ Sentinel-1 SAR (Synthetic Aperture Radar) Integration
 import logging
 import math
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 from typing import Any
 
 import httpx
@@ -125,14 +125,14 @@ class SARProcessor:
         """Get cached data if still valid"""
         if key in self._cache:
             data, timestamp = self._cache[key]
-            if datetime.now(timezone.utc) - timestamp < self._cache_duration:
+            if datetime.utcnow() - timestamp < self._cache_duration:
                 return data
             del self._cache[key]
         return None
 
     def _set_cached(self, key: str, data: Any):
         """Cache data with timestamp"""
-        self._cache[key] = (data, datetime.now(timezone.utc))
+        self._cache[key] = (data, datetime.utcnow())
 
     async def _search_sentinel1_scenes(
         self,
@@ -320,7 +320,7 @@ class SARProcessor:
         Returns:
             SoilMoistureResult with moisture estimate and metadata
         """
-        target_date = date or datetime.now(timezone.utc)
+        target_date = date or datetime.utcnow()
         cache_key = f"sar_moisture_{field_id}_{target_date.date().isoformat()}"
 
         # Check cache
@@ -404,7 +404,7 @@ class SARProcessor:
         num_events = random.randint(0, 2)
 
         for _i in range(num_events):
-            event_date = datetime.now(timezone.utc) - timedelta(days=random.randint(2, days_back))
+            event_date = datetime.utcnow() - timedelta(days=random.randint(2, days_back))
 
             moisture_before = random.uniform(15.0, 30.0)
             moisture_after = moisture_before + random.uniform(12.0, 25.0)

@@ -18,6 +18,8 @@ Version: 1.0.0
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 import os
 from dataclasses import dataclass, field
 from enum import Enum

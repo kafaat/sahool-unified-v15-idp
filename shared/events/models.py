@@ -12,12 +12,14 @@ Usage:
         farm_id="uuid",
         name="Field 1",
         geometry_wkt="POLYGON(...)",
-        created_at=datetime.now(timezone.utc)
+        created_at=datetime.utcnow()
     )
     await nats.publish("field.created", event.model_dump_json())
 """
 
-from datetime import datetime, timezone
+from __future__ import annotations
+
+from datetime import datetime
 from enum import Enum
 from uuid import UUID
 

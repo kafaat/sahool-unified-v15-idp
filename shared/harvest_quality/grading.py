@@ -13,8 +13,10 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from decimal import Decimal
 from typing import Any
 import math
@@ -923,7 +925,7 @@ class QualityGradingEngine:
         test_record.standard_id = standard.id
         test_record.standard_name = standard.name
         test_record.standard_code = standard.standard_code
-        test_record.updated_at = datetime.now(timezone.utc)
+        test_record.updated_at = datetime.utcnow()
 
         # Update summary metrics
         if "moisture" in test_values:

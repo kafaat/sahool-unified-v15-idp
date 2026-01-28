@@ -16,6 +16,8 @@ Features:
 - Annual maintenance: ~500 yuan/year | الصيانة السنوية: ~500 يوان/سنة
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum

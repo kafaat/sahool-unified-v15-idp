@@ -5,7 +5,7 @@ Automatically creates FieldOps tasks from recommendations and plans
 
 import json
 import os
-from datetime import datetime, timedelta, UTC
+from datetime import timezone, datetime, timedelta, UTC
 
 import httpx
 from nats.aio.client import Client as NATS
@@ -143,19 +143,19 @@ class TaskAutomationHook:
 
         # Subscribe to recommendation events
         await self.nc.subscribe(
-            "sahool.advisor.recommendation_issued",
+            "advisor.recommendation_issued",
             cb=self._handle_recommendation,
         )
 
         # Subscribe to fertilizer plan events
         await self.nc.subscribe(
-            "sahool.advisor.fertilizer_plan_issued",
+            "advisor.fertilizer_plan_issued",
             cb=self._handle_fertilizer_plan,
         )
 
         # Subscribe to nutrient assessment events
         await self.nc.subscribe(
-            "sahool.advisor.nutrient_assessment_issued",
+            "advisor.nutrient_assessment_issued",
             cb=self._handle_nutrient_assessment,
         )
 

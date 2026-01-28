@@ -6,7 +6,7 @@ Client for querying the agent registry and invoking remote agents.
 عميل للاستعلام عن سجل الوكلاء واستدعاء الوكلاء عن بعد.
 """
 
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
 import httpx
@@ -56,7 +56,7 @@ class AgentInvocationResponse(BaseModel):
     output_data: dict[str, Any] | None = Field(None, description="Output data from the agent")
     error: str | None = Field(None, description="Error message if failed")
     metadata: dict[str, Any] = Field(default_factory=dict, description="Response metadata")
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Response timestamp")
+    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Response timestamp")
     response_time_ms: float | None = Field(None, description="Response time in milliseconds")
 
     class Config:
@@ -313,7 +313,7 @@ class RegistryClient:
         Returns:
             Agent invocation response
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.utcnow()
 
         try:
             # Get agent card to get endpoint
@@ -373,7 +373,7 @@ class RegistryClient:
                 result_data = response.json()
 
             # Calculate response time
-            response_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            response_time = (datetime.utcnow() - start_time).total_seconds() * 1000
 
             return AgentInvocationResponse(
                 status="success",
@@ -391,7 +391,7 @@ class RegistryClient:
                 error=str(e),
             )
 
-            response_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            response_time = (datetime.utcnow() - start_time).total_seconds() * 1000
 
             return AgentInvocationResponse(
                 status="error",

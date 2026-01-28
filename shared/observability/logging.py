@@ -13,13 +13,15 @@ Features:
 - Correlation IDs
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import re
 import sys
 import traceback
 from contextvars import ContextVar
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
 # Context variables for request tracing
@@ -230,7 +232,7 @@ class JSONFormatter(logging.Formatter):
             message = SensitiveDataMasker.mask_string(message)
 
         log_entry = {
-            "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+            "timestamp": datetime.utcnow().isoformat() + "Z",
             "level": record.levelname,
             "logger": record.name,
             "message": message,
@@ -295,7 +297,7 @@ class ColoredFormatter(logging.Formatter):
         color = self.COLORS.get(record.levelname, self.RESET)
 
         # Format timestamp
-        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
         # Build message
         parts = [

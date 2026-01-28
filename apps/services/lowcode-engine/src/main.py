@@ -19,7 +19,7 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from typing import Any
-from datetime import datetime, timezone
+from datetime import datetime
 from uuid import uuid4
 
 import redis.asyncio as redis_client
@@ -232,8 +232,8 @@ class InternalDataModel:
     description: str | None = None
     description_ar: str | None = None
     fields: list[dict[str, Any]] = internal_field(default_factory=list)
-    created_at: datetime = internal_field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = internal_field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = internal_field(default_factory=datetime.utcnow)
+    updated_at: datetime = internal_field(default_factory=datetime.utcnow)
 
 
 @internal_dataclass
@@ -259,12 +259,12 @@ class InternalPage:
     data_model_id: str | None = None
     is_published: bool = False
     version: int = 1
-    created_at: datetime = internal_field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = internal_field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = internal_field(default_factory=datetime.utcnow)
+    updated_at: datetime = internal_field(default_factory=datetime.utcnow)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# In-memory storage (fallback when database is unavailable)
+# In-memory storage (replace with database in production)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 data_models: dict[str, InternalDataModel] = {}
@@ -273,307 +273,6 @@ pages: dict[str, InternalPage] = {}
 # Initialize Low-Code Engine (includes built-in components)
 lowcode_engine = LowCodeEngine(tenant_id="sahool")
 ai_suggester = AIComponentSuggester(lowcode_engine)
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Database Helper Functions
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def get_db_pool():
-    """Get database pool from app state."""
-    if hasattr(app.state, "db_pool") and app.state.db_pool:
-        return app.state.db_pool
-    return None
-
-
-async def db_create_page(
-    page_id: str,
-    name: str,
-    name_ar: str | None,
-    description: str | None,
-    route: str,
-    blocks: list[dict],
-    data_model_id: str | None,
-    is_published: bool,
-    version: int,
-    tenant_id: str | None,
-    created_at: datetime,
-    updated_at: datetime,
-) -> bool:
-    """Create a page in the database."""
-    pool = get_db_pool()
-    if not pool:
-        return False
-    try:
-        async with pool.acquire() as conn:
-            await conn.execute(
-                """
-                INSERT INTO lowcode_pages (id, slug, title, title_ar, layout, components, is_published, tenant_id, created_at, updated_at)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                """,
-                page_id,
-                route,
-                name,
-                name_ar,
-                json.dumps({
-                    "description": description,
-                    "data_model_id": data_model_id,
-                    "version": version,
-                }),
-                json.dumps(blocks),
-                is_published,
-                tenant_id,
-                created_at,
-                updated_at,
-            )
-        return True
-    except Exception as e:
-        logger.error("db_create_page_error", page_id=page_id, error=str(e))
-        return False
-
-
-async def db_get_page(page_id: str) -> InternalPage | None:
-    """Get a page from the database by ID."""
-    pool = get_db_pool()
-    if not pool:
-        return None
-    try:
-        async with pool.acquire() as conn:
-            row = await conn.fetchrow(
-                "SELECT * FROM lowcode_pages WHERE id = $1",
-                page_id,
-            )
-            if row:
-                return _row_to_page(row)
-        return None
-    except Exception as e:
-        logger.error("db_get_page_error", page_id=page_id, error=str(e))
-        return None
-
-
-async def db_list_pages(
-    tenant_id: str | None = None,
-    is_published: bool | None = None,
-    limit: int = 50,
-) -> list[InternalPage]:
-    """List pages from the database using safe parameterized queries."""
-    pool = get_db_pool()
-    if not pool:
-        return []
-    try:
-        async with pool.acquire() as conn:
-            # Build query with explicit parameter handling to avoid SQL injection
-            # Use conditional query selection based on filter combinations
-            if tenant_id and is_published is not None:
-                rows = await conn.fetch(
-                    """SELECT * FROM lowcode_pages
-                       WHERE tenant_id = $1 AND is_published = $2
-                       ORDER BY created_at DESC LIMIT $3""",
-                    tenant_id, is_published, limit
-                )
-            elif tenant_id:
-                rows = await conn.fetch(
-                    """SELECT * FROM lowcode_pages
-                       WHERE tenant_id = $1
-                       ORDER BY created_at DESC LIMIT $2""",
-                    tenant_id, limit
-                )
-            elif is_published is not None:
-                rows = await conn.fetch(
-                    """SELECT * FROM lowcode_pages
-                       WHERE is_published = $1
-                       ORDER BY created_at DESC LIMIT $2""",
-                    is_published, limit
-                )
-            else:
-                rows = await conn.fetch(
-                    """SELECT * FROM lowcode_pages
-                       ORDER BY created_at DESC LIMIT $1""",
-                    limit
-                )
-            return [_row_to_page(row) for row in rows]
-    except Exception as e:
-        logger.error("db_list_pages_error", error=str(e))
-        return []
-
-
-async def db_update_page(
-    page_id: str,
-    is_published: bool | None = None,
-    updated_at: datetime | None = None,
-) -> bool:
-    """Update a page in the database using safe parameterized queries."""
-    pool = get_db_pool()
-    if not pool:
-        return False
-    try:
-        async with pool.acquire() as conn:
-            # Use explicit queries based on which fields are being updated
-            # This avoids dynamic SQL construction and SQL injection risks
-            if is_published is not None and updated_at is not None:
-                await conn.execute(
-                    """UPDATE lowcode_pages
-                       SET is_published = $1, updated_at = $2
-                       WHERE id = $3""",
-                    is_published, updated_at, page_id
-                )
-            elif is_published is not None:
-                await conn.execute(
-                    """UPDATE lowcode_pages
-                       SET is_published = $1
-                       WHERE id = $2""",
-                    is_published, page_id
-                )
-            elif updated_at is not None:
-                await conn.execute(
-                    """UPDATE lowcode_pages
-                       SET updated_at = $1
-                       WHERE id = $2""",
-                    updated_at, page_id
-                )
-            # If no updates specified, nothing to do
-        return True
-    except Exception as e:
-        logger.error("db_update_page_error", page_id=page_id, error=str(e))
-        return False
-
-
-def _row_to_page(row) -> InternalPage:
-    """Convert a database row to an InternalPage."""
-    layout = row["layout"] if isinstance(row["layout"], dict) else json.loads(row["layout"] or "{}")
-    components = row["components"] if isinstance(row["components"], list) else json.loads(row["components"] or "[]")
-
-    blocks = []
-    for comp in components:
-        block = InternalBlock(
-            id=comp.get("id", str(uuid4())),
-            component_name=comp.get("component_name", ""),
-            props=comp.get("props", {}),
-            children=comp.get("children", []),
-            conditions=comp.get("conditions"),
-            loop=comp.get("loop"),
-        )
-        blocks.append(block)
-
-    return InternalPage(
-        id=str(row["id"]),
-        name=row["title"],
-        name_ar=row["title_ar"],
-        description=layout.get("description"),
-        route=row["slug"],
-        blocks=blocks,
-        data_model_id=layout.get("data_model_id"),
-        is_published=row["is_published"],
-        version=layout.get("version", 1),
-        created_at=row["created_at"],
-        updated_at=row["updated_at"],
-    )
-
-
-async def db_create_model(
-    model_id: str,
-    name: str,
-    name_ar: str | None,
-    description: str | None,
-    description_ar: str | None,
-    fields: list[dict],
-    tenant_id: str | None,
-    created_at: datetime,
-    updated_at: datetime,
-) -> bool:
-    """Create a data model in the database."""
-    pool = get_db_pool()
-    if not pool:
-        return False
-    try:
-        async with pool.acquire() as conn:
-            await conn.execute(
-                """
-                INSERT INTO lowcode_models (id, name, fields, tenant_id, created_at, updated_at)
-                VALUES ($1, $2, $3, $4, $5, $6)
-                """,
-                model_id,
-                name,
-                json.dumps({
-                    "name_ar": name_ar,
-                    "description": description,
-                    "description_ar": description_ar,
-                    "fields": fields,
-                }),
-                tenant_id,
-                created_at,
-                updated_at,
-            )
-        return True
-    except Exception as e:
-        logger.error("db_create_model_error", model_id=model_id, error=str(e))
-        return False
-
-
-async def db_get_model(model_id: str) -> InternalDataModel | None:
-    """Get a data model from the database by ID."""
-    pool = get_db_pool()
-    if not pool:
-        return None
-    try:
-        async with pool.acquire() as conn:
-            row = await conn.fetchrow(
-                "SELECT * FROM lowcode_models WHERE id = $1",
-                model_id,
-            )
-            if row:
-                return _row_to_model(row)
-        return None
-    except Exception as e:
-        logger.error("db_get_model_error", model_id=model_id, error=str(e))
-        return None
-
-
-async def db_list_models(
-    tenant_id: str | None = None,
-    limit: int = 50,
-) -> list[InternalDataModel]:
-    """List data models from the database using safe parameterized queries."""
-    pool = get_db_pool()
-    if not pool:
-        return []
-    try:
-        async with pool.acquire() as conn:
-            # Use explicit queries based on filter combinations
-            # This avoids dynamic SQL construction and SQL injection risks
-            if tenant_id:
-                rows = await conn.fetch(
-                    """SELECT * FROM lowcode_models
-                       WHERE tenant_id = $1
-                       ORDER BY created_at DESC LIMIT $2""",
-                    tenant_id, limit
-                )
-            else:
-                rows = await conn.fetch(
-                    """SELECT * FROM lowcode_models
-                       ORDER BY created_at DESC LIMIT $1""",
-                    limit
-                )
-            return [_row_to_model(row) for row in rows]
-    except Exception as e:
-        logger.error("db_list_models_error", error=str(e))
-        return []
-
-
-def _row_to_model(row) -> InternalDataModel:
-    """Convert a database row to an InternalDataModel."""
-    fields_data = row["fields"] if isinstance(row["fields"], dict) else json.loads(row["fields"] or "{}")
-
-    return InternalDataModel(
-        id=str(row["id"]),
-        name=row["name"],
-        name_ar=fields_data.get("name_ar"),
-        description=fields_data.get("description"),
-        description_ar=fields_data.get("description_ar"),
-        fields=fields_data.get("fields", []),
-        created_at=row["created_at"],
-        updated_at=row["updated_at"],
-    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -628,44 +327,6 @@ async def lifespan(app: FastAPI):
             app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             app.state.db_connected = True
             print(f"✅ Database connected")
-
-            # Create tables if they don't exist
-            async with app.state.db_pool.acquire() as conn:
-                await conn.execute('''
-                    CREATE TABLE IF NOT EXISTS lowcode_pages (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        slug VARCHAR(255) UNIQUE NOT NULL,
-                        title VARCHAR(255) NOT NULL,
-                        title_ar VARCHAR(255),
-                        layout JSONB NOT NULL DEFAULT '{}',
-                        components JSONB NOT NULL DEFAULT '[]',
-                        is_published BOOLEAN DEFAULT false,
-                        tenant_id VARCHAR(255),
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                    )
-                ''')
-                await conn.execute('''
-                    CREATE TABLE IF NOT EXISTS lowcode_models (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        name VARCHAR(255) UNIQUE NOT NULL,
-                        fields JSONB NOT NULL DEFAULT '[]',
-                        tenant_id VARCHAR(255),
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                    )
-                ''')
-                # Create indexes for better query performance
-                await conn.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_lowcode_pages_tenant_id ON lowcode_pages(tenant_id)
-                ''')
-                await conn.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_lowcode_pages_is_published ON lowcode_pages(is_published)
-                ''')
-                await conn.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_lowcode_models_tenant_id ON lowcode_models(tenant_id)
-                ''')
-            print(f"✅ Database tables initialized")
         except Exception as e:
             print(f"⚠️ Database connection failed: {e}")
             app.state.db_pool = None
@@ -1046,23 +707,8 @@ def readiness():
 
 
 @app.get("/health", tags=["Health"])
-async def health_detailed():
+def health_detailed():
     """Detailed health status"""
-    # Get counts from database if available, otherwise use in-memory
-    db_pages_count = 0
-    db_models_count = 0
-
-    pool = get_db_pool()
-    if pool:
-        try:
-            async with pool.acquire() as conn:
-                pages_row = await conn.fetchrow("SELECT COUNT(*) as count FROM lowcode_pages")
-                models_row = await conn.fetchrow("SELECT COUNT(*) as count FROM lowcode_models")
-                db_pages_count = pages_row["count"] if pages_row else 0
-                db_models_count = models_row["count"] if models_row else 0
-        except Exception as e:
-            logger.warning("health_db_count_error", error=str(e))
-
     return {
         "status": "ok",
         "service": SERVICE_NAME,
@@ -1072,9 +718,8 @@ async def health_detailed():
         "redis_connected": getattr(app.state, "redis_connected", False),
         "nats_connected": getattr(app.state, "nats_connected", False),
         "components_count": len(lowcode_engine.list_components()),
-        "data_models_count": db_models_count if db_models_count > 0 else len(data_models),
-        "pages_count": db_pages_count if db_pages_count > 0 else len(pages),
-        "storage_mode": "database" if getattr(app.state, "db_connected", False) else "in_memory",
+        "data_models_count": len(data_models),
+        "pages_count": len(pages),
     }
 
 
@@ -1174,7 +819,7 @@ def get_component(component_name: str):
 async def create_data_model(request: DataModelCreateRequest):
     """Create a data model | إنشاء نموذج بيانات"""
     model_id = str(uuid4())
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
 
     # Parse fields - keep as dict for internal storage
     fields = []
@@ -1201,36 +846,7 @@ async def create_data_model(request: DataModelCreateRequest):
         updated_at=now,
     )
 
-    # Try to persist to database first
-    db_saved = await db_create_model(
-        model_id=model_id,
-        name=request.name,
-        name_ar=request.name_ar,
-        description=request.description,
-        description_ar=request.description_ar,
-        fields=fields,
-        tenant_id=request.tenant_id,
-        created_at=now,
-        updated_at=now,
-    )
-
-    # Fallback to in-memory if database is unavailable
-    if not db_saved:
-        data_models[model_id] = model
-        logger.info("model_stored_in_memory", model_id=model_id)
-    else:
-        logger.info("model_stored_in_database", model_id=model_id)
-
-    # Publish model created event
-    await publish_event(
-        "sahool.lowcode.model_updated",
-        {
-            "model_id": model_id,
-            "action": "create",
-            "tenant_id": request.tenant_id,
-            "timestamp": now.isoformat(),
-        }
-    )
+    data_models[model_id] = model
 
     return DataModelResponse(
         id=model.id,
@@ -1245,19 +861,12 @@ async def create_data_model(request: DataModelCreateRequest):
 
 
 @app.get("/api/v1/models", response_model=list[DataModelResponse], tags=["Data Models"])
-async def list_data_models(
+def list_data_models(
     tenant_id: str = Query(...),
     limit: int = Query(50, ge=1, le=200),
 ):
     """List data models | قائمة نماذج البيانات"""
-    # Try to get from database first
-    db_results = await db_list_models(tenant_id=tenant_id, limit=limit)
-
-    if db_results:
-        results = db_results
-    else:
-        # Fallback to in-memory storage
-        results = list(data_models.values())[:limit]
+    results = list(data_models.values())[:limit]
 
     return [
         DataModelResponse(
@@ -1275,17 +884,12 @@ async def list_data_models(
 
 
 @app.get("/api/v1/models/{model_id}", response_model=DataModelResponse, tags=["Data Models"])
-async def get_data_model(model_id: str):
+def get_data_model(model_id: str):
     """Get data model by ID | الحصول على نموذج بيانات بالمعرف"""
-    # Try to get from database first
-    m = await db_get_model(model_id)
+    if model_id not in data_models:
+        raise ResourceNotFoundError(resource_type="Data model", resource_id=model_id)
 
-    # Fallback to in-memory storage
-    if not m:
-        if model_id not in data_models:
-            raise ResourceNotFoundError(resource_type="Data model", resource_id=model_id)
-        m = data_models[model_id]
-
+    m = data_models[model_id]
     return DataModelResponse(
         id=m.id,
         name=m.name,
@@ -1306,11 +910,10 @@ async def get_data_model(model_id: str):
 async def create_page(request: PageCreateRequest):
     """Create a page | إنشاء صفحة"""
     page_id = str(uuid4())
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
 
     # Parse blocks using internal format
     blocks = []
-    blocks_for_db = []
     for block_data in request.blocks:
         block = InternalBlock(
             id=block_data.get("id", str(uuid4())),
@@ -1321,14 +924,6 @@ async def create_page(request: PageCreateRequest):
             loop=block_data.get("loop"),
         )
         blocks.append(block)
-        blocks_for_db.append({
-            "id": block.id,
-            "component_name": block.component_name,
-            "props": block.props,
-            "children": block.children,
-            "conditions": block.conditions,
-            "loop": block.loop,
-        })
 
     page = InternalPage(
         id=page_id,
@@ -1344,39 +939,7 @@ async def create_page(request: PageCreateRequest):
         updated_at=now,
     )
 
-    # Try to persist to database first
-    db_saved = await db_create_page(
-        page_id=page_id,
-        name=request.name,
-        name_ar=request.name_ar,
-        description=request.description,
-        route=request.route,
-        blocks=blocks_for_db,
-        data_model_id=request.data_model_id,
-        is_published=False,
-        version=1,
-        tenant_id=request.tenant_id,
-        created_at=now,
-        updated_at=now,
-    )
-
-    # Fallback to in-memory if database is unavailable
-    if not db_saved:
-        pages[page_id] = page
-        logger.info("page_stored_in_memory", page_id=page_id)
-    else:
-        logger.info("page_stored_in_database", page_id=page_id)
-
-    # Publish page created event
-    await publish_event(
-        "sahool.lowcode.page_updated",
-        {
-            "page_id": page_id,
-            "action": "create",
-            "tenant_id": request.tenant_id,
-            "timestamp": now.isoformat(),
-        }
-    )
+    pages[page_id] = page
 
     return PageResponse(
         id=page.id,
@@ -1394,23 +957,16 @@ async def create_page(request: PageCreateRequest):
 
 
 @app.get("/api/v1/pages", response_model=list[PageResponse], tags=["Pages"])
-async def list_pages(
+def list_pages(
     tenant_id: str = Query(...),
     is_published: bool | None = Query(None),
     limit: int = Query(50, ge=1, le=200),
 ):
     """List pages | قائمة الصفحات"""
-    # Try to get from database first
-    db_results = await db_list_pages(tenant_id=tenant_id, is_published=is_published, limit=limit)
+    results = list(pages.values())
 
-    if db_results:
-        results = db_results
-    else:
-        # Fallback to in-memory storage
-        results = list(pages.values())
-        if is_published is not None:
-            results = [p for p in results if p.is_published == is_published]
-        results = results[:limit]
+    if is_published is not None:
+        results = [p for p in results if p.is_published == is_published]
 
     return [
         PageResponse(
@@ -1426,7 +982,7 @@ async def list_pages(
             created_at=p.created_at,
             updated_at=p.updated_at,
         )
-        for p in results
+        for p in results[:limit]
     ]
 
 
@@ -1440,15 +996,10 @@ async def get_page(page_id: str):
     if cached:
         return PageResponse(**cached)
 
-    # Try to get from database first
-    p = await db_get_page(page_id)
+    if page_id not in pages:
+        raise ResourceNotFoundError(resource_type="Page", resource_id=page_id)
 
-    # Fallback to in-memory storage
-    if not p:
-        if page_id not in pages:
-            raise ResourceNotFoundError(resource_type="Page", resource_id=page_id)
-        p = pages[page_id]
-
+    p = pages[page_id]
     response = PageResponse(
         id=p.id,
         name=p.name,
@@ -1470,49 +1021,17 @@ async def get_page(page_id: str):
 
 
 @app.post("/api/v1/pages/{page_id}/publish", response_model=PageResponse, tags=["Pages"])
-async def publish_page(page_id: str, tenant_id: str = Query(None)):
+async def publish_page(page_id: str):
     """Publish a page | نشر صفحة"""
-    now = datetime.now(timezone.utc)
+    if page_id not in pages:
+        raise ResourceNotFoundError(resource_type="Page", resource_id=page_id)
 
-    # Try to get from database first
-    p = await db_get_page(page_id)
-
-    # Fallback to in-memory storage
-    if not p:
-        if page_id not in pages:
-            raise ResourceNotFoundError(resource_type="Page", resource_id=page_id)
-        p = pages[page_id]
-        p.is_published = True
-        p.updated_at = now
-    else:
-        # Update in database
-        db_updated = await db_update_page(page_id, is_published=True, updated_at=now)
-        if db_updated:
-            p.is_published = True
-            p.updated_at = now
-            logger.info("page_published_in_database", page_id=page_id)
-        else:
-            # Fallback: store in memory if DB update fails
-            if page_id not in pages:
-                pages[page_id] = p
-            pages[page_id].is_published = True
-            pages[page_id].updated_at = now
-            p = pages[page_id]
-            logger.warning("page_publish_db_failed_using_memory", page_id=page_id)
+    p = pages[page_id]
+    p.is_published = True
+    p.updated_at = datetime.utcnow()
 
     # Invalidate cache for this page
     await cache_delete(f"lowcode:page:{page_id}")
-
-    # Publish page updated event (publish action)
-    await publish_event(
-        "sahool.lowcode.page_updated",
-        {
-            "page_id": page_id,
-            "action": "update",
-            "tenant_id": tenant_id,
-            "timestamp": p.updated_at.isoformat(),
-        }
-    )
 
     return PageResponse(
         id=p.id,
@@ -1530,20 +1049,16 @@ async def publish_page(page_id: str, tenant_id: str = Query(None)):
 
 
 @app.get("/api/v1/pages/{page_id}/render", response_model=PageRenderResponse, tags=["Pages"])
-async def render_page(page_id: str, data: str | None = Query(None)):
+def render_page(page_id: str, data: str | None = Query(None)):
     """
     Render a page with data
 
     عرض صفحة مع البيانات
     """
-    # Try to get from database first
-    p = await db_get_page(page_id)
+    if page_id not in pages:
+        raise ResourceNotFoundError(resource_type="Page", resource_id=page_id)
 
-    # Fallback to in-memory storage
-    if not p:
-        if page_id not in pages:
-            raise ResourceNotFoundError(resource_type="Page", resource_id=page_id)
-        p = pages[page_id]
+    p = pages[page_id]
 
     # Render blocks (simplified)
     rendered_blocks = []
@@ -1675,37 +1190,25 @@ async def generate_page_from_template(
 
     template = templates[template_id]
     page_id = str(uuid4())
-    now = datetime.now(timezone.utc)
-    route = f"{template['route']}/{page_id[:8]}"
-    description = f"Generated from template: {template_id}"
+    now = datetime.utcnow()
 
     # Generate blocks from template using internal format
     blocks = []
-    blocks_for_db = []
     for comp_name in template["components"]:
-        block_id = str(uuid4())
         block = InternalBlock(
-            id=block_id,
+            id=str(uuid4()),
             component_name=comp_name,
             props={},
             children=[],
         )
         blocks.append(block)
-        blocks_for_db.append({
-            "id": block_id,
-            "component_name": comp_name,
-            "props": {},
-            "children": [],
-            "conditions": None,
-            "loop": None,
-        })
 
     page = InternalPage(
         id=page_id,
         name=name,
         name_ar=name_ar,
-        description=description,
-        route=route,
+        description=f"Generated from template: {template_id}",
+        route=f"{template['route']}/{page_id[:8]}",
         blocks=blocks,
         is_published=False,
         version=1,
@@ -1713,39 +1216,7 @@ async def generate_page_from_template(
         updated_at=now,
     )
 
-    # Try to persist to database first
-    db_saved = await db_create_page(
-        page_id=page_id,
-        name=name,
-        name_ar=name_ar,
-        description=description,
-        route=route,
-        blocks=blocks_for_db,
-        data_model_id=None,
-        is_published=False,
-        version=1,
-        tenant_id=tenant_id,
-        created_at=now,
-        updated_at=now,
-    )
-
-    # Fallback to in-memory if database is unavailable
-    if not db_saved:
-        pages[page_id] = page
-        logger.info("page_stored_in_memory", page_id=page_id, template_id=template_id)
-    else:
-        logger.info("page_stored_in_database", page_id=page_id, template_id=template_id)
-
-    # Publish page created event
-    await publish_event(
-        "sahool.lowcode.page_updated",
-        {
-            "page_id": page_id,
-            "action": "create",
-            "tenant_id": tenant_id,
-            "timestamp": now.isoformat(),
-        }
-    )
+    pages[page_id] = page
 
     return PageResponse(
         id=page.id,
@@ -1767,50 +1238,23 @@ async def generate_page_from_template(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @app.get("/metrics", tags=["Monitoring"])
-async def metrics():
+def metrics():
     """Prometheus-compatible metrics"""
-    # Get counts from database if available
-    db_pages_count = 0
-    db_models_count = 0
-    db_published_count = 0
-
-    pool = get_db_pool()
-    if pool:
-        try:
-            async with pool.acquire() as conn:
-                pages_row = await conn.fetchrow("SELECT COUNT(*) as count FROM lowcode_pages")
-                models_row = await conn.fetchrow("SELECT COUNT(*) as count FROM lowcode_models")
-                published_row = await conn.fetchrow("SELECT COUNT(*) as count FROM lowcode_pages WHERE is_published = true")
-                db_pages_count = pages_row["count"] if pages_row else 0
-                db_models_count = models_row["count"] if models_row else 0
-                db_published_count = published_row["count"] if published_row else 0
-        except Exception as e:
-            logger.warning("metrics_db_count_error", error=str(e))
-
-    # Use database counts if available, otherwise fall back to in-memory
-    pages_count = db_pages_count if db_pages_count > 0 else len(pages)
-    models_count = db_models_count if db_models_count > 0 else len(data_models)
-    published_count = db_published_count if db_published_count > 0 else len([p for p in pages.values() if p.is_published])
-
     return f"""# HELP lowcode_components_total Total number of registered components
 # TYPE lowcode_components_total gauge
 lowcode_components_total {len(lowcode_engine.list_components())}
 
 # HELP lowcode_data_models_total Total number of data models
 # TYPE lowcode_data_models_total gauge
-lowcode_data_models_total {models_count}
+lowcode_data_models_total {len(data_models)}
 
 # HELP lowcode_pages_total Total number of pages
 # TYPE lowcode_pages_total gauge
-lowcode_pages_total {pages_count}
+lowcode_pages_total {len(pages)}
 
 # HELP lowcode_pages_published Published pages
 # TYPE lowcode_pages_published gauge
-lowcode_pages_published {published_count}
-
-# HELP lowcode_database_connected Database connection status (1=connected, 0=disconnected)
-# TYPE lowcode_database_connected gauge
-lowcode_database_connected {1 if getattr(app.state, "db_connected", False) else 0}
+lowcode_pages_published {len([p for p in pages.values() if p.is_published])}
 """
 
 

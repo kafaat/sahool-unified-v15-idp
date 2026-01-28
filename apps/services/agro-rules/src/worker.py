@@ -19,7 +19,7 @@ from .rules import (
 )
 
 NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
-FIELDOPS_URL = os.getenv("FIELDOPS_URL", "http://field-management-service:3000")
+FIELDOPS_URL = os.getenv("FIELDOPS_URL", "http://fieldops:8080")
 
 
 class AgroRulesWorker:

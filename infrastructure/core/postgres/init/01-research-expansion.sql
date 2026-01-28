@@ -404,8 +404,6 @@ VALUES (
 ) ON CONFLICT (batch_code) DO NOTHING;
 
 -- Update existing lab samples with batch info
--- Note: PostgreSQL doesn't allow window functions directly in UPDATE,
--- so we use a CTE to compute row numbers first
 WITH numbered_samples AS (
     SELECT id, ROW_NUMBER() OVER (ORDER BY created_at) as row_num
     FROM lab_samples

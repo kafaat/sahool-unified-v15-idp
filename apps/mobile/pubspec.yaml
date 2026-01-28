@@ -102,7 +102,7 @@ dependencies:
 
   # Utils
   uuid: ^4.5.1
-  intl: 0.19.0  # Pinned for flutter_localizations SDK compatibility
+  intl: ^0.19.0  # Required by flutter_localizations SDK
   equatable: ^2.0.7
   freezed_annotation: ^2.4.4  # Compatible with freezed 2.5.8
   json_annotation: ^4.9.0
@@ -143,12 +143,7 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
-  # Linting - use very_good_analysis for stricter rules
-  # very_good_analysis includes flutter_lints + 100+ additional rules
-  very_good_analysis: ^7.0.0
-  flutter_lints: ^5.0.0  # Kept for compatibility, overridden by very_good_analysis
-  # Import organization - ترتيب الاستيرادات
-  import_sorter: ^4.6.0  # 5.0.0 doesn't exist on pub.dev
+  flutter_lints: ^5.0.0
   build_runner: ^2.4.13  # Last version for Dart 3.6.0
   drift_dev: ^2.24.0
   freezed: 2.5.8  # Last 2.x version compatible with Dart 3.6.0

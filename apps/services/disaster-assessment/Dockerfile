@@ -1,7 +1,6 @@
 # SAHOOL Disaster Assessment Service v16.0
 # خدمة تقييم الكوارث الزراعية
 # Based on: Agricultural Remote Sensing On-Demand Service Model
-# With PostgreSQL persistence via Prisma ORM
 
 # Build stage
 FROM node:20-alpine AS builder
@@ -9,9 +8,6 @@ FROM node:20-alpine AS builder
 LABEL maintainer="SAHOOL Team"
 LABEL service="disaster-assessment"
 LABEL version="16.0.0"
-
-# Install OpenSSL for Prisma (required for generating client)
-RUN apk add --no-cache openssl
 
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
@@ -27,9 +23,6 @@ WORKDIR /workspace/disaster-assessment
 # Install dependencies with retry for network resilience
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
-# Generate Prisma client (required before build)
-RUN npx prisma generate
-
 # Build the application
 RUN npm run build
 
@@ -38,22 +31,15 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install curl for health checks and OpenSSL for Prisma runtime
-RUN apk add --no-cache curl openssl
+# Install curl for health checks
+RUN apk add --no-cache curl
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: Using npm ci for deterministic builds
 COPY --from=builder /workspace/disaster-assessment/package.json ./
 COPY --from=builder /workspace/disaster-assessment/package-lock.json ./
-
-# Copy prisma schema for migrations
-COPY --from=builder /workspace/disaster-assessment/prisma ./prisma/
-
 RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
     npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
-
-# Generate Prisma client in production (needed for runtime)
-RUN npx prisma generate
 
 # Copy built application
 COPY --from=builder /workspace/disaster-assessment/dist ./dist
@@ -69,7 +55,5 @@ USER node
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:3020/api/v1/disasters/health || exit 1
 
-# Run database migrations and start the application
-# Note: In production, migrations should ideally be run as a separate init container
-# Skip migrations when SKIP_DB_INIT=true (for container tests without database)
-CMD ["sh", "-c", "if [ \"$SKIP_DB_INIT\" = \"true\" ]; then echo 'Skipping database migrations (SKIP_DB_INIT=true)'; else npx prisma migrate deploy || echo 'Migration failed, continuing anyway...'; fi && node dist/main.js"]
+# Run the application
+CMD ["node", "dist/main.js"]

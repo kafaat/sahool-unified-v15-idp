@@ -188,9 +188,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   // ==========================================================================
 
   private async connectToMqtt(): Promise<void> {
-    // Support both MQTT_BROKER_URL and separate MQTT_BROKER/MQTT_PORT configuration
-    const brokerUrl = process.env.MQTT_BROKER_URL ||
-      `mqtt://${process.env.MQTT_BROKER || 'mqtt'}:${process.env.MQTT_PORT || '1883'}`;
+    const brokerUrl = process.env.MQTT_BROKER_URL || "mqtt://mqtt:1883";
     const username = process.env.MQTT_USER;
     const password = process.env.MQTT_PASSWORD;
 
@@ -359,11 +357,9 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   async togglePump(
     fieldId: string,
     status: "ON" | "OFF",
-    options?: { duration?: number; tenantId?: string; farmId?: string },
+    options?: { duration?: number },
   ): Promise<{ success: boolean; message: string }> {
-    const tenantId = options?.tenantId || process.env.DEFAULT_TENANT_ID || "default";
-    const farmId = options?.farmId || process.env.DEFAULT_FARM_ID || "farm-1";
-    const topic = `sahool/${tenantId}/farm/${farmId}/field/${fieldId}/actuator/pump/command`;
+    const topic = `sahool/default/farm/farm-1/field/${fieldId}/actuator/pump/command`;
 
     const payload = {
       command: status,
@@ -394,15 +390,12 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    * Toggle valve
    * التحكم بالصمام
    */
-  async toggleValve(
+  toggleValve(
     fieldId: string,
     valveId: string,
     status: "ON" | "OFF",
-    options?: { tenantId?: string; farmId?: string },
-  ): Promise<{ success: boolean; message: string }> {
-    const tenantId = options?.tenantId || process.env.DEFAULT_TENANT_ID || "default";
-    const farmId = options?.farmId || process.env.DEFAULT_FARM_ID || "farm-1";
-    const topic = `sahool/${tenantId}/farm/${farmId}/field/${fieldId}/actuator/valve/${valveId}/command`;
+  ): { success: boolean; message: string } {
+    const topic = `sahool/default/farm/farm-1/field/${fieldId}/actuator/valve/${valveId}/command`;
 
     const payload = {
       command: status,
@@ -412,12 +405,9 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
 
     this.client.publish(topic, JSON.stringify(payload), { qos: 1 });
 
-    // Cache valve state in Redis (fixing BUG-002)
-    await this.cacheActuatorState(`actuator:${fieldId}:valve:${valveId}`, status === "ON");
-
     return {
       success: true,
-      message: `تم ${status === "ON" ? "فتح" : "إغلاق"} الصمام ${this.sanitizeForLog(valveId)}`,
+      message: `تم ${status === "ON" ? "فتح" : "إغلاق"} الصمام ${valveId}`,
     };
   }
 
@@ -432,13 +422,9 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       duration: number;
       days: string[];
       enabled: boolean;
-      tenantId?: string;
-      farmId?: string;
     },
   ): { success: boolean; message: string } {
-    const tenantId = schedule.tenantId || process.env.DEFAULT_TENANT_ID || "default";
-    const farmId = schedule.farmId || process.env.DEFAULT_FARM_ID || "farm-1";
-    const topic = `sahool/${tenantId}/farm/${farmId}/field/${fieldId}/irrigation/schedule`;
+    const topic = `sahool/default/farm/farm-1/field/${fieldId}/irrigation/schedule`;
 
     this.client.publish(topic, JSON.stringify(schedule), {
       qos: 1,

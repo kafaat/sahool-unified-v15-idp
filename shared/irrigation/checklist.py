@@ -35,7 +35,9 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-from datetime import datetime, timezone
+from __future__ import annotations
+
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 import structlog
@@ -318,7 +320,7 @@ class CollaborativeChecklist:
 
         item = self._items[item_id]
         item.checked = True
-        item.checked_at = datetime.now(timezone.utc)
+        item.checked_at = datetime.utcnow()
         item.checked_by = checked_by
         item.notes = notes
         item.notes_ar = notes_ar

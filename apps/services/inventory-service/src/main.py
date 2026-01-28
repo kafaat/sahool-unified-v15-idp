@@ -35,8 +35,6 @@ from sqlalchemy.orm import declarative_base
 # Create local Base for models (standalone service doesn't need shared module)
 Base = declarative_base()
 
-from .alert_endpoints import router as alert_router, init_alert_manager
-from .alert_manager import AlertManager
 from .inventory_analytics import InventoryAnalytics
 from .models.inventory import (
     ItemCategory,
@@ -101,12 +99,6 @@ async def lifespan(app: FastAPI):
         logger.info("Database tables ready")
     except Exception as e:
         logger.warning(f"Database setup warning: {e}")
-
-    # Initialize AlertManager
-    app.state.alert_manager = AlertManager(inventory_db={}, alerts_db={})
-    init_alert_manager(app.state.alert_manager)
-    logger.info("Alert Manager initialized")
-
     logger.info("Inventory Service ready on port 8116")
     yield
     await engine.dispose()
@@ -116,12 +108,9 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SAHOOL Inventory Service",
     description="Agricultural inventory management, forecasting, and analytics",
-    version="16.0.0",
+    version="1.0.0",
     lifespan=lifespan,
 )
-
-# Include alert router
-app.include_router(alert_router)
 
 # Setup unified error handling
 setup_exception_handlers(app)
@@ -170,7 +159,7 @@ async def health(db: AsyncSession = Depends(get_db)):
     return {
         "status": "healthy",
         "service": "inventory-service",
-        "version": "16.0.0",
+        "version": "1.0.0",
         "dependencies": {"postgres": "connected" if db_healthy else "disconnected"},
     }
 
@@ -178,7 +167,7 @@ async def health(db: AsyncSession = Depends(get_db)):
 @app.get("/healthz")
 def healthz():
     """Simple health check for Kubernetes liveness probe"""
-    return {"status": "ok", "service": "inventory-service", "version": "16.0.0"}
+    return {"status": "healthy", "service": "inventory-service", "version": "1.0.0"}
 
 
 @app.get("/readyz")

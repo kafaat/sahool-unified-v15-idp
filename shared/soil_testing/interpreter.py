@@ -14,6 +14,8 @@ Author: SAHOOL Platform Team
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 from .models import (

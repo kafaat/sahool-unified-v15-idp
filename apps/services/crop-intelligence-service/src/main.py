@@ -6,38 +6,20 @@ Port: 8095
 
 from __future__ import annotations
 
-import json
-import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timezone
+from datetime import date, datetime
 from typing import Any, Literal
 from uuid import uuid4
 
-import asyncpg
-import nats
-from fastapi import Depends, FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query
 
 # Shared middleware imports - add apps/services to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
-
-# Authentication imports - مصادقة JWT
-try:
-    from shared.auth.dependencies import get_current_user
-    from shared.auth.models import User
-
-    AUTH_AVAILABLE = True
-except ImportError:
-    AUTH_AVAILABLE = False
-    User = None
-
-    def get_current_user():
-        """Placeholder when auth not available"""
-        return None
 
 # Security headers middleware
 try:
@@ -82,18 +64,6 @@ from .yield_prediction import (
     get_crop_parameters,
     predict_yield,
 )
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Logging Configuration
-# إعداد السجلات
-# ═══════════════════════════════════════════════════════════════════════════════
-
-try:
-    import structlog
-    logger = structlog.get_logger(__name__)
-except ImportError:
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Pydantic Schemas
@@ -223,8 +193,7 @@ class VRTExportOut(BaseModel):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# In-Memory Storage (fallback when database is not available)
-# التخزين المؤقت في الذاكرة (احتياطي عند عدم توفر قاعدة البيانات)
+# In-Memory Storage (استبدله بـ PostgreSQL + PostGIS لاحقاً)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # field_id -> zone_id -> list of observations
@@ -235,418 +204,21 @@ ZONES: dict[str, dict[str, dict[str, Any]]] = {}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Database Helper Functions
-# دوال مساعدة لقاعدة البيانات
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# Reference to app for database pool access
-_app_ref = None
-
-
-def get_db_pool() -> asyncpg.Pool | None:
-    """Get database pool from app state"""
-    if _app_ref is None:
-        return None
-    return getattr(_app_ref.state, "db_pool", None)
-
-
-async def db_store_observation(
-    field_id: str,
-    zone_id: str,
-    obs_data: dict[str, Any],
-    tenant_id: str | None = None,
-) -> str | None:
-    """
-    Store observation in database
-    تخزين الرصد في قاعدة البيانات
-    """
-    pool = get_db_pool()
-    if not pool:
-        return None
-
-    try:
-        async with pool.acquire() as conn:
-            result = await conn.fetchrow(
-                """
-                INSERT INTO crop_health_observations
-                (field_id, zone_id, captured_at, source, growth_stage,
-                 ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes, tenant_id)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-                RETURNING id
-                """,
-                field_id,
-                zone_id,
-                obs_data.get("captured_at"),
-                obs_data.get("source"),
-                obs_data.get("growth_stage"),
-                obs_data["indices"]["ndvi"],
-                obs_data["indices"]["evi"],
-                obs_data["indices"]["ndre"],
-                obs_data["indices"]["lci"],
-                obs_data["indices"]["ndwi"],
-                obs_data["indices"]["savi"],
-                obs_data.get("cloud_pct", 0.0),
-                obs_data.get("notes"),
-                tenant_id,
-            )
-            return str(result["id"]) if result else None
-    except Exception as e:
-        logger.warning("Failed to store observation in database", error=str(e))
-        return None
-
-
-async def db_get_observations(
-    field_id: str,
-    zone_id: str,
-    limit: int = 50,
-) -> list[dict[str, Any]]:
-    """
-    Get observations from database
-    استرجاع الأرصاد من قاعدة البيانات
-    """
-    pool = get_db_pool()
-    if not pool:
-        return []
-
-    try:
-        async with pool.acquire() as conn:
-            rows = await conn.fetch(
-                """
-                SELECT id, field_id, zone_id, captured_at, source, growth_stage,
-                       ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes
-                FROM crop_health_observations
-                WHERE field_id = $1 AND zone_id = $2
-                ORDER BY captured_at DESC
-                LIMIT $3
-                """,
-                field_id,
-                zone_id,
-                limit,
-            )
-            observations = []
-            for row in rows:
-                observations.append({
-                    "id": str(row["id"]),
-                    "captured_at": row["captured_at"].isoformat() if row["captured_at"] else None,
-                    "source": row["source"],
-                    "growth_stage": row["growth_stage"],
-                    "indices": {
-                        "ndvi": row["ndvi"],
-                        "evi": row["evi"],
-                        "ndre": row["ndre"],
-                        "lci": row["lci"],
-                        "ndwi": row["ndwi"],
-                        "savi": row["savi"],
-                    },
-                    "cloud_pct": row["cloud_pct"],
-                    "notes": row["notes"],
-                })
-            return observations
-    except Exception as e:
-        logger.warning("Failed to get observations from database", error=str(e))
-        return []
-
-
-async def db_get_field_observations(field_id: str) -> dict[str, list[dict[str, Any]]]:
-    """
-    Get all observations for a field grouped by zone
-    استرجاع جميع أرصاد الحقل مجمعة حسب المنطقة
-    """
-    pool = get_db_pool()
-    if not pool:
-        return {}
-
-    try:
-        async with pool.acquire() as conn:
-            rows = await conn.fetch(
-                """
-                SELECT DISTINCT zone_id, field_id, captured_at, source, growth_stage,
-                       ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes
-                FROM crop_health_observations
-                WHERE field_id = $1
-                ORDER BY zone_id, captured_at DESC
-                """,
-                field_id,
-            )
-            result: dict[str, list[dict[str, Any]]] = {}
-            for row in rows:
-                zone_id = row["zone_id"]
-                if zone_id not in result:
-                    result[zone_id] = []
-                result[zone_id].append({
-                    "captured_at": row["captured_at"].isoformat() if row["captured_at"] else None,
-                    "source": row["source"],
-                    "growth_stage": row["growth_stage"],
-                    "indices": {
-                        "ndvi": row["ndvi"],
-                        "evi": row["evi"],
-                        "ndre": row["ndre"],
-                        "lci": row["lci"],
-                        "ndwi": row["ndwi"],
-                        "savi": row["savi"],
-                    },
-                    "cloud_pct": row["cloud_pct"],
-                    "notes": row["notes"],
-                })
-            return result
-    except Exception as e:
-        logger.warning("Failed to get field observations from database", error=str(e))
-        return {}
-
-
-async def db_store_zone(
-    field_id: str,
-    zone_id: str,
-    zone_data: dict[str, Any],
-    tenant_id: str | None = None,
-) -> bool:
-    """
-    Store zone in database
-    تخزين المنطقة في قاعدة البيانات
-    """
-    pool = get_db_pool()
-    if not pool:
-        return False
-
-    try:
-        async with pool.acquire() as conn:
-            await conn.execute(
-                """
-                INSERT INTO crop_zones
-                (zone_id, field_id, name, name_ar, geometry, area_hectares, tenant_id, created_at)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
-                ON CONFLICT (zone_id, field_id) DO UPDATE SET
-                    name = EXCLUDED.name,
-                    name_ar = EXCLUDED.name_ar,
-                    geometry = EXCLUDED.geometry,
-                    area_hectares = EXCLUDED.area_hectares
-                """,
-                zone_id,
-                field_id,
-                zone_data.get("name"),
-                zone_data.get("name_ar"),
-                json.dumps(zone_data.get("geometry")) if zone_data.get("geometry") else None,
-                zone_data.get("area_hectares"),
-                tenant_id,
-            )
-            return True
-    except Exception as e:
-        logger.warning("Failed to store zone in database", error=str(e))
-        return False
-
-
-async def db_get_zones(field_id: str) -> dict[str, dict[str, Any]]:
-    """
-    Get zones for a field from database
-    استرجاع مناطق الحقل من قاعدة البيانات
-    """
-    pool = get_db_pool()
-    if not pool:
-        return {}
-
-    try:
-        async with pool.acquire() as conn:
-            rows = await conn.fetch(
-                """
-                SELECT zone_id, name, name_ar, geometry, area_hectares, created_at
-                FROM crop_zones
-                WHERE field_id = $1
-                """,
-                field_id,
-            )
-            result = {}
-            for row in rows:
-                geometry = None
-                if row["geometry"]:
-                    try:
-                        geometry = json.loads(row["geometry"]) if isinstance(row["geometry"], str) else row["geometry"]
-                    except (json.JSONDecodeError, TypeError):
-                        geometry = None
-                result[row["zone_id"]] = {
-                    "name": row["name"],
-                    "name_ar": row["name_ar"],
-                    "geometry": geometry,
-                    "area_hectares": row["area_hectares"],
-                    "created_at": row["created_at"].isoformat() if row["created_at"] else None,
-                }
-            return result
-    except Exception as e:
-        logger.warning("Failed to get zones from database", error=str(e))
-        return {}
-
-
-async def db_store_disease_detection(
-    field_id: str,
-    disease_name: str,
-    disease_name_ar: str | None,
-    confidence: float,
-    severity: str | None,
-    tenant_id: str | None = None,
-) -> bool:
-    """
-    Store disease detection in database
-    تخزين كشف المرض في قاعدة البيانات
-    """
-    pool = get_db_pool()
-    if not pool:
-        return False
-
-    try:
-        async with pool.acquire() as conn:
-            await conn.execute(
-                """
-                INSERT INTO disease_detections
-                (field_id, disease_name, disease_name_ar, confidence, severity, tenant_id)
-                VALUES ($1, $2, $3, $4, $5, $6)
-                """,
-                field_id,
-                disease_name,
-                disease_name_ar,
-                confidence,
-                severity,
-                tenant_id,
-            )
-            return True
-    except Exception as e:
-        logger.warning("Failed to store disease detection in database", error=str(e))
-        return False
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
 # Application Setup
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global _app_ref
-    _app_ref = app
+    print("🌱 Starting Crop Intelligence Service...")
 
-    logger.info("Starting Crop Intelligence Service...")
-
-    # Initialize connection status flags
-    app.state.nats_connected = False
-    app.state.nc = None
-    app.state.db_pool = None
-    app.state.db_connected = False
-
-    # Initialize PostgreSQL database connection
-    db_url = os.getenv("DATABASE_URL")
-    if db_url:
-        try:
-            app.state.db_pool = await asyncpg.create_pool(
-                db_url,
-                min_size=2,
-                max_size=10
-            )
-            app.state.db_connected = True
-            logger.info("Connected to database")
-
-            # Create tables if not exist
-            async with app.state.db_pool.acquire() as conn:
-                await conn.execute('''
-                    CREATE TABLE IF NOT EXISTS crop_health_observations (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        field_id VARCHAR(255) NOT NULL,
-                        zone_id VARCHAR(255) NOT NULL,
-                        captured_at TIMESTAMP WITH TIME ZONE,
-                        source VARCHAR(50),
-                        growth_stage VARCHAR(50),
-                        ndvi FLOAT,
-                        evi FLOAT,
-                        ndre FLOAT,
-                        lci FLOAT,
-                        ndwi FLOAT,
-                        savi FLOAT,
-                        cloud_pct FLOAT DEFAULT 0,
-                        notes TEXT,
-                        tenant_id VARCHAR(255),
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                    )
-                ''')
-                await conn.execute('''
-                    CREATE TABLE IF NOT EXISTS crop_zones (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        zone_id VARCHAR(255) NOT NULL,
-                        field_id VARCHAR(255) NOT NULL,
-                        name VARCHAR(255),
-                        name_ar VARCHAR(255),
-                        geometry JSONB,
-                        area_hectares FLOAT,
-                        tenant_id VARCHAR(255),
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        UNIQUE(zone_id, field_id)
-                    )
-                ''')
-                await conn.execute('''
-                    CREATE TABLE IF NOT EXISTS disease_detections (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        field_id VARCHAR(255) NOT NULL,
-                        disease_name VARCHAR(255) NOT NULL,
-                        disease_name_ar VARCHAR(255),
-                        confidence FLOAT,
-                        severity VARCHAR(50),
-                        detected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        tenant_id VARCHAR(255)
-                    )
-                ''')
-                # Create indexes for faster queries
-                await conn.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_observations_field_zone
-                    ON crop_health_observations(field_id, zone_id)
-                ''')
-                await conn.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_zones_field
-                    ON crop_zones(field_id)
-                ''')
-                await conn.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_disease_field
-                    ON disease_detections(field_id)
-                ''')
-            logger.info("Database tables initialized")
-        except Exception as e:
-            logger.warning("Failed to connect to database", error=str(e))
-            app.state.db_pool = None
-            app.state.db_connected = False
-    else:
-        logger.info("DATABASE_URL not configured - using in-memory storage")
-
-    # Initialize sample data for demo (only if no database)
-    if not app.state.db_connected:
-        _init_sample_data()
-
-    # Initialize NATS connection for event publishing
-    nats_url = os.getenv("NATS_URL")
-    if nats_url:
-        try:
-            app.state.nc = await nats.connect(nats_url)
-            app.state.nats_connected = True
-            logger.info("Connected to NATS", nats_url=nats_url)
-        except Exception as e:
-            logger.warning("Failed to connect to NATS", error=str(e))
-            app.state.nc = None
-    else:
-        logger.info("NATS_URL not configured - event publishing disabled")
+    # Initialize sample data for demo
+    _init_sample_data()
 
     port = os.getenv("PORT", "8095")
-    logger.info("Crop Intelligence Service ready", port=port)
+    print(f"✅ Crop Intelligence Service ready on port {port}")
     yield
-
-    # Shutdown: Close connections
-    logger.info("Shutting down Crop Intelligence Service...")
-
-    # Close database pool
-    if hasattr(app.state, "db_pool") and app.state.db_pool:
-        await app.state.db_pool.close()
-        logger.info("Database connection closed")
-
-    # Close NATS connection
-    if hasattr(app.state, "nc") and app.state.nc:
-        await app.state.nc.close()
-        logger.info("NATS connection closed")
-
-    _app_ref = None
-    logger.info("Crop Intelligence Service stopped")
+    print("👋 Crop Intelligence Service shutting down")
 
 
 def _init_sample_data():
@@ -714,7 +286,7 @@ def _init_sample_data():
 app = FastAPI(
     title="SAHOOL Crop Health Service",
     description="خدمة تشخيص صحة المحاصيل - Intelligent crop health diagnostics with decision support",
-    version="16.0.0",
+    version="1.0.0",
     lifespan=lifespan,
 )
 
@@ -763,33 +335,12 @@ def health():
 @app.get("/readyz")
 def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    nats_connected = getattr(app.state, "nats_connected", False)
-    db_connected = getattr(app.state, "db_connected", False)
-
-    # Determine NATS status
-    if nats_connected:
-        nats_status = "connected"
-    elif os.getenv("NATS_URL"):
-        nats_status = "disconnected"
-    else:
-        nats_status = "not_configured"
-
-    # Determine database status
-    if db_connected:
-        db_status = "connected"
-    elif os.getenv("DATABASE_URL"):
-        db_status = "disconnected"
-    else:
-        db_status = "not_configured"
-
     return {
         "status": "ready",
         "service": "crop-intelligence-service",
         "version": "16.0.0",
         "checks": {
             "service": "ready",
-            "nats": nats_status,
-            "database": db_status,
         },
     }
 
@@ -798,7 +349,7 @@ def readiness():
 def root():
     return {
         "service": "SAHOOL Crop Health",
-        "version": "16.0.0",
+        "version": "1.0.0",
         "description_ar": "خدمة تشخيص صحة المحاصيل",
         "description_en": "Crop health diagnostic service",
         "endpoints": {
@@ -811,193 +362,58 @@ def root():
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# NATS Event Publishing Helpers
-# مساعدات نشر الأحداث
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
-async def publish_event(subject: str, data: dict[str, Any]) -> bool:
-    """
-    Publish an event to NATS
-    نشر حدث إلى NATS
-
-    Args:
-        subject: NATS subject (e.g., "sahool.crop.disease_detected")
-        data: Event data dictionary
-
-    Returns:
-        True if published successfully, False otherwise
-    """
-    nc = getattr(app.state, "nc", None)
-    if nc is None:
-        return False
-
-    try:
-        payload = json.dumps(data).encode("utf-8")
-        await nc.publish(subject, payload)
-        logger.info("Published NATS event", subject=subject, data_keys=list(data.keys()))
-        return True
-    except Exception as e:
-        logger.warning("Failed to publish NATS event", subject=subject, error=str(e))
-        return False
-
-
-async def publish_disease_detected(
-    field_id: str,
-    disease: str,
-    confidence: float,
-    severity: str | None = None,
-    zone_id: str | None = None,
-) -> bool:
-    """
-    Publish disease detection event
-    نشر حدث اكتشاف مرض
-
-    Subject: sahool.crop.disease_detected
-    """
-    data = {
-        "field_id": field_id,
-        "disease": disease,
-        "confidence": confidence,
-        "severity": severity,
-        "zone_id": zone_id,
-        "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
-    }
-    return await publish_event("sahool.crop.disease_detected", data)
-
-
-async def publish_health_assessed(
-    field_id: str,
-    health_score: str,
-    health_score_ar: str,
-    issues: list[str],
-    zone_id: str | None = None,
-) -> bool:
-    """
-    Publish health assessment event
-    نشر حدث تقييم الصحة
-
-    Subject: sahool.crop.health_assessed
-    """
-    data = {
-        "field_id": field_id,
-        "health_score": health_score,
-        "health_score_ar": health_score_ar,
-        "issues": issues,
-        "zone_id": zone_id,
-        "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
-    }
-    return await publish_event("sahool.crop.health_assessed", data)
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Helper to get observations (from DB or memory)
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
-async def get_field_observations_data(field_id: str) -> dict[str, list[dict[str, Any]]]:
-    """Get observations for a field from database or memory"""
-    # Try database first
-    db_obs = await db_get_field_observations(field_id)
-    if db_obs:
-        return db_obs
-    # Fall back to memory
-    return OBSERVATIONS.get(field_id, {})
-
-
-async def get_zones_data(field_id: str) -> dict[str, dict[str, Any]]:
-    """Get zones for a field from database or memory"""
-    # Try database first
-    db_zones = await db_get_zones(field_id)
-    if db_zones:
-        return db_zones
-    # Fall back to memory
-    return ZONES.get(field_id, {})
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
 # Zone Management
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
 @app.post("/api/v1/fields/{field_id}/zones")
-async def create_zone(
-    field_id: str,
-    zone: ZoneCreate,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
-):
+def create_zone(field_id: str, zone: ZoneCreate):
     """إنشاء منطقة جديدة في الحقل"""
     zone_id = f"zone_{uuid4().hex[:8]}"
 
-    zone_data = {
+    if field_id not in ZONES:
+        ZONES[field_id] = {}
+
+    ZONES[field_id][zone_id] = {
         "name": zone.name,
         "name_ar": zone.name_ar,
         "geometry": zone.geometry,
         "area_hectares": zone.area_hectares,
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.utcnow().isoformat(),
     }
 
-    # Try to store in database first
-    stored_in_db = await db_store_zone(field_id, zone_id, zone_data)
-
-    # Always store in memory as fallback
-    if field_id not in ZONES:
-        ZONES[field_id] = {}
-    ZONES[field_id][zone_id] = zone_data
-
-    return {
-        "zone_id": zone_id,
-        "status": "created",
-        "storage": "database" if stored_in_db else "memory",
-    }
+    return {"zone_id": zone_id, "status": "created"}
 
 
 @app.get("/api/v1/fields/{field_id}/zones")
-async def list_zones(
-    field_id: str,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
-):
+def list_zones(field_id: str):
     """قائمة المناطق في الحقل"""
-    # Try to get from database first
-    db_zones = await db_get_zones(field_id)
-    if db_zones:
-        zones = [{"zone_id": zid, **zdata} for zid, zdata in db_zones.items()]
-        return {"zones": zones, "count": len(zones), "source": "database"}
-
-    # Fall back to in-memory storage
     if field_id not in ZONES:
-        return {"zones": [], "count": 0, "source": "memory"}
+        return {"zones": [], "count": 0}
 
     zones = [{"zone_id": zid, **zdata} for zid, zdata in ZONES[field_id].items()]
-    return {"zones": zones, "count": len(zones), "source": "memory"}
+    return {"zones": zones, "count": len(zones)}
 
 
 @app.get("/api/v1/fields/{field_id}/zones.geojson")
-async def get_zones_geojson(
-    field_id: str,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
-):
+def get_zones_geojson(field_id: str):
     """تصدير المناطق كـ GeoJSON"""
-    # Try to get from database first
-    db_zones = await db_get_zones(field_id)
-    zone_data = db_zones if db_zones else ZONES.get(field_id, {})
-
-    if not zone_data:
+    if field_id not in ZONES:
         raise HTTPException(status_code=404, detail="Field not found")
 
     features = []
-    for zone_id, zdata in zone_data.items():
+    for zone_id, zone_data in ZONES[field_id].items():
         features.append(
             {
                 "type": "Feature",
                 "id": zone_id,
                 "properties": {
                     "zone_id": zone_id,
-                    "name": zdata.get("name"),
-                    "name_ar": zdata.get("name_ar"),
-                    "area_hectares": zdata.get("area_hectares"),
+                    "name": zone_data.get("name"),
+                    "name_ar": zone_data.get("name_ar"),
+                    "area_hectares": zone_data.get("area_hectares"),
                 },
-                "geometry": zdata.get("geometry"),
+                "geometry": zone_data.get("geometry"),
             }
         )
 
@@ -1016,12 +432,7 @@ async def get_zones_geojson(
     "/api/v1/fields/{field_id}/zones/{zone_id}/observations",
     response_model=ObservationOut,
 )
-async def ingest_observation(
-    field_id: str,
-    zone_id: str,
-    body: ObservationIn,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
-):
+def ingest_observation(field_id: str, zone_id: str, body: ObservationIn):
     """
     تسجيل رصد جديد لمؤشرات الغطاء النباتي
 
@@ -1031,24 +442,15 @@ async def ingest_observation(
     obs["captured_at"] = body.captured_at.isoformat()
     obs["indices"] = body.indices.model_dump()
 
-    # Try to store in database
-    db_obs_id = await db_store_observation(field_id, zone_id, {
-        "captured_at": body.captured_at,
-        "source": body.source,
-        "growth_stage": body.growth_stage.value,
-        "indices": body.indices.model_dump(),
-        "cloud_pct": body.cloud_pct,
-        "notes": body.notes,
-    })
-
-    # Always store in memory as fallback
+    # Initialize storage
     if field_id not in OBSERVATIONS:
         OBSERVATIONS[field_id] = {}
     if zone_id not in OBSERVATIONS[field_id]:
         OBSERVATIONS[field_id][zone_id] = []
+
     OBSERVATIONS[field_id][zone_id].append(obs)
 
-    observation_id = db_obs_id or f"obs_{field_id}_{zone_id}_{int(body.captured_at.timestamp())}"
+    observation_id = f"obs_{field_id}_{zone_id}_{int(body.captured_at.timestamp())}"
 
     return ObservationOut(
         observation_id=observation_id,
@@ -1059,24 +461,17 @@ async def ingest_observation(
 
 
 @app.get("/api/v1/fields/{field_id}/zones/{zone_id}/observations")
-async def list_observations(
+def list_observations(
     field_id: str,
     zone_id: str,
     limit: int = Query(default=50, le=200),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
     """قائمة الأرصاد للمنطقة"""
-    # Try to get from database first
-    db_obs = await db_get_observations(field_id, zone_id, limit)
-    if db_obs:
-        return {"observations": db_obs, "count": len(db_obs), "source": "database"}
-
-    # Fall back to in-memory storage
     if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
-        return {"observations": [], "count": 0, "source": "memory"}
+        return {"observations": [], "count": 0}
 
     obs_list = OBSERVATIONS[field_id][zone_id][-limit:]
-    return {"observations": obs_list, "count": len(obs_list), "source": "memory"}
+    return {"observations": obs_list, "count": len(obs_list)}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1085,10 +480,9 @@ async def list_observations(
 
 
 @app.get("/api/v1/fields/{field_id}/diagnosis")
-async def get_field_diagnosis(
+def get_field_diagnosis(
     field_id: str,
     date_str: str = Query(..., alias="date", description="التاريخ (YYYY-MM-DD)"),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
     """
     تشخيص كامل للحقل - "الطبيب الزراعي"
@@ -1103,13 +497,11 @@ async def get_field_diagnosis(
     except ValueError:
         raise HTTPException(status_code=400, detail="تنسيق تاريخ غير صالح، استخدم YYYY-MM-DD")
 
-    # Get observations from database or memory
-    zones = await get_field_observations_data(field_id)
-
-    if not zones:
+    if field_id not in OBSERVATIONS:
         raise HTTPException(status_code=404, detail="الحقل غير موجود أو لا توجد أرصاد")
 
     all_actions: list[dict[str, Any]] = []
+    zones = OBSERVATIONS[field_id]
 
     for zone_id, obs_list in zones.items():
         if not obs_list:
@@ -1189,12 +581,11 @@ async def get_field_diagnosis(
 
 
 @app.get("/api/v1/fields/{field_id}/zones/{zone_id}/timeline")
-async def get_zone_timeline(
+def get_zone_timeline(
     field_id: str,
     zone_id: str,
     from_date: str = Query(..., alias="from", description="من تاريخ (YYYY-MM-DD)"),
     to_date: str = Query(..., alias="to", description="إلى تاريخ (YYYY-MM-DD)"),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
     """
     السلسلة الزمنية لمؤشرات المنطقة
@@ -1207,12 +598,10 @@ async def get_zone_timeline(
     except ValueError:
         raise HTTPException(status_code=400, detail="تنسيق تاريخ غير صالح")
 
-    # Try to get from database first
-    db_obs = await db_get_observations(field_id, zone_id, 1000)
-    obs_list = db_obs if db_obs else OBSERVATIONS.get(field_id, {}).get(zone_id, [])
-
-    if not obs_list:
+    if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
         return {"zone_id": zone_id, "field_id": field_id, "series": []}
+
+    obs_list = OBSERVATIONS[field_id][zone_id]
 
     # فلترة حسب النطاق الزمني
     series = []
@@ -1248,7 +637,7 @@ async def get_zone_timeline(
 
 
 @app.get("/api/v1/fields/{field_id}/vrt")
-async def export_vrt(
+def export_vrt(
     field_id: str,
     date_str: str = Query(..., alias="date", description="التاريخ (YYYY-MM-DD)"),
     action_type: str | None = Query(
@@ -1268,14 +657,12 @@ async def export_vrt(
     except ValueError:
         raise HTTPException(status_code=400, detail="تنسيق تاريخ غير صالح")
 
-    # Get data from database or memory
-    zones = await get_field_observations_data(field_id)
-    zone_metadata = await get_zones_data(field_id)
-
-    if not zones:
+    if field_id not in OBSERVATIONS:
         raise HTTPException(status_code=404, detail="الحقل غير موجود")
 
     features = []
+    zones = OBSERVATIONS[field_id]
+    zone_metadata = ZONES.get(field_id, {})
 
     for zone_id, obs_list in zones.items():
         if not obs_list:
@@ -1341,7 +728,7 @@ async def export_vrt(
             "field_id": field_id,
             "date": target.isoformat(),
             "export_type": "vrt",
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.utcnow().isoformat(),
         },
     }
 
@@ -1404,16 +791,12 @@ class DiseaseDetectionRequest(BaseModel):
 
 
 @app.post("/api/v1/disease/detect")
-async def detect_crop_diseases(
-    body: DiseaseDetectionRequest,
-    field_id: str | None = Query(default=None, description="Optional field ID for event publishing"),
-):
+def detect_crop_diseases(body: DiseaseDetectionRequest):
     """
     كشف الأمراض المحتملة من المؤشرات النباتية
     Detect potential diseases from vegetation indices
 
     Returns diseases with severity, confidence, and treatment recommendations.
-    Publishes sahool.crop.disease_detected events to NATS if field_id is provided.
     """
     detections = detect_diseases(
         ndvi=body.ndvi,
@@ -1428,33 +811,6 @@ async def detect_crop_diseases(
     )
 
     health_en, health_ar = get_overall_health_status(detections)
-
-    # Publish disease detection events to NATS and store in database
-    if field_id and detections:
-        for detection in detections:
-            await publish_disease_detected(
-                field_id=field_id,
-                disease=detection.disease_type.value,
-                confidence=detection.confidence,
-                severity=detection.severity.value if detection.severity else None,
-            )
-            # Store in database
-            await db_store_disease_detection(
-                field_id=field_id,
-                disease_name=detection.disease_type.value,
-                disease_name_ar=getattr(detection, 'disease_type_ar', None),
-                confidence=detection.confidence,
-                severity=detection.severity.value if detection.severity else None,
-            )
-
-        # Publish health assessment event
-        issues = [d.disease_type.value for d in detections]
-        await publish_health_assessed(
-            field_id=field_id,
-            health_score=health_en,
-            health_score_ar=health_ar,
-            issues=issues,
-        )
 
     return {
         "overall_health": {
@@ -1480,7 +836,7 @@ async def detect_crop_diseases(
 
 
 @app.post("/api/v1/fields/{field_id}/zones/{zone_id}/disease-analysis")
-async def analyze_zone_diseases(
+def analyze_zone_diseases(
     field_id: str,
     zone_id: str,
     humidity_pct: float | None = Query(default=None, ge=0, le=100),
@@ -1490,16 +846,14 @@ async def analyze_zone_diseases(
     """
     تحليل أمراض المنطقة من آخر رصد
     Analyze zone diseases from latest observation
-    """
-    # Try to get from database first
-    db_obs = await db_get_observations(field_id, zone_id, 1)
-    if db_obs:
-        obs_list = db_obs
-    else:
-        if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
-            raise HTTPException(status_code=404, detail="Zone not found or no observations")
-        obs_list = OBSERVATIONS[field_id][zone_id]
 
+    Combines the latest observation data with optional environmental
+    context to detect potential diseases.
+    """
+    if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
+        raise HTTPException(status_code=404, detail="Zone not found or no observations")
+
+    obs_list = OBSERVATIONS[field_id][zone_id]
     if not obs_list:
         raise HTTPException(status_code=404, detail="No observations for this zone")
 
@@ -1522,30 +876,8 @@ async def analyze_zone_diseases(
 
     health_en, health_ar = get_overall_health_status(detections)
 
-    # Publish disease detection events to NATS
-    if detections:
-        for detection in detections:
-            await publish_disease_detected(
-                field_id=field_id,
-                disease=detection.disease_type.value,
-                confidence=detection.confidence,
-                severity=detection.severity.value if detection.severity else None,
-                zone_id=zone_id,
-            )
-
-    # Publish health assessment event
-    issues = [d.disease_type.value for d in detections] if detections else []
-    await publish_health_assessed(
-        field_id=field_id,
-        health_score=health_en,
-        health_score_ar=health_ar,
-        issues=issues,
-        zone_id=zone_id,
-    )
-
     # Get zone metadata
-    zone_metadata = await get_zones_data(field_id)
-    zone_meta = zone_metadata.get(zone_id, {})
+    zone_meta = ZONES.get(field_id, {}).get(zone_id, {})
 
     return {
         "field_id": field_id,
@@ -1565,7 +897,10 @@ async def analyze_zone_diseases(
 
 @app.get("/api/v1/disease/types")
 def list_disease_types():
-    """قائمة أنواع الأمراض المدعومة"""
+    """
+    قائمة أنواع الأمراض المدعومة
+    List supported disease types
+    """
     from .disease_detection import DiseaseType, TreatmentType
 
     return {
@@ -1609,7 +944,12 @@ class FertilizerPlanRequest(BaseModel):
 
 @app.post("/api/v1/nutrients/detect")
 def detect_nutrients(body: NutrientDetectionRequest):
-    """كشف نقص العناصر الغذائية من المؤشرات النباتية"""
+    """
+    كشف نقص العناصر الغذائية من المؤشرات النباتية
+    Detect nutrient deficiencies from vegetation indices
+
+    Returns deficiencies with severity, confidence, and fertilizer recommendations.
+    """
     deficiencies = detect_nutrient_deficiencies(
         ndvi=body.ndvi,
         evi=body.evi,
@@ -1640,7 +980,13 @@ def detect_nutrients(body: NutrientDetectionRequest):
 
 @app.post("/api/v1/nutrients/fertilizer-plan")
 def create_fertilizer_plan(body: FertilizerPlanRequest):
-    """إنشاء خطة تسميد مخصصة"""
+    """
+    إنشاء خطة تسميد مخصصة
+    Generate a customized fertilizer plan
+
+    Creates a detailed fertilizer application plan based on detected
+    deficiencies, field area, and optional budget constraints.
+    """
     deficiencies = detect_nutrient_deficiencies(
         ndvi=body.ndvi,
         evi=body.evi,
@@ -1668,27 +1014,30 @@ def create_fertilizer_plan(body: FertilizerPlanRequest):
 
 
 @app.post("/api/v1/fields/{field_id}/zones/{zone_id}/nutrient-analysis")
-async def analyze_zone_nutrients(
+def analyze_zone_nutrients(
     field_id: str,
     zone_id: str,
     field_area_hectares: float = Query(default=1.0, gt=0),
 ):
-    """تحليل العناصر الغذائية في المنطقة من آخر رصد"""
-    # Try to get from database first
-    db_obs = await db_get_observations(field_id, zone_id, 1)
-    if db_obs:
-        obs_list = db_obs
-    else:
-        if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
-            raise HTTPException(status_code=404, detail="Zone not found or no observations")
-        obs_list = OBSERVATIONS[field_id][zone_id]
+    """
+    تحليل العناصر الغذائية في المنطقة من آخر رصد
+    Analyze zone nutrients from latest observation
 
+    Uses the latest observation data to detect nutrient deficiencies
+    and generate fertilizer recommendations.
+    """
+    if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
+        raise HTTPException(status_code=404, detail="Zone not found or no observations")
+
+    obs_list = OBSERVATIONS[field_id][zone_id]
     if not obs_list:
         raise HTTPException(status_code=404, detail="No observations for this zone")
 
+    # Get latest observation
     latest = obs_list[-1]
     idx = latest["indices"]
 
+    # Detect deficiencies
     deficiencies = detect_nutrient_deficiencies(
         ndvi=idx["ndvi"],
         evi=idx["evi"],
@@ -1705,8 +1054,8 @@ async def analyze_zone_nutrients(
         field_area_hectares=field_area_hectares,
     )
 
-    zone_metadata = await get_zones_data(field_id)
-    zone_meta = zone_metadata.get(zone_id, {})
+    # Get zone metadata
+    zone_meta = ZONES.get(field_id, {}).get(zone_id, {})
 
     return {
         "field_id": field_id,
@@ -1724,7 +1073,10 @@ async def analyze_zone_nutrients(
 
 @app.get("/api/v1/nutrients/types")
 def list_nutrient_types():
-    """قائمة أنواع العناصر الغذائية المدعومة"""
+    """
+    قائمة أنواع العناصر الغذائية المدعومة
+    List supported nutrient types
+    """
     return {
         "nutrient_types": [{"value": nt.value, "name": nt.name} for nt in NutrientType],
         "severity_levels": [{"value": ds.value, "name": ds.name} for ds in DeficiencySeverity],
@@ -1795,11 +1147,17 @@ class YieldPredictionRequest(BaseModel):
 
 @app.post("/api/v1/yield/predict")
 def predict_crop_yield(body: YieldPredictionRequest):
-    """تنبؤ المحصول من المؤشرات النباتية"""
+    """
+    تنبؤ المحصول من المؤشرات النباتية
+    Predict crop yield from vegetation indices
+
+    Returns predicted yield with confidence interval and recommendations.
+    """
+    # Convert crop type string to enum
     try:
         crop = YieldCropType(body.crop_type.lower())
     except ValueError:
-        crop = YieldCropType.WHEAT
+        crop = YieldCropType.WHEAT  # Default to wheat if unknown
 
     prediction = predict_yield(
         crop_type=crop,
@@ -1832,28 +1190,29 @@ def predict_crop_yield(body: YieldPredictionRequest):
 
 
 @app.post("/api/v1/fields/{field_id}/zones/{zone_id}/yield-prediction")
-async def predict_zone_yield(
+def predict_zone_yield(
     field_id: str,
     zone_id: str,
     crop_type: str = Query(default="wheat", description="نوع المحصول"),
     field_area_hectares: float = Query(default=1.0, gt=0),
     growth_stage_percent: float = Query(default=50.0, ge=0, le=100),
 ):
-    """تنبؤ محصول المنطقة من آخر رصد"""
-    db_obs = await db_get_observations(field_id, zone_id, 1)
-    if db_obs:
-        obs_list = db_obs
-    else:
-        if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
-            raise HTTPException(status_code=404, detail="Zone not found or no observations")
-        obs_list = OBSERVATIONS[field_id][zone_id]
+    """
+    تنبؤ محصول المنطقة من آخر رصد
+    Predict zone yield from latest observation
+    """
+    if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
+        raise HTTPException(status_code=404, detail="Zone not found or no observations")
 
+    obs_list = OBSERVATIONS[field_id][zone_id]
     if not obs_list:
         raise HTTPException(status_code=404, detail="No observations for this zone")
 
+    # Get latest observation
     latest = obs_list[-1]
     idx = latest["indices"]
 
+    # Convert crop type
     try:
         crop = YieldCropType(crop_type.lower())
     except ValueError:
@@ -1871,8 +1230,7 @@ async def predict_zone_yield(
         growth_stage_percent=growth_stage_percent,
     )
 
-    zone_metadata = await get_zones_data(field_id)
-    zone_meta = zone_metadata.get(zone_id, {})
+    zone_meta = ZONES.get(field_id, {}).get(zone_id, {})
 
     return {
         "field_id": field_id,
@@ -1886,7 +1244,10 @@ async def predict_zone_yield(
 
 @app.get("/api/v1/yield/crop-parameters")
 def get_all_crop_parameters(crop_type: str | None = Query(default=None)):
-    """الحصول على معاملات المحاصيل"""
+    """
+    الحصول على معاملات المحاصيل
+    Get crop parameters for yield calculations
+    """
     if crop_type:
         try:
             crop = YieldCropType(crop_type.lower())
@@ -1915,7 +1276,12 @@ class PestAssessmentRequest(BaseModel):
 
 @app.post("/api/v1/pests/assess")
 def assess_pests(body: PestAssessmentRequest):
-    """تقييم مخاطر الآفات بناءً على الظروف البيئية"""
+    """
+    تقييم مخاطر الآفات بناءً على الظروف البيئية
+    Assess pest risks based on environmental conditions
+
+    Returns list of pest risks sorted by severity.
+    """
     risks = assess_pest_risks(
         temp_c=body.temp_c,
         humidity_pct=body.humidity_pct,
@@ -1939,7 +1305,7 @@ def assess_pests(body: PestAssessmentRequest):
 
 
 @app.post("/api/v1/fields/{field_id}/zones/{zone_id}/pest-assessment")
-async def assess_zone_pests(
+def assess_zone_pests(
     field_id: str,
     zone_id: str,
     temp_c: float = Query(..., ge=-50, le=60),
@@ -1947,18 +1313,18 @@ async def assess_zone_pests(
     crop_type: str = Query(default="general"),
     season: str = Query(default="summer"),
 ):
-    """تقييم مخاطر الآفات في المنطقة"""
-    db_obs = await db_get_observations(field_id, zone_id, 1)
-    if db_obs:
-        obs_list = db_obs
-    else:
-        if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
-            raise HTTPException(status_code=404, detail="Zone not found or no observations")
-        obs_list = OBSERVATIONS[field_id][zone_id]
+    """
+    تقييم مخاطر الآفات في المنطقة
+    Assess pest risks for a specific zone
+    """
+    if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
+        raise HTTPException(status_code=404, detail="Zone not found or no observations")
 
+    obs_list = OBSERVATIONS[field_id][zone_id]
     if not obs_list:
         raise HTTPException(status_code=404, detail="No observations for this zone")
 
+    # Get latest observation
     latest = obs_list[-1]
     idx = latest["indices"]
 
@@ -1971,8 +1337,7 @@ async def assess_zone_pests(
     )
 
     summary = get_pest_summary(risks)
-    zone_metadata = await get_zones_data(field_id)
-    zone_meta = zone_metadata.get(zone_id, {})
+    zone_meta = ZONES.get(field_id, {}).get(zone_id, {})
 
     return {
         "field_id": field_id,
@@ -1988,7 +1353,10 @@ async def assess_zone_pests(
 
 @app.get("/api/v1/pests/types")
 def list_pest_types():
-    """قائمة أنواع الآفات المدعومة"""
+    """
+    قائمة أنواع الآفات المدعومة
+    List supported pest types
+    """
     return {
         "pest_types": get_pest_types(),
         "risk_levels": [{"value": rl.value, "name": rl.name} for rl in RiskLevel],
@@ -2002,7 +1370,7 @@ def list_pest_types():
 
 
 @app.post("/api/v1/comprehensive-analysis")
-async def comprehensive_analysis(
+def comprehensive_analysis(
     ndvi: float = Query(..., ge=-1, le=1),
     evi: float = Query(..., ge=-1, le=1),
     ndre: float = Query(..., ge=-1, le=1),
@@ -2013,9 +1381,14 @@ async def comprehensive_analysis(
     temp_c: float = Query(default=25, ge=-50, le=60),
     humidity_pct: float = Query(default=50, ge=0, le=100),
     field_area_hectares: float = Query(default=1.0, gt=0),
-    field_id: str | None = Query(default=None, description="Optional field ID for event publishing"),
 ):
-    """تحليل شامل للحقل"""
+    """
+    تحليل شامل للحقل
+    Comprehensive field analysis
+
+    Combines disease detection, nutrient analysis, yield prediction, and pest assessment.
+    """
+    # Convert crop type
     try:
         yield_crop = YieldCropType(crop_type.lower())
     except ValueError:
@@ -2026,55 +1399,59 @@ async def comprehensive_analysis(
     except ValueError:
         disease_crop = CropType.UNKNOWN
 
+    # Disease detection
     diseases = detect_diseases(
-        ndvi=ndvi, evi=evi, ndre=ndre, ndwi=ndwi, lci=lci, savi=savi,
-        crop_type=disease_crop, humidity_pct=humidity_pct, temp_c=temp_c,
+        ndvi=ndvi,
+        evi=evi,
+        ndre=ndre,
+        ndwi=ndwi,
+        lci=lci,
+        savi=savi,
+        crop_type=disease_crop,
+        humidity_pct=humidity_pct,
+        temp_c=temp_c,
     )
     health_en, health_ar = get_overall_health_status(diseases)
 
+    # Nutrient deficiencies
     deficiencies = detect_nutrient_deficiencies(
-        ndvi=ndvi, evi=evi, ndre=ndre, ndwi=ndwi, lci=lci, savi=savi,
+        ndvi=ndvi,
+        evi=evi,
+        ndre=ndre,
+        ndwi=ndwi,
+        lci=lci,
+        savi=savi,
     )
     nutrient_summary = get_nutrient_status_summary(deficiencies)
 
+    # Yield prediction
     yield_pred = predict_yield(
-        crop_type=yield_crop, ndvi=ndvi, evi=evi, ndwi=ndwi, ndre=ndre,
-        lci=lci, savi=savi, field_area_hectares=field_area_hectares,
+        crop_type=yield_crop,
+        ndvi=ndvi,
+        evi=evi,
+        ndwi=ndwi,
+        ndre=ndre,
+        lci=lci,
+        savi=savi,
+        field_area_hectares=field_area_hectares,
     )
 
+    # Pest assessment
     pest_risks = assess_pest_risks(
-        temp_c=temp_c, humidity_pct=humidity_pct, ndvi=ndvi, crop_type=crop_type,
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        ndvi=ndvi,
+        crop_type=crop_type,
     )
     pest_summary = get_pest_summary(pest_risks)
 
+    # Overall status
     if health_en in ["critical", "poor"] or nutrient_summary["overall_status_en"] == "Critical":
         overall_status = "critical"
     elif health_en == "fair" or nutrient_summary["overall_status_en"] == "Deficient":
         overall_status = "warning"
     else:
         overall_status = "good"
-
-    if field_id:
-        if diseases:
-            for disease in diseases:
-                await publish_disease_detected(
-                    field_id=field_id,
-                    disease=disease.disease_type.value,
-                    confidence=disease.confidence,
-                    severity=disease.severity.value if disease.severity else None,
-                )
-
-        all_issues = []
-        all_issues.extend([d.disease_type.value for d in diseases])
-        all_issues.extend([d.nutrient_type.value for d in deficiencies])
-        all_issues.extend([r.pest_type for r in pest_risks if r.risk_level.value in ["high", "critical"]])
-
-        await publish_health_assessed(
-            field_id=field_id,
-            health_score=overall_status,
-            health_score_ar=health_ar,
-            issues=all_issues,
-        )
 
     return {
         "overall_status": overall_status,
@@ -2084,21 +1461,25 @@ async def comprehensive_analysis(
             "status_en": health_en,
             "status_ar": health_ar,
             "disease_count": len(diseases),
-            "diseases": [d.to_dict() for d in diseases[:3]],
+            "diseases": [d.to_dict() for d in diseases[:3]],  # Top 3
         },
         "nutrient_assessment": {
             **nutrient_summary,
             "deficiency_count": len(deficiencies),
-            "deficiencies": [d.to_dict() for d in deficiencies[:3]],
+            "deficiencies": [d.to_dict() for d in deficiencies[:3]],  # Top 3
         },
         "yield_prediction": yield_pred.to_dict(),
         "pest_assessment": {
             **pest_summary,
-            "risks": [r.to_dict() for r in pest_risks[:3]],
+            "risks": [r.to_dict() for r in pest_risks[:3]],  # Top 3
         },
         "input_indices": {
-            "ndvi": ndvi, "evi": evi, "ndre": ndre,
-            "ndwi": ndwi, "lci": lci, "savi": savi,
+            "ndvi": ndvi,
+            "evi": evi,
+            "ndre": ndre,
+            "ndwi": ndwi,
+            "lci": lci,
+            "savi": savi,
         },
         "environmental_context": {
             "temp_c": temp_c,

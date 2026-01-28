@@ -25,7 +25,7 @@ class AppConfig {
   // Feature Flags
   static const bool enableOfflineMode = true;
   static const bool enablePhotoCapture = true;
-  static const bool enablePushNotifications = true; // Enabled for production
+  static const bool enablePushNotifications = false; // PR later
   static const bool enableBackgroundSync = true;
 
   // Debug Mode

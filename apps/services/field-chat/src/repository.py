@@ -3,7 +3,7 @@ Field Chat Repository
 Data access layer for chat operations
 """
 
-from datetime import datetime, timezone
+from datetime import datetime
 from uuid import UUID, uuid4
 
 from .models import ChatMessage, ChatParticipant, ChatThread
@@ -139,7 +139,7 @@ class ChatRepository:
 
         # Update thread stats
         await ChatThread.filter(id=thread_id).update(
-            last_message_at=datetime.now(timezone.utc),
+            last_message_at=datetime.utcnow(),
             message_count=await ChatMessage.filter(thread_id=thread_id).count(),
         )
 
@@ -247,7 +247,7 @@ class ChatRepository:
         message_id: UUID | None = None,
     ) -> bool:
         """Mark thread as read up to message"""
-        now = datetime.now(timezone.utc)
+        now = datetime.utcnow()
         updated = await ChatParticipant.filter(
             thread_id=thread_id,
             user_id=user_id,

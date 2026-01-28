@@ -3,7 +3,7 @@
 # Version: 16.0.0
 
 # Base requirements (inlined from requirements/base.txt)
-fastapi==0.126.0
+fastapi==0.128.0
 starlette>=0.49.1
 uvicorn[standard]>=0.30.0,<1.0.0
 pydantic==2.9.2
@@ -14,12 +14,3 @@ python-dotenv==1.0.1
 python-dateutil==2.8.2
 
 structlog>=24.1.0
-
-# NATS messaging
-nats-py>=2.6.0
-
-# Database
-asyncpg>=0.30.0
-
-# JWT Authentication
-PyJWT>=2.8.0

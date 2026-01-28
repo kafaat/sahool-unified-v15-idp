@@ -6,6 +6,8 @@ Validation functions for IFA v6 compliance data.
 وظائف التحقق من بيانات الامتثال لـ IFA v6.
 """
 
+from __future__ import annotations
+
 import re
 from datetime import date, datetime, timedelta
 

@@ -11,7 +11,7 @@ SAHOOL Action Template
 """
 
 import uuid
-from datetime import date, datetime, time, timezone
+from datetime import date, datetime, time
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -122,7 +122,7 @@ class ActionTemplate(BaseModel):
     requires_sync_before: bool = Field(default=False, description="هل يتطلب مزامنة قبل التنفيذ؟")
 
     # === Metadata ===
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=datetime.utcnow)
     expires_at: datetime | None = None
     status: ActionStatus = Field(default=ActionStatus.PENDING)
     priority_score: float = Field(
@@ -170,7 +170,7 @@ class ActionTemplate(BaseModel):
         # Deadline proximity bonus
         deadline_bonus = 0
         if self.deadline:
-            hours_until = (self.deadline - datetime.now(timezone.utc)).total_seconds() / 3600
+            hours_until = (self.deadline - datetime.utcnow()).total_seconds() / 3600
             if hours_until < 24:
                 deadline_bonus = 30
             elif hours_until < 72:

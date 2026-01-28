@@ -14,9 +14,11 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 import asyncio
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Any, Callable
 from uuid import UUID, uuid4
 
@@ -94,12 +96,12 @@ class SyncManager:
                 "direction": "edge_to_cloud",
                 "readings_synced": len(readings),
                 "decisions_synced": len(decisions),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.utcnow().isoformat(),
                 "success": True,
             }
 
             self._record_sync(sync_result)
-            self._last_sync = datetime.now(timezone.utc)
+            self._last_sync = datetime.utcnow()
 
             self._logger.info(
                 "edge_to_cloud_sync_completed",
@@ -146,12 +148,12 @@ class SyncManager:
                 "direction": "cloud_to_edge",
                 "models_synced": len(models),
                 "rules_synced": len(rules),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.utcnow().isoformat(),
                 "success": True,
             }
 
             self._record_sync(sync_result)
-            self._last_sync = datetime.now(timezone.utc)
+            self._last_sync = datetime.utcnow()
 
             self._logger.info(
                 "cloud_to_edge_sync_completed",
@@ -404,7 +406,7 @@ class EdgeCloudCooperativeSystem:
             await system.start_data_collection(continuous=False)
         """
         self._is_running = True
-        self._start_time = datetime.now(timezone.utc)
+        self._start_time = datetime.utcnow()
 
         if interval_seconds is None:
             interval_seconds = (
@@ -518,7 +520,7 @@ class EdgeCloudCooperativeSystem:
                     # Execute irrigation
                     pass
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.utcnow()
         results: dict[str, Any] = {
             "timestamp": start_time.isoformat(),
             "processing_mode": "hybrid" if use_edge and fallback_to_cloud else (
@@ -606,7 +608,7 @@ class EdgeCloudCooperativeSystem:
                 self._cloud_available = False
 
         # Calculate latency
-        end_time = datetime.now(timezone.utc)
+        end_time = datetime.utcnow()
         results["latency_ms"] = (end_time - start_time).total_seconds() * 1000
 
         self._logger.info(
@@ -659,7 +661,7 @@ class EdgeCloudCooperativeSystem:
             print(f"Synced {sync_result['edge_to_cloud']['readings_synced']} readings")
         """
         results: dict[str, Any] = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.utcnow().isoformat(),
             "edge_to_cloud": {},
             "cloud_to_edge": {},
             "success": True,
@@ -819,7 +821,7 @@ class EdgeCloudCooperativeSystem:
         """
         # Calculate uptime
         if self._start_time:
-            uptime_seconds = (datetime.now(timezone.utc) - self._start_time).total_seconds()
+            uptime_seconds = (datetime.utcnow() - self._start_time).total_seconds()
             uptime_percent = min(100.0, (uptime_seconds / (uptime_seconds + 1)) * 100)
         else:
             uptime_percent = 0.0

@@ -6,16 +6,13 @@ Port: 8104
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
-import json
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any
 
 import httpx
-import nats
-import structlog
 from fastapi import Depends, FastAPI, HTTPException
 
 # Shared middleware imports
@@ -655,14 +652,10 @@ class ProvidersListResponse(BaseModel):
 # DATABASE & CACHE INITIALIZATION
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Logger
-logger = structlog.get_logger()
-
 # Database and cache instances (initialized on startup)
 database: Database | None = None
 cache_manager: CacheManager | None = None
 config_service: ProviderConfigService | None = None
-nc: nats.NATS | None = None  # NATS client
 
 
 def get_db_session():
@@ -678,144 +671,44 @@ def get_db_session():
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database, cache, and NATS on startup"""
-    global database, cache_manager, config_service, nc
+    """Initialize database and cache on startup"""
+    global database, cache_manager, config_service
 
     # Get configuration from environment
     # Security: No fallback credentials - require env vars to be set
     database_url = os.getenv("DATABASE_URL", "postgresql://pgbouncer:6432/sahool")
     redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
-    nats_url = os.getenv("NATS_URL")
 
     # Initialize database
     try:
         database = Database(database_url)
         database.create_tables()
-        logger.info("Database initialized successfully")
+        print("✓ Database initialized successfully")
     except Exception as e:
-        logger.error("Database initialization failed", error=str(e))
+        print(f"✗ Database initialization failed: {e}")
         raise
 
     # Initialize cache
     try:
         cache_manager = CacheManager(redis_url, cache_ttl=300)
-        logger.info("Cache initialized successfully")
+        print("✓ Cache initialized successfully")
     except Exception as e:
-        logger.warning("Cache initialization failed, continuing without cache", error=str(e))
+        print(f"⚠ Cache initialization failed: {e} (continuing without cache)")
         # Create a dummy cache manager that doesn't actually cache
         cache_manager = CacheManager(redis_url, cache_ttl=0)
 
     # Initialize config service
     config_service = ProviderConfigService(database, cache_manager)
-    logger.info("Provider Config Service initialized")
-
-    # Initialize NATS connection
-    if nats_url:
-        try:
-            nc = await nats.connect(nats_url)
-            logger.info("Connected to NATS", nats_url=nats_url)
-        except Exception as e:
-            logger.warning("Failed to connect to NATS", error=str(e))
-            nc = None
-    else:
-        logger.info("NATS_URL not configured, event publishing disabled")
-        nc = None
+    print("✓ Provider Config Service initialized")
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup on shutdown"""
-    global database, cache_manager, nc
-
-    # Close NATS connection
-    if nc:
-        try:
-            await nc.close()
-            logger.info("NATS connection closed")
-        except Exception as e:
-            logger.warning("Error closing NATS connection", error=str(e))
-
-    # Close cache connection
+    global database, cache_manager
     if cache_manager and cache_manager.redis_client:
         cache_manager.redis_client.close()
-
-    logger.info("Service shutdown complete")
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# NATS EVENT PUBLISHING
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
-async def publish_config_updated(
-    tenant_id: str,
-    provider_type: str,
-    provider_name: str,
-    key: str | None = None,
-) -> None:
-    """
-    Publish config updated event to NATS
-    Subject: sahool.config.updated
-    """
-    if not nc:
-        return
-
-    try:
-        event_data = {
-            "provider": provider_name,
-            "provider_type": provider_type,
-            "key": key,
-            "tenant_id": tenant_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        }
-        await nc.publish(
-            "sahool.config.updated",
-            json.dumps(event_data).encode(),
-        )
-        logger.info(
-            "Published config updated event",
-            subject="sahool.config.updated",
-            tenant_id=tenant_id,
-            provider=provider_name,
-        )
-    except Exception as e:
-        logger.error("Failed to publish config updated event", error=str(e))
-
-
-async def publish_provider_status_changed(
-    tenant_id: str,
-    provider_type: str,
-    provider_name: str,
-    enabled: bool,
-) -> None:
-    """
-    Publish provider status changed event to NATS
-    Subject: sahool.config.provider_status_changed
-    """
-    if not nc:
-        return
-
-    try:
-        event_data = {
-            "provider": provider_name,
-            "provider_type": provider_type,
-            "enabled": enabled,
-            "tenant_id": tenant_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        }
-        await nc.publish(
-            "sahool.config.provider_status_changed",
-            json.dumps(event_data).encode(),
-        )
-        logger.info(
-            "Published provider status changed event",
-            subject="sahool.config.provider_status_changed",
-            tenant_id=tenant_id,
-            provider=provider_name,
-            enabled=enabled,
-        )
-    except Exception as e:
-        logger.error("Failed to publish provider status changed event", error=str(e))
+    print("✓ Service shutdown complete")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -832,7 +725,7 @@ async def check_map_provider_health(
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
-            last_check=datetime.now(timezone.utc),
+            last_check=datetime.utcnow(),
             error_message="Unknown provider",
         )
 
@@ -844,36 +737,36 @@ async def check_map_provider_health(
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
-            start = datetime.now(timezone.utc)
+            start = datetime.utcnow()
             response = await client.head(test_url)
-            response_time = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            response_time = (datetime.utcnow() - start).total_seconds() * 1000
 
             if response.status_code == 200:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.AVAILABLE,
-                    last_check=datetime.now(timezone.utc),
+                    last_check=datetime.utcnow(),
                     response_time_ms=response_time,
                 )
             elif response.status_code == 429:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.RATE_LIMITED,
-                    last_check=datetime.now(timezone.utc),
+                    last_check=datetime.utcnow(),
                     response_time_ms=response_time,
                 )
             else:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.UNAVAILABLE,
-                    last_check=datetime.now(timezone.utc),
+                    last_check=datetime.utcnow(),
                     error_message=f"HTTP {response.status_code}",
                 )
     except Exception as e:
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
-            last_check=datetime.now(timezone.utc),
+            last_check=datetime.utcnow(),
             error_message=str(e),
         )
 
@@ -887,7 +780,7 @@ async def check_weather_provider_health(
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
-            last_check=datetime.now(timezone.utc),
+            last_check=datetime.utcnow(),
             error_message="Unknown provider",
         )
 
@@ -902,7 +795,7 @@ async def check_weather_provider_health(
             return ProviderStatusResponse(
                 provider_name=provider_name.value,
                 status=ProviderStatus.ERROR,
-                last_check=datetime.now(timezone.utc),
+                last_check=datetime.utcnow(),
                 error_message="API key required",
             )
         test_url = f"{provider['base_url']}/weather?lat=15.37&lon=44.19&appid={api_key}"
@@ -911,42 +804,42 @@ async def check_weather_provider_health(
             return ProviderStatusResponse(
                 provider_name=provider_name.value,
                 status=ProviderStatus.ERROR,
-                last_check=datetime.now(timezone.utc),
+                last_check=datetime.utcnow(),
                 error_message="API key required",
             )
         test_url = f"{provider['base_url']}/current.json?key={api_key}&q=15.37,44.19"
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
-            start = datetime.now(timezone.utc)
+            start = datetime.utcnow()
             response = await client.get(test_url)
-            response_time = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            response_time = (datetime.utcnow() - start).total_seconds() * 1000
 
             if response.status_code == 200:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.AVAILABLE,
-                    last_check=datetime.now(timezone.utc),
+                    last_check=datetime.utcnow(),
                     response_time_ms=response_time,
                 )
             elif response.status_code == 429:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.RATE_LIMITED,
-                    last_check=datetime.now(timezone.utc),
+                    last_check=datetime.utcnow(),
                 )
             else:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.UNAVAILABLE,
-                    last_check=datetime.now(timezone.utc),
+                    last_check=datetime.utcnow(),
                     error_message=f"HTTP {response.status_code}",
                 )
     except Exception as e:
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
-            last_check=datetime.now(timezone.utc),
+            last_check=datetime.utcnow(),
             error_message=str(e),
         )
 
@@ -970,22 +863,18 @@ async def root():
 @app.get("/healthz")
 async def health_check():
     """Health check endpoint"""
-    return {"status": "healthy", "timestamp": datetime.now(timezone.utc)}
+    return {"status": "healthy", "timestamp": datetime.utcnow()}
 
 
 @app.get("/readyz")
-async def readiness():
+def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    nats_connected = nc is not None and nc.is_connected if nc else False
     return {
         "status": "ready",
         "service": "provider-config",
         "version": "16.0.0",
         "checks": {
             "service": "ready",
-            "database": database is not None,
-            "cache": cache_manager is not None,
-            "nats": nats_connected,
         },
     }
 
@@ -1288,7 +1177,7 @@ async def check_all_free_providers():
     results = {
         "map_providers": [],
         "weather_providers": [],
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
     # Check free map providers
@@ -1382,8 +1271,6 @@ async def update_tenant_config(
             existing = config_service.get_config_by_name(
                 session, tenant_id, "map", provider.provider_name
             )
-            previous_enabled = existing.enabled if existing else None
-
             if existing:
                 config_service.update_config(
                     session,
@@ -1402,31 +1289,6 @@ async def update_tenant_config(
                     provider.provider_name,
                     api_key=provider.api_key,
                     priority=provider.priority,
-                    enabled=provider.enabled,
-                )
-
-            # Publish config updated event
-            await publish_config_updated(
-                tenant_id=tenant_id,
-                provider_type="map",
-                provider_name=provider.provider_name,
-                key="priority" if existing else None,
-            )
-
-            # Publish provider status changed if enabled status changed
-            if previous_enabled is not None and previous_enabled != provider.enabled:
-                await publish_provider_status_changed(
-                    tenant_id=tenant_id,
-                    provider_type="map",
-                    provider_name=provider.provider_name,
-                    enabled=provider.enabled,
-                )
-            elif previous_enabled is None:
-                # New provider, publish status
-                await publish_provider_status_changed(
-                    tenant_id=tenant_id,
-                    provider_type="map",
-                    provider_name=provider.provider_name,
                     enabled=provider.enabled,
                 )
 
@@ -1435,8 +1297,6 @@ async def update_tenant_config(
             existing = config_service.get_config_by_name(
                 session, tenant_id, "weather", provider.provider_name
             )
-            previous_enabled = existing.enabled if existing else None
-
             if existing:
                 config_service.update_config(
                     session,
@@ -1455,31 +1315,6 @@ async def update_tenant_config(
                     provider.provider_name,
                     api_key=provider.api_key,
                     priority=provider.priority,
-                    enabled=provider.enabled,
-                )
-
-            # Publish config updated event
-            await publish_config_updated(
-                tenant_id=tenant_id,
-                provider_type="weather",
-                provider_name=provider.provider_name,
-                key="priority" if existing else None,
-            )
-
-            # Publish provider status changed if enabled status changed
-            if previous_enabled is not None and previous_enabled != provider.enabled:
-                await publish_provider_status_changed(
-                    tenant_id=tenant_id,
-                    provider_type="weather",
-                    provider_name=provider.provider_name,
-                    enabled=provider.enabled,
-                )
-            elif previous_enabled is None:
-                # New provider, publish status
-                await publish_provider_status_changed(
-                    tenant_id=tenant_id,
-                    provider_type="weather",
-                    provider_name=provider.provider_name,
                     enabled=provider.enabled,
                 )
 
@@ -1488,8 +1323,6 @@ async def update_tenant_config(
             existing = config_service.get_config_by_name(
                 session, tenant_id, "satellite", provider.provider_name
             )
-            previous_enabled = existing.enabled if existing else None
-
             if existing:
                 config_service.update_config(
                     session,
@@ -1508,31 +1341,6 @@ async def update_tenant_config(
                     provider.provider_name,
                     api_key=provider.api_key,
                     priority=provider.priority,
-                    enabled=provider.enabled,
-                )
-
-            # Publish config updated event
-            await publish_config_updated(
-                tenant_id=tenant_id,
-                provider_type="satellite",
-                provider_name=provider.provider_name,
-                key="priority" if existing else None,
-            )
-
-            # Publish provider status changed if enabled status changed
-            if previous_enabled is not None and previous_enabled != provider.enabled:
-                await publish_provider_status_changed(
-                    tenant_id=tenant_id,
-                    provider_type="satellite",
-                    provider_name=provider.provider_name,
-                    enabled=provider.enabled,
-                )
-            elif previous_enabled is None:
-                # New provider, publish status
-                await publish_provider_status_changed(
-                    tenant_id=tenant_id,
-                    provider_type="satellite",
-                    provider_name=provider.provider_name,
                     enabled=provider.enabled,
                 )
 
@@ -1552,26 +1360,10 @@ async def reset_tenant_config(tenant_id: str, session: Session = Depends(get_db_
         # Get all configs for tenant
         all_configs = config_service.get_tenant_configs(session, tenant_id)
 
-        # Delete all configs and publish events
+        # Delete all configs
         for config in all_configs:
             config_service.delete_config(
                 session, tenant_id, config.provider_type, config.provider_name
-            )
-
-            # Publish config updated event for deletion
-            await publish_config_updated(
-                tenant_id=tenant_id,
-                provider_type=config.provider_type,
-                provider_name=config.provider_name,
-                key="deleted",
-            )
-
-            # Publish provider status changed (disabled due to reset)
-            await publish_provider_status_changed(
-                tenant_id=tenant_id,
-                provider_type=config.provider_type,
-                provider_name=config.provider_name,
-                enabled=False,
             )
 
         return {"success": True, "message": "Configuration reset to defaults"}
@@ -1623,22 +1415,6 @@ async def rollback_config(
         config = config_service.rollback_to_version(session, config_id, version)
         if not config:
             raise HTTPException(status_code=404, detail="Configuration or version not found")
-
-        # Publish config updated event for rollback
-        await publish_config_updated(
-            tenant_id=tenant_id,
-            provider_type=config.provider_type,
-            provider_name=config.provider_name,
-            key=f"rollback_to_v{version}",
-        )
-
-        # Publish provider status changed if applicable
-        await publish_provider_status_changed(
-            tenant_id=tenant_id,
-            provider_type=config.provider_type,
-            provider_name=config.provider_name,
-            enabled=config.enabled,
-        )
 
         return {
             "success": True,

@@ -6,7 +6,7 @@
  * the patterns from @sahool/shared-events package.
  */
 
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
+import { Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
 import {
   connect,
   NatsConnection,
@@ -137,7 +137,7 @@ export interface SubscribeOptions {
 // ============================================================================
 
 @Injectable()
-export class EventsService implements OnModuleInit, OnModuleDestroy {
+export class EventsService implements OnModuleDestroy {
   private readonly logger = new Logger(EventsService.name);
   private connection: NatsConnection | null = null;
   private readonly codec = StringCodec();
@@ -154,14 +154,6 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     timeout: 10000, // 10 second connection timeout
     debug: process.env.NODE_ENV !== "production",
   };
-
-  /**
-   * Auto-connect to NATS on module initialization
-   */
-  async onModuleInit(): Promise<void> {
-    this.logger.log("Initializing NATS connection...");
-    await this.connect();
-  }
 
   /**
    * Sanitize input for safe logging (prevents log injection)

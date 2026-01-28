@@ -7,32 +7,17 @@ Field-First Architecture:
 - التحليل يخدم الميدان، لا العكس
 """
 
-import json
 import math
 import os
 
 # Field-First: Action Template Support
 import sys
 import uuid
-from contextlib import asynccontextmanager
-from datetime import date, datetime, time, timedelta, timezone
+from datetime import date, datetime, time, timedelta
 from enum import Enum
 from typing import Any
 
-import jwt
-import structlog
-from fastapi import Depends, FastAPI, HTTPException, Query, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-
-# NATS messaging
-try:
-    import nats
-    NATS_AVAILABLE = True
-except ImportError:
-    NATS_AVAILABLE = False
-    nats = None
-
-logger = structlog.get_logger()
+from fastapi import FastAPI, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -64,48 +49,10 @@ try:
 except ImportError:
     ACTION_TEMPLATE_AVAILABLE = False
 
-
-# =============================================================================
-# Lifespan & NATS Connection
-# =============================================================================
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Application lifespan handler for startup/shutdown"""
-    logger.info("Starting irrigation-smart service...")
-
-    # Initialize NATS connection
-    app.state.nc = None
-    if NATS_AVAILABLE:
-        nats_url = os.getenv("NATS_URL")
-        if nats_url:
-            try:
-                app.state.nc = await nats.connect(nats_url)
-                logger.info("Connected to NATS", nats_url=nats_url)
-            except Exception as e:
-                logger.warning("Failed to connect to NATS", error=str(e))
-                app.state.nc = None
-        else:
-            logger.info("NATS_URL not configured, event publishing disabled")
-    else:
-        logger.warning("nats-py not installed, event publishing disabled")
-
-    yield
-
-    # Shutdown: Close NATS connection
-    if hasattr(app.state, "nc") and app.state.nc:
-        await app.state.nc.close()
-        logger.info("Closed NATS connection")
-
-    logger.info("Shutdown irrigation-smart service complete")
-
-
 app = FastAPI(
     title="SAHOOL Smart Irrigation Service | خدمة الري الذكي",
     version="15.3.0",
     description="AI-powered irrigation scheduling, water conservation, and smart recommendations",
-    lifespan=lifespan,
 )
 
 # Setup unified error handling
@@ -115,54 +62,6 @@ add_request_id_middleware(app)
 # Security headers - رؤوس الأمان
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
-
-
-# =============================================================================
-# JWT Authentication - مصادقة JWT
-# =============================================================================
-
-security = HTTPBearer()
-
-
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-) -> dict:
-    """
-    Validate JWT token and return user info.
-    التحقق من رمز JWT وإرجاع معلومات المستخدم.
-    """
-    token = credentials.credentials
-    jwt_secret = os.getenv("JWT_SECRET_KEY")
-
-    if not jwt_secret:
-        logger.error("JWT_SECRET_KEY not configured")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="JWT not configured",
-        )
-
-    try:
-        payload = jwt.decode(
-            token,
-            jwt_secret,
-            algorithms=[os.getenv("JWT_ALGORITHM", "HS256")],
-        )
-        logger.debug("JWT validated successfully", user_id=payload.get("sub"))
-        return payload
-    except jwt.ExpiredSignatureError:
-        logger.warning("JWT token expired")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    except jwt.InvalidTokenError as e:
-        logger.warning("Invalid JWT token", error=str(e))
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
 
 
 # =============================================================================
@@ -293,18 +192,6 @@ class WaterBalance(BaseModel):
     cumulative_deficit_mm: float
 
 
-class IrrigationExecution(BaseModel):
-    """تنفيذ الري - Record actual irrigation event"""
-    field_id: str
-    schedule_id: str | None = None
-    plan_id: str | None = None
-    amount_mm: float = Field(..., gt=0, description="Water amount in mm")
-    duration_minutes: int = Field(..., gt=0, description="Actual duration in minutes")
-    method: IrrigationMethod = IrrigationMethod.DRIP
-    executed_at: datetime | None = None
-    notes: str | None = None
-
-
 # =============================================================================
 # Crop & Irrigation Data
 # =============================================================================
@@ -421,41 +308,6 @@ IRRIGATION_EFFICIENCY = {
 
 # Water cost (YER per m³)
 WATER_COST_PER_M3 = 150
-
-
-# =============================================================================
-# NATS Event Publishing
-# =============================================================================
-
-
-async def publish_event(subject: str, data: dict) -> bool:
-    """
-    Publish event to NATS message bus.
-
-    Args:
-        subject: NATS subject (e.g., "sahool.irrigation.plan_created")
-        data: Event data to publish
-
-    Returns:
-        True if published successfully, False otherwise
-    """
-    try:
-        nc = app.state.nc
-        if nc and nc.is_connected:
-            payload = json.dumps(data, default=str).encode()
-            await nc.publish(subject, payload)
-            logger.info(
-                "Published event",
-                subject=subject,
-                field_id=data.get("field_id"),
-            )
-            return True
-        else:
-            logger.debug("NATS not connected, skipping event publish", subject=subject)
-            return False
-    except Exception as e:
-        logger.error("Failed to publish event", subject=subject, error=str(e))
-        return False
 
 
 # =============================================================================
@@ -641,26 +493,20 @@ def health():
 @app.get("/readyz")
 def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    nats_connected = (
-        hasattr(app.state, "nc")
-        and app.state.nc is not None
-        and app.state.nc.is_connected
-    )
     return {
         "status": "ready",
         "service": "irrigation-smart",
         "version": "16.0.0",
         "checks": {
             "crop_requirements": "loaded" if CROP_WATER_REQUIREMENTS else "not_loaded",
-            "nats": "connected" if nats_connected else "disconnected",
         },
         "crops_supported": len(CROP_WATER_REQUIREMENTS),
     }
 
 
 @app.get("/v1/crops")
-def list_crops(user: dict = Depends(get_current_user)):
-    """قائمة المحاصيل المدعومة - Protected endpoint"""
+def list_crops():
+    """قائمة المحاصيل المدعومة"""
     return {
         "crops": [
             {
@@ -674,8 +520,8 @@ def list_crops(user: dict = Depends(get_current_user)):
 
 
 @app.get("/v1/methods")
-def list_irrigation_methods(user: dict = Depends(get_current_user)):
-    """طرق الري المتاحة - Protected endpoint"""
+def list_irrigation_methods():
+    """طرق الري المتاحة"""
     return {
         "methods": [
             {
@@ -689,11 +535,8 @@ def list_irrigation_methods(user: dict = Depends(get_current_user)):
 
 
 @app.post("/v1/calculate", response_model=IrrigationPlan)
-async def calculate_irrigation(
-    request: IrrigationRequest,
-    user: dict = Depends(get_current_user),
-):
-    """حساب احتياجات الري - Protected endpoint"""
+def calculate_irrigation(request: IrrigationRequest):
+    """حساب احتياجات الري"""
     import random
 
     # Calculate days since last irrigation
@@ -828,9 +671,8 @@ async def calculate_irrigation(
     if rainfall > 10:
         alerts_ar.append(f"🌧️ أمطار متوقعة ({rainfall} ملم) - تم تعديل الجدول")
 
-    plan_id = str(uuid.uuid4())
-    plan = IrrigationPlan(
-        plan_id=plan_id,
+    return IrrigationPlan(
+        plan_id=str(uuid.uuid4()),
         field_id=request.field_id,
         crop=request.crop,
         crop_name_ar=CROP_TRANSLATIONS[request.crop],
@@ -847,33 +689,8 @@ async def calculate_irrigation(
         recommendations_ar=recommendations_ar,
         recommendations_en=recommendations_en,
         alerts_ar=alerts_ar,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.utcnow(),
     )
-
-    # Publish irrigation plan created event
-    await publish_event(
-        subject="sahool.irrigation.plan_created",
-        data={
-            "field_id": request.field_id,
-            "plan_id": plan_id,
-            "schedule": [
-                {
-                    "schedule_id": s.schedule_id,
-                    "date": s.irrigation_date,
-                    "start_time": s.start_time,
-                    "duration_minutes": s.duration_minutes,
-                    "water_amount_m3": s.water_amount_m3,
-                }
-                for s in schedules
-            ],
-            "total_water_m3": plan.total_water_m3,
-            "urgency": water_need["urgency"].value,
-            "crop": request.crop.value,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        },
-    )
-
-    return plan
 
 
 @app.get("/v1/water-balance/{field_id}")
@@ -881,9 +698,8 @@ def get_water_balance(
     field_id: str,
     crop: CropType = Query(default=CropType.TOMATO),
     days: int = Query(default=14, ge=7, le=60),
-    user: dict = Depends(get_current_user),
 ):
-    """الميزان المائي للحقل - Protected endpoint"""
+    """الميزان المائي للحقل"""
     import random
 
     balance_data = []
@@ -938,11 +754,8 @@ def get_water_balance(
 
 
 @app.post("/v1/sensor-reading")
-def record_sensor_reading(
-    reading: SoilMoistureReading,
-    user: dict = Depends(get_current_user),
-):
-    """تسجيل قراءة مستشعر الرطوبة - Protected endpoint"""
+def record_sensor_reading(reading: SoilMoistureReading):
+    """تسجيل قراءة مستشعر الرطوبة"""
 
     # Analyze reading
     if reading.moisture_percent < 25:
@@ -970,52 +783,7 @@ def record_sensor_reading(
         "status": status,
         "action_ar": action_ar,
         "action_en": action_en,
-        "recorded_at": datetime.now(timezone.utc).isoformat(),
-    }
-
-
-@app.post("/v1/irrigation-executed")
-async def record_irrigation_executed(
-    execution: IrrigationExecution,
-    user: dict = Depends(get_current_user),
-):
-    """
-    تسجيل تنفيذ الري - Record completed irrigation event (Protected endpoint)
-
-    This endpoint records when irrigation has actually been executed
-    and publishes an event for downstream services.
-    """
-    execution_id = str(uuid.uuid4())
-    executed_at = execution.executed_at or datetime.now(timezone.utc)
-
-    # Publish irrigation executed event
-    await publish_event(
-        subject="sahool.irrigation.executed",
-        data={
-            "execution_id": execution_id,
-            "field_id": execution.field_id,
-            "plan_id": execution.plan_id,
-            "schedule_id": execution.schedule_id,
-            "amount_mm": execution.amount_mm,
-            "duration_minutes": execution.duration_minutes,
-            "method": execution.method.value,
-            "timestamp": executed_at.isoformat(),
-        },
-    )
-
-    return {
-        "execution_id": execution_id,
-        "field_id": execution.field_id,
-        "plan_id": execution.plan_id,
-        "schedule_id": execution.schedule_id,
-        "amount_mm": execution.amount_mm,
-        "duration_minutes": execution.duration_minutes,
-        "method": execution.method.value,
-        "method_ar": METHOD_TRANSLATIONS[execution.method],
-        "executed_at": executed_at.isoformat(),
-        "status": "recorded",
-        "message_ar": "✅ تم تسجيل عملية الري بنجاح",
-        "message_en": "✅ Irrigation execution recorded successfully",
+        "recorded_at": datetime.utcnow().isoformat(),
     }
 
 
@@ -1024,9 +792,8 @@ def get_efficiency_report(
     field_id: str,
     current_method: IrrigationMethod = IrrigationMethod.TRADITIONAL,
     area_hectares: float = Query(default=1.0, gt=0),
-    user: dict = Depends(get_current_user),
 ):
-    """تقرير كفاءة الري ومقارنة الطرق - Protected endpoint"""
+    """تقرير كفاءة الري ومقارنة الطرق"""
 
     # Annual water usage estimates (m³/ha/year)
     annual_water_by_method = {
@@ -1109,18 +876,15 @@ def _convert_urgency(urgency: UrgencyLevel) -> "ActionUrgency":
 
 
 @app.post("/v1/calculate-with-action")
-async def calculate_irrigation_with_action(
-    request: IrrigationRequest,
-    user: dict = Depends(get_current_user),
-):
+def calculate_irrigation_with_action(request: IrrigationRequest):
     """
-    حساب احتياجات الري مع ActionTemplate - Protected endpoint
+    حساب احتياجات الري مع ActionTemplate
 
     Field-First: هذا الـ endpoint يُنتج قالب إجراء قابل للتنفيذ
     بدون اتصال، مع خطوات واضحة وموارد محددة.
     """
     # Get the regular irrigation plan
-    plan = await calculate_irrigation(request, user)
+    plan = calculate_irrigation(request)
 
     # If ActionTemplate not available, return plan only
     if not ACTION_TEMPLATE_AVAILABLE:
@@ -1167,17 +931,14 @@ async def calculate_irrigation_with_action(
 
 
 @app.post("/v1/sensor-reading-with-action")
-def record_sensor_reading_with_action(
-    reading: SoilMoistureReading,
-    user: dict = Depends(get_current_user),
-):
+def record_sensor_reading_with_action(reading: SoilMoistureReading):
     """
-    تسجيل قراءة مستشعر الرطوبة مع ActionTemplate - Protected endpoint
+    تسجيل قراءة مستشعر الرطوبة مع ActionTemplate
 
     Field-First: إذا كانت الرطوبة منخفضة، يُنتج إجراء ري
     """
     # Get the regular sensor reading response
-    result = record_sensor_reading(reading, user)
+    result = record_sensor_reading(reading)
 
     # If ActionTemplate not available or moisture is OK, return as-is
     if not ACTION_TEMPLATE_AVAILABLE or result["status"] not in ["critical", "low"]:

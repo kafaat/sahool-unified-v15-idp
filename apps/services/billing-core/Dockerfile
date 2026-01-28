@@ -1,13 +1,13 @@
 # SAHOOL Billing Core Service
 # خدمة الفوترة الأساسية
-# Version: 16.0.0
+# Version: 15.4.0
 # Port: 8089
 
 FROM python:3.11-slim-bookworm
 
 # Labels
 LABEL org.opencontainers.image.title="SAHOOL Billing Core"
-LABEL org.opencontainers.image.version="16.0.0"
+LABEL org.opencontainers.image.version="15.4.0"
 LABEL org.opencontainers.image.vendor="KAFAAT"
 
 # Environment
@@ -26,8 +26,8 @@ RUN groupadd --system --gid 1000 sahool && \
 
 # Upgrade pip and install build tools
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade "setuptools>=68.0" wheel build
 
 # Configure pip for better network resilience
 RUN mkdir -p /root/.pip && \
@@ -40,7 +40,7 @@ RUN mkdir -p /root/.pip && \
 
 # Copy and install requirements
 COPY apps/services/billing-core/requirements.txt .
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
 # Copy shared libraries (required for shared.middleware, shared.observability, shared.errors_py)
 COPY shared/ ./shared/

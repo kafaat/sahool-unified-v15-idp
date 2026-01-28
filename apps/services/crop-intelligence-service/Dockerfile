@@ -36,8 +36,12 @@ COPY apps/services/shared ./shared/
 COPY apps/services/crop-intelligence-service/src/ ./src/
 
 # Upgrade pip, install dependencies, and set ownership
-RUN pip install --upgrade pip || true && \
-    pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt && \
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip || true && \
+    (pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt || \
+    pip install --no-cache-dir --timeout=300 --retries=10 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    -r requirements.txt) && \
     chown -R sahool:sahool /app
 
 USER sahool

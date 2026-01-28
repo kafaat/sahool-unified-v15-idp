@@ -15,8 +15,10 @@ Author: SAHOOL Platform Team
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from decimal import Decimal
 import uuid
 
@@ -600,7 +602,7 @@ class SoilAmendmentRecommender:
             expected_roi=roi,
             summary_en=summary_en,
             summary_ar=summary_ar,
-            valid_until=datetime.now(timezone.utc) + timedelta(days=180),
+            valid_until=datetime.utcnow() + timedelta(days=180),
         )
 
     def _recommend_soil_amendments(

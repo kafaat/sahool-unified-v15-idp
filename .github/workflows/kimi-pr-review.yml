@@ -1,0 +1,348 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Kimi PR Review Bot - Automated Pull Request Review
+# روبوت مراجعة Kimi - المراجعة التلقائية لطلبات السحب
+#
+# Automatically reviews pull requests using Kimi AI and existing code review infrastructure
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: "Kimi PR Review Bot"
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - develop
+  pull_request_review_comment:
+    types: [created]
+
+env:
+  PYTHON_VERSION: "3.11"
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Configuration and Checks
+  # ─────────────────────────────────────────────────────────────────────────
+  config-check:
+    name: "🔧 Check Configuration"
+    runs-on: ubuntu-latest
+    outputs:
+      should_review: ${{ steps.check.outputs.should_review }}
+      is_kimi_pr: ${{ steps.check.outputs.is_kimi_pr }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check if PR review should run
+        id: check
+        run: |
+          # Skip if this is a Kimi auto-repair PR
+          if [[ "${{ github.head_ref }}" == kimi-auto/* ]]; then
+            echo "is_kimi_pr=true" >> $GITHUB_OUTPUT
+            echo "should_review=false" >> $GITHUB_OUTPUT
+            echo "⚠️  Skipping review for Kimi auto-repair PR"
+          else
+            echo "is_kimi_pr=false" >> $GITHUB_OUTPUT
+            echo "should_review=true" >> $GITHUB_OUTPUT
+            echo "✅ Will perform review"
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Analyze PR Changes
+  # ─────────────────────────────────────────────────────────────────────────
+  analyze-pr:
+    name: "🔍 Analyze PR Changes"
+    runs-on: ubuntu-latest
+    needs: config-check
+    if: needs.config-check.outputs.should_review == 'true'
+    
+    outputs:
+      files_changed: ${{ steps.analyze.outputs.files_changed }}
+      has_python: ${{ steps.analyze.outputs.has_python }}
+      has_typescript: ${{ steps.analyze.outputs.has_typescript }}
+      has_services: ${{ steps.analyze.outputs.has_services }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v42
+        with:
+          files: |
+            apps/services/**
+            shared/**
+            packages/**
+          separator: ","
+
+      - name: Analyze changes
+        id: analyze
+        run: |
+          CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
+          
+          echo "files_changed=$(echo $CHANGED_FILES | wc -w)" >> $GITHUB_OUTPUT
+          
+          # Check for Python files
+          if echo "$CHANGED_FILES" | grep -q "\.py$"; then
+            echo "has_python=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_python=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check for TypeScript files
+          if echo "$CHANGED_FILES" | grep -qE "\.(ts|tsx)$"; then
+            echo "has_typescript=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_typescript=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check for service changes
+          if echo "$CHANGED_FILES" | grep -q "apps/services/"; then
+            echo "has_services=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_services=false" >> $GITHUB_OUTPUT
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Code Review with Existing Infrastructure
+  # ─────────────────────────────────────────────────────────────────────────
+  code-review:
+    name: "📝 Review Code"
+    runs-on: ubuntu-latest
+    needs: [config-check, analyze-pr]
+    if: needs.config-check.outputs.should_review == 'true'
+
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Checkout base branch
+        run: |
+          git fetch origin ${{ github.base_ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff mypy bandit
+          
+          # Install auto-fix dependencies
+          if [[ -f "requirements-dev.txt" ]]; then
+            pip install -r requirements-dev.txt
+          fi
+
+      - name: Get PR diff
+        id: diff
+        run: |
+          git diff origin/${{ github.base_ref }}...HEAD > /tmp/pr-diff.patch
+          echo "diff_size=$(wc -l < /tmp/pr-diff.patch)" >> $GITHUB_OUTPUT
+
+      - name: Run code analysis on changes
+        id: analysis
+        run: |
+          # Create a review report
+          REPORT_FILE="/tmp/review-report.md"
+          
+          cat > $REPORT_FILE <<EOF
+          ## 🤖 Kimi PR Review Bot - Code Analysis
+          ## روبوت مراجعة Kimi - تحليل الكود
+          
+          **PR**: #${{ github.event.pull_request.number }}
+          **Title**: ${{ github.event.pull_request.title }}
+          **Author**: @${{ github.event.pull_request.user.login }}
+          **Files Changed**: ${{ needs.analyze-pr.outputs.files_changed }}
+          **Lines Changed**: ${{ steps.diff.outputs.diff_size }}
+          
+          ---
+          
+          ### 📊 Analysis Summary | ملخص التحليل
+          
+          EOF
+          
+          # Run Ruff on Python files
+          if [[ "${{ needs.analyze-pr.outputs.has_python }}" == "true" ]]; then
+            echo "" >> $REPORT_FILE
+            echo "#### Python Code Quality" >> $REPORT_FILE
+            echo "" >> $REPORT_FILE
+            
+            ruff check . --output-format=text > /tmp/ruff-output.txt 2>&1 || true
+            
+            if [[ -s /tmp/ruff-output.txt ]]; then
+              echo "⚠️  **Issues found by Ruff:**" >> $REPORT_FILE
+              echo "\`\`\`" >> $REPORT_FILE
+              head -50 /tmp/ruff-output.txt >> $REPORT_FILE
+              echo "\`\`\`" >> $REPORT_FILE
+            else
+              echo "✅ No Ruff issues found" >> $REPORT_FILE
+            fi
+          fi
+          
+          # Run Bandit security scan
+          if [[ "${{ needs.analyze-pr.outputs.has_python }}" == "true" ]]; then
+            echo "" >> $REPORT_FILE
+            echo "#### Security Analysis (Bandit)" >> $REPORT_FILE
+            echo "" >> $REPORT_FILE
+            
+            bandit -r . -f txt -o /tmp/bandit-output.txt 2>/dev/null || true
+            
+            if [[ -s /tmp/bandit-output.txt ]] && grep -q "Issue:" /tmp/bandit-output.txt; then
+              echo "🔒 **Security issues found:**" >> $REPORT_FILE
+              echo "\`\`\`" >> $REPORT_FILE
+              grep -A 5 "Issue:" /tmp/bandit-output.txt | head -50 >> $REPORT_FILE
+              echo "\`\`\`" >> $REPORT_FILE
+            else
+              echo "✅ No security issues found" >> $REPORT_FILE
+            fi
+          fi
+          
+          # Check for agricultural domain issues
+          if [[ "${{ needs.analyze-pr.outputs.has_services }}" == "true" ]]; then
+            echo "" >> $REPORT_FILE
+            echo "#### Agricultural Domain Checks" >> $REPORT_FILE
+            echo "" >> $REPORT_FILE
+            
+            # Check for EC misuse patterns
+            if git diff origin/${{ github.base_ref }}...HEAD | grep -iE "(ec_value.*nutrient|soil_ec.*(nitrogen|phosphorus|potassium))"; then
+              echo "⚠️  **Potential EC misuse detected**" >> $REPORT_FILE
+              echo "" >> $REPORT_FILE
+              echo "The code appears to use EC (Electrical Conductivity) as a nutrient indicator." >> $REPORT_FILE
+              echo "According to research, EC should not be used for NPK calculations." >> $REPORT_FILE
+              echo "" >> $REPORT_FILE
+              echo "**Recommendation**: Use actual lab nutrient results instead of EC values." >> $REPORT_FILE
+            else
+              echo "✅ No EC misuse patterns detected" >> $REPORT_FILE
+            fi
+            
+            # Check for ML optimization patterns
+            if git diff origin/${{ github.base_ref }}...HEAD | grep -iE "(GridSearchCV|RandomSearch)"; then
+              echo "" >> $REPORT_FILE
+              echo "💡 **ML Optimization Suggestion**" >> $REPORT_FILE
+              echo "" >> $REPORT_FILE
+              echo "Consider using SBO optimizer instead of GridSearchCV for better performance." >> $REPORT_FILE
+              echo "Reference: Research Paper 1 - SBO + Boruta optimization" >> $REPORT_FILE
+            fi
+          fi
+          
+          # Integration with existing code-review-agent
+          echo "" >> $REPORT_FILE
+          echo "---" >> $REPORT_FILE
+          echo "" >> $REPORT_FILE
+          echo "### 🔗 Integration Notes" >> $REPORT_FILE
+          echo "" >> $REPORT_FILE
+          echo "This review uses the existing SAHOOL auto-fix infrastructure." >> $REPORT_FILE
+          echo "For detailed code review, consider running the code-review-agent service." >> $REPORT_FILE
+          
+          # Add review guidelines
+          echo "" >> $REPORT_FILE
+          echo "---" >> $REPORT_FILE
+          echo "" >> $REPORT_FILE
+          echo "### ✅ Review Checklist | قائمة المراجعة" >> $REPORT_FILE
+          echo "" >> $REPORT_FILE
+          echo "- [ ] Code follows project style guidelines" >> $REPORT_FILE
+          echo "- [ ] No security vulnerabilities introduced" >> $REPORT_FILE
+          echo "- [ ] Tests are included and passing" >> $REPORT_FILE
+          echo "- [ ] Documentation is updated (if needed)" >> $REPORT_FILE
+          echo "- [ ] No breaking changes (or documented)" >> $REPORT_FILE
+          echo "- [ ] Agricultural domain logic is correct" >> $REPORT_FILE
+          
+          # Footer
+          echo "" >> $REPORT_FILE
+          echo "---" >> $REPORT_FILE
+          echo "" >> $REPORT_FILE
+          echo "_🤖 Auto-generated by Kimi PR Review Bot_" >> $REPORT_FILE
+          echo "_Configuration: `.kimi-agents/repair-agent-config.yaml`_" >> $REPORT_FILE
+
+      - name: Upload review report
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-report
+          path: /tmp/review-report.md
+          retention-days: 30
+
+      - name: Post review comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const reportPath = '/tmp/review-report.md';
+            
+            if (fs.existsSync(reportPath)) {
+              const report = fs.readFileSync(reportPath, 'utf8');
+              
+              // Check if we already commented
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+              });
+              
+              const botComment = comments.data.find(comment => 
+                comment.user.type === 'Bot' && 
+                comment.body.includes('Kimi PR Review Bot')
+              );
+              
+              if (botComment) {
+                // Update existing comment
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: report
+                });
+              } else {
+                // Create new comment
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: report
+                });
+              }
+            }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Summary
+  # ─────────────────────────────────────────────────────────────────────────
+  summary:
+    name: "📊 Review Summary"
+    runs-on: ubuntu-latest
+    needs: [code-review]
+    if: always()
+
+    steps:
+      - name: Download review report
+        uses: actions/download-artifact@v4
+        with:
+          name: review-report
+          path: /tmp
+        continue-on-error: true
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## 📝 Kimi PR Review Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **PR Number**: #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ needs.code-review.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ -f "/tmp/review-report.md" ]]; then
+            cat /tmp/review-report.md >> $GITHUB_STEP_SUMMARY
+          fi

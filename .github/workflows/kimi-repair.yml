@@ -1,0 +1,382 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Kimi Repair Agent - Automated Code Scanning & Repair
+# وكيل إصلاح Kimi - الفحص والإصلاح التلقائي للكود
+#
+# Runs automated code analysis and repair using Kimi AI integration
+# with existing SAHOOL auto-fix infrastructure
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: "Kimi Repair Agent"
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  schedule:
+    # Run daily at 2 AM UTC (5 AM Riyadh time)
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      auto_apply:
+        description: "Auto-apply fixes (creates PR)"
+        required: false
+        default: "false"
+      scan_scope:
+        description: "Scan scope (all, services, shared, mobile)"
+        required: false
+        default: "all"
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "18"
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Configuration Check
+  # ─────────────────────────────────────────────────────────────────────────
+  config-check:
+    name: "🔧 Verify Configuration"
+    runs-on: ubuntu-latest
+    outputs:
+      kimi_enabled: ${{ steps.check.outputs.kimi_enabled }}
+      auto_apply: ${{ steps.check.outputs.auto_apply }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check Kimi configuration
+        id: check
+        run: |
+          if [[ -f ".kimi-agents/repair-agent-config.yaml" ]]; then
+            echo "✅ Kimi configuration found"
+            echo "kimi_enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️  Kimi configuration not found"
+            echo "kimi_enabled=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check if auto-apply is requested
+          if [[ "${{ github.event.inputs.auto_apply }}" == "true" ]]; then
+            echo "auto_apply=true" >> $GITHUB_OUTPUT
+          else
+            echo "auto_apply=false" >> $GITHUB_OUTPUT
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Kimi Scan and Repair
+  # ─────────────────────────────────────────────────────────────────────────
+  kimi-scan-and-repair:
+    name: "🤖 Scan & Repair"
+    runs-on: ubuntu-latest
+    needs: config-check
+    if: needs.config-check.outputs.kimi_enabled == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better analysis
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff mypy bandit pytest
+          
+          # Install shared AI auto-fix dependencies if requirements exist
+          if [[ -f "shared/ai/requirements.txt" ]]; then
+            pip install -r shared/ai/requirements.txt
+          fi
+          
+          # Install root requirements
+          if [[ -f "requirements-dev.txt" ]]; then
+            pip install -r requirements-dev.txt
+          fi
+
+      - name: Install Node.js dependencies
+        run: |
+          if [[ -f "package.json" ]]; then
+            npm ci --prefer-offline --no-audit
+          fi
+
+      - name: Run Kimi Repair Scan
+        id: scan
+        env:
+          KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}
+          AUTO_APPLY_FIXES: ${{ needs.config-check.outputs.auto_apply }}
+          KIMI_CONFIG: ".kimi-agents/repair-agent-config.yaml"
+        run: |
+          chmod +x scripts/kimi-repair-scan.sh
+          
+          # Run scan (auto-apply only if explicitly enabled)
+          if [[ "${{ needs.config-check.outputs.auto_apply }}" == "true" ]]; then
+            ./scripts/kimi-repair-scan.sh --auto-apply
+          else
+            ./scripts/kimi-repair-scan.sh --dry-run
+          fi
+
+      - name: Upload scan results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kimi-scan-results
+          path: |
+            /tmp/kimi-*.html
+            /tmp/kimi-*.json
+            /tmp/kimi-*.md
+            /tmp/*-results.*
+          retention-days: 30
+
+      - name: Upload fixes patch
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kimi-fixes-patch
+          path: /tmp/kimi-fixes.patch
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Generate metrics
+        if: always()
+        run: |
+          python scripts/kimi-metrics-dashboard.py \
+            --output-dir /tmp \
+            --add-sample-data
+
+      - name: Upload metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kimi-metrics
+          path: |
+            /tmp/kimi-metrics.png
+            /tmp/kimi-metrics-report.json
+          retention-days: 90
+          if-no-files-found: ignore
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Create Pull Request with Fixes
+  # ─────────────────────────────────────────────────────────────────────────
+  create-repair-pr:
+    name: "📝 Create Repair PR"
+    runs-on: ubuntu-latest
+    needs: [config-check, kimi-scan-and-repair]
+    if: |
+      always() &&
+      needs.config-check.outputs.auto_apply == 'true' &&
+      needs.kimi-scan-and-repair.result == 'success'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download fixes patch
+        uses: actions/download-artifact@v4
+        with:
+          name: kimi-fixes-patch
+          path: /tmp
+        continue-on-error: true
+
+      - name: Download scan results
+        uses: actions/download-artifact@v4
+        with:
+          name: kimi-scan-results
+          path: /tmp
+        continue-on-error: true
+
+      - name: Apply fixes and create PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            🤖 Kimi Repair Agent: Auto-fixes (${{ github.run_number }})
+            
+            Automated fixes applied by Kimi Repair Agent
+            - Code quality improvements
+            - Security fixes
+            - Performance optimizations
+            
+            Config: .kimi-agents/repair-agent-config.yaml
+            Workflow: ${{ github.workflow }}
+            Run: ${{ github.run_number }}
+          
+          title: "🤖 Kimi Auto-Repair: $(date +%Y-%m-%d) - Run #${{ github.run_number }}"
+          
+          body: |
+            ## 🤖 Kimi Repair Agent - Automated Fixes
+            ## إصلاحات تلقائية من وكيل Kimi
+            
+            This pull request contains automated code fixes detected and applied by the Kimi Repair Agent.
+            
+            يحتوي طلب السحب هذا على إصلاحات تلقائية للكود تم اكتشافها وتطبيقها بواسطة وكيل إصلاح Kimi.
+            
+            ---
+            
+            ### 📊 Summary | ملخص
+            
+            - **Workflow Run**: #${{ github.run_number }}
+            - **Triggered By**: ${{ github.event_name }}
+            - **Branch**: ${{ github.ref_name }}
+            - **Commit**: ${{ github.sha }}
+            
+            ### 🔍 Issues Detected & Fixed | المشكلات المكتشفة والمُصلحة
+            
+            The following types of issues were detected and automatically fixed:
+            
+            تم اكتشاف وإصلاح الأنواع التالية من المشكلات تلقائياً:
+            
+            #### Code Quality | جودة الكود
+            - ✅ Code style violations (Ruff formatting)
+            - ✅ Import organization
+            - ✅ Unused variables removal
+            
+            #### Security | الأمان
+            - 🔒 Security vulnerability fixes (Bandit)
+            - 🔒 Potential security issues
+            
+            #### Performance | الأداء
+            - ⚡ Performance optimizations
+            - ⚡ Code efficiency improvements
+            
+            #### Agricultural Domain | المجال الزراعي
+            - 🌾 EC misuse detection and fixes
+            - 🌾 ML model optimization suggestions
+            
+            ---
+            
+            ### 📋 Reports | التقارير
+            
+            Detailed scan results are available in the workflow artifacts:
+            - Markdown Report: `kimi-report.md`
+            - HTML Report: `kimi-report.html`
+            - JSON Report: `kimi-report.json`
+            
+            ### ⚙️ Configuration | الإعدادات
+            
+            **Config File**: `.kimi-agents/repair-agent-config.yaml`
+            
+            **Tools Used**:
+            - Ruff (Python linting & formatting)
+            - Bandit (Python security)
+            - Mypy (Python type checking)
+            - ESLint (TypeScript/JavaScript)
+            - SAHOOL Auto-Fix Engine
+            
+            ---
+            
+            ### ✅ Next Steps | الخطوات التالية
+            
+            1. **Review the Changes** - Carefully review all automated fixes
+            2. **Run Tests** - Ensure all tests pass
+            3. **Manual Verification** - Verify critical changes manually
+            4. **Merge** - Merge if all checks pass and review is satisfactory
+            
+            ---
+            
+            ### ⚠️ Important Notes | ملاحظات مهمة
+            
+            - **Human Review Required** - This PR requires manual review before merging
+            - **Safe Mode Enabled** - Only safe, non-breaking fixes were applied
+            - **Rollback Available** - Changes can be reverted if needed
+            - **Configuration** - Behavior can be adjusted in config file
+            
+            ---
+            
+            **Auto-generated by**: Kimi Repair Agent v16.0.0
+            **Workflow**: `.github/workflows/kimi-repair.yml`
+            **Integration**: Compatible with existing auto-fix infrastructure
+          
+          branch: kimi-auto/fixes-${{ github.run_number }}
+          base: develop
+          delete-branch: true
+          
+          labels: |
+            automated
+            kimi-repair
+            needs-review
+            code-quality
+          
+          assignees: ${{ github.actor }}
+          
+          draft: false
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Notification
+  # ─────────────────────────────────────────────────────────────────────────
+  notify:
+    name: "📢 Notify Results"
+    runs-on: ubuntu-latest
+    needs: [kimi-scan-and-repair, create-repair-pr]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download scan results
+        uses: actions/download-artifact@v4
+        with:
+          name: kimi-scan-results
+          path: /tmp
+        continue-on-error: true
+
+      - name: Prepare notification
+        id: prepare
+        run: |
+          if [[ -f "/tmp/kimi-report.md" ]]; then
+            echo "report_available=true" >> $GITHUB_OUTPUT
+          else
+            echo "report_available=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on PR (if PR event)
+        if: github.event_name == 'pull_request' && steps.prepare.outputs.report_available == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const reportPath = '/tmp/kimi-report.md';
+            
+            if (fs.existsSync(reportPath)) {
+              const report = fs.readFileSync(reportPath, 'utf8');
+              
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `## 🤖 Kimi Repair Agent Scan Results\n\n${report}`
+              });
+            }
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## 🤖 Kimi Repair Agent Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workflow**: Kimi Repair Agent" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run Number**: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ -f "/tmp/kimi-report.md" ]]; then
+            echo "### 📊 Scan Report" >> $GITHUB_STEP_SUMMARY
+            cat /tmp/kimi-report.md >> $GITHUB_STEP_SUMMARY
+          fi

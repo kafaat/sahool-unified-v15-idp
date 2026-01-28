@@ -271,7 +271,7 @@ jobs:
 
     steps:
       - name: Download results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.1.3
         with:
           name: k6-results-${{ github.event.inputs.test_type || 'smoke' }}
           path: results/

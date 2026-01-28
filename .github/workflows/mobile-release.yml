@@ -523,7 +523,7 @@ jobs:
 
     steps:
       - name: Download AAB artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.1.3
         with:
           name: sahool-release-aab-v${{ needs.version.outputs.version }}
           path: ./release
@@ -582,14 +582,14 @@ jobs:
 
     steps:
       - name: Download APK artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.1.3
         with:
           name: sahool-release-apk-v${{ needs.version.outputs.version }}
           path: ./release-apk
         continue-on-error: true
 
       - name: Download AAB artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.1.3
         with:
           name: sahool-release-aab-v${{ needs.version.outputs.version }}
           path: ./release-aab

@@ -1,0 +1,217 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Kimi Repair Agent Configuration for SAHOOL Platform
+# إعداد وكيل الإصلاح التلقائي كيمي لمنصة سهول
+# ═══════════════════════════════════════════════════════════════════════════════
+
+project_name: "SAHOOL Unified v16.0"
+version: "16.0.0"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Scan Tools Configuration - إعدادات أدوات الفحص
+# ─────────────────────────────────────────────────────────────────────────────
+
+scan_tools:
+  eslint:
+    enabled: true
+    paths:
+      - "apps/web"
+      - "apps/admin"
+      - "packages"
+    auto_fix: true
+    config: ".eslintrc.base.json"
+  
+  pylint:
+    enabled: true
+    paths:
+      - "apps/kernel"
+      - "apps/services"
+      - "shared"
+    config: "pyproject.toml"
+    auto_fix: true
+  
+  ruff:
+    enabled: true
+    paths:
+      - "apps/kernel"
+      - "apps/services"
+      - "shared"
+    auto_fix: true
+  
+  bandit:
+    enabled: true
+    paths:
+      - "apps/kernel"
+      - "apps/services"
+      - "shared"
+    severity_threshold: "MEDIUM"
+  
+  pytest:
+    enabled: true
+    test_dirs:
+      - "tests/unit"
+      - "tests/integration"
+      - "tests/smoke"
+    coverage_threshold: 60
+  
+  docker_lint:
+    enabled: true
+    paths:
+      - "docker-compose.yml"
+      - "docker-compose.*.yml"
+      - "Dockerfile*"
+      - "helm"
+  
+  terraform_validate:
+    enabled: true
+    paths:
+      - "infrastructure/terraform"
+      - "infra"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Custom Rules - قواعد مخصصة
+# ─────────────────────────────────────────────────────────────────────────────
+
+rules:
+  - name: "inconsistent_ec_usage"
+    severity: "MEDIUM"
+    pattern: "ec_value.*fertilizer"
+    description: "استخدام غير متسق لقيمة EC في سياق الأسمدة"
+    description_ar: "Inconsistent EC (Electrical Conductivity) usage"
+  
+  - name: "missing_type_hints"
+    severity: "LOW"
+    pattern: "def\\s+\\w+\\([^)]*\\)\\s*:"
+    description: "دالة Python بدون type hints"
+    description_ar: "Python function without type hints"
+  
+  - name: "hardcoded_password"
+    severity: "CRITICAL"
+    pattern: "password\\s*=\\s*['\"][^'\"]+['\"]"
+    description: "كلمة مرور مكتوبة بشكل صريح في الكود"
+    description_ar: "Hardcoded password detected in code"
+  
+  - name: "unhandled_promise"
+    severity: "HIGH"
+    pattern: "(?<!await\\s)async\\s+function"
+    description: "وعود JavaScript غير مُعالَجة"
+    description_ar: "Unhandled JavaScript promises"
+  
+  - name: "missing_error_handling"
+    severity: "MEDIUM"
+    pattern: "except.*:\\s*pass"
+    description: "except فارغ (يخفي الأخطاء)"
+    description_ar: "Empty except block (hides errors)"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AI Agents Configuration - إعدادات الوكلاء الذكية
+# ─────────────────────────────────────────────────────────────────────────────
+
+agents:
+  frontend_agent:
+    name: "FrontendQualityAgent"
+    paths:
+      - "apps/web"
+      - "apps/admin"
+      - "packages/shared-ui"
+      - "packages/design-system"
+    focus:
+      - "performance"
+      - "accessibility"
+      - "code_style"
+      - "react_hooks"
+    auto_fix_enabled: true
+  
+  backend_agent:
+    name: "BackendQualityAgent"
+    paths:
+      - "apps/kernel"
+      - "apps/services"
+      - "shared"
+    focus:
+      - "security"
+      - "error_handling"
+      - "performance"
+      - "type_safety"
+    auto_fix_enabled: true
+  
+  infrastructure_agent:
+    name: "InfrastructureAgent"
+    paths:
+      - "infrastructure"
+      - "infra"
+      - "docker-compose*.yml"
+      - "helm"
+    focus:
+      - "security"
+      - "best_practices"
+      - "cost_optimization"
+      - "resource_limits"
+    auto_fix_enabled: false
+  
+  mobile_agent:
+    name: "MobileAgent"
+    paths:
+      - "apps/mobile"
+    focus:
+      - "performance"
+      - "offline_sync"
+      - "battery_usage"
+      - "memory_leaks"
+    auto_fix_enabled: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GitHub Integration - تكامل GitHub
+# ─────────────────────────────────────────────────────────────────────────────
+
+github_integration:
+  auto_pr: true
+  pr_template: ".kimi-agents/pr-template.md"
+  notify_reviewers:
+    - "@kafaat"
+  label_issues: true
+  labels:
+    - "kimi-auto-repair"
+    - "code-quality"
+    - "automated"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Notifications - الإشعارات
+# ─────────────────────────────────────────────────────────────────────────────
+
+notifications:
+  slack:
+    webhook: "${{ secrets.SLACK_KIMI_WEBHOOK }}"
+    channel: "#sahool-dev"
+    enabled: false
+  
+  email:
+    enabled: false
+    recipients:
+      - "dev@kafaat.io"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Scan Schedule - جدول المسح
+# ─────────────────────────────────────────────────────────────────────────────
+
+schedule:
+  daily_scan: "0 2 * * *"  # 2 AM daily
+  weekly_deep_scan: "0 3 * * 0"  # 3 AM every Sunday
+  pre_commit: true
+  pre_push: false
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Exclusions - الاستثناءات
+# ─────────────────────────────────────────────────────────────────────────────
+
+exclude_paths:
+  - "node_modules"
+  - "dist"
+  - ".next"
+  - "coverage"
+  - "build"
+  - "__pycache__"
+  - "*.pyc"
+  - ".venv"
+  - "venv"
+  - "archive"
+  - "legacy"

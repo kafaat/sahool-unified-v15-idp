@@ -1,0 +1,121 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Kimi ESLint Configuration for Frontend
+# إعداد ESLint مع وكيل Kimi للواجهة الأمامية
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# This configuration extends the base ESLint configuration with Kimi-specific
+# rules for automated code quality improvements.
+#
+# هذا الإعداد يمد إعدادات ESLint الأساسية بقواعد Kimi المخصصة
+# لتحسين جودة الكود تلقائياً
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Kimi Configuration Section
+kimi:
+  enabled: true
+  version: "16.0.0"
+  project_path: "apps/web"
+  scan_on_save: true
+  auto_fix_on_save: false  # Set to true to enable automatic fixing on save
+
+# Additional Kimi Rules
+# These rules are specific to SAHOOL platform agricultural domain
+
+rules:
+  # EC (Electrical Conductivity) usage consistency
+  # قواعد استخدام موحد لقيمة EC
+  kimi/inconsistent-ec-usage:
+    enabled: true
+    severity: "warn"
+    description: "Ensure consistent usage of EC values in agricultural context"
+    pattern: "ec_value|ecValue|EC_VALUE"
+  
+  # Missing type hints for TypeScript
+  # قواعد Type hints في TypeScript
+  kimi/missing-type-hints:
+    enabled: true
+    severity: "warn"
+    description: "Functions should have explicit return types"
+  
+  # Unhandled promises
+  # قواعد معالجة الوعود
+  kimi/unhandled-promise:
+    enabled: true
+    severity: "error"
+    description: "All async functions should have proper error handling"
+  
+  # Agricultural domain-specific naming
+  # قواعد التسمية الخاصة بالمجال الزراعي
+  kimi/agricultural-naming:
+    enabled: true
+    severity: "warn"
+    description: "Use consistent naming for agricultural entities"
+    patterns:
+      - "field|Field|FIELD"
+      - "crop|Crop|CROP"
+      - "irrigation|Irrigation|IRRIGATION"
+      - "ndvi|NDVI|Ndvi"
+      - "lai|LAI|Lai"
+
+# Kimi Auto-Fix Configuration
+# إعدادات الإصلاح التلقائي
+auto_fix:
+  # Enable auto-fix for these rule categories
+  enabled_categories:
+    - "code_style"
+    - "best_practices"
+    - "react_hooks"
+  
+  # Disable auto-fix for these (require manual review)
+  disabled_categories:
+    - "security"
+    - "performance"
+    - "accessibility"
+
+# Integration Settings
+integration:
+  vscode:
+    enabled: true
+    format_on_save: false
+  
+  pre_commit:
+    enabled: true
+    blocking: false  # Set to true to block commits with errors
+  
+  ci_cd:
+    enabled: true
+    fail_on_error: false
+    max_warnings: 50
+
+# Performance Settings
+performance:
+  cache: true
+  cache_location: "node_modules/.cache/kimi-eslint"
+  parallel: true
+  max_workers: 4
+
+# Exclusions
+exclude:
+  - "node_modules/**"
+  - "dist/**"
+  - ".next/**"
+  - "build/**"
+  - "coverage/**"
+  - "*.config.js"
+  - "*.config.mjs"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Usage Notes - ملاحظات الاستخدام
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# To use this configuration:
+# 1. Ensure you have ESLint installed: npm install -g eslint
+# 2. Run: npx eslint . --config .kimi-agents/eslint-kimi-config.yaml
+# 3. For auto-fix: npx eslint . --fix --config .kimi-agents/eslint-kimi-config.yaml
+#
+# لاستخدام هذا الإعداد:
+# 1. تأكد من تثبيت ESLint: npm install -g eslint
+# 2. شغل: npx eslint . --config .kimi-agents/eslint-kimi-config.yaml
+# 3. للإصلاح التلقائي: npx eslint . --fix --config .kimi-agents/eslint-kimi-config.yaml
+#
+# ═══════════════════════════════════════════════════════════════════════════════

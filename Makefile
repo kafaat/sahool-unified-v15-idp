@@ -698,5 +698,81 @@ watch: ## مراقبة تلقائية للسجلات - Watch logs continuously
 	watch -n 2 'docker compose -f $(COMPOSE_BASE) ps'
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Kimi Repair Agent - وكيل الإصلاح التلقائي كيمي
+# ═══════════════════════════════════════════════════════════════════════════════
+
+kimi-scan: ## 🔍 تشغيل فحص Kimi الشامل - Run comprehensive Kimi scan
+	@echo "$(BLUE)🔍 تشغيل فحص Kimi الشامل - Running Kimi comprehensive scan...$(RESET)"
+	@chmod +x scripts/kimi-sahool-repair.sh
+	@./scripts/kimi-sahool-repair.sh --scan-only
+	@echo "$(GREEN)✅ فحص Kimi اكتمل - Kimi scan completed!$(RESET)"
+
+kimi-fix: ## 🔧 تطبيق إصلاحات Kimi تلقائياً - Apply Kimi auto-fixes
+	@echo "$(BLUE)🔧 تطبيق إصلاحات Kimi - Applying Kimi fixes...$(RESET)"
+	@chmod +x scripts/kimi-sahool-repair.sh
+	@./scripts/kimi-sahool-repair.sh --apply-fixes
+	@echo "$(GREEN)✅ إصلاحات Kimi اكتملت - Kimi fixes applied!$(RESET)"
+	@echo "$(YELLOW)⚠️  يرجى مراجعة التغييرات قبل الالتزام - Please review changes before committing$(RESET)"
+
+kimi-report: ## 📊 إنشاء تقرير Kimi مفصل - Generate detailed Kimi report
+	@echo "$(BLUE)📊 إنشاء تقرير Kimi - Generating Kimi report...$(RESET)"
+	@chmod +x scripts/kimi-sahool-repair.sh
+	@./scripts/kimi-sahool-repair.sh --scan-only --output-json /tmp/kimi-report.json
+	@if [ -f /tmp/kimi-report.json ]; then \
+		echo "$(GREEN)📄 التقرير محفوظ في: /tmp/kimi-report.json$(RESET)"; \
+		cat /tmp/kimi-report.json | jq .; \
+	fi
+
+kimi-quick-scan: ## ⚡ فحص سريع للملفات المعدلة - Quick scan of modified files
+	@echo "$(BLUE)⚡ فحص سريع - Quick scan...$(RESET)"
+	@CHANGED_PY=$$(git diff --name-only --diff-filter=ACM | grep '\.py$$' || true); \
+	if [ ! -z "$$CHANGED_PY" ]; then \
+		echo "$(CYAN)  🐍 Checking Python files...$(RESET)"; \
+		ruff check $$CHANGED_PY || true; \
+	fi
+	@CHANGED_JS=$$(git diff --name-only --diff-filter=ACM | grep -E '\.(tsx?|jsx?)$$' || true); \
+	if [ ! -z "$$CHANGED_JS" ]; then \
+		echo "$(CYAN)  📦 Checking JS/TS files...$(RESET)"; \
+		npx eslint $$CHANGED_JS --quiet || true; \
+	fi
+	@echo "$(GREEN)✅ فحص سريع اكتمل - Quick scan completed!$(RESET)"
+
+kimi-install-hook: ## 🪝 تثبيت pre-commit hook - Install pre-commit hook
+	@echo "$(BLUE)🪝 تثبيت pre-commit hook...$(RESET)"
+	@if [ -f .git/hooks/pre-commit ]; then \
+		echo "$(YELLOW)⚠️  pre-commit hook already exists, creating backup...$(RESET)"; \
+		cp .git/hooks/pre-commit .git/hooks/pre-commit.backup; \
+	fi
+	@cp .git/hooks/pre-commit-kimi .git/hooks/pre-commit
+	@chmod +x .git/hooks/pre-commit
+	@echo "$(GREEN)✅ Kimi pre-commit hook installed!$(RESET)"
+
+kimi-help: ## ❓ عرض مساعدة Kimi - Show Kimi help
+	@echo ""
+	@echo "$(BOLD)$(PURPLE)════════════════════════════════════════════════════════$(RESET)"
+	@echo "$(BOLD)$(PURPLE)  🤖 Kimi Repair Agent - وكيل الإصلاح التلقائي كيمي$(RESET)"
+	@echo "$(BOLD)$(PURPLE)════════════════════════════════════════════════════════$(RESET)"
+	@echo ""
+	@echo "$(BOLD)$(BLUE)Available Commands:$(RESET)"
+	@echo "  $(GREEN)make kimi-scan$(RESET)          - فحص شامل لجودة الكود"
+	@echo "  $(GREEN)make kimi-fix$(RESET)           - تطبيق الإصلاحات التلقائية"
+	@echo "  $(GREEN)make kimi-report$(RESET)        - إنشاء تقرير JSON مفصل"
+	@echo "  $(GREEN)make kimi-quick-scan$(RESET)    - فحص سريع للملفات المعدلة"
+	@echo "  $(GREEN)make kimi-install-hook$(RESET)  - تثبيت pre-commit hook"
+	@echo ""
+	@echo "$(BOLD)$(BLUE)Configuration:$(RESET)"
+	@echo "  Config file: .kimi-agents/sahool-repair-config.yaml"
+	@echo "  Script: scripts/kimi-sahool-repair.sh"
+	@echo "  Workflow: .github/workflows/kimi-quality-check.yml"
+	@echo ""
+	@echo "$(BOLD)$(BLUE)Supported Tools:$(RESET)"
+	@echo "  • ESLint (Frontend - JavaScript/TypeScript)"
+	@echo "  • Ruff (Backend - Python linting)"
+	@echo "  • Bandit (Backend - Security scanning)"
+	@echo "  • Hadolint (Infrastructure - Dockerfile linting)"
+	@echo "  • Flutter Analyze (Mobile - Dart/Flutter)"
+	@echo ""
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # End of Makefile - نهاية الملف
 # ═══════════════════════════════════════════════════════════════════════════════

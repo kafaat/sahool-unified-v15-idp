@@ -1,0 +1,185 @@
+name: "Kimi Quality Check"
+
+on:
+  push:
+    branches: [main, develop, feature/*, copilot/*]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  kimi-scan:
+    name: 🤖 Kimi Code Quality Scan
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+      
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: 'npm'
+      
+      - name: 🔧 Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff bandit pytest pytest-cov
+      
+      - name: 🔧 Install Node.js dependencies
+        run: |
+          npm install -g eslint
+          npm ci || npm install
+      
+      - name: 🔍 Run Kimi Layered Scan
+        id: kimi-scan
+        run: |
+          chmod +x scripts/kimi-sahool-repair.sh
+          ./scripts/kimi-sahool-repair.sh --scan-only --output-json scan-results.json
+        continue-on-error: true
+      
+      - name: 📊 Parse scan results
+        id: parse-results
+        if: always()
+        run: |
+          if [ -f scan-results.json ]; then
+            echo "results_exist=true" >> $GITHUB_OUTPUT
+            TOTAL=$(jq -r '.total_issues' scan-results.json)
+            FRONTEND=$(jq -r '.frontend.issues' scan-results.json)
+            BACKEND=$(jq -r '.backend.issues' scan-results.json)
+            INFRA=$(jq -r '.infrastructure.issues' scan-results.json)
+            MOBILE=$(jq -r '.mobile.issues' scan-results.json)
+            
+            echo "total_issues=$TOTAL" >> $GITHUB_OUTPUT
+            echo "frontend_issues=$FRONTEND" >> $GITHUB_OUTPUT
+            echo "backend_issues=$BACKEND" >> $GITHUB_OUTPUT
+            echo "infra_issues=$INFRA" >> $GITHUB_OUTPUT
+            echo "mobile_issues=$MOBILE" >> $GITHUB_OUTPUT
+          else
+            echo "results_exist=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: 📤 Upload scan results
+        uses: actions/upload-artifact@v4
+        if: steps.parse-results.outputs.results_exist == 'true'
+        with:
+          name: kimi-scan-results
+          path: scan-results.json
+          retention-days: 30
+      
+      - name: 💬 Comment on PR
+        if: github.event_name == 'pull_request' && steps.parse-results.outputs.results_exist == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('scan-results.json', 'utf8'));
+            
+            const severityEmoji = (count) => {
+              if (count === 0) return '✅';
+              if (count < 5) return '⚠️';
+              if (count < 10) return '🟡';
+              return '🔴';
+            };
+            
+            const comment = `## 🤖 Kimi Quality Scan Results
+            
+            **Overall Status:** ${results.total_issues === 0 ? '✅ No issues found!' : `⚠️ ${results.total_issues} issues detected`}
+            
+            ### 📊 Breakdown by Layer
+            
+            | Layer | Issues | Status |
+            |-------|--------|--------|
+            | **Frontend** | ${results.frontend.issues} | ${severityEmoji(results.frontend.issues)} |
+            | **Backend** | ${results.backend.issues} | ${severityEmoji(results.backend.issues)} |
+            | **Infrastructure** | ${results.infrastructure.issues} | ${severityEmoji(results.infrastructure.issues)} |
+            | **Mobile** | ${results.mobile.issues} | ${severityEmoji(results.mobile.issues)} |
+            
+            ### 🔧 Tools Used
+            
+            - **Frontend:** ${results.frontend.tools.join(', ')}
+            - **Backend:** ${results.backend.tools.join(', ')}
+            - **Infrastructure:** ${results.infrastructure.tools.join(', ')}
+            - **Mobile:** ${results.mobile.tools.join(', ')}
+            
+            ### 📝 Next Steps
+            
+            ${results.total_issues > 0 ? `
+            1. Review the issues detected
+            2. Run \`make kimi-fix\` locally to auto-fix issues
+            3. Commit the fixes and push
+            4. Re-run this check
+            ` : 'No action required - all checks passed! 🎉'}
+            
+            ---
+            
+            🔗 [View Full Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})  
+            ⏱️ Scanned at: ${results.timestamp}  
+            📦 Version: ${results.version}
+            `;
+            
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const existingComment = comments.find(c => 
+              c.user.type === 'Bot' && c.body.includes('🤖 Kimi Quality Scan Results')
+            );
+            
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+      
+      - name: 🏷️ Add labels
+        if: github.event_name == 'pull_request' && steps.parse-results.outputs.total_issues != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['kimi-auto-repair', 'code-quality']
+            });
+      
+      - name: ❌ Fail if critical issues found
+        if: steps.parse-results.outputs.results_exist == 'true'
+        run: |
+          TOTAL=${{ steps.parse-results.outputs.total_issues }}
+          if [ "$TOTAL" -gt 50 ]; then
+            echo "::error::Too many issues found ($TOTAL). Please fix critical issues before merging."
+            exit 1
+          fi

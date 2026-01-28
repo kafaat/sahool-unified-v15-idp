@@ -1,0 +1,128 @@
+#!/bin/bash
+# ═══════════════════════════════════════════════════════════════════════════════
+# Kimi Pre-Commit Hook Template
+# قالب pre-commit لوكيل Kimi
+#
+# This hook runs Kimi checks before allowing a commit.
+# Optional - requires manual installation.
+#
+# Installation:
+#   cp .kimi-agents/templates/pre-commit .git/hooks/pre-commit
+#   chmod +x .git/hooks/pre-commit
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Configuration
+KIMI_CONFIG=".kimi-agents/repair-agent-config.yaml"
+CHECK_CRITICAL_ONLY=true  # Only block on CRITICAL issues
+VERBOSE=false
+
+# Colors
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+echo ""
+echo "═══════════════════════════════════════════════════════════════════════════════"
+echo "🔍 Kimi Pre-Commit Check | فحص Kimi قبل الالتزام"
+echo "═══════════════════════════════════════════════════════════════════════════════"
+echo ""
+
+# Check if Kimi is enabled
+if [[ ! -f "$KIMI_CONFIG" ]]; then
+  echo -e "${YELLOW}⚠️  Kimi config not found. Skipping checks.${NC}"
+  exit 0
+fi
+
+# Check if enabled in config
+ENABLED=$(grep -A 2 "^agent:" "$KIMI_CONFIG" | grep "enabled:" | awk '{print $2}')
+if [[ "$ENABLED" == "false" ]]; then
+  echo -e "${YELLOW}⚠️  Kimi agent disabled in config. Skipping checks.${NC}"
+  exit 0
+fi
+
+# Get staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR)
+
+if [[ -z "$STAGED_FILES" ]]; then
+  echo -e "${GREEN}✅ No staged files to check${NC}"
+  exit 0
+fi
+
+echo "📝 Staged files:"
+echo "$STAGED_FILES" | while read file; do
+  echo "   - $file"
+done
+echo ""
+
+# Quick scan on staged files only
+echo "🔍 Running quick scan on staged files..."
+
+# Python files
+PY_FILES=$(echo "$STAGED_FILES" | grep "\.py$" || true)
+if [[ -n "$PY_FILES" ]]; then
+  echo "  Checking Python files with Ruff..."
+  
+  # Run Ruff check
+  if command -v ruff >/dev/null 2>&1; then
+    echo "$PY_FILES" | xargs ruff check --quiet 2>/dev/null
+    RUFF_EXIT=$?
+    
+    if [[ $RUFF_EXIT -ne 0 ]]; then
+      echo -e "${YELLOW}⚠️  Ruff found issues in staged Python files${NC}"
+      echo ""
+      echo "Options:"
+      echo "  1. Fix automatically: git commit --no-verify (skip this hook)"
+      echo "  2. Or run: ruff check --fix"
+      echo ""
+      
+      if [[ "$CHECK_CRITICAL_ONLY" != "true" ]]; then
+        exit 1
+      fi
+    fi
+  fi
+  
+  # Check for EC misuse (critical agricultural issue)
+  if echo "$PY_FILES" | grep -q "agro-advisor\|advisory-service"; then
+    echo "  Checking for EC misuse in agricultural services..."
+    
+    EC_ISSUES=0
+    for file in $PY_FILES; do
+      # Check for EC misuse patterns
+      if grep -qiE "(ec_value.*nutrient|ec.*fertilizer.*calculat|soil_ec.*(nitrogen|phosphorus|potassium))" "$file" 2>/dev/null; then
+        echo -e "${RED}❌ CRITICAL: Potential EC misuse detected in $file${NC}"
+        echo "   EC should not be used as a nutrient indicator!"
+        echo "   استخدام EC كمؤشر للمغذيات غير صحيح!"
+        EC_ISSUES=$((EC_ISSUES + 1))
+      fi
+    done
+    
+    if [[ $EC_ISSUES -gt 0 ]]; then
+      echo ""
+      echo -e "${RED}❌ Commit blocked: CRITICAL EC misuse detected${NC}"
+      echo ""
+      echo "Fix the EC misuse issues before committing."
+      echo "See: apps/services/agro-advisor/.kimi/README.md"
+      echo ""
+      echo "Or bypass with: git commit --no-verify (not recommended)"
+      exit 1
+    fi
+  fi
+fi
+
+# TypeScript/JavaScript files
+TS_FILES=$(echo "$STAGED_FILES" | grep -E "\.(ts|tsx|js|jsx)$" || true)
+if [[ -n "$TS_FILES" ]] && command -v npm >/dev/null 2>&1; then
+  echo "  Checking TypeScript/JavaScript files with ESLint..."
+  
+  # Run ESLint if available
+  if [[ -f "package.json" ]] && grep -q "eslint" package.json; then
+    npm run lint --if-present 2>/dev/null || true
+  fi
+fi
+
+echo ""
+echo -e "${GREEN}✅ Pre-commit checks passed${NC}"
+echo ""
+
+exit 0

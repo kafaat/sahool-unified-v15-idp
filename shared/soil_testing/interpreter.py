@@ -10,8 +10,13 @@ Supports:
 - pH and EC impact on nutrient availability
 - Bilingual explanations (Arabic/English)
 
+⚠️ CRITICAL SCIENTIFIC STANDARD:
+   EC (Electrical Conductivity) measures SALINITY ONLY, not NPK nutrients.
+   This module correctly separates EC (for salt stress) from macronutrients (N/P/K).
+   See docs/SCIENTIFIC_STANDARDS.md for detailed explanation.
+
 Author: SAHOOL Platform Team
-Version: 1.0.0
+Version: 1.0.1 (Added EC/NPK separation warnings)
 """
 
 from __future__ import annotations
@@ -786,7 +791,19 @@ class SoilTestInterpreter:
             return "Very alkaline - may need sulfur or acidifiers", "قلوية جداً - قد يحتاج كبريت أو محمضات"
 
     def _interpret_ec(self, ec: float) -> tuple[str, str]:
-        """Interpret electrical conductivity (salinity)"""
+        """
+        Interpret electrical conductivity (salinity).
+        
+        ⚠️ CRITICAL: EC measures SALINITY (total dissolved salts), NOT nutrients.
+        EC has NO reliable correlation with N/P/K levels.
+        Use this ONLY for salt stress assessment, never for fertilizer recommendations.
+        
+        Args:
+            ec: Electrical conductivity in dS/m
+            
+        Returns:
+            Tuple of (english_interpretation, arabic_interpretation)
+        """
         thresholds = self.property_thresholds["EC"]
 
         if ec < thresholds["non_saline"]:

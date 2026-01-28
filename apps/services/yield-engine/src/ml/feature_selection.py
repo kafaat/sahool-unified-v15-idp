@@ -88,6 +88,7 @@ class BorutaFeatureSelector:
         self.alpha = alpha
         self.verbose = verbose
         self.selected_features_: list[str] = []
+        self.selected_feature_indices_: list[int] = []
         self.feature_importances_: list[FeatureImportance] = []
 
     def fit(
@@ -171,7 +172,14 @@ class BorutaFeatureSelector:
         selected = [f.feature_name for f in importances if f.decision in ["confirmed", "tentative"]]
         selected_ar = [f.feature_name_ar for f in importances if f.decision in ["confirmed", "tentative"]]
         
+        # Store indices of selected features for transform()
+        selected_indices = [
+            i for i, f in enumerate(importances)
+            if f.decision in ["confirmed", "tentative"]
+        ]
+        
         self.selected_features_ = selected
+        self.selected_feature_indices_ = selected_indices
         self.feature_importances_ = importances
         
         execution_time = time.time() - start_time
@@ -202,15 +210,16 @@ class BorutaFeatureSelector:
             X: Feature matrix
             
         Returns:
-            Transformed feature matrix with selected features
+            Transformed feature matrix with selected features only
         """
         if not self.selected_features_:
             raise ValueError("Boruta not fitted. Call fit() first.")
         
-        # Return selected feature columns
-        # Note: Assumes feature order matches fit()
-        n_selected = len(self.selected_features_)
-        return X[:, :n_selected]
+        if not self.selected_feature_indices_:
+            raise ValueError("No features were selected.")
+        
+        # Return only the selected feature columns using stored indices
+        return X[:, self.selected_feature_indices_]
 
     def _calculate_importance(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
         """

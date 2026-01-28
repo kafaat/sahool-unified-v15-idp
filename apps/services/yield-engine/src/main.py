@@ -819,6 +819,28 @@ async def analyze_feature_importance(
         X_array = np.array(X)
         y_array = np.array(y)
         
+        # Validation
+        if len(X) == 0 or len(y) == 0:
+            raise HTTPException(status_code=400, detail="X and y cannot be empty")
+        
+        if X_array.shape[0] != len(y_array):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Number of samples mismatch: X has {X_array.shape[0]} samples but y has {len(y_array)}"
+            )
+        
+        if len(feature_names) != X_array.shape[1]:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Feature names mismatch: X has {X_array.shape[1]} features but {len(feature_names)} names provided"
+            )
+        
+        if feature_names_ar and len(feature_names_ar) != len(feature_names):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Arabic feature names count ({len(feature_names_ar)}) doesn't match English names ({len(feature_names)})"
+            )
+        
         selector = BorutaFeatureSelector(max_iterations=100, verbose=True)
         result = selector.fit(X_array, y_array, feature_names, feature_names_ar)
         
@@ -828,6 +850,8 @@ async def analyze_feature_importance(
         
         return report
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Feature importance analysis failed: {e}")
         raise HTTPException(
@@ -846,6 +870,9 @@ async def optimize_model_hyperparameters(
     
     Optimize model hyperparameters using Satin Bowerbird Optimizer.
     
+    NOTE: This is a demo endpoint. In production, integrate with actual
+    model training code for meaningful results.
+    
     Request:
     {
         "bounds": {
@@ -861,6 +888,22 @@ async def optimize_model_hyperparameters(
     """
     try:
         from .ml.optimization import SatinBowerbirdOptimizer
+        
+        # Validate bounds
+        if not bounds:
+            raise HTTPException(status_code=400, detail="Bounds cannot be empty")
+        
+        for param, bound_list in bounds.items():
+            if not isinstance(bound_list, list) or len(bound_list) != 2:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid bounds for '{param}': must be a list of [min, max]"
+                )
+            if bound_list[0] >= bound_list[1]:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid bounds for '{param}': min ({bound_list[0]}) must be less than max ({bound_list[1]})"
+                )
         
         # Convert bounds format
         bounds_tuples = {k: tuple(v) for k, v in bounds.items()}
@@ -893,8 +936,11 @@ async def optimize_model_hyperparameters(
             "convergence_history": result.convergence_history,
             "n_iterations": result.n_iterations,
             "execution_time_seconds": result.execution_time_seconds,
+            "note": "Demo endpoint - integrate with actual model training for production use",
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Hyperparameter optimization failed: {e}")
         raise HTTPException(

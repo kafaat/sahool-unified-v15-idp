@@ -128,7 +128,7 @@ Balances multiple objectives:
 
 **Advantages over Grid Search**:
 - **Complexity**: O(n) vs O(n^k)
-- **Speed**: 10-50x faster
+- **Speed**: 5-10x faster in typical scenarios
 - **Quality**: Better optima through exploration-exploitation balance
 
 **Parameters**:
@@ -401,14 +401,18 @@ curl -X POST http://localhost:8105/v1/recommendations/fertilizer \
 ### Primary Research
 
 ```bibtex
-@article{potato_yield_2024,
+@article{potato_yield_dnn_2024,
   title={Potato Yield Prediction using Soil Properties and Deep Neural Networks},
   journal={Field Crops Research},
   year={2024},
-  impact_factor={6.4},
-  note={Two-stage feature selection with Boruta, BSR, WASPAS, SBO, and SHAP}
+  volume={TBD},
+  pages={TBD},
+  doi={TBD},
+  note={Research methodology integrated into SAHOOL v15.4}
 }
 ```
+
+**Note**: Full citation details pending publication.
 
 ### Supporting Research
 

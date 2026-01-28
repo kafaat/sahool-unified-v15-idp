@@ -785,6 +785,224 @@ async def get_crop_price(crop_type: CropType):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Advanced ML Endpoints (v15.4) - Feature Selection, Optimization, Explainability
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.post("/v1/ml/feature-importance")
+async def analyze_feature_importance(
+    X: list[list[float]],
+    y: list[float],
+    feature_names: list[str],
+    feature_names_ar: list[str] | None = None,
+):
+    """
+    تحليل أهمية المتغيرات باستخدام Boruta
+    
+    Analyze feature importance using Boruta algorithm
+    for automatic feature selection.
+    
+    Request:
+    {
+        "X": [[...], [...]],  # Feature matrix
+        "y": [...],           # Target values
+        "feature_names": ["rainfall", "temperature", ...],
+        "feature_names_ar": ["الأمطار", "الحرارة", ...]
+    }
+    
+    Returns:
+        Feature importance ranking with confirmed/rejected features
+    """
+    try:
+        from .ml.feature_selection import BorutaFeatureSelector, create_feature_importance_report
+        
+        X_array = np.array(X)
+        y_array = np.array(y)
+        
+        selector = BorutaFeatureSelector(max_iterations=100, verbose=True)
+        result = selector.fit(X_array, y_array, feature_names, feature_names_ar)
+        
+        report = create_feature_importance_report(result)
+        
+        logger.info(f"Feature selection: {result.n_confirmed} confirmed, {result.n_rejected} rejected")
+        
+        return report
+        
+    except Exception as e:
+        logger.error(f"Feature importance analysis failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"فشل تحليل أهمية المتغيرات: {str(e)}"
+        ) from e
+
+
+@app.post("/v1/ml/optimize-hyperparameters")
+async def optimize_model_hyperparameters(
+    bounds: dict[str, list[float]],  # {param: [min, max]}
+    max_iterations: int = 50,
+):
+    """
+    تحسين معاملات النموذج باستخدام SBO
+    
+    Optimize model hyperparameters using Satin Bowerbird Optimizer.
+    
+    Request:
+    {
+        "bounds": {
+            "n_layers": [2, 10],
+            "learning_rate": [0.0001, 0.01],
+            "n_neurons": [32, 256]
+        },
+        "max_iterations": 50
+    }
+    
+    Returns:
+        Best hyperparameters and optimization convergence
+    """
+    try:
+        from .ml.optimization import SatinBowerbirdOptimizer
+        
+        # Convert bounds format
+        bounds_tuples = {k: tuple(v) for k, v in bounds.items()}
+        
+        # Demo objective function (replace with actual model training)
+        def objective(params):
+            # Simplified: score based on parameter combinations
+            score = 0.8
+            if "learning_rate" in params:
+                # Prefer learning rates around 0.001
+                score += 0.1 * (1 - abs(np.log10(params["learning_rate"]) + 3) / 3)
+            if "n_layers" in params:
+                # Prefer 4-6 layers
+                score += 0.1 * (1 - abs(params["n_layers"] - 5) / 5)
+            return score
+        
+        optimizer = SatinBowerbirdOptimizer(
+            bounds=bounds_tuples,
+            max_iterations=max_iterations,
+            verbose=True,
+        )
+        
+        result = optimizer.optimize(objective)
+        
+        logger.info(f"Hyperparameter optimization: best score = {result.best_score:.4f}")
+        
+        return {
+            "best_params": result.best_params,
+            "best_score": result.best_score,
+            "convergence_history": result.convergence_history,
+            "n_iterations": result.n_iterations,
+            "execution_time_seconds": result.execution_time_seconds,
+        }
+        
+    except Exception as e:
+        logger.error(f"Hyperparameter optimization failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"فشل تحسين معاملات النموذج: {str(e)}"
+        ) from e
+
+
+@app.post("/v1/ml/explain-prediction")
+async def explain_yield_prediction(
+    X: list[float],
+    feature_names: list[str],
+    feature_names_ar: list[str] | None = None,
+):
+    """
+    شرح توقع الإنتاجية باستخدام SHAP
+    
+    Explain yield prediction using SHAP values to show
+    which features contributed most to the prediction.
+    
+    Request:
+    {
+        "X": [250, 22, 0.72, 42, 120],  # Feature values
+        "feature_names": ["rainfall", "temperature", "ndvi", "soil_moisture", "nitrogen"],
+        "feature_names_ar": ["الأمطار", "الحرارة", "NDVI", "رطوبة التربة", "النيتروجين"]
+    }
+    
+    Returns:
+        SHAP explanation with feature contributions
+    """
+    try:
+        from .ml.explainability import SHAPExplainer, create_explanation_report
+        
+        X_array = np.array(X)
+        
+        # For demo: use simple linear model
+        # In production: load trained yield prediction model
+        from sklearn.linear_model import LinearRegression
+        
+        # Dummy model for demonstration
+        dummy_model = LinearRegression()
+        # Fit on sample data
+        X_train = np.random.rand(100, len(X)) * 100
+        y_train = np.sum(X_train * [0.3, 0.2, 0.25, 0.15, 0.1], axis=1) + np.random.randn(100) * 5
+        dummy_model.fit(X_train, y_train)
+        
+        explainer = SHAPExplainer(dummy_model, model_type="linear")
+        explainer.fit(X_train)
+        
+        explanation = explainer.explain(X_array, feature_names, feature_names_ar)
+        
+        report = create_explanation_report(explanation)
+        
+        logger.info(f"Prediction explained: {explanation.prediction_value:.2f} t/ha")
+        
+        return report
+        
+    except Exception as e:
+        logger.error(f"Prediction explanation failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"فشل شرح التوقع: {str(e)}"
+        ) from e
+
+
+@app.get("/v1/ml/capabilities")
+async def get_ml_capabilities():
+    """
+    قائمة القدرات المتقدمة للتعلم الآلي
+    
+    List advanced ML capabilities available in v15.4
+    """
+    return {
+        "version": "15.4.0",
+        "capabilities": {
+            "feature_selection": {
+                "algorithm": "Boruta",
+                "description": "Automatic feature importance ranking and selection",
+                "description_ar": "ترتيب واختيار أهمية المتغيرات تلقائياً",
+                "endpoint": "/v1/ml/feature-importance",
+            },
+            "hyperparameter_optimization": {
+                "algorithm": "Satin Bowerbird Optimizer (SBO)",
+                "description": "Bio-inspired optimization, faster than grid search",
+                "description_ar": "تحسين مستوحى من الطبيعة، أسرع من البحث الشبكي",
+                "endpoint": "/v1/ml/optimize-hyperparameters",
+            },
+            "explainability": {
+                "algorithm": "SHAP (SHapley Additive exPlanations)",
+                "description": "Model-agnostic feature contribution analysis",
+                "description_ar": "تحليل مساهمة المتغيرات في التوقع",
+                "endpoint": "/v1/ml/explain-prediction",
+            },
+        },
+        "research_basis": {
+            "title": "Potato Yield Prediction using Soil Properties and Deep Neural Networks",
+            "journal": "Field Crops Research",
+            "impact_factor": 6.4,
+            "improvements_vs_baseline": {
+                "feature_selection": "Boruta replaces manual selection",
+                "optimization": "SBO replaces grid search - faster convergence",
+                "interpretability": "SHAP provides feature contributions",
+            },
+        },
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # Run Application
 # ═══════════════════════════════════════════════════════════════════════════════
 

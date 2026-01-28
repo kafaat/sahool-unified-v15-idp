@@ -11,6 +11,11 @@ pydantic==2.9.2
 # Scientific Computing
 # Note: Pinned to <2.1.0 for TensorFlow compatibility across services
 numpy>=1.26.0,<2.1.0
+scipy>=1.11.0
+
+# Machine Learning - Advanced Features (v15.4)
+scikit-learn>=1.3.0
+shap>=0.42.0  # Model explainability
 
 # Utilities
 python-dotenv==1.0.1

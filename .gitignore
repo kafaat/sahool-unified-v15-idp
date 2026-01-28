@@ -230,3 +230,28 @@ config/nats/generated/
 analysis_report.txt
 analysis_report.json
 audit_report.json
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Kimi Repair Agent
+# ─────────────────────────────────────────────────────────────────────────────
+# Temporary files and reports
+/tmp/kimi-*.html
+/tmp/kimi-*.json
+/tmp/kimi-*.md
+/tmp/kimi-*.patch
+/tmp/kimi-*.sarif
+/tmp/kimi-metrics.db
+/tmp/eslint-results.json
+/tmp/pylint-results.json
+/tmp/bandit-results.json
+/tmp/pytest-results.xml
+
+# Kimi logs and audit
+/var/log/kimi-agent/
+.kimi-agents/cache/
+.kimi-agents/temp/
+.kimi-agents/*.log
+
+# Keep configuration files
+!.kimi-agents/repair-agent-config.yaml
+!.kimi-agents/README.md

@@ -1,0 +1,399 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Kimi Repair Agent Configuration
+# إعدادات وكيل إصلاح Kimi لمنصة سهول
+#
+# Kimi AI integration for automated code repair and review
+# تكامل Kimi AI للإصلاح والمراجعة التلقائية للكود
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Agent Metadata
+# ─────────────────────────────────────────────────────────────────────────────
+name: "SAHOOL-Kimi-Repair-Agent"
+name_ar: "وكيل إصلاح Kimi لسهول"
+version: "16.0.0"
+description: "Kimi AI-powered repair agent for SAHOOL platform"
+description_ar: "وكيل إصلاح مدعوم بـ Kimi AI لمنصة سهول"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Agent Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+agent:
+  # AI Model Configuration
+  model: "kimi-latest"  # Options: kimi-latest, kimi-turbo, kimi-pro
+  provider: "kimi"      # AI provider (kimi, openai, ollama, anthropic)
+  
+  # Operation Mode
+  mode: "repair"        # Options: repair (auto-fix), review (suggest only), audit (report only)
+  
+  # Automatic Application Settings
+  auto_apply_fixes: false  # Require human review before applying fixes
+  auto_merge_prs: false    # Never auto-merge, always require review
+  
+  # Language Support
+  language: "bilingual"    # Options: english, arabic, bilingual
+  
+  # Integration Mode
+  enabled: true            # Master switch to enable/disable Kimi agent
+  fallback_enabled: true   # Fall back to existing auto-fix if Kimi unavailable
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Detected Issues Configuration
+# قائمة المشكلات التي يتم اكتشافها وإصلاحها
+# ─────────────────────────────────────────────────────────────────────────────
+detected_issues:
+  # Agricultural Domain Issues (from research papers)
+  - id: "ec_as_nutrient"
+    severity: "critical"
+    description: "Using EC (Electrical Conductivity) as nutrient indicator"
+    description_ar: "استخدام التوصيل الكهربائي كمؤشر للمغذيات"
+    enabled: true
+    research_paper: "Paper 2: EC ≠ NPK correlation study"
+    
+  - id: "unoptimized_ml_model"
+    severity: "high"
+    description: "Using unoptimized ML training (GridSearch vs SBO)"
+    description_ar: "استخدام تدريب ML غير محسن (GridSearch مقابل SBO)"
+    enabled: true
+    research_paper: "Paper 1: SBO + Boruta feature selection"
+    
+  - id: "missing_cv_pipeline"
+    severity: "high"
+    description: "Missing computer vision pipeline (MWG-YOLO)"
+    description_ar: "نقص في خط معالجة الرؤية الحاسوبية"
+    enabled: true
+    research_paper: "Paper 3: MWG-YOLO for crop detection"
+  
+  # Code Quality Issues
+  - id: "security_vulnerabilities"
+    severity: "critical"
+    description: "Security vulnerabilities detected"
+    description_ar: "ثغرات أمنية مكتشفة"
+    enabled: true
+    
+  - id: "performance_bottlenecks"
+    severity: "medium"
+    description: "Performance bottlenecks in code"
+    description_ar: "اختناقات في أداء الكود"
+    enabled: true
+    
+  - id: "code_style_violations"
+    severity: "low"
+    description: "Code style and formatting violations"
+    description_ar: "مخالفات في أسلوب وتنسيق الكود"
+    enabled: true
+    
+  - id: "missing_tests"
+    severity: "medium"
+    description: "Missing test coverage"
+    description_ar: "نقص في تغطية الاختبارات"
+    enabled: false  # Disabled by default
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Scan Tools Configuration
+# أدوات الفحص المدمجة
+# ─────────────────────────────────────────────────────────────────────────────
+scan_tools:
+  # Python Tools
+  - name: "ruff"
+    enabled: true
+    languages: ["python"]
+    auto_fix: true
+    
+  - name: "pylint"
+    enabled: true
+    languages: ["python"]
+    auto_fix: false
+    
+  - name: "mypy"
+    enabled: true
+    languages: ["python"]
+    auto_fix: false
+    
+  - name: "bandit"
+    enabled: true
+    languages: ["python"]
+    auto_fix: false
+    security_focused: true
+  
+  # JavaScript/TypeScript Tools
+  - name: "eslint"
+    enabled: true
+    languages: ["javascript", "typescript"]
+    auto_fix: true
+    
+  - name: "typescript"
+    enabled: true
+    languages: ["typescript"]
+    auto_fix: false
+  
+  # Dart/Flutter Tools
+  - name: "dart_analyze"
+    enabled: true
+    languages: ["dart"]
+    auto_fix: false
+  
+  # Multi-language Tools
+  - name: "semgrep"
+    enabled: true
+    languages: ["python", "javascript", "typescript"]
+    auto_fix: false
+    security_focused: true
+    
+  # Testing Tools
+  - name: "pytest"
+    enabled: true
+    languages: ["python"]
+    test_runner: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Monitored Projects
+# المشروعات المراقبة
+# ─────────────────────────────────────────────────────────────────────────────
+monitored_projects:
+  # Agricultural Intelligence Services
+  - path: "apps/services/agro-advisor"
+    priority: "high"
+    specialized_agent: "agro_advisor_agent"
+    
+  - path: "apps/services/advisory-service"
+    priority: "high"
+    specialized_agent: "agro_advisor_agent"
+    
+  - path: "apps/services/yield-prediction"
+    priority: "high"
+    specialized_agent: "yield_prediction_agent"
+    
+  - path: "apps/services/yield-prediction-service"
+    priority: "high"
+    specialized_agent: "yield_prediction_agent"
+    
+  - path: "apps/services/yield-engine"
+    priority: "high"
+    specialized_agent: "yield_prediction_agent"
+  
+  # Computer Vision Services
+  - path: "apps/services/crop-intelligence-service"
+    priority: "high"
+    specialized_agent: "cv_specialist_agent"
+    
+  - path: "apps/services/vegetation-analysis-service"
+    priority: "high"
+    specialized_agent: "cv_specialist_agent"
+    
+  - path: "apps/services/ndvi-processor"
+    priority: "medium"
+  
+  # Mobile Application
+  - path: "apps/mobile/sahool_field_app"
+    priority: "high"
+    language: "dart"
+  
+  # Frontend Applications
+  - path: "apps/web"
+    priority: "medium"
+    language: "typescript"
+    
+  - path: "apps/admin"
+    priority: "medium"
+    language: "typescript"
+  
+  # Shared Libraries
+  - path: "shared/ai"
+    priority: "high"
+    
+  - path: "packages"
+    priority: "medium"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CI/CD Integration
+# تكامل CI/CD
+# ─────────────────────────────────────────────────────────────────────────────
+ci_integration:
+  # Pull Request Mode
+  mode: "auto_pr"              # Options: auto_pr, comment_only, report_only
+  
+  # PR Configuration
+  pr_settings:
+    create_pr: true
+    auto_merge: false          # Always require human review
+    base_branch: "develop"
+    branch_prefix: "kimi-auto"
+    labels:
+      - "automated"
+      - "kimi-repair"
+      - "needs-review"
+    
+  # Notifications
+  notify_teams: true
+  notification_channels:
+    - type: "github"
+      enabled: true
+    - type: "slack"
+      enabled: false
+      webhook_env: "SLACK_WEBHOOK_URL"
+    - type: "teams"
+      enabled: false
+      webhook_env: "TEAMS_WEBHOOK_URL"
+  
+  # Schedule
+  scheduled_scans:
+    enabled: true
+    cron: "0 2 * * *"  # Daily at 2 AM UTC
+    timezone: "Asia/Riyadh"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Specialized Agents
+# الوكلاء المتخصصون
+# ─────────────────────────────────────────────────────────────────────────────
+specialized_agents:
+  # Agro Advisor EC Repair Agent
+  agro_advisor_agent:
+    name: "Agro Advisor EC Repair Agent"
+    name_ar: "وكيل إصلاح التوصيل الكهربائي للمستشار الزراعي"
+    enabled: true
+    focus_areas:
+      - "ec_nutrient_misuse"
+      - "fertilizer_calculation"
+      - "soil_analysis"
+    patterns:
+      - regex: "ec_value.*nutrient"
+        severity: "critical"
+      - regex: "ec.*fertilizer.*calculat"
+        severity: "critical"
+      - regex: "soil_ec.*(nitrogen|phosphorus|potassium)"
+        severity: "critical"
+  
+  # Yield Prediction ML Agent
+  yield_prediction_agent:
+    name: "Yield Prediction ML Optimization Agent"
+    name_ar: "وكيل تحسين نماذج التنبؤ بالمحصول"
+    enabled: true
+    focus_areas:
+      - "ml_optimization"
+      - "feature_selection"
+      - "model_explainability"
+    patterns:
+      - regex: "GridSearchCV|RandomSearch"
+        suggestion: "Replace with SBO optimizer"
+        severity: "high"
+      - regex: "(?!.*Boruta).*feature.*selection"
+        suggestion: "Add Boruta feature selection"
+        severity: "high"
+      - regex: "(?!.*shap).*model.*predict"
+        suggestion: "Add SHAP explainability"
+        severity: "medium"
+  
+  # Computer Vision Specialist Agent
+  cv_specialist_agent:
+    name: "Computer Vision Pipeline Agent"
+    name_ar: "وكيل خط معالجة الرؤية الحاسوبية"
+    enabled: true
+    focus_areas:
+      - "object_detection"
+      - "image_processing"
+      - "model_pipeline"
+    patterns:
+      - regex: "(?!.*YOLO).*object.*detection"
+        suggestion: "Consider MWG-YOLO architecture"
+        severity: "medium"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Output & Reporting
+# الإخراج والتقارير
+# ─────────────────────────────────────────────────────────────────────────────
+output:
+  # Report Formats
+  formats:
+    - "html"      # Human-readable HTML report
+    - "json"      # Machine-readable JSON
+    - "markdown"  # Documentation-friendly
+    - "sarif"     # GitHub security alerts
+  
+  # Report Paths
+  paths:
+    html: "/tmp/kimi-report.html"
+    json: "/tmp/kimi-report.json"
+    markdown: "/tmp/kimi-report.md"
+    patch: "/tmp/kimi-fixes.patch"
+    sarif: "/tmp/kimi-security.sarif"
+  
+  # Bilingual Reporting
+  bilingual: true
+  
+  # Metrics Collection
+  metrics:
+    enabled: true
+    database: "/tmp/kimi-metrics.db"
+    retention_days: 90
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Security & Compliance
+# الأمان والامتثال
+# ─────────────────────────────────────────────────────────────────────────────
+security:
+  # API Key Management
+  api_key_env: "KIMI_API_KEY"  # Environment variable for Kimi API key
+  
+  # Rate Limiting
+  rate_limit:
+    enabled: true
+    requests_per_minute: 60
+    
+  # Audit Trail
+  audit:
+    enabled: true
+    log_all_operations: true
+    log_path: "/var/log/kimi-agent/audit.log"
+    
+  # Secrets Detection
+  prevent_secret_leaks: true
+  
+  # Safe Mode
+  safe_mode: true  # Extra validation before applying fixes
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Advanced Settings
+# إعدادات متقدمة
+# ─────────────────────────────────────────────────────────────────────────────
+advanced:
+  # Performance
+  parallel_processing: true
+  max_workers: 4
+  
+  # Caching
+  cache_enabled: true
+  cache_ttl_hours: 24
+  
+  # Retry Logic
+  retry_on_failure: true
+  max_retries: 3
+  
+  # Timeout
+  operation_timeout_seconds: 300
+  
+  # Debug Mode
+  debug: false
+  verbose_logging: false
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Integration with Existing Infrastructure
+# التكامل مع البنية التحتية الموجودة
+# ─────────────────────────────────────────────────────────────────────────────
+integration:
+  # Use existing auto-fix engine
+  use_existing_auto_fix: true
+  auto_fix_path: "shared/ai/auto_fix"
+  
+  # Use existing agents
+  use_existing_code_fix_agent: true
+  code_fix_agent_endpoint: "http://code-fix-agent:8161"
+  
+  use_existing_code_review_agent: true
+  code_review_agent_endpoint: "http://code-review-agent:8162"
+  
+  # Coordination
+  agent_coordination: "collaborative"  # Options: collaborative, sequential, parallel
+  
+  # Conflict Resolution
+  conflict_resolution: "prefer_kimi"  # Options: prefer_kimi, prefer_existing, merge

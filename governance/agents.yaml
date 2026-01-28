@@ -1192,6 +1192,186 @@ agents:
 
     status: "active"
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # KIMI REPAIR AGENT - وكيل إصلاح Kimi
+  # ═══════════════════════════════════════════════════════════════════════════
+  kimi-repair-agent:
+    name: "Kimi Repair Agent"
+    name_ar: "وكيل إصلاح Kimi"
+    version: "16.0.0"
+    category: intelligence
+    description: "Kimi AI-powered repair agent for automated code analysis, fixing, and domain-specific agricultural issue detection"
+    description_ar: "وكيل إصلاح مدعوم بـ Kimi AI للتحليل التلقائي وإصلاح الكود واكتشاف المشكلات الزراعية المتخصصة"
+
+    capabilities:
+      - name: "repair_code"
+        description: "Automated code repair with multiple strategies (minimal, safe, comprehensive, refactor)"
+        description_ar: "إصلاح تلقائي للكود مع استراتيجيات متعددة (الحد الأدنى، آمن، شامل، إعادة هيكلة)"
+        input_schema:
+          type: object
+          required: ["path"]
+          properties:
+            path: { type: string }
+            strategy: { type: string, enum: ["minimal", "safe", "comprehensive", "refactor"] }
+            auto_apply: { type: boolean }
+        output_schema:
+          type: object
+          properties:
+            fixes_applied: { type: number }
+            patch_file: { type: string }
+            report: { type: string }
+
+      - name: "detect_ec_misuse"
+        description: "Detect misuse of EC (Electrical Conductivity) as nutrient indicator in agricultural services"
+        description_ar: "اكتشاف سوء استخدام التوصيل الكهربائي (EC) كمؤشر للمغذيات في الخدمات الزراعية"
+        input_schema:
+          type: object
+          required: ["service_path"]
+          properties:
+            service_path: { type: string }
+        output_schema:
+          type: object
+          properties:
+            issues_found: { type: array }
+            severity: { type: string }
+            fix_suggestions: { type: array }
+
+      - name: "optimize_ml_model"
+        description: "Optimize ML models by replacing GridSearch with SBO optimizer and adding Boruta feature selection"
+        description_ar: "تحسين نماذج ML باستبدال GridSearch بمحسن SBO وإضافة اختيار الميزات Boruta"
+        input_schema:
+          type: object
+          required: ["model_path"]
+          properties:
+            model_path: { type: string }
+        output_schema:
+          type: object
+          properties:
+            optimizations: { type: array }
+            expected_improvement: { type: string }
+
+      - name: "scan_project"
+        description: "Full project scan with configurable tools (ruff, eslint, mypy, bandit, etc.)"
+        description_ar: "فحص شامل للمشروع مع أدوات قابلة للتكوين (ruff, eslint, mypy, bandit, إلخ)"
+        input_schema:
+          type: object
+          required: ["project_path"]
+          properties:
+            project_path: { type: string }
+            tools: { type: array, items: { type: string } }
+        output_schema:
+          type: object
+          properties:
+            total_issues: { type: number }
+            critical_issues: { type: number }
+            auto_fixable: { type: number }
+            reports: { type: array }
+
+      - name: "create_repair_pr"
+        description: "Create pull request with automated fixes and bilingual documentation"
+        description_ar: "إنشاء طلب سحب مع إصلاحات تلقائية وتوثيق ثنائي اللغة"
+        input_schema:
+          type: object
+          required: ["fixes"]
+          properties:
+            fixes: { type: array }
+            branch_name: { type: string }
+        output_schema:
+          type: object
+          properties:
+            pr_number: { type: number }
+            pr_url: { type: string }
+            status: { type: string }
+
+    skills:
+      - skill_id: "agricultural_domain"
+        name: "Agricultural Domain Knowledge"
+        name_ar: "معرفة المجال الزراعي"
+        level: "expert"
+        keywords: ["ec", "npk", "fertilizer", "soil", "nutrients"]
+
+      - skill_id: "ml_optimization"
+        name: "ML Model Optimization"
+        name_ar: "تحسين نماذج التعلم الآلي"
+        level: "expert"
+        keywords: ["sbo", "boruta", "feature-selection", "hyperparameter"]
+
+      - skill_id: "code_repair"
+        name: "Automated Code Repair"
+        name_ar: "الإصلاح التلقائي للكود"
+        level: "expert"
+        keywords: ["auto-fix", "refactor", "patch", "repair"]
+
+      - skill_id: "multi_tool_integration"
+        name: "Multi-Tool Integration"
+        name_ar: "تكامل الأدوات المتعددة"
+        level: "advanced"
+        keywords: ["ruff", "eslint", "mypy", "bandit", "semgrep"]
+
+    specialized_agents:
+      - name: "agro-advisor-ec-repair"
+        focus: "EC misuse detection in agricultural services"
+        services: ["agro-advisor", "advisory-service"]
+
+      - name: "yield-prediction-ml-optimizer"
+        focus: "ML model optimization for yield prediction"
+        services: ["yield-prediction", "yield-prediction-service", "yield-engine"]
+
+      - name: "cv-specialist"
+        focus: "Computer vision pipeline improvements"
+        services: ["crop-intelligence-service", "vegetation-analysis-service"]
+
+    dependencies:
+      - code-fix-agent
+      - code-review-agent
+      - git-service
+
+    config_file: ".kimi-agents/repair-agent-config.yaml"
+
+    endpoint:
+      url: "https://api.sahool.app/agents/kimi-repair/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/kimi-repair/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+      api_key_env: "KIMI_API_KEY"
+      safe_mode: true
+
+    integration:
+      mode: "collaborative"
+      use_existing_auto_fix: true
+      fallback_enabled: true
+
+    monitored_services:
+      high_priority:
+        - "agro-advisor"
+        - "advisory-service"
+        - "yield-prediction"
+        - "yield-prediction-service"
+        - "crop-intelligence-service"
+      medium_priority:
+        - "vegetation-analysis-service"
+        - "ndvi-processor"
+        - "web"
+        - "admin"
+      mobile:
+        - "sahool_field_app"
+
+    metadata:
+      tags: ["kimi", "ai", "repair", "agricultural", "ml-optimization", "bilingual"]
+      organization: "SAHOOL"
+      license: "Proprietary"
+      priority: "high"
+      research_papers:
+        - "EC ≠ NPK correlation study"
+        - "SBO + Boruta optimization"
+        - "MWG-YOLO for crop detection"
+
+    status: "active"
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Agent Orchestration Rules
 # ─────────────────────────────────────────────────────────────────────────────

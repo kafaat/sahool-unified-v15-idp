@@ -31,10 +31,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run hadolint on all Dockerfiles
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.3.0
         continue-on-error: true
         with:
           dockerfile: "Dockerfile*"
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -111,7 +111,7 @@ jobs:
           fi
 
       - name: Upload gitleaks report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: gitleaks-report
@@ -260,7 +260,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Free disk space
         run: |
@@ -319,7 +319,7 @@ jobs:
       - name: Build Docker image
         if: steps.check_dockerfile.outputs.exists == 'true'
         id: build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           # Use repository root as context for shared module access
           context: .
@@ -340,7 +340,7 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         if: steps.check_dockerfile.outputs.exists == 'true'
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }}
           format: 'sarif'
@@ -359,7 +359,7 @@ jobs:
 
       - name: Generate Trivy JSON report
         if: steps.check_dockerfile.outputs.exists == 'true'
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }}
           format: 'json'
@@ -486,7 +486,7 @@ jobs:
 
       - name: Upload vulnerability report
         if: always() && steps.check_dockerfile.outputs.exists == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: trivy-report-${{ matrix.service.name }}
           path: |
@@ -516,7 +516,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Free disk space
         run: |
@@ -630,7 +630,7 @@ jobs:
     if: always()
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: test-artifacts
 
@@ -709,7 +709,7 @@ jobs:
           cat test-summary.json
 
       - name: Upload test summary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: test-summary
           path: test-summary.json

@@ -68,12 +68,16 @@ help: ## عرض قائمة الأوامر المتاحة - Show available comman
 	@echo "$(BOLD)$(BLUE)Utilities - الأدوات المساعدة:$(RESET)"
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## .*(clean|status|health|shell)/ {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
+	@echo "$(BOLD)$(BLUE)Kimi Quality Agent - وكيل الجودة كيمي:$(RESET)"
+	@awk 'BEGIN {FS = ":.*?## "} /^kimi-[a-zA-Z_-]+:.*?## / {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
 	@echo "$(BOLD)Usage Examples - أمثلة الاستخدام:$(RESET)"
 	@echo "  $(GREEN)make dev$(RESET)                      - بدء بيئة التطوير"
 	@echo "  $(GREEN)make build$(RESET)                    - بناء جميع صور Docker"
 	@echo "  $(GREEN)make logs-service SERVICE=field_ops$(RESET) - عرض سجلات خدمة محددة"
 	@echo "  $(GREEN)make shell SERVICE=postgres$(RESET)   - فتح طرفية في حاوية"
 	@echo "  $(GREEN)make test-python$(RESET)              - تشغيل اختبارات Python"
+	@echo "  $(GREEN)make kimi-scan$(RESET)                - فحص جودة الكود"
 	@echo ""
 
 # ═══════════════════════════════════════════════════════════════════════════════

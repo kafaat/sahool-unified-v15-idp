@@ -17,6 +17,8 @@ Features:
 - Quality certification integration | تكامل شهادات الجودة
 """
 
+from __future__ import annotations
+
 import hashlib
 import json
 import uuid

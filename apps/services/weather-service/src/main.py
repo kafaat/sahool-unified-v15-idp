@@ -129,20 +129,20 @@ if SECURITY_HEADERS_AVAILABLE:
 @app.get("/healthz")
 def health():
     """Health check endpoint (liveness probe)"""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     return {
         "status": "healthy",
         "service": "weather-service",
         "version": "16.0.0",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
 
 @app.get("/readyz")
 def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     return {
         "status": "ready",
@@ -151,7 +151,7 @@ def readiness():
         "checks": {
             "service": "ready",
         },
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
 

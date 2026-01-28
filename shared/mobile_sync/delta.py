@@ -10,10 +10,12 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
 from .models import (
@@ -701,7 +703,7 @@ class DeltaSyncManager:
         self._sync_tokens[device_id] = {
             "token": token,
             "timestamp": server_timestamp.isoformat(),
-            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.utcnow().isoformat(),
         }
 
     def get_changes_since_token(
@@ -775,7 +777,7 @@ class DeltaSyncManager:
 
         self._version_history[entity_key].append({
             "version": packet.target_version,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.utcnow().isoformat(),
             "checksum": packet.checksum,
             "change_count": len(packet.changes),
         })

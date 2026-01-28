@@ -11,12 +11,15 @@ LABEL version="15.5.0"
 WORKDIR /app
 
 # Upgrade pip first (better retry logic and connection handling)
-RUN pip install --no-cache-dir --upgrade pip --default-timeout=100
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip --default-timeout=100
 
-# Install dependencies with retry logic
+# Install dependencies with retry logic and PyPI mirror fallback
 COPY apps/services/astronomical-calendar/requirements.txt .
 RUN pip install --no-cache-dir --default-timeout=100 --retries=5 -r requirements.txt || \
-    (sleep 5 && pip install --no-cache-dir --default-timeout=100 --retries=5 -r requirements.txt)
+    pip install --no-cache-dir --default-timeout=100 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    -r requirements.txt
 
 # Copy application code
 COPY apps/services/astronomical-calendar/src/ ./src/

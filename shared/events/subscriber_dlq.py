@@ -13,7 +13,7 @@ import asyncio
 import json
 import logging
 import traceback
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
 from .dlq_config import DLQMessageMetadata, is_retriable_error, should_retry
@@ -135,7 +135,7 @@ async def _retry_message_with_dlq(
         logger.error(f"❌ Retry attempt {attempt} failed for {msg.subject}: {e}")
 
         # Update retry tracking
-        retry_timestamps.append(datetime.now(timezone.utc).isoformat())
+        retry_timestamps.append(datetime.utcnow().isoformat())
         retry_errors.append(str(e)[:200])
 
         # Recursively handle the failure
@@ -186,7 +186,7 @@ async def _move_to_dlq(
             correlation_id=getattr(msg, "reply", None),
             retry_count=retry_count,
             failure_reason=str(error),
-            failure_timestamp=datetime.now(timezone.utc).isoformat(),
+            failure_timestamp=datetime.utcnow().isoformat(),
             error_type=error.__class__.__name__,
             error_traceback=traceback.format_exc()[:1000],  # Truncate traceback
             consumer_service=self.service_name,

@@ -40,21 +40,13 @@ except ImportError:
 from .events import IoTPublisher, get_publisher
 from .mqtt_client import MqttClient, MqttMessage
 from .normalizer import normalize
-from .registry import DeviceRegistry, DeviceStatus, RedisDeviceRegistry, get_registry, get_redis_registry, set_registry
+from .registry import DeviceRegistry, DeviceStatus, get_registry
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("iot-gateway")
-
-# Redis imports
-try:
-    import redis.asyncio as redis
-    REDIS_AVAILABLE = True
-except ImportError:
-    REDIS_AVAILABLE = False
-    logger.warning("redis package not installed - using in-memory registry only")
 
 # Configuration
 MQTT_BROKER = os.getenv("MQTT_BROKER", "mqtt")
@@ -82,7 +74,6 @@ async def handle_mqtt_message(msg: MqttMessage):
     - Validates sensor value ranges
     - Auto-registers only if explicitly allowed (for backward compatibility)
     - Logs all operations for audit trail
-    - Persists device status to Redis when available
     """
     global publisher, registry
 
@@ -103,21 +94,12 @@ async def handle_mqtt_message(msg: MqttMessage):
                     f"Auto-registering device {reading.device_id} from MQTT. "
                     f"This should be disabled in production."
                 )
-                # Use async auto-register if Redis-backed registry is available
-                if isinstance(registry, RedisDeviceRegistry):
-                    await registry.auto_register_async(
-                        device_id=reading.device_id,
-                        tenant_id=DEFAULT_TENANT,
-                        field_id=reading.field_id,
-                        sensor_type=reading.sensor_type,
-                    )
-                else:
-                    registry.auto_register(
-                        device_id=reading.device_id,
-                        tenant_id=DEFAULT_TENANT,
-                        field_id=reading.field_id,
-                        sensor_type=reading.sensor_type,
-                    )
+                registry.auto_register(
+                    device_id=reading.device_id,
+                    tenant_id=DEFAULT_TENANT,
+                    field_id=reading.field_id,
+                    sensor_type=reading.sensor_type,
+                )
             else:
                 logger.error(
                     f"MQTT message rejected: Device {reading.device_id} not registered. "
@@ -137,21 +119,13 @@ async def handle_mqtt_message(msg: MqttMessage):
                 )
                 return
 
-        # Update device status - use async method if Redis-backed registry is available
-        if isinstance(registry, RedisDeviceRegistry):
-            await registry.update_status_async(
-                device_id=reading.device_id,
-                last_reading=reading.to_dict(),
-                battery_level=reading.metadata.get("battery") if reading.metadata else None,
-                signal_strength=reading.metadata.get("rssi") if reading.metadata else None,
-            )
-        else:
-            registry.update_status(
-                device_id=reading.device_id,
-                last_reading=reading.to_dict(),
-                battery_level=reading.metadata.get("battery") if reading.metadata else None,
-                signal_strength=reading.metadata.get("rssi") if reading.metadata else None,
-            )
+        # Update device status
+        registry.update_status(
+            device_id=reading.device_id,
+            last_reading=reading.to_dict(),
+            battery_level=reading.metadata.get("battery") if reading.metadata else None,
+            signal_strength=reading.metadata.get("rssi") if reading.metadata else None,
+        )
 
         # Publish to NATS
         await publisher.publish_sensor_reading(
@@ -237,34 +211,13 @@ async def lifespan(app: FastAPI):
     try:
         print("🌐 Starting IoT Gateway Service...")
 
-        # Initialize Redis connection for device registry persistence
-        redis_url = os.getenv("REDIS_URL")
-        if redis_url and REDIS_AVAILABLE:
-            try:
-                app.state.redis = redis.from_url(redis_url, decode_responses=False)
-                await app.state.redis.ping()
-                logger.info("Connected to Redis for device registry persistence")
-                print("✅ Connected to Redis")
-
-                # Initialize Redis-backed registry
-                registry = await get_redis_registry(app.state.redis)
-                set_registry(registry)
-                print("✅ Redis-backed device registry initialized")
-            except Exception as e:
-                logger.warning(f"Failed to connect to Redis: {e}")
-                print(f"⚠️ Redis connection failed: {e} - using in-memory registry")
-                app.state.redis = None
-                registry = get_registry()
-                print("✅ In-memory device registry initialized")
-        else:
-            app.state.redis = None
-            # Initialize in-memory registry (don't fail if it can't initialize)
-            try:
-                registry = get_registry()
-                print("✅ In-memory device registry initialized")
-            except Exception as e:
-                print(f"⚠️ Registry initialization failed: {e}")
-                registry = None
+        # Initialize registry (don't fail if it can't initialize)
+        try:
+            registry = get_registry()
+            print("✅ Device registry initialized")
+        except Exception as e:
+            print(f"⚠️ Registry initialization failed: {e}")
+            registry = None
 
         # Initialize publisher (don't fail if it can't connect)
         try:
@@ -304,10 +257,6 @@ async def lifespan(app: FastAPI):
             mqtt_task.cancel()
         if publisher:
             await publisher.close()
-        # Close Redis connection
-        if hasattr(app.state, "redis") and app.state.redis:
-            await app.state.redis.close()
-            print("✅ Redis connection closed")
         print("👋 IoT Gateway shutting down")
     except Exception as e:
         print(f"⚠️ Shutdown error: {e}")
@@ -397,27 +346,15 @@ def health():
 
 
 @app.get("/readyz")
-async def readiness():
+def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    checks = {
-        "service": "ready",
-        "registry": "ready" if registry else "not_initialized",
-        "registry_type": "redis" if isinstance(registry, RedisDeviceRegistry) else "in_memory",
-    }
-
-    # Check Redis connectivity if available
-    if hasattr(app.state, "redis") and app.state.redis:
-        try:
-            await app.state.redis.ping()
-            checks["redis"] = "connected"
-        except Exception:
-            checks["redis"] = "disconnected"
-
     return {
         "status": "ready",
         "service": "iot-gateway",
         "version": "16.0.0",
-        "checks": checks,
+        "checks": {
+            "service": "ready",
+        },
     }
 
 
@@ -587,25 +524,15 @@ async def post_sensor_reading(req: SensorReadingRequest):
 
     timestamp = req.timestamp or datetime.now(UTC).isoformat()
 
-    # Update device status - use async method if Redis-backed registry is available
-    if isinstance(registry, RedisDeviceRegistry):
-        await registry.update_status_async(
-            device_id=req.device_id,
-            last_reading={
-                "sensor_type": req.sensor_type,
-                "value": req.value,
-                "unit": req.unit,
-            },
-        )
-    else:
-        registry.update_status(
-            device_id=req.device_id,
-            last_reading={
-                "sensor_type": req.sensor_type,
-                "value": req.value,
-                "unit": req.unit,
-            },
-        )
+    # Update device status
+    registry.update_status(
+        device_id=req.device_id,
+        last_reading={
+            "sensor_type": req.sensor_type,
+            "value": req.value,
+            "unit": req.unit,
+        },
+    )
 
     # Publish to event system
     event_id = await publisher.publish_sensor_reading(
@@ -711,11 +638,8 @@ async def post_batch_readings(req: BatchReadingRequest):
             logger.error(f"Error processing batch reading {idx} for device {req.device_id}: {e}")
             raise HTTPException(status_code=400, detail=f"Error processing reading {idx}: {str(e)}")
 
-    # Update device status - use async method if Redis-backed registry is available
-    if isinstance(registry, RedisDeviceRegistry):
-        await registry.update_status_async(device_id=req.device_id)
-    else:
-        registry.update_status(device_id=req.device_id)
+    # Update device status
+    registry.update_status(device_id=req.device_id)
 
     logger.info(
         f"Batch reading published. "
@@ -735,30 +659,17 @@ async def post_batch_readings(req: BatchReadingRequest):
 
 @app.post("/device/register")
 async def register_device(req: DeviceRegisterRequest):
-    """Register a new device with Redis persistence"""
-    # Use async registration if Redis-backed registry is available
-    if isinstance(registry, RedisDeviceRegistry):
-        device = await registry.register_async(
-            device_id=req.device_id,
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            device_type=req.device_type,
-            name_ar=req.name_ar,
-            name_en=req.name_en,
-            location=req.location,
-            metadata=req.metadata or {},
-        )
-    else:
-        device = registry.register(
-            device_id=req.device_id,
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            device_type=req.device_type,
-            name_ar=req.name_ar,
-            name_en=req.name_en,
-            location=req.location,
-            metadata=req.metadata or {},
-        )
+    """Register a new device"""
+    device = registry.register(
+        device_id=req.device_id,
+        tenant_id=req.tenant_id,
+        field_id=req.field_id,
+        device_type=req.device_type,
+        name_ar=req.name_ar,
+        name_en=req.name_en,
+        location=req.location,
+        metadata=req.metadata or {},
+    )
 
     # Publish registration event
     if publisher:
@@ -834,15 +745,10 @@ async def list_devices(
 
 
 @app.delete("/device/{device_id}")
-async def delete_device(device_id: str):
-    """Remove device from registry with Redis persistence"""
-    # Use async deletion if Redis-backed registry is available
-    if isinstance(registry, RedisDeviceRegistry):
-        if not await registry.delete_async(device_id):
-            raise HTTPException(status_code=404, detail="Device not found")
-    else:
-        if not registry.delete(device_id):
-            raise HTTPException(status_code=404, detail="Device not found")
+def delete_device(device_id: str):
+    """Remove device from registry"""
+    if not registry.delete(device_id):
+        raise HTTPException(status_code=404, detail="Device not found")
 
     return {"status": "ok", "device_id": device_id}
 

@@ -19,12 +19,13 @@ Version: 1.0.0
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 import asyncio
 import json
 import logging
-import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
 from fastapi import FastAPI, Request, Response
@@ -514,7 +515,7 @@ class SAHOOLMCPServer:
                 "server": self.name,
                 "server_ar": self.name_ar,
                 "version": self.version,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.utcnow().isoformat(),
                 "active_agents": len(self.tools.list_active_agents()),
             }
 
@@ -588,7 +589,7 @@ class SAHOOLMCPServer:
                             break
 
                         # Send heartbeat
-                        yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.now(timezone.utc).isoformat()})}\n\n"
+                        yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.utcnow().isoformat()})}\n\n"
 
                         await asyncio.sleep(30)
 
@@ -653,13 +654,10 @@ MCPServer = SAHOOLMCPServer
 
 async def run_server(
     transport: str = "stdio",
-    host: str | None = None,
+    host: str = "0.0.0.0",
     port: int = 8200,
     config: MCPConfig | None = None,
 ):
-    # Default to localhost for security; use MCP_HOST env var or explicit param for containers
-    if host is None:
-        host = os.getenv("MCP_HOST", "127.0.0.1")
     """
     Run MCP server with specified transport
 
@@ -702,8 +700,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--host",
-        default=None,  # Will use MCP_HOST env var or 127.0.0.1; use --host 0.0.0.0 for containers
-        help="Host for HTTP/SSE transport (default: 127.0.0.1, use 0.0.0.0 for containers)",
+        default="0.0.0.0",
+        help="Host for HTTP/SSE transport (default: 0.0.0.0)",
     )
     parser.add_argument(
         "--port",

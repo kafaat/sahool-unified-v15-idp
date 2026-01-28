@@ -54,7 +54,7 @@ export class AppController {
     return {
       status: "ok",
       service: "marketplace-service",
-      version: "16.0.0",
+      version: "15.3.0",
       timestamp: new Date().toISOString(),
     };
   }
@@ -349,30 +349,9 @@ export class AppController {
   /**
    * تحديث حدود المحفظة (بناءً على التصنيف الائتماني)
    * PUT /api/v1/fintech/wallet/:walletId/limits
-   * Requires authentication and wallet ownership or admin role
    */
   @Put("fintech/wallet/:walletId/limits")
-  @UseGuards(JwtAuthGuard)
-  async updateWalletLimits(
-    @Req() request: any,
-    @Param("walletId") walletId: string,
-  ) {
-    // Verify wallet ownership or admin role
-    const wallet = await this.fintechService.getWalletById(walletId);
-    if (!wallet) {
-      throw new ForbiddenException("Wallet not found");
-    }
-
-    const authenticatedUser = request.user;
-    const isAdmin = authenticatedUser.roles?.includes("admin");
-    const isOwner = authenticatedUser.id === wallet.userId;
-
-    if (!isOwner && !isAdmin) {
-      throw new ForbiddenException(
-        "You are not authorized to update limits for this wallet",
-      );
-    }
-
+  async updateWalletLimits(@Param("walletId") walletId: string) {
     return this.fintechService.updateWalletLimits(walletId);
   }
 
@@ -459,10 +438,8 @@ export class AppController {
    * POST /api/v1/fintech/wallet/:walletId/scheduled-payment
    */
   @Post("fintech/wallet/:walletId/scheduled-payment")
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createScheduledPayment(
-    @Req() request: any,
     @Param("walletId") walletId: string,
     @Body()
     body: {
@@ -474,22 +451,6 @@ export class AppController {
       descriptionAr?: string;
     },
   ) {
-    // Verify wallet ownership or admin role
-    const wallet = await this.fintechService.getWalletById(walletId);
-    if (!wallet) {
-      throw new ForbiddenException("Wallet not found");
-    }
-
-    const authenticatedUser = request.user;
-    const isAdmin = authenticatedUser.roles?.includes("admin");
-    const isOwner = authenticatedUser.id === wallet.userId;
-
-    if (!isOwner && !isAdmin) {
-      throw new ForbiddenException(
-        "You are not authorized to create scheduled payments for this wallet",
-      );
-    }
-
     return this.fintechService.createScheduledPayment(
       walletId,
       body.amount,
@@ -521,24 +482,7 @@ export class AppController {
    * POST /api/v1/fintech/scheduled-payment/:id/cancel
    */
   @Post("fintech/scheduled-payment/:id/cancel")
-  @UseGuards(JwtAuthGuard)
-  async cancelScheduledPayment(@Req() request: any, @Param("id") id: string) {
-    // Verify scheduled payment ownership or admin role
-    const scheduledPayment = await this.fintechService.getScheduledPaymentById(id);
-    if (!scheduledPayment) {
-      throw new ForbiddenException("Scheduled payment not found");
-    }
-
-    const authenticatedUser = request.user;
-    const isAdmin = authenticatedUser.roles?.includes("admin");
-    const isOwner = authenticatedUser.id === scheduledPayment.wallet?.userId;
-
-    if (!isOwner && !isAdmin) {
-      throw new ForbiddenException(
-        "You are not authorized to cancel this scheduled payment",
-      );
-    }
-
+  async cancelScheduledPayment(@Param("id") id: string) {
     return this.fintechService.cancelScheduledPayment(id);
   }
 
@@ -547,24 +491,7 @@ export class AppController {
    * POST /api/v1/fintech/scheduled-payment/:id/execute
    */
   @Post("fintech/scheduled-payment/:id/execute")
-  @UseGuards(JwtAuthGuard)
-  async executeScheduledPayment(@Req() request: any, @Param("id") id: string) {
-    // Verify scheduled payment ownership or admin role
-    const scheduledPayment = await this.fintechService.getScheduledPaymentById(id);
-    if (!scheduledPayment) {
-      throw new ForbiddenException("Scheduled payment not found");
-    }
-
-    const authenticatedUser = request.user;
-    const isAdmin = authenticatedUser.roles?.includes("admin");
-    const isOwner = authenticatedUser.id === scheduledPayment.wallet?.userId;
-
-    if (!isOwner && !isAdmin) {
-      throw new ForbiddenException(
-        "You are not authorized to execute this scheduled payment",
-      );
-    }
-
+  async executeScheduledPayment(@Param("id") id: string) {
     return this.fintechService.executeScheduledPayment(id);
   }
 

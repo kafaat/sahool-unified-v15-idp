@@ -8,6 +8,8 @@ FastAPI routes for authentication:
 - Current user info
 """
 
+from __future__ import annotations
+
 import logging
 from datetime import timezone, datetime, timedelta, UTC
 

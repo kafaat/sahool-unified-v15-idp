@@ -21,7 +21,8 @@
   "author": "SAHOOL Team",
   "license": "MIT",
   "dependencies": {
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "crypto": "^1.0.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

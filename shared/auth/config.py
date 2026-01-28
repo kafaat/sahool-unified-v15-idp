@@ -6,6 +6,8 @@ Note: This configuration only supports HS256 algorithm.
 RS256 with RSA keys has been deprecated.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 from typing import Dict, List

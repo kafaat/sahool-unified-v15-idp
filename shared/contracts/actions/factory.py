@@ -5,7 +5,9 @@ SAHOOL Action Template Factory
 يوفر طرق سهلة لإنشاء ActionTemplates من خدمات التحليل المختلفة
 """
 
-from datetime import datetime, timedelta, timezone
+from __future__ import annotations
+
+from datetime import datetime, timedelta
 
 from .template import ActionStep, ActionTemplate, Resource
 from .types import ActionType, ResourceType, UrgencyLevel
@@ -103,7 +105,7 @@ class ActionTemplateFactory:
                 else "Based on crop water needs analysis"
             ),
             urgency=urgency,
-            deadline=deadline or datetime.now(timezone.utc) + timedelta(hours=urgency.max_delay_hours),
+            deadline=deadline or datetime.utcnow() + timedelta(hours=urgency.max_delay_hours),
             field_id=field_id,
             steps=steps,
             resources_needed=resources,
@@ -214,7 +216,7 @@ class ActionTemplateFactory:
                 f"Recommended NPK ratio: {npk_ratio}" if npk_ratio else "Based on soil analysis"
             ),
             urgency=urgency,
-            deadline=deadline or datetime.now(timezone.utc) + timedelta(hours=urgency.max_delay_hours),
+            deadline=deadline or datetime.utcnow() + timedelta(hours=urgency.max_delay_hours),
             field_id=field_id,
             steps=steps,
             resources_needed=resources,
@@ -283,7 +285,7 @@ class ActionTemplateFactory:
             reasoning_ar=f"تحليل الصور الفضائية كشف أنماط مشابهة لأعراض {disease_name_ar}",
             reasoning_en=f"Satellite image analysis detected patterns similar to {disease_name_en} symptoms",
             urgency=urgency,
-            deadline=datetime.now(timezone.utc) + timedelta(hours=24),
+            deadline=datetime.utcnow() + timedelta(hours=24),
             field_id=field_id,
             zone_ids=zone_ids or [],
             steps=steps,
@@ -391,7 +393,7 @@ class ActionTemplateFactory:
             source_analysis_type="treatment_recommendation",
             confidence=confidence,
             urgency=urgency,
-            deadline=datetime.now(timezone.utc) + timedelta(hours=urgency.max_delay_hours),
+            deadline=datetime.utcnow() + timedelta(hours=urgency.max_delay_hours),
             field_id=field_id,
             steps=steps,
             resources_needed=resources,

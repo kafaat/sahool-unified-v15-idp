@@ -10,8 +10,10 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 import logging
-from datetime import datetime, time, timedelta, timezone
+from datetime import datetime, time, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -89,7 +91,7 @@ class NotificationRouter:
         decision.language = preferences.language
 
         # Current time with timezone
-        now = current_time or datetime.now(timezone.utc)
+        now = current_time or datetime.utcnow()
 
         # Step 1: Master toggle check
         if not preferences.notifications_enabled:

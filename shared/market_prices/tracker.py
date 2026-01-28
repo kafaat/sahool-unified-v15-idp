@@ -10,13 +10,14 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-from datetime import datetime, date, timedelta, timezone
+from __future__ import annotations
+
+from datetime import datetime, date, timedelta
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
 import asyncio
 import json
-import logging
 import os
 import uuid
 
@@ -37,8 +38,6 @@ from .models import (
     MarketPriceErrors,
     MarketPriceException,
 )
-
-logger = logging.getLogger(__name__)
 
 
 class PriceStorage:
@@ -740,7 +739,7 @@ class MarketPriceTracker:
         for alert in alerts:
             if alert.id == alert_id:
                 alert.status = status
-                alert.updated_at = datetime.now(timezone.utc)
+                alert.updated_at = datetime.utcnow()
                 await self.alert_storage.save_alert(alert)
                 return alert
 
@@ -795,181 +794,20 @@ class MarketPriceTracker:
 
             # Check if alert should trigger
             if alert.check_trigger(price.price, previous_price):
-                alert.last_triggered_at = datetime.now(timezone.utc)
+                alert.last_triggered_at = datetime.utcnow()
                 alert.trigger_count += 1
                 alert.last_triggered_price = price.price
                 alert.last_triggered_market_id = price.market_id
                 alert.status = AlertStatus.TRIGGERED
-                alert.updated_at = datetime.now(timezone.utc)
+                alert.updated_at = datetime.utcnow()
 
                 await self.alert_storage.save_alert(alert)
                 triggered_alerts.append(alert)
 
-                # Send notifications via NATS to notification-service
-                await self._send_price_alert_notification(alert, price)
+                # TODO: Send notifications (SMS, email, push)
+                # This would integrate with notification-service
 
         return triggered_alerts
-
-    async def _send_price_alert_notification(
-        self,
-        alert: PriceAlert,
-        price: CropPrice,
-    ) -> bool:
-        """
-        Send notification for triggered price alert
-        إرسال إشعار لتنبيه السعر المفعّل
-
-        Publishes a notification event to NATS which is consumed by
-        notification-service to send SMS, email, and push notifications.
-
-        Args:
-            alert: The triggered price alert
-            price: The price that triggered the alert
-
-        Returns:
-            True if notification was published successfully
-        """
-        try:
-            # Lazy import to avoid circular dependencies
-            from shared.libs.events.nats_publisher import (
-                get_publisher,
-                AnalysisEvent,
-            )
-        except ImportError:
-            logger.warning(
-                "NATS publisher not available. Skipping notification for alert %s",
-                alert.id,
-            )
-            return False
-
-        # Determine notification channels based on alert settings
-        channels = []
-        if alert.notify_push:
-            channels.append("push")
-        if alert.notify_sms:
-            channels.append("sms")
-        if alert.notify_email:
-            channels.append("email")
-        channels.append("in_app")  # Always include in-app
-
-        # Determine priority based on alert type
-        priority = "medium"
-        if alert.alert_type in (AlertType.PRICE_SPIKE, AlertType.PRICE_DROP):
-            priority = "high"
-
-        # Build notification messages
-        alert_type_messages = {
-            AlertType.PRICE_ABOVE: (
-                f"Price Alert: {price.crop_name} above {alert.threshold_value} {alert.currency.value}",
-                f"تنبيه سعر: {price.crop_name_ar} تجاوز {alert.threshold_value} {alert.currency.value}",
-            ),
-            AlertType.PRICE_BELOW: (
-                f"Price Alert: {price.crop_name} below {alert.threshold_value} {alert.currency.value}",
-                f"تنبيه سعر: {price.crop_name_ar} أقل من {alert.threshold_value} {alert.currency.value}",
-            ),
-            AlertType.PRICE_CHANGE_PCT: (
-                f"Price Alert: {price.crop_name} changed by {alert.percentage_threshold}%",
-                f"تنبيه سعر: تغير سعر {price.crop_name_ar} بنسبة {alert.percentage_threshold}%",
-            ),
-            AlertType.PRICE_DROP: (
-                f"Price Drop Alert: {price.crop_name} price has dropped",
-                f"تنبيه انخفاض: انخفض سعر {price.crop_name_ar}",
-            ),
-            AlertType.PRICE_SPIKE: (
-                f"Price Spike Alert: {price.crop_name} price has spiked",
-                f"تنبيه ارتفاع: ارتفع سعر {price.crop_name_ar} بشكل مفاجئ",
-            ),
-            AlertType.BEST_SELLING_TIME: (
-                f"Best Selling Time: Good time to sell {price.crop_name}",
-                f"أفضل وقت للبيع: وقت مناسب لبيع {price.crop_name_ar}",
-            ),
-            AlertType.MARKET_OPPORTUNITY: (
-                f"Market Opportunity: {price.crop_name} in {price.market_name}",
-                f"فرصة سوقية: {price.crop_name_ar} في {price.market_name_ar}",
-            ),
-        }
-
-        title, title_ar = alert_type_messages.get(
-            alert.alert_type,
-            (
-                f"Price Alert: {price.crop_name}",
-                f"تنبيه سعر: {price.crop_name_ar}",
-            ),
-        )
-
-        body = (
-            f"Current price: {price.price} {price.currency.value}/{price.unit.value} "
-            f"at {price.market_name}"
-        )
-        body_ar = (
-            f"السعر الحالي: {price.price} {price.currency.value}/{price.unit.value} "
-            f"في {price.market_name_ar}"
-        )
-
-        try:
-            publisher = await get_publisher()
-
-            if not publisher.is_connected:
-                logger.warning(
-                    "NATS not connected. Cannot send notification for alert %s",
-                    alert.id,
-                )
-                return False
-
-            # Create and publish the event
-            event = AnalysisEvent(
-                event_type="market_price.alert_triggered",
-                source_service="market-price-tracker",
-                tenant_id=alert.tenant_id,
-                farmer_id=alert.farmer_id or alert.user_id,
-                data={
-                    "type": "market_price",
-                    "title": title,
-                    "title_ar": title_ar,
-                    "body": body,
-                    "body_ar": body_ar,
-                    "alert_id": alert.id,
-                    "alert_type": alert.alert_type.value,
-                    "crop_id": price.crop_id,
-                    "crop_name": price.crop_name,
-                    "crop_name_ar": price.crop_name_ar,
-                    "market_id": price.market_id,
-                    "market_name": price.market_name,
-                    "market_name_ar": price.market_name_ar,
-                    "current_price": str(price.price),
-                    "threshold_value": str(alert.threshold_value),
-                    "currency": price.currency.value,
-                    "unit": price.unit.value,
-                    "trigger_count": alert.trigger_count,
-                },
-                notification_priority=priority,
-                notification_channels=channels,
-            )
-
-            success = await publisher.publish_analysis_event(event)
-
-            if success:
-                logger.info(
-                    "Price alert notification sent: alert_id=%s crop=%s market=%s",
-                    alert.id,
-                    price.crop_id,
-                    price.market_id,
-                )
-            else:
-                logger.warning(
-                    "Failed to publish price alert notification: alert_id=%s",
-                    alert.id,
-                )
-
-            return success
-
-        except Exception as e:
-            logger.error(
-                "Error sending price alert notification: %s (alert_id=%s)",
-                str(e),
-                alert.id,
-            )
-            return False
 
     # =========================================================================
     # Market and Region Queries

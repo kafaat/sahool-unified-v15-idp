@@ -1,185 +1,115 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // Alert Service - خدمة التنبيهات
 // Early Warning System for Agricultural Disasters
-// Database-backed with PostgreSQL persistence
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Injectable, Logger } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import {
-  DisasterAlertType,
-  DisasterSeverity,
-} from "@prisma/client";
-
-// Governorate translations
-const GOVERNORATE_AR: Record<string, string> = {
-  sanaa: "صنعاء",
-  aden: "عدن",
-  taiz: "تعز",
-  hodeidah: "الحديدة",
-  ibb: "إب",
-  dhamar: "ذمار",
-  hadramaut: "حضرموت",
-  hajjah: "حجة",
-  saadah: "صعدة",
-  amran: "عمران",
-  albayda: "البيضاء",
-  lahj: "لحج",
-  marib: "مأرب",
-  shabwah: "شبوة",
-  abyan: "أبين",
-  aldali: "الضالع",
-  almahrah: "المهرة",
-  almahwit: "المحويت",
-  raymah: "ريمة",
-  socotra: "سقطرى",
-};
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class AlertService {
-  private readonly logger = new Logger(AlertService.name);
-  private readonly DEFAULT_TENANT_ID = "default";
-
-  constructor(private readonly prisma: PrismaService) {}
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Initialize seed data if empty
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  async onModuleInit() {
-    // Check if database is connected before attempting to seed
-    const isHealthy = await this.prisma.isHealthy();
-    if (!isHealthy) {
-      this.logger.warn("Database not connected - skipping alert seed data initialization");
-      return;
-    }
-
-    try {
-      const count = await this.prisma.disasterAlert.count();
-      if (count === 0) {
-        await this.seedInitialAlerts();
-      }
-    } catch (error) {
-      this.logger.warn("Could not seed initial alert data:", error);
-    }
-  }
-
-  private async seedInitialAlerts() {
-    this.logger.log("Seeding initial alert data...");
-
-    const seedAlerts = [
-      {
-        alertType: DisasterAlertType.weather,
-        severity: DisasterSeverity.high,
-        title: "Heavy Rainfall Warning",
-        titleAr: "تحذير من أمطار غزيرة",
-        message: "Expected heavy rainfall in the next 48 hours",
-        messageAr: "متوقع أمطار غزيرة خلال الـ 48 ساعة القادمة",
-        description: "Expected heavy rainfall in the next 48 hours",
-        descriptionAr: "متوقع أمطار غزيرة خلال الـ 48 ساعة القادمة",
-        governorate: "hadramaut",
-        governorateAr: "حضرموت",
-        startTime: new Date(Date.now() + 6 * 3600000),
-        endTime: new Date(Date.now() + 54 * 3600000),
-        isActive: true,
-        recommendations: [
-          "Ensure proper drainage",
-          "Protect harvested crops",
-          "Postpone fertilizer application",
-        ],
-        recommendationsAr: [
-          "ضمان الصرف الصحيح",
-          "حماية المحاصيل المحصودة",
-          "تأجيل تطبيق الأسمدة",
-        ],
-        tenantId: this.DEFAULT_TENANT_ID,
-      },
-      {
-        alertType: DisasterAlertType.pest,
-        severity: DisasterSeverity.critical,
-        title: "Locust Swarm Alert",
-        titleAr: "تنبيه سرب جراد",
-        message: "Desert locust swarm detected 50km west, moving east",
-        messageAr: "رصد سرب جراد صحراوي على بعد 50 كم غرباً، يتحرك شرقاً",
-        description: "Desert locust swarm detected 50km west, moving east",
-        descriptionAr: "رصد سرب جراد صحراوي على بعد 50 كم غرباً، يتحرك شرقاً",
-        governorate: "hodeidah",
-        governorateAr: "الحديدة",
-        startTime: new Date(),
-        endTime: new Date(Date.now() + 72 * 3600000),
-        isActive: true,
-        recommendations: [
-          "Prepare insecticides",
-          "Coordinate with neighbors",
-          "Report sightings",
-        ],
-        recommendationsAr: [
-          "تحضير المبيدات",
-          "التنسيق مع الجيران",
-          "الإبلاغ عن المشاهدات",
-        ],
-        tenantId: this.DEFAULT_TENANT_ID,
-      },
-      {
-        alertType: DisasterAlertType.disease,
-        severity: DisasterSeverity.medium,
-        title: "Late Blight Risk - High",
-        titleAr: "خطر اللفحة المتأخرة - مرتفع",
-        message: "Weather conditions favor late blight development in tomatoes",
-        messageAr: "الظروف الجوية تفضل انتشار اللفحة المتأخرة في الطماطم",
-        description: "Weather conditions favor late blight development in tomatoes",
-        descriptionAr: "الظروف الجوية تفضل انتشار اللفحة المتأخرة في الطماطم",
-        governorate: "ibb",
-        governorateAr: "إب",
-        startTime: new Date(),
-        endTime: new Date(Date.now() + 168 * 3600000),
-        isActive: true,
-        recommendations: [
-          "Apply preventive fungicides",
-          "Monitor plants daily",
-          "Remove infected plants",
-        ],
-        recommendationsAr: [
-          "رش مبيدات فطرية وقائية",
-          "مراقبة النباتات يومياً",
-          "إزالة النباتات المصابة",
-        ],
-        tenantId: this.DEFAULT_TENANT_ID,
-      },
-      {
-        alertType: DisasterAlertType.frost,
-        severity: DisasterSeverity.high,
-        title: "Frost Warning",
-        titleAr: "تحذير من الصقيع",
-        message: "Temperatures expected to drop below 0 degrees C tonight",
-        messageAr: "متوقع انخفاض درجات الحرارة إلى ما دون الصفر الليلة",
-        description: "Temperatures expected to drop below 0 degrees C tonight",
-        descriptionAr: "متوقع انخفاض درجات الحرارة إلى ما دون الصفر الليلة",
-        governorate: "sanaa",
-        governorateAr: "صنعاء",
-        startTime: new Date(Date.now() + 12 * 3600000),
-        endTime: new Date(Date.now() + 24 * 3600000),
-        isActive: true,
-        recommendations: [
-          "Cover sensitive crops",
-          "Irrigate before sunset",
-          "Use anti-frost agents",
-        ],
-        recommendationsAr: [
-          "تغطية المحاصيل الحساسة",
-          "الري قبل غروب الشمس",
-          "استخدام مواد مضادة للصقيع",
-        ],
-        tenantId: this.DEFAULT_TENANT_ID,
-      },
-    ];
-
-    for (const alert of seedAlerts) {
-      await this.prisma.disasterAlert.create({ data: alert });
-    }
-
-    this.logger.log("Initial alert data seeded successfully");
-  }
+  private alerts = [
+    {
+      id: "alert-001",
+      type: "weather",
+      title: "Heavy Rainfall Warning",
+      titleAr: "تحذير من أمطار غزيرة",
+      description: "Expected heavy rainfall in the next 48 hours",
+      descriptionAr: "متوقع أمطار غزيرة خلال الـ 48 ساعة القادمة",
+      severity: "high",
+      governorate: "hadramaut",
+      governorateAr: "حضرموت",
+      startTime: new Date(Date.now() + 6 * 3600000).toISOString(),
+      endTime: new Date(Date.now() + 54 * 3600000).toISOString(),
+      isActive: true,
+      recommendations: [
+        "Ensure proper drainage",
+        "Protect harvested crops",
+        "Postpone fertilizer application",
+      ],
+      recommendationsAr: [
+        "ضمان الصرف الصحيح",
+        "حماية المحاصيل المحصودة",
+        "تأجيل تطبيق الأسمدة",
+      ],
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: "alert-002",
+      type: "pest",
+      title: "Locust Swarm Alert",
+      titleAr: "تنبيه سرب جراد",
+      description: "Desert locust swarm detected 50km west, moving east",
+      descriptionAr: "رصد سرب جراد صحراوي على بعد 50 كم غرباً، يتحرك شرقاً",
+      severity: "critical",
+      governorate: "hodeidah",
+      governorateAr: "الحديدة",
+      startTime: new Date().toISOString(),
+      endTime: new Date(Date.now() + 72 * 3600000).toISOString(),
+      isActive: true,
+      recommendations: [
+        "Prepare insecticides",
+        "Coordinate with neighbors",
+        "Report sightings",
+      ],
+      recommendationsAr: [
+        "تحضير المبيدات",
+        "التنسيق مع الجيران",
+        "الإبلاغ عن المشاهدات",
+      ],
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: "alert-003",
+      type: "disease",
+      title: "Late Blight Risk - High",
+      titleAr: "خطر اللفحة المتأخرة - مرتفع",
+      description:
+        "Weather conditions favor late blight development in tomatoes",
+      descriptionAr: "الظروف الجوية تفضل انتشار اللفحة المتأخرة في الطماطم",
+      severity: "medium",
+      governorate: "ibb",
+      governorateAr: "إب",
+      startTime: new Date().toISOString(),
+      endTime: new Date(Date.now() + 168 * 3600000).toISOString(),
+      isActive: true,
+      recommendations: [
+        "Apply preventive fungicides",
+        "Monitor plants daily",
+        "Remove infected plants",
+      ],
+      recommendationsAr: [
+        "رش مبيدات فطرية وقائية",
+        "مراقبة النباتات يومياً",
+        "إزالة النباتات المصابة",
+      ],
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: "alert-004",
+      type: "weather",
+      title: "Frost Warning",
+      titleAr: "تحذير من الصقيع",
+      description: "Temperatures expected to drop below 0°C tonight",
+      descriptionAr: "متوقع انخفاض درجات الحرارة إلى ما دون الصفر الليلة",
+      severity: "high",
+      governorate: "sanaa",
+      governorateAr: "صنعاء",
+      startTime: new Date(Date.now() + 12 * 3600000).toISOString(),
+      endTime: new Date(Date.now() + 24 * 3600000).toISOString(),
+      isActive: true,
+      recommendations: [
+        "Cover sensitive crops",
+        "Irrigate before sunset",
+        "Use anti-frost agents",
+      ],
+      recommendationsAr: [
+        "تغطية المحاصيل الحساسة",
+        "الري قبل غروب الشمس",
+        "استخدام مواد مضادة للصقيع",
+      ],
+      createdAt: new Date().toISOString(),
+    },
+  ];
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Get Active Alerts
@@ -190,55 +120,31 @@ export class AlertService {
     type?: string;
     severity?: string;
   }) {
-    const where: any = {
-      isActive: true,
-    };
+    let filtered = this.alerts.filter((a) => a.isActive);
 
     if (params.governorate) {
-      where.governorate = params.governorate;
+      filtered = filtered.filter((a) => a.governorate === params.governorate);
     }
     if (params.type) {
-      where.alertType = params.type as DisasterAlertType;
+      filtered = filtered.filter((a) => a.type === params.type);
     }
     if (params.severity) {
-      where.severity = params.severity as DisasterSeverity;
+      filtered = filtered.filter((a) => a.severity === params.severity);
     }
 
-    const alerts = await this.prisma.disasterAlert.findMany({
-      where,
-      orderBy: [
-        { severity: "desc" }, // Critical first
-        { createdAt: "desc" },
-      ],
-    });
-
-    // Sort by severity (critical first) - custom ordering since Prisma doesn't handle enum sorting well
-    const severityOrder: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
-    const sortedAlerts = [...alerts].sort(
-      (a, b) => severityOrder[a.severity] - severityOrder[b.severity],
+    // Sort by severity (critical first)
+    const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+    filtered.sort(
+      (a, b) =>
+        severityOrder[a.severity as keyof typeof severityOrder] -
+        severityOrder[b.severity as keyof typeof severityOrder],
     );
 
     return {
-      total: sortedAlerts.length,
-      criticalCount: sortedAlerts.filter((a) => a.severity === "critical").length,
-      highCount: sortedAlerts.filter((a) => a.severity === "high").length,
-      alerts: sortedAlerts.map((a) => ({
-        id: a.id,
-        type: a.alertType,
-        title: a.title,
-        titleAr: a.titleAr,
-        description: a.description || a.message,
-        descriptionAr: a.descriptionAr || a.messageAr,
-        severity: a.severity,
-        governorate: a.governorate,
-        governorateAr: a.governorateAr || GOVERNORATE_AR[a.governorate] || a.governorate,
-        startTime: a.startTime.toISOString(),
-        endTime: a.endTime?.toISOString(),
-        isActive: a.isActive,
-        recommendations: a.recommendations || [],
-        recommendationsAr: a.recommendationsAr || [],
-        createdAt: a.createdAt.toISOString(),
-      })),
+      total: filtered.length,
+      criticalCount: filtered.filter((a) => a.severity === "critical").length,
+      highCount: filtered.filter((a) => a.severity === "high").length,
+      alerts: filtered,
     };
   }
 
@@ -247,21 +153,17 @@ export class AlertService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   async getWeatherAlerts(governorate?: string) {
-    const where: any = {
-      alertType: DisasterAlertType.weather,
-      isActive: true,
-    };
+    let weatherAlerts = this.alerts.filter(
+      (a) => a.type === "weather" && a.isActive,
+    );
 
     if (governorate) {
-      where.governorate = governorate;
+      weatherAlerts = weatherAlerts.filter(
+        (a) => a.governorate === governorate,
+      );
     }
 
-    const weatherAlerts = await this.prisma.disasterAlert.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-    });
-
-    // Add hourly forecast summary (mock data - could be integrated with weather service)
+    // Add hourly forecast summary
     const hourlyForecast = Array.from({ length: 24 }, (_, i) => ({
       hour: i,
       temperature: Math.round(15 + Math.sin(i / 4) * 10),
@@ -271,23 +173,7 @@ export class AlertService {
     }));
 
     return {
-      alerts: weatherAlerts.map((a) => ({
-        id: a.id,
-        type: a.alertType,
-        title: a.title,
-        titleAr: a.titleAr,
-        description: a.description || a.message,
-        descriptionAr: a.descriptionAr || a.messageAr,
-        severity: a.severity,
-        governorate: a.governorate,
-        governorateAr: a.governorateAr || GOVERNORATE_AR[a.governorate] || a.governorate,
-        startTime: a.startTime.toISOString(),
-        endTime: a.endTime?.toISOString(),
-        isActive: a.isActive,
-        recommendations: a.recommendations || [],
-        recommendationsAr: a.recommendationsAr || [],
-        createdAt: a.createdAt.toISOString(),
-      })),
+      alerts: weatherAlerts,
       hourlyForecast,
       summary: {
         maxTemp: Math.max(...hourlyForecast.map((h) => h.temperature)),
@@ -311,23 +197,15 @@ export class AlertService {
     governorate?: string;
     cropType?: string;
   }) {
-    const where: any = {
-      alertType: {
-        in: [DisasterAlertType.pest, DisasterAlertType.disease],
-      },
-      isActive: true,
-    };
+    let alerts = this.alerts.filter(
+      (a) => (a.type === "pest" || a.type === "disease") && a.isActive,
+    );
 
     if (params.governorate) {
-      where.governorate = params.governorate;
+      alerts = alerts.filter((a) => a.governorate === params.governorate);
     }
 
-    const alerts = await this.prisma.disasterAlert.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-    });
-
-    // Generate 10-day pest/disease risk forecast (mock data)
+    // Generate 10-day pest/disease risk forecast
     const tenDayForecast = Array.from({ length: 10 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() + i);
@@ -350,23 +228,7 @@ export class AlertService {
     });
 
     return {
-      currentAlerts: alerts.map((a) => ({
-        id: a.id,
-        type: a.alertType,
-        title: a.title,
-        titleAr: a.titleAr,
-        description: a.description || a.message,
-        descriptionAr: a.descriptionAr || a.messageAr,
-        severity: a.severity,
-        governorate: a.governorate,
-        governorateAr: a.governorateAr || GOVERNORATE_AR[a.governorate] || a.governorate,
-        startTime: a.startTime.toISOString(),
-        endTime: a.endTime?.toISOString(),
-        isActive: a.isActive,
-        recommendations: a.recommendations || [],
-        recommendationsAr: a.recommendationsAr || [],
-        createdAt: a.createdAt.toISOString(),
-      })),
+      currentAlerts: alerts,
       tenDayForecast,
       highRiskDays: tenDayForecast.filter((d) => d.riskLevel === "high").length,
       summary: {
@@ -389,40 +251,16 @@ export class AlertService {
     governorate: string;
     types: string[];
   }) {
-    // Upsert subscription
-    const subscription = await this.prisma.alertSubscription.upsert({
-      where: {
-        idx_subscription_user_gov: {
-          userId: dto.userId,
-          governorate: dto.governorate,
-        },
-      },
-      update: {
-        types: dto.types,
-        channels: ["sms", "push", "email"],
-        isActive: true,
-      },
-      create: {
-        userId: dto.userId,
-        governorate: dto.governorate,
-        types: dto.types,
-        channels: ["sms", "push", "email"],
-        isActive: true,
-        tenantId: this.DEFAULT_TENANT_ID,
-      },
-    });
-
     return {
       success: true,
       message: "Subscribed successfully",
       messageAr: "تم الاشتراك بنجاح",
       subscription: {
-        id: subscription.id,
-        userId: subscription.userId,
-        governorate: subscription.governorate,
-        types: subscription.types,
-        channels: subscription.channels,
-        createdAt: subscription.createdAt.toISOString(),
+        userId: dto.userId,
+        governorate: dto.governorate,
+        types: dto.types,
+        channels: ["sms", "push", "email"],
+        createdAt: new Date().toISOString(),
       },
     };
   }
@@ -432,93 +270,10 @@ export class AlertService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   async markAsRead(id: string) {
-    // In a full implementation, this would update a user-alert read status table
-    // For now, we just return success
-    const alert = await this.prisma.disasterAlert.findUnique({
-      where: { id },
-    });
-
-    if (!alert) {
-      return {
-        success: false,
-        error: "Alert not found",
-        errorAr: "التنبيه غير موجود",
-      };
-    }
-
     return {
       success: true,
       alertId: id,
       readAt: new Date().toISOString(),
-    };
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Create Alert (for internal use or admin)
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  async createAlert(data: {
-    alertType: string;
-    severity: string;
-    title: string;
-    titleAr?: string;
-    message: string;
-    messageAr?: string;
-    governorate: string;
-    startTime: Date;
-    endTime?: Date;
-    recommendations?: string[];
-    recommendationsAr?: string[];
-    reportId?: string;
-  }) {
-    const alert = await this.prisma.disasterAlert.create({
-      data: {
-        alertType: data.alertType as DisasterAlertType,
-        severity: data.severity as DisasterSeverity,
-        title: data.title,
-        titleAr: data.titleAr,
-        message: data.message,
-        messageAr: data.messageAr,
-        governorate: data.governorate,
-        governorateAr: GOVERNORATE_AR[data.governorate] || data.governorate,
-        startTime: data.startTime,
-        endTime: data.endTime,
-        isActive: true,
-        recommendations: data.recommendations,
-        recommendationsAr: data.recommendationsAr,
-        reportId: data.reportId,
-        tenantId: this.DEFAULT_TENANT_ID,
-      },
-    });
-
-    return {
-      success: true,
-      message: "Alert created successfully",
-      messageAr: "تم إنشاء التنبيه بنجاح",
-      alert: {
-        id: alert.id,
-        title: alert.title,
-        titleAr: alert.titleAr,
-        createdAt: alert.createdAt.toISOString(),
-      },
-    };
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Deactivate Alert
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  async deactivateAlert(id: string) {
-    const alert = await this.prisma.disasterAlert.update({
-      where: { id },
-      data: { isActive: false },
-    });
-
-    return {
-      success: true,
-      message: "Alert deactivated",
-      messageAr: "تم إلغاء تنشيط التنبيه",
-      alertId: alert.id,
     };
   }
 }

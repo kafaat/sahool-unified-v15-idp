@@ -24,12 +24,12 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Install Python dependencies with retry logic for network resilience
 COPY apps/services/virtual-sensors/requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir \
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ \
     --timeout=300 \
     --retries=10 \
     -r requirements.txt || \
-    (sleep 5 && pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt)
+    (sleep 5 && pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt)
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production - Minimal runtime image

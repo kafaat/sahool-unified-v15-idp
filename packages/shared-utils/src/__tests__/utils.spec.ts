@@ -149,10 +149,8 @@ describe("Number Formatting", () => {
   describe("formatArea", () => {
     it("should format area in hectares (Arabic)", () => {
       const result = formatArea(50.5, "ar");
-      // Arabic locale converts numbers to Arabic numerals (٥٠٫٥)
+      expect(result).toContain("50");
       expect(result).toContain("هكتار");
-      // Verify it contains Arabic numerals (٠-٩) or the decimal separator
-      expect(result).toMatch(/[٠-٩٫,]+/);
     });
 
     it("should format area in hectares (English)", () => {

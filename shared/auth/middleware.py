@@ -3,6 +3,8 @@ JWT Authentication Middleware for FastAPI
 Middleware to extract and validate JWT tokens from requests
 """
 
+from __future__ import annotations
+
 import ipaddress
 import json
 import logging
@@ -450,13 +452,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 # Consume one token
                 tokens -= 1
                 await self._redis.set(
-                    burst_key, json.dumps({"tokens": tokens, "last_update": now}), ex=120
+                    burst_key, str({"tokens": tokens, "last_update": now}), ex=120
                 )
             else:
                 # Initialize burst tokens
                 await self._redis.set(
                     burst_key,
-                    json.dumps({"tokens": self.burst_limit - 1, "last_update": now}),
+                    str({"tokens": self.burst_limit - 1, "last_update": now}),
                     ex=120,
                 )
 

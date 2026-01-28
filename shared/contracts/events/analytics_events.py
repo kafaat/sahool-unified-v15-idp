@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Analytics Domain Events"""
 
 from dataclasses import dataclass

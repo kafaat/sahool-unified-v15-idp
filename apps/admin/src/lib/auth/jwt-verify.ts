@@ -12,9 +12,11 @@ import { User } from "@/lib/auth";
 export interface TokenPayload extends JWTPayload {
   sub: string; // user ID
   email: string;
-  role: "admin" | "supervisor" | "viewer";
+  role?: "admin" | "supervisor" | "viewer"; // Singular role (legacy/optional)
+  roles?: string[]; // Roles array (backend user-service format)
   name?: string;
   tenant_id?: string;
+  tid?: string; // Alternative tenant ID field
 }
 
 /**
@@ -93,13 +95,31 @@ export async function getUserRole(
   verified: boolean = true,
 ): Promise<"admin" | "supervisor" | "viewer" | null> {
   try {
+    let payload: TokenPayload | null;
+
     if (verified) {
-      const payload = await verifyToken(token);
-      return payload.role || null;
+      payload = await verifyToken(token);
     } else {
-      const payload = decodeTokenUnsafe(token);
-      return payload?.role || null;
+      payload = decodeTokenUnsafe(token);
     }
+
+    if (!payload) return null;
+
+    // Extract role from roles array or fallback to role field
+    if (payload.roles && Array.isArray(payload.roles) && payload.roles.length > 0) {
+      const extractedRole = payload.roles[0].toLowerCase();
+      if (extractedRole === "admin" || extractedRole === "administrator") {
+        return "admin";
+      } else if (extractedRole === "supervisor" || extractedRole === "manager") {
+        return "supervisor";
+      } else {
+        return "viewer";
+      }
+    } else if (payload.role) {
+      return payload.role;
+    }
+
+    return null;
   } catch {
     return null;
   }
@@ -114,12 +134,25 @@ export async function getUserFromToken(token: string): Promise<User | null> {
   try {
     const payload = await verifyToken(token);
 
+    // Extract role from roles array or fallback to role field
+    let userRole: "admin" | "supervisor" | "viewer" = "viewer";
+    if (payload.roles && Array.isArray(payload.roles) && payload.roles.length > 0) {
+      const extractedRole = payload.roles[0].toLowerCase();
+      if (extractedRole === "admin" || extractedRole === "administrator") {
+        userRole = "admin";
+      } else if (extractedRole === "supervisor" || extractedRole === "manager") {
+        userRole = "supervisor";
+      }
+    } else if (payload.role) {
+      userRole = payload.role;
+    }
+
     return {
       id: payload.sub,
       email: payload.email,
       name: payload.name || payload.email,
-      role: payload.role || "viewer",
-      tenant_id: payload.tenant_id,
+      role: userRole,
+      tenant_id: payload.tenant_id || payload.tid,
     };
   } catch {
     return null;

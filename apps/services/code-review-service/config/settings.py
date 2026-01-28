@@ -121,7 +121,7 @@ class Settings(BaseSettings):
     # ═══════════════════════════════════════════════════════════════════════════
 
     api_host: str = "0.0.0.0"
-    api_port: int = 8102
+    api_port: int = 8096
 
     # Rate limiting
     rate_limit_requests: int = 100

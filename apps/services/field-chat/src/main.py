@@ -8,7 +8,7 @@ import os
 import sys
 from contextlib import asynccontextmanager, suppress
 
-from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -28,7 +28,6 @@ except ImportError:
 
 
 from .api import router
-from .auth import get_current_user, validate_websocket_token
 
 # Configure logging
 logging.basicConfig(
@@ -170,8 +169,8 @@ async def readiness_check():
 
 
 @app.get("/")
-async def root(user: dict = Depends(get_current_user)):
-    """Root endpoint with service info (requires authentication)"""
+async def root():
+    """Root endpoint with service info"""
     return {
         "service": "SAHOOL Field Chat",
         "version": "15.3.3",
@@ -183,7 +182,6 @@ async def root(user: dict = Depends(get_current_user)):
             "search": "/chat/messages/search",
             "unread": "/chat/unread-counts",
         },
-        "authenticated_user": user.get("sub") or user.get("user_id"),
     }
 
 
@@ -218,30 +216,14 @@ manager = ConnectionManager()
 
 
 @app.websocket("/ws/chat/{thread_id}")
-async def websocket_endpoint(websocket: WebSocket, thread_id: str, token: str | None = None):
+async def websocket_endpoint(websocket: WebSocket, thread_id: str):
     """
     WebSocket endpoint for real-time chat updates.
 
     Connect to receive live messages for a specific thread.
     Messages are broadcast when sent via the REST API.
-
-    Authentication:
-        Pass JWT token as query parameter: wss://host/ws/chat/{thread_id}?token=<jwt>
     """
-    # Validate authentication token
-    if not token:
-        await websocket.close(code=4001, reason="Authentication required")
-        return
-
-    try:
-        user = validate_websocket_token(token)
-    except ValueError as e:
-        await websocket.close(code=4001, reason=str(e))
-        return
-
     await manager.connect(websocket, thread_id)
-    logger.info(f"WebSocket connected: thread={thread_id}, user={user.get('sub', 'unknown')}")
-
     try:
         while True:
             # Keep connection alive
@@ -250,4 +232,3 @@ async def websocket_endpoint(websocket: WebSocket, thread_id: str, token: str | 
             await websocket.send_json({"type": "pong", "data": data})
     except WebSocketDisconnect:
         manager.disconnect(websocket, thread_id)
-        logger.info(f"WebSocket disconnected: thread={thread_id}")

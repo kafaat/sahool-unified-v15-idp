@@ -34,7 +34,7 @@ import asyncio
 import contextlib
 import logging
 from collections.abc import Callable
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 from pydantic import BaseModel, Field
 
@@ -209,7 +209,7 @@ class DLQMonitor:
             byte_count = stream_info.state.bytes
 
             self._total_checks += 1
-            self._last_check_time = datetime.now(timezone.utc)
+            self._last_check_time = datetime.utcnow()
 
             logger.debug(f"DLQ check: {message_count} messages, {byte_count:,} bytes")
 
@@ -224,7 +224,7 @@ class DLQMonitor:
         """Trigger DLQ alert."""
         # Check cooldown
         if self._last_alert_time:
-            time_since_last = datetime.now(timezone.utc) - self._last_alert_time
+            time_since_last = datetime.utcnow() - self._last_alert_time
             if time_since_last < self._alert_cooldown:
                 logger.debug(f"Alert cooldown active (last: {time_since_last.seconds}s ago)")
                 return
@@ -237,13 +237,13 @@ class DLQMonitor:
         # Calculate oldest message age
         oldest_age_hours = None
         if stream_info.state.first_ts:
-            age = datetime.now(timezone.utc) - stream_info.state.first_ts
+            age = datetime.utcnow() - stream_info.state.first_ts
             oldest_age_hours = age.total_seconds() / 3600
 
         # Create alert
         alert = DLQAlert(
-            alert_id=f"dlq-{datetime.now(timezone.utc).timestamp()}",
-            timestamp=datetime.now(timezone.utc),
+            alert_id=f"dlq-{datetime.utcnow().timestamp()}",
+            timestamp=datetime.utcnow(),
             severity=severity,
             message=f"DLQ threshold exceeded: {message_count} messages (threshold: {self.config.alert_threshold})",
             message_count=message_count,
@@ -253,7 +253,7 @@ class DLQMonitor:
         )
 
         self._alerts_triggered += 1
-        self._last_alert_time = datetime.now(timezone.utc)
+        self._last_alert_time = datetime.utcnow()
 
         logger.warning(
             f"⚠️  DLQ ALERT: {alert.message} (severity: {severity}, oldest: {oldest_age_hours:.1f}h)"

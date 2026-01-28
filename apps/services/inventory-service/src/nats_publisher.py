@@ -1,27 +1,34 @@
 """
 NATS Publisher for Inventory Alerts
 Publishes alert notifications to NATS for the notification service to consume
-
-REFACTORED: Now uses shared EventPublisher for consistency across services
 """
 
+import json
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
-# Use the shared EventPublisher from shared/events/
-from shared.events.publisher import EventPublisher, PublisherConfig
-
 logger = logging.getLogger(__name__)
+
+# NATS client - lazy import for optional dependency
+_nats_available = False
+
+try:
+    import nats
+    from nats.aio.client import Client as NATSClient
+
+    _nats_available = True
+except ImportError:
+    logger.warning("NATS package not installed. NATS publishing disabled.")
+    NATSClient = None
 
 
 class NATSPublisher:
     """
     NATS Publisher for inventory alerts
 
-    Publishes alert events to NATS for consumption by the notification service.
-    This is an adapter that wraps the shared EventPublisher.
+    Publishes alert events to NATS for consumption by the notification service
     """
 
     def __init__(self, servers: list[str] | None = None):
@@ -36,44 +43,59 @@ class NATSPublisher:
             self.servers = [nats_url]
         else:
             self.servers = servers
-        self._publisher: EventPublisher | None = None
+        self._nc: NATSClient | None = None
         self._connected = False
 
     @property
     def is_connected(self) -> bool:
         """Check if connected to NATS"""
-        return self._connected and self._publisher is not None and self._publisher.is_connected
+        return self._connected and self._nc is not None
 
     async def connect(self) -> bool:
         """Connect to NATS server"""
+        if not _nats_available:
+            logger.warning("NATS not available. Publishing disabled.")
+            return False
+
         try:
-            config = PublisherConfig(
+            self._nc = await nats.connect(
                 servers=self.servers,
                 name="inventory-alert-publisher",
                 reconnect_time_wait=2,
                 max_reconnect_attempts=60,
+                error_cb=self._error_callback,
+                disconnected_cb=self._disconnected_callback,
+                reconnected_cb=self._reconnected_callback,
             )
-            self._publisher = EventPublisher(
-                config=config,
-                service_name="inventory-service",
-            )
-            success = await self._publisher.connect()
-            self._connected = success
-            if success:
-                logger.info(f"Connected to NATS: {self.servers}")
-            return success
+            self._connected = True
+            logger.info(f"Connected to NATS: {self.servers}")
+            return True
         except Exception as e:
             logger.error(f"Failed to connect to NATS: {e}")
             return False
 
     async def close(self):
         """Close NATS connection"""
-        if self._publisher:
-            await self._publisher.close()
+        if self._nc:
+            await self._nc.close()
             self._connected = False
             logger.info("NATS connection closed")
 
-    async def publish_alert(self, alert: dict[str, Any], recipients: list[str] | None = None) -> bool:
+    async def _error_callback(self, e):
+        """Handle NATS errors"""
+        logger.error(f"NATS error: {e}")
+
+    async def _disconnected_callback(self):
+        """Handle NATS disconnection"""
+        logger.warning("NATS disconnected")
+        self._connected = False
+
+    async def _reconnected_callback(self):
+        """Handle NATS reconnection"""
+        logger.info("NATS reconnected")
+        self._connected = True
+
+    async def publish_alert(self, alert: dict[str, Any], recipients: list[str] = None) -> bool:
         """
         Publish an alert notification to NATS
 
@@ -94,7 +116,7 @@ class NATSPublisher:
                 "event_type": "inventory_alert",
                 "event_id": alert["id"],
                 "source_service": "inventory-service",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.utcnow().isoformat(),
                 "alert": alert,
                 "recipients": recipients or ["farm_manager", "owner"],
                 "notification_priority": alert["priority"],
@@ -109,21 +131,20 @@ class NATSPublisher:
                 },
             }
 
-            # Publish to NATS using shared publisher
-            success = await self._publisher.publish_json(
-                "sahool.alerts.inventory", notification_data
+            # Publish to NATS
+            await self._nc.publish(
+                "sahool.alerts.inventory", json.dumps(notification_data).encode()
             )
 
-            if success:
-                logger.info(f"Published alert {alert['id']} to NATS")
-            return success
+            logger.info(f"Published alert {alert['id']} to NATS")
+            return True
 
         except Exception as e:
             logger.error(f"Failed to publish alert to NATS: {e}")
             return False
 
     async def publish_batch(
-        self, alerts: list[dict[str, Any]], recipients: list[str] | None = None
+        self, alerts: list[dict[str, Any]], recipients: list[str] = None
     ) -> dict[str, int]:
         """
         Publish multiple alerts in batch
@@ -160,7 +181,7 @@ class NATSPublisher:
         """
         if priority == "critical":
             return ["in_app", "push", "sms"]
-        elif priority in ("high", "medium"):
+        elif priority == "high" or priority == "medium":
             return ["in_app", "push"]
         else:  # low
             return ["in_app"]
@@ -170,7 +191,7 @@ class NATSPublisher:
 _publisher_instance: NATSPublisher | None = None
 
 
-async def get_publisher(servers: list[str] | None = None) -> NATSPublisher:
+async def get_publisher(servers: list[str] = None) -> NATSPublisher:
     """
     Get or create the singleton NATS publisher
 

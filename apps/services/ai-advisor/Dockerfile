@@ -27,8 +27,15 @@ COPY apps/services/ai-advisor/requirements.txt .
 
 # Upgrade pip and install build tools
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
+RUN pip install --no-cache-dir \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --upgrade pip
+
+RUN pip install --no-cache-dir \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --upgrade "setuptools>=68.0" wheel build
 
 # Configure pip for better network resilience
 RUN mkdir -p ~/.pip && \
@@ -40,7 +47,7 @@ RUN mkdir -p ~/.pip && \
     echo "prefer-binary = true" >> ~/.pip/pip.conf
 
 # Install Python dependencies | تثبيت تبعيات Python
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
 # Stage 2: Runtime
 # المرحلة 2: وقت التشغيل

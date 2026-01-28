@@ -20,9 +20,11 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Any, TYPE_CHECKING
 from enum import Enum
 
@@ -86,7 +88,7 @@ class SeasonalPlan:
     risks: list[dict[str, Any]] = field(default_factory=list)
     milestones: list[dict[str, Any]] = field(default_factory=list)
     status: str = "draft"  # draft, approved, active, completed
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=datetime.utcnow)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -182,7 +184,7 @@ class CollaborativePlan:
     agent_contributions: dict[str, dict[str, Any]]
     consensus_reached: bool
     final_plan: dict[str, Any]
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=datetime.utcnow)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -212,7 +214,7 @@ class ExecutionPlan:
     risk_level: str = "low"  # low, medium, high
     requires_approval: bool = True
     resources_needed: list[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=datetime.utcnow)
 
     def to_dict(self) -> dict[str, Any]:
         return {

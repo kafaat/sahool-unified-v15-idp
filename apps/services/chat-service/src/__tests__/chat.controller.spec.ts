@@ -134,10 +134,10 @@ describe("ChatController", () => {
       productId: "prod-123",
     };
 
-    it("should create a new conversation when user is a participant", async () => {
+    it("should create a new conversation", async () => {
       mockChatService.createConversation.mockResolvedValue(mockConversation);
 
-      const result = await controller.createConversation(createDto, mockUserId);
+      const result = await controller.createConversation(createDto);
 
       expect(result).toEqual(mockConversation);
       expect(mockChatService.createConversation).toHaveBeenCalledWith(
@@ -153,7 +153,7 @@ describe("ChatController", () => {
         orderId: "order-123",
       });
 
-      const result = await controller.createConversation(dtoWithOrder, mockUserId);
+      const result = await controller.createConversation(dtoWithOrder);
 
       expect(result.orderId).toBe("order-123");
       expect(mockChatService.createConversation).toHaveBeenCalledWith(
@@ -165,29 +165,9 @@ describe("ChatController", () => {
       const existingConv = { ...mockConversation, id: "existing-conv" };
       mockChatService.createConversation.mockResolvedValue(existingConv);
 
-      const result = await controller.createConversation(createDto, mockUserId);
+      const result = await controller.createConversation(createDto);
 
       expect(result).toEqual(existingConv);
-    });
-
-    it("should throw UnauthorizedException if user is not a participant", async () => {
-      const unauthorizedUserId = "user-999";
-
-      await expect(
-        controller.createConversation(createDto, unauthorizedUserId),
-      ).rejects.toThrow(UnauthorizedException);
-
-      // Service should not be called if authorization fails
-      expect(mockChatService.createConversation).not.toHaveBeenCalled();
-    });
-
-    it("should allow second participant to create conversation", async () => {
-      mockChatService.createConversation.mockResolvedValue(mockConversation);
-
-      const result = await controller.createConversation(createDto, mockUserId2);
-
-      expect(result).toEqual(mockConversation);
-      expect(mockChatService.createConversation).toHaveBeenCalledWith(createDto);
     });
 
     it("should handle service errors", async () => {
@@ -195,7 +175,7 @@ describe("ChatController", () => {
         new Error("Database error"),
       );
 
-      await expect(controller.createConversation(createDto, mockUserId)).rejects.toThrow();
+      await expect(controller.createConversation(createDto)).rejects.toThrow();
     });
   });
 
@@ -624,12 +604,12 @@ describe("ChatController", () => {
     });
 
     it("should handle validation errors", async () => {
-      const invalidDto = { participantIds: [mockUserId] } as CreateConversationDto;
+      const invalidDto = {} as CreateConversationDto;
       mockChatService.createConversation.mockRejectedValue(
         new Error("Validation failed"),
       );
 
-      await expect(controller.createConversation(invalidDto, mockUserId)).rejects.toThrow();
+      await expect(controller.createConversation(invalidDto)).rejects.toThrow();
     });
   });
 });

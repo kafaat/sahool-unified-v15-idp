@@ -58,7 +58,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("docs", app, document);
 
-  const port = process.env.PORT || 8152;
+  const port = process.env.PORT || 8098;
   await app.listen(port);
 
   console.log(`🌾 Yield Prediction Service running on port ${port}`);

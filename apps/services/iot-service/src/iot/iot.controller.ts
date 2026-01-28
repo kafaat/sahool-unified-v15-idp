@@ -153,11 +153,11 @@ export class IotController {
   @ApiParam({ name: "valveId", description: "Valve identifier" })
   @ApiBody({ type: ToggleValveDto })
   @ApiResponse({ status: 200, description: "Valve command sent" })
-  async toggleValve(
+  toggleValve(
     @Param("fieldId") fieldId: string,
     @Param("valveId") valveId: string,
     @Body() dto: ToggleValveDto,
-  ): Promise<{ success: boolean; message: string }> {
+  ): { success: boolean; message: string } {
     return this.iotService.toggleValve(fieldId, valveId, dto.status);
   }
 

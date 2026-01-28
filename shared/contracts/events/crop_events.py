@@ -5,6 +5,8 @@ Crop Domain Events
 Events related to crop lifecycle and health.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Any

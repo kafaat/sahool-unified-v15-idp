@@ -85,6 +85,8 @@ Updated: January 2026
 License: Proprietary - KAFAAT
 """
 
+from __future__ import annotations
+
 __version__ = "1.0.0"
 __author__ = "SAHOOL Platform Team"
 

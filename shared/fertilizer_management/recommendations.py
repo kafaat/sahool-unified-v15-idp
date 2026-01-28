@@ -4,8 +4,10 @@ Fertilizer Recommendations - توصيات التسميد
 Nutrient recommendations based on soil tests, crop requirements, and growth stage.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from decimal import Decimal
 
 from .models import (
@@ -217,7 +219,7 @@ class FertilizerRecommendation:
     id: str
     tenant_id: str
     field_id: str
-    recommendation_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    recommendation_date: datetime = field(default_factory=datetime.utcnow)
 
     # Crop info
     crop: str = ""

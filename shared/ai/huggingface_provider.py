@@ -15,6 +15,8 @@ Author: SAHOOL Platform Team
 Created: January 2026
 """
 
+from __future__ import annotations
+
 import asyncio
 import hashlib
 import logging

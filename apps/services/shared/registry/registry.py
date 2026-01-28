@@ -8,7 +8,7 @@ Core registry service for agent registration, discovery, and health monitoring.
 
 import asyncio
 import contextlib
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any
 
@@ -35,7 +35,7 @@ class HealthCheckResult(BaseModel):
 
     agent_id: str
     status: HealthStatus
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
     response_time_ms: float | None = None
     error: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -130,7 +130,7 @@ class AgentRegistry:
         """
         try:
             # Validate agent card
-            agent_card.metadata.updated_at = datetime.now(timezone.utc)
+            agent_card.metadata.updated_at = datetime.utcnow()
 
             # Store agent
             self._agents[agent_card.agent_id] = agent_card
@@ -338,7 +338,7 @@ class AgentRegistry:
                 error="No health endpoint configured",
             )
 
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.utcnow()
 
         try:
             async with httpx.AsyncClient(
@@ -346,7 +346,7 @@ class AgentRegistry:
             ) as client:
                 response = await client.get(str(agent_card.health_endpoint))
 
-                response_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+                response_time = (datetime.utcnow() - start_time).total_seconds() * 1000
 
                 if response.status_code == 200:
                     status = HealthStatus.HEALTHY

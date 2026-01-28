@@ -8,12 +8,12 @@ RUN groupadd --system --gid 1000 sahool && \
 
 
 # Upgrade pip to latest version
-RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip
 
 # Install dependencies with retry logic for network resilience
 COPY apps/services/vegetation-analysis-service/requirements.txt .
 RUN for i in 1 2 3; do \
-        pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt && break || \
+        pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt && break || \
         (echo "Attempt $i failed, retrying..." && sleep $((i * 5))); \
     done
 

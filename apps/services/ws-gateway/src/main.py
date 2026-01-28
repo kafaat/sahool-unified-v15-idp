@@ -8,7 +8,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import datetime
 from uuid import uuid4
 
 from fastapi import (
@@ -31,27 +31,9 @@ from .handlers import WebSocketMessageHandler
 from .nats_bridge import NATSBridge
 from .rooms import RoomManager
 
-# Rate limiting configuration (BUG-007 fix)
-# Maximum messages per connection per time window
-RATE_LIMIT_MAX_MESSAGES = int(os.getenv("WS_RATE_LIMIT_MESSAGES", "60"))
-RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("WS_RATE_LIMIT_WINDOW", "60"))
-MAX_MESSAGE_SIZE_BYTES = int(os.getenv("WS_MAX_MESSAGE_SIZE", "65536"))  # 64KB default
-
-# Rate limiting storage: connection_id -> (message_count, window_start_time)
-rate_limit_state: dict[str, tuple[int, float]] = {}
-
-# Configure logging with environment variable support (BUG-006 fix)
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
-LOG_LEVEL_MAP = {
-    "DEBUG": logging.DEBUG,
-    "INFO": logging.INFO,
-    "WARNING": logging.WARNING,
-    "ERROR": logging.ERROR,
-    "CRITICAL": logging.CRITICAL,
-}
+# Configure logging
 logging.basicConfig(
-    level=LOG_LEVEL_MAP.get(LOG_LEVEL, logging.INFO),
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("ws-gateway")
 
@@ -104,43 +86,6 @@ async def validate_jwt_token(token: str) -> dict:
 room_manager = RoomManager()
 message_handler = WebSocketMessageHandler(room_manager)
 nats_bridge = NATSBridge(room_manager)
-
-
-def check_rate_limit(connection_id: str) -> tuple[bool, str | None]:
-    """
-    Check if connection has exceeded rate limit (BUG-007 fix)
-    Returns (is_allowed, error_message)
-
-    التحقق من تجاوز حد المعدل
-    """
-    import time
-
-    current_time = time.time()
-
-    if connection_id in rate_limit_state:
-        msg_count, window_start = rate_limit_state[connection_id]
-
-        # Check if we're still in the same time window
-        if current_time - window_start < RATE_LIMIT_WINDOW_SECONDS:
-            if msg_count >= RATE_LIMIT_MAX_MESSAGES:
-                remaining_time = RATE_LIMIT_WINDOW_SECONDS - (current_time - window_start)
-                return False, f"Rate limit exceeded. Try again in {int(remaining_time)} seconds"
-            # Increment counter
-            rate_limit_state[connection_id] = (msg_count + 1, window_start)
-        else:
-            # Reset window
-            rate_limit_state[connection_id] = (1, current_time)
-    else:
-        # First message for this connection
-        rate_limit_state[connection_id] = (1, current_time)
-
-    return True, None
-
-
-def cleanup_rate_limit_state(connection_id: str):
-    """Clean up rate limit state for disconnected connection"""
-    if connection_id in rate_limit_state:
-        del rate_limit_state[connection_id]
 
 
 @asynccontextmanager
@@ -197,7 +142,7 @@ def health():
         "version": "16.0.0",
         "nats_connected": nats_connected,
         "connections": room_manager.get_stats() if room_manager else {},
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
     # Allow degraded mode - NATS is optional for basic WebSocket functionality
@@ -206,27 +151,9 @@ def health():
 
 @app.get("/readyz")
 def readiness():
-    """
-    Readiness check endpoint with subscription health (BUG-008 fix)
-    نقطة نهاية فحص الجاهزية مع صحة الاشتراكات
-    """
-    nats_connected = nats_bridge.is_connected
-    subscription_health = nats_bridge.get_subscription_health()
-
-    # Determine overall readiness
-    # Service is ready if NATS is connected and subscriptions are healthy
-    # Or if NATS is not configured (standalone mode)
-    nats_url = os.getenv("NATS_URL")
-    is_ready = True
-
-    if nats_url:
-        # NATS is configured, check health
-        is_ready = nats_connected and subscription_health.get("healthy", False)
-
     return {
-        "status": "ok" if is_ready else "not_ready",
-        "nats": nats_connected,
-        "subscription_health": subscription_health,
+        "status": "ok",
+        "nats": nats_bridge.is_connected,
         "connections": room_manager.get_stats(),
     }
 
@@ -237,53 +164,8 @@ def get_stats():
     return {
         "connections": room_manager.get_stats(),
         "nats": nats_bridge.get_stats(),
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.utcnow().isoformat(),
     }
-
-
-@app.get("/metrics")
-def metrics():
-    """
-    Prometheus metrics endpoint (BUG-005 fix)
-    نقطة نهاية مقاييس Prometheus
-    """
-    stats = room_manager.get_stats()
-    nats_stats = nats_bridge.get_stats()
-
-    # Build Prometheus-compatible metrics output
-    metrics_lines = [
-        "# HELP ws_gateway_connections_total Total number of active WebSocket connections",
-        "# TYPE ws_gateway_connections_total gauge",
-        f"ws_gateway_connections_total {stats.get('total_connections', 0)}",
-        "",
-        "# HELP ws_gateway_rooms_total Total number of active rooms",
-        "# TYPE ws_gateway_rooms_total gauge",
-        f"ws_gateway_rooms_total {stats.get('total_rooms', 0)}",
-        "",
-        "# HELP ws_gateway_nats_connected NATS connection status (1=connected, 0=disconnected)",
-        "# TYPE ws_gateway_nats_connected gauge",
-        f"ws_gateway_nats_connected {1 if nats_stats.get('connected', False) else 0}",
-        "",
-        "# HELP ws_gateway_nats_subscriptions_total Number of active NATS subscriptions",
-        "# TYPE ws_gateway_nats_subscriptions_total gauge",
-        f"ws_gateway_nats_subscriptions_total {nats_stats.get('subscriptions', 0)}",
-        "",
-    ]
-
-    # Add connections by room type
-    connections_by_type = stats.get("connections_by_room_type", {})
-    if connections_by_type:
-        metrics_lines.extend([
-            "# HELP ws_gateway_connections_by_room_type Connections by room type",
-            "# TYPE ws_gateway_connections_by_room_type gauge",
-        ])
-        for room_type, count in connections_by_type.items():
-            metrics_lines.append(f'ws_gateway_connections_by_room_type{{room_type="{room_type}"}} {count}')
-        metrics_lines.append("")
-
-    from fastapi.responses import PlainTextResponse
-
-    return PlainTextResponse(content="\n".join(metrics_lines), media_type="text/plain")
 
 
 # ============== WebSocket Endpoint ==============
@@ -376,54 +258,14 @@ async def websocket_endpoint(
             "connection_id": connection_id,
             "user_id": user_id,
             "tenant_id": tenant_id,
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.utcnow().isoformat(),
             "message_ar": "تم الاتصال بنجاح",
         }
     )
 
     try:
         while True:
-            # Receive raw message first for size validation (BUG-007 fix)
-            raw_message = await websocket.receive_text()
-
-            # Validate message size
-            if len(raw_message) > MAX_MESSAGE_SIZE_BYTES:
-                logger.warning(
-                    f"Message too large from {connection_id}: "
-                    f"{len(raw_message)} bytes (max: {MAX_MESSAGE_SIZE_BYTES})"
-                )
-                await websocket.send_json({
-                    "type": "error",
-                    "error": f"Message too large (max {MAX_MESSAGE_SIZE_BYTES} bytes)",
-                    "message_ar": "الرسالة كبيرة جداً",
-                })
-                continue
-
-            # Check rate limit
-            is_allowed, rate_limit_error = check_rate_limit(connection_id)
-            if not is_allowed:
-                logger.warning(f"Rate limit exceeded for {connection_id}")
-                await websocket.send_json({
-                    "type": "error",
-                    "error": rate_limit_error,
-                    "message_ar": "تم تجاوز حد المعدل. حاول مرة أخرى لاحقاً",
-                })
-                continue
-
-            # Parse JSON message
-            import json
-
-            try:
-                data = json.loads(raw_message)
-            except json.JSONDecodeError as e:
-                logger.warning(f"Invalid JSON from {connection_id}: {e}")
-                await websocket.send_json({
-                    "type": "error",
-                    "error": "Invalid JSON format",
-                    "message_ar": "تنسيق JSON غير صالح",
-                })
-                continue
-
+            data = await websocket.receive_json()
             # Handle message using the message handler
             response = await message_handler.handle_message(connection_id, data)
             if response:
@@ -431,11 +273,9 @@ async def websocket_endpoint(
     except WebSocketDisconnect:
         logger.info(f"Client {connection_id} disconnected")
         await room_manager.remove_connection(connection_id)
-        cleanup_rate_limit_state(connection_id)
     except Exception as e:
         logger.error(f"WebSocket error for {connection_id}: {e}", exc_info=True)
         await room_manager.remove_connection(connection_id)
-        cleanup_rate_limit_state(connection_id)
 
 
 # ============== REST API for sending messages ==============
@@ -493,7 +333,7 @@ async def broadcast_message(
     ws_message = {
         "type": "broadcast",
         "message": req.message,
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.utcnow().isoformat(),
         "sender": payload.get("sub"),
     }
 
@@ -518,7 +358,7 @@ async def broadcast_message(
     return {
         "status": "sent",
         "recipients": sent_count,
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
 

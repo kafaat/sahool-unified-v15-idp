@@ -9,6 +9,8 @@ for Fruit & Vegetables certification.
 لشهادة الفواكه والخضروات.
 """
 
+from __future__ import annotations
+
 from .constants import ComplianceLevel
 from .models import ChecklistCategory, ChecklistItem
 

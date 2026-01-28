@@ -135,15 +135,8 @@ class Task(Base, TimestampMixin, TenantMixin):
     )
 
     # Metadata - البيانات الوصفية
-    # IMPORTANT: Database column is 'task_metadata' but API exposes as 'metadata'
-    # This rename was necessary to avoid SQLAlchemy reserved word conflict.
-    #
-    # Mapping:
-    #   - Database column: task_metadata (used in model creation, queries)
-    #   - API field: metadata (used in request/response schemas)
-    #   - Conversion: db_task_to_dict() handles the mapping automatically
-    #
-    # When creating Task objects, always use task_metadata=, not metadata=
+    # Note: Renamed from 'metadata' to 'task_metadata' to avoid SQLAlchemy reserved word conflict
+    # All code using task.metadata should be updated to task.task_metadata
     task_metadata: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,

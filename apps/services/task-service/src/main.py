@@ -17,7 +17,7 @@ import os
 import re
 import sys
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from enum import Enum
 
 import httpx
@@ -937,7 +937,7 @@ async def fetch_astronomical_best_days(activity: str, days: int = 30) -> dict:
     cache_key = (activity, days)
     if cache_key in astronomical_cache:
         cached_data, cached_time = astronomical_cache[cache_key]
-        if datetime.now(timezone.utc) - cached_time < timedelta(minutes=CACHE_TTL_MINUTES):
+        if datetime.utcnow() - cached_time < timedelta(minutes=CACHE_TTL_MINUTES):
             logger.info(f"Using cached astronomical data for {activity}")
             return cached_data
 
@@ -951,7 +951,7 @@ async def fetch_astronomical_best_days(activity: str, days: int = 30) -> dict:
             if response.status_code == 200:
                 data = response.json()
                 # Cache the result
-                astronomical_cache[cache_key] = (data, datetime.now(timezone.utc))
+                astronomical_cache[cache_key] = (data, datetime.utcnow())
                 logger.info(f"Fetched and cached astronomical data for {activity}")
                 return data
             else:
@@ -1250,7 +1250,7 @@ async def get_today_tasks(
     db: Session = Depends(get_db),
 ):
     """Get tasks due today"""
-    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
     today_end = today_start + timedelta(days=1)
 
     repo = TaskRepository(db)
@@ -1274,7 +1274,7 @@ async def get_upcoming_tasks(
     db: Session = Depends(get_db),
 ):
     """Get upcoming tasks for the next N days"""
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
     future = now + timedelta(days=days)
     tomorrow = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
 
@@ -1332,7 +1332,7 @@ async def create_task(
     db: Session = Depends(get_db),
 ):
     """Create a new task"""
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
     task_id = f"task_{uuid.uuid4().hex[:12]}"
     created_by = user.id if user else "user_system"
 
@@ -1468,7 +1468,7 @@ async def complete_task(
     """Mark a task as completed with evidence"""
     repo = TaskRepository(db)
     performed_by = user.id if user else "system"
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
 
     # Complete the task
     task = repo.complete_task(
@@ -1617,7 +1617,7 @@ async def add_evidence(
         task_id=task_id,
         type=evidence_type,
         content=content,
-        captured_at=datetime.now(timezone.utc),
+        captured_at=datetime.utcnow(),
         location={"lat": lat, "lon": lon} if lat and lon else None,
     )
 
@@ -1690,7 +1690,7 @@ async def create_task_from_ndvi_alert(
             task_type = TaskType.SCOUTING  # General investigation
 
         # Calculate due date based on priority
-        now = datetime.now(timezone.utc)
+        now = datetime.utcnow()
         due_date_map = {
             TaskPriority.URGENT: timedelta(hours=4),  # 4 hours for urgent
             TaskPriority.HIGH: timedelta(hours=12),  # 12 hours for high
@@ -1873,7 +1873,7 @@ async def get_task_suggestions_for_field(
             "field_id": field_id,
             "suggestions": [s.model_dump() for s in suggestions],
             "total": len(suggestions),
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.utcnow().isoformat(),
             "health_summary": {
                 "score": health_data.health_score,
                 "status": health_data.health_status.value,
@@ -1916,7 +1916,7 @@ async def get_field_health(
             "field_id": field_id,
             "tenant_id": tenant_id,
             "health": health_data.to_dict(),
-            "fetched_at": datetime.now(timezone.utc).isoformat(),
+            "fetched_at": datetime.utcnow().isoformat(),
         }
 
     except Exception as e:
@@ -1945,7 +1945,7 @@ async def auto_create_tasks(
 
     created_tasks = []
     failed_tasks = []
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
 
     try:
         # Determine assignee
@@ -2050,7 +2050,7 @@ async def auto_create_tasks(
 
         return {
             "field_id": data.field_id,
-            "created": created_tasks,  # Already dicts from db_task_to_dict()
+            "created": [t.model_dump() for t in created_tasks],
             "failed": failed_tasks,
             "summary": {
                 "total_requested": len(data.suggestions),
@@ -2152,7 +2152,7 @@ async def create_task_with_astronomical_recommendation(
     """
     logger.info(f"Creating astronomical task for activity: {data.activity}, field: {data.field_id}")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
     task_id = f"task_{uuid.uuid4().hex[:12]}"
 
     # Get activity translations

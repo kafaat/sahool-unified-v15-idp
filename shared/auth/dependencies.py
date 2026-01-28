@@ -3,6 +3,8 @@ FastAPI Authentication Dependencies for SAHOOL Platform
 Dependency injection for authentication and authorization
 """
 
+from __future__ import annotations
+
 import logging
 import time
 from collections import defaultdict

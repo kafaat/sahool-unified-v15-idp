@@ -13,6 +13,8 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
@@ -20,7 +22,7 @@ from typing import Any
 import hashlib
 import os
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 
 
 class EmbeddingProvider(str, Enum):
@@ -93,7 +95,7 @@ class EmbeddingResult:
     cached: bool = False
 
     # Timestamps
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=datetime.utcnow)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""

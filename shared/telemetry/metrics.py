@@ -28,6 +28,8 @@ Author: SAHOOL Platform Team
 Date: 2025-12-26
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import time

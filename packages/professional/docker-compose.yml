@@ -530,20 +530,20 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-pro-yield-prediction-service
     environment:
-      - PORT=8152
+      - PORT=8098
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8152:8152"
+      - "8098:8098"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8152/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8098/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3

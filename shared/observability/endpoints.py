@@ -5,6 +5,8 @@ Observability Endpoints for Services
 Provides Prometheus metrics and OpenTelemetry integration endpoints.
 """
 
+from __future__ import annotations
+
 from typing import Optional
 
 from fastapi import APIRouter, Response
@@ -112,7 +114,7 @@ def create_observability_router(
         import os
         import platform
         import sys
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         return {
             "service": {
@@ -122,7 +124,7 @@ def create_observability_router(
                 "log_level": os.getenv("LOG_LEVEL", "INFO"),
             },
             "runtime": {
-                "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+                "timestamp": datetime.utcnow().isoformat() + "Z",
                 "pid": os.getpid(),
             },
             "config": {

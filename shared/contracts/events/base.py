@@ -5,9 +5,11 @@ Base Event Classes
 Provides the foundational event structure for all SAHOOL domain events.
 """
 
+from __future__ import annotations
+
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any, ClassVar
 from uuid import UUID, uuid4
@@ -78,7 +80,7 @@ class BaseEvent:
 
     # Auto-generated fields
     event_id: UUID = field(default_factory=uuid4)
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=datetime.utcnow)
 
     # Optional metadata
     metadata: EventMetadata | None = None

@@ -5,6 +5,12 @@
 
 version: 2
 
+registries:
+  npm-registry:
+    type: npm-registry
+    url: https://registry.npmjs.org
+    replaces-base: true
+
 updates:
   # ─────────────────────────────────────────────────────────────────────────────
   # Python Dependencies (Root)
@@ -71,6 +77,8 @@ updates:
       time: "06:00"
       timezone: "Asia/Aden"
     open-pull-requests-limit: 5
+    registries:
+      - npm-registry
     labels:
       - "dependencies"
       - "javascript"

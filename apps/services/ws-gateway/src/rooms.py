@@ -6,7 +6,7 @@ Manages room subscriptions for targeted message delivery
 """
 
 import logging
-from datetime import UTC, datetime
+from datetime import datetime
 
 from fastapi import WebSocket
 
@@ -36,7 +36,7 @@ class Room:
         self.room_id = room_id
         self.room_type = room_type
         self.connections: set[str] = set()
-        self.created_at = datetime.now(UTC)
+        self.created_at = datetime.utcnow()
         self.metadata: dict = {}
 
     def add_connection(self, connection_id: str):
@@ -79,12 +79,6 @@ class RoomManager:
         # Map of connection_id -> metadata (user_id, tenant_id, etc.)
         self.connection_metadata: dict[str, dict] = {}
 
-        # Map of connection_id -> consecutive send failure count
-        self.connection_failures: dict[str, int] = {}
-
-        # Maximum consecutive failures before connection cleanup
-        self.max_consecutive_failures = 3
-
     async def add_connection(
         self,
         connection_id: str,
@@ -102,7 +96,7 @@ class RoomManager:
         self.connection_metadata[connection_id] = {
             "user_id": user_id,
             "tenant_id": tenant_id,
-            "connected_at": datetime.now(UTC).isoformat(),
+            "connected_at": datetime.utcnow().isoformat(),
             **(metadata or {}),
         }
 
@@ -235,8 +229,6 @@ class RoomManager:
         """
         Send message to a specific connection
         إرسال رسالة لاتصال محدد
-
-        Tracks consecutive failures and schedules cleanup for dead connections.
         """
         if connection_id not in self.connections:
             return False
@@ -244,43 +236,11 @@ class RoomManager:
         try:
             websocket = self.connections[connection_id]
             await websocket.send_json(message)
-            # Reset failure count on successful send
-            if connection_id in self.connection_failures:
-                del self.connection_failures[connection_id]
             return True
         except Exception as e:
             logger.error(f"Failed to send to {connection_id}: {e}")
-            # Track consecutive failures
-            self.connection_failures[connection_id] = (
-                self.connection_failures.get(connection_id, 0) + 1
-            )
-
-            # Remove connection after max consecutive failures
-            if self.connection_failures[connection_id] >= self.max_consecutive_failures:
-                logger.warning(
-                    f"Connection {connection_id} exceeded max failures "
-                    f"({self.max_consecutive_failures}), scheduling cleanup"
-                )
-                # Schedule async cleanup to avoid blocking
-                import asyncio
-
-                asyncio.create_task(self._cleanup_dead_connection(connection_id))
-
+            # Schedule cleanup
             return False
-
-    async def _cleanup_dead_connection(self, connection_id: str):
-        """
-        Clean up a dead connection
-        تنظيف اتصال ميت
-        """
-        try:
-            await self.remove_connection(connection_id)
-            # Clean up failure tracking
-            if connection_id in self.connection_failures:
-                del self.connection_failures[connection_id]
-            logger.info(f"Dead connection {connection_id} cleaned up")
-        except Exception as e:
-            logger.error(f"Error cleaning up connection {connection_id}: {e}")
 
     def _is_persistent_room(self, room_id: str) -> bool:
         """Check if room should persist even when empty"""

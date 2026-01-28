@@ -13,8 +13,10 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Any
 import uuid
@@ -616,7 +618,7 @@ class QualityPricingEngine:
                 (calc.final_price_per_unit - base_price) / base_price * 100
             )
 
-        calc.calculated_at = datetime.now(timezone.utc)
+        calc.calculated_at = datetime.utcnow()
 
         return calc
 

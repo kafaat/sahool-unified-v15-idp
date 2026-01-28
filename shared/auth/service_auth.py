@@ -3,6 +3,8 @@ Service-to-Service Authentication for SAHOOL Platform
 JWT-based authentication for microservices communication
 """
 
+from __future__ import annotations
+
 import logging
 import uuid
 from collections import defaultdict

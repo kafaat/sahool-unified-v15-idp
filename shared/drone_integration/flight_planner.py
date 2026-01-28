@@ -13,9 +13,11 @@ Supports DJI and MAVLink (ArduPilot/PX4) protocols.
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 
 from .models import (
     Coordinate,
@@ -1107,7 +1109,7 @@ def assess_flight_weather(
         WeatherCheck with assessment | تقييم الطقس
     """
     check = WeatherCheck(
-        check_time=datetime.now(timezone.utc),
+        check_time=datetime.utcnow(),
         condition=WeatherCondition.OPTIMAL,
         temperature_c=temperature_c,
         humidity_percent=humidity_percent,

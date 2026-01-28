@@ -189,23 +189,23 @@ describe("IotService", () => {
       await service.onModuleInit();
     });
 
-    it("should open valve successfully", async () => {
-      const result = await service.toggleValve("field-123", "valve-1", "ON");
+    it("should open valve successfully", () => {
+      const result = service.toggleValve("field-123", "valve-1", "ON");
 
       expect(result.success).toBe(true);
       expect(result.message).toContain("فتح");
       expect(mockMqttClient.publish).toHaveBeenCalled();
     });
 
-    it("should close valve successfully", async () => {
-      const result = await service.toggleValve("field-123", "valve-1", "OFF");
+    it("should close valve successfully", () => {
+      const result = service.toggleValve("field-123", "valve-1", "OFF");
 
       expect(result.success).toBe(true);
       expect(result.message).toContain("إغلاق");
     });
 
-    it("should publish to correct MQTT topic with valve ID", async () => {
-      await service.toggleValve("field-123", "valve-2", "ON");
+    it("should publish to correct MQTT topic with valve ID", () => {
+      service.toggleValve("field-123", "valve-2", "ON");
 
       expect(mockMqttClient.publish).toHaveBeenCalledWith(
         expect.stringContaining("valve/valve-2"),

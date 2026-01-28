@@ -191,9 +191,9 @@ class BaseRepository(Generic[ModelType]):
         if not hasattr(self.model, "is_deleted"):
             raise ValueError(f"Model {self.model.__name__} doesn't support soft delete")
 
-        from datetime import datetime, timezone
+        from datetime import datetime
 
-        return self.update(id, {"is_deleted": True, "deleted_at": datetime.now(timezone.utc)}) is not None
+        return self.update(id, {"is_deleted": True, "deleted_at": datetime.utcnow()}) is not None
 
     def get_active(
         self,

@@ -1,6 +1,6 @@
 # Irrigation Smart Service - Requirements
 # خدمة الري الذكي
-# Updated: January 2026
+# Updated: December 2025
 
 # Web Framework
 fastapi==0.126.0
@@ -11,13 +11,7 @@ pydantic==2.9.2
 # HTTP Client
 httpx==0.28.1
 
-# Messaging
-nats-py>=2.9.0
-
 # Utilities
 python-dotenv==1.0.1
 
 structlog>=24.1.0
-
-# JWT Authentication
-PyJWT>=2.8.0

@@ -134,35 +134,6 @@ def admin_principal(test_user_id, test_tenant_id, admin_roles) -> dict:
     }
 
 
-@pytest.fixture
-def test_token(test_user_id, test_tenant_id, test_roles, test_scopes) -> str:
-    """
-    Generate a valid JWT token for E2E and integration tests.
-    توليد رمز JWT صالح لاختبارات E2E والتكامل.
-    """
-    try:
-        import jwt
-
-        secret_key = os.environ.get("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
-        algorithm = os.environ.get("JWT_ALGORITHM", "HS256")
-
-        payload = {
-            "sub": test_user_id,
-            "tid": test_tenant_id,
-            "roles": test_roles,
-            "scopes": test_scopes,
-            "iss": os.environ.get("JWT_ISSUER", "sahool-idp"),
-            "aud": os.environ.get("JWT_AUDIENCE", "sahool-platform"),
-            "exp": datetime.now(UTC) + timedelta(hours=1),
-            "iat": datetime.now(UTC),
-        }
-
-        return jwt.encode(payload, secret_key, algorithm=algorithm)
-    except ImportError:
-        # PyJWT not installed, return a placeholder token
-        return "test-token-placeholder"
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # API Test Fixtures
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -167,17 +167,3 @@ skip_empty = true
 
 [tool.coverage.html]
 directory = "coverage_html"
-
-[tool.mypy]
-python_version = "3.11"
-strict = false
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = false
-no_implicit_optional = true
-warn_redundant_casts = true
-exclude = [
-    "archive/",
-    "tests/",
-    ".venv/",
-]

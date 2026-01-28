@@ -104,7 +104,7 @@ class HealthResponse(BaseModel):
     available_models: list[str] = []
     cache_enabled: bool = False
     github_enabled: bool = False
-    version: str = "16.0.0"
+    version: str = "2.0.0"
 
 
 class CacheStatsResponse(BaseModel):
@@ -732,7 +732,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SAHOOL Code Review Service",
     description="خدمة مراجعة الكود لمنصة سهول - Enhanced with multi-model, caching, and agricultural rules",
-    version="16.0.0",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
@@ -772,16 +772,6 @@ def readiness():
         "checks": {
             "service": "ready",
         },
-    }
-
-
-@app.get("/healthz")
-def liveness():
-    """Kubernetes liveness probe - is the service alive?"""
-    return {
-        "status": "ok",
-        "service": "code-review-service",
-        "version": "16.0.0",
     }
 
 

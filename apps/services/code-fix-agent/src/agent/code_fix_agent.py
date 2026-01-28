@@ -11,84 +11,14 @@ Implements a Learning + Utility-Based agent for:
 - PR review
 
 Follows best practices from Claude Agent SDK and A2A Protocol.
-
-Integration with AutoFixEngine:
-- Uses shared/ai/auto_fix for unified diagnostics
-- Leverages Ruff, ESLint, Mypy, Bandit, Semgrep, Pylint
-- Supports caching and circuit breaker for resilience
 """
 
-import asyncio
-import os
-import tempfile
-import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
-from pathlib import Path
 from typing import Any
 
 import structlog
-
-# Import AutoFixEngine integration
-try:
-    from shared.ai.auto_fix import (
-        AutoFixEngine,
-        CodeDiagnostics,
-        DiagnosticCategory as AutoFixCategory,
-        DiagnosticSeverity as AutoFixSeverity,
-        FixStrategy as AutoFixStrategy,
-        ToolType,
-    )
-
-    AUTO_FIX_AVAILABLE = True
-except ImportError:
-    AUTO_FIX_AVAILABLE = False
-
-# Import Ollama client for LLM-based fixes
-try:
-    from shared.ai.ollama_client import OllamaClient, OllamaConfig
-
-    OLLAMA_AVAILABLE = True
-except ImportError:
-    OLLAMA_AVAILABLE = False
-
-# Import Observability integration
-try:
-    from shared.ai.observability import (
-        AIAgentObservability,
-        AgentContext as ObsContext,
-        AgentErrorType,
-        create_observability,
-    )
-
-    OBSERVABILITY_AVAILABLE = True
-except ImportError:
-    OBSERVABILITY_AVAILABLE = False
-
-# Import Tool Registry for dynamic tool management
-try:
-    from shared.ai.tool_registry import (
-        ToolRegistry,
-        Language,
-        get_tool_registry,
-    )
-
-    TOOL_REGISTRY_AVAILABLE = True
-except ImportError:
-    TOOL_REGISTRY_AVAILABLE = False
-
-# Import Quality Orchestrator for automated quality management
-try:
-    from shared.ai.quality_orchestrator import (
-        QualityOrchestrator,
-        QualityReport,
-        run_quality_check,
-    )
-
-    QUALITY_ORCHESTRATOR_AVAILABLE = True
-except ImportError:
-    QUALITY_ORCHESTRATOR_AVAILABLE = False
 
 logger = structlog.get_logger(__name__)
 
@@ -332,26 +262,19 @@ class CodeFixAgent:
         IssueSeverity.INFO: 0.3,
     }
 
-    def __init__(
-        self,
-        agent_id: str = "code_fix_agent_001",
-        ollama_url: str | None = None,
-        ollama_model: str = "codellama:7b",
-    ):
+    def __init__(self, agent_id: str = "code_fix_agent_001"):
         """
         تهيئة وكيل إصلاح الكود
 
         Args:
             agent_id: معرف الوكيل الفريد
-            ollama_url: URL لخدمة Ollama (اختياري)
-            ollama_model: نموذج Ollama للاستخدام
         """
         self.agent_id = agent_id
         self.name = "Code Fix Agent"
         self.name_ar = "وكيل إصلاح الكود"
         self.agent_type = AgentType.LEARNING
         self.layer = AgentLayer.SPECIALIST
-        self.version = "2.0.0"  # Updated version with AutoFixEngine integration
+        self.version = "1.0.0"
 
         self.status = AgentStatus.IDLE
         self.state = AgentState()
@@ -371,69 +294,6 @@ class CodeFixAgent:
         # Analyzers (lazy loaded)
         self._analyzers: dict[SupportedLanguage, Any] = {}
 
-        # Initialize AutoFixEngine integration
-        self._diagnostics: CodeDiagnostics | None = None
-        self._auto_fix_engine: AutoFixEngine | None = None
-        if AUTO_FIX_AVAILABLE:
-            try:
-                self._diagnostics = CodeDiagnostics(
-                    enable_cache=True,
-                    cache_ttl=300,
-                    enable_circuit_breaker=True,
-                )
-                logger.info("AutoFixEngine diagnostics initialized")
-            except Exception as e:
-                logger.warning(f"Failed to initialize AutoFixEngine diagnostics: {e}")
-
-        # Initialize Tool Registry for dynamic tool management
-        self._tool_registry: ToolRegistry | None = None
-        if TOOL_REGISTRY_AVAILABLE:
-            try:
-                self._tool_registry = get_tool_registry()
-                logger.info("Tool Registry initialized")
-            except Exception as e:
-                logger.warning(f"Failed to initialize Tool Registry: {e}")
-
-        # Initialize Quality Orchestrator for automated quality management
-        self._quality_orchestrator: QualityOrchestrator | None = None
-        if QUALITY_ORCHESTRATOR_AVAILABLE:
-            try:
-                self._quality_orchestrator = QualityOrchestrator(
-                    agent_id=self.agent_id,
-                )
-                logger.info("Quality Orchestrator initialized")
-            except Exception as e:
-                logger.warning(f"Failed to initialize Quality Orchestrator: {e}")
-
-        # Initialize Ollama client for LLM-based fixes
-        self._ollama_client: Any | None = None
-        if OLLAMA_AVAILABLE and ollama_url:
-            try:
-                self._ollama_client = OllamaClient(
-                    OllamaConfig(
-                        base_url=ollama_url,
-                        model=ollama_model,
-                        temperature=0.1,  # Low temperature for consistent fixes
-                    )
-                )
-                logger.info("Ollama client initialized", model=ollama_model)
-            except Exception as e:
-                logger.warning(f"Failed to initialize Ollama client: {e}")
-
-        # Initialize Observability (Sentry, OpenTelemetry, Prometheus)
-        self._observability: AIAgentObservability | None = None
-        if OBSERVABILITY_AVAILABLE:
-            try:
-                self._observability = create_observability(
-                    agent_id=self.agent_id,
-                    agent_type="code_fix",
-                    enable_tracing=True,
-                    enable_metrics=True,
-                )
-                logger.info("Observability initialized (Sentry, OpenTelemetry, Prometheus)")
-            except Exception as e:
-                logger.warning(f"Failed to initialize observability: {e}")
-
         # Goals
         self.state.goals = [
             "fix_bugs_accurately",
@@ -448,9 +308,6 @@ class CodeFixAgent:
             agent_id=self.agent_id,
             name=self.name,
             layer=self.layer.value,
-            version=self.version,
-            auto_fix_available=AUTO_FIX_AVAILABLE,
-            ollama_available=OLLAMA_AVAILABLE and self._ollama_client is not None,
         )
 
     # ========================================================================
@@ -680,44 +537,11 @@ class CodeFixAgent:
         """
         دورة الوكيل الكاملة: إدراك → تفكير → فعل
         Full agent cycle: Perceive → Think → Act
-
-        With full observability:
-        - Distributed tracing via OpenTelemetry
-        - Error tracking via Sentry
-        - Metrics collection via Prometheus
         """
         start_time = datetime.now()
         self.total_requests += 1
 
-        # Extract context for observability
-        file_path = percept.data.get("file_path") if isinstance(percept.data, dict) else None
-        language = percept.data.get("language", "python") if isinstance(percept.data, dict) else "python"
-
-        # Use observability context if available
-        if self._observability and OBSERVABILITY_AVAILABLE:
-            async with self._observability.operation(
-                name=f"run_{percept.percept_type}",
-                file_path=file_path,
-                language=language,
-                tenant_id=self.context.tenant_id if self.context else "default",
-                user_id=self.context.user_id if self.context else None,
-                percept_type=percept.percept_type,
-            ):
-                return await self._run_internal(percept, start_time)
-        else:
-            return await self._run_internal(percept, start_time)
-
-    async def _run_internal(self, percept: AgentPercept, start_time: datetime) -> dict[str, Any]:
-        """Internal run implementation with observability support."""
         try:
-            # Add breadcrumb for debugging
-            if self._observability:
-                self._observability.add_breadcrumb(
-                    category="agent.perceive",
-                    message=f"Processing {percept.percept_type} from {percept.source}",
-                    data={"reliability": percept.reliability},
-                )
-
             # 1. Perceive
             await self.perceive(percept)
 
@@ -730,14 +554,6 @@ class CodeFixAgent:
                     "message": "No action determined",
                     "agent_id": self.agent_id,
                 }
-
-            # Add breadcrumb for action
-            if self._observability:
-                self._observability.add_breadcrumb(
-                    category="agent.act",
-                    message=f"Executing {action.action_type}",
-                    data={"confidence": action.confidence, "priority": action.priority},
-                )
 
             # 3. Act
             result = await self.act(action)
@@ -935,14 +751,6 @@ class CodeFixAgent:
         """
         تحليل الكود باستخدام المحللات المناسبة
         Analyze code using appropriate analyzers
-
-        Uses AutoFixEngine for comprehensive analysis including:
-        - Ruff (Python linting)
-        - Bandit (Security)
-        - Mypy (Type checking)
-        - Semgrep (Pattern-based security)
-        - Pylint (Advanced Python analysis)
-        - ESLint (JavaScript/TypeScript)
         """
         issues: list[CodeIssue] = []
 
@@ -952,142 +760,23 @@ class CodeFixAgent:
             logger.warning("unsupported_language", language=language)
             return issues
 
-        # Use AutoFixEngine if available
-        if self._diagnostics and language in ["python", "typescript", "javascript"]:
-            auto_fix_issues = await self._analyze_with_auto_fix(code, lang)
-            issues.extend(auto_fix_issues)
-        else:
-            # Fallback to basic analysis
-            # Basic syntax check
-            syntax_issues = await self._check_syntax(code, lang)
-            issues.extend(syntax_issues)
+        # Basic syntax check
+        syntax_issues = await self._check_syntax(code, lang)
+        issues.extend(syntax_issues)
 
-            # Import/module issues
-            import_issues = await self._check_imports(code, lang)
-            issues.extend(import_issues)
+        # Import/module issues
+        import_issues = await self._check_imports(code, lang)
+        issues.extend(import_issues)
 
-            # Security issues
-            security_issues = await self._check_security(code, lang)
-            issues.extend(security_issues)
+        # Security issues
+        security_issues = await self._check_security(code, lang)
+        issues.extend(security_issues)
 
-            # Style issues
-            style_issues = await self._check_style(code, lang)
-            issues.extend(style_issues)
+        # Style issues
+        style_issues = await self._check_style(code, lang)
+        issues.extend(style_issues)
 
         return issues
-
-    async def _analyze_with_auto_fix(self, code: str, language: SupportedLanguage) -> list[CodeIssue]:
-        """
-        تحليل الكود باستخدام AutoFixEngine
-        Analyze code using AutoFixEngine diagnostics
-        """
-        issues: list[CodeIssue] = []
-
-        if not self._diagnostics:
-            return issues
-
-        # Write code to temporary file for analysis
-        suffix_map = {
-            SupportedLanguage.PYTHON: ".py",
-            SupportedLanguage.TYPESCRIPT: ".ts",
-            SupportedLanguage.JAVASCRIPT: ".js",
-            SupportedLanguage.DART: ".dart",
-        }
-        suffix = suffix_map.get(language, ".py")
-
-        try:
-            with tempfile.NamedTemporaryFile(
-                mode="w",
-                suffix=suffix,
-                delete=False,
-                encoding="utf-8",
-            ) as f:
-                f.write(code)
-                temp_path = f.name
-
-            try:
-                # Run diagnostics
-                report = await self._diagnostics.diagnose_file(
-                    temp_path,
-                    include_security_patterns=True,
-                )
-
-                # Convert AutoFix diagnostics to CodeIssue
-                for diag in report.diagnostics:
-                    issue = self._convert_diagnostic_to_issue(diag, code)
-                    issues.append(issue)
-
-                logger.debug(
-                    "auto_fix_analysis_complete",
-                    issues_found=len(issues),
-                    tools_used=[t.value for t in report.tools_used],
-                    duration_ms=report.scan_duration_ms,
-                )
-
-            finally:
-                # Clean up temp file
-                os.unlink(temp_path)
-
-        except Exception as e:
-            logger.error("auto_fix_analysis_error", error=str(e))
-            # Fallback to basic analysis on error
-            syntax_issues = await self._check_syntax(code, language)
-            issues.extend(syntax_issues)
-
-        return issues
-
-    def _convert_diagnostic_to_issue(self, diag: Any, code: str) -> CodeIssue:
-        """Convert AutoFix Diagnostic to CodeIssue."""
-        # Map severity
-        severity_map = {
-            "error": IssueSeverity.HIGH,
-            "warning": IssueSeverity.MEDIUM,
-            "info": IssueSeverity.LOW,
-            "hint": IssueSeverity.INFO,
-        }
-        severity = severity_map.get(diag.severity.value, IssueSeverity.MEDIUM)
-
-        # Map category to issue type
-        category_map = {
-            "syntax": IssueType.SYNTAX_ERROR,
-            "type": IssueType.TYPE_ERROR,
-            "security": IssueType.SECURITY,
-            "performance": IssueType.PERFORMANCE,
-            "style": IssueType.STYLE,
-            "best_practice": IssueType.STYLE,
-            "deprecation": IssueType.DEPRECATION,
-            "logic": IssueType.LOGIC_ERROR,
-            "import": IssueType.IMPORT_ERROR,
-            "naming": IssueType.STYLE,
-        }
-        issue_type = category_map.get(diag.category.value, IssueType.BUG)
-
-        # Extract code snippet
-        lines = code.split("\n")
-        line_idx = diag.location.line_start - 1
-        snippet = lines[line_idx] if 0 <= line_idx < len(lines) else ""
-
-        return CodeIssue(
-            issue_id=diag.id,
-            issue_type=issue_type,
-            severity=severity,
-            file_path=diag.location.file_path,
-            line_start=diag.location.line_start,
-            line_end=diag.location.line_end or diag.location.line_start,
-            column_start=diag.location.column_start or 0,
-            column_end=diag.location.column_end or 0,
-            description=diag.message,
-            description_ar=diag.message_ar,
-            suggestion=diag.suggestion or "",
-            suggestion_ar=diag.suggestion_ar or "",
-            code_snippet=snippet,
-            confidence=0.9 if diag.severity.value == "error" else 0.7,
-            rule_id=diag.rule_id,
-            metadata={
-                "tool": diag.tool.value if diag.tool else None,
-                "documentation_url": diag.documentation_url,
-            },
-        )
 
     async def _check_syntax(self, code: str, language: SupportedLanguage) -> list[CodeIssue]:
         """التحقق من الأخطاء النحوية"""
@@ -1334,213 +1023,10 @@ class CodeFixAgent:
             return IssueType.BUG
 
     async def _generate_fix_for_issue(self, issue: CodeIssue, code: str) -> CodeFix | None:
-        """
-        توليد إصلاح لمشكلة محددة باستخدام LLM
-        Generate fix for a specific issue using LLM
-
-        Uses Ollama with code-specific models for intelligent fix generation.
-        Falls back to rule-based fixes for common patterns.
-        """
-        fix_id = str(uuid.uuid4())
-
-        # Try rule-based fix first (faster, more reliable)
-        rule_fix = self._try_rule_based_fix(issue, code)
-        if rule_fix:
-            return rule_fix
-
-        # Try LLM-based fix if Ollama is available
-        if self._ollama_client:
-            try:
-                llm_fix = await self._generate_llm_fix(issue, code, fix_id)
-                if llm_fix:
-                    return llm_fix
-            except Exception as e:
-                logger.warning(f"LLM fix generation failed: {e}")
-
+        """توليد إصلاح لمشكلة محددة"""
+        # This would integrate with LLM for complex fixes
+        # For now, return None for unhandled cases
         return None
-
-    def _try_rule_based_fix(self, issue: CodeIssue, code: str) -> CodeFix | None:
-        """
-        محاولة إصلاح قائم على القواعد
-        Try rule-based fix for common patterns
-        """
-        lines = code.split("\n")
-        line_idx = issue.line_start - 1
-
-        if line_idx < 0 or line_idx >= len(lines):
-            return None
-
-        original_line = lines[line_idx]
-        fixed_line = None
-        explanation = ""
-        explanation_ar = ""
-
-        # Fix patterns based on issue type and rule_id
-        if issue.rule_id:
-            rule = issue.rule_id.upper()
-
-            # Ruff fixes
-            if rule.startswith("F401"):  # Unused import
-                # Remove the line (unused import)
-                fixed_line = ""
-                explanation = f"Remove unused import: {original_line.strip()}"
-                explanation_ar = f"إزالة الاستيراد غير المستخدم: {original_line.strip()}"
-
-            elif rule.startswith("E501"):  # Line too long
-                # This is complex, skip for rule-based
-                return None
-
-            elif rule.startswith("W291") or rule.startswith("W293"):  # Trailing whitespace
-                fixed_line = original_line.rstrip()
-                explanation = "Remove trailing whitespace"
-                explanation_ar = "إزالة المسافة البيضاء في النهاية"
-
-            elif rule.startswith("I001"):  # Import sorting
-                # Complex, skip for rule-based
-                return None
-
-            elif rule.startswith("UP017"):  # datetime.utcnow() deprecated
-                fixed_line = original_line.replace(
-                    "datetime.utcnow()", "datetime.now(timezone.utc)"
-                )
-                if fixed_line != original_line:
-                    explanation = "Replace deprecated datetime.utcnow() with datetime.now(timezone.utc)"
-                    explanation_ar = "استبدال datetime.utcnow() المهمل بـ datetime.now(timezone.utc)"
-
-            elif rule.startswith("B006"):  # Mutable default argument
-                # Complex, skip for rule-based
-                return None
-
-        # Security fixes
-        if issue.issue_type == IssueType.SECURITY:
-            if "eval(" in original_line:
-                fixed_line = original_line.replace("eval(", "ast.literal_eval(")
-                explanation = "Replace unsafe eval() with ast.literal_eval()"
-                explanation_ar = "استبدال eval() غير الآمن بـ ast.literal_eval()"
-
-            elif "yaml.load(" in original_line and "Loader=" not in original_line:
-                fixed_line = original_line.replace("yaml.load(", "yaml.safe_load(")
-                explanation = "Replace unsafe yaml.load() with yaml.safe_load()"
-                explanation_ar = "استبدال yaml.load() غير الآمن بـ yaml.safe_load()"
-
-        if fixed_line is None or fixed_line == original_line:
-            return None
-
-        # Apply fix to code
-        fixed_lines = lines.copy()
-        if fixed_line == "":
-            del fixed_lines[line_idx]
-        else:
-            fixed_lines[line_idx] = fixed_line
-        fixed_code = "\n".join(fixed_lines)
-
-        return CodeFix(
-            fix_id=str(uuid.uuid4()),
-            issue=issue,
-            original_code=code,
-            fixed_code=fixed_code,
-            changes=[
-                {
-                    "line": issue.line_start,
-                    "original": original_line,
-                    "fixed": fixed_line,
-                    "type": "replace" if fixed_line else "delete",
-                }
-            ],
-            strategy=FixStrategy.MINIMAL,
-            confidence=0.95,
-            explanation=explanation,
-            explanation_ar=explanation_ar,
-            tests_needed=[],
-            breaking_changes=False,
-            requires_review=False,
-        )
-
-    async def _generate_llm_fix(self, issue: CodeIssue, code: str, fix_id: str) -> CodeFix | None:
-        """
-        توليد إصلاح باستخدام LLM
-        Generate fix using LLM (Ollama)
-        """
-        if not self._ollama_client:
-            return None
-
-        # Build prompt for LLM
-        prompt = f"""You are a code fix expert. Fix the following issue in the code.
-
-ISSUE:
-- Type: {issue.issue_type.value}
-- Severity: {issue.severity.value}
-- Description: {issue.description}
-- Line {issue.line_start}: {issue.code_snippet}
-{f'- Suggestion: {issue.suggestion}' if issue.suggestion else ''}
-
-CODE:
-```
-{code}
-```
-
-Provide ONLY the fixed code without any explanation. Return the complete fixed code.
-"""
-
-        try:
-            # Check if Ollama is available
-            if hasattr(self._ollama_client, "is_available"):
-                if not await self._ollama_client.is_available():
-                    logger.warning("Ollama not available for fix generation")
-                    return None
-
-            # Generate fix
-            response = await self._ollama_client.generate(prompt=prompt)
-
-            if not response or not hasattr(response, "text"):
-                return None
-
-            fixed_code = response.text.strip()
-
-            # Clean up response (remove markdown code blocks if present)
-            if fixed_code.startswith("```"):
-                lines = fixed_code.split("\n")
-                # Remove first and last lines (code block markers)
-                lines = [l for l in lines if not l.startswith("```")]
-                fixed_code = "\n".join(lines)
-
-            # Validate the fix is different from original
-            if fixed_code == code or not fixed_code:
-                return None
-
-            # Calculate confidence based on similarity
-            original_lines = set(code.split("\n"))
-            fixed_lines = set(fixed_code.split("\n"))
-            changed_lines = len(original_lines.symmetric_difference(fixed_lines))
-            total_lines = max(len(original_lines), len(fixed_lines))
-
-            # Lower confidence for larger changes
-            confidence = max(0.5, 1.0 - (changed_lines / total_lines) * 0.5)
-
-            return CodeFix(
-                fix_id=fix_id,
-                issue=issue,
-                original_code=code,
-                fixed_code=fixed_code,
-                changes=[
-                    {
-                        "type": "llm_generated",
-                        "model": self._ollama_client.config.model if hasattr(self._ollama_client, "config") else "unknown",
-                        "changed_lines": changed_lines,
-                    }
-                ],
-                strategy=FixStrategy.COMPREHENSIVE,
-                confidence=confidence,
-                explanation=f"LLM-generated fix for {issue.issue_type.value} issue",
-                explanation_ar=f"إصلاح مولد بالذكاء الاصطناعي لمشكلة {issue.issue_type.value}",
-                tests_needed=["Run existing tests to verify fix"],
-                breaking_changes=changed_lines > 10,  # More changes = higher risk
-                requires_review=True,  # LLM fixes should always be reviewed
-            )
-
-        except Exception as e:
-            logger.error("llm_fix_generation_error", error=str(e))
-            return None
 
     # ========================================================================
     # REVIEW & IMPLEMENTATION
@@ -1576,13 +1062,12 @@ Provide ONLY the fixed code without any explanation. Return the complete fixed c
         Learn from feedback
 
         Updates success patterns based on fix results.
-        Persists learning state to file for cross-session learning.
         """
         self.status = AgentStatus.LEARNING
 
         # Store feedback
         self.feedback_history.append(
-            {"feedback": feedback, "timestamp": datetime.now(timezone.utc).isoformat()}
+            {"feedback": feedback, "timestamp": datetime.now().isoformat()}
         )
 
         # Extract reward
@@ -1600,94 +1085,12 @@ Provide ONLY the fixed code without any explanation. Return the complete fixed c
             current_rate = self.success_patterns.get(pattern_key, 0.7)
             self.success_patterns[pattern_key] = 0.9 * current_rate + 0.1 * 0.0
 
-        # Persist learning state
-        await self._save_learning_state()
-
         self.status = AgentStatus.IDLE
 
         logger.info(
             "learning_complete",
             reward=reward,
             patterns_count=len(self.success_patterns),
-        )
-
-    async def _save_learning_state(self) -> None:
-        """
-        حفظ حالة التعلم للجلسات المستقبلية
-        Save learning state for future sessions
-        """
-        import json
-
-        state_dir = Path.home() / ".sahool" / "agents" / "code_fix"
-        state_dir.mkdir(parents=True, exist_ok=True)
-        state_file = state_dir / f"{self.agent_id}_state.json"
-
-        state = {
-            "agent_id": self.agent_id,
-            "version": self.version,
-            "success_patterns": self.success_patterns,
-            "reward_history": self.reward_history[-100:],  # Keep last 100 rewards
-            "total_requests": self.total_requests,
-            "successful_requests": self.successful_requests,
-            "last_updated": datetime.now(timezone.utc).isoformat(),
-        }
-
-        try:
-            with open(state_file, "w", encoding="utf-8") as f:
-                json.dump(state, f, indent=2, ensure_ascii=False)
-            logger.debug("learning_state_saved", file=str(state_file))
-        except Exception as e:
-            logger.warning(f"Failed to save learning state: {e}")
-
-    async def _load_learning_state(self) -> None:
-        """
-        تحميل حالة التعلم من الجلسات السابقة
-        Load learning state from previous sessions
-        """
-        import json
-
-        state_dir = Path.home() / ".sahool" / "agents" / "code_fix"
-        state_file = state_dir / f"{self.agent_id}_state.json"
-
-        if not state_file.exists():
-            logger.debug("no_previous_learning_state")
-            return
-
-        try:
-            with open(state_file, encoding="utf-8") as f:
-                state = json.load(f)
-
-            # Only load if version matches
-            if state.get("version") == self.version:
-                self.success_patterns = state.get("success_patterns", {})
-                self.reward_history = state.get("reward_history", [])
-                self.total_requests = state.get("total_requests", 0)
-                self.successful_requests = state.get("successful_requests", 0)
-
-                logger.info(
-                    "learning_state_loaded",
-                    patterns_count=len(self.success_patterns),
-                    rewards_count=len(self.reward_history),
-                )
-            else:
-                logger.info(
-                    "learning_state_version_mismatch",
-                    stored_version=state.get("version"),
-                    current_version=self.version,
-                )
-        except Exception as e:
-            logger.warning(f"Failed to load learning state: {e}")
-
-    async def initialize(self) -> None:
-        """
-        تهيئة الوكيل وتحميل الحالة السابقة
-        Initialize agent and load previous state
-        """
-        await self._load_learning_state()
-        logger.info(
-            "agent_ready",
-            agent_id=self.agent_id,
-            patterns_loaded=len(self.success_patterns),
         )
 
     # ========================================================================
@@ -1730,237 +1133,6 @@ Provide ONLY the fixed code without any explanation. Return the complete fixed c
             "breaking_changes": fix.breaking_changes,
             "requires_review": fix.requires_review,
         }
-
-    # ========================================================================
-    # QUALITY ORCHESTRATION METHODS
-    # ========================================================================
-
-    async def run_quality_analysis(
-        self,
-        paths: list[str],
-        languages: list[str] | None = None,
-        fix: bool = True,
-        audit: bool = True,
-    ) -> dict[str, Any]:
-        """
-        تشغيل تحليل الجودة الشامل باستخدام Quality Orchestrator
-        Run comprehensive quality analysis using Quality Orchestrator
-
-        This method uses the dynamic tool registry and quality orchestrator
-        to provide automated, configurable quality analysis with full audit trail.
-
-        Args:
-            paths: المسارات للتحليل - Paths to analyze
-            languages: اللغات (اختياري، اكتشاف تلقائي) - Languages (optional, auto-detect)
-            fix: تطبيق الإصلاحات التلقائية - Apply auto-fixes
-            audit: تمكين التدقيق - Enable audit logging
-
-        Returns:
-            dict with quality report including:
-            - quality_score: نتيجة الجودة (0-100)
-            - total_issues: إجمالي المشاكل
-            - fixed_count: عدد الإصلاحات
-            - gates_passed: حالة بوابات الجودة
-            - audit_entries: إدخالات التدقيق
-        """
-        if not self._quality_orchestrator:
-            logger.warning("Quality Orchestrator not available, falling back to basic analysis")
-            return {
-                "success": False,
-                "error": "Quality Orchestrator not available",
-                "error_ar": "منسق الجودة غير متوفر",
-            }
-
-        try:
-            # Run comprehensive quality analysis
-            report: QualityReport = await self._quality_orchestrator.analyze(
-                paths=paths,
-                languages=languages,
-                fix=fix,
-                audit=audit,
-            )
-
-            # Update agent metrics
-            self.total_requests += 1
-            if report.status == "completed":
-                self.successful_requests += 1
-
-            # Record performance
-            if report.duration_ms:
-                self.total_response_time_ms += report.duration_ms
-
-            # Return comprehensive report
-            return {
-                "success": True,
-                "report_id": report.id,
-                "session_id": report.session_id,
-                "status": report.status,
-                "quality_score": report.quality_score,
-                "quality_level": report.quality_level.value,
-                "total_issues": report.total_issues,
-                "critical_issues": report.critical_issues,
-                "high_issues": report.high_issues,
-                "medium_issues": report.medium_issues,
-                "low_issues": report.low_issues,
-                "fixed_count": report.fixed_count,
-                "fixable_count": report.fixable_count,
-                "files_analyzed": report.files_analyzed,
-                "tools_executed": report.tools_executed,
-                "gates_passed": report.gates_passed,
-                "quality_gates": [
-                    {
-                        "gate_name": g.gate_name,
-                        "passed": g.passed,
-                        "threshold": g.threshold,
-                        "actual_value": g.actual_value,
-                        "message": g.message,
-                        "message_ar": g.message_ar,
-                    }
-                    for g in report.quality_gates
-                ],
-                "duration_ms": report.duration_ms,
-                "errors": report.errors,
-                "audit_entries_count": len(report.audit_entries),
-                # Full issues list (can be large)
-                "issues": [
-                    {
-                        "id": i.id,
-                        "tool": i.tool,
-                        "file_path": i.file_path,
-                        "line": i.line,
-                        "severity": i.severity.value,
-                        "message": i.message,
-                        "code": i.code,
-                        "auto_fixable": i.auto_fixable,
-                        "fixed": i.fixed,
-                    }
-                    for i in report.issues[:100]  # Limit to first 100
-                ],
-            }
-
-        except Exception as e:
-            logger.error("quality_analysis_failed", error=str(e))
-            return {
-                "success": False,
-                "error": str(e),
-                "error_ar": f"فشل تحليل الجودة: {e}",
-            }
-
-    async def get_available_tools(
-        self,
-        language: str | None = None,
-    ) -> dict[str, Any]:
-        """
-        الحصول على الأدوات المتاحة
-        Get available quality tools
-
-        Args:
-            language: اللغة لتصفية الأدوات - Language to filter tools
-
-        Returns:
-            dict with available tools and their status
-        """
-        if not self._tool_registry:
-            return {
-                "success": False,
-                "error": "Tool Registry not available",
-                "error_ar": "سجل الأدوات غير متوفر",
-            }
-
-        try:
-            # Check tool availability
-            availability = await self._tool_registry.check_availability()
-
-            # Get tools for language if specified
-            if language:
-                try:
-                    lang = Language(language.lower())
-                    tools = self._tool_registry.get_tools_for_language(lang)
-                except ValueError:
-                    tools = self._tool_registry.get_all_tools()
-            else:
-                tools = self._tool_registry.get_all_tools()
-
-            return {
-                "success": True,
-                "tools": [
-                    {
-                        "id": t.id,
-                        "name": t.name,
-                        "name_ar": t.name_ar,
-                        "category": t.category.value,
-                        "languages": [l.value for l in t.languages],
-                        "status": t.status.value,
-                        "version": t.version,
-                        "available": availability.get(t.id, False),
-                        "capabilities": [c.value for c in t.capabilities],
-                        "priority": t.priority,
-                    }
-                    for t in tools
-                ],
-                "total_tools": len(tools),
-                "available_count": sum(1 for t in tools if availability.get(t.id, False)),
-            }
-
-        except Exception as e:
-            logger.error("get_tools_failed", error=str(e))
-            return {
-                "success": False,
-                "error": str(e),
-                "error_ar": f"فشل الحصول على الأدوات: {e}",
-            }
-
-    async def run_tool(
-        self,
-        tool_id: str,
-        target: str,
-        auto_fix: bool = True,
-    ) -> dict[str, Any]:
-        """
-        تشغيل أداة محددة
-        Run a specific quality tool
-
-        Args:
-            tool_id: معرف الأداة - Tool identifier
-            target: الهدف (ملف أو مجلد) - Target file or directory
-            auto_fix: تطبيق الإصلاحات - Apply auto-fixes
-
-        Returns:
-            dict with tool execution result
-        """
-        if not self._tool_registry:
-            return {
-                "success": False,
-                "error": "Tool Registry not available",
-                "error_ar": "سجل الأدوات غير متوفر",
-            }
-
-        try:
-            result = await self._tool_registry.run_tool(
-                tool_id=tool_id,
-                target=target,
-                auto_fix=auto_fix,
-            )
-
-            return {
-                "success": result.success,
-                "tool_id": result.tool_id,
-                "exit_code": result.exit_code,
-                "issues_count": result.issues_count,
-                "fixed_count": result.fixed_count,
-                "duration_ms": result.duration_ms,
-                "stdout": result.stdout[:5000] if result.stdout else None,  # Truncate
-                "stderr": result.stderr[:2000] if result.stderr else None,  # Truncate
-                "error_message": result.error_message,
-            }
-
-        except Exception as e:
-            logger.error("run_tool_failed", tool_id=tool_id, error=str(e))
-            return {
-                "success": False,
-                "error": str(e),
-                "error_ar": f"فشل تشغيل الأداة: {e}",
-            }
 
     def get_metrics(self) -> dict[str, Any]:
         """الحصول على مقاييس الأداء"""

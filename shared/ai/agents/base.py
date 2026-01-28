@@ -19,9 +19,11 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, AsyncIterator
 import asyncio
@@ -56,6 +58,125 @@ class AgentState(str, Enum):
     COMPLETED = "completed"
     FAILED = "failed"
     WAITING_APPROVAL = "waiting_approval"
+
+
+class CollaborationRole(str, Enum):
+    """
+    Role of agent in collaboration.
+    دور الوكيل في التعاون
+    """
+    COORDINATOR = "coordinator"  # Coordinates multiple agents
+    SPECIALIST = "specialist"    # Provides specialized expertise
+    EXECUTOR = "executor"        # Executes tasks
+    REVIEWER = "reviewer"        # Reviews and validates
+
+
+class ConsensusType(str, Enum):
+    """
+    Type of consensus mechanism.
+    نوع آلية الإجماع
+    """
+    UNANIMOUS = "unanimous"      # All agents must agree
+    MAJORITY = "majority"        # >50% must agree
+    WEIGHTED = "weighted"        # Weighted by agent expertise
+    COORDINATOR_DECIDES = "coordinator_decides"  # Coordinator makes final call
+
+
+class MemoryType(str, Enum):
+    """
+    Type of memory entry.
+    نوع إدخال الذاكرة
+    """
+    EXPERIENCE = "experience"    # Past execution experience
+    FEEDBACK = "feedback"        # User or system feedback
+    LEARNING = "learning"        # Learned patterns
+    CONTEXT = "context"          # Contextual information
+
+
+@dataclass
+class AgentCapability:
+    """
+    Capability of an agent.
+    قدرة الوكيل
+    """
+    name: str
+    name_ar: str
+    description: str
+    description_ar: str
+    confidence: float = 1.0  # 0-1
+    tags: list[str] = field(default_factory=list)
+
+
+@dataclass
+class MemoryEntry:
+    """
+    Memory entry for agent learning.
+    إدخال ذاكرة لتعلم الوكيل
+    """
+    memory_id: str
+    memory_type: MemoryType
+    content: dict[str, Any]
+    context: dict[str, Any] = field(default_factory=dict)
+    importance: float = 0.5  # 0-1
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    accessed_count: int = 0
+    last_accessed: datetime | None = None
+
+
+@dataclass
+class DelegatedTask:
+    """
+    Task delegated to a sub-agent.
+    مهمة مفوضة لوكيل فرعي
+    """
+    task_id: str
+    agent_id: str
+    agent_name: str
+    description: str
+    description_ar: str
+    context: dict[str, Any] = field(default_factory=dict)
+    status: str = "pending"  # pending, in_progress, completed, failed
+    result: Any = None
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    completed_at: datetime | None = None
+
+
+@dataclass
+class HelpRequest:
+    """
+    Request for help from another agent.
+    طلب مساعدة من وكيل آخر
+    """
+    request_id: str
+    requesting_agent: str
+    problem: str
+    problem_ar: str
+    target_agent: str | None = None  # None = broadcast to all
+    context: dict[str, Any] = field(default_factory=dict)
+    urgency: str = "normal"  # low, normal, high, critical
+    created_at: datetime = field(default_factory=datetime.utcnow)
+
+
+@dataclass
+class ConsensusProposal:
+    """
+    Proposal for multi-agent consensus.
+    اقتراح للإجماع متعدد الوكلاء
+    """
+    proposal_id: str
+    proposer_agent: str
+    title: str
+    title_ar: str
+    description: str
+    description_ar: str
+    options: list[dict[str, Any]] = field(default_factory=list)
+    votes: dict[str, str] = field(default_factory=dict)  # agent_id -> option_id
+    consensus_type: ConsensusType = ConsensusType.MAJORITY
+    status: str = "pending"  # pending, voting, decided, rejected
+    decision: dict[str, Any] | None = None
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    deadline: datetime | None = None
+
 
 
 @dataclass
@@ -120,7 +241,7 @@ class AgentStep:
     status: str = "pending"  # pending, in_progress, completed, failed, skipped
     result: ToolResult | None = None
     reasoning: str | None = None
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=datetime.utcnow)
     completed_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -190,6 +311,7 @@ class BaseAutonomousAgent(ABC):
         tenant_id: str = "sahool",
         llm_manager: LLMProviderManager | None = None,
         enable_audit: bool = True,
+        collaboration_role: CollaborationRole = CollaborationRole.EXECUTOR,
     ):
         """
         Initialize autonomous agent.
@@ -204,6 +326,7 @@ class BaseAutonomousAgent(ABC):
             tenant_id: Tenant ID for multi-tenancy
             llm_manager: LLM provider manager (auto-created if None)
             enable_audit: Enable audit logging
+            collaboration_role: Role in multi-agent collaboration
         """
         self.agent_id = agent_id
         self.name = name
@@ -212,6 +335,7 @@ class BaseAutonomousAgent(ABC):
         self.description_ar = description_ar
         self.mode = mode
         self.tenant_id = tenant_id
+        self.collaboration_role = collaboration_role
 
         # State management
         self.state = AgentState.IDLE
@@ -249,6 +373,7 @@ class BaseAutonomousAgent(ABC):
             agent_id=self.agent_id,
             name=self.name,
             mode=self.mode.value,
+            collaboration_role=self.collaboration_role.value,
         )
 
     @abstractmethod
@@ -328,7 +453,7 @@ class BaseAutonomousAgent(ABC):
             Execution result
         """
         context = context or {}
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.utcnow()
 
         self.current_task = task
         self.state = AgentState.PLANNING
@@ -370,7 +495,7 @@ class BaseAutonomousAgent(ABC):
             self.state = AgentState.COMPLETED
             self.stats["tasks_completed"] += 1
 
-            execution_time_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            execution_time_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
             self.stats["total_time_ms"] += execution_time_ms
 
             result = self._generate_result(execution_time_ms)
@@ -510,7 +635,7 @@ class BaseAutonomousAgent(ABC):
     ) -> StepResult:
         """Execute a single step with validation."""
         step.status = "in_progress"
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.utcnow()
 
         # Loop detection
         step_hash = f"{step.tool_name}:{hash(str(step.tool_input))}"
@@ -576,7 +701,7 @@ class BaseAutonomousAgent(ABC):
                         )
 
                 step.status = "completed"
-                step.completed_at = datetime.now(timezone.utc)
+                step.completed_at = datetime.utcnow()
 
                 return StepResult(
                     step=step,
@@ -588,7 +713,7 @@ class BaseAutonomousAgent(ABC):
 
             # No tool - just mark as completed
             step.status = "completed"
-            step.completed_at = datetime.now(timezone.utc)
+            step.completed_at = datetime.utcnow()
 
             return StepResult(
                 step=step,
@@ -619,7 +744,7 @@ class BaseAutonomousAgent(ABC):
         inputs: dict[str, Any],
     ) -> ToolResult:
         """Execute a tool with error handling."""
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.utcnow()
 
         try:
             # Use circuit breaker for resilience
@@ -630,7 +755,7 @@ class BaseAutonomousAgent(ABC):
                     asyncio.to_thread, tool.handler, **inputs
                 )
 
-            execution_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            execution_time = (datetime.utcnow() - start_time).total_seconds() * 1000
 
             return ToolResult(
                 tool_name=tool.name,
@@ -640,7 +765,7 @@ class BaseAutonomousAgent(ABC):
             )
 
         except Exception as e:
-            execution_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            execution_time = (datetime.utcnow() - start_time).total_seconds() * 1000
 
             return ToolResult(
                 tool_name=tool.name,

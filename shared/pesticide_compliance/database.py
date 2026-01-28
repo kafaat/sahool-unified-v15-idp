@@ -3,6 +3,8 @@ Pesticide Database - قاعدة بيانات المبيدات
 Contains registered pesticides with PHI/REI information
 """
 
+from __future__ import annotations
+
 from .models import (
     Pesticide,
     PesticideCategory,

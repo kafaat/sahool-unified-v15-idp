@@ -3,15 +3,8 @@
 #
 # Run: flutter analyze
 # Fix: dart fix --apply
-# Sort imports: dart run import_sorter:main
-#
-# Using very_good_analysis for enterprise-grade linting
-# https://pub.dev/packages/very_good_analysis
 
-# Use very_good_analysis for stricter rules (includes flutter_lints + 100+ rules)
-# Fallback to flutter_lints if very_good_analysis is not available
-include: package:very_good_analysis/analysis_options.yaml
-# include: package:flutter_lints/flutter.yaml  # Fallback option
+include: package:flutter_lints/flutter.yaml
 
 analyzer:
   # Treat missing required params and returns as errors

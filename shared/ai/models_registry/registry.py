@@ -24,6 +24,8 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 from typing import Any, Iterator
 
 from .models import (

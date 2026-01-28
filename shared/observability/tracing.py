@@ -5,6 +5,8 @@ Distributed Tracing with OpenTelemetry
 Provides comprehensive distributed tracing following Google Cloud best practices.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 from collections.abc import Callable

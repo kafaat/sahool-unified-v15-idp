@@ -26,8 +26,6 @@ export default defineConfig({
       "apps/services/marketplace-service/**",
       // Exclude Python tests
       "apps/services/**/*.py",
-      // Exclude Node.js-only crypto tests (require node environment)
-      "packages/shared-crypto/**",
     ],
   },
   resolve: {

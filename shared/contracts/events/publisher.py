@@ -5,6 +5,8 @@ Event Publisher
 Provides a unified interface for publishing domain events.
 """
 
+from __future__ import annotations
+
 import logging
 
 from .base import BaseEvent

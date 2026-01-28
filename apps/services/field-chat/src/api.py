@@ -9,7 +9,6 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from .auth import get_current_user
 from .events.publish import ChatPublisher
 from .repository import ChatRepository
 
@@ -104,7 +103,6 @@ class AddParticipantRequest(BaseModel):
 @router.post("/threads", response_model=ThreadResponse)
 async def create_thread(
     req: CreateThreadRequest,
-    user: dict = Depends(get_current_user),
     repo: ChatRepository = Depends(get_repository),
     pub: ChatPublisher = Depends(get_publisher),
 ):
@@ -160,7 +158,6 @@ async def create_thread(
 async def get_thread(
     thread_id: UUID,
     tenant_id: str = Query(..., description="Tenant identifier"),
-    user: dict = Depends(get_current_user),
     repo: ChatRepository = Depends(get_repository),
 ):
     """Get a specific thread by ID"""
@@ -194,7 +191,6 @@ async def get_thread_by_scope(
     scope_type: str,
     scope_id: str,
     tenant_id: str = Query(..., description="Tenant identifier"),
-    user: dict = Depends(get_current_user),
     repo: ChatRepository = Depends(get_repository),
 ):
     """Get thread by scope (field/task/incident ID)"""
@@ -230,7 +226,6 @@ async def list_threads(
     scope_type: str | None = Query(None, description="Filter by scope type"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
-    user: dict = Depends(get_current_user),
     repo: ChatRepository = Depends(get_repository),
 ):
     """List chat threads with optional filters"""
@@ -265,7 +260,6 @@ async def archive_thread(
     tenant_id: str = Query(..., description="Tenant identifier"),
     archived_by: str = Query(..., description="User ID archiving the thread"),
     correlation_id: str | None = Query(None),
-    user: dict = Depends(get_current_user),
     repo: ChatRepository = Depends(get_repository),
     pub: ChatPublisher = Depends(get_publisher),
 ):
@@ -301,7 +295,6 @@ async def archive_thread(
 async def send_message(
     thread_id: UUID,
     req: SendMessageRequest,
-    user: dict = Depends(get_current_user),
     repo: ChatRepository = Depends(get_repository),
     pub: ChatPublisher = Depends(get_publisher),
 ):
@@ -389,7 +382,6 @@ async def list_messages(
     limit: int = Query(50, ge=1, le=100),
     before: datetime | None = Query(None, description="Get messages before this timestamp"),
     after: datetime | None = Query(None, description="Get messages after this timestamp"),
-    user: dict = Depends(get_current_user),
     repo: ChatRepository = Depends(get_repository),
 ):
     """List messages in a thread with pagination"""
@@ -423,7 +415,6 @@ async def search_messages(
     thread_id: UUID | None = Query(None, description="Limit to specific thread"),
     sender_id: str | None = Query(None, description="Filter by sender"),
     limit: int = Query(50, ge=1, le=100),
-    user: dict = Depends(get_current_user),
     repo: ChatRepository = Depends(get_repository),
 ):
     """Search messages by text content"""
@@ -459,7 +450,6 @@ async def search_messages(
 async def add_participant(
     thread_id: UUID,
     req: AddParticipantRequest,
-    user: dict = Depends(get_current_user),
     repo: ChatRepository = Depends(get_repository),
     pub: ChatPublisher = Depends(get_publisher),
 ):
@@ -488,7 +478,6 @@ async def remove_participant(
     user_id: str,
     tenant_id: str = Query(...),
     correlation_id: str | None = Query(None),
-    user: dict = Depends(get_current_user),
     repo: ChatRepository = Depends(get_repository),
     pub: ChatPublisher = Depends(get_publisher),
 ):
@@ -514,7 +503,6 @@ async def mark_as_read(
     req: MarkReadRequest,
     tenant_id: str = Query(...),
     correlation_id: str | None = Query(None),
-    user: dict = Depends(get_current_user),
     repo: ChatRepository = Depends(get_repository),
     pub: ChatPublisher = Depends(get_publisher),
 ):
@@ -542,7 +530,6 @@ async def mark_as_read(
 async def get_unread_counts(
     tenant_id: str = Query(...),
     user_id: str = Query(...),
-    user: dict = Depends(get_current_user),
     repo: ChatRepository = Depends(get_repository),
 ):
     """Get unread message counts for all threads"""

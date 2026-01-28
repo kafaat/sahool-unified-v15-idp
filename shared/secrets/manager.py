@@ -19,6 +19,8 @@ Usage:
     api_key = await secrets.get_secret("external/api_key")
 """
 
+from __future__ import annotations
+
 import logging
 import os
 from abc import ABC, abstractmethod

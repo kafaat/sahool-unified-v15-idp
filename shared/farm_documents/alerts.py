@@ -12,7 +12,7 @@ and compliance notification functionality.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 from typing import Callable
 
 import structlog
@@ -494,7 +494,7 @@ class AlertService:
             return None
 
         alert.is_read = True
-        alert.updated_at = datetime.now(timezone.utc)
+        alert.updated_at = datetime.utcnow()
 
         logger.info(
             "alert_marked_read",
@@ -520,8 +520,8 @@ class AlertService:
         alert.is_read = True
         alert.is_acknowledged = True
         alert.acknowledged_by = user_id
-        alert.acknowledged_at = datetime.now(timezone.utc)
-        alert.updated_at = datetime.now(timezone.utc)
+        alert.acknowledged_at = datetime.utcnow()
+        alert.updated_at = datetime.utcnow()
 
         logger.info(
             "alert_acknowledged",
@@ -547,9 +547,9 @@ class AlertService:
 
         alert.is_resolved = True
         alert.resolved_by = user_id
-        alert.resolved_at = datetime.now(timezone.utc)
+        alert.resolved_at = datetime.utcnow()
         alert.resolution_notes = resolution_notes
-        alert.updated_at = datetime.now(timezone.utc)
+        alert.updated_at = datetime.utcnow()
 
         logger.info(
             "alert_resolved",
@@ -682,7 +682,7 @@ class AlertService:
             )
 
             alert.notification_sent = True
-            alert.notification_sent_at = datetime.now(timezone.utc)
+            alert.notification_sent_at = datetime.utcnow()
             alert.notification_channels = self.config.notification_channels
 
             logger.info(
@@ -734,7 +734,7 @@ class AlertService:
         Check if a similar alert was created recently
         التحقق مما إذا تم إنشاء تنبيه مماثل مؤخراً
         """
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=self.config.alert_cooldown_hours)
+        cutoff = datetime.utcnow() - timedelta(hours=self.config.alert_cooldown_hours)
 
         for alert in self._alerts.values():
             if alert.created_at < cutoff:
@@ -756,7 +756,7 @@ class AlertService:
         Remove old resolved alerts
         إزالة التنبيهات القديمة المحلولة
         """
-        cutoff = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
+        cutoff = datetime.utcnow() - timedelta(days=days_to_keep)
         removed = 0
 
         alert_ids_to_remove = []

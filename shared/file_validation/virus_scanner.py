@@ -3,6 +3,8 @@ Virus Scanner Interfaces and Implementations
 واجهات وتطبيقات فاحص الفيروسات
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from abc import ABC, abstractmethod

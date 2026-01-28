@@ -5,7 +5,7 @@ Manages low stock alerts, expiry warnings, and notifications
 
 import logging
 
-from .alert_manager import (
+from alert_manager import (
     AlertManager,
     AlertPriority,
     AlertType,

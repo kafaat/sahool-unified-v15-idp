@@ -3,6 +3,8 @@ JWT Token Handler for SAHOOL Platform
 Token creation and verification using PyJWT
 """
 
+from __future__ import annotations
+
 import uuid
 from datetime import timezone, datetime, timedelta, UTC
 

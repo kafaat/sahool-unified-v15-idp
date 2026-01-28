@@ -21,7 +21,7 @@ from .providers import MockWeatherProvider, MultiWeatherService, OpenMeteoProvid
 from .risks import assess_weather, get_irrigation_adjustment, heat_stress_risk
 
 # Import shared logging configuration
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+# Note: PYTHONPATH=/app is set in Dockerfile, and shared/ is copied to /app/shared/
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.logging_config import RequestLoggingMiddleware, get_logger, setup_logging
 

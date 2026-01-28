@@ -533,35 +533,34 @@ CREATE INDEX IF NOT EXISTS idx_forecast_location ON weather_forecasts(location_i
 
 -- Tasks (المهام)
 CREATE TABLE IF NOT EXISTS tasks (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    task_id VARCHAR(50) PRIMARY KEY,
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-    field_id UUID REFERENCES fields(id) ON DELETE SET NULL,
-    field_crop_id UUID REFERENCES field_crops(id) ON DELETE SET NULL,
+    field_id VARCHAR(100),
+    zone_id VARCHAR(100),
     title VARCHAR(255) NOT NULL,
     title_ar VARCHAR(255),
     description TEXT,
     description_ar TEXT,
-    type task_type DEFAULT 'other',
-    category VARCHAR(100),
-    assigned_to UUID REFERENCES users(id),
-    assigned_by UUID REFERENCES users(id),
-    scheduled_date DATE,
-    scheduled_time TIME,
-    due_date DATE,
+    task_type VARCHAR(50) NOT NULL,
+    priority VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    assigned_to VARCHAR(100),
+    created_by VARCHAR(100) NOT NULL,
+    due_date TIMESTAMPTZ,
+    scheduled_time VARCHAR(10),
     estimated_duration_minutes INTEGER,
-    status task_status DEFAULT 'pending',
-    priority task_priority DEFAULT 'medium',
-    started_at TIMESTAMPTZ,
+    actual_duration_minutes INTEGER,
     completed_at TIMESTAMPTZ,
     completion_notes TEXT,
-    completion_photos TEXT[],
-    evidence JSONB,
-    is_ai_generated BOOLEAN DEFAULT false,
-    source_event_id VARCHAR(255),
-    source_agent VARCHAR(100),
-    is_recurring BOOLEAN DEFAULT false,
-    recurrence_rule VARCHAR(255),
-    parent_task_id UUID REFERENCES tasks(id),
+    task_metadata JSONB DEFAULT '{}',
+    astronomical_score INTEGER,
+    moon_phase_at_due_date VARCHAR(100),
+    lunar_mansion_at_due_date VARCHAR(100),
+    optimal_time_of_day VARCHAR(50),
+    suggested_by_calendar BOOLEAN DEFAULT false,
+    astronomical_recommendation JSONB,
+    astronomical_warnings TEXT[],
+    parent_task_id VARCHAR(50) REFERENCES tasks(task_id),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -571,7 +570,6 @@ CREATE INDEX IF NOT EXISTS idx_tasks_field ON tasks(field_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_assigned ON tasks(assigned_to);
 CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
-CREATE INDEX IF NOT EXISTS idx_tasks_scheduled ON tasks(scheduled_date);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- SECTION 7: ALERTS & NOTIFICATIONS
@@ -1501,12 +1499,12 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- Insert demo tasks
-INSERT INTO tasks (id, tenant_id, field_id, field_crop_id, title, title_ar, type, status, priority, assigned_to, scheduled_date, due_date)
+INSERT INTO tasks (task_id, tenant_id, field_id, title, title_ar, task_type, status, priority, assigned_to, created_by, due_date)
 VALUES
-    ('f0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'Apply fertilizer', 'تطبيق السماد', 'fertilization', 'pending', 'high', 'b0000000-0000-0000-0000-000000000004', CURRENT_DATE + 1, CURRENT_DATE + 2),
-    ('f0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000002', 'Irrigation check', 'فحص الري', 'irrigation', 'scheduled', 'medium', 'b0000000-0000-0000-0000-000000000004', CURRENT_DATE, CURRENT_DATE + 1),
-    ('f0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003', 'Pest inspection', 'فحص الآفات', 'inspection', 'pending', 'high', 'b0000000-0000-0000-0000-000000000003', CURRENT_DATE + 2, CURRENT_DATE + 3),
-    ('f0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'Soil sampling', 'أخذ عينات التربة', 'soil_prep', 'completed', 'low', 'b0000000-0000-0000-0000-000000000003', CURRENT_DATE - 3, CURRENT_DATE - 2)
+    ('f0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'Apply fertilizer', 'تطبيق السماد', 'fertilization', 'pending', 'high', 'b0000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000002', CURRENT_DATE + INTERVAL '2 days'),
+    ('f0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000002', 'Irrigation check', 'فحص الري', 'irrigation', 'pending', 'medium', 'b0000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000002', CURRENT_DATE + INTERVAL '1 day'),
+    ('f0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000003', 'Pest inspection', 'فحص الآفات', 'inspection', 'pending', 'high', 'b0000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000002', CURRENT_DATE + INTERVAL '3 days'),
+    ('f0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'Soil sampling', 'أخذ عينات التربة', 'soil_prep', 'completed', 'low', 'b0000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000002', CURRENT_DATE - INTERVAL '2 days')
 ON CONFLICT DO NOTHING;
 
 -- Insert demo NDVI records

@@ -10,7 +10,7 @@ uvicorn[standard]>=0.30.0,<1.0.0
 
 # Async HTTP Client
 httpx==0.28.1
-aiohttp==3.12.14  # Security fix for CVE-2025-53643
+aiohttp>=3.13.3  # Security fix for CVE-2025-69223 (zip bomb vulnerability)
 
 # Database & ORM
 tortoise-orm==0.21.7
@@ -37,7 +37,7 @@ opentelemetry-sdk==1.29.0
 opentelemetry-instrumentation-fastapi==0.50b0
 
 # Utilities
-python-multipart==0.0.18
+python-multipart==0.0.22
 python-jose[cryptography]==3.4.0
 passlib[bcrypt]==1.7.4
 

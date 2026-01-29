@@ -13,7 +13,7 @@ Unified yield prediction service using machine learning models for field-level, 
 ## Port
 
 ```
-8103
+8152
 ```
 
 ## Features | الميزات
@@ -88,7 +88,7 @@ Unified yield prediction service using machine learning models for field-level, 
 
 | Variable                | Default | Description           |
 | ----------------------- | ------- | --------------------- |
-| `PORT`                  | 8103    | Service port          |
+| `PORT`                  | 8152    | Service port          |
 | `DATABASE_URL`          | -       | PostgreSQL connection |
 | `REDIS_URL`             | -       | Redis for caching     |
 | `MODEL_PATH`            | -       | ML models directory   |
@@ -117,7 +117,7 @@ All functionality is now available in this unified service.
 
 ```bash
 docker build -t yield-prediction-service .
-docker run -p 8103:8103 yield-prediction-service
+docker run -p 8152:8152 yield-prediction-service
 ```
 
 ## Development
@@ -125,5 +125,5 @@ docker run -p 8103:8103 yield-prediction-service
 ```bash
 cd apps/services/yield-prediction-service
 pip install -r requirements.txt
-python -m uvicorn src.main:app --reload --port 8103
+python -m uvicorn src.main:app --reload --port 8152
 ```

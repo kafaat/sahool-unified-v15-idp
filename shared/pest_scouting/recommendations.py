@@ -18,7 +18,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from .models import (
@@ -1123,7 +1123,7 @@ def generate_treatment_recommendation(
     rec.weather_requirements_ar = "درجة حرارة 15-30 مئوية، رياح <15 كم/ساعة، لا أمطار متوقعة لـ 4+ ساعات"
 
     # Set optimal window
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     if urgency == TreatmentUrgency.IMMEDIATE:
         rec.optimal_window_start = now
         rec.optimal_window_end = now + timedelta(hours=48)

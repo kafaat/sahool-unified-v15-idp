@@ -8,11 +8,19 @@
 
 const express = require("express");
 const http = require("http");
+const https = require("https");
+const fs = require("fs");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const { setupSwagger } = require("./swagger");
+const { PrismaClient } = require("@prisma/client");
+
+// Initialize Prisma Client
+const prisma = new PrismaClient({
+  log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+});
 
 // Configuration
 const PORT = process.env.PORT || 8097;
@@ -48,7 +56,7 @@ if (!JWT_SECRET_KEY || JWT_SECRET_KEY.trim().length === 0) {
 
 // Authentication is always required - no bypass option
 // المصادقة إلزامية دائماً - لا يمكن تعطيلها
-const REQUIRE_AUTH = true;
+// Note: Authentication is mandatory and cannot be disabled
 
 // CORS Origins - configurable via environment
 const ALLOWED_ORIGINS = process.env.CORS_ORIGINS
@@ -73,7 +81,31 @@ app.use(express.json());
 // Setup Swagger API Documentation
 setupSwagger(app);
 
-const server = http.createServer(app);
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECURITY: Server Creation with TLS Support
+// In production, TLS is typically terminated at the API gateway (Kong/Nginx)
+// However, for direct HTTPS support, provide TLS_CERT_PATH and TLS_KEY_PATH
+// ═══════════════════════════════════════════════════════════════════════════════
+const TLS_CERT_PATH = process.env.TLS_CERT_PATH;
+const TLS_KEY_PATH = process.env.TLS_KEY_PATH;
+
+let server;
+if (TLS_CERT_PATH && TLS_KEY_PATH && fs.existsSync(TLS_CERT_PATH) && fs.existsSync(TLS_KEY_PATH)) {
+  // Create HTTPS server when TLS certificates are provided
+  const httpsOptions = {
+    cert: fs.readFileSync(TLS_CERT_PATH),
+    key: fs.readFileSync(TLS_KEY_PATH),
+  };
+  server = https.createServer(httpsOptions, app);
+  console.log("🔒 HTTPS server enabled with TLS certificates");
+} else {
+  // HTTP server - TLS should be handled by API gateway (Kong) in production
+  // This is safe when running behind a reverse proxy that handles TLS termination
+  server = http.createServer(app);
+  if (process.env.NODE_ENV === "production" && !process.env.TRUST_PROXY) {
+    console.warn("⚠️ Running HTTP in production - ensure TLS is handled by API gateway");
+  }
+}
 
 // JWT Verification middleware for Socket.io
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -189,24 +221,23 @@ io.use((socket, next) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// In-Memory Storage (Use Redis in production)
-// التخزين المؤقت في الذاكرة (استخدم Redis في الإنتاج)
+// In-Memory Storage for ephemeral WebSocket state
+// التخزين المؤقت في الذاكرة للحالة المؤقتة فقط
+// Persistent data (rooms, messages) stored in PostgreSQL
+// البيانات الدائمة (الغرف والرسائل) مخزنة في PostgreSQL
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// Message history per room
-const messageHistory = new Map();
-
-// Active users tracking
+// Active users tracking (ephemeral - WebSocket connections)
 const activeUsers = new Map();
 
-// Room metadata (farmer-expert pairs)
-const rooms = new Map();
-
-// Online experts
+// Online experts (ephemeral - WebSocket connections)
 const onlineExperts = new Set();
 
-// Maximum messages per room
+// Maximum messages per room (for pagination)
 const MAX_MESSAGES_PER_ROOM = 500;
+
+// Default tenant ID for rooms (can be overridden)
+const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID || "sahool";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Helper Functions
@@ -216,22 +247,156 @@ function getFormattedTime() {
   return new Date().toISOString();
 }
 
-function addMessageToRoom(roomId, message) {
-  if (!messageHistory.has(roomId)) {
-    messageHistory.set(roomId, []);
-  }
+// Database helper: Add message to room
+async function addMessageToRoom(roomId, message) {
+  try {
+    // Ensure room exists
+    let room = await prisma.chatRoom.findUnique({ where: { id: roomId } });
+    if (!room) {
+      // Create room if it doesn't exist
+      await prisma.chatRoom.create({
+        data: {
+          id: roomId,
+          name: roomId,
+          tenantId: DEFAULT_TENANT_ID,
+          type: roomId.startsWith("support_") ? "support" : "public",
+        },
+      });
+    }
 
-  const messages = messageHistory.get(roomId);
-  messages.push(message);
+    // Create message
+    const createdMessage = await prisma.message.create({
+      data: {
+        id: message.id,
+        content: message.message,
+        senderId: message.authorId || message.author,
+        senderName: message.author,
+        senderType: message.authorType,
+        roomId: roomId,
+        attachments: message.attachments || [],
+        status: message.status || "delivered",
+      },
+    });
 
-  // Keep only last MAX_MESSAGES_PER_ROOM messages
-  if (messages.length > MAX_MESSAGES_PER_ROOM) {
-    messages.shift();
+    return createdMessage;
+  } catch (error) {
+    console.error("❌ Error saving message to database:", error.message);
+    // Return the message object even if DB save fails (for WebSocket delivery)
+    return message;
   }
 }
 
-function getRoomMessages(roomId) {
-  return messageHistory.get(roomId) || [];
+// Database helper: Get room messages
+async function getRoomMessages(roomId, limit = MAX_MESSAGES_PER_ROOM) {
+  try {
+    const messages = await prisma.message.findMany({
+      where: { roomId },
+      orderBy: { createdAt: "asc" },
+      take: limit,
+    });
+
+    // Transform to match existing message format
+    return messages.map((msg) => ({
+      id: msg.id,
+      roomId: msg.roomId,
+      author: msg.senderName,
+      authorType: msg.senderType,
+      message: msg.content,
+      attachments: msg.attachments || [],
+      timestamp: msg.createdAt.toISOString(),
+      status: msg.status,
+    }));
+  } catch (error) {
+    console.error("❌ Error fetching messages from database:", error.message);
+    return [];
+  }
+}
+
+// Database helper: Get or create room
+async function getOrCreateRoom(roomId, roomData = {}) {
+  try {
+    let room = await prisma.chatRoom.findUnique({ where: { id: roomId } });
+
+    if (!room) {
+      room = await prisma.chatRoom.create({
+        data: {
+          id: roomId,
+          name: roomData.name || roomId,
+          tenantId: roomData.tenantId || DEFAULT_TENANT_ID,
+          type: roomData.type || (roomId.startsWith("support_") ? "support" : "public"),
+          status: roomData.status || "active",
+          farmerId: roomData.farmerId,
+          farmerName: roomData.farmerName,
+          expertId: roomData.expertId,
+          expertName: roomData.expertName,
+          governorate: roomData.governorate,
+          topic: roomData.topic,
+          diagnosisId: roomData.diagnosisId,
+          createdBy: roomData.createdBy,
+        },
+      });
+    }
+
+    return room;
+  } catch (error) {
+    console.error("❌ Error getting/creating room:", error.message);
+    return null;
+  }
+}
+
+// Database helper: Update room
+async function updateRoom(roomId, updateData) {
+  try {
+    const room = await prisma.chatRoom.update({
+      where: { id: roomId },
+      data: updateData,
+    });
+    return room;
+  } catch (error) {
+    console.error("❌ Error updating room:", error.message);
+    return null;
+  }
+}
+
+// Database helper: Get room by ID
+async function getRoom(roomId) {
+  try {
+    const room = await prisma.chatRoom.findUnique({ where: { id: roomId } });
+    return room;
+  } catch (error) {
+    console.error("❌ Error fetching room:", error.message);
+    return null;
+  }
+}
+
+// Database helper: Add member to room
+async function addMemberToRoom(roomId, memberData) {
+  try {
+    const member = await prisma.chatMember.upsert({
+      where: {
+        userId_roomId: {
+          userId: memberData.odolUserId || memberData.name,
+          roomId: roomId,
+        },
+      },
+      update: {
+        userName: memberData.name,
+        userType: memberData.type,
+      },
+      create: {
+        userId: memberData.odolUserId || memberData.name,
+        odolUserId: memberData.odolUserId,
+        userName: memberData.name,
+        userType: memberData.type,
+        roomId: roomId,
+        role: "member",
+      },
+    });
+    return member;
+  } catch (error) {
+    console.error("❌ Error adding member to room:", error.message);
+    return null;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -278,7 +443,7 @@ io.on("connection", (socket) => {
   // Join Room (Chat Session)
   // ─────────────────────────────────────────────────────────────────────────────
 
-  socket.on("join_room", (data) => {
+  socket.on("join_room", async (data) => {
     const { roomId, userName, userType } = data;
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -319,7 +484,7 @@ io.on("connection", (socket) => {
 
     // For support rooms, verify access rights
     if (roomId.startsWith("support_")) {
-      const room = rooms.get(roomId);
+      const room = await getRoom(roomId);
       if (room) {
         // Only the original farmer or assigned expert can join support rooms
         const isOriginalFarmer = room.farmerId === authenticatedUser?.sub;
@@ -351,30 +516,22 @@ io.on("connection", (socket) => {
     socket.join(roomId);
     console.log(`🚪 ${userName} joined room: ${roomId}`);
 
-    // Initialize room if new
-    if (!rooms.has(roomId)) {
-      rooms.set(roomId, {
-        id: roomId,
-        createdAt: getFormattedTime(),
-        participants: [],
-        status: "active",
-        createdBy: authenticatedUser?.sub || userName,
-      });
-    }
+    // Get or create room in database
+    const room = await getOrCreateRoom(roomId, {
+      createdBy: authenticatedUser?.sub || userName,
+    });
 
     // Add participant to room
-    const room = rooms.get(roomId);
-    if (!room.participants.find((p) => p.name === userName)) {
-      room.participants.push({
+    if (room) {
+      await addMemberToRoom(roomId, {
         name: userName,
         type: userType,
-        joinedAt: getFormattedTime(),
         odolUserId: authenticatedUser?.sub,
       });
     }
 
     // Send message history to joining user
-    const history = getRoomMessages(roomId);
+    const history = await getRoomMessages(roomId);
     socket.emit("load_history", history);
 
     // Notify room about new participant
@@ -389,7 +546,7 @@ io.on("connection", (socket) => {
   // Send Message
   // ─────────────────────────────────────────────────────────────────────────────
 
-  socket.on("send_message", (data) => {
+  socket.on("send_message", async (data) => {
     const { roomId, author, authorType, message, attachments } = data;
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -471,6 +628,7 @@ io.on("connection", (socket) => {
       id: uuidv4(),
       roomId,
       author,
+      authorId: socket.user?.sub,
       authorType: safeAuthorType,
       message: sanitizedMessage,
       attachments: safeAttachments,
@@ -478,8 +636,8 @@ io.on("connection", (socket) => {
       status: "delivered",
     };
 
-    // Store message
-    addMessageToRoom(roomId, messageData);
+    // Store message in database
+    await addMessageToRoom(roomId, messageData);
 
     // Broadcast to all users in room (including sender for confirmation)
     io.to(roomId).emit("receive_message", messageData);
@@ -509,7 +667,7 @@ io.on("connection", (socket) => {
   // Request Expert Help (Farmer initiates)
   // ─────────────────────────────────────────────────────────────────────────────
 
-  socket.on("request_expert", (data) => {
+  socket.on("request_expert", async (data) => {
     const { farmerId, farmerName, governorate, topic, diagnosisId } = data;
 
     // Create a new support room
@@ -526,7 +684,18 @@ io.on("connection", (socket) => {
       createdAt: getFormattedTime(),
     };
 
-    rooms.set(roomId, supportRequest);
+    // Store room in database
+    await getOrCreateRoom(roomId, {
+      name: topic || "استشارة زراعية",
+      type: "support",
+      farmerId,
+      farmerName,
+      governorate,
+      topic: topic || "استشارة زراعية",
+      diagnosisId,
+      status: "pending",
+      createdBy: socket.user?.sub || farmerId,
+    });
 
     // Join farmer to the room
     socket.join(roomId);
@@ -548,15 +717,18 @@ io.on("connection", (socket) => {
   // Expert Accepts Request
   // ─────────────────────────────────────────────────────────────────────────────
 
-  socket.on("accept_request", (data) => {
+  socket.on("accept_request", async (data) => {
     const { roomId, expertId, expertName } = data;
 
-    if (rooms.has(roomId)) {
-      const room = rooms.get(roomId);
-      room.expertId = expertId;
-      room.expertName = expertName;
-      room.status = "active";
-      room.acceptedAt = getFormattedTime();
+    const room = await getRoom(roomId);
+    if (room) {
+      // Update room in database
+      await updateRoom(roomId, {
+        expertId,
+        expertName,
+        status: "active",
+        acceptedAt: new Date(),
+      });
 
       // Expert joins the room
       socket.join(roomId);
@@ -613,36 +785,125 @@ io.on("connection", (socket) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Health check
-app.get("/healthz", (req, res) => {
+app.get("/healthz", async (req, res) => {
+  let dbHealthy = false;
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    dbHealthy = true;
+  } catch (error) {
+    console.error("❌ Database health check failed:", error.message);
+  }
+
   res.json({
-    status: "healthy",
+    status: dbHealthy ? "healthy" : "degraded",
     service: SERVICE_NAME,
     version: SERVICE_VERSION,
+    database: dbHealthy ? "connected" : "disconnected",
     activeConnections: io.engine.clientsCount,
     onlineExperts: onlineExperts.size,
-    activeRooms: rooms.size,
     timestamp: getFormattedTime(),
   });
 });
 
-// Get active support requests (for Admin Dashboard)
-app.get("/v1/requests", (req, res) => {
-  const { status } = req.query;
-
-  let requests = Array.from(rooms.values());
-
-  if (status) {
-    requests = requests.filter((r) => r.status === status);
+// Readiness check
+app.get("/readyz", async (req, res) => {
+  let dbReady = false;
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    dbReady = true;
+  } catch (error) {
+    console.error("❌ Database readiness check failed:", error.message);
   }
 
-  res.json(requests);
+  if (!dbReady) {
+    return res.status(503).json({
+      status: "not_ready",
+      database: "disconnected",
+    });
+  }
+
+  res.json({
+    status: "ready",
+    database: "connected",
+  });
+});
+
+// Get active support requests (for Admin Dashboard)
+app.get("/v1/requests", async (req, res) => {
+  try {
+    const { status } = req.query;
+
+    const whereClause = {
+      type: "support",
+    };
+
+    if (status) {
+      whereClause.status = status;
+    }
+
+    const rooms = await prisma.chatRoom.findMany({
+      where: whereClause,
+      orderBy: { createdAt: "desc" },
+      include: {
+        _count: {
+          select: { messages: true },
+        },
+      },
+    });
+
+    // Transform to match existing API format
+    const requests = rooms.map((room) => ({
+      roomId: room.id,
+      farmerId: room.farmerId,
+      farmerName: room.farmerName,
+      expertId: room.expertId,
+      expertName: room.expertName,
+      governorate: room.governorate,
+      topic: room.topic,
+      diagnosisId: room.diagnosisId,
+      status: room.status,
+      createdAt: room.createdAt.toISOString(),
+      acceptedAt: room.acceptedAt?.toISOString(),
+      messageCount: room._count.messages,
+    }));
+
+    res.json(requests);
+  } catch (error) {
+    console.error("❌ Error fetching requests:", error.message);
+    res.status(500).json({ error: "Failed to fetch requests" });
+  }
 });
 
 // Get room history
-app.get("/v1/rooms/:roomId/messages", (req, res) => {
-  const { roomId } = req.params;
-  const messages = getRoomMessages(roomId);
-  res.json(messages);
+app.get("/v1/rooms/:roomId/messages", async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const { limit = 500, offset = 0 } = req.query;
+
+    const messages = await prisma.message.findMany({
+      where: { roomId },
+      orderBy: { createdAt: "asc" },
+      take: parseInt(limit),
+      skip: parseInt(offset),
+    });
+
+    // Transform to match existing format
+    const formattedMessages = messages.map((msg) => ({
+      id: msg.id,
+      roomId: msg.roomId,
+      author: msg.senderName,
+      authorType: msg.senderType,
+      message: msg.content,
+      attachments: msg.attachments || [],
+      timestamp: msg.createdAt.toISOString(),
+      status: msg.status,
+    }));
+
+    res.json(formattedMessages);
+  } catch (error) {
+    console.error("❌ Error fetching messages:", error.message);
+    res.status(500).json({ error: "Failed to fetch messages" });
+  }
 });
 
 // Get online experts count
@@ -654,34 +915,84 @@ app.get("/v1/experts/online", (req, res) => {
 });
 
 // Get stats
-app.get("/v1/stats", (req, res) => {
-  const totalMessages = Array.from(messageHistory.values()).reduce(
-    (sum, msgs) => sum + msgs.length,
-    0,
-  );
+app.get("/v1/stats", async (req, res) => {
+  try {
+    const totalMessages = await prisma.message.count();
+    const totalRooms = await prisma.chatRoom.count();
+    const activeRooms = await prisma.chatRoom.count({
+      where: { status: "active" },
+    });
 
-  res.json({
-    totalConnections: activeUsers.size,
-    onlineExperts: onlineExperts.size,
-    activeRooms: rooms.size,
-    totalMessages,
-    timestamp: getFormattedTime(),
-  });
+    res.json({
+      totalConnections: activeUsers.size,
+      onlineExperts: onlineExperts.size,
+      activeRooms,
+      totalRooms,
+      totalMessages,
+      timestamp: getFormattedTime(),
+    });
+  } catch (error) {
+    console.error("❌ Error fetching stats:", error.message);
+    res.status(500).json({
+      totalConnections: activeUsers.size,
+      onlineExperts: onlineExperts.size,
+      activeRooms: 0,
+      totalMessages: 0,
+      timestamp: getFormattedTime(),
+      error: "Failed to fetch database stats",
+    });
+  }
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Graceful Shutdown
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function gracefulShutdown(signal) {
+  console.log(`\n📴 Received ${signal}. Shutting down gracefully...`);
+
+  // Close all WebSocket connections
+  io.close();
+
+  // Disconnect from database
+  await prisma.$disconnect();
+
+  console.log("👋 Goodbye!");
+  process.exit(0);
+}
+
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Start Server
 // ═══════════════════════════════════════════════════════════════════════════════
 
-server.listen(PORT, () => {
-  console.log(`
+async function startServer() {
+  // Try to connect to database, but don't fail if unavailable
+  let dbConnected = false;
+  try {
+    await prisma.$connect();
+    console.log("✅ Database connected successfully");
+    dbConnected = true;
+  } catch (error) {
+    console.warn("⚠️ Database connection failed:", error.message);
+    console.warn("⚠️ Service will start in degraded mode (no persistence)");
+  }
+
+  server.listen(PORT, () => {
+    console.log(`
 ╔═══════════════════════════════════════════════════════════════╗
 ║         🌿 Sahool Community Chat Service 🌿                   ║
 ║                                                               ║
 ║   Service: ${SERVICE_NAME.padEnd(20)} Version: ${SERVICE_VERSION}        ║
 ║   Port: ${PORT}                                                ║
+║   Database: ${dbConnected ? "Connected ✅" : "Disconnected ⚠️"}                            ║
 ║                                                               ║
 ║   خدمة الدردشة الحية لمجتمع سهول الزراعي                     ║
 ╚═══════════════════════════════════════════════════════════════╝
-  `);
-});
+    `);
+  });
+}
+
+startServer();

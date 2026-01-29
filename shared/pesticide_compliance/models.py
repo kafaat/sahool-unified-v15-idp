@@ -5,7 +5,7 @@ Pesticide Compliance Models - نماذج بيانات سلامة المبيدا�
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 
@@ -150,7 +150,7 @@ class PesticideApplication:
     rei_expiry_time: datetime | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     notes: str = ""
 
 

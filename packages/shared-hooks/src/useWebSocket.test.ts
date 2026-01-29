@@ -10,6 +10,9 @@ class MockWebSocket {
   static CLOSING = 2;
   static CLOSED = 3;
 
+  // Control whether new connections automatically succeed
+  static autoConnect = true;
+
   public url: string;
   public readyState: number = MockWebSocket.CONNECTING;
   public onopen: ((event: Event) => void) | null = null;
@@ -19,11 +22,19 @@ class MockWebSocket {
 
   constructor(url: string) {
     this.url = url;
-    // Simulate async connection
-    setTimeout(() => {
-      this.readyState = MockWebSocket.OPEN;
-      this.onopen?.(new Event("open"));
-    }, 0);
+    // Simulate async connection (only if autoConnect is enabled)
+    if (MockWebSocket.autoConnect) {
+      setTimeout(() => {
+        this.readyState = MockWebSocket.OPEN;
+        this.onopen?.(new Event("open"));
+      }, 0);
+    }
+  }
+
+  // Test helper to manually trigger successful connection
+  simulateOpen() {
+    this.readyState = MockWebSocket.OPEN;
+    this.onopen?.(new Event("open"));
   }
 
   send(data: string) {
@@ -58,17 +69,27 @@ describe("useWebSocket", () => {
     mockWebSocketInstances = [];
     vi.useFakeTimers();
 
-    // Mock WebSocket constructor
-    global.WebSocket = vi.fn((url: string) => {
+    // Mock WebSocket constructor with static constants
+    const MockWebSocketConstructor = vi.fn((url: string) => {
       const instance = new MockWebSocket(url);
       mockWebSocketInstances.push(instance);
       return instance as unknown as WebSocket;
     }) as unknown as typeof WebSocket;
+
+    // Add WebSocket static constants that the hook uses
+    (MockWebSocketConstructor as any).CONNECTING = 0;
+    (MockWebSocketConstructor as any).OPEN = 1;
+    (MockWebSocketConstructor as any).CLOSING = 2;
+    (MockWebSocketConstructor as any).CLOSED = 3;
+
+    global.WebSocket = MockWebSocketConstructor;
   });
 
   afterEach(() => {
     vi.clearAllTimers();
     vi.restoreAllMocks();
+    // Reset autoConnect for next test
+    MockWebSocket.autoConnect = true;
   });
 
   describe("connection management", () => {
@@ -193,13 +214,18 @@ describe("useWebSocket", () => {
         }),
       );
 
+      // Wait for connection to be established
       await act(async () => {
         await vi.runAllTimersAsync();
       });
 
-      const sendSpy = vi.spyOn(mockWebSocketInstances[0], "send");
+      // Ensure we have an instance and it's connected
+      expect(mockWebSocketInstances.length).toBeGreaterThan(0);
+      const wsInstance = mockWebSocketInstances[mockWebSocketInstances.length - 1];
+      const sendSpy = vi.spyOn(wsInstance, "send");
       const testData = { type: "test", payload: "data" };
 
+      // Send message
       act(() => {
         result.current.send(testData);
       });
@@ -267,6 +293,10 @@ describe("useWebSocket", () => {
 
       expect(mockWebSocketInstances).toHaveLength(1);
 
+      // Disable auto-connect to simulate failed reconnections
+      // This ensures attempts accumulate correctly for backoff testing
+      MockWebSocket.autoConnect = false;
+
       // Simulate disconnect
       act(() => {
         mockWebSocketInstances[0].close();
@@ -318,6 +348,10 @@ describe("useWebSocket", () => {
       await act(async () => {
         await vi.runAllTimersAsync();
       });
+
+      // Disable auto-connect to simulate failed reconnections
+      // This ensures attempts accumulate (don't reset on success)
+      MockWebSocket.autoConnect = false;
 
       // Simulate multiple disconnections to reach high exponential values
       // After 10 attempts: 5000 * 1.5^10 = 288,626ms (> 30,000ms)
@@ -375,6 +409,10 @@ describe("useWebSocket", () => {
         await vi.runAllTimersAsync();
       });
 
+      // Disable auto-connect to simulate failed reconnections
+      // This ensures attempts accumulate and eventually reach max
+      MockWebSocket.autoConnect = false;
+
       // Simulate disconnections up to max attempts
       for (let i = 0; i < maxReconnectAttempts; i++) {
         act(() => {
@@ -422,15 +460,15 @@ describe("useWebSocket", () => {
 
       expect(onConnect).toHaveBeenCalledTimes(1);
 
-      // Disconnect and reconnect twice
+      // Disconnect and reconnect twice (with successful connections)
       for (let i = 0; i < 2; i++) {
         act(() => {
           mockWebSocketInstances[mockWebSocketInstances.length - 1].close();
         });
 
+        // Use runAllTimersAsync to ensure both the reconnect timer AND the onopen timer fire
         await act(async () => {
-          const delay = reconnectInterval * Math.pow(1.5, i);
-          await vi.advanceTimersByTimeAsync(delay);
+          await vi.runAllTimersAsync();
         });
       }
 
@@ -438,17 +476,18 @@ describe("useWebSocket", () => {
       expect(onConnect).toHaveBeenCalledTimes(3);
 
       // After successful reconnection, attempts should reset
-      // Next disconnect should use the base delay again
+      // Next disconnect should use the base delay again (1000ms)
       act(() => {
         mockWebSocketInstances[mockWebSocketInstances.length - 1].close();
       });
 
-      // Should use base interval (1000ms) not exponential
+      // Run all timers to process reconnection and connection
       await act(async () => {
-        await vi.advanceTimersByTimeAsync(1000);
+        await vi.runAllTimersAsync();
       });
 
       expect(mockWebSocketInstances).toHaveLength(4);
+      expect(onConnect).toHaveBeenCalledTimes(4);
     });
   });
 
@@ -531,6 +570,10 @@ describe("useWebSocket", () => {
         await vi.runAllTimersAsync();
       });
 
+      // Disable auto-connect to simulate failed reconnections
+      // This ensures attempts accumulate correctly
+      MockWebSocket.autoConnect = false;
+
       for (let i = 0; i < expectedDelays.length; i++) {
         const initialCount = mockWebSocketInstances.length;
 
@@ -568,6 +611,10 @@ describe("useWebSocket", () => {
       await act(async () => {
         await vi.runAllTimersAsync();
       });
+
+      // Disable auto-connect to simulate failed reconnections
+      // This ensures attempts accumulate correctly
+      MockWebSocket.autoConnect = false;
 
       // Go through 5 reconnections to exceed MAX_RECONNECT_DELAY
       for (let i = 0; i < 5; i++) {

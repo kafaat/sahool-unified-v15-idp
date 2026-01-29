@@ -1,6 +1,6 @@
 /**
- * HTTP Exception Filter for Marketplace Service
- * فلتر استثناءات HTTP لخدمة السوق
+ * HTTP Exception Filter for Research Core Service
+ * فلتر استثناءات HTTP لخدمة البحث العلمي
  *
  * Provides unified error response format across the service.
  */

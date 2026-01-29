@@ -114,7 +114,7 @@ def create_observability_router(
         import os
         import platform
         import sys
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         return {
             "service": {
@@ -124,7 +124,7 @@ def create_observability_router(
                 "log_level": os.getenv("LOG_LEVEL", "INFO"),
             },
             "runtime": {
-                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
                 "pid": os.getpid(),
             },
             "config": {

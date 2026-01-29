@@ -19,7 +19,7 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -446,7 +446,7 @@ class ExperienceRule(BaseModel):
 
     is_active: bool = Field(default=True, description="Whether rule is active | هل القاعدة نشطة")
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Creation timestamp | وقت الإنشاء"
+        default_factory=lambda: datetime.now(timezone.utc), description="Creation timestamp | وقت الإنشاء"
     )
     created_by: str = Field(default="", description="Creator (user/system) | المُنشئ")
 
@@ -518,7 +518,7 @@ class HumanDecision(BaseModel):
     decided_by: str = Field(default="", description="User who made the decision | المستخدم المُقرر")
     decided_by_role: str = Field(default="farmer", description="Role of the decider | دور المُقرر")
     decided_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Decision timestamp | وقت القرار"
+        default_factory=lambda: datetime.now(timezone.utc), description="Decision timestamp | وقت القرار"
     )
 
     # For audit and learning
@@ -611,7 +611,7 @@ class CalibrationResult(BaseModel):
     )
 
     started_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Test start time | وقت بدء الاختبار"
+        default_factory=lambda: datetime.now(timezone.utc), description="Test start time | وقت بدء الاختبار"
     )
     completed_at: datetime | None = Field(
         None, description="Test completion time | وقت اكتمال الاختبار"
@@ -845,10 +845,10 @@ class IrrigationProgram(BaseModel):
 
     # Metadata
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Creation time | وقت الإنشاء"
+        default_factory=lambda: datetime.now(timezone.utc), description="Creation time | وقت الإنشاء"
     )
     updated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Last update time | وقت آخر تحديث"
+        default_factory=lambda: datetime.now(timezone.utc), description="Last update time | وقت آخر تحديث"
     )
     version: int = Field(default=1, ge=1, description="Program version | إصدار البرنامج")
 
@@ -871,7 +871,7 @@ class ValidationReport(BaseModel):
         None, description="Associated session ID | معرف الجلسة المرتبطة"
     )
     generated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Generation time | وقت الإنشاء"
+        default_factory=lambda: datetime.now(timezone.utc), description="Generation time | وقت الإنشاء"
     )
 
     is_complete: bool = Field(
@@ -969,7 +969,7 @@ class SessionOutcome(BaseModel):
     )
 
     recorded_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Recording time | وقت التسجيل"
+        default_factory=lambda: datetime.now(timezone.utc), description="Recording time | وقت التسجيل"
     )
     recorded_by: str = Field(default="", description="Who recorded | من سجل")
 
@@ -1049,10 +1049,10 @@ class DecisionSession(BaseModel):
 
     # Timestamps
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Creation time | وقت الإنشاء"
+        default_factory=lambda: datetime.now(timezone.utc), description="Creation time | وقت الإنشاء"
     )
     updated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Last update time | وقت آخر تحديث"
+        default_factory=lambda: datetime.now(timezone.utc), description="Last update time | وقت آخر تحديث"
     )
     completed_at: datetime | None = Field(
         None, description="Completion time | وقت الإكمال"

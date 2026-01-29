@@ -20,7 +20,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import UUID
@@ -505,7 +505,7 @@ async def send_sms_notification(notification, farmer_id: str):
             await NotificationRepository.update_status(
                 notification.id,
                 status="sent",
-                sent_at=datetime.utcnow(),
+                sent_at=datetime.now(timezone.utc),
             )
             # Log success
             await NotificationLogRepository.create_log(
@@ -583,7 +583,7 @@ async def send_email_notification(notification, farmer_id: str):
             await NotificationRepository.update_status(
                 notification.id,
                 status="sent",
-                sent_at=datetime.utcnow(),
+                sent_at=datetime.now(timezone.utc),
             )
             # Log success
             await NotificationLogRepository.create_log(
@@ -658,7 +658,7 @@ async def send_push_notification(notification, farmer_id: str):
             await NotificationRepository.update_status(
                 notification.id,
                 status="sent",
-                sent_at=datetime.utcnow(),
+                sent_at=datetime.now(timezone.utc),
             )
             # Log success
             await NotificationLogRepository.create_log(
@@ -722,7 +722,7 @@ async def send_whatsapp_notification(notification, farmer_id: str):
             await NotificationRepository.update_status(
                 notification.id,
                 status="sent",
-                sent_at=datetime.utcnow(),
+                sent_at=datetime.now(timezone.utc),
             )
             # Log success
             await NotificationLogRepository.create_log(
@@ -1338,7 +1338,7 @@ async def mark_notification_read(notification_id: str, farmer_id: str = Query(..
             "success": True,
             "notification_id": notification_id,
             "is_read": True,
-            "read_at": datetime.utcnow().isoformat(),
+            "read_at": datetime.now(timezone.utc).isoformat(),
         }
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid notification ID format")
@@ -1487,12 +1487,12 @@ async def get_notification_stats():
 
     active_weather = await NotificationModel.filter(
         type=NotificationType.WEATHER_ALERT.value,
-        expires_at__gt=datetime.utcnow(),
+        expires_at__gt=datetime.now(timezone.utc),
     ).count()
 
     active_pest = await NotificationModel.filter(
         type=NotificationType.PEST_OUTBREAK.value,
-        expires_at__gt=datetime.utcnow(),
+        expires_at__gt=datetime.now(timezone.utc),
     ).count()
 
     # Get farmer count from database

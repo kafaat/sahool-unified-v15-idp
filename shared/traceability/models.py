@@ -12,7 +12,7 @@ certifications, and consumer-facing product journey display.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from uuid import uuid4
 
@@ -209,11 +209,11 @@ class Certification:
     certificate_document_url: str | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def is_currently_valid(self) -> bool:
         """Check if certification is currently valid"""
-        return self.is_valid and datetime.utcnow() < self.expiry_date
+        return self.is_valid and datetime.now(timezone.utc) < self.expiry_date
 
 
 @dataclass
@@ -293,8 +293,8 @@ class ProduceBatch:
     qr_code_data: str | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Custom attributes
     attributes: dict = field(default_factory=dict)
@@ -342,7 +342,7 @@ class SupplyChainEvent:
     event_type: EventType = EventType.HARVEST
 
     # Timestamp
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Location
     location: GeoLocation | None = None
@@ -372,7 +372,7 @@ class SupplyChainEvent:
     signature: str | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass
@@ -449,7 +449,7 @@ class StorageEvent(SupplyChainEvent):
     actual_humidity_percent: float | None = None
 
     # Duration
-    storage_start: datetime = field(default_factory=datetime.utcnow)
+    storage_start: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     storage_end: datetime | None = None
 
     # Notes
@@ -678,5 +678,5 @@ class BatchTraceReport:
     compliance_issues: list[str] = field(default_factory=list)
 
     # Generated
-    generated_at: datetime = field(default_factory=datetime.utcnow)
+    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     generated_by: str = ""

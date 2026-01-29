@@ -27,7 +27,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -129,12 +129,12 @@ async def lifespan(app: FastAPI):
 # ==================== FastAPI Application ====================
 
 # Create MCP server instance
-mcp_server = MCPServer(name="sahool-mcp-server", version="1.0.0")
+mcp_server = MCPServer(name="sahool-mcp-server", version="16.0.0")
 
 # Create FastAPI app
 app = FastAPI(
     title="SAHOOL MCP Server",
-    version="1.0.0",
+    version="16.0.0",
     description="Model Context Protocol server for SAHOOL agricultural platform",
     lifespan=lifespan,
 )
@@ -166,8 +166,8 @@ async def health():
     return {
         "status": "healthy",
         "service": "mcp-server",
-        "version": "1.0.0",
-        "timestamp": datetime.utcnow().isoformat(),
+        "version": "16.0.0",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "mcp_server": {
             "name": mcp_server.name,
             "version": mcp_server.version,
@@ -231,6 +231,28 @@ async def handle_mcp_request(request: Request):
 
     try:
         data = await request.json()
+
+        # Validate JSON-RPC 2.0 request structure
+        if data.get("jsonrpc") != "2.0":
+            return JSONResponse(
+                content={
+                    "jsonrpc": "2.0",
+                    "id": data.get("id"),
+                    "error": {"code": -32600, "message": "Invalid Request: jsonrpc must be '2.0'"},
+                },
+                status_code=200,
+            )
+
+        if "method" not in data or not isinstance(data.get("method"), str):
+            return JSONResponse(
+                content={
+                    "jsonrpc": "2.0",
+                    "id": data.get("id"),
+                    "error": {"code": -32600, "message": "Invalid Request: method is required"},
+                },
+                status_code=200,
+            )
+
         method = data.get("method", "unknown")
 
         logger.info(f"MCP Request: {method} (id: {data.get('id')})")
@@ -267,9 +289,11 @@ async def handle_mcp_request(request: Request):
             f"{'ERROR' if response.error else 'SUCCESS'} ({duration:.3f}s)"
         )
 
+        # JSON-RPC 2.0 spec: Always return HTTP 200 for properly formed requests
+        # Errors are communicated in the response body
         return JSONResponse(
             content=json.loads(response.json()),
-            status_code=200 if not response.error else 500,
+            status_code=200,
         )
 
     except Exception as e:
@@ -284,9 +308,10 @@ async def handle_mcp_request(request: Request):
             error={"code": -32603, "message": "Internal error", "data": str(e)},
         )
 
+        # JSON-RPC 2.0 spec: Always return HTTP 200, error is in response body
         return JSONResponse(
             content=json.loads(error_response.json()),
-            status_code=500,
+            status_code=200,
         )
 
 
@@ -307,7 +332,7 @@ async def handle_sse(request: Request):
                     break
 
                 # Send heartbeat every 30 seconds
-                yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.utcnow().isoformat()})}\n\n"
+                yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.now(timezone.utc).isoformat()})}\n\n"
 
                 await asyncio.sleep(30)
 

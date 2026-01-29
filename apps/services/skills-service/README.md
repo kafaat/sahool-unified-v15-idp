@@ -1,7 +1,7 @@
 # SAHOOL Skills Service
 
 **Version**: 16.0.0
-**Port**: 8110
+**Port**: 8121
 
 ## Overview
 
@@ -22,7 +22,7 @@ pip install -r requirements.txt
 # Run service
 python src/main.py
 
-# Service will be available at http://localhost:8110
+# Service will be available at http://localhost:8121
 ```
 
 ### Docker
@@ -32,7 +32,7 @@ python src/main.py
 docker build -t sahool-skills-service .
 
 # Run
-docker run -p 8110:8110 \
+docker run -p 8121:8121 \
   -e ENVIRONMENT=development \
   -e LOG_LEVEL=INFO \
   sahool-skills-service
@@ -44,7 +44,7 @@ docker run -p 8110:8110 \
 # From project root
 make dev
 
-# Service starts automatically on port 8110
+# Service starts automatically on port 8121
 ```
 
 ## API Endpoints
@@ -157,7 +157,7 @@ Client Request
 
 | Variable        | Default       | Description              |
 | --------------- | ------------- | ------------------------ |
-| `PORT`          | `8110`        | Service port             |
+| `PORT`          | `8121`        | Service port             |
 | `ENVIRONMENT`   | `development` | Environment mode         |
 | `LOG_LEVEL`     | `INFO`        | Logging level            |
 | `REDIS_URL`     | (optional)    | Redis connection URL     |
@@ -217,8 +217,8 @@ pytest tests/test_compress.py -v
 Both return `status: "ok"` when healthy:
 
 ```bash
-curl http://localhost:8110/healthz
-curl http://localhost:8110/readyz
+curl http://localhost:8121/healthz
+curl http://localhost:8121/readyz
 ```
 
 ### Logs
@@ -279,10 +279,10 @@ skills-service/
 docker logs sahool-skills-service
 
 # Verify port is available
-lsof -i :8110
+lsof -i :8121
 
 # Test connection
-curl http://localhost:8110/healthz
+curl http://localhost:8121/healthz
 ```
 
 ### High memory usage

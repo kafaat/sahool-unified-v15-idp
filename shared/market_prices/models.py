@@ -13,7 +13,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from decimal import Decimal
 from enum import Enum
 from typing import Any
@@ -328,8 +328,8 @@ class Market:
     last_price_update: datetime | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -639,7 +639,7 @@ class CropPrice:
 
     # Timestamp
     price_date: date = field(default_factory=date.today)
-    recorded_at: datetime = field(default_factory=datetime.utcnow)
+    recorded_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Source
     source: str = "market_report"  # market_report, trader, api, manual
@@ -708,7 +708,7 @@ class CropPrice:
             available_quantity=data.get("available_quantity"),
             quantity_unit=PriceUnit(data.get("quantity_unit", "ton")),
             price_date=date.fromisoformat(data["price_date"]) if data.get("price_date") else date.today(),
-            recorded_at=datetime.fromisoformat(data["recorded_at"]) if data.get("recorded_at") else datetime.utcnow(),
+            recorded_at=datetime.fromisoformat(data["recorded_at"]) if data.get("recorded_at") else datetime.now(timezone.utc),
             source=data.get("source", "market_report"),
             source_id=data.get("source_id"),
             verified=data.get("verified", False),
@@ -776,8 +776,8 @@ class PriceAlert:
     name_ar: str = ""
     description: str = ""
     description_ar: str = ""
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def is_valid(self) -> bool:
         """Check if alert is currently valid"""
@@ -919,7 +919,7 @@ class PriceTrend:
     seasonal_factor: float = 1.0  # Multiplier vs. annual average
 
     # Analysis timestamp
-    analyzed_at: datetime = field(default_factory=datetime.utcnow)
+    analyzed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -998,7 +998,7 @@ class MarketComparison:
 
     # Analysis metadata
     markets_compared: int = 0
-    analyzed_at: datetime = field(default_factory=datetime.utcnow)
+    analyzed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -1089,7 +1089,7 @@ class SellingRecommendation:
     # e.g., ["seasonal_trend", "market_demand", "weather_forecast", "storage_costs"]
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     valid_until: date | None = None
 
     def to_dict(self) -> dict[str, Any]:

@@ -1,26 +1,38 @@
 """
 SAHOOL Field Management Service - NATS Publisher
 Publishes field-related events to NATS event bus
+
+REFACTORED: Now uses shared EventPublisher for consistency across services
 """
 
-import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
 
-import nats
-from nats.aio.client import Client as NatsClient
+# Use the shared EventPublisher from shared/events/
+from shared.events.publisher import EventPublisher, PublisherConfig
 
 logger = logging.getLogger(__name__)
 
 
 class NatsPublisher:
-    """NATS Event Publisher for Field Management Service"""
+    """
+    NATS Event Publisher for Field Management Service
 
-    def __init__(self):
-        self.nc: NatsClient | None = None
+    This is an adapter that wraps the shared EventPublisher to provide
+    backward-compatible API for the field-management-service.
+    """
+
+    def __init__(self, service_name: str = "field-management-service"):
+        self._publisher: EventPublisher | None = None
+        self._service_name = service_name
         self.connected = False
+
+    @property
+    def is_connected(self) -> bool:
+        """Check if connected to NATS"""
+        return self._publisher is not None and self._publisher.is_connected
 
     async def connect(self, nats_url: str) -> bool:
         """
@@ -33,10 +45,19 @@ class NatsPublisher:
             bool: Connection success status
         """
         try:
-            self.nc = await nats.connect(nats_url)
-            self.connected = True
-            logger.info(f"✅ NATS connected: {nats_url}")
-            return True
+            config = PublisherConfig(
+                servers=[nats_url],
+                name=self._service_name,
+            )
+            self._publisher = EventPublisher(
+                config=config,
+                service_name=self._service_name,
+            )
+            success = await self._publisher.connect()
+            self.connected = success
+            if success:
+                logger.info(f"✅ NATS connected: {nats_url}")
+            return success
         except Exception as e:
             logger.error(f"❌ NATS connection failed: {e}")
             self.connected = False
@@ -44,9 +65,9 @@ class NatsPublisher:
 
     async def disconnect(self):
         """Disconnect from NATS server"""
-        if self.nc and self.connected:
+        if self._publisher:
             try:
-                await self.nc.close()
+                await self._publisher.close()
                 self.connected = False
                 logger.info("NATS disconnected")
             except Exception as e:
@@ -71,25 +92,30 @@ class NatsPublisher:
         Returns:
             bool: Publish success status
         """
-        if not self.nc or not self.connected:
+        if not self.is_connected:
             logger.warning(f"NATS not connected, skipping event publish: {event_type}")
             return False
 
         try:
+            # Ensure subject has sahool. prefix for security compliance
+            if not subject.startswith("sahool."):
+                subject = f"sahool.{subject}"
+
             event = {
                 "eventId": str(uuid4()),
                 "eventType": event_type,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "version": "1.0",
+                "sourceService": self._service_name,
                 "payload": payload,
                 "metadata": metadata or {},
             }
 
-            message = json.dumps(event).encode()
-            await self.nc.publish(subject, message)
+            success = await self._publisher.publish_json(subject, event)
 
-            logger.info(f"📤 Event published: {event_type} to {subject}")
-            return True
+            if success:
+                logger.info(f"📤 Event published: {event_type} to {subject}")
+            return success
 
         except Exception as e:
             logger.error(f"Error publishing event {event_type}: {e}")
@@ -143,7 +169,7 @@ async def publish_field_created(
         return False
 
     return await publisher.publish_event(
-        subject="field.created",
+        subject="sahool.field.created",
         event_type="field.created",
         payload={
             "fieldId": field_id,
@@ -177,7 +203,7 @@ async def publish_field_updated(
         return False
 
     return await publisher.publish_event(
-        subject="field.updated",
+        subject="sahool.field.updated",
         event_type="field.updated",
         payload={
             "fieldId": field_id,
@@ -208,7 +234,7 @@ async def publish_field_deleted(
         return False
 
     return await publisher.publish_event(
-        subject="field.deleted",
+        subject="sahool.field.deleted",
         event_type="field.deleted",
         payload={
             "fieldId": field_id,
@@ -247,7 +273,7 @@ async def publish_profitability_analyzed(
         return False
 
     return await publisher.publish_event(
-        subject="field.profitability.analyzed",
+        subject="sahool.field.profitability.analyzed",
         event_type="field.profitability.analyzed",
         payload={
             "fieldId": field_id,
@@ -257,6 +283,6 @@ async def publish_profitability_analyzed(
             "roi": roi,
             "breakEvenYield": break_even_yield,
             "recommendations": recommendations,
-            "analyzedAt": datetime.utcnow().isoformat(),
+            "analyzedAt": datetime.now(timezone.utc).isoformat(),
         },
     )

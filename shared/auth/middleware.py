@@ -452,13 +452,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 # Consume one token
                 tokens -= 1
                 await self._redis.set(
-                    burst_key, str({"tokens": tokens, "last_update": now}), ex=120
+                    burst_key, json.dumps({"tokens": tokens, "last_update": now}), ex=120
                 )
             else:
                 # Initialize burst tokens
                 await self._redis.set(
                     burst_key,
-                    str({"tokens": self.burst_limit - 1, "last_update": now}),
+                    json.dumps({"tokens": self.burst_limit - 1, "last_update": now}),
                     ex=120,
                 )
 

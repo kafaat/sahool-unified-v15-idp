@@ -5,7 +5,7 @@ Main compliance checking logic for PHI, REI, tank mix, and drift risk
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from .models import (
     PesticideApplication,
@@ -64,7 +64,7 @@ class PesticideComplianceChecker:
         Returns list of violations if harvest is planned too early
         """
         if check_date is None:
-            check_date = datetime.utcnow()
+            check_date = datetime.now(timezone.utc)
 
         violations = []
 
@@ -128,7 +128,7 @@ class PesticideComplianceChecker:
         Returns list of violations if field entry is too early
         """
         if entry_time is None:
-            entry_time = datetime.utcnow()
+            entry_time = datetime.now(timezone.utc)
 
         violations = []
 
@@ -184,7 +184,7 @@ class PesticideComplianceChecker:
         """
         Perform full compliance check - فحص الامتثال الشامل
         """
-        check_date = datetime.utcnow()
+        check_date = datetime.now(timezone.utc)
 
         # Check PHI if harvest date provided
         phi_violations = []
@@ -413,7 +413,7 @@ def check_rei_compliance(
     Returns violation if non-compliant, None if compliant
     """
     if entry_time is None:
-        entry_time = datetime.utcnow()
+        entry_time = datetime.now(timezone.utc)
 
     pesticide = get_pesticide(pesticide_id)
     if not pesticide:
@@ -523,7 +523,7 @@ def assess_spray_drift_risk(
     - Humidity (ideal: 40-90%)
     - Delta T (wet bulb depression, ideal: 2-8°C)
     """
-    assessment_time = datetime.utcnow()
+    assessment_time = datetime.now(timezone.utc)
 
     # Calculate Delta T (simplified - assumes 40% RH gives ~8°C delta)
     delta_t = temperature_c * (1 - humidity_percent / 100) * 0.4

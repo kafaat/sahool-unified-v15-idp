@@ -3,13 +3,18 @@
 خدمة المؤشرات الزراعية - Dashboard & Analytics
 """
 
+import json
 import os
 import sys
 import uuid
-from datetime import datetime, timedelta
+from contextlib import asynccontextmanager
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 
+import asyncpg
+import nats
+import structlog
 from fastapi import FastAPI, HTTPException, Query
 
 # Shared middleware imports
@@ -18,15 +23,282 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from pydantic import BaseModel
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
+logger = structlog.get_logger()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application lifecycle - startup and shutdown."""
+    # Startup
+    logger.info("Starting indicators-service...")
+
+    # Database connection
+    db_url = os.getenv("DATABASE_URL")
+    if db_url:
+        try:
+            app.state.db_pool = await asyncpg.create_pool(
+                db_url,
+                min_size=2,
+                max_size=10
+            )
+            logger.info("Connected to database")
+            # Create table if not exists
+            async with app.state.db_pool.acquire() as conn:
+                await conn.execute('''
+                    CREATE TABLE IF NOT EXISTS field_indicators (
+                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                        field_id VARCHAR(255) NOT NULL,
+                        indicator_type VARCHAR(100) NOT NULL,
+                        value JSONB NOT NULL,
+                        calculated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        tenant_id VARCHAR(255),
+                        UNIQUE(field_id, indicator_type)
+                    )
+                ''')
+                # Create index for faster lookups
+                await conn.execute('''
+                    CREATE INDEX IF NOT EXISTS idx_field_indicators_field_id
+                    ON field_indicators(field_id)
+                ''')
+                await conn.execute('''
+                    CREATE INDEX IF NOT EXISTS idx_field_indicators_tenant_id
+                    ON field_indicators(tenant_id)
+                ''')
+            logger.info("Database tables initialized")
+        except Exception as e:
+            logger.warning("Failed to connect to database", error=str(e))
+            app.state.db_pool = None
+    else:
+        app.state.db_pool = None
+        logger.info("DATABASE_URL not configured, using in-memory storage")
+
+    # NATS connection
+    nats_url = os.getenv("NATS_URL")
+    if nats_url:
+        try:
+            app.state.nc = await nats.connect(nats_url)
+            logger.info("Connected to NATS", nats_url=nats_url)
+        except Exception as e:
+            logger.warning("Failed to connect to NATS", error=str(e))
+            app.state.nc = None
+    else:
+        app.state.nc = None
+        logger.info("NATS_URL not configured, event publishing disabled")
+
+    yield
+
+    # Shutdown
+    logger.info("Shutting down indicators-service...")
+    if hasattr(app.state, "db_pool") and app.state.db_pool:
+        await app.state.db_pool.close()
+        logger.info("Database connection closed")
+    if hasattr(app.state, "nc") and app.state.nc:
+        await app.state.nc.close()
+        logger.info("NATS connection closed")
+
+
 app = FastAPI(
     title="SAHOOL Agricultural Indicators | خدمة المؤشرات الزراعية",
-    version="15.3.0",
+    version="16.0.0",
     description="Comprehensive agricultural indicators dashboard - KPIs, trends, alerts",
+    lifespan=lifespan,
 )
 
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+
+async def publish_event(subject: str, data: dict):
+    """Publish event to NATS if connected."""
+    if hasattr(app.state, "nc") and app.state.nc:
+        try:
+            await app.state.nc.publish(
+                subject,
+                json.dumps(data).encode()
+            )
+            logger.debug("Published event", subject=subject, data=data)
+        except Exception as e:
+            logger.warning("Failed to publish event", subject=subject, error=str(e))
+
+
+# =============================================================================
+# Database Helper Functions
+# =============================================================================
+
+
+async def save_indicator(
+    field_id: str,
+    indicator_type: str,
+    value: dict,
+    tenant_id: str | None = None
+) -> bool:
+    """Save indicator value to database.
+
+    Args:
+        field_id: The field identifier
+        indicator_type: Type of indicator (e.g., 'ndvi', 'soil_moisture')
+        value: Dictionary containing indicator data
+        tenant_id: Optional tenant identifier
+
+    Returns:
+        True if saved successfully, False otherwise
+    """
+    if hasattr(app.state, "db_pool") and app.state.db_pool:
+        try:
+            async with app.state.db_pool.acquire() as conn:
+                await conn.execute('''
+                    INSERT INTO field_indicators (field_id, indicator_type, value, tenant_id)
+                    VALUES ($1, $2, $3, $4)
+                    ON CONFLICT (field_id, indicator_type)
+                    DO UPDATE SET value = $3, calculated_at = NOW()
+                ''', field_id, indicator_type, json.dumps(value), tenant_id)
+            logger.debug(
+                "Saved indicator",
+                field_id=field_id,
+                indicator_type=indicator_type
+            )
+            return True
+        except Exception as e:
+            logger.warning(
+                "Failed to save indicator",
+                field_id=field_id,
+                indicator_type=indicator_type,
+                error=str(e)
+            )
+            return False
+    return False
+
+
+async def get_indicator(
+    field_id: str,
+    indicator_type: str
+) -> dict | None:
+    """Retrieve indicator value from database.
+
+    Args:
+        field_id: The field identifier
+        indicator_type: Type of indicator
+
+    Returns:
+        Indicator data dictionary or None if not found
+    """
+    if hasattr(app.state, "db_pool") and app.state.db_pool:
+        try:
+            async with app.state.db_pool.acquire() as conn:
+                row = await conn.fetchrow('''
+                    SELECT value, calculated_at FROM field_indicators
+                    WHERE field_id = $1 AND indicator_type = $2
+                ''', field_id, indicator_type)
+                if row:
+                    data = json.loads(row['value'])
+                    data['calculated_at'] = row['calculated_at'].isoformat()
+                    return data
+        except Exception as e:
+            logger.warning(
+                "Failed to get indicator",
+                field_id=field_id,
+                indicator_type=indicator_type,
+                error=str(e)
+            )
+    return None
+
+
+async def get_all_field_indicators(field_id: str) -> list[dict]:
+    """Retrieve all indicators for a field from database.
+
+    Args:
+        field_id: The field identifier
+
+    Returns:
+        List of indicator data dictionaries
+    """
+    if hasattr(app.state, "db_pool") and app.state.db_pool:
+        try:
+            async with app.state.db_pool.acquire() as conn:
+                rows = await conn.fetch('''
+                    SELECT indicator_type, value, calculated_at FROM field_indicators
+                    WHERE field_id = $1
+                    ORDER BY indicator_type
+                ''', field_id)
+                result = []
+                for row in rows:
+                    data = json.loads(row['value'])
+                    data['indicator_type'] = row['indicator_type']
+                    data['calculated_at'] = row['calculated_at'].isoformat()
+                    result.append(data)
+                return result
+        except Exception as e:
+            logger.warning(
+                "Failed to get field indicators",
+                field_id=field_id,
+                error=str(e)
+            )
+    return []
+
+
+async def get_tenant_indicators(tenant_id: str, limit: int = 100) -> list[dict]:
+    """Retrieve all indicators for a tenant from database.
+
+    Args:
+        tenant_id: The tenant identifier
+        limit: Maximum number of records to return
+
+    Returns:
+        List of indicator data dictionaries
+    """
+    if hasattr(app.state, "db_pool") and app.state.db_pool:
+        try:
+            async with app.state.db_pool.acquire() as conn:
+                rows = await conn.fetch('''
+                    SELECT field_id, indicator_type, value, calculated_at
+                    FROM field_indicators
+                    WHERE tenant_id = $1
+                    ORDER BY calculated_at DESC
+                    LIMIT $2
+                ''', tenant_id, limit)
+                result = []
+                for row in rows:
+                    data = json.loads(row['value'])
+                    data['field_id'] = row['field_id']
+                    data['indicator_type'] = row['indicator_type']
+                    data['calculated_at'] = row['calculated_at'].isoformat()
+                    result.append(data)
+                return result
+        except Exception as e:
+            logger.warning(
+                "Failed to get tenant indicators",
+                tenant_id=tenant_id,
+                error=str(e)
+            )
+    return []
+
+
+async def delete_field_indicators(field_id: str) -> bool:
+    """Delete all indicators for a field.
+
+    Args:
+        field_id: The field identifier
+
+    Returns:
+        True if deleted successfully, False otherwise
+    """
+    if hasattr(app.state, "db_pool") and app.state.db_pool:
+        try:
+            async with app.state.db_pool.acquire() as conn:
+                await conn.execute('''
+                    DELETE FROM field_indicators WHERE field_id = $1
+                ''', field_id)
+            logger.info("Deleted field indicators", field_id=field_id)
+            return True
+        except Exception as e:
+            logger.warning(
+                "Failed to delete field indicators",
+                field_id=field_id,
+                error=str(e)
+            )
+            return False
+    return False
 
 
 # =============================================================================
@@ -419,7 +691,7 @@ def create_alert_if_needed(indicator: Indicator, field_id: str) -> IndicatorAler
         threshold_value=threshold,
         recommended_action_ar=get_recommendation_ar(indicator.id, indicator.value, threshold),
         recommended_action_en=get_recommendation_en(indicator.id, indicator.value, threshold),
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
     )
 
 
@@ -467,12 +739,16 @@ def health():
 @app.get("/readyz")
 def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    nats_connected = hasattr(app.state, "nc") and app.state.nc is not None
+    db_connected = hasattr(app.state, "db_pool") and app.state.db_pool is not None
     return {
         "status": "ready",
         "service": "indicators-service",
         "version": "16.0.0",
         "checks": {
             "indicators": "loaded" if INDICATOR_DEFINITIONS else "not_loaded",
+            "nats": "connected" if nats_connected else "disconnected",
+            "database": "connected" if db_connected else "disconnected",
         },
         "indicators_count": len(INDICATOR_DEFINITIONS),
     }
@@ -502,28 +778,92 @@ def get_indicator_definitions():
 
 
 @app.get("/v1/field/{field_id}/indicators", response_model=FieldIndicators)
-def get_field_indicators(field_id: str, category: IndicatorCategory | None = None):
-    """الحصول على مؤشرات حقل معين"""
-    import random
+async def get_field_indicators(
+    field_id: str,
+    category: IndicatorCategory | None = None,
+    tenant_id: str | None = None,
+    force_refresh: bool = False,
+):
+    """الحصول على مؤشرات حقل معين
 
-    # Simulate field data
-    base_health = random.uniform(0.5, 0.9)
+    Args:
+        field_id: Field identifier
+        category: Optional category filter
+        tenant_id: Optional tenant identifier for multi-tenancy
+        force_refresh: If True, regenerate indicators even if cached
+    """
+    import random
 
     indicators = []
     alerts = []
+    timestamp = datetime.now(timezone.utc).isoformat()
+
+    # Try to load existing indicators from database
+    stored_indicators = await get_all_field_indicators(field_id) if not force_refresh else []
+    stored_map = {ind['indicator_type']: ind for ind in stored_indicators}
+
+    # Check if we have fresh data (less than 1 hour old)
+    use_stored = False
+    if stored_indicators and not force_refresh:
+        try:
+            first_calc = datetime.fromisoformat(
+                stored_indicators[0].get('calculated_at', '').replace('Z', '+00:00')
+            )
+            age = datetime.now(timezone.utc).replace(tzinfo=first_calc.tzinfo) - first_calc
+            use_stored = age.total_seconds() < 3600  # Use if less than 1 hour old
+        except (ValueError, TypeError):
+            use_stored = False
+
+    # Generate base health for new indicators
+    base_health = random.uniform(0.5, 0.9)
 
     for ind_id, defn in INDICATOR_DEFINITIONS.items():
         if category and defn["category"] != category:
             continue
 
-        value, trend, trend_percent = generate_indicator_value(defn, base_health)
-        status = determine_status(
-            value,
-            defn.get("optimal_min"),
-            defn.get("optimal_max"),
-            defn["min"],
-            defn["max"],
-        )
+        # Check if we have stored data for this indicator
+        if use_stored and ind_id in stored_map:
+            stored = stored_map[ind_id]
+            value = stored.get('value', 0)
+            trend = TrendDirection(stored.get('trend', 'stable'))
+            trend_percent = stored.get('trend_percent', 0)
+            status = stored.get('status', 'info')
+            last_updated = datetime.fromisoformat(
+                stored.get('calculated_at', timestamp).replace('Z', '+00:00')
+            ).replace(tzinfo=None)
+        else:
+            # Generate new indicator value
+            value, trend, trend_percent = generate_indicator_value(defn, base_health)
+            status = determine_status(
+                value,
+                defn.get("optimal_min"),
+                defn.get("optimal_max"),
+                defn["min"],
+                defn["max"],
+            )
+            last_updated = datetime.now(timezone.utc)
+
+            # Save to database
+            indicator_data = {
+                "value": value,
+                "trend": trend.value,
+                "trend_percent": trend_percent,
+                "status": status,
+            }
+            await save_indicator(field_id, ind_id, indicator_data, tenant_id)
+
+            # Publish event for newly computed indicator
+            await publish_event(
+                "sahool.indicators.computed",
+                {
+                    "field_id": field_id,
+                    "indicator_type": ind_id,
+                    "value": value,
+                    "status": status,
+                    "trend": trend.value,
+                    "timestamp": timestamp,
+                }
+            )
 
         indicator = Indicator(
             id=ind_id,
@@ -539,7 +879,7 @@ def get_field_indicators(field_id: str, category: IndicatorCategory | None = Non
             trend=trend,
             trend_percent=trend_percent,
             status=status,
-            last_updated=datetime.utcnow(),
+            last_updated=last_updated,
         )
         indicators.append(indicator)
 
@@ -552,6 +892,18 @@ def get_field_indicators(field_id: str, category: IndicatorCategory | None = Non
     optimal_count = sum(1 for ind in indicators if ind.status == "optimal")
     overall_score = (optimal_count / len(indicators)) * 100 if indicators else 0
 
+    # Publish field indicators summary event
+    await publish_event(
+        "sahool.indicators.field_summary",
+        {
+            "field_id": field_id,
+            "indicators_count": len(indicators),
+            "overall_score": round(overall_score, 1),
+            "alerts_count": len(alerts),
+            "timestamp": timestamp,
+        }
+    )
+
     return FieldIndicators(
         field_id=field_id,
         field_name=f"حقل {field_id[-4:]}",
@@ -563,8 +915,175 @@ def get_field_indicators(field_id: str, category: IndicatorCategory | None = Non
     )
 
 
+class IndicatorInput(BaseModel):
+    """Input model for storing indicator values"""
+    indicator_type: str
+    value: float
+    trend: TrendDirection | None = None
+    trend_percent: float | None = None
+    tenant_id: str | None = None
+
+
+@app.post("/v1/field/{field_id}/indicators")
+async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
+    """تخزين قيمة مؤشر لحقل معين
+
+    Store an indicator value for a specific field. This is useful when
+    indicator values are computed externally (e.g., from satellite imagery
+    processing or IoT sensors).
+    """
+    # Validate indicator type
+    if indicator_input.indicator_type not in INDICATOR_DEFINITIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid indicator type: {indicator_input.indicator_type}"
+        )
+
+    defn = INDICATOR_DEFINITIONS[indicator_input.indicator_type]
+
+    # Validate value is within range
+    if not (defn["min"] <= indicator_input.value <= defn["max"]):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Value {indicator_input.value} is outside valid range [{defn['min']}, {defn['max']}]"
+        )
+
+    # Calculate status
+    status = determine_status(
+        indicator_input.value,
+        defn.get("optimal_min"),
+        defn.get("optimal_max"),
+        defn["min"],
+        defn["max"],
+    )
+
+    # Prepare indicator data
+    indicator_data = {
+        "value": indicator_input.value,
+        "trend": indicator_input.trend.value if indicator_input.trend else TrendDirection.STABLE.value,
+        "trend_percent": indicator_input.trend_percent or 0.0,
+        "status": status,
+    }
+
+    # Save to database
+    success = await save_indicator(
+        field_id,
+        indicator_input.indicator_type,
+        indicator_data,
+        indicator_input.tenant_id
+    )
+
+    if not success:
+        raise HTTPException(
+            status_code=503,
+            detail="Failed to save indicator. Database may not be available."
+        )
+
+    # Publish event
+    timestamp = datetime.now(timezone.utc).isoformat()
+    await publish_event(
+        "sahool.indicators.stored",
+        {
+            "field_id": field_id,
+            "indicator_type": indicator_input.indicator_type,
+            "value": indicator_input.value,
+            "status": status,
+            "timestamp": timestamp,
+        }
+    )
+
+    logger.info(
+        "Indicator stored",
+        field_id=field_id,
+        indicator_type=indicator_input.indicator_type,
+        value=indicator_input.value
+    )
+
+    return {
+        "status": "stored",
+        "field_id": field_id,
+        "indicator_type": indicator_input.indicator_type,
+        "value": indicator_input.value,
+        "computed_status": status,
+        "stored_at": timestamp,
+    }
+
+
+@app.get("/v1/field/{field_id}/indicator/{indicator_type}")
+async def get_single_indicator(field_id: str, indicator_type: str):
+    """الحصول على مؤشر واحد لحقل معين
+
+    Retrieve a single indicator value from the database.
+    """
+    if indicator_type not in INDICATOR_DEFINITIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid indicator type: {indicator_type}"
+        )
+
+    indicator_data = await get_indicator(field_id, indicator_type)
+
+    if not indicator_data:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No stored indicator '{indicator_type}' found for field '{field_id}'"
+        )
+
+    defn = INDICATOR_DEFINITIONS[indicator_type]
+
+    return {
+        "field_id": field_id,
+        "indicator": {
+            "id": indicator_type,
+            "name_ar": defn["name_ar"],
+            "name_en": defn["name_en"],
+            "category": defn["category"].value,
+            "unit": defn["unit"],
+            "value": indicator_data.get("value"),
+            "status": indicator_data.get("status"),
+            "trend": indicator_data.get("trend"),
+            "trend_percent": indicator_data.get("trend_percent"),
+            "calculated_at": indicator_data.get("calculated_at"),
+        },
+    }
+
+
+@app.delete("/v1/field/{field_id}/indicators")
+async def delete_field_indicators_endpoint(field_id: str):
+    """حذف جميع مؤشرات حقل معين
+
+    Delete all stored indicators for a specific field.
+    Use with caution - this operation cannot be undone.
+    """
+    success = await delete_field_indicators(field_id)
+
+    if not success:
+        raise HTTPException(
+            status_code=503,
+            detail="Failed to delete indicators. Database may not be available."
+        )
+
+    # Publish event
+    timestamp = datetime.now(timezone.utc).isoformat()
+    await publish_event(
+        "sahool.indicators.deleted",
+        {
+            "field_id": field_id,
+            "timestamp": timestamp,
+        }
+    )
+
+    logger.info("Field indicators deleted", field_id=field_id)
+
+    return {
+        "status": "deleted",
+        "field_id": field_id,
+        "deleted_at": timestamp,
+    }
+
+
 @app.get("/v1/dashboard/{tenant_id}", response_model=DashboardSummary)
-def get_dashboard_summary(tenant_id: str, num_fields: int = Query(default=10, ge=1, le=100)):
+async def get_dashboard_summary(tenant_id: str, num_fields: int = Query(default=10, ge=1, le=100)):
     """لوحة المعلومات الرئيسية للمستأجر"""
 
     # Generate mock data for multiple fields
@@ -575,7 +1094,7 @@ def get_dashboard_summary(tenant_id: str, num_fields: int = Query(default=10, ge
 
     for _i in range(num_fields):
         field_id = f"field_{uuid.uuid4().hex[:8]}"
-        field_indicators = get_field_indicators(field_id)
+        field_indicators = await get_field_indicators(field_id)
         fields_data.append(field_indicators)
         total_area += field_indicators.area_hectares
         total_health_score += field_indicators.overall_score
@@ -605,12 +1124,27 @@ def get_dashboard_summary(tenant_id: str, num_fields: int = Query(default=10, ge
     fields_data.sort(key=lambda x: x.overall_score, reverse=True)
 
     critical_alerts = sum(1 for a in all_alerts if a.get("severity") == "critical")
+    avg_health = round(total_health_score / num_fields, 1)
+
+    # Publish dashboard computed event
+    await publish_event(
+        "sahool.indicators.dashboard_computed",
+        {
+            "tenant_id": tenant_id,
+            "total_fields": num_fields,
+            "total_area_hectares": round(total_area, 2),
+            "average_health_score": avg_health,
+            "active_alerts": len(all_alerts),
+            "critical_alerts": critical_alerts,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    )
 
     return DashboardSummary(
         tenant_id=tenant_id,
         total_fields=num_fields,
         total_area_hectares=round(total_area, 2),
-        average_health_score=round(total_health_score / num_fields, 1),
+        average_health_score=avg_health,
         indicators_summary=category_summary,
         active_alerts=len(all_alerts),
         critical_alerts=critical_alerts,
@@ -634,12 +1168,12 @@ def get_dashboard_summary(tenant_id: str, num_fields: int = Query(default=10, ge
             for f in fields_data[-3:]
             if f.overall_score < 60
         ],
-        generated_at=datetime.utcnow(),
+        generated_at=datetime.now(timezone.utc),
     )
 
 
 @app.get("/v1/alerts/{tenant_id}")
-def get_tenant_alerts(
+async def get_tenant_alerts(
     tenant_id: str,
     severity: AlertSeverity | None = None,
     limit: int = Query(default=50, ge=1, le=200),
@@ -665,16 +1199,30 @@ def get_tenant_alerts(
                 "message_ar": f"تنبيه: {defn['name_ar']} خارج النطاق المثالي",
                 "message_en": f"Alert: {defn['name_en']} outside optimal range",
                 "created_at": (
-                    datetime.utcnow() - timedelta(hours=random.randint(0, 48))
+                    datetime.now(timezone.utc) - timedelta(hours=random.randint(0, 48))
                 ).isoformat(),
             }
         )
+
+    # Publish alerts retrieved event
+    critical_count = sum(1 for a in alerts if a["severity"] == "critical")
+    warning_count = sum(1 for a in alerts if a["severity"] == "warning")
+    await publish_event(
+        "sahool.indicators.alerts_retrieved",
+        {
+            "tenant_id": tenant_id,
+            "total_alerts": len(alerts),
+            "critical_count": critical_count,
+            "warning_count": warning_count,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    )
 
     return {"tenant_id": tenant_id, "total_alerts": len(alerts), "alerts": alerts}
 
 
 @app.get("/v1/trends/{field_id}/{indicator_id}")
-def get_indicator_trends(
+async def get_indicator_trends(
     field_id: str, indicator_id: str, days: int = Query(default=30, ge=7, le=365)
 ):
     """الحصول على اتجاهات مؤشر معين"""
@@ -693,7 +1241,7 @@ def get_indicator_trends(
     current_value = optimal_mid + random.uniform(-0.2, 0.2) * (opt_max - opt_min)
 
     for i in range(days):
-        date_point = datetime.utcnow() - timedelta(days=days - i - 1)
+        date_point = datetime.now(timezone.utc) - timedelta(days=days - i - 1)
         # Random walk with mean reversion
         change = random.gauss(0, (opt_max - opt_min) * 0.05)
         reversion = (optimal_mid - current_value) * 0.1
@@ -716,6 +1264,28 @@ def get_indicator_trends(
     min_value = min(values)
     max_value = max(values)
 
+    overall_trend = (
+        TrendDirection.UP.value
+        if values[-1] > values[0]
+        else (
+            TrendDirection.DOWN.value if values[-1] < values[0] else TrendDirection.STABLE.value
+        )
+    )
+
+    # Publish trend analysis event
+    await publish_event(
+        "sahool.indicators.trend_analyzed",
+        {
+            "field_id": field_id,
+            "indicator_type": indicator_id,
+            "period_days": days,
+            "average_value": round(avg_value, 2),
+            "current_value": round(values[-1], 2),
+            "overall_trend": overall_trend,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    )
+
     return {
         "field_id": field_id,
         "indicator": {
@@ -732,13 +1302,7 @@ def get_indicator_trends(
             "optimal_range": {"min": opt_min, "max": opt_max},
         },
         "data_points": data_points,
-        "overall_trend": (
-            TrendDirection.UP.value
-            if values[-1] > values[0]
-            else (
-                TrendDirection.DOWN.value if values[-1] < values[0] else TrendDirection.STABLE.value
-            )
-        ),
+        "overall_trend": overall_trend,
     }
 
 

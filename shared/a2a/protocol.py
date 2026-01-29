@@ -9,7 +9,7 @@ Core protocol message types, state management, and conversation handling.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -53,7 +53,7 @@ class A2AMessage(BaseModel):
 
     message_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     message_type: MessageType
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     sender_agent_id: str
     receiver_agent_id: str | None = None
     conversation_id: str | None = None
@@ -166,8 +166,8 @@ class ConversationContext:
         self.messages: list[A2AMessage] = []
         self.tasks: dict[str, TaskState] = {}
         self.metadata: dict[str, Any] = {}
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
+        self.created_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(timezone.utc)
 
     def add_message(self, message: A2AMessage) -> None:
         """
@@ -178,7 +178,7 @@ class ConversationContext:
             message: A2A message to add
         """
         self.messages.append(message)
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
 
         # Update task state if this is a task-related message
         # تحديث حالة المهمة إذا كانت هذه رسالة متعلقة بالمهمة

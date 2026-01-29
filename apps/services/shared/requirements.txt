@@ -28,7 +28,7 @@ redis[hiredis]>=5.2.1
 
 # Utilities
 python-dotenv==1.0.1
-python-multipart==0.0.18
+python-multipart==0.0.22
 
 # Observability
 structlog>=24.1.0

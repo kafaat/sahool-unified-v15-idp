@@ -10,7 +10,7 @@ Version: 1.0.0
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, date, time, timedelta
+from datetime import datetime, date, time, timedelta, timezone
 from enum import Enum
 from uuid import uuid4
 
@@ -227,7 +227,7 @@ class WorkerCertification:
     verified_date: date | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def is_valid(self, check_date: date | None = None) -> bool:
         """Check if certification is still valid"""
@@ -314,8 +314,8 @@ class Worker:
     preferred_language: str = "ar"
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     notes: str = ""
     notes_ar: str = ""
 
@@ -439,21 +439,21 @@ class Task:
     quality_rating: int | None = None  # 1-5
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def is_blocked_by_rei(self, check_time: datetime | None = None) -> bool:
         """Check if task is blocked due to REI restriction"""
         if not self.rei_restricted or not self.rei_expiry_time:
             return False
-        check = check_time or datetime.utcnow()
+        check = check_time or datetime.now(timezone.utc)
         return check < self.rei_expiry_time
 
     def get_rei_remaining_hours(self, check_time: datetime | None = None) -> float | None:
         """Get remaining REI hours"""
         if not self.rei_restricted or not self.rei_expiry_time:
             return None
-        check = check_time or datetime.utcnow()
+        check = check_time or datetime.now(timezone.utc)
         if check >= self.rei_expiry_time:
             return 0.0
         return (self.rei_expiry_time - check).total_seconds() / 3600
@@ -524,8 +524,8 @@ class WorkerSchedule:
     notes: str = ""
     notes_ar: str = ""
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass
@@ -569,8 +569,8 @@ class AttendanceRecord:
     notes: str = ""
     notes_ar: str = ""
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def calculate_worked_hours(self) -> float | None:
         """Calculate worked hours from clock times"""
@@ -607,8 +607,8 @@ class LeaveRequest:
     rejection_reason_ar: str = ""
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def get_duration_days(self) -> int:
         """Get leave duration in days"""
@@ -648,8 +648,8 @@ class Timesheet:
     notes: str = ""
     notes_ar: str = ""
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass
@@ -682,7 +682,7 @@ class SafetyViolation:
     missing_ppe: list[PPEType] = field(default_factory=list)
 
     # Location and time
-    incident_time: datetime = field(default_factory=datetime.utcnow)
+    incident_time: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     incident_location: str = ""
     incident_location_ar: str = ""
     gps_coordinates: tuple[float, float] | None = None
@@ -702,8 +702,8 @@ class SafetyViolation:
 
     # Metadata
     reported_by: str | None = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass
@@ -752,19 +752,19 @@ class REIZone:
     warning_message_ar: str = ""
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def is_currently_restricted(self, check_time: datetime | None = None) -> bool:
         """Check if zone is currently restricted"""
         if not self.is_active:
             return False
-        check = check_time or datetime.utcnow()
+        check = check_time or datetime.now(timezone.utc)
         return check < self.rei_expiry_time
 
     def get_remaining_hours(self, check_time: datetime | None = None) -> float:
         """Get remaining REI hours"""
-        check = check_time or datetime.utcnow()
+        check = check_time or datetime.now(timezone.utc)
         if check >= self.rei_expiry_time:
             return 0.0
         return (self.rei_expiry_time - check).total_seconds() / 3600
@@ -822,7 +822,7 @@ class PreTaskSafetyCheck:
     notes: str = ""
     notes_ar: str = ""
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def is_complete(self) -> bool:
         """Check if all mandatory items are completed"""

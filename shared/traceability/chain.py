@@ -11,7 +11,7 @@ from harvest to consumer, with full event history and verification.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Callable
 from uuid import uuid4
 
@@ -223,7 +223,7 @@ class SupplyChainTracker:
         batch = self._batches.get(batch_id)
         if batch:
             batch.status = status
-            batch.updated_at = datetime.utcnow()
+            batch.updated_at = datetime.now(timezone.utc)
         return batch
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -307,7 +307,7 @@ class SupplyChainTracker:
         if self.config.auto_update_batch_status:
             batch.status = BatchStatus.HARVESTED
             batch.harvest_date = event.timestamp
-            batch.updated_at = datetime.utcnow()
+            batch.updated_at = datetime.now(timezone.utc)
 
         return event
 
@@ -376,7 +376,7 @@ class SupplyChainTracker:
             if quality_grade:
                 batch.quality_grade = quality_grade
             batch.pack_date = event.timestamp
-            batch.updated_at = datetime.utcnow()
+            batch.updated_at = datetime.now(timezone.utc)
 
         return event
 
@@ -434,7 +434,7 @@ class SupplyChainTracker:
         # Update batch
         if self.config.auto_update_batch_status:
             batch.status = BatchStatus.IN_STORAGE
-            batch.updated_at = datetime.utcnow()
+            batch.updated_at = datetime.now(timezone.utc)
 
         # Check temperature compliance
         if actual_temperature_c is not None:
@@ -483,7 +483,7 @@ class SupplyChainTracker:
             destination_location=destination_location,
             transport_mode=transport_mode,
             target_temperature_c=target_temperature_c,
-            departure_time=departure_time or datetime.utcnow(),
+            departure_time=departure_time or datetime.now(timezone.utc),
             distance_km=distance_km,
             location_name_en=f"{origin_en} to {destination_en}",
             location_name_ar=f"{origin_ar} إلى {destination_ar}",
@@ -500,7 +500,7 @@ class SupplyChainTracker:
         # Update batch
         if self.config.auto_update_batch_status:
             batch.status = BatchStatus.IN_TRANSIT
-            batch.updated_at = datetime.utcnow()
+            batch.updated_at = datetime.now(timezone.utc)
 
         return event
 
@@ -518,7 +518,7 @@ class SupplyChainTracker:
         for events in self._events.values():
             for event in events:
                 if event.id == transport_event_id and isinstance(event, TransportEvent):
-                    event.arrival_time = arrival_time or datetime.utcnow()
+                    event.arrival_time = arrival_time or datetime.now(timezone.utc)
                     event.min_recorded_temperature_c = min_temperature_c
                     event.max_recorded_temperature_c = max_temperature_c
                     return event
@@ -582,7 +582,7 @@ class SupplyChainTracker:
         # Update batch
         if self.config.auto_update_batch_status:
             batch.status = BatchStatus.AT_RETAIL
-            batch.updated_at = datetime.utcnow()
+            batch.updated_at = datetime.now(timezone.utc)
 
         return event
 
@@ -723,7 +723,7 @@ class SupplyChainTracker:
         # Calculate freshness
         days_since_harvest = 0
         if batch.harvest_date:
-            days_since_harvest = (datetime.utcnow() - batch.harvest_date).days
+            days_since_harvest = (datetime.now(timezone.utc) - batch.harvest_date).days
 
         # Calculate freshness score (100 = just harvested, decreases over time)
         freshness_score = max(0, 100 - (days_since_harvest * 5))

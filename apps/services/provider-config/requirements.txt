@@ -11,7 +11,7 @@ httpx==0.28.1
 python-dotenv==1.0.1
 
 # Service-specific dependencies
-python-multipart==0.0.18
+python-multipart==0.0.22
 
 # Database dependencies
 sqlalchemy==2.0.23
@@ -20,5 +20,8 @@ alembic==1.13.1
 
 # Caching
 redis==5.0.1
+
+# Messaging
+nats-py>=2.9.0
 
 structlog>=24.1.0

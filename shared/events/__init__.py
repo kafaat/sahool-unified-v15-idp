@@ -61,6 +61,29 @@ from .contracts import (
     WeatherAlertEvent,
     # Weather events
     WeatherForecastEvent,
+    # AI Agent events
+    AgentExecutionStartedEvent,
+    AgentExecutionCompletedEvent,
+    AgentExecutionFailedEvent,
+    AgentStepCompletedEvent,
+    # CRM/Farmer events
+    FarmerCreatedEvent,
+    FarmerUpdatedEvent,
+    FarmerStatusChangedEvent,
+    HarvestDealCreatedEvent,
+    HarvestDealStageChangedEvent,
+    InteractionLoggedEvent,
+    # Low-Code events
+    PageCreatedEvent,
+    PagePublishedEvent,
+    DataModelCreatedEvent,
+    WorkflowExecutedEvent,
+    # WeChat events
+    WeChatMessageReceivedEvent,
+    WeChatMessageSentEvent,
+    WeChatContactAddedEvent,
+    WeChatMomentPublishedEvent,
+    WeChatChatSummarizedEvent,
 )
 
 # DLQ Support
@@ -108,32 +131,73 @@ from .publisher import (
 
 # NATS subject constants
 from .subjects import (
+    # Agent subjects
+    SAHOOL_AGENT_EXECUTION_STARTED,
+    SAHOOL_AGENT_EXECUTION_COMPLETED,
+    SAHOOL_AGENT_EXECUTION_FAILED,
+    SAHOOL_AGENT_STEP_COMPLETED,
+    SAHOOL_AGENT_FARM_ADVISOR,
+    SAHOOL_AGENT_RESEARCH,
+    SAHOOL_AGENT_PLANNER,
+    SAHOOL_AGENT_ALL,
+    SAHOOL_AGENT_EXECUTION_ALL,
+    # Farmer subjects
+    SAHOOL_FARMER_CREATED,
+    SAHOOL_FARMER_UPDATED,
+    SAHOOL_FARMER_STATUS_CHANGED,
+    SAHOOL_FARMER_ALL,
+    # Harvest subjects
+    SAHOOL_HARVEST_DEAL_CREATED,
+    SAHOOL_HARVEST_DEAL_STAGE_CHANGED,
+    SAHOOL_HARVEST_ALL,
+    # Interaction subjects
+    SAHOOL_INTERACTION_LOGGED,
+    SAHOOL_INTERACTION_ALL,
+    # Task subjects
+    SAHOOL_TASK_CREATED,
+    SAHOOL_TASK_UPDATED,
+    SAHOOL_TASK_COMPLETED,
+    SAHOOL_TASK_DELETED,
+    SAHOOL_TASK_ASSIGNED,
+    SAHOOL_TASK_ALL,
+    # Recommendation subjects
+    SAHOOL_RECOMMENDATION_CREATED,
+    SAHOOL_RECOMMENDATION_IRRIGATION,
+    SAHOOL_RECOMMENDATION_FERTILIZER,
+    SAHOOL_RECOMMENDATION_PEST_CONTROL,
+    SAHOOL_RECOMMENDATION_HARVEST,
+    SAHOOL_RECOMMENDATION_ALL,
+    # Alert subjects
+    SAHOOL_ALERT_CREATED,
+    SAHOOL_ALERT_ACKNOWLEDGED,
+    SAHOOL_ALERT_RESOLVED,
+    SAHOOL_ALERT_ALL,
+    # Billing subjects
     SAHOOL_BILLING_ALL,
     SAHOOL_BILLING_PAYMENT_COMPLETED,
     SAHOOL_BILLING_PAYMENT_FAILED,
-    # Billing subjects
     SAHOOL_BILLING_SUBSCRIPTION_CREATED,
-    SAHOOL_FIELD_ALL,
     # Field subjects
+    SAHOOL_FIELD_ALL,
     SAHOOL_FIELD_CREATED,
     SAHOOL_FIELD_DELETED,
     SAHOOL_FIELD_UPDATED,
-    SAHOOL_HEALTH_ALL,
     # Health subjects
+    SAHOOL_HEALTH_ALL,
     SAHOOL_HEALTH_DISEASE_DETECTED,
     SAHOOL_HEALTH_STRESS_DETECTED,
+    # Inventory subjects
     SAHOOL_INVENTORY_ALL,
     SAHOOL_INVENTORY_BATCH_EXPIRED,
-    # Inventory subjects
     SAHOOL_INVENTORY_LOW_STOCK,
+    # Satellite subjects
     SAHOOL_NDVI_COMPUTED,
     SAHOOL_SATELLITE_ALL,
     SAHOOL_SATELLITE_ANOMALY,
-    # Satellite subjects
     SAHOOL_SATELLITE_DATA_READY,
+    # Weather subjects
     SAHOOL_WEATHER_ALERT,
     SAHOOL_WEATHER_ALL,
-    # Weather subjects
     SAHOOL_WEATHER_FORECAST,
     # Utility functions
     get_subject_for_event,
@@ -170,6 +234,29 @@ __all__ = [
     "PaymentCompletedEvent",
     "SubscriptionRenewedEvent",
     "PaymentFailedEvent",
+    # Event Contracts - AI Agent
+    "AgentExecutionStartedEvent",
+    "AgentExecutionCompletedEvent",
+    "AgentExecutionFailedEvent",
+    "AgentStepCompletedEvent",
+    # Event Contracts - Farmer/CRM
+    "FarmerCreatedEvent",
+    "FarmerUpdatedEvent",
+    "FarmerStatusChangedEvent",
+    "HarvestDealCreatedEvent",
+    "HarvestDealStageChangedEvent",
+    "InteractionLoggedEvent",
+    # Event Contracts - Low-Code
+    "PageCreatedEvent",
+    "PagePublishedEvent",
+    "DataModelCreatedEvent",
+    "WorkflowExecutedEvent",
+    # Event Contracts - WeChat
+    "WeChatMessageReceivedEvent",
+    "WeChatMessageSentEvent",
+    "WeChatContactAddedEvent",
+    "WeChatMomentPublishedEvent",
+    "WeChatChatSummarizedEvent",
     # Legacy events (backward compatibility)
     "LegacyBaseEvent",
     "LegacyFieldCreatedEvent",
@@ -180,6 +267,47 @@ __all__ = [
     "TaskCompletedEvent",
     "AdvisorRecommendationEvent",
     "AlertCreatedEvent",
+    # NATS Subjects - Agent
+    "SAHOOL_AGENT_EXECUTION_STARTED",
+    "SAHOOL_AGENT_EXECUTION_COMPLETED",
+    "SAHOOL_AGENT_EXECUTION_FAILED",
+    "SAHOOL_AGENT_STEP_COMPLETED",
+    "SAHOOL_AGENT_FARM_ADVISOR",
+    "SAHOOL_AGENT_RESEARCH",
+    "SAHOOL_AGENT_PLANNER",
+    "SAHOOL_AGENT_ALL",
+    "SAHOOL_AGENT_EXECUTION_ALL",
+    # NATS Subjects - Farmer
+    "SAHOOL_FARMER_CREATED",
+    "SAHOOL_FARMER_UPDATED",
+    "SAHOOL_FARMER_STATUS_CHANGED",
+    "SAHOOL_FARMER_ALL",
+    # NATS Subjects - Harvest
+    "SAHOOL_HARVEST_DEAL_CREATED",
+    "SAHOOL_HARVEST_DEAL_STAGE_CHANGED",
+    "SAHOOL_HARVEST_ALL",
+    # NATS Subjects - Interaction
+    "SAHOOL_INTERACTION_LOGGED",
+    "SAHOOL_INTERACTION_ALL",
+    # NATS Subjects - Task
+    "SAHOOL_TASK_CREATED",
+    "SAHOOL_TASK_UPDATED",
+    "SAHOOL_TASK_COMPLETED",
+    "SAHOOL_TASK_DELETED",
+    "SAHOOL_TASK_ASSIGNED",
+    "SAHOOL_TASK_ALL",
+    # NATS Subjects - Recommendation
+    "SAHOOL_RECOMMENDATION_CREATED",
+    "SAHOOL_RECOMMENDATION_IRRIGATION",
+    "SAHOOL_RECOMMENDATION_FERTILIZER",
+    "SAHOOL_RECOMMENDATION_PEST_CONTROL",
+    "SAHOOL_RECOMMENDATION_HARVEST",
+    "SAHOOL_RECOMMENDATION_ALL",
+    # NATS Subjects - Alert
+    "SAHOOL_ALERT_CREATED",
+    "SAHOOL_ALERT_ACKNOWLEDGED",
+    "SAHOOL_ALERT_RESOLVED",
+    "SAHOOL_ALERT_ALL",
     # NATS Subjects - Field
     "SAHOOL_FIELD_CREATED",
     "SAHOOL_FIELD_UPDATED",

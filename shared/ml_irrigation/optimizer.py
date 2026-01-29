@@ -17,7 +17,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from collections import defaultdict
 import logging
@@ -440,8 +440,8 @@ class WaterOptimizer:
         if not records:
             return HistoricalPattern(
                 field_id=field_id,
-                start_date=datetime.utcnow(),
-                end_date=datetime.utcnow(),
+                start_date=datetime.now(timezone.utc),
+                end_date=datetime.now(timezone.utc),
                 total_days=0,
                 total_irrigations=0,
                 total_water_mm=0,
@@ -522,7 +522,7 @@ class WaterOptimizer:
         days: int = 30,
     ) -> list[IrrigationRecord]:
         """Get records from recent period"""
-        cutoff = datetime.utcnow() - timedelta(days=days)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
         recent = [r for r in records if r.irrigation_date >= cutoff]
         return sorted(recent, key=lambda r: r.irrigation_date)
 
@@ -591,7 +591,7 @@ class WaterOptimizer:
     ) -> list[dict[str, Any]]:
         """Generate optimized irrigation schedule"""
         schedule = []
-        current_date = datetime.utcnow()
+        current_date = datetime.now(timezone.utc)
 
         # Determine irrigation type and get optimal timing
         irr_type = features.irrigation_type.value if features else "drip"
@@ -689,7 +689,7 @@ class WaterOptimizer:
         if features:
             optimal_hour = OPTIMAL_TIMING.get(
                 features.irrigation_type.value, OPTIMAL_TIMING["drip"]
-            ).get(self._get_season(datetime.utcnow()), {}).get("start", 6)
+            ).get(self._get_season(datetime.now(timezone.utc)), {}).get("start", 6)
 
             recommendations.append(
                 f"Schedule irrigation around {optimal_hour}:00 for minimum evaporation losses."

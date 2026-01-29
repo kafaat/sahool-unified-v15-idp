@@ -1,5 +1,5 @@
 """
-💰 SAHOOL Billing Core Service v15.6
+💰 SAHOOL Billing Core Service v16.0
 خدمة الفوترة الأساسية - إدارة الاشتراكات والمدفوعات
 
 Features:
@@ -219,7 +219,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="SAHOOL Billing Core | خدمة الفوترة",
-    version="15.6.0",
+    version="16.0.0",
     description="Complete billing, subscription, and payment management for SAHOOL platform",
     lifespan=lifespan,
 )
@@ -570,6 +570,7 @@ class CreatePaymentRequest(BaseModel):
     amount: Decimal
     method: PaymentMethod
     stripe_token: str | None = None
+    phone_number: str | None = None  # Required for Tharwatt payments - مطلوب لمدفوعات ثروات
 
 
 # =============================================================================

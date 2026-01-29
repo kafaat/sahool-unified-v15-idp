@@ -16,7 +16,7 @@ import asyncio
 import heapq
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any, Callable, Coroutine
 from uuid import uuid4
@@ -83,15 +83,15 @@ class BatchSchedule:
     last_execution: datetime | None = None
     next_execution: datetime | None = None
     enabled: bool = True
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def calculate_next_execution(self) -> datetime | None:
         """Calculate the next execution time based on recurrence pattern."""
         if self.schedule_type == ScheduleType.IMMEDIATE:
-            return datetime.utcnow()
+            return datetime.now(timezone.utc)
 
         if self.schedule_type == ScheduleType.SCHEDULED:
-            if self.scheduled_time and self.scheduled_time > datetime.utcnow():
+            if self.scheduled_time and self.scheduled_time > datetime.now(timezone.utc):
                 return self.scheduled_time
             return None
 
@@ -102,7 +102,7 @@ class BatchSchedule:
             if self.max_executions and self.execution_count >= self.max_executions:
                 return None
 
-            base_time = self.last_execution or self.scheduled_time or datetime.utcnow()
+            base_time = self.last_execution or self.scheduled_time or datetime.now(timezone.utc)
 
             if self.recurrence_pattern == RecurrencePattern.DAILY:
                 next_time = base_time + timedelta(days=self.recurrence_interval)
@@ -148,7 +148,7 @@ class QueuedBatch:
     scheduled_time: datetime = field(compare=True)
     batch: BatchOperation = field(compare=False)
     schedule: BatchSchedule = field(compare=False)
-    enqueued_at: datetime = field(default_factory=datetime.utcnow, compare=False)
+    enqueued_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc), compare=False)
 
     @classmethod
     def create(
@@ -164,7 +164,7 @@ class QueuedBatch:
             BatchPriority.LOW: 3,
         }
         priority_value = priority_map.get(batch.priority, 2)
-        scheduled_time = schedule.next_execution or datetime.utcnow()
+        scheduled_time = schedule.next_execution or datetime.now(timezone.utc)
 
         return cls(
             priority_value=priority_value,
@@ -186,7 +186,7 @@ class SchedulerEvent:
     event_type: str
     batch_id: str
     message: BilingualMessage
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     details: dict[str, Any] = field(default_factory=dict)
 
 
@@ -218,7 +218,7 @@ class BatchScheduler:
         schedule = scheduler.schedule_batch(
             batch,
             schedule_type=ScheduleType.SCHEDULED,
-            scheduled_time=datetime.utcnow() + timedelta(hours=1)
+            scheduled_time=datetime.now(timezone.utc) + timedelta(hours=1)
         )
 
         # Start scheduler
@@ -389,7 +389,7 @@ class BatchScheduler:
                 batch_id=batch.id,
                 schedule_type=ScheduleType.IMMEDIATE,
             )
-            schedule.next_execution = datetime.utcnow()
+            schedule.next_execution = datetime.now(timezone.utc)
 
             self._batches[batch.id] = batch
             self._schedules[schedule.id] = schedule
@@ -502,7 +502,7 @@ class BatchScheduler:
     async def _process_queue(self):
         """Process the batch queue."""
         async with self._lock:
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
 
             # Check for batches ready to run
             while self._queue and len(self._running_batches) < self._max_concurrent:
@@ -547,7 +547,7 @@ class BatchScheduler:
 
             # Update schedule
             schedule.execution_count += 1
-            schedule.last_execution = datetime.utcnow()
+            schedule.last_execution = datetime.now(timezone.utc)
 
             # Handle recurring schedule
             if schedule.schedule_type == ScheduleType.RECURRING:
@@ -649,7 +649,7 @@ class BatchScheduler:
 
                 if batch_id in self._batches:
                     self._batches[batch_id].status = BatchStatus.CANCELLED
-                    self._batches[batch_id].cancelled_at = datetime.utcnow()
+                    self._batches[batch_id].cancelled_at = datetime.now(timezone.utc)
 
                 await self._emit_event(
                     "batch_cancelled",
@@ -664,7 +664,7 @@ class BatchScheduler:
                     self._queue.pop(i)
                     heapq.heapify(self._queue)
                     queued.batch.status = BatchStatus.CANCELLED
-                    queued.batch.cancelled_at = datetime.utcnow()
+                    queued.batch.cancelled_at = datetime.now(timezone.utc)
 
                     await self._emit_event(
                         "batch_cancelled",

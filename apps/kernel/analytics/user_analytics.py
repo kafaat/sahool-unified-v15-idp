@@ -8,7 +8,7 @@ Advanced user activity tracking and analytics system
 
 import uuid
 from collections import Counter, defaultdict
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
 from .models import (
@@ -98,7 +98,7 @@ class UserAnalyticsService:
             user_id=user_id,
             event_type=event_type,
             metadata=event_metadata,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             **kwargs,
         )
 
@@ -151,7 +151,7 @@ class UserAnalyticsService:
         """
         # تحديد الفترة الزمنية - Determine time period
         if not end_date:
-            end_date = datetime.utcnow()
+            end_date = datetime.now(UTC)
         if not start_date:
             start_date = self._get_period_start(end_date, period)
 
@@ -383,7 +383,7 @@ class UserAnalyticsService:
         """
         # تحديد الفترة الزمنية - Determine time period
         if not end_date:
-            end_date = datetime.utcnow()
+            end_date = datetime.now(UTC)
         if not start_date:
             start_date = self._get_period_start(end_date, period)
 
@@ -496,7 +496,7 @@ class UserAnalyticsService:
             float: متوسط المدة بالدقائق - Average duration in minutes
         """
         if not end_date:
-            end_date = datetime.utcnow()
+            end_date = datetime.now(UTC)
         if not start_date:
             start_date = end_date - timedelta(days=30)
 
@@ -548,7 +548,7 @@ class UserAnalyticsService:
             int: عدد المحاصيل - Number of crops
         """
         if not end_date:
-            end_date = datetime.utcnow()
+            end_date = datetime.now(UTC)
         if not start_date:
             start_date = end_date - timedelta(days=365)  # سنة واحدة - One year
 
@@ -582,7 +582,7 @@ class UserAnalyticsService:
             Optional[float]: متوسط الوقت بالساعات - Average time in hours
         """
         if not end_date:
-            end_date = datetime.utcnow()
+            end_date = datetime.now(UTC)
         if not start_date:
             start_date = end_date - timedelta(days=90)
 
@@ -630,7 +630,7 @@ class UserAnalyticsService:
             float: معدل الاتباع (0-1) - Follow rate (0-1)
         """
         if not end_date:
-            end_date = datetime.utcnow()
+            end_date = datetime.now(UTC)
         if not start_date:
             start_date = end_date - timedelta(days=90)
 
@@ -657,7 +657,7 @@ class UserAnalyticsService:
             Optional[float]: نسبة التحسن - Improvement percentage
         """
         # الحصول على بيانات الإنتاجية - Get yield data
-        current_end = datetime.utcnow()
+        current_end = datetime.now(UTC)
         current_start = current_end - timedelta(days=current_period_days)
 
         baseline_end = current_start
@@ -705,7 +705,7 @@ class UserAnalyticsService:
             Dict[Governorate, int]: عدد المستخدمين لكل محافظة - Users per governorate
         """
         if not end_date:
-            end_date = datetime.utcnow()
+            end_date = datetime.now(UTC)
         if not start_date:
             start_date = end_date - timedelta(days=30)
 
@@ -734,7 +734,7 @@ class UserAnalyticsService:
             Dict[Governorate, int]: عدد الحقول النشطة لكل محافظة - Active fields per governorate
         """
         if not end_date:
-            end_date = datetime.utcnow()
+            end_date = datetime.now(UTC)
         if not start_date:
             start_date = end_date - timedelta(days=30)
 
@@ -767,7 +767,7 @@ class UserAnalyticsService:
             Dict[str, int]: عدد المحاصيل لكل نوع - Crop count by type
         """
         if not end_date:
-            end_date = datetime.utcnow()
+            end_date = datetime.now(UTC)
         if not start_date:
             start_date = end_date - timedelta(days=365)
 

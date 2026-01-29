@@ -7,7 +7,7 @@ Track fertilizer inventory, consumption, and reorder alerts.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 import uuid
 
@@ -46,7 +46,7 @@ class InventoryTransaction:
 
     # User info
     created_by: str = ""
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Notes
     reason: str = ""
@@ -109,7 +109,7 @@ class InventoryAlert:
     resolved: bool = False
     resolved_at: datetime | None = None
 
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict:
         """Convert to dictionary for NATS publishing"""
@@ -136,7 +136,7 @@ class InventorySummary:
     Inventory summary report - تقرير ملخص المخزون
     """
     tenant_id: str
-    report_date: datetime = field(default_factory=datetime.utcnow)
+    report_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Totals
     total_items: int = 0
@@ -308,7 +308,7 @@ class FertilizerInventoryManager:
             item.supplier = supplier
             item.supplier_ar = supplier_ar
 
-        item.updated_at = datetime.utcnow()
+        item.updated_at = datetime.now(timezone.utc)
         self._update_item_status(item)
 
         # Create transaction
@@ -372,7 +372,7 @@ class FertilizerInventoryManager:
 
         quantity_before = item.quantity_kg
         item.quantity_kg -= quantity_kg
-        item.updated_at = datetime.utcnow()
+        item.updated_at = datetime.now(timezone.utc)
         self._update_item_status(item)
 
         # Create transaction
@@ -425,7 +425,7 @@ class FertilizerInventoryManager:
         quantity_before = item.quantity_kg
         quantity_change = new_quantity_kg - quantity_before
         item.quantity_kg = new_quantity_kg
-        item.updated_at = datetime.utcnow()
+        item.updated_at = datetime.now(timezone.utc)
         self._update_item_status(item)
 
         # Create transaction
@@ -477,7 +477,7 @@ class FertilizerInventoryManager:
             )
 
         item.reserved_kg += quantity_kg
-        item.updated_at = datetime.utcnow()
+        item.updated_at = datetime.now(timezone.utc)
         self._update_item_status(item)
 
         return item
@@ -502,14 +502,14 @@ class FertilizerInventoryManager:
             raise ValueError(f"Inventory item not found: {item_id}")
 
         item.reserved_kg = max(0, item.reserved_kg - quantity_kg)
-        item.updated_at = datetime.utcnow()
+        item.updated_at = datetime.now(timezone.utc)
         self._update_item_status(item)
 
         return item
 
     def _update_item_status(self, item: InventoryItem) -> None:
         """Update inventory item status based on current state."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         # Check expiry
         if item.expiry_date and item.expiry_date < now:
@@ -535,7 +535,7 @@ class FertilizerInventoryManager:
             List of new alerts
         """
         alerts = []
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         for item in self.get_all_items(tenant_id):
             # Check for low stock
@@ -653,7 +653,7 @@ class FertilizerInventoryManager:
             Inventory summary
         """
         items = self.get_all_items(tenant_id)
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         summary = InventorySummary(tenant_id=tenant_id)
         summary.total_items = len(items)
@@ -777,7 +777,7 @@ class FertilizerInventoryManager:
         if not item:
             return {"error": "Item not found"}
 
-        start_date = datetime.utcnow() - timedelta(days=days)
+        start_date = datetime.now(timezone.utc) - timedelta(days=days)
         transactions = self.get_transactions(
             tenant_id=item.tenant_id,
             item_id=item_id,
@@ -804,7 +804,7 @@ class FertilizerInventoryManager:
             if days_of_stock != float("inf")
             else None,
             "projected_stockout_date": (
-                datetime.utcnow() + timedelta(days=days_of_stock)
+                datetime.now(timezone.utc) + timedelta(days=days_of_stock)
             ).isoformat()
             if days_of_stock != float("inf") and days_of_stock > 0
             else None,

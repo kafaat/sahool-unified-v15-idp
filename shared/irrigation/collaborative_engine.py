@@ -22,7 +22,7 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Callable
 from uuid import UUID, uuid4, uuid5, NAMESPACE_DNS
 import structlog
@@ -222,7 +222,7 @@ class DefaultProgramGenerator(ProgramGenerator):
 
         # Create schedules for each zone
         schedules = []
-        start_time = datetime.utcnow().replace(hour=6, minute=0, second=0, microsecond=0)
+        start_time = datetime.now(timezone.utc).replace(hour=6, minute=0, second=0, microsecond=0)
 
         for i, zone in enumerate(zones):
             zone_duration = base_duration
@@ -246,8 +246,8 @@ class DefaultProgramGenerator(ProgramGenerator):
         expected_water = total_area * 50  # Simplified: 50 m3/ha
 
         program = IrrigationProgram(
-            name=f"AI Generated - {datetime.utcnow().strftime('%Y-%m-%d')}",
-            name_ar=f"برنامج الذكاء الاصطناعي - {datetime.utcnow().strftime('%Y-%m-%d')}",
+            name=f"AI Generated - {datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
+            name_ar=f"برنامج الذكاء الاصطناعي - {datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
             field_id=context.get("field_id"),
             farm_id=context.get("farm_id"),
             crop_type=context.get("crop_type", ""),
@@ -525,7 +525,7 @@ class HMCIrrigationEngine:
 
         self._current_session.status = SessionStatus.CANCELLED
         self._current_session.notes = reason
-        self._current_session.completed_at = datetime.utcnow()
+        self._current_session.completed_at = datetime.now(timezone.utc)
 
         logger.info(
             "decision_session_cancelled",
@@ -635,7 +635,7 @@ class HMCIrrigationEngine:
         self._current_session.goals = self._goal_dimension.get_all_goals()
         self._current_session.constraints = constraints or []
         self._current_session.status = SessionStatus.GOALS_SET
-        self._current_session.updated_at = datetime.utcnow()
+        self._current_session.updated_at = datetime.now(timezone.utc)
 
         # Update checklist
         self._checklist.check_item("define_primary_goal", self._farmer_id)
@@ -741,7 +741,7 @@ class HMCIrrigationEngine:
 
         self._current_session.current_program = program
         self._current_session.status = SessionStatus.PROGRAM_GENERATED
-        self._current_session.updated_at = datetime.utcnow()
+        self._current_session.updated_at = datetime.now(timezone.utc)
 
         # Update checklist
         self._checklist.check_item("ai_generates_program", "ai")
@@ -835,7 +835,7 @@ class HMCIrrigationEngine:
         # Store decision
         self._current_session.decisions.append(decision)
         self._current_session.status = SessionStatus.UNDER_REVIEW
-        self._current_session.updated_at = datetime.utcnow()
+        self._current_session.updated_at = datetime.now(timezone.utc)
 
         # Update checklist
         self._checklist.check_item("human_reviews_program", self._farmer_id)
@@ -896,7 +896,7 @@ class HMCIrrigationEngine:
             # Update session
             self._current_session.experience_rules.extend(rules)
             self._current_session.status = SessionStatus.EXPERIENCE_INJECTED
-            self._current_session.updated_at = datetime.utcnow()
+            self._current_session.updated_at = datetime.now(timezone.utc)
 
             # Update checklist
             self._checklist.check_item("inject_experience_rules", self._farmer_id)
@@ -975,7 +975,7 @@ class HMCIrrigationEngine:
         # Store result
         self._current_session.calibration_results.append(result)
         self._current_session.status = SessionStatus.CALIBRATING
-        self._current_session.updated_at = datetime.utcnow()
+        self._current_session.updated_at = datetime.now(timezone.utc)
 
         # Update checklist
         if method == CalibrationMethod.SIMULATION:
@@ -1049,12 +1049,12 @@ class HMCIrrigationEngine:
         # Update program
         program.is_approved = True
         program.approved_by = self._farmer_id
-        program.approved_at = datetime.utcnow()
+        program.approved_at = datetime.now(timezone.utc)
 
         # Update session
         self._current_session.status = SessionStatus.APPROVED
         self._current_session.notes = approval_notes
-        self._current_session.updated_at = datetime.utcnow()
+        self._current_session.updated_at = datetime.now(timezone.utc)
 
         # Create approval decision record
         approval_decision = HumanDecision(
@@ -1150,7 +1150,7 @@ class HMCIrrigationEngine:
         # Store outcome
         self._current_session.outcome = outcome
         self._current_session.status = SessionStatus.COMPLETED
-        self._current_session.completed_at = datetime.utcnow()
+        self._current_session.completed_at = datetime.now(timezone.utc)
 
         # Update checklist
         self._checklist.check_item("record_outcomes", self._farmer_id)
@@ -1206,7 +1206,7 @@ class HMCIrrigationEngine:
 
         self._current_session.iteration_count += 1
         self._current_session.status = SessionStatus.GOALS_SET  # Reset to goals phase
-        self._current_session.updated_at = datetime.utcnow()
+        self._current_session.updated_at = datetime.now(timezone.utc)
 
         logger.info(
             "new_iteration_started",
@@ -1240,7 +1240,7 @@ class HMCIrrigationEngine:
 
         report = {
             "report_type": "iteration_report",
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "session_id": str(session.id),
             "farm_id": str(session.farm_id),
             "farmer_id": session.farmer_id,
@@ -1376,7 +1376,7 @@ class HMCIrrigationEngine:
         assert self._current_session is not None
 
         self._current_session.zone_configs = zones
-        self._current_session.updated_at = datetime.utcnow()
+        self._current_session.updated_at = datetime.now(timezone.utc)
 
         logger.info(
             "zones_configured",
@@ -1411,7 +1411,7 @@ class HMCIrrigationEngine:
             if hasattr(program, key):
                 setattr(program, key, value)
 
-        program.updated_at = datetime.utcnow()
+        program.updated_at = datetime.now(timezone.utc)
         program.version += 1
 
     def _count_rules_by_source(

@@ -4,10 +4,14 @@ Processes field events and triggers appropriate rules
 """
 
 import logging
-from datetime import datetime
+import os
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import httpx
+
+# Service URL configuration
+ASTRONOMICAL_SERVICE_URL = os.getenv("ASTRONOMICAL_SERVICE_URL", "http://astronomical-calendar:8111")
 
 from ..models.events import (
     AstronomicalEvent,
@@ -57,7 +61,7 @@ class EventProcessor:
         try:
             # إنشاء معرف الحدث
             event_id = str(uuid4())
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
 
             # تحويل إلى EventResponse
             event_response = EventResponse(
@@ -235,7 +239,7 @@ class EventProcessor:
 
     async def process_soil_moisture(
         self, field_id: str, tenant_id: str, moisture_data: SoilMoistureEvent
-    ) -> EventResponse:
+    ) -> EventResponse | None:
         """
         معالجة حدث رطوبة التربة
         Process soil moisture event
@@ -360,9 +364,9 @@ class EventProcessor:
             بيانات التقويم الفلكي
         """
         try:
-            # في الإنتاج، استخدام متغير البيئة للـ URL
-            base_url = "http://astronomical-calendar:8111"
-            url = f"{base_url}/api/v1/calendar/date/{date}"
+            # استخدام متغير البيئة للـ URL
+            # Using environment variable for the URL
+            url = f"{ASTRONOMICAL_SERVICE_URL}/api/v1/calendar/date/{date}"
 
             if governorate:
                 url += f"?governorate={governorate}"

@@ -14,7 +14,7 @@ event_architecture:
   layers:
     acquisition:
       description: "Data ingestion layer - طبقة جمع البيانات"
-      services: [vegetation-analysis-service, iot-service, iot-gateway, weather-service, weather-core, virtual-sensors, ussd-gateway]
+      services: [vegetation-analysis-service, iot-service, iot-gateway, weather-service, weather-core, virtual-sensors, ussd-gateway, ground-vision-service]
       rules:
         - "No business logic"
         - "Only ingestion + normalization"
@@ -104,6 +104,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "agro-team@sahool.io"
+    team: agro
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - GrowthStageEstimated.v1
@@ -212,6 +216,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - DisasterRiskScored.v1
@@ -245,6 +253,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - LAIEstimated.v1
@@ -272,6 +284,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - YieldPredicted.v1
@@ -303,6 +319,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "frontend-team@sahool.io"
+    team: frontend
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - OrderCreated.v1
@@ -333,6 +353,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "frontend-team@sahool.io"
+    team: frontend
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - CommunityPostCreated.v1
@@ -362,6 +386,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "iot-team@sahool.io"
+    team: iot
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - SensorReadingIngested.v1
@@ -384,6 +412,87 @@ services:
       replicas: 2
 
   # ═══════════════════════════════════════════════════════════════════════════
+  # GROUND VISION SERVICE - خدمة الرؤية الأرضية
+  # ═══════════════════════════════════════════════════════════════════════════
+  ground-vision-service:
+    name: "Ground Vision Service"
+    name_ar: "خدمة الرؤية الأرضية"
+    type: fastapi
+    category: analytics
+    layer: acquisition
+    path: "apps/services/ground-vision-service"
+    port: 8182
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
+    description: |
+      High-frequency agricultural monitoring using tower-mounted cameras.
+      Based on: Qin et al. (2026) - Tower-Based Agricultural Monitoring Framework
+    description_ar: |
+      رصد زراعي عالي التردد باستخدام كاميرات الأبراج.
+      مبني على: Qin et al. (2026) - إطار الرصد الزراعي القائم على الأبراج
+    events:
+      produces:
+        - FrameCaptured.v1
+        - OperationDetected.v1
+        - GrowthStageChanged.v1
+        - AnomalyDetected.v1
+        - TimelineUpdated.v1
+        - CameraStatusChanged.v1
+      consumes:
+        - NDVIComputed.v1
+        - WeatherForecastUpdated.v1
+        - FieldBoundaryUpdated.v1
+        - SensorReadingIngested.v1
+    modules:
+      - id: cameras
+        name: "Camera Registry"
+        name_ar: "سجل الكاميرات"
+        endpoint: "/api/v1/cameras"
+      - id: frames
+        name: "Frame Processing"
+        name_ar: "معالجة الإطارات"
+        endpoint: "/api/v1/frames"
+      - id: detections
+        name: "Operation Detection"
+        name_ar: "كشف العمليات"
+        endpoint: "/api/v1/detections"
+      - id: timeline
+        name: "Crop Timeline"
+        name_ar: "الخط الزمني للمحصول"
+        endpoint: "/api/v1/timeline"
+      - id: anomalies
+        name: "Anomaly Detection"
+        name_ar: "كشف الشذوذ"
+        endpoint: "/api/v1/anomalies"
+    database:
+      type: postgresql
+      name: sahool_ground_vision
+    dependencies:
+      - vegetation-analysis-service
+      - weather-service
+      - iot-service
+    environment:
+      - PORT
+      - DATABASE_URL
+      - NATS_URL
+      - SAM_CHECKPOINT_PATH
+      - YOLO_MODEL_PATH
+      - MLLM_PROVIDER
+      - ANTHROPIC_API_KEY
+      - OLLAMA_BASE_URL
+      - CHANGE_DETECTION_THRESHOLD
+    resources:
+      cpu: "1000m"
+      memory: "2Gi"
+      replicas: 1
+      gpu: "nvidia"
+
+  # ═══════════════════════════════════════════════════════════════════════════
   # RESEARCH CORE - نواة البحث العلمي
   # ═══════════════════════════════════════════════════════════════════════════
   research-core:
@@ -397,6 +506,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - TrialCreated.v1
@@ -428,6 +541,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - InvoiceIssued.v1
@@ -458,6 +575,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: archived
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
     replaced_by: vegetation-analysis-service
     deprecation_date: "2026-01-11"
     archive_date: "2026-01-25"
@@ -500,6 +621,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: archived
+    owner: "iot-team@sahool.io"
+    team: iot
+    lifecycle: production
+    tier: tier-2
     replaced_by: weather-service
     deprecation_date: "2026-01-11"
     archive_date: "2026-01-25"
@@ -535,6 +660,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - FieldIndicatorsComputed.v1
@@ -566,6 +695,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: archived
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
     replaced_by: crop-intelligence-service
     deprecation_date: "2026-01-11"
     archive_date: "2026-01-25"
@@ -598,6 +731,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - VirtualSensorEstimated.v1
@@ -627,6 +764,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - YieldEstimated.v1
@@ -656,6 +797,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: archived
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     replaced_by: advisory-service
     deprecation_date: "2026-01-11"
     archive_date: "2026-01-25"
@@ -691,6 +836,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - IrrigationPlanProposed.v1
@@ -724,6 +873,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - NotificationQueued.v1
@@ -758,6 +911,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "iot-team@sahool.io"
+    team: iot
+    lifecycle: production
+    tier: tier-1
     events:
       produces: []
       consumes: []
@@ -782,6 +939,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "agro-team@sahool.io"
+    team: agro
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - AgroRuleEvaluated.v1
@@ -809,6 +970,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "agro-team@sahool.io"
+    team: agro
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - CropHealthAssessed.v1
@@ -837,6 +1002,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - EquipmentStatusUpdated.v1
@@ -864,6 +1033,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - TaskCreated.v1
@@ -894,6 +1067,10 @@ services:
     protocol: websocket
     health_endpoint: "/health"
     status: active
+    owner: "iot-team@sahool.io"
+    team: iot
+    lifecycle: production
+    tier: tier-1
     events:
       produces: []
       consumes:
@@ -919,6 +1096,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - NDVIProcessed.v1
@@ -945,6 +1126,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - FieldAnalysisCompleted.v1
@@ -973,6 +1158,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
     replaces: satellite-service
     events:
       produces:
@@ -1006,6 +1195,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "iot-team@sahool.io"
+    team: iot
+    lifecycle: production
+    tier: tier-2
     replaces: weather-advanced
     events:
       produces:
@@ -1034,11 +1227,15 @@ services:
     category: crop
     layer: intelligence
     path: "apps/services/skills-service"
-    port: 8170
+    port: 8121
     protocol: http
     health_endpoint: "/health"
     readiness_endpoint: "/readyz"
     status: active
+    owner: "agro-team@sahool.io"
+    team: agro
+    lifecycle: production
+    tier: tier-2
     version: "1.0.0"
     events:
       produces:
@@ -1140,6 +1337,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     replaces: fertilizer-advisor
     events:
       produces:
@@ -1173,6 +1374,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     replaces: ["field-core", "field-service", "field-ops"]
     events:
       produces:
@@ -1206,6 +1411,10 @@ services:
     protocol: http
     health_endpoint: "/api/v1/health"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - UserRegistered.v1
@@ -1234,6 +1443,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - AlertTriggered.v1
@@ -1264,6 +1477,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     description: |
       Centralized audit logging service for security compliance and operational traceability.
       Provides hash chain integrity validation, field-level change tracking, and compliance reporting.
@@ -1314,6 +1531,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "agro-team@sahool.io"
+    team: agro
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - AgroAdviceGenerated.v1
@@ -1343,6 +1564,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "iot-team@sahool.io"
+    team: iot
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - MoonPhaseCalculated.v1
@@ -1370,6 +1595,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "iot-team@sahool.io"
+    team: iot
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - IoTDataReceived.v1
@@ -1399,6 +1628,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - InventoryUpdated.v1
@@ -1427,6 +1660,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "frontend-team@sahool.io"
+    team: frontend
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - ChatMessageSent.v1
@@ -1454,6 +1691,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - ProviderConfigUpdated.v1
@@ -1484,6 +1725,10 @@ services:
     health_endpoint: "/healthz"
     readiness_endpoint: "/readyz"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
     version: "1.0.0"
     events:
       produces:
@@ -1546,6 +1791,10 @@ services:
     health_endpoint: "/healthz"
     readiness_endpoint: "/readyz"
     status: active
+    owner: "frontend-team@sahool.io"
+    team: frontend
+    lifecycle: production
+    tier: tier-1
     version: "1.0.0"
     events:
       produces:
@@ -1615,6 +1864,10 @@ services:
     health_endpoint: "/healthz"
     readiness_endpoint: "/readyz"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     version: "1.0.0"
     events:
       produces:
@@ -1681,6 +1934,10 @@ services:
     health_endpoint: "/healthz"
     readiness_endpoint: "/readyz"
     status: active
+    owner: "frontend-team@sahool.io"
+    team: frontend
+    lifecycle: production
+    tier: tier-1
     version: "1.0.0"
     events:
       produces:
@@ -1775,6 +2032,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - AgentRegistered.v1
@@ -1805,6 +2066,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-1
     ui_connections:
       - admin
       - mobile
@@ -1841,6 +2106,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces: []
       consumes: []
@@ -1868,6 +2137,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "frontend-team@sahool.io"
+    team: frontend
+    lifecycle: production
+    tier: tier-1
     kong_note: "Kong config has wrong port 8114, should be 8000"
     ui_connections:
       - web
@@ -1910,6 +2183,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - CodeFixApplied.v1
@@ -1938,6 +2215,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - CodeReviewCompleted.v1
@@ -1967,6 +2248,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - ReviewRequested.v1
@@ -1998,6 +2283,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: archived
+    owner: "agro-team@sahool.io"
+    team: agro
+    lifecycle: production
+    tier: tier-2
     replaced_by: crop-intelligence-service
     archive_date: "2026-01-25"
     ui_connections:
@@ -2035,6 +2324,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - ComplianceCheckCompleted.v1
@@ -2066,6 +2359,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - EntityLinked.v1
@@ -2102,6 +2399,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - ShipmentCreated.v1
@@ -2137,6 +2438,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
     events:
       produces:
         - NDVICalculated.v1
@@ -2166,6 +2471,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "iot-team@sahool.io"
+    team: iot
+    lifecycle: production
+    tier: tier-1
     events:
       produces:
         - USSDSessionStarted.v1
@@ -2198,6 +2507,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: "iot-team@sahool.io"
+    team: iot
+    lifecycle: production
+    tier: tier-2
     consolidation_note: "Base layer for weather-service - may be merged in future"
     events:
       produces:
@@ -2224,6 +2537,10 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: archived
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     replaced_by: field-management-service
     deprecation_date: "2026-01-01"
     archive_date: "2026-01-25"
@@ -2255,6 +2572,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: archived
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     replaced_by: field-management-service
     deprecation_date: "2026-01-01"
     archive_date: "2026-01-25"
@@ -2281,6 +2602,10 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: archived
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
     replaced_by: field-management-service
     deprecation_date: "2026-01-01"
     archive_date: "2026-01-25"

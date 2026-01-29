@@ -1364,7 +1364,7 @@ CREATE TRIGGER calculate_field_area_trigger
     EXECUTE FUNCTION calculate_field_area();
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- SECTION 17: DEMO DATA
+-- SECTION 17: DEMO DATA - MOVED TO SEPARATE FILE
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- ╔═══════════════════════════════════════════════════════════════════════════════╗
 -- ║  ⚠️  SECURITY WARNING - FOR DEVELOPMENT/TESTING ONLY ⚠️                      ║
@@ -1601,45 +1601,30 @@ END;
 $$;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- VERIFICATION QUERIES
+-- SCHEMA VERIFICATION
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- Verify admin user creation
-DO $$
-DECLARE
-    admin_count INTEGER;
-BEGIN
-    SELECT COUNT(*) INTO admin_count FROM users WHERE email = 'n@admin.com' AND role = 'super_admin';
-    IF admin_count = 0 THEN
-        RAISE EXCEPTION 'Admin user was not created successfully!';
-    ELSE
-        RAISE NOTICE '✓ Admin user (n@admin.com) created successfully with role: super_admin';
-    END IF;
-END;
-$$;
-
--- Summary
+-- Summary of schema creation (no demo data verification - moved to 03-demo-data.sql)
 DO $$
 DECLARE
     table_count INTEGER;
-    user_count INTEGER;
-    field_count INTEGER;
+    index_count INTEGER;
+    function_count INTEGER;
 BEGIN
     SELECT COUNT(*) INTO table_count FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE';
-    SELECT COUNT(*) INTO user_count FROM users;
-    SELECT COUNT(*) INTO field_count FROM fields;
+    SELECT COUNT(*) INTO index_count FROM pg_indexes WHERE schemaname = 'public';
+    SELECT COUNT(*) INTO function_count FROM information_schema.routines WHERE routine_schema = 'public';
 
     RAISE NOTICE '';
     RAISE NOTICE '═══════════════════════════════════════════════════════════════════';
-    RAISE NOTICE '  SAHOOL DATABASE INITIALIZATION COMPLETE';
+    RAISE NOTICE '  SAHOOL DATABASE SCHEMA INITIALIZATION COMPLETE';
     RAISE NOTICE '═══════════════════════════════════════════════════════════════════';
     RAISE NOTICE '  Tables created: %', table_count;
-    RAISE NOTICE '  Users created: %', user_count;
-    RAISE NOTICE '  Fields created: %', field_count;
+    RAISE NOTICE '  Indexes created: %', index_count;
+    RAISE NOTICE '  Functions created: %', function_count;
     RAISE NOTICE '';
-    RAISE NOTICE '  Admin Login:';
-    RAISE NOTICE '    Email: n@admin.com';
-    RAISE NOTICE '    Password: admin';
+    RAISE NOTICE '  Note: Demo data is loaded separately from 03-demo-data.sql';
+    RAISE NOTICE '  For production: Remove or rename 03-demo-data.sql';
     RAISE NOTICE '═══════════════════════════════════════════════════════════════════';
 END;
 $$;

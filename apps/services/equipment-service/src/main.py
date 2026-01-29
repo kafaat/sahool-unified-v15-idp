@@ -12,7 +12,7 @@ Provides equipment/asset management:
 import os
 import sys
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 
 from fastapi import Depends, FastAPI, HTTPException, Query
@@ -77,7 +77,7 @@ SERVICE_PORT = int(os.getenv("PORT", "8101"))
 app = FastAPI(
     title="SAHOOL Equipment Service",
     description="Agricultural equipment and asset management API",
-    version="1.0.0",
+    version="16.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -269,7 +269,7 @@ def seed_demo_data(db: Session):
     if existing_count > 0:
         return  # Data already seeded
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     demo_equipment = [
         DBEquipment(
@@ -457,6 +457,12 @@ async def health_check(db: Session = Depends(get_db)):
     }
 
 
+@app.get("/health")
+async def health():
+    """Health check endpoint alias for compatibility"""
+    return {"status": "healthy", "service": SERVICE_NAME, "version": "16.0.0"}
+
+
 @app.get("/readyz")
 async def readiness_check():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
@@ -633,7 +639,7 @@ async def get_equipment(
         else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
-        metadata=eq.metadata,
+        metadata=eq.extra_metadata,
         qr_code=eq.qr_code,
     )
 
@@ -678,7 +684,7 @@ async def get_equipment_by_qr(
         else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
-        metadata=eq.metadata,
+        metadata=eq.extra_metadata,
         qr_code=eq.qr_code,
     )
 
@@ -691,7 +697,7 @@ async def create_equipment(
     db: Session = Depends(get_db),
 ):
     """Create new equipment"""
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     equipment_id = f"eq_{uuid.uuid4().hex[:8]}"
     qr_code = f"QR_{equipment_id.upper()}_{data.name[:10].replace(' ', '')}"
 
@@ -749,7 +755,7 @@ async def create_equipment(
         next_maintenance_hours=None,
         created_at=db_eq.created_at,
         updated_at=db_eq.updated_at,
-        extra_metadata=db_eq.extra_metadata,
+        metadata=db_eq.extra_metadata,
         qr_code=db_eq.qr_code,
     )
 
@@ -806,7 +812,7 @@ async def update_equipment(
         else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
-        metadata=eq.metadata,
+        metadata=eq.extra_metadata,
         qr_code=eq.qr_code,
     )
 
@@ -855,7 +861,7 @@ async def update_equipment_status(
         else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
-        metadata=eq.metadata,
+        metadata=eq.extra_metadata,
         qr_code=eq.qr_code,
     )
 
@@ -910,7 +916,7 @@ async def update_equipment_location(
         else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
-        metadata=eq.metadata,
+        metadata=eq.extra_metadata,
         qr_code=eq.qr_code,
     )
 
@@ -972,7 +978,7 @@ async def update_equipment_telemetry(
         else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
-        metadata=eq.metadata,
+        metadata=eq.extra_metadata,
         qr_code=eq.qr_code,
     )
 
@@ -1040,7 +1046,7 @@ async def add_maintenance_record(
     if not eq:
         raise HTTPException(status_code=404, detail="Equipment not found")
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     db_record = DBMaintenanceRecord(
         record_id=f"maint_{uuid.uuid4().hex[:8]}",
         equipment_id=equipment_id,

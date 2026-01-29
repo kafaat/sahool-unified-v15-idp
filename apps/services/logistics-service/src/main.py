@@ -16,7 +16,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 
@@ -412,7 +412,7 @@ SHIPMENTS: dict[str, dict] = {}
 
 def seed_demo_data():
     """Seed demo data for testing - بيانات تجريبية للاختبار"""
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     # Demo vehicles
     demo_vehicles = [
@@ -811,7 +811,7 @@ async def create_vehicle(
     Create a new vehicle
     إنشاء مركبة جديدة
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     vehicle_id = f"veh_{uuid.uuid4().hex[:8]}"
 
     vehicle = {
@@ -868,7 +868,7 @@ async def update_vehicle(
         update_data["status"] = update_data["status"].value
 
     vehicle.update(update_data)
-    vehicle["updated_at"] = datetime.utcnow()
+    vehicle["updated_at"] = datetime.now(timezone.utc)
     VEHICLES[vehicle_id] = vehicle
 
     vehicle["vehicle_type_ar"] = VEHICLE_TYPE_AR.get(VehicleType(vehicle["vehicle_type"]))
@@ -896,7 +896,7 @@ async def update_vehicle_location(
     vehicle["current_lon"] = lon
     if fuel_level is not None:
         vehicle["fuel_level_percent"] = fuel_level
-    vehicle["updated_at"] = datetime.utcnow()
+    vehicle["updated_at"] = datetime.now(timezone.utc)
 
     # Publish location event
     await publish_event(
@@ -971,7 +971,7 @@ async def create_storage_facility(
     Create a new storage facility
     إنشاء مرفق تخزين جديد
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     facility_id = f"fac_{uuid.uuid4().hex[:8]}"
 
     facility = {
@@ -1029,7 +1029,7 @@ async def update_facility_conditions(
         facility["current_temperature_c"] = temperature_c
     if humidity_percent is not None:
         facility["current_humidity_percent"] = humidity_percent
-    facility["updated_at"] = datetime.utcnow()
+    facility["updated_at"] = datetime.now(timezone.utc)
 
     # Check for alerts
     alerts = []
@@ -1100,7 +1100,7 @@ async def create_harvest_collection(
     Schedule a new harvest collection
     جدولة جمع محاصيل جديد
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     collection_id = f"col_{uuid.uuid4().hex[:8]}"
 
     collection = {
@@ -1164,7 +1164,7 @@ async def assign_vehicle_to_collection(
         raise HTTPException(status_code=404, detail="Vehicle not found | المركبة غير موجودة")
 
     collection["assigned_vehicle_id"] = vehicle_id
-    collection["updated_at"] = datetime.utcnow()
+    collection["updated_at"] = datetime.now(timezone.utc)
 
     return {
         "status": "ok",
@@ -1193,8 +1193,8 @@ async def update_collection_status(
     if actual_quantity_kg is not None:
         collection["actual_quantity_kg"] = actual_quantity_kg
     if status == ShipmentStatus.COLLECTING:
-        collection["actual_collection_date"] = datetime.utcnow()
-    collection["updated_at"] = datetime.utcnow()
+        collection["actual_collection_date"] = datetime.now(timezone.utc)
+    collection["updated_at"] = datetime.now(timezone.utc)
 
     await publish_event(
         f"sahool.{tenant_id}.logistics.collection.status_changed",
@@ -1348,7 +1348,7 @@ async def create_shipment(
     if not vehicle or vehicle["tenant_id"] != tenant_id:
         raise HTTPException(status_code=404, detail="Vehicle not found | المركبة غير موجودة")
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     shipment_id = f"ship_{uuid.uuid4().hex[:8]}"
 
     shipment = {
@@ -1404,7 +1404,7 @@ async def update_shipment_status(
     if not shipment or shipment["tenant_id"] != tenant_id:
         raise HTTPException(status_code=404, detail="Shipment not found | الشحنة غير موجودة")
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     shipment["status"] = status.value
     shipment["updated_at"] = now
 

@@ -1,6 +1,6 @@
 /**
- * Request Logging Interceptor for Marketplace Service
- * اعتراض تسجيل الطلبات لخدمة السوق
+ * Request Logging Interceptor for Research Core Service
+ * اعتراض تسجيل الطلبات لخدمة البحث العلمي
  *
  * Provides structured JSON logging for all HTTP requests.
  */
@@ -14,7 +14,7 @@ import {
 } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { tap, catchError } from "rxjs/operators";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { randomUUID } from "crypto";
 
 /**

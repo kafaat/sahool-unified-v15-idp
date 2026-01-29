@@ -14,7 +14,7 @@ Version: 1.0.0
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from enum import Enum
 import uuid
@@ -262,8 +262,8 @@ class Equipment:
     current_lng: float | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     is_active: bool = True
     notes: str = ""
     notes_ar: str = ""
@@ -394,8 +394,8 @@ class MaintenanceTask:
     supervisor_signature: str | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
     notes: str = ""
     notes_ar: str = ""
@@ -428,7 +428,7 @@ class MaintenanceTask:
         """Check if task is overdue - التحقق من التأخر"""
         if self.status in [MaintenanceStatus.COMPLETED, MaintenanceStatus.CANCELLED]:
             return False
-        if self.due_date and datetime.utcnow() > self.due_date:
+        if self.due_date and datetime.now(timezone.utc) > self.due_date:
             return True
         return False
 
@@ -514,8 +514,8 @@ class MaintenanceSchedule:
     active_until: datetime | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
 
     def to_dict(self) -> dict:
@@ -607,8 +607,8 @@ class SparePart:
     expiry_date: datetime | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     is_active: bool = True
     barcode: str | None = None
     qr_code: str | None = None
@@ -723,7 +723,7 @@ class PartTransaction:
     currency: str = "SAR"
 
     # Metadata
-    transaction_date: datetime = field(default_factory=datetime.utcnow)
+    transaction_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     performed_by: str = ""
     reason: str = ""
     reason_ar: str = ""
@@ -762,7 +762,7 @@ class ServiceRecord:
     maintenance_task_id: str | None = None
 
     # Service details - تفاصيل الخدمة
-    service_date: datetime = field(default_factory=datetime.utcnow)
+    service_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     service_type: MaintenanceType = MaintenanceType.SCHEDULED
     description: str = ""
     description_ar: str = ""
@@ -810,8 +810,8 @@ class ServiceRecord:
     next_service_type: str | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
     notes: str = ""
     notes_ar: str = ""
@@ -862,7 +862,7 @@ class MaintenanceAlert:
     message_ar: str
 
     # Trigger data - بيانات التفعيل
-    triggered_at: datetime = field(default_factory=datetime.utcnow)
+    triggered_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     triggered_by: str = ""  # system, hours, date, condition, user
     trigger_value: str | None = None  # The value that triggered the alert
     threshold_value: str | None = None  # The threshold that was exceeded
@@ -896,8 +896,8 @@ class MaintenanceAlert:
 
     # Metadata
     expires_at: datetime | None = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict:
         """Convert to dictionary for NATS publishing"""

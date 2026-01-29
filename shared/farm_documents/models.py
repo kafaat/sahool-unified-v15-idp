@@ -11,7 +11,7 @@ and compliance document management.
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from enum import Enum
 from uuid import uuid4
 
@@ -196,8 +196,8 @@ class DocumentCategory(BaseModel):
     is_active: bool = Field(default=True, description="Category active status")
     order: int = Field(default=0, description="Display order")
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -315,8 +315,8 @@ class FarmDocument(BaseModel):
     notes_ar: str | None = Field(None, description="Internal notes in Arabic")
 
     # Metadata
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     @property
     def is_expired(self) -> bool:
@@ -377,8 +377,8 @@ class CertificationBody(BaseModel):
 
     is_active: bool = Field(default=True, description="Active status")
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class Certification(BaseModel):
@@ -456,8 +456,8 @@ class Certification(BaseModel):
     created_by: str = Field(..., description="User ID who created")
     updated_by: str | None = Field(None, description="User ID who last updated")
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     @field_validator("ggn")
     @classmethod
@@ -549,8 +549,8 @@ class ComplianceRequirement(BaseModel):
 
     is_active: bool = Field(default=True, description="Active status")
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class ComplianceDocument(BaseModel):
@@ -591,8 +591,8 @@ class ComplianceDocument(BaseModel):
     # Non-conformance
     non_conformance_id: str | None = Field(None, description="Related NC ID if applicable")
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     @property
     def is_valid(self) -> bool:
@@ -684,8 +684,8 @@ class DocumentAlert(BaseModel):
         default_factory=list, description="User IDs to notify"
     )
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     model_config = {
         "json_encoders": {
@@ -736,7 +736,7 @@ class DocumentShare(BaseModel):
 
     # Validity
     valid_from: datetime = Field(
-        default_factory=datetime.utcnow, description="Share start time"
+        default_factory=lambda: datetime.now(timezone.utc), description="Share start time"
     )
     valid_until: datetime | None = Field(None, description="Share expiry time")
     max_downloads: int | None = Field(None, description="Maximum download count")
@@ -758,15 +758,15 @@ class DocumentShare(BaseModel):
         default_factory=list, description="Access log entries"
     )
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     @property
     def is_valid(self) -> bool:
         """Check if share is currently valid"""
         if not self.is_active or self.revoked:
             return False
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         if now < self.valid_from:
             return False
         if self.valid_until and now > self.valid_until:

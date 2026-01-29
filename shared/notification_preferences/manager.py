@@ -13,7 +13,7 @@ Updated: January 2026
 from __future__ import annotations
 
 import logging
-from datetime import datetime, time
+from datetime import datetime, time, timezone
 from typing import Any, Protocol
 
 from .models import (
@@ -78,7 +78,7 @@ class InMemoryStorage:
     async def save(self, preferences: UserNotificationPreferences) -> None:
         """Save preferences"""
         key = self._key(preferences.user_id, preferences.tenant_id)
-        preferences.updated_at = datetime.utcnow()
+        preferences.updated_at = datetime.now(timezone.utc)
         preferences.version += 1
         self._storage[key] = preferences
 
@@ -329,14 +329,14 @@ class NotificationPreferencesManager:
             existing.address = address
             existing.verified = verified
             if verified:
-                existing.verified_at = datetime.utcnow()
+                existing.verified_at = datetime.now(timezone.utc)
         else:
             config = ChannelConfig(
                 channel=channel,
                 enabled=True,
                 address=address,
                 verified=verified,
-                verified_at=datetime.utcnow() if verified else None,
+                verified_at=datetime.now(timezone.utc) if verified else None,
             )
             preferences.channel_configs.append(config)
 
@@ -413,7 +413,7 @@ class NotificationPreferencesManager:
         config = preferences.get_channel_config(channel)
         if config:
             config.verified = True
-            config.verified_at = datetime.utcnow()
+            config.verified_at = datetime.now(timezone.utc)
         return await self.save_preferences(preferences, validate=False)
 
     # =========================================================================

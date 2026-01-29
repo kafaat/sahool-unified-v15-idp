@@ -9,7 +9,6 @@ import {
   Post,
   Body,
   Param,
-  Query,
   HttpCode,
   HttpStatus,
   UseGuards,
@@ -153,11 +152,11 @@ export class IotController {
   @ApiParam({ name: "valveId", description: "Valve identifier" })
   @ApiBody({ type: ToggleValveDto })
   @ApiResponse({ status: 200, description: "Valve command sent" })
-  toggleValve(
+  async toggleValve(
     @Param("fieldId") fieldId: string,
     @Param("valveId") valveId: string,
     @Body() dto: ToggleValveDto,
-  ): { success: boolean; message: string } {
+  ): Promise<{ success: boolean; message: string }> {
     return this.iotService.toggleValve(fieldId, valveId, dto.status);
   }
 

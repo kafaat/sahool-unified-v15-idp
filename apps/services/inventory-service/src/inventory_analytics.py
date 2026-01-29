@@ -215,7 +215,7 @@ class InventoryAnalytics:
         stmt = select(InventoryItem).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active is True,
+                InventoryItem.is_active == True,  # noqa: E712
             )
         )
 
@@ -255,7 +255,7 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active is True,
+                    InventoryItem.is_active == True,  # noqa: E712
                 )
             )
         )
@@ -335,7 +335,7 @@ class InventoryAnalytics:
         items_stmt = select(InventoryItem).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active is True,
+                InventoryItem.is_active == True,  # noqa: E712
             )
         )
         items_result = await self.db.execute(items_stmt)
@@ -409,7 +409,7 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active is True,
+                    InventoryItem.is_active == True,  # noqa: E712
                     InventoryItem.current_stock > 0,
                 )
             )
@@ -473,7 +473,7 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active is True,
+                    InventoryItem.is_active == True,  # noqa: E712
                     InventoryItem.current_stock > 0,
                 )
             )
@@ -607,7 +607,7 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active is True,
+                    InventoryItem.is_active == True,  # noqa: E712
                     InventoryItem.available_stock <= InventoryItem.reorder_level,
                 )
             )
@@ -666,7 +666,7 @@ class InventoryAnalytics:
         stmt = select(InventoryItem).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active is True,
+                InventoryItem.is_active == True,  # noqa: E712
             )
         )
 
@@ -922,8 +922,8 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active is True,
-                    InventoryItem.has_expiry is True,
+                    InventoryItem.is_active == True,  # noqa: E712
+                    InventoryItem.has_expiry == True,  # noqa: E712
                     InventoryItem.expiry_date <= date.today(),
                     InventoryItem.current_stock > 0,
                 )
@@ -991,7 +991,7 @@ class InventoryAnalytics:
         total_skus_stmt = select(func.count(InventoryItem.id)).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active is True,
+                InventoryItem.is_active == True,  # noqa: E712
             )
         )
         total_skus = (await self.db.execute(total_skus_stmt)).scalar() or 0
@@ -1003,7 +1003,7 @@ class InventoryAnalytics:
         low_stock_stmt = select(func.count(InventoryItem.id)).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active is True,
+                InventoryItem.is_active == True,  # noqa: E712
                 InventoryItem.available_stock <= InventoryItem.reorder_level,
             )
         )
@@ -1014,8 +1014,8 @@ class InventoryAnalytics:
         expiring_stmt = select(func.count(InventoryItem.id)).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active is True,
-                InventoryItem.has_expiry is True,
+                InventoryItem.is_active == True,  # noqa: E712
+                InventoryItem.has_expiry == True,  # noqa: E712
                 InventoryItem.expiry_date <= expiring_date,
                 InventoryItem.current_stock > 0,
             )

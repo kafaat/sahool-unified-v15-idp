@@ -2,7 +2,7 @@
 Inventory Service - Main business logic layer
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from prisma import Prisma
 from prisma.models import BatchLot, InventoryItem, StockMovement, Supplier
@@ -148,7 +148,7 @@ class InventoryService:
         # Generate lot number if not provided
         lot_number = request.lotNumber
         if not lot_number:
-            lot_number = f"LOT-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+            lot_number = f"LOT-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
 
         # Create batch/lot
         batch = await self.stock_manager.add_stock_batch(
@@ -428,7 +428,7 @@ class InventoryService:
             raise ValueError(f"Item {item_id} not found")
 
         # Get movements for the period
-        since_date = datetime.utcnow() - timedelta(days=days)
+        since_date = datetime.now(timezone.utc) - timedelta(days=days)
         movements = await self.db.stockmovement.find_many(
             where={
                 "itemId": item_id,

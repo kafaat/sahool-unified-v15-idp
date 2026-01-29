@@ -1,0 +1,74 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: sahool-flutter-mobile
+  title: SAHOOL Mobile Module (Flutter)
+  description: Golden path for a SAHOOL Flutter mobile module with offline-first architecture, Riverpod state management, and integration with SAHOOL services.
+  tags:
+    - flutter
+    - mobile
+    - offline-first
+    - dart
+spec:
+  owner: group:sahool-platform
+  type: mobile-module
+  parameters:
+    - title: Module Settings
+      required: [name, description]
+      properties:
+        name:
+          title: Module name
+          type: string
+          description: snake_case, e.g. field_scanner
+        description:
+          title: Description
+          type: string
+          description: Brief description of the module
+        description_ar:
+          title: Description (Arabic)
+          type: string
+          description: وصف مختصر للوحدة
+        layer:
+          title: Layer
+          type: string
+          enum: [feature, core, shared]
+          default: feature
+        has_offline_support:
+          title: Offline Support
+          type: boolean
+          default: true
+        has_api_integration:
+          title: API Integration
+          type: boolean
+          default: true
+    - title: Governance
+      required: [owner, team]
+      properties:
+        owner:
+          title: Owner
+          type: string
+          description: Team or individual owner
+        team:
+          title: Team
+          type: string
+          enum: [platform, kernel, frontend, data, devops, agro, iot, mobile]
+          default: mobile
+  steps:
+    - id: fetch
+      name: Fetch base
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          description_ar: ${{ parameters.description_ar }}
+          layer: ${{ parameters.layer }}
+          has_offline_support: ${{ parameters.has_offline_support }}
+          has_api_integration: ${{ parameters.has_api_integration }}
+          owner: ${{ parameters.owner }}
+          team: ${{ parameters.team }}
+  output:
+    links:
+      - title: Open module folder
+        url: .

@@ -19,7 +19,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Protocol
 import logging
 
@@ -456,7 +456,7 @@ class IrrigationPredictor:
         # Calculate historical average amount
         recent_records = [
             r for r in records
-            if r.irrigation_date > datetime.utcnow() - timedelta(days=30)
+            if r.irrigation_date > datetime.now(timezone.utc) - timedelta(days=30)
         ]
 
         if not recent_records:
@@ -657,7 +657,7 @@ class IrrigationPredictor:
 
         # Increase confidence for recent sensor data
         data_age_hours = (
-            datetime.utcnow() - features.soil.timestamp
+            datetime.now(timezone.utc) - features.soil.timestamp
         ).total_seconds() / 3600
 
         if data_age_hours < 1:
@@ -709,7 +709,7 @@ class IrrigationPredictor:
         features: IrrigationFeatures,
     ) -> datetime:
         """Determine optimal irrigation timing"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         # Prefer early morning (4-7 AM) for low evaporation
         target_hour = 5

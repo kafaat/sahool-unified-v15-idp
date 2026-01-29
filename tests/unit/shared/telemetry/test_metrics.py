@@ -5,7 +5,7 @@ Tests validate OpenTelemetry integration, metrics collection, and tracing.
 """
 
 import pytest
-from typing import Optional
+from typing import Any, Optional
 from dataclasses import dataclass, field
 import time
 

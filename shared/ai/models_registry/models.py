@@ -21,7 +21,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -339,8 +339,8 @@ class AIModelInfo:
     tags: list[str] = field(default_factory=list)
 
     # Metadata | البيانات الوصفية | 元数据
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def has_capability(self, capability: ModelCapability) -> bool:
         """Check if model has a specific capability."""
@@ -472,7 +472,7 @@ class ModelComparison:
     scores: dict[str, float] = field(default_factory=dict)      # model_id -> score
     winner: str | None = None
     comparison_criteria: list[str] = field(default_factory=list)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -500,7 +500,7 @@ class ModelDiscoveryResult:
     total_count: int
     filter_criteria: dict[str, Any] = field(default_factory=dict)
     search_duration_ms: float = 0.0
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""

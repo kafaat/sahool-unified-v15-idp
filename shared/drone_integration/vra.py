@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 from .models import (
@@ -293,7 +293,7 @@ class VRAGenerator:
             product_name=product_name,
             product_name_ar=product_name_ar,
             source_type=self.config.source_type.value,
-            source_date=datetime.utcnow(),
+            source_date=datetime.now(timezone.utc),
             zone_count=len(zones),
             classification_method=self.config.classification_method.value,
             min_rate_l_ha=min(rates) if rates else 0,
@@ -795,7 +795,7 @@ class VRAGenerator:
                              if self.config.base_rate_l_ha > 0 else 100,
                 ndvi_mean=ndvi_mean,
                 ndvi_std=ndvi_std,
-                source_date=datetime.utcnow(),
+                source_date=datetime.now(timezone.utc),
                 label_en=label_en,
                 label_ar=label_ar,
             )

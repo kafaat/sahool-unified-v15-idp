@@ -19,7 +19,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 
@@ -206,9 +206,10 @@ except ImportError as e:
 # NATS publisher (optional)
 _nats_available = False
 try:
-    import sys
-
-    sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
+    # Add project root to path for shared imports (dynamic path instead of hardcoded)
+    _project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+    if _project_root not in sys.path:
+        sys.path.insert(0, _project_root)
     from shared.libs.events.nats_publisher import publish_analysis_completed_sync
 
     _nats_available = True
@@ -307,7 +308,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="SAHOOL Satellite Service | خدمة الأقمار الصناعية",
-    version="15.8.0",
+    version="16.0.0",
     description="Multi-provider satellite monitoring with automatic fallback. Supports Sentinel Hub, Copernicus STAC, NASA Earthdata. Includes Sentinel-1 SAR for soil moisture estimation. Now with GDD (Growing Degree Days) tracking for 40+ Yemen crops.",
     lifespan=lifespan,
 )
@@ -910,7 +911,7 @@ async def request_imagery(request: ImageryRequest):
         imagery_id=str(uuid.uuid4()),
         field_id=request.field_id,
         satellite=request.satellite,
-        acquisition_date=datetime.utcnow(),
+        acquisition_date=datetime.now(timezone.utc),
         cloud_cover_percent=random.uniform(0, request.cloud_cover_max),
         sun_elevation=random.uniform(45, 75),
         bands=bands,
@@ -968,7 +969,7 @@ async def analyze_field(request: ImageryRequest):
 
     return FieldAnalysis(
         field_id=request.field_id,
-        analysis_date=datetime.utcnow(),
+        analysis_date=datetime.now(timezone.utc),
         satellite=request.satellite,
         imagery=imagery,
         indices=indices,
@@ -1067,7 +1068,7 @@ def _create_satellite_action_template(
             "satellite": analysis.satellite.value,
             "analysis_date": analysis.analysis_date.isoformat(),
         },
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -1253,7 +1254,7 @@ async def get_timeseries(
     base_ndvi = random.uniform(0.3, 0.5)
 
     for i in range(0, days, SATELLITE_CONFIGS[satellite]["revisit_days"]):
-        date_point = datetime.utcnow() - timedelta(days=days - i)
+        date_point = datetime.now(timezone.utc) - timedelta(days=days - i)
         # Add realistic variation
         ndvi = base_ndvi + random.uniform(-0.1, 0.15) + (i / days) * 0.2
         ndvi = max(0, min(1, ndvi))
@@ -1353,7 +1354,7 @@ async def analyze_ndvi_timeseries(
 
     return {
         "field_id": field_id,
-        "analysis_date": datetime.utcnow().isoformat(),
+        "analysis_date": datetime.now(timezone.utc).isoformat(),
         "period_days": days,
         "data_points": len(ndvi_points),
         "anomalies": {"count": len(anomalies), "items": [a.to_dict() for a in anomalies]},
@@ -1425,7 +1426,7 @@ async def compare_ndvi_periods(
 
     return {
         "field_id": field_id,
-        "comparison_date": datetime.utcnow().isoformat(),
+        "comparison_date": datetime.now(timezone.utc).isoformat(),
         "period1": {
             "start": period1_start,
             "end": period1_end,
@@ -1860,7 +1861,7 @@ def _create_phenology_action_template(
                 result.estimated_harvest_date.isoformat() if result.estimated_harvest_date else None
             ),
         },
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -2137,7 +2138,7 @@ async def get_all_indices(
         "field_id": field_id,
         "location": {"latitude": lat, "longitude": lon},
         "satellite": satellite.value,
-        "acquisition_date": datetime.utcnow().isoformat(),
+        "acquisition_date": datetime.now(timezone.utc).isoformat(),
         "indices": all_indices.to_dict(),
         "data_source": "simulated",
         "note": "Advanced indices calculated from Sentinel-2 bands. Configure real data provider for actual satellite imagery.",
@@ -2326,7 +2327,7 @@ async def interpret_indices(request: InterpretRequest):
         "overall_status_ar": overall_ar,
         "interpretations": interpretations,
         "recommended_indices_for_stage": recommended,
-        "analysis_date": datetime.utcnow().isoformat(),
+        "analysis_date": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -2753,9 +2754,10 @@ async def get_yield_history(
 
     # Import shared crop catalog
     try:
-        import sys
-
-        sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
+        # Add project root to path for shared imports (dynamic path instead of hardcoded)
+        _proj_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+        if _proj_root not in sys.path:
+            sys.path.insert(0, _proj_root)
         from apps.services.shared.crops import ALL_CROPS
 
         # Get crops for this region (simulated)
@@ -2788,7 +2790,7 @@ async def get_yield_history(
             base_yield = 2.0
 
         # Historical prediction (months ago)
-        prediction_date = datetime.utcnow() - timedelta(days=120 * i)
+        prediction_date = datetime.now(timezone.utc) - timedelta(days=120 * i)
 
         # Simulated prediction and actual yield
         predicted = round(base_yield * random.uniform(0.7, 1.3), 2)
@@ -2864,9 +2866,10 @@ async def get_regional_yields(
 
     # Import crop catalog
     try:
-        import sys
-
-        sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
+        # Add project root to path for shared imports (dynamic path instead of hardcoded)
+        _proj_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+        if _proj_root not in sys.path:
+            sys.path.insert(0, _proj_root)
         from apps.services.shared.crops import ALL_CROPS
 
         # Get crops suitable for this region

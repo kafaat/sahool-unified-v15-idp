@@ -15,7 +15,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from .models import (
@@ -703,7 +703,7 @@ class DeltaSyncManager:
         self._sync_tokens[device_id] = {
             "token": token,
             "timestamp": server_timestamp.isoformat(),
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
 
     def get_changes_since_token(
@@ -777,7 +777,7 @@ class DeltaSyncManager:
 
         self._version_history[entity_key].append({
             "version": packet.target_version,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "checksum": packet.checksum,
             "change_count": len(packet.changes),
         })

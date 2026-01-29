@@ -38,7 +38,7 @@ Usage:
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -209,8 +209,8 @@ class FertilizerApplicationRecord(BaseModel):
 
     # Metadata
     recorded_by: UUID | None = Field(None, description="User who recorded")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:
         use_enum_values = True
@@ -346,8 +346,8 @@ class NutrientManagementPlan(BaseModel):
         description="Plan status",
     )
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:
         json_encoders = {
@@ -401,7 +401,7 @@ class MRLComplianceCheck(BaseModel):
         default_factory=list, description="Non-compliance issues (Arabic)"
     )
 
-    checked_at: datetime = Field(default_factory=datetime.utcnow)
+    checked_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:
         json_encoders = {

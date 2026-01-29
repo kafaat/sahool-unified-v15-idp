@@ -42,7 +42,7 @@ def basic_usage_example():
 # مثال 2: تسجيل مستخدم جديد
 # ========================================
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class UserRegistrationService:
@@ -77,7 +77,7 @@ class UserRegistrationService:
             "password_hash": password_hash,
             "password_algorithm": "argon2id",
             "password_needs_migration": False,
-            "created_at": datetime.utcnow(),
+            "created_at": datetime.now(timezone.utc),
             "is_active": True,
         }
 
@@ -129,7 +129,7 @@ class SQLAlchemyUserRepository:
                     "password_hash": password_hash,
                     "password_algorithm": "argon2id",
                     "password_needs_migration": False,
-                    "updated_at": datetime.utcnow(),
+                    "updated_at": datetime.now(timezone.utc),
                 }
             )
         )
@@ -141,7 +141,7 @@ class SQLAlchemyUserRepository:
         result = (
             self.db.query(User)
             .filter(User.id == user_id)
-            .update({"password_needs_migration": False, "updated_at": datetime.utcnow()})
+            .update({"password_needs_migration": False, "updated_at": datetime.now(timezone.utc)})
         )
         self.db.commit()
         return result > 0
@@ -325,7 +325,7 @@ async def change_password(
     current_user.password_hash = new_hash
     current_user.password_algorithm = 'argon2id'
     current_user.password_needs_migration = False
-    current_user.updated_at = datetime.utcnow()
+    current_user.updated_at = datetime.now(timezone.utc)
 
     db.commit()
 

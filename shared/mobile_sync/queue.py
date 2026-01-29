@@ -16,7 +16,7 @@ import asyncio
 import heapq
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Callable, Awaitable
 
 from .models import (
@@ -245,7 +245,7 @@ class SyncQueue:
 
             # Set queue metadata
             item.status = SyncStatus.QUEUED
-            item.queued_at = datetime.utcnow()
+            item.queued_at = datetime.now(timezone.utc)
             item.tenant_id = self.tenant_id
             item.device_id = self.device_id
 
@@ -325,7 +325,7 @@ class SyncQueue:
                     continue
 
                 # Skip if not ready for retry
-                if item.next_retry_at and item.next_retry_at > datetime.utcnow():
+                if item.next_retry_at and item.next_retry_at > datetime.now(timezone.utc):
                     # Re-add to queue
                     heapq.heappush(self._queue, priority_item)
                     continue
@@ -398,7 +398,7 @@ class SyncQueue:
             if item_id in self._items_by_id:
                 item = self._items_by_id[item_id]
                 item.status = SyncStatus.SYNCED
-                item.synced_at = datetime.utcnow()
+                item.synced_at = datetime.now(timezone.utc)
 
                 self._processing.discard(item_id)
                 self._completed[item_id] = item
@@ -738,7 +738,7 @@ class SyncQueueManager:
             priority_threshold=priority_threshold,
             batch_size=self.config.max_batch_size,
         )
-        session.started_at = datetime.utcnow()
+        session.started_at = datetime.now(timezone.utc)
         session.status = SyncStatus.SYNCING
 
         self._sessions[session.id] = session
@@ -763,7 +763,7 @@ class SyncQueueManager:
             )
 
         session.status = status
-        session.completed_at = datetime.utcnow()
+        session.completed_at = datetime.now(timezone.utc)
 
         # Calculate duration
         duration = 0.0

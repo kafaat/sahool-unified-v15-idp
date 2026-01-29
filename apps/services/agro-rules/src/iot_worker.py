@@ -6,68 +6,14 @@ Subscribes to sensor events and creates tasks
 import asyncio
 import json
 import os
-from datetime import timezone, datetime, timedelta, UTC
+from datetime import datetime, timedelta, UTC
 
-import httpx
 from nats.aio.client import Client as NATS
 
+from .fieldops_client import FieldOpsClient
 from .iot_rules import TaskRecommendation, evaluate_combined_rules, rule_from_sensor
 
 NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
-FIELDOPS_URL = os.getenv("FIELDOPS_URL", "http://fieldops:8080")
-
-
-class FieldOpsClient:
-    """Client for FieldOps task service"""
-
-    def __init__(self, base_url: str = None):
-        self.base_url = base_url or FIELDOPS_URL
-        self._client: httpx.AsyncClient | None = None
-
-    async def _get_client(self) -> httpx.AsyncClient:
-        if self._client is None:
-            self._client = httpx.AsyncClient(base_url=self.base_url, timeout=30.0)
-        return self._client
-
-    async def create_task(
-        self,
-        tenant_id: str,
-        field_id: str,
-        title: str,
-        description: str,
-        task_type: str,
-        priority: str,
-        due_date: datetime,
-        source: str = "iot_rules",
-        metadata: dict = None,
-    ) -> dict:
-        """Create a new task in FieldOps"""
-        client = await self._get_client()
-
-        payload = {
-            "tenant_id": tenant_id,
-            "field_id": field_id,
-            "title": title,
-            "description": description,
-            "task_type": task_type,
-            "priority": priority,
-            "due_date": due_date.isoformat(),
-            "source": source,
-            "metadata": metadata or {},
-        }
-
-        try:
-            response = await client.post("/tasks", json=payload)
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            print(f"❌ Failed to create task: {e}")
-            raise
-
-    async def close(self):
-        if self._client:
-            await self._client.aclose()
-            self._client = None
 
 
 class IoTRulesWorker:
@@ -147,12 +93,16 @@ class IoTRulesWorker:
             # Evaluate single-sensor rules
             recommendation = rule_from_sensor(sensor_type, value)
 
+            # Extract correlation_id for traceability
+            correlation_id = data.get("correlation_id")
+
             if recommendation:
                 await self._create_task_from_recommendation(
                     tenant_id=tenant_id,
                     field_id=field_id,
                     recommendation=recommendation,
                     device_id=device_id,
+                    correlation_id=correlation_id,
                 )
 
         except Exception as e:
@@ -208,6 +158,7 @@ class IoTRulesWorker:
         field_id: str,
         recommendation: TaskRecommendation,
         device_id: str = None,
+        correlation_id: str = None,
     ):
         """Create task from recommendation with cooldown check"""
         # Create task key for deduplication
@@ -220,13 +171,12 @@ class IoTRulesWorker:
                 print(f"⏳ Skipping task (cooldown): {recommendation.title_en}")
                 return
 
-        # Calculate due date
-        due_date = datetime.now(UTC) + timedelta(hours=recommendation.urgency_hours)
-
-        # Add device info to metadata
+        # Add device info and English content to metadata
         metadata = recommendation.metadata or {}
         if device_id:
             metadata["device_id"] = device_id
+        metadata["title_en"] = recommendation.title_en
+        metadata["description_en"] = recommendation.description_en
 
         try:
             await self.fieldops.create_task(
@@ -236,7 +186,8 @@ class IoTRulesWorker:
                 description=recommendation.description_ar,
                 task_type=recommendation.task_type,
                 priority=recommendation.priority,
-                due_date=due_date,
+                due_hours=recommendation.urgency_hours,
+                correlation_id=correlation_id,
                 source="iot_rules",
                 metadata=metadata,
             )

@@ -6,8 +6,8 @@
 
 IoT sensors and actuators management service for smart irrigation and agricultural monitoring.
 
-**Port:** 8100
-**Version:** 15.4.0
+**Port:** 8117
+**Version:** 16.0.0
 
 ---
 
@@ -202,7 +202,7 @@ GET /fields/{field_id}/devices/health
 ```javascript
 // الاتصال بـ WebSocket
 const ws = new WebSocket(
-  "ws://localhost:8100/ws/fields/field-001?token=JWT_TOKEN",
+  "ws://localhost:8117/ws/fields/field-001?token=JWT_TOKEN",
 );
 
 ws.onmessage = (event) => {
@@ -231,11 +231,14 @@ ws.onmessage = (event) => {
 
 ```env
 # الخادم
-PORT=8100
+PORT=8117
 HOST=0.0.0.0
 
-# MQTT Broker
-MQTT_BROKER=mqtt://localhost:1883
+# MQTT Broker (supports both MQTT_BROKER_URL or separate MQTT_BROKER/MQTT_PORT)
+MQTT_BROKER_URL=mqtt://localhost:1883
+# Or alternatively:
+MQTT_BROKER=localhost
+MQTT_PORT=1883
 MQTT_USERNAME=sahool_iot
 MQTT_PASSWORD=secure_password
 

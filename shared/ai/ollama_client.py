@@ -22,7 +22,7 @@ import asyncio
 import json
 import os
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, AsyncIterator
 
@@ -256,7 +256,7 @@ class OllamaClient:
                     response=data.get("response", ""),
                     done=data.get("done", True),
                     created_at=datetime.fromisoformat(
-                        data.get("created_at", datetime.utcnow().isoformat())
+                        data.get("created_at", datetime.now(timezone.utc).isoformat())
                     ),
                     total_duration_ns=data.get("total_duration"),
                     load_duration_ns=data.get("load_duration"),
@@ -268,11 +268,14 @@ class OllamaClient:
             except httpx.TimeoutException:
                 if attempt < self.config.max_retries - 1:
                     await asyncio.sleep(self.config.retry_delay * (attempt + 1))
-                else:
-                    raise OllamaError(f"Timeout after {self.config.max_retries} attempts")
+                    continue
+                raise OllamaError(f"Timeout after {self.config.max_retries} attempts")
+            except httpx.HTTPStatusError as e:
+                raise OllamaError(f"HTTP error: {e}") from e
             except Exception as e:
                 raise OllamaError(f"Generation failed: {e}") from e
 
+        # This should not be reached, but as a safety measure
         raise OllamaError("Max retries exceeded")
 
     async def generate_stream(
@@ -364,7 +367,7 @@ class OllamaClient:
                 response=data.get("message", {}).get("content", ""),
                 done=data.get("done", True),
                 created_at=datetime.fromisoformat(
-                    data.get("created_at", datetime.utcnow().isoformat())
+                    data.get("created_at", datetime.now(timezone.utc).isoformat())
                 ),
                 total_duration_ns=data.get("total_duration"),
                 eval_count=data.get("eval_count"),

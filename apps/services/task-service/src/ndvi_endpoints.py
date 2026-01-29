@@ -61,7 +61,7 @@ async def create_task_from_ndvi_alert(
             task_type = TaskType.SCOUTING  # General investigation
 
         # Calculate due date based on priority
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         due_date_map = {
             TaskPriority.URGENT: timedelta(hours=4),  # 4 hours for urgent
             TaskPriority.HIGH: timedelta(hours=12),  # 12 hours for high
@@ -223,7 +223,7 @@ async def get_task_suggestions_for_field(
             "field_id": field_id,
             "suggestions": [s.model_dump() for s in suggestions],
             "total": len(suggestions),
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
         }
 
     except Exception as e:
@@ -255,7 +255,7 @@ async def auto_create_tasks(
 
     created_tasks = []
     failed_tasks = []
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     try:
         # Determine assignee

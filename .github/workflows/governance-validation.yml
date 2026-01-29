@@ -1,0 +1,417 @@
+name: Governance Validation
+
+on:
+  pull_request:
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - 'governance/**'
+      - 'idp/**'
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'governance/**'
+
+concurrency:
+  group: governance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-services:
+    name: Validate Service Governance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml jsonschema
+
+      - name: Validate services.yaml
+        run: |
+          python -c "
+          import yaml
+          import sys
+
+          REQUIRED_FIELDS = ['owner', 'team', 'lifecycle', 'tier']
+          VALID_LIFECYCLES = ['experimental', 'internal', 'production', 'deprecated', 'retired']
+          VALID_TIERS = ['tier-1', 'tier-2', 'tier-3']
+          VALID_TEAMS = ['platform', 'kernel', 'frontend', 'data', 'devops', 'agro', 'iot', 'mobile']
+
+          with open('governance/services.yaml') as f:
+              services = yaml.safe_load(f)
+
+          errors = []
+
+          for svc_name, svc_data in services.get('services', {}).items():
+              for field in REQUIRED_FIELDS:
+                  if field not in svc_data:
+                      errors.append(f'{svc_name}: missing required field \"{field}\"')
+
+              if svc_data.get('lifecycle') not in VALID_LIFECYCLES:
+                  errors.append(f'{svc_name}: invalid lifecycle \"{svc_data.get(\"lifecycle\")}\"')
+
+              if svc_data.get('tier') not in VALID_TIERS:
+                  errors.append(f'{svc_name}: invalid tier \"{svc_data.get(\"tier\")}\"')
+
+              if svc_data.get('team') not in VALID_TEAMS:
+                  errors.append(f'{svc_name}: invalid team \"{svc_data.get(\"team\")}\"')
+
+          if errors:
+              print('Governance validation failed:')
+              for error in errors:
+                  print(f'  - {error}')
+              sys.exit(1)
+
+          print(f'✓ Validated {len(services.get(\"services\", {}))} services')
+          "
+
+      - name: Validate agents.yaml
+        run: |
+          python -c "
+          import yaml
+          import sys
+
+          REQUIRED_FIELDS = ['name', 'type', 'owner']
+          VALID_TYPES = ['autonomous', 'sub-agent', 'coordinator', 'specialist']
+
+          with open('governance/agents.yaml') as f:
+              agents = yaml.safe_load(f)
+
+          errors = []
+
+          for agent_name, agent_data in agents.get('agents', {}).items():
+              for field in REQUIRED_FIELDS:
+                  if field not in agent_data:
+                      errors.append(f'{agent_name}: missing required field \"{field}\"')
+
+              if agent_data.get('type') not in VALID_TYPES:
+                  errors.append(f'{agent_name}: invalid type \"{agent_data.get(\"type\")}\"')
+
+          if errors:
+              print('Agent governance validation failed:')
+              for error in errors:
+                  print(f'  - {error}')
+              sys.exit(1)
+
+          print(f'✓ Validated {len(agents.get(\"agents\", {}))} agents')
+          "
+
+  validate-templates:
+    name: Validate IDP Templates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+
+      - name: Validate template schemas
+        run: |
+          python -c "
+          import yaml
+          import os
+          import sys
+
+          templates_dir = 'idp/templates'
+          errors = []
+
+          for template_name in os.listdir(templates_dir):
+              template_path = os.path.join(templates_dir, template_name, 'template.yaml')
+
+              if not os.path.exists(template_path):
+                  continue
+
+              try:
+                  with open(template_path) as f:
+                      template = yaml.safe_load(f)
+
+                  # Validate required fields
+                  if 'apiVersion' not in template:
+                      errors.append(f'{template_name}: missing apiVersion')
+
+                  if 'kind' not in template or template['kind'] != 'Template':
+                      errors.append(f'{template_name}: kind must be \"Template\"')
+
+                  if 'metadata' not in template or 'name' not in template.get('metadata', {}):
+                      errors.append(f'{template_name}: missing metadata.name')
+
+                  if 'spec' not in template:
+                      errors.append(f'{template_name}: missing spec')
+
+                  spec = template.get('spec', {})
+                  if 'owner' not in spec:
+                      errors.append(f'{template_name}: missing spec.owner')
+
+                  if 'steps' not in spec:
+                      errors.append(f'{template_name}: missing spec.steps')
+
+              except yaml.YAMLError as e:
+                  errors.append(f'{template_name}: invalid YAML - {e}')
+
+          if errors:
+              print('Template validation failed:')
+              for error in errors:
+                  print(f'  - {error}')
+              sys.exit(1)
+
+          print(f'✓ Validated templates')
+          "
+
+  check-catalog-info:
+    name: Check Catalog Info Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+
+      - name: Find and validate catalog-info.yaml files
+        run: |
+          python -c "
+          import yaml
+          import os
+          import sys
+          from pathlib import Path
+
+          REQUIRED_FIELDS = ['apiVersion', 'kind', 'metadata']
+          VALID_KINDS = ['Component', 'API', 'System', 'Group', 'User', 'Resource', 'Domain', 'Location']
+
+          # Skip paths that contain template placeholders (IDP skeleton files)
+          SKIP_PATTERNS = ['skeleton/', 'template/', '__pycache__', '.venv', 'node_modules']
+
+          errors = []
+          catalog_files = list(Path('.').rglob('catalog-info.yaml'))
+          validated_count = 0
+
+          for catalog_file in catalog_files:
+              # Skip template skeleton files
+              file_str = str(catalog_file)
+              if any(pattern in file_str for pattern in SKIP_PATTERNS):
+                  print(f'⏭ Skipping template file: {catalog_file}')
+                  continue
+
+              try:
+                  with open(catalog_file) as f:
+                      raw_content = f.read()
+
+                  # Skip files with template placeholders
+                  if '{{' in raw_content or '{%' in raw_content:
+                      print(f'⏭ Skipping templated file: {catalog_file}')
+                      continue
+
+                  content = yaml.safe_load(raw_content)
+
+                  if content is None:
+                      errors.append(f'{catalog_file}: empty file')
+                      continue
+
+                  for field in REQUIRED_FIELDS:
+                      if field not in content:
+                          errors.append(f'{catalog_file}: missing required field \"{field}\"')
+
+                  if content.get('kind') not in VALID_KINDS:
+                      errors.append(f'{catalog_file}: invalid kind \"{content.get(\"kind\")}\"')
+
+                  metadata = content.get('metadata', {})
+                  if 'name' not in metadata:
+                      errors.append(f'{catalog_file}: missing metadata.name')
+
+                  validated_count += 1
+
+              except yaml.YAMLError as e:
+                  errors.append(f'{catalog_file}: invalid YAML - {e}')
+
+          if errors:
+              print('Catalog validation failed:')
+              for error in errors:
+                  print(f'  - {error}')
+              sys.exit(1)
+
+          print(f'✓ Validated {validated_count} catalog-info.yaml files')
+          "
+
+  ownership-check:
+    name: Verify Service Ownership
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+
+      - name: Check ownership of changed services
+        run: |
+          python -c "
+          import yaml
+          import subprocess
+          import sys
+          import os
+
+          # Get changed files
+          result = subprocess.run(
+              ['git', 'diff', '--name-only', 'origin/main...HEAD'],
+              capture_output=True,
+              text=True
+          )
+          changed_files = result.stdout.strip().split('\n')
+
+          # Filter for service changes
+          service_changes = [f for f in changed_files if f.startswith('apps/services/')]
+
+          if not service_changes:
+              print('No service changes detected')
+              sys.exit(0)
+
+          # Load services registry
+          with open('governance/services.yaml') as f:
+              services = yaml.safe_load(f)
+
+          # Check each changed service
+          warnings = []
+          for change in service_changes:
+              parts = change.split('/')
+              if len(parts) >= 3:
+                  service_name = parts[2]
+                  svc_data = services.get('services', {}).get(service_name)
+
+                  if not svc_data:
+                      warnings.append(f'Service \"{service_name}\" not found in governance registry')
+                  else:
+                      owner = svc_data.get('owner', 'unknown')
+                      print(f'ℹ {service_name} is owned by {owner}')
+
+          if warnings:
+              print('\\nWarnings:')
+              for warning in warnings:
+                  print(f'  ⚠ {warning}')
+          "
+
+  deprecated-check:
+    name: Check for Deprecated Services
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+
+      - name: Check for deprecated service usage
+        run: |
+          python -c "
+          import yaml
+          import os
+          import sys
+          from pathlib import Path
+
+          # Load services registry
+          with open('governance/services.yaml') as f:
+              services = yaml.safe_load(f)
+
+          # Find deprecated services
+          deprecated = [
+              name for name, data in services.get('services', {}).items()
+              if data.get('lifecycle') == 'deprecated'
+          ]
+
+          if not deprecated:
+              print('No deprecated services found')
+              sys.exit(0)
+
+          print(f'Deprecated services: {deprecated}')
+
+          # Search for imports of deprecated services
+          warnings = []
+          for py_file in Path('.').rglob('*.py'):
+              if '__pycache__' in str(py_file) or '.venv' in str(py_file):
+                  continue
+
+              try:
+                  content = py_file.read_text()
+                  for dep_svc in deprecated:
+                      dep_svc_snake = dep_svc.replace('-', '_')
+                      if dep_svc_snake in content or dep_svc in content:
+                          warnings.append(f'{py_file}: references deprecated service \"{dep_svc}\"')
+              except Exception:
+                  pass
+
+          if warnings:
+              print('\\nWarnings - Deprecated service references:')
+              for warning in warnings[:20]:  # Limit output
+                  print(f'  ⚠ {warning}')
+          "
+
+  summary:
+    name: Governance Summary
+    runs-on: ubuntu-latest
+    needs: [validate-services, validate-templates, check-catalog-info]
+    if: always()
+
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## Governance Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.validate-services.result }}" == "success" ]; then
+            echo "✅ Service governance validation passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Service governance validation failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.validate-templates.result }}" == "success" ]; then
+            echo "✅ IDP template validation passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ IDP template validation failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.check-catalog-info.result }}" == "success" ]; then
+            echo "✅ Catalog info validation passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Catalog info validation failed" >> $GITHUB_STEP_SUMMARY
+          fi

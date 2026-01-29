@@ -25,7 +25,7 @@ from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Req
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -39,6 +39,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirna
 
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
+from shared.events.contracts import (
+    AgentExecutionStartedEvent,
+    AgentExecutionCompletedEvent,
+    AgentExecutionFailedEvent,
+)
 
 from shared.ai.agents import (
     AgriculturalResearchAgent,
@@ -55,6 +60,14 @@ SERVICE_NAME = "ai-agents-service"
 SERVICE_NAME_AR = "خدمة الوكلاء الذكية"
 SERVICE_VERSION = "16.0.0"
 SERVICE_PORT = 8130
+
+# NATS subjects for agent events
+NATS_AGENT_EXECUTION_STARTED = "sahool.agent.execution.started"
+NATS_AGENT_EXECUTION_COMPLETED = "sahool.agent.execution.completed"
+NATS_AGENT_EXECUTION_FAILED = "sahool.agent.execution.failed"
+
+# Valid agent types for upfront validation
+VALID_AGENT_TYPES = {"farm_advisor", "research", "planner"}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -699,8 +712,15 @@ async def execute_agent(
     if user.tenant_id != agent_request.tenant_id:
         raise TenantAccessDeniedError(tenant_id=agent_request.tenant_id)
 
+    # Validate agent type upfront to fail fast
+    if agent_request.agent_type not in VALID_AGENT_TYPES:
+        raise ValueError(
+            f"Invalid agent_type: '{agent_request.agent_type}'. "
+            f"Must be one of: {', '.join(sorted(VALID_AGENT_TYPES))}"
+        )
+
     execution_id = str(uuid4())
-    started_at = datetime.utcnow()
+    started_at = datetime.now(timezone.utc)
     initial_state = "planning" if agent_request.mode in ["plan", "hybrid"] else "executing"
 
     # Create initial response
@@ -743,6 +763,24 @@ async def execute_agent(
 async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
     """Background task to execute agent"""
     response = executions[execution_id]
+
+    # Publish execution started event
+    if hasattr(app.state, "publisher") and app.state.publisher:
+        try:
+            await app.state.publisher.publish_event(
+                NATS_AGENT_EXECUTION_STARTED,
+                AgentExecutionStartedEvent(
+                    execution_id=execution_id,
+                    agent_type=request.agent_type,
+                    tenant_id=request.tenant_id,
+                    task=request.task,
+                    mode=request.mode,
+                    field_id=request.field_id,
+                    farm_id=request.farm_id,
+                ),
+            )
+        except Exception as e:
+            logger.warning("nats_publish_failed", event="started", error=str(e))
 
     try:
         # Select agent type
@@ -789,7 +827,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
         response.status = "completed" if result.get("success") else "failed"
         response.state = "completed"
         response.final_result = result
-        response.completed_at = datetime.utcnow()
+        response.completed_at = datetime.now(timezone.utc)
 
         if response.started_at and response.completed_at:
             response.total_duration_ms = int(
@@ -805,7 +843,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
                     action_ar=step.get("action_ar"),
                     tool_used=step.get("tool"),
                     result=step.get("result"),
-                    timestamp=step.get("timestamp", datetime.utcnow()),
+                    timestamp=step.get("timestamp", datetime.now(timezone.utc)),
                     duration_ms=step.get("duration_ms"),
                 ))
 
@@ -822,7 +860,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
         response.status = "failed"
         response.state = "error"
         response.error = f"Validation error: {str(e)}"
-        response.completed_at = datetime.utcnow()
+        response.completed_at = datetime.now(timezone.utc)
         logger.warning(
             "agent_validation_error",
             execution_id=execution_id,
@@ -835,7 +873,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
         response.status = "timeout"
         response.state = "error"
         response.error = f"Execution timeout: {str(e)}"
-        response.completed_at = datetime.utcnow()
+        response.completed_at = datetime.now(timezone.utc)
         logger.warning(
             "agent_execution_timeout",
             execution_id=execution_id,
@@ -848,7 +886,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
         response.status = "failed"
         response.state = "error"
         response.error = f"Connection error: {str(e)}"
-        response.completed_at = datetime.utcnow()
+        response.completed_at = datetime.now(timezone.utc)
         logger.error(
             "agent_connection_error",
             execution_id=execution_id,
@@ -861,7 +899,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
         response.status = "failed"
         response.state = "error"
         response.error = f"Unexpected error: {type(e).__name__}"
-        response.completed_at = datetime.utcnow()
+        response.completed_at = datetime.now(timezone.utc)
         logger.error(
             "agent_execution_error",
             execution_id=execution_id,
@@ -878,24 +916,94 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
                 (response.completed_at - response.started_at).total_seconds() * 1000
             )
 
+        # Persist final state to database
+        if _use_database():
+            await db.update_execution(
+                execution_id=execution_id,
+                status=response.status,
+                state=response.state,
+                result=response.final_result,
+                steps=[s.model_dump() for s in response.steps] if response.steps else [],
+                error=response.error,
+                completed_at=response.completed_at,
+                total_duration_ms=response.total_duration_ms,
+            )
+
+        # Publish completion/failure event
+        if hasattr(app.state, "publisher") and app.state.publisher:
+            try:
+                if response.status == "completed":
+                    await app.state.publisher.publish_event(
+                        NATS_AGENT_EXECUTION_COMPLETED,
+                        AgentExecutionCompletedEvent(
+                            execution_id=execution_id,
+                            agent_type=request.agent_type,
+                            tenant_id=request.tenant_id,
+                            status=response.status,
+                            total_steps=len(response.steps),
+                            duration_ms=response.total_duration_ms or 0,
+                            result_summary=response.final_result.get("summary") if response.final_result else None,
+                        ),
+                    )
+                else:
+                    # Failed, timeout, or other non-success status
+                    await app.state.publisher.publish_event(
+                        NATS_AGENT_EXECUTION_FAILED,
+                        AgentExecutionFailedEvent(
+                            execution_id=execution_id,
+                            agent_type=request.agent_type,
+                            tenant_id=request.tenant_id,
+                            error_type=response.status,
+                            error_message=response.error or "Unknown error",
+                            failed_at_step=len(response.steps) if response.steps else None,
+                            duration_ms=response.total_duration_ms or 0,
+                        ),
+                    )
+            except Exception as e:
+                logger.warning("nats_publish_failed", event="completed/failed", error=str(e))
+
 
 @app.get("/api/v1/agents/executions/{execution_id}", response_model=AgentExecuteResponse, tags=["Agents"])
 @limiter.limit("60/minute")
-def get_execution(
+async def get_execution(
     request: Request,
     execution_id: str,
     user: User = Depends(get_current_user),
 ):
     """Get execution status and results | الحصول على حالة ونتائج التنفيذ"""
-    if execution_id not in executions:
-        raise ResourceNotFoundError(resource_type="Execution", resource_id=execution_id)
+    # First check in-memory store (fast path for recent executions)
+    if execution_id in executions:
+        execution = executions[execution_id]
+        # Validate tenant_id matches authenticated user
+        if user.tenant_id != execution.tenant_id:
+            raise TenantAccessDeniedError(tenant_id=execution.tenant_id)
+        return execution
 
-    execution = executions[execution_id]
-    # Validate tenant_id matches authenticated user
-    if user.tenant_id != execution.tenant_id:
-        raise TenantAccessDeniedError(tenant_id=execution.tenant_id)
+    # Then check database for persisted executions
+    if _use_database():
+        db_exec = await db.get_execution(execution_id)
+        if db_exec:
+            # Validate tenant access
+            if user.tenant_id != db_exec.get("tenant_id"):
+                raise TenantAccessDeniedError(tenant_id=db_exec.get("tenant_id", "unknown"))
+            # Convert database record to response model
+            return AgentExecuteResponse(
+                execution_id=db_exec.get("id", execution_id),
+                tenant_id=db_exec.get("tenant_id", ""),
+                agent_type=db_exec.get("agent_type", ""),
+                mode=db_exec.get("mode", "hybrid"),
+                task=db_exec.get("goal", ""),
+                status=db_exec.get("status", "unknown"),
+                state=db_exec.get("state", "unknown"),
+                steps=[AgentStep(**s) for s in db_exec.get("steps", [])] if db_exec.get("steps") else [],
+                final_result=db_exec.get("result"),
+                error=db_exec.get("error"),
+                started_at=db_exec.get("created_at", datetime.now(timezone.utc)),
+                completed_at=db_exec.get("completed_at"),
+                total_duration_ms=db_exec.get("total_duration_ms"),
+            )
 
-    return execution
+    raise ResourceNotFoundError(resource_type="Execution", resource_id=execution_id)
 
 
 @app.get("/api/v1/agents/executions/{execution_id}/status", response_model=ExecutionStatusResponse, tags=["Agents"])
@@ -965,7 +1073,7 @@ async def cancel_execution(
     if execution.status == "running":
         execution.status = "cancelled"
         execution.state = "cancelled"
-        execution.completed_at = datetime.utcnow()
+        execution.completed_at = datetime.now(timezone.utc)
         # Invalidate cache for this execution
         await cache_delete(f"ai_agents:execution_status:{execution_id}")
         return {"message": "Execution cancelled", "execution_id": execution_id}
@@ -975,11 +1083,13 @@ async def cancel_execution(
 
 @app.get("/api/v1/agents/executions", response_model=list[AgentExecuteResponse], tags=["Agents"])
 @limiter.limit("60/minute")
-def list_executions(
+async def list_executions(
     request: Request,
     tenant_id: str = Query(..., description="Filter by tenant ID"),
     status: str | None = Query(None, description="Filter by status"),
+    agent_type: str | None = Query(None, description="Filter by agent type"),
     limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0, description="Offset for pagination"),
     user: User = Depends(get_current_user),
 ):
     """List recent executions | قائمة التنفيذات الأخيرة"""
@@ -987,17 +1097,51 @@ def list_executions(
     if user.tenant_id != tenant_id:
         raise TenantAccessDeniedError(tenant_id=tenant_id)
 
-    # Filter by tenant_id
+    # Try to get from database first for complete history
+    if _use_database():
+        db_results = await db.list_executions(
+            tenant_id=tenant_id,
+            status=status,
+            agent_type=agent_type,
+            limit=limit,
+            offset=offset,
+        )
+        # Convert database records to response models
+        return [
+            AgentExecuteResponse(
+                execution_id=r.get("id", ""),
+                tenant_id=r.get("tenant_id", ""),
+                agent_type=r.get("agent_type", ""),
+                mode=r.get("mode", "hybrid"),
+                task=r.get("goal", ""),
+                status=r.get("status", "unknown"),
+                state=r.get("state", "unknown"),
+                steps=[AgentStep(**s) for s in r.get("steps", [])] if r.get("steps") else [],
+                final_result=r.get("result"),
+                error=r.get("error"),
+                started_at=r.get("created_at", datetime.now(timezone.utc)),
+                completed_at=r.get("completed_at"),
+                total_duration_ms=r.get("total_duration_ms"),
+            )
+            for r in db_results
+        ]
+
+    # Fallback to in-memory store
     results = [e for e in executions.values() if e.tenant_id == tenant_id]
 
     # Filter by status if provided
     if status:
         results = [e for e in results if e.status == status]
 
+    # Filter by agent_type if provided
+    if agent_type:
+        results = [e for e in results if e.agent_type == agent_type]
+
     # Sort by started_at descending
     results.sort(key=lambda x: x.started_at, reverse=True)
 
-    return results[:limit]
+    # Apply pagination
+    return results[offset:offset + limit]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1053,7 +1197,7 @@ async def quick_analyze(
             }
         ],
         confidence=0.85,
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
     )
 
 

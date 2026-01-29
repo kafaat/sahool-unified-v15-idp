@@ -18,7 +18,7 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Protocol
 from uuid import UUID
 import structlog
@@ -241,7 +241,7 @@ class HMCIntegrationManager:
         """
         self._farm_advisor = advisor
         self._integrations_status["farm_advisor"]["registered"] = True
-        self._integrations_status["farm_advisor"]["registered_at"] = datetime.utcnow().isoformat()
+        self._integrations_status["farm_advisor"]["registered_at"] = datetime.now(timezone.utc).isoformat()
 
         logger.info("farm_advisor_registered")
 
@@ -258,7 +258,7 @@ class HMCIntegrationManager:
         """
         self._irrigation_agent = agent
         self._integrations_status["irrigation_agent"]["registered"] = True
-        self._integrations_status["irrigation_agent"]["registered_at"] = datetime.utcnow().isoformat()
+        self._integrations_status["irrigation_agent"]["registered_at"] = datetime.now(timezone.utc).isoformat()
 
         logger.info("irrigation_agent_registered")
 
@@ -275,7 +275,7 @@ class HMCIntegrationManager:
         """
         self._weather_service = service
         self._integrations_status["weather_service"]["registered"] = True
-        self._integrations_status["weather_service"]["registered_at"] = datetime.utcnow().isoformat()
+        self._integrations_status["weather_service"]["registered_at"] = datetime.now(timezone.utc).isoformat()
 
         logger.info("weather_service_registered")
 
@@ -292,7 +292,7 @@ class HMCIntegrationManager:
         """
         self._fertilization_service = service
         self._integrations_status["fertilization_service"]["registered"] = True
-        self._integrations_status["fertilization_service"]["registered_at"] = datetime.utcnow().isoformat()
+        self._integrations_status["fertilization_service"]["registered_at"] = datetime.now(timezone.utc).isoformat()
 
         logger.info("fertilization_service_registered")
 
@@ -324,7 +324,7 @@ class HMCIntegrationManager:
             return {"error": "Weather service not registered"}
 
         result = {
-            "synced_at": datetime.utcnow().isoformat(),
+            "synced_at": datetime.now(timezone.utc).isoformat(),
             "current_conditions": None,
             "forecast": None,
         }
@@ -338,7 +338,7 @@ class HMCIntegrationManager:
                     location, days=7
                 )
 
-            self._integrations_status["weather_service"]["last_sync"] = datetime.utcnow().isoformat()
+            self._integrations_status["weather_service"]["last_sync"] = datetime.now(timezone.utc).isoformat()
 
             logger.info("weather_service_synced", location=location)
 
@@ -378,7 +378,7 @@ class HMCIntegrationManager:
             return {"error": "Fertilization service not registered"}
 
         result = {
-            "synced_at": datetime.utcnow().isoformat(),
+            "synced_at": datetime.now(timezone.utc).isoformat(),
             "fertigation_schedule": None,
         }
 
@@ -388,7 +388,7 @@ class HMCIntegrationManager:
                     field_id, crop_type, growth_stage
                 )
 
-            self._integrations_status["fertilization_service"]["last_sync"] = datetime.utcnow().isoformat()
+            self._integrations_status["fertilization_service"]["last_sync"] = datetime.now(timezone.utc).isoformat()
 
             logger.info(
                 "fertilization_service_synced",
@@ -454,7 +454,7 @@ class HMCIntegrationManager:
                         confidence=rec.get("confidence", 0.7),
                         metadata={
                             "advisor_recommendation_id": rec.get("id"),
-                            "integrated_at": datetime.utcnow().isoformat(),
+                            "integrated_at": datetime.now(timezone.utc).isoformat(),
                         },
                     )
                     experience_rules.append(rule)
@@ -600,7 +600,7 @@ class HMCIntegrationManager:
         """
         event = {
             "event_type": event_type,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "data": data,
         }
 

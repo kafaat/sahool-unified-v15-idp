@@ -1,26 +1,38 @@
 """
 SAHOOL GlobalGAP Compliance Service - NATS Publisher
 Publishes compliance-related events to NATS event bus
+
+REFACTORED: Now uses shared EventPublisher for consistency across services
 """
 
-import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
 
-import nats
-from nats.aio.client import Client as NatsClient
+# Use the shared EventPublisher from shared/events/
+from shared.events.publisher import EventPublisher, PublisherConfig
 
 logger = logging.getLogger(__name__)
 
 
 class NatsPublisher:
-    """NATS Event Publisher for Compliance Service"""
+    """
+    NATS Event Publisher for Compliance Service
 
-    def __init__(self):
-        self.nc: NatsClient | None = None
+    This is an adapter that wraps the shared EventPublisher to provide
+    backward-compatible API for the globalgap-compliance service.
+    """
+
+    def __init__(self, service_name: str = "globalgap-compliance"):
+        self._publisher: EventPublisher | None = None
+        self._service_name = service_name
         self.connected = False
+
+    @property
+    def is_connected(self) -> bool:
+        """Check if connected to NATS"""
+        return self._publisher is not None and self._publisher.is_connected
 
     async def connect(self, nats_url: str) -> bool:
         """
@@ -33,10 +45,19 @@ class NatsPublisher:
             bool: Connection success status
         """
         try:
-            self.nc = await nats.connect(nats_url)
-            self.connected = True
-            logger.info(f"✅ NATS connected: {nats_url}")
-            return True
+            config = PublisherConfig(
+                servers=[nats_url],
+                name=self._service_name,
+            )
+            self._publisher = EventPublisher(
+                config=config,
+                service_name=self._service_name,
+            )
+            success = await self._publisher.connect()
+            self.connected = success
+            if success:
+                logger.info(f"✅ NATS connected: {nats_url}")
+            return success
         except Exception as e:
             logger.error(f"❌ NATS connection failed: {e}")
             self.connected = False
@@ -44,9 +65,9 @@ class NatsPublisher:
 
     async def disconnect(self):
         """Disconnect from NATS server"""
-        if self.nc and self.connected:
+        if self._publisher:
             try:
-                await self.nc.close()
+                await self._publisher.close()
                 self.connected = False
                 logger.info("NATS disconnected")
             except Exception as e:
@@ -71,25 +92,30 @@ class NatsPublisher:
         Returns:
             bool: Publish success status
         """
-        if not self.nc or not self.connected:
+        if not self.is_connected:
             logger.warning(f"NATS not connected, skipping event publish: {event_type}")
             return False
 
         try:
+            # Ensure subject has sahool. prefix for security compliance
+            if not subject.startswith("sahool."):
+                subject = f"sahool.{subject}"
+
             event = {
                 "eventId": str(uuid4()),
                 "eventType": event_type,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "version": "1.0",
+                "sourceService": self._service_name,
                 "payload": payload,
                 "metadata": metadata or {},
             }
 
-            message = json.dumps(event).encode()
-            await self.nc.publish(subject, message)
+            success = await self._publisher.publish_json(subject, event)
 
-            logger.info(f"📤 Event published: {event_type} to {subject}")
-            return True
+            if success:
+                logger.info(f"📤 Event published: {event_type} to {subject}")
+            return success
 
         except Exception as e:
             logger.error(f"Error publishing event {event_type}: {e}")
@@ -141,7 +167,7 @@ async def publish_compliance_updated(
         return False
 
     return await publisher.publish_event(
-        subject="compliance.updated",
+        subject="sahool.compliance.updated",
         event_type="compliance.updated",
         payload={
             "farmId": farm_id,
@@ -149,7 +175,7 @@ async def publish_compliance_updated(
             "overallStatus": overall_status,
             "compliancePercentage": compliance_percentage,
             "changes": changes or {},
-            "updatedAt": datetime.utcnow().isoformat(),
+            "updatedAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -183,7 +209,7 @@ async def publish_audit_completed(
         return False
 
     return await publisher.publish_event(
-        subject="compliance.audit.completed",
+        subject="sahool.compliance.audit.completed",
         event_type="compliance.audit.completed",
         payload={
             "auditId": audit_id,
@@ -193,7 +219,7 @@ async def publish_audit_completed(
             "auditStatus": audit_status,
             "overallScore": overall_score,
             "auditorName": auditor_name,
-            "completedAt": datetime.utcnow().isoformat(),
+            "completedAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -225,7 +251,7 @@ async def publish_non_conformity_created(
         return False
 
     return await publisher.publish_event(
-        subject="compliance.non_conformity.created",
+        subject="sahool.compliance.non_conformity.created",
         event_type="compliance.non_conformity.created",
         payload={
             "nonConformityId": non_conformity_id,
@@ -234,7 +260,7 @@ async def publish_non_conformity_created(
             "controlPointNumber": control_point_number,
             "severity": severity,
             "description": description,
-            "createdAt": datetime.utcnow().isoformat(),
+            "createdAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -264,7 +290,7 @@ async def publish_non_conformity_resolved(
         return False
 
     return await publisher.publish_event(
-        subject="compliance.non_conformity.resolved",
+        subject="sahool.compliance.non_conformity.resolved",
         event_type="compliance.non_conformity.resolved",
         payload={
             "nonConformityId": non_conformity_id,
@@ -272,7 +298,7 @@ async def publish_non_conformity_resolved(
             "tenantId": tenant_id,
             "resolutionDescription": resolution_description,
             "resolvedBy": resolved_by,
-            "resolvedAt": datetime.utcnow().isoformat(),
+            "resolvedAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -306,7 +332,7 @@ async def publish_certificate_created(
         return False
 
     return await publisher.publish_event(
-        subject="compliance.certificate.created",
+        subject="sahool.compliance.certificate.created",
         event_type="compliance.certificate.created",
         payload={
             "certificateId": certificate_id,
@@ -316,7 +342,7 @@ async def publish_certificate_created(
             "certificateType": certificate_type,
             "issuedDate": issued_date,
             "expiryDate": expiry_date,
-            "createdAt": datetime.utcnow().isoformat(),
+            "createdAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -346,7 +372,7 @@ async def publish_certificate_renewed(
         return False
 
     return await publisher.publish_event(
-        subject="compliance.certificate.renewed",
+        subject="sahool.compliance.certificate.renewed",
         event_type="compliance.certificate.renewed",
         payload={
             "certificateId": certificate_id,
@@ -354,7 +380,7 @@ async def publish_certificate_renewed(
             "tenantId": tenant_id,
             "ggnNumber": ggn_number,
             "newExpiryDate": new_expiry_date,
-            "renewedAt": datetime.utcnow().isoformat(),
+            "renewedAt": datetime.now(timezone.utc).isoformat(),
         },
     )
 
@@ -384,7 +410,7 @@ async def publish_certificate_expired(
         return False
 
     return await publisher.publish_event(
-        subject="compliance.certificate.expired",
+        subject="sahool.compliance.certificate.expired",
         event_type="compliance.certificate.expired",
         payload={
             "certificateId": certificate_id,

@@ -567,7 +567,7 @@ class KnowledgeGraphRetriever(Retriever):
             matched_entities = await self._match_entities(query_entities)
 
             # Step 3: Multi-hop traversal from matched entities
-            max_hops = config.metadata_filter.get("kg_max_hops", 2) if config.metadata_filter else 2
+            max_hops = config.filters.get("kg_max_hops", 2) if config.filters else 2
             expanded_context = await self._traverse_graph(
                 matched_entities,
                 max_hops=max_hops,

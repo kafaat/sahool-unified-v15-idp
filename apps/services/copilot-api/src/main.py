@@ -31,6 +31,22 @@ from .api.v1 import chat_router, health_router, rag_router, tools_router
 from .core.config import Settings, get_settings
 from .rag import get_rag_service
 
+# Import AI Audit Logger for comprehensive logging
+try:
+    from shared.ai.audit import AIAuditLogger, get_audit_logger
+    HAS_AUDIT = True
+except ImportError:
+    HAS_AUDIT = False
+    AIAuditLogger = None
+
+# Import FixOps integration
+try:
+    from tools.fixops.orchestrator import FixOpsOrchestrator, FixOpsConfig
+    HAS_FIXOPS = True
+except ImportError:
+    HAS_FIXOPS = False
+    FixOpsOrchestrator = None
+
 # Configure structured logging
 structlog.configure(
     processors=[
@@ -74,6 +90,26 @@ async def lifespan(app: FastAPI):
         logger.info("RAG service initialized")
     except Exception as e:
         logger.warning("RAG service initialization failed", error=str(e))
+
+    # Initialize AI Audit Logger
+    app.state.audit_logger = None
+    if HAS_AUDIT:
+        try:
+            app.state.audit_logger = get_audit_logger()
+            logger.info("AI Audit Logger initialized")
+        except Exception as e:
+            logger.warning("AI Audit Logger initialization failed", error=str(e))
+
+    # Initialize FixOps Orchestrator
+    app.state.fixops = None
+    if HAS_FIXOPS:
+        try:
+            app.state.fixops = FixOpsOrchestrator(FixOpsConfig(
+                dry_run=settings.environment != "production",
+            ))
+            logger.info("FixOps Orchestrator initialized")
+        except Exception as e:
+            logger.warning("FixOps initialization failed", error=str(e))
 
     # Store settings in app state
     app.state.settings = settings
@@ -171,7 +207,7 @@ def create_app() -> FastAPI:
 
     # Info endpoint
     @app.get("/info")
-    async def info():
+    async def info(request: Request):
         settings = get_settings()
         return {
             "service": "copilot-api",
@@ -184,6 +220,13 @@ def create_app() -> FastAPI:
                 "multi_llm": True,
                 "offline_first": True,
                 "bilingual": True,
+                "audit_logging": getattr(request.app.state, "audit_logger", None) is not None,
+                "fixops": getattr(request.app.state, "fixops", None) is not None,
+            },
+            "integrations": {
+                "ai_audit": HAS_AUDIT,
+                "fixops": HAS_FIXOPS,
+                "auto_fix_engine": HAS_FIXOPS,
             },
             "llm_providers": _get_available_providers(settings),
             "timestamp": datetime.now(timezone.utc).isoformat(),

@@ -24,6 +24,24 @@ import structlog
 
 from .signals import CISignal, LocalSignal, SignalCollector
 
+# Import Auto-Fix Engine for integration
+try:
+    from shared.ai.auto_fix.engine import AutoFixEngine
+    from shared.ai.auto_fix.models import FixStrategy as AutoFixStrategy
+    HAS_AUTO_FIX = True
+except ImportError:
+    HAS_AUTO_FIX = False
+    AutoFixEngine = None
+    AutoFixStrategy = None
+
+# Import AI Audit for logging
+try:
+    from shared.ai.audit import AIAuditLogger, get_audit_logger
+    HAS_AUDIT = True
+except ImportError:
+    HAS_AUDIT = False
+    AIAuditLogger = None
+
 logger = structlog.get_logger(__name__)
 
 
@@ -54,6 +72,10 @@ class FixOpsConfig:
 
     # Fix strategies
     fix_strategy: str = "safe"  # "minimal", "safe", "comprehensive"
+
+    # Integration options
+    use_auto_fix_engine: bool = True  # Use shared/ai/auto_fix engine
+    use_audit_logger: bool = True     # Log to AI Audit system
 
     def __post_init__(self):
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -171,6 +193,23 @@ class FixOpsOrchestrator:
         self.signal_collector = SignalCollector(self.config.repo_root)
         self._summary: Optional[FixOpsSummary] = None
 
+        # Initialize Auto-Fix Engine if available
+        self._auto_fix_engine: Optional[Any] = None
+        if HAS_AUTO_FIX and self.config.use_auto_fix_engine:
+            self._auto_fix_engine = AutoFixEngine(
+                dry_run=self.config.dry_run,
+            )
+            logger.info("Auto-Fix Engine initialized")
+
+        # Initialize Audit Logger if available
+        self._audit_logger: Optional[Any] = None
+        if HAS_AUDIT and self.config.use_audit_logger:
+            try:
+                self._audit_logger = get_audit_logger()
+                logger.info("AI Audit Logger initialized")
+            except Exception as e:
+                logger.warning("Failed to initialize audit logger", error=str(e))
+
     async def run(
         self,
         paths: Optional[list[str]] = None,
@@ -282,7 +321,7 @@ class FixOpsOrchestrator:
         self._summary.issues_by_category = by_category
 
     def _classify_severity(self, issue: dict, tool: str) -> str:
-        """Classify issue severity"""
+        """Classify issue severity | تصنيف خطورة المشكلة"""
         if tool == "bandit":
             severity = issue.get("issue_severity", "").lower()
             if severity == "high":
@@ -299,10 +338,53 @@ class FixOpsOrchestrator:
                 return "medium"
             return "low"
 
+        if tool == "semgrep":
+            severity = issue.get("severity", "").upper()
+            if severity == "ERROR":
+                return "critical"
+            if severity == "WARNING":
+                return "high"
+            return "medium"
+
+        if tool == "pylint":
+            issue_type = issue.get("type", "")
+            if issue_type == "error":
+                return "high"
+            if issue_type == "warning":
+                return "medium"
+            return "low"
+
+        if tool in ("dart_analyze", "flutter_analyze"):
+            severity = issue.get("severity", "")
+            if severity == "ERROR":
+                return "critical"
+            if severity == "WARNING":
+                return "high"
+            return "medium"
+
+        if tool == "typescript":
+            raw = issue.get("raw", "")
+            if ": error " in raw:
+                return "high"
+            return "medium"
+
+        if tool in ("npm_audit", "pip_audit"):
+            severity = issue.get("severity", "").lower()
+            if severity == "critical":
+                return "critical"
+            if severity == "high":
+                return "high"
+            if severity == "moderate":
+                return "medium"
+            return "low"
+
+        if tool == "mypy":
+            return "medium"
+
         return "medium"
 
     def _classify_category(self, issue: dict, tool: str) -> str:
-        """Classify issue category"""
+        """Classify issue category | تصنيف فئة المشكلة"""
         if tool == "bandit":
             return "security"
 
@@ -319,6 +401,46 @@ class FixOpsOrchestrator:
             return "style"
 
         if tool == "mypy":
+            return "bug"
+
+        if tool == "semgrep":
+            return "security"
+
+        if tool == "pylint":
+            issue_type = issue.get("type", "")
+            if issue_type == "error":
+                return "bug"
+            if issue_type == "refactor":
+                return "performance"
+            return "style"
+
+        if tool in ("dart_analyze", "flutter_analyze"):
+            severity = issue.get("severity", "")
+            if severity == "ERROR":
+                return "bug"
+            return "style"
+
+        if tool == "typescript":
+            return "bug"
+
+        if tool in ("npm_audit", "pip_audit"):
+            return "security"
+
+        if tool == "eslint":
+            rule_id = issue.get("ruleId", "")
+            if "security" in rule_id.lower():
+                return "security"
+            if "no-unused" in rule_id or "no-undef" in rule_id:
+                return "bug"
+            return "style"
+
+        if tool == "hadolint":
+            return "style"
+
+        if tool == "k8s_lint":
+            return "bug"
+
+        if tool == "openapi_validator":
             return "bug"
 
         return "style"
@@ -385,7 +507,7 @@ class FixOpsOrchestrator:
             return None
 
     async def _apply_fixes(self) -> None:
-        """Apply auto-fixable fixes"""
+        """Apply auto-fixable fixes using Auto-Fix Engine or fallback"""
         logger.info("Applying fixes", strategy=self.config.fix_strategy)
 
         auto_fixable = [
@@ -397,9 +519,66 @@ class FixOpsOrchestrator:
             logger.info("No auto-fixable issues found")
             return
 
-        # Apply Ruff fixes
+        # Use Auto-Fix Engine if available
+        if self._auto_fix_engine:
+            await self._apply_with_auto_fix_engine()
+            return
+
+        # Fallback: Apply Ruff fixes directly
         ruff_fixes = [r for r in auto_fixable if r.tool == "ruff"]
         if ruff_fixes:
+            await self._apply_ruff_fixes()
+
+    async def _apply_with_auto_fix_engine(self) -> None:
+        """Apply fixes using the Auto-Fix Engine"""
+        logger.info("Using Auto-Fix Engine for comprehensive fixes")
+
+        try:
+            # Map strategy
+            strategy_map = {
+                "minimal": AutoFixStrategy.MINIMAL if AutoFixStrategy else None,
+                "safe": AutoFixStrategy.SAFE if AutoFixStrategy else None,
+                "comprehensive": AutoFixStrategy.COMPREHENSIVE if AutoFixStrategy else None,
+            }
+            strategy = strategy_map.get(self.config.fix_strategy)
+
+            # Run diagnose and fix
+            report, results = await self._auto_fix_engine.diagnose_and_fix(
+                target=str(self.config.repo_root),
+                strategy=strategy,
+            )
+
+            # Update summary
+            successful_fixes = [r for r in results if r.success]
+            failed_fixes = [r for r in results if not r.success]
+
+            self._summary.fixes_applied = len(successful_fixes)
+            self._summary.fixes_failed = len(failed_fixes)
+            self._summary.files_modified = list(set(
+                r.file_path for r in successful_fixes if r.file_path
+            ))
+
+            # Log to audit
+            if self._audit_logger:
+                await self._audit_logger.log_auto_fix(
+                    run_id=self._summary.id,
+                    total_issues=report.total_issues if hasattr(report, 'total_issues') else 0,
+                    fixes_applied=self._summary.fixes_applied,
+                    fixes_failed=self._summary.fixes_failed,
+                    strategy=self.config.fix_strategy,
+                    files_modified=self._summary.files_modified,
+                )
+
+            logger.info(
+                "Auto-Fix Engine completed",
+                applied=self._summary.fixes_applied,
+                failed=self._summary.fixes_failed,
+            )
+
+        except Exception as e:
+            logger.error("Auto-Fix Engine failed", error=str(e))
+            self._summary.errors.append(f"Auto-Fix Engine failed: {e}")
+            # Fallback to Ruff
             await self._apply_ruff_fixes()
 
     async def _apply_ruff_fixes(self) -> None:

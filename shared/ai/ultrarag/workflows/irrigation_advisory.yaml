@@ -1,0 +1,209 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# UltraRAG Workflow: Smart Irrigation Advisory
+# سير عمل استشارات الري الذكي
+# ═══════════════════════════════════════════════════════════════════════════════
+
+id: irrigation_advisory_workflow
+name: Smart Irrigation Advisory
+name_ar: استشارات الري الذكي
+description: |
+  Intelligent irrigation recommendation system combining weather data,
+  soil moisture, crop requirements, and historical data for optimal
+  water management advice.
+description_ar: |
+  نظام توصيات ري ذكي يجمع بين بيانات الطقس ورطوبة التربة
+  ومتطلبات المحصول والبيانات التاريخية للحصول على
+  نصائح مثالية لإدارة المياه.
+version: "1.0.0"
+
+variables:
+  crop_type: ""
+  soil_moisture: 0
+  growth_stage: ""
+  weather_forecast: {}
+  field_id: ""
+  top_k: 8
+
+entry_point: analyze_conditions
+
+steps:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 1: Analyze Current Conditions
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: analyze_conditions
+    type: transform
+    name: Analyze irrigation conditions
+    config:
+      type: analysis
+      inputs:
+        - soil_moisture
+        - weather_forecast
+        - growth_stage
+      output: condition_summary
+      analysis_type: irrigation_needs
+    next_step: retrieve_crop_water_needs
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 2: Retrieve Crop Water Requirements
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: retrieve_crop_water_needs
+    type: retrieve
+    name: Get crop water requirements
+    config:
+      query: "Water requirements for ${crop_type} at ${growth_stage} stage"
+      collection: crop_water_requirements
+      top_k: 5
+      strategy: dense
+    next_step: retrieve_irrigation_best_practices
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 3: Retrieve Best Practices
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: retrieve_irrigation_best_practices
+    type: retrieve
+    name: Get irrigation best practices
+    config:
+      query: "Irrigation best practices ${crop_type} ${growth_stage}"
+      collection: irrigation_practices
+      top_k: 5
+      strategy: hybrid
+    next_step: check_weather_conditions
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 4: Weather Condition Check
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: check_weather_conditions
+    type: condition
+    name: Check if rain is expected
+    config:
+      condition: "rain_probability_above:threshold=60"
+      true_branch: delay_irrigation
+      false_branch: calculate_irrigation
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 5a: Calculate Irrigation Amount
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: calculate_irrigation
+    type: transform
+    name: Calculate irrigation amount
+    config:
+      type: calculation
+      formula: |
+        ET × Kc × Area - (Soil Moisture × FC) + Safety Margin
+      inputs:
+        - evapotranspiration
+        - crop_coefficient
+        - field_area
+        - soil_moisture
+        - field_capacity
+      output: irrigation_amount_mm
+    next_step: aggregate_recommendations
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 5b: Delay Irrigation Recommendation
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: delay_irrigation
+    type: transform
+    name: Recommend irrigation delay
+    config:
+      type: template
+      template: |
+        Rain expected in next 48 hours (probability: {rain_prob}%).
+        Recommend delaying irrigation.
+        Expected rainfall: {expected_rain_mm} mm
+      output: delay_recommendation
+    next_step: aggregate_recommendations
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 6: Aggregate Recommendations
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: aggregate_recommendations
+    type: aggregate
+    name: Combine all irrigation data
+    config:
+      sources:
+        - crop_water_needs
+        - irrigation_practices
+        - calculated_amount
+        - delay_recommendation
+      output: combined_irrigation_data
+      method: merge
+    next_step: rerank_data
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 7: Rerank Combined Data
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: rerank_data
+    type: rerank
+    name: Rerank irrigation recommendations
+    config:
+      input: combined_irrigation_data
+      top_k: 5
+      method: reciprocal_rank
+    next_step: generate_advisory
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 8: Generate Irrigation Advisory
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: generate_advisory
+    type: generate
+    name: Generate irrigation advisory
+    config:
+      mode: self_reflective
+      language: both
+      max_tokens: 1200
+      system_prompt: |
+        You are SAHOOL Irrigation Advisor. Based on the data provided:
+
+        1. ASSESSMENT: Summarize current soil and weather conditions
+        2. RECOMMENDATION: Provide specific irrigation advice with:
+           - Amount (mm or liters)
+           - Timing (best time of day)
+           - Duration (hours/minutes)
+           - Method (drip, sprinkler, flood)
+        3. MONITORING: What to observe after irrigation
+        4. COST-BENEFIT: Estimated water savings vs yield impact
+
+        Always prioritize water conservation while maintaining crop health.
+      system_prompt_ar: |
+        أنت مستشار الري في سهول. بناءً على البيانات المقدمة:
+
+        1. التقييم: ملخص ظروف التربة والطقس الحالية
+        2. التوصية: نصيحة ري محددة تتضمن:
+           - الكمية (مم أو لتر)
+           - التوقيت (أفضل وقت في اليوم)
+           - المدة (ساعات/دقائق)
+           - الطريقة (تنقيط، رش، غمر)
+        3. المراقبة: ما يجب ملاحظته بعد الري
+        4. التكلفة والعائد: توفير المياه المقدر مقابل تأثير الإنتاج
+
+        أعطِ الأولوية دائماً للحفاظ على المياه مع الحفاظ على صحة المحصول.
+    next_step: format_output
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 9: Format Final Output
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: format_output
+    type: transform
+    name: Format irrigation advisory
+    config:
+      type: template
+      template: |
+        ## 💧 Irrigation Advisory | استشارة الري
+
+        **Field**: {field_id}
+        **Crop**: {crop_type} ({growth_stage})
+        **Date**: {date}
+
+        ### Current Conditions | الظروف الحالية
+        - Soil Moisture: {soil_moisture}%
+        - Weather: {weather_summary}
+
+        ### Recommendation | التوصية
+        {advisory}
+
+        ### Action Items | الإجراءات المطلوبة
+        {action_items}
+
+        ---
+        *Generated by SAHOOL UltraRAG v3.0*

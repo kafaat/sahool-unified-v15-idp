@@ -16,6 +16,7 @@ class RetrievalStrategy(Enum):
     SPARSE = "sparse"            # BM25/keyword based
     HYBRID = "hybrid"            # Dense + Sparse combination
     ADAPTIVE = "adaptive"        # Query-dependent strategy selection
+    TRI_RAG = "tri_rag"          # AgriGPT Tri-RAG: Dense + Sparse + Knowledge Graph
 
 
 class ChunkingStrategy(Enum):
@@ -322,3 +323,127 @@ class WorkflowConfig:
             entry_point=yaml_dict.get("entry_point", steps[0].id if steps else ""),
             variables=yaml_dict.get("variables", {}),
         )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Knowledge Graph Models for Tri-RAG (AgriGPT Integration)
+# نماذج خرائط المعرفة لـ Tri-RAG (تكامل AgriGPT)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class EntityType(Enum):
+    """Types of entities in the agricultural knowledge graph"""
+    CROP = "crop"                    # محصول
+    PEST = "pest"                    # آفة
+    DISEASE = "disease"              # مرض
+    FERTILIZER = "fertilizer"        # سماد
+    PESTICIDE = "pesticide"          # مبيد
+    IRRIGATION = "irrigation"        # ري
+    SOIL = "soil"                    # تربة
+    WEATHER = "weather"              # طقس
+    EQUIPMENT = "equipment"          # معدات
+    TECHNIQUE = "technique"          # تقنية
+    REGION = "region"                # منطقة
+    SEASON = "season"                # موسم
+
+
+class RelationType(Enum):
+    """Types of relationships in the knowledge graph"""
+    AFFECTS = "affects"              # يؤثر على
+    TREATS = "treats"                # يعالج
+    PREVENTS = "prevents"            # يمنع
+    REQUIRES = "requires"            # يتطلب
+    PRODUCES = "produces"            # ينتج
+    COMPATIBLE_WITH = "compatible_with"  # متوافق مع
+    INCOMPATIBLE_WITH = "incompatible_with"  # غير متوافق مع
+    GROWS_IN = "grows_in"            # ينمو في
+    OCCURS_IN = "occurs_in"          # يحدث في
+    PART_OF = "part_of"              # جزء من
+    CAUSES = "causes"                # يسبب
+    SYMPTOM_OF = "symptom_of"        # عرض لـ
+
+
+@dataclass
+class KnowledgeEntity:
+    """An entity in the knowledge graph | كيان في خريطة المعرفة"""
+    id: str
+    name: str
+    name_ar: Optional[str] = None
+    entity_type: EntityType = EntityType.CROP
+    description: str = ""
+    description_ar: str = ""
+    aliases: List[str] = field(default_factory=list)
+    aliases_ar: List[str] = field(default_factory=list)
+    properties: Dict[str, Any] = field(default_factory=dict)
+    embedding: Optional[List[float]] = None
+    created_at: datetime = field(default_factory=datetime.utcnow)
+
+    @staticmethod
+    def generate_id() -> str:
+        return f"entity_{uuid.uuid4().hex[:12]}"
+
+
+@dataclass
+class KnowledgeRelation:
+    """A relationship between entities | علاقة بين الكيانات"""
+    id: str
+    source_id: str
+    target_id: str
+    relation_type: RelationType
+    weight: float = 1.0  # Relationship strength
+    properties: Dict[str, Any] = field(default_factory=dict)
+    evidence: List[str] = field(default_factory=list)  # Source document IDs
+    created_at: datetime = field(default_factory=datetime.utcnow)
+
+    @staticmethod
+    def generate_id() -> str:
+        return f"rel_{uuid.uuid4().hex[:12]}"
+
+
+@dataclass
+class KnowledgeGraphResult:
+    """Result from knowledge graph query | نتيجة استعلام خريطة المعرفة"""
+    entities: List[KnowledgeEntity]
+    relations: List[KnowledgeRelation]
+    paths: List[List[str]] = field(default_factory=list)  # Multi-hop paths
+    score: float = 0.0
+    reasoning: str = ""
+    reasoning_ar: str = ""
+
+
+@dataclass
+class TriRAGConfig:
+    """Configuration for Tri-RAG retrieval (AgriGPT style)
+    تكوين الاسترجاع ثلاثي القنوات (نمط AgriGPT)
+    """
+    # Channel weights (should sum to 1.0)
+    dense_weight: float = 0.4      # Semantic retrieval weight
+    sparse_weight: float = 0.3     # Keyword retrieval weight
+    kg_weight: float = 0.3         # Knowledge graph weight
+
+    # Dense retrieval settings
+    dense_top_k: int = 10
+    dense_model: str = "paraphrase-multilingual-MiniLM-L12-v2"
+
+    # Sparse retrieval settings
+    sparse_top_k: int = 10
+    bm25_k1: float = 1.5
+    bm25_b: float = 0.75
+
+    # Knowledge graph settings
+    kg_max_hops: int = 2           # Maximum hops for multi-hop reasoning
+    kg_top_entities: int = 5       # Top entities to start from
+    kg_expansion_limit: int = 20   # Max expanded nodes
+
+    # Fusion settings
+    rrf_k: int = 60                # RRF constant
+    final_top_k: int = 10          # Final results after fusion
+
+    # Context settings
+    include_kg_reasoning: bool = True  # Include reasoning in context
+    max_context_tokens: int = 4096
+
+    def validate(self) -> bool:
+        """Validate that weights sum to 1.0"""
+        total = self.dense_weight + self.sparse_weight + self.kg_weight
+        return abs(total - 1.0) < 0.01

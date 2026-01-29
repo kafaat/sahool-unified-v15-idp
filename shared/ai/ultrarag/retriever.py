@@ -520,6 +520,454 @@ class AdaptiveRetriever(Retriever):
             return "hybrid"
 
 
+class KnowledgeGraphRetriever(Retriever):
+    """
+    Knowledge Graph Retriever for multi-hop reasoning
+    مسترجع خرائط المعرفة للاستدلال متعدد القفزات
+
+    Part of the Tri-RAG framework from AgriGPT.
+    Performs entity extraction, graph traversal, and context enrichment.
+    """
+
+    def __init__(
+        self,
+        embedding_service: Optional[Any] = None,
+    ):
+        self.embedding_service = embedding_service
+        # In-memory graph storage (can be replaced with Neo4j, etc.)
+        self._entities: Dict[str, Any] = {}
+        self._relations: List[Dict[str, Any]] = []
+        self._entity_embeddings: Dict[str, List[float]] = {}
+
+    async def retrieve(
+        self,
+        query: str,
+        config: RetrievalConfig,
+    ) -> List[RetrievalResult]:
+        """Retrieve relevant context using knowledge graph traversal"""
+        from .models import (
+            KnowledgeEntity,
+            KnowledgeRelation,
+            KnowledgeGraphResult,
+            KnowledgeChunk,
+        )
+
+        start_time = time.time()
+        results: List[RetrievalResult] = []
+
+        try:
+            # Step 1: Extract entities from query
+            query_entities = await self._extract_entities(query)
+
+            if not query_entities:
+                logger.info("kg_no_entities_found", query_preview=query[:50])
+                return results
+
+            # Step 2: Find matching entities in graph
+            matched_entities = await self._match_entities(query_entities)
+
+            # Step 3: Multi-hop traversal from matched entities
+            max_hops = config.metadata_filter.get("kg_max_hops", 2) if config.metadata_filter else 2
+            expanded_context = await self._traverse_graph(
+                matched_entities,
+                max_hops=max_hops,
+            )
+
+            # Step 4: Convert to retrieval results
+            for i, (entity_id, context_info) in enumerate(expanded_context.items()):
+                entity = self._entities.get(entity_id)
+                if entity:
+                    # Create a knowledge chunk from the entity and its relations
+                    chunk_text = self._create_context_text(entity, context_info)
+                    chunk = KnowledgeChunk(
+                        id=f"kg_{entity_id}",
+                        text=chunk_text,
+                        text_ar=context_info.get("text_ar", ""),
+                        metadata={
+                            "entity_type": entity.get("entity_type", ""),
+                            "relations": context_info.get("relations", []),
+                            "hop_distance": context_info.get("hop_distance", 0),
+                        },
+                    )
+                    results.append(RetrievalResult(
+                        chunk=chunk,
+                        score=context_info.get("relevance_score", 0.5),
+                        retrieval_method="knowledge_graph",
+                        rank=i + 1,
+                    ))
+
+            elapsed = (time.time() - start_time) * 1000
+            logger.info(
+                "kg_retrieval_complete",
+                query_entities=len(query_entities),
+                matched_entities=len(matched_entities),
+                results_count=len(results),
+                elapsed_ms=elapsed,
+            )
+
+            return results[:config.top_k]
+
+        except Exception as e:
+            logger.error("kg_retrieval_error", error=str(e))
+            return []
+
+    async def add_documents(
+        self,
+        chunks: List[KnowledgeChunk],
+        collection: str = "default",
+    ) -> bool:
+        """Extract entities and relations from documents to build the knowledge graph"""
+        try:
+            for chunk in chunks:
+                # Extract entities from text
+                entities = await self._extract_entities_from_text(chunk.text)
+                for entity in entities:
+                    self._entities[entity["id"]] = entity
+
+                    # Compute embedding for entity matching
+                    if self.embedding_service:
+                        embedding = await self.embedding_service.embed(entity["name"])
+                        self._entity_embeddings[entity["id"]] = embedding
+
+                # Extract relations (simplified - can be enhanced with NER/RE models)
+                relations = await self._extract_relations_from_text(chunk.text, entities)
+                self._relations.extend(relations)
+
+            logger.info(
+                "kg_documents_added",
+                chunks=len(chunks),
+                entities=len(self._entities),
+                relations=len(self._relations),
+            )
+            return True
+
+        except Exception as e:
+            logger.error("kg_add_documents_error", error=str(e))
+            return False
+
+    async def add_entity(
+        self,
+        entity: Dict[str, Any],
+    ) -> bool:
+        """Add a single entity to the knowledge graph"""
+        try:
+            self._entities[entity["id"]] = entity
+            if self.embedding_service and "name" in entity:
+                embedding = await self.embedding_service.embed(entity["name"])
+                self._entity_embeddings[entity["id"]] = embedding
+            return True
+        except Exception as e:
+            logger.error("kg_add_entity_error", error=str(e))
+            return False
+
+    async def add_relation(
+        self,
+        relation: Dict[str, Any],
+    ) -> bool:
+        """Add a relationship to the knowledge graph"""
+        try:
+            self._relations.append(relation)
+            return True
+        except Exception as e:
+            logger.error("kg_add_relation_error", error=str(e))
+            return False
+
+    async def _extract_entities(self, query: str) -> List[str]:
+        """Extract potential entity mentions from query"""
+        # Simple keyword extraction - can be replaced with NER
+        # Agricultural domain keywords
+        ag_keywords = {
+            "wheat", "rice", "corn", "tomato", "cotton", "date", "palm",
+            "قمح", "أرز", "ذرة", "طماطم", "قطن", "تمر", "نخيل",
+            "pest", "disease", "fertilizer", "irrigation", "soil",
+            "آفة", "مرض", "سماد", "ري", "تربة",
+            "nitrogen", "phosphorus", "potassium",
+            "نيتروجين", "فوسفور", "بوتاسيوم",
+        }
+        words = re.findall(r'[\w\u0600-\u06FF]+', query.lower())
+        return [w for w in words if w in ag_keywords or len(w) > 4]
+
+    async def _extract_entities_from_text(self, text: str) -> List[Dict[str, Any]]:
+        """Extract entities from document text"""
+        entities = []
+        # Simplified entity extraction
+        words = await self._extract_entities(text)
+        for word in set(words):
+            entity_id = f"entity_{hash(word) % 1000000:06d}"
+            entities.append({
+                "id": entity_id,
+                "name": word,
+                "entity_type": self._guess_entity_type(word),
+            })
+        return entities
+
+    async def _extract_relations_from_text(
+        self,
+        text: str,
+        entities: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        """Extract relations between entities (simplified)"""
+        relations = []
+        # Simple co-occurrence based relation extraction
+        entity_ids = [e["id"] for e in entities]
+        for i, e1_id in enumerate(entity_ids):
+            for e2_id in entity_ids[i + 1:]:
+                relations.append({
+                    "id": f"rel_{hash(e1_id + e2_id) % 1000000:06d}",
+                    "source_id": e1_id,
+                    "target_id": e2_id,
+                    "relation_type": "related_to",
+                    "weight": 0.5,
+                })
+        return relations
+
+    async def _match_entities(self, query_entities: List[str]) -> List[str]:
+        """Match query entities to knowledge graph entities"""
+        matched = []
+        for q_entity in query_entities:
+            # Direct name match
+            for entity_id, entity in self._entities.items():
+                if entity.get("name", "").lower() == q_entity.lower():
+                    matched.append(entity_id)
+                    break
+                # Check aliases
+                aliases = entity.get("aliases", [])
+                if q_entity.lower() in [a.lower() for a in aliases]:
+                    matched.append(entity_id)
+                    break
+        return matched
+
+    async def _traverse_graph(
+        self,
+        start_entities: List[str],
+        max_hops: int = 2,
+    ) -> Dict[str, Dict[str, Any]]:
+        """Traverse graph from start entities up to max_hops"""
+        visited: Dict[str, Dict[str, Any]] = {}
+        current_level = set(start_entities)
+
+        for hop in range(max_hops + 1):
+            next_level = set()
+            for entity_id in current_level:
+                if entity_id in visited:
+                    continue
+                visited[entity_id] = {
+                    "hop_distance": hop,
+                    "relations": [],
+                    "relevance_score": 1.0 / (hop + 1),  # Closer = more relevant
+                }
+                # Find connected entities
+                for rel in self._relations:
+                    if rel["source_id"] == entity_id:
+                        next_level.add(rel["target_id"])
+                        visited[entity_id]["relations"].append(rel)
+                    elif rel["target_id"] == entity_id:
+                        next_level.add(rel["source_id"])
+                        visited[entity_id]["relations"].append(rel)
+            current_level = next_level
+
+        return visited
+
+    def _create_context_text(
+        self,
+        entity: Dict[str, Any],
+        context_info: Dict[str, Any],
+    ) -> str:
+        """Create context text from entity and its relations"""
+        parts = [
+            f"Entity: {entity.get('name', '')}",
+            f"Type: {entity.get('entity_type', '')}",
+        ]
+        if entity.get("description"):
+            parts.append(f"Description: {entity['description']}")
+
+        relations = context_info.get("relations", [])
+        if relations:
+            parts.append("Related to:")
+            for rel in relations[:5]:  # Limit relations
+                target_id = rel.get("target_id") or rel.get("source_id")
+                target = self._entities.get(target_id, {})
+                if target:
+                    parts.append(f"  - {target.get('name', '')} ({rel.get('relation_type', '')})")
+
+        return "\n".join(parts)
+
+    def _guess_entity_type(self, word: str) -> str:
+        """Guess entity type from word"""
+        crop_words = {"wheat", "rice", "corn", "tomato", "cotton", "قمح", "أرز", "ذرة", "طماطم"}
+        pest_words = {"pest", "aphid", "locust", "آفة", "من", "جراد"}
+        disease_words = {"disease", "rust", "blight", "مرض", "صدأ"}
+        fertilizer_words = {"fertilizer", "nitrogen", "سماد", "نيتروجين"}
+
+        word_lower = word.lower()
+        if word_lower in crop_words:
+            return "crop"
+        elif word_lower in pest_words:
+            return "pest"
+        elif word_lower in disease_words:
+            return "disease"
+        elif word_lower in fertilizer_words:
+            return "fertilizer"
+        return "unknown"
+
+
+class TriRAGRetriever(Retriever):
+    """
+    Tri-RAG Retriever combining Dense, Sparse, and Knowledge Graph retrieval
+    مسترجع Tri-RAG يجمع بين الاسترجاع الكثيف والمتفرق وخرائط المعرفة
+
+    Based on AgriGPT's triple-channel RAG framework:
+    - Channel 1: Dense (semantic) retrieval
+    - Channel 2: Sparse (keyword/BM25) retrieval
+    - Channel 3: Knowledge Graph (multi-hop reasoning)
+
+    Results are fused using Reciprocal Rank Fusion (RRF).
+    """
+
+    def __init__(
+        self,
+        dense_retriever: DenseRetriever,
+        sparse_retriever: SparseRetriever,
+        kg_retriever: KnowledgeGraphRetriever,
+        config: Optional[Any] = None,  # TriRAGConfig
+    ):
+        self.dense_retriever = dense_retriever
+        self.sparse_retriever = sparse_retriever
+        self.kg_retriever = kg_retriever
+
+        # Default weights if no config
+        self.dense_weight = 0.4
+        self.sparse_weight = 0.3
+        self.kg_weight = 0.3
+        self.rrf_k = 60
+
+        if config:
+            self.dense_weight = getattr(config, "dense_weight", 0.4)
+            self.sparse_weight = getattr(config, "sparse_weight", 0.3)
+            self.kg_weight = getattr(config, "kg_weight", 0.3)
+            self.rrf_k = getattr(config, "rrf_k", 60)
+
+    async def retrieve(
+        self,
+        query: str,
+        config: RetrievalConfig,
+    ) -> List[RetrievalResult]:
+        """
+        Retrieve using all three channels and fuse results
+
+        استرجاع باستخدام القنوات الثلاث ودمج النتائج
+        """
+        start_time = time.time()
+
+        try:
+            # Run all three retrievers in parallel
+            dense_task = asyncio.create_task(
+                self.dense_retriever.retrieve(query, config)
+            )
+            sparse_task = asyncio.create_task(
+                self.sparse_retriever.retrieve(query, config)
+            )
+            kg_task = asyncio.create_task(
+                self.kg_retriever.retrieve(query, config)
+            )
+
+            dense_results, sparse_results, kg_results = await asyncio.gather(
+                dense_task, sparse_task, kg_task
+            )
+
+            # Reciprocal Rank Fusion (RRF) across all channels
+            fused_scores: Dict[str, Tuple[float, KnowledgeChunk, str]] = {}
+
+            # Process dense results
+            for result in dense_results:
+                doc_id = result.chunk.id
+                rrf_score = self.dense_weight / (self.rrf_k + result.rank)
+                if doc_id not in fused_scores:
+                    fused_scores[doc_id] = (rrf_score, result.chunk, "dense")
+                else:
+                    current_score, chunk, method = fused_scores[doc_id]
+                    fused_scores[doc_id] = (current_score + rrf_score, chunk, f"{method}+dense")
+
+            # Process sparse results
+            for result in sparse_results:
+                doc_id = result.chunk.id
+                rrf_score = self.sparse_weight / (self.rrf_k + result.rank)
+                if doc_id not in fused_scores:
+                    fused_scores[doc_id] = (rrf_score, result.chunk, "sparse")
+                else:
+                    current_score, chunk, method = fused_scores[doc_id]
+                    fused_scores[doc_id] = (current_score + rrf_score, chunk, f"{method}+sparse")
+
+            # Process knowledge graph results
+            for result in kg_results:
+                doc_id = result.chunk.id
+                rrf_score = self.kg_weight / (self.rrf_k + result.rank)
+                if doc_id not in fused_scores:
+                    fused_scores[doc_id] = (rrf_score, result.chunk, "kg")
+                else:
+                    current_score, chunk, method = fused_scores[doc_id]
+                    fused_scores[doc_id] = (current_score + rrf_score, chunk, f"{method}+kg")
+
+            # Sort by fused score
+            sorted_results = sorted(
+                fused_scores.items(),
+                key=lambda x: x[1][0],
+                reverse=True
+            )
+
+            # Create final results
+            results = []
+            for i, (doc_id, (score, chunk, method)) in enumerate(sorted_results[:config.top_k]):
+                results.append(RetrievalResult(
+                    chunk=chunk,
+                    score=score,
+                    retrieval_method=f"tri_rag:{method}",
+                    rank=i + 1,
+                ))
+
+            elapsed = (time.time() - start_time) * 1000
+            logger.info(
+                "tri_rag_retrieval_complete",
+                query_length=len(query),
+                dense_count=len(dense_results),
+                sparse_count=len(sparse_results),
+                kg_count=len(kg_results),
+                fused_count=len(results),
+                elapsed_ms=elapsed,
+            )
+
+            return results
+
+        except Exception as e:
+            logger.error("tri_rag_retrieval_error", error=str(e))
+            return []
+
+    async def add_documents(
+        self,
+        chunks: List[KnowledgeChunk],
+        collection: str = "default",
+    ) -> bool:
+        """Add documents to all three retrievers"""
+        try:
+            # Add to dense and sparse in parallel
+            dense_task = asyncio.create_task(
+                self.dense_retriever.add_documents(chunks, collection)
+            )
+            sparse_task = asyncio.create_task(
+                self.sparse_retriever.add_documents(chunks, collection)
+            )
+            kg_task = asyncio.create_task(
+                self.kg_retriever.add_documents(chunks, collection)
+            )
+
+            results = await asyncio.gather(dense_task, sparse_task, kg_task)
+            return all(results)
+
+        except Exception as e:
+            logger.error("tri_rag_add_documents_error", error=str(e))
+            return False
+
+
 # Export classes
 __all__ = [
     "Retriever",
@@ -527,6 +975,8 @@ __all__ = [
     "SparseRetriever",
     "HybridRetriever",
     "AdaptiveRetriever",
+    "KnowledgeGraphRetriever",
+    "TriRAGRetriever",
     "RetrievalConfig",
     "RetrievalResult",
 ]

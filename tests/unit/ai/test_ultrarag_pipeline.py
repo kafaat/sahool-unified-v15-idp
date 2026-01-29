@@ -182,8 +182,8 @@ class TestRAGPipeline:
         assert pipeline._query_count == 0
         assert pipeline._total_latency_ms == 0.0
 
-    def test_pipeline_retriever_property_dense(self, mock_vector_store, mock_embedding_service):
-        """Test retriever property returns correct type for dense"""
+    def test_pipeline_retriever_method_dense(self, mock_vector_store, mock_embedding_service):
+        """Test retriever method returns correct type for dense"""
         config = RAGPipelineConfig(
             name="test",
             retrieval_strategy=RetrievalStrategy.DENSE,
@@ -193,11 +193,11 @@ class TestRAGPipeline:
             vector_store=mock_vector_store,
             embedding_service=mock_embedding_service,
         )
-        retriever = pipeline.retriever
+        retriever = pipeline.retriever()
         assert retriever is not None
 
-    def test_pipeline_retriever_property_sparse(self, mock_vector_store, mock_embedding_service):
-        """Test retriever property returns correct type for sparse"""
+    def test_pipeline_retriever_method_sparse(self, mock_vector_store, mock_embedding_service):
+        """Test retriever method returns correct type for sparse"""
         config = RAGPipelineConfig(
             name="test",
             retrieval_strategy=RetrievalStrategy.SPARSE,
@@ -207,11 +207,11 @@ class TestRAGPipeline:
             vector_store=mock_vector_store,
             embedding_service=mock_embedding_service,
         )
-        retriever = pipeline.retriever
+        retriever = pipeline.retriever()
         assert retriever is not None
 
-    def test_pipeline_retriever_property_hybrid(self, mock_vector_store, mock_embedding_service):
-        """Test retriever property returns correct type for hybrid"""
+    def test_pipeline_retriever_method_hybrid(self, mock_vector_store, mock_embedding_service):
+        """Test retriever method returns correct type for hybrid"""
         config = RAGPipelineConfig(
             name="test",
             retrieval_strategy=RetrievalStrategy.HYBRID,
@@ -221,11 +221,11 @@ class TestRAGPipeline:
             vector_store=mock_vector_store,
             embedding_service=mock_embedding_service,
         )
-        retriever = pipeline.retriever
+        retriever = pipeline.retriever()
         assert retriever is not None
 
-    def test_pipeline_retriever_property_adaptive(self, mock_vector_store, mock_embedding_service):
-        """Test retriever property returns correct type for adaptive"""
+    def test_pipeline_retriever_method_adaptive(self, mock_vector_store, mock_embedding_service):
+        """Test retriever method returns correct type for adaptive"""
         config = RAGPipelineConfig(
             name="test",
             retrieval_strategy=RetrievalStrategy.ADAPTIVE,
@@ -235,7 +235,7 @@ class TestRAGPipeline:
             vector_store=mock_vector_store,
             embedding_service=mock_embedding_service,
         )
-        retriever = pipeline.retriever
+        retriever = pipeline.retriever()
         assert retriever is not None
 
     def test_pipeline_retriever_requires_dependencies(self):
@@ -244,7 +244,7 @@ class TestRAGPipeline:
         pipeline = RAGPipeline(config=config)
 
         with pytest.raises(ValueError, match="vector_store and embedding_service required"):
-            _ = pipeline.retriever
+            _ = pipeline.retriever()
 
     def test_pipeline_reranker_property(self, pipeline):
         """Test reranker property returns a reranker"""

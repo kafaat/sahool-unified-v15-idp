@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install dependencies
-COPY requirements.txt .
+COPY apps/services/ground-vision-service/requirements.txt .
 RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
     pip install --no-cache-dir --timeout=300 --retries=10 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
@@ -58,7 +58,8 @@ RUN useradd --create-home --shell /bin/bash appuser
 COPY --from=builder /install /usr/local
 
 # Copy application code
-COPY src/ ./src/
+COPY apps/services/ground-vision-service/requirements.txt .
+COPY apps/services/ground-vision-service/src/ ./src/
 
 # Set ownership
 RUN chown -R appuser:appuser /app

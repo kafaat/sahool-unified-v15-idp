@@ -11,6 +11,8 @@ Modules:
     - context_engineering: Context compression, memory, and evaluation
     - auto_fix: Automated code diagnostics and fixing
     - ollama_client: Local LLM integration via Ollama
+    - llm_provider: Multi-provider LLM manager (Ollama, Claude, OpenAI, Gemini, DeepSeek)
+    - code_llm_provider: Code-specialized LLM provider (completion, review, fix, tests)
     - model_training: Fine-tuning and training capabilities
     - audit: Unified AI audit logging with cost tracking
     - circuit_breaker: Resilience pattern for external services
@@ -25,6 +27,7 @@ Modules:
     - vector_store: Persistent vector database for RAG and semantic search
     - orchestration: Multi-agent orchestration framework (Claude-Flow inspired)
     - models_registry: Agricultural AI Models Registry (50+ models from global institutions)
+    - guardrails: Tool guardrails for safe AI operations
 
 Author: SAHOOL Platform Team
 Updated: January 2026
@@ -158,6 +161,21 @@ try:
     LLM_MANAGER_AVAILABLE = True
 except ImportError:
     LLM_MANAGER_AVAILABLE = False
+
+# Code-specialized LLM Provider (optional - requires llm_provider)
+try:
+    from .code_llm_provider import (
+        CodeLLMProvider,
+        CodeTaskType,
+        CodeContext,
+        CodeCompletionResult,
+        CodeReviewResult,
+        CodeFixResult,
+        get_code_llm_provider,
+    )
+    CODE_LLM_AVAILABLE = True
+except ImportError:
+    CODE_LLM_AVAILABLE = False
 
 # Ollama client (optional - requires httpx)
 try:
@@ -544,6 +562,19 @@ if LLM_MANAGER_AVAILABLE:
         "get_llm_manager",
         "generate_text",
         "generate_with_ollama_fallback",
+    ])
+
+# Add Code LLM Provider exports if available
+if CODE_LLM_AVAILABLE:
+    __all__.extend([
+        "CodeLLMProvider",
+        "CodeTaskType",
+        "CodeContext",
+        "CodeCompletionResult",
+        "CodeReviewResult",
+        "CodeFixResult",
+        "get_code_llm_provider",
+        "CODE_LLM_AVAILABLE",
     ])
 
 # Add Ollama exports if available

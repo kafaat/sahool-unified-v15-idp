@@ -1,0 +1,1749 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Quality System - نظام الجودة - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-quality-system-" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Quality System - نظام الجودة
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-quality-system-">SAHOOL Quality System - نظام الجودة<a class="headerlink" href="#sahool-quality-system-" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The SAHOOL Quality System is a comprehensive, automated code quality management framework that integrates AI agents, dynamic tools, and full audit capabilities.</p>
+<p>نظام الجودة في سهول هو إطار عمل شامل وآلي لإدارة جودة الكود يدمج وكلاء الذكاء الاصطناعي والأدوات الديناميكية وقدرات التدقيق الكاملة.</p>
+<h2 id="architecture">Architecture | البنية المعمارية<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="err">┌─────────────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                    </span><span class="n">SAHOOL</span><span class="w"> </span><span class="n">Quality</span><span class="w"> </span><span class="n">System</span><span class="w">                                </span><span class="err">│</span>
+<span class="err">├─────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w">                                                                         </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">┌───────────────────┐</span><span class="w">    </span><span class="err">┌───────────────────┐</span><span class="w">    </span><span class="err">┌────────────────┐</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="n">Code</span><span class="w"> </span><span class="n">Fix</span><span class="w"> </span><span class="n">Agent</span><span class="w">   </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">  </span><span class="n">Code</span><span class="w"> </span><span class="n">Review</span><span class="w"> </span><span class="n">Agent</span><span class="w"> </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="n">Quality</span><span class="w"> </span><span class="n">Gates</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">وكيل</span><span class="w"> </span><span class="err">إصلاح</span><span class="w"> </span><span class="err">الكود</span><span class="w"> </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w">  </span><span class="err">وكيل</span><span class="w"> </span><span class="err">مراجعة</span><span class="w"> </span><span class="err">الكود</span><span class="w"> </span><span class="err">│</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="err">بوابات</span><span class="w"> </span><span class="err">الجودة</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└─────────┬─────────┘</span><span class="w">    </span><span class="err">└─────────┬─────────┘</span><span class="w">    </span><span class="err">└───────┬────────┘</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">            </span><span class="err">│</span><span class="w">                        </span><span class="err">│</span><span class="w">                       </span><span class="err">│</span><span class="w">           </span><span class="err">│</span>
+<span class="err">│</span><span class="w">            </span><span class="err">└────────────────────────┼───────────────────────┘</span><span class="w">           </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                     </span><span class="err">│</span><span class="w">                                   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">┌──────────────────────────────────┴──────────────────────────────┐</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">                   </span><span class="n">Quality</span><span class="w"> </span><span class="n">Orchestrator</span><span class="w">                           </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">                   </span><span class="err">منسق</span><span class="w"> </span><span class="err">الجودة</span><span class="w">                                    </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Automatic</span><span class="w"> </span><span class="k">tool</span><span class="w"> </span><span class="n">selection</span><span class="w">                                      </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Parallel</span><span class="w"> </span><span class="n">execution</span><span class="w">                                            </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Auto</span><span class="o">-</span><span class="n">audit</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">traceability</span><span class="w">                                  </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Quality</span><span class="w"> </span><span class="n">gates</span><span class="w"> </span><span class="n">enforcement</span><span class="w">                                     </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└──────────────────────────────────┬──────────────────────────────┘</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                     </span><span class="err">│</span><span class="w">                                   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">┌──────────────────────────────────┴──────────────────────────────┐</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">                   </span><span class="n">Tool</span><span class="w"> </span><span class="n">Registry</span><span class="w">                                  </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">                   </span><span class="err">سجل</span><span class="w"> </span><span class="err">الأدوات</span><span class="w">                                    </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Dynamic</span><span class="w"> </span><span class="k">tool</span><span class="w"> </span><span class="n">discovery</span><span class="w">                                        </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Configuration</span><span class="o">-</span><span class="n">based</span><span class="w"> </span><span class="n">selection</span><span class="w">                                 </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Circuit</span><span class="w"> </span><span class="n">breaker</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">resilience</span><span class="w">                                </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Performance</span><span class="w"> </span><span class="n">metrics</span><span class="w"> </span><span class="n">tracking</span><span class="w">                                  </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└──────────────────────────────────┬──────────────────────────────┘</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                     </span><span class="err">│</span><span class="w">                                   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">┌────────┬────────┬────────┬───────┴───┬────────┬────────┬────────┐</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="n">Ruff</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="n">Mypy</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="n">Bandit</span><span class="w"> </span><span class="err">│</span><span class="w">  </span><span class="n">ESLint</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="n">TSC</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="n">Dart</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="n">Semgrep</span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="n">Python</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">Types</span><span class="w">  </span><span class="err">│</span><span class="n">Security</span><span class="err">│</span><span class="n">TypeScript</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">Types</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="n">Flutter</span><span class="err">│</span><span class="n">Security</span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└────────┴────────┴────────┴───────────┴────────┴────────┴────────┘</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                         </span><span class="err">│</span>
+<span class="err">├─────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w">                       </span><span class="n">Auto</span><span class="o">-</span><span class="n">Audit</span><span class="w"> </span><span class="n">System</span><span class="w">                                 </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                       </span><span class="err">نظام</span><span class="w"> </span><span class="err">التدقيق</span><span class="w"> </span><span class="err">التلقائي</span><span class="w">                            </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Full</span><span class="w"> </span><span class="n">traceability</span><span class="w">                                                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">JSON</span><span class="o">/</span><span class="n">CSV</span><span class="w"> </span><span class="k">export</span><span class="w">                                                      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Compliance</span><span class="w"> </span><span class="n">reporting</span><span class="w">                                                 </span><span class="err">│</span>
+<span class="err">└─────────────────────────────────────────────────────────────────────────┘</span>
+</code></pre></div>
+
+<h2 id="components">Components | المكونات<a class="headerlink" href="#components" title="Permanent link">&para;</a></h2>
+<h3 id="1-tool-registry">1. Tool Registry (سجل الأدوات)<a class="headerlink" href="#1-tool-registry" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>shared/ai/tool_registry.py</code></p>
+<p>Dynamic tool management for AI agents:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.ai.tool_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_tool_registry</span><span class="p">,</span> <span class="n">Language</span>
+
+<span class="c1"># Get global registry</span>
+<span class="n">registry</span> <span class="o">=</span> <span class="n">get_tool_registry</span><span class="p">()</span>
+
+<span class="c1"># Get tools for Python</span>
+<span class="n">python_tools</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">get_tools_for_language</span><span class="p">(</span><span class="n">Language</span><span class="o">.</span><span class="n">PYTHON</span><span class="p">)</span>
+
+<span class="c1"># Run a specific tool</span>
+<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">registry</span><span class="o">.</span><span class="n">run_tool</span><span class="p">(</span><span class="s2">&quot;ruff&quot;</span><span class="p">,</span> <span class="s2">&quot;apps/services/&quot;</span><span class="p">,</span> <span class="n">auto_fix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Get metrics</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">()</span>
+</code></pre></div>
+
+<p><strong>Supported Tools</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Language</th>
+<th>Category</th>
+<th>Capabilities</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ruff</td>
+<td>Python</td>
+<td>Linter</td>
+<td>Auto-fix, JSON output, Config file</td>
+</tr>
+<tr>
+<td>Mypy</td>
+<td>Python</td>
+<td>Type Checker</td>
+<td>Incremental, Caching</td>
+</tr>
+<tr>
+<td>Bandit</td>
+<td>Python</td>
+<td>Security</td>
+<td>JSON output, Custom rules</td>
+</tr>
+<tr>
+<td>Pylint</td>
+<td>Python</td>
+<td>Linter</td>
+<td>JSON output, Custom rules</td>
+</tr>
+<tr>
+<td>ESLint</td>
+<td>TypeScript/JS</td>
+<td>Linter</td>
+<td>Auto-fix, JSON output</td>
+</tr>
+<tr>
+<td>TSC</td>
+<td>TypeScript</td>
+<td>Type Checker</td>
+<td>Incremental, Watch mode</td>
+</tr>
+<tr>
+<td>Prettier</td>
+<td>TS/JS</td>
+<td>Formatter</td>
+<td>Auto-fix</td>
+</tr>
+<tr>
+<td>Dart Analyze</td>
+<td>Dart</td>
+<td>Linter</td>
+<td>Config file</td>
+</tr>
+<tr>
+<td>Dart Format</td>
+<td>Dart</td>
+<td>Formatter</td>
+<td>Auto-fix</td>
+</tr>
+<tr>
+<td>Import Sorter</td>
+<td>Dart</td>
+<td>Formatter</td>
+<td>Auto-fix</td>
+</tr>
+<tr>
+<td>Semgrep</td>
+<td>Multi</td>
+<td>Security</td>
+<td>SARIF output, Parallel</td>
+</tr>
+<tr>
+<td>Gitleaks</td>
+<td>Multi</td>
+<td>Security</td>
+<td>Secret detection</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-quality-orchestrator">2. Quality Orchestrator (منسق الجودة)<a class="headerlink" href="#2-quality-orchestrator" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>shared/ai/quality_orchestrator.py</code></p>
+<p>Automated quality analysis with audit:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.ai.quality_orchestrator</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">QualityOrchestrator</span><span class="p">,</span>
+    <span class="n">run_quality_check</span><span class="p">,</span>
+    <span class="n">generate_quality_report_markdown</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Quick check</span>
+<span class="n">report</span> <span class="o">=</span> <span class="k">await</span> <span class="n">run_quality_check</span><span class="p">(</span><span class="s2">&quot;apps/services/&quot;</span><span class="p">)</span>
+
+<span class="c1"># Full orchestration</span>
+<span class="n">orchestrator</span> <span class="o">=</span> <span class="n">QualityOrchestrator</span><span class="p">()</span>
+<span class="n">report</span> <span class="o">=</span> <span class="k">await</span> <span class="n">orchestrator</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span>
+    <span class="n">paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;apps/services/&quot;</span><span class="p">,</span> <span class="s2">&quot;shared/&quot;</span><span class="p">],</span>
+    <span class="n">languages</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;typescript&quot;</span><span class="p">],</span>
+    <span class="n">fix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">audit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Generate markdown report</span>
+<span class="n">markdown</span> <span class="o">=</span> <span class="n">generate_quality_report_markdown</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Features</strong>:
+- Automatic tool selection based on file types
+- Parallel execution for performance
+- Auto-audit with full traceability
+- Quality gates enforcement
+- SARIF output for GitHub integration
+- Bilingual reports (Arabic/English)</p>
+<h3 id="3-quality-configuration">3. Quality Configuration (إعدادات الجودة)<a class="headerlink" href="#3-quality-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>.sahool-quality.yaml</code></p>
+<p>Project-level configuration:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Global Settings</span>
+<span class="nt">fail_on_warning</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">auto_fix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="c1"># Python Tools</span>
+<span class="nt">python</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">tools</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ruff</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mypy</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bandit</span>
+
+<span class="c1"># TypeScript Tools</span>
+<span class="nt">typescript</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">tools</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eslint</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tsc</span>
+
+<span class="c1"># Dart/Flutter Tools</span>
+<span class="nt">dart</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">tools</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dart_analyze</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dart_format</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">import_sorter</span>
+
+<span class="c1"># Quality Gates</span>
+<span class="nt">ci</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">quality_gates</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">min_coverage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+<span class="w">    </span><span class="nt">max_critical_issues</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">max_high_issues</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+</code></pre></div>
+
+<h3 id="4-auto-audit-system">4. Auto-Audit System (نظام التدقيق التلقائي)<a class="headerlink" href="#4-auto-audit-system" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>shared/ai/quality_orchestrator.py</code> (AutoAudit class)</p>
+<p>Full audit trail for compliance:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.ai.quality_orchestrator</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoAudit</span><span class="p">,</span> <span class="n">AuditAction</span>
+
+<span class="n">audit</span> <span class="o">=</span> <span class="n">AutoAudit</span><span class="p">(</span>
+    <span class="n">session_id</span><span class="o">=</span><span class="s2">&quot;session-123&quot;</span><span class="p">,</span>
+    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;user-456&quot;</span><span class="p">,</span>
+    <span class="n">agent_id</span><span class="o">=</span><span class="s2">&quot;code-fix-agent&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Log actions</span>
+<span class="n">audit</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+    <span class="n">AuditAction</span><span class="o">.</span><span class="n">ANALYSIS_STARTED</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">&quot;paths&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;apps/&quot;</span><span class="p">],</span> <span class="s2">&quot;fix&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># Export for compliance</span>
+<span class="n">json_export</span> <span class="o">=</span> <span class="n">audit</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">)</span>
+<span class="n">csv_export</span> <span class="o">=</span> <span class="n">audit</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">&quot;csv&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Audit Actions</strong>:
+- <code>ANALYSIS_STARTED</code> - Analysis session started
+- <code>ANALYSIS_COMPLETED</code> - Analysis completed
+- <code>TOOL_EXECUTED</code> - Tool was executed
+- <code>ISSUE_FOUND</code> - Quality issue found
+- <code>ISSUE_FIXED</code> - Issue was auto-fixed
+- <code>QUALITY_GATE_CHECK</code> - Gate check performed
+- <code>QUALITY_GATE_PASSED</code> - Gate check passed
+- <code>QUALITY_GATE_FAILED</code> - Gate check failed
+- <code>NOTIFICATION_SENT</code> - Notification sent
+- <code>ERROR_OCCURRED</code> - Error occurred</p>
+<h3 id="5-code-fix-agent-integration">5. Code Fix Agent Integration<a class="headerlink" href="#5-code-fix-agent-integration" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>apps/services/code-fix-agent/src/agent/code_fix_agent.py</code></p>
+<p>The Code Fix Agent now includes quality orchestration:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">agent</span> <span class="o">=</span> <span class="n">CodeFixAgent</span><span class="p">()</span>
+
+<span class="c1"># Run comprehensive quality analysis</span>
+<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">run_quality_analysis</span><span class="p">(</span>
+    <span class="n">paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;apps/services/&quot;</span><span class="p">],</span>
+    <span class="n">languages</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;typescript&quot;</span><span class="p">],</span>
+    <span class="n">fix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">audit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Get available tools</span>
+<span class="n">tools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">get_available_tools</span><span class="p">(</span><span class="n">language</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">)</span>
+
+<span class="c1"># Run specific tool</span>
+<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">run_tool</span><span class="p">(</span><span class="s2">&quot;ruff&quot;</span><span class="p">,</span> <span class="s2">&quot;apps/services/&quot;</span><span class="p">,</span> <span class="n">auto_fix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+
+<h2 id="usage">Usage | الاستخدام<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
+<h3 id="cli-commands">CLI Commands<a class="headerlink" href="#cli-commands" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Run quality belt</span>
+./scripts/quality-belt.sh<span class="w">           </span><span class="c1"># All checks</span>
+./scripts/quality-belt.sh<span class="w"> </span>python<span class="w">    </span><span class="c1"># Python only</span>
+./scripts/quality-belt.sh<span class="w"> </span>typescript<span class="w"> </span><span class="c1"># TypeScript only</span>
+./scripts/quality-belt.sh<span class="w"> </span>flutter<span class="w">   </span><span class="c1"># Flutter only</span>
+./scripts/quality-belt.sh<span class="w"> </span>quick<span class="w">     </span><span class="c1"># Quick checks</span>
+
+<span class="c1"># Makefile targets</span>
+make<span class="w"> </span>quality<span class="w">          </span><span class="c1"># Full quality check</span>
+make<span class="w"> </span>quality-quick<span class="w">    </span><span class="c1"># Quick check</span>
+make<span class="w"> </span>quality-python<span class="w">   </span><span class="c1"># Python only</span>
+make<span class="w"> </span>quality-ts<span class="w">       </span><span class="c1"># TypeScript only</span>
+make<span class="w"> </span>quality-flutter<span class="w">  </span><span class="c1"># Flutter only</span>
+make<span class="w"> </span>security-check<span class="w">   </span><span class="c1"># Security checks</span>
+</code></pre></div>
+
+<h3 id="fluttermelos-commands">Flutter/Melos Commands<a class="headerlink" href="#fluttermelos-commands" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Initialize Melos</span>
+make<span class="w"> </span>melos-bootstrap
+
+<span class="c1"># Run quality checks</span>
+melos<span class="w"> </span>run<span class="w"> </span>analyze<span class="w">       </span><span class="c1"># Static analysis</span>
+melos<span class="w"> </span>run<span class="w"> </span>format<span class="w">        </span><span class="c1"># Format check</span>
+melos<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span><span class="w">          </span><span class="c1"># Unit tests</span>
+melos<span class="w"> </span>run<span class="w"> </span>quality<span class="w">       </span><span class="c1"># Full pipeline</span>
+melos<span class="w"> </span>run<span class="w"> </span>imports:sort<span class="w">  </span><span class="c1"># Sort imports</span>
+melos<span class="w"> </span>run<span class="w"> </span>ci<span class="w">            </span><span class="c1"># CI pipeline</span>
+</code></pre></div>
+
+<h3 id="pre-commit-hooks">Pre-commit Hooks<a class="headerlink" href="#pre-commit-hooks" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Install hooks</span>
+pre-commit<span class="w"> </span>install
+
+<span class="c1"># Run manually</span>
+pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</code></pre></div>
+
+<h2 id="quality-gates">Quality Gates | بوابات الجودة<a class="headerlink" href="#quality-gates" title="Permanent link">&para;</a></h2>
+<p>Quality gates are enforced during analysis:</p>
+<table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>Default Threshold</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>max_critical_issues</td>
+<td>0</td>
+<td>No critical issues allowed</td>
+</tr>
+<tr>
+<td>max_high_issues</td>
+<td>5</td>
+<td>Maximum 5 high severity issues</td>
+</tr>
+<tr>
+<td>max_warnings</td>
+<td>50</td>
+<td>Maximum 50 warnings</td>
+</tr>
+<tr>
+<td>min_coverage</td>
+<td>60%</td>
+<td>Minimum code coverage</td>
+</tr>
+</tbody>
+</table>
+<h2 id="reports">Reports | التقارير<a class="headerlink" href="#reports" title="Permanent link">&para;</a></h2>
+<h3 id="quality-report-structure">Quality Report Structure<a class="headerlink" href="#quality-report-structure" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;report-uuid&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;session_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;session-uuid&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;completed&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;quality_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">85.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;quality_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;good&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;total_issues&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;critical_issues&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;high_issues&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;medium_issues&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;low_issues&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;fixed_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;gates_passed&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tools_executed&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ruff&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mypy&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;bandit&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;duration_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1250.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;files_analyzed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="sarif-output">SARIF Output<a class="headerlink" href="#sarif-output" title="Permanent link">&para;</a></h3>
+<p>For GitHub integration, reports can be exported in SARIF format:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">sarif</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">to_sarif</span><span class="p">()</span>
+<span class="c1"># Upload to GitHub Code Scanning</span>
+</code></pre></div>
+
+<h2 id="configuration-reference">Configuration Reference | مرجع الإعدادات<a class="headerlink" href="#configuration-reference" title="Permanent link">&para;</a></h2>
+<h3 id="full-sahool-qualityyaml-example">Full .sahool-quality.yaml Example<a class="headerlink" href="#full-sahool-qualityyaml-example" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0.0&quot;</span>
+<span class="nt">fail_on_warning</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">auto_fix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">max_parallel_tools</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+
+<span class="nt">cache</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">ttl</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+
+<span class="nt">python</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shared/</span>
+<span class="w">  </span><span class="nt">tools</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ruff</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mypy</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bandit</span>
+
+<span class="w">  </span><span class="nt">ruff</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">select</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">E</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">F</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">W</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">I</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">UP</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">B</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">C4</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">S</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">ignore</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">E501</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">line-length</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
+
+<span class="w">  </span><span class="nt">mypy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">ignore_missing_imports</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">strict_optional</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">  </span><span class="nt">bandit</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">medium</span>
+<span class="w">    </span><span class="nt">exclude</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">tests/</span><span class="p p-Indicator">]</span>
+
+<span class="nt">typescript</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/web/</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/admin/</span>
+<span class="w">  </span><span class="nt">tools</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eslint</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tsc</span>
+
+<span class="w">  </span><span class="nt">eslint</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">max_warnings</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
+<span class="w">    </span><span class="nt">fix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="nt">dart</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/mobile/</span>
+<span class="w">  </span><span class="nt">tools</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dart_analyze</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dart_format</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">import_sorter</span>
+
+<span class="nt">security</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">tools</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gitleaks</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">detect_secrets</span>
+
+<span class="nt">testing</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">tools</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">python</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">pytest</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">typescript</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">vitest</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">playwright</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">dart</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">flutter_test</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="nt">pytest</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">coverage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">min_coverage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+
+<span class="nt">ai_agents</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">code_fix_agent</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">auto_run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">fix_strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">safe</span>
+
+<span class="nt">ci</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">github_actions</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">fail_on_quality_issues</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">create_annotations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">  </span><span class="nt">quality_gates</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">min_coverage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+<span class="w">    </span><span class="nt">max_critical_issues</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">max_high_issues</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">    </span><span class="nt">max_warnings</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
+
+<span class="nt">exclude</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;**/node_modules/**&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;**/build/**&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;**/*.g.dart&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;**/*.freezed.dart&quot;</span>
+</code></pre></div>
+
+<h2 id="best-practices">Best Practices | أفضل الممارسات<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-enable-auto-fix">1. Enable Auto-Fix<a class="headerlink" href="#1-enable-auto-fix" title="Permanent link">&para;</a></h3>
+<p>Always enable auto-fix to automatically resolve simple issues:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">auto_fix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+
+<h3 id="2-use-parallel-execution">2. Use Parallel Execution<a class="headerlink" href="#2-use-parallel-execution" title="Permanent link">&para;</a></h3>
+<p>Enable parallel execution for faster analysis:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">max_parallel_tools</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+</code></pre></div>
+
+<h3 id="3-configure-quality-gates">3. Configure Quality Gates<a class="headerlink" href="#3-configure-quality-gates" title="Permanent link">&para;</a></h3>
+<p>Set appropriate thresholds for your project:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">quality_gates</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">max_critical_issues</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w">  </span><span class="c1"># Zero tolerance for critical</span>
+<span class="w">  </span><span class="nt">max_high_issues</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span><span class="w">      </span><span class="c1"># Allow some high issues during development</span>
+</code></pre></div>
+
+<h3 id="4-enable-audit-for-compliance">4. Enable Audit for Compliance<a class="headerlink" href="#4-enable-audit-for-compliance" title="Permanent link">&para;</a></h3>
+<p>Enable audit logging for compliance requirements:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">report</span> <span class="o">=</span> <span class="k">await</span> <span class="n">orchestrator</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span>
+    <span class="n">paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;apps/&quot;</span><span class="p">],</span>
+    <span class="n">audit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="5-use-pre-commit-hooks">5. Use Pre-commit Hooks<a class="headerlink" href="#5-use-pre-commit-hooks" title="Permanent link">&para;</a></h3>
+<p>Install pre-commit hooks to catch issues early:</p>
+<div class="codehilite"><pre><span></span><code>pre-commit<span class="w"> </span>install
+</code></pre></div>
+
+<h2 id="troubleshooting">Troubleshooting | استكشاف الأخطاء<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="tool-not-available">Tool Not Available<a class="headerlink" href="#tool-not-available" title="Permanent link">&para;</a></h3>
+<p>If a tool is not available:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">availability</span> <span class="o">=</span> <span class="k">await</span> <span class="n">registry</span><span class="o">.</span><span class="n">check_availability</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">availability</span><span class="p">)</span>  <span class="c1"># {&#39;ruff&#39;: True, &#39;mypy&#39;: False, ...}</span>
+</code></pre></div>
+
+<p>Install missing tools:</p>
+<div class="codehilite"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>ruff<span class="w"> </span>mypy<span class="w"> </span>bandit
+npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>eslint
+</code></pre></div>
+
+<h3 id="circuit-breaker-open">Circuit Breaker Open<a class="headerlink" href="#circuit-breaker-open" title="Permanent link">&para;</a></h3>
+<p>If a tool keeps failing, the circuit breaker will open:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Reset circuit breakers</span>
+<span class="n">registry</span><span class="o">.</span><span class="n">reset_circuit_breakers</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="cache-issues">Cache Issues<a class="headerlink" href="#cache-issues" title="Permanent link">&para;</a></h3>
+<p>Clear the cache if results seem stale:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">registry</span><span class="o">.</span><span class="n">clear_cache</span><span class="p">()</span>  <span class="c1"># Clear all</span>
+<span class="n">registry</span><span class="o">.</span><span class="n">clear_cache</span><span class="p">(</span><span class="s2">&quot;ruff&quot;</span><span class="p">)</span>  <span class="c1"># Clear specific tool</span>
+</code></pre></div>
+
+<h2 id="api-reference-api">API Reference | مرجع API<a class="headerlink" href="#api-reference-api" title="Permanent link">&para;</a></h2>
+<h3 id="tool-registry">Tool Registry<a class="headerlink" href="#tool-registry" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ToolRegistry</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="n">tool</span><span class="p">:</span> <span class="n">ToolInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unregister</span><span class="p">(</span><span class="n">tool_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tool</span><span class="p">(</span><span class="n">tool_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ToolInfo</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_tools</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ToolInfo</span><span class="p">]</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tools_for_language</span><span class="p">(</span><span class="n">language</span><span class="p">:</span> <span class="n">Language</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ToolInfo</span><span class="p">]</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_enabled_tools</span><span class="p">(</span><span class="n">language</span><span class="p">:</span> <span class="n">Language</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ToolInfo</span><span class="p">]</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check_availability</span><span class="p">(</span><span class="n">tool_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_tool</span><span class="p">(</span><span class="n">tool_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ToolResult</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_tools</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tools</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ToolResult</span><span class="p">]</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_metrics</span><span class="p">(</span><span class="n">tool_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ToolMetrics</span><span class="p">]</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_hook</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_cache</span><span class="p">(</span><span class="n">tool_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_circuit_breakers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+<h3 id="quality-orchestrator">Quality Orchestrator<a class="headerlink" href="#quality-orchestrator" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">QualityOrchestrator</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">analyze</span><span class="p">(</span>
+        <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">languages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tools</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fix</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">audit</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">check_gates</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">parallel</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QualityReport</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">QualityReport</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_json</span><span class="p">(</span><span class="n">indent</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_sarif</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+</code></pre></div>
+
+<h3 id="auto-audit">Auto-Audit<a class="headerlink" href="#auto-audit" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AutoAudit</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log</span><span class="p">(</span><span class="n">action</span><span class="p">:</span> <span class="n">AuditAction</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AuditEntry</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_entries</span><span class="p">(</span><span class="n">action</span><span class="p">:</span> <span class="n">AuditAction</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">since</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AuditEntry</span><span class="p">]</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span><span class="nb">format</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>  <span class="c1"># &quot;json&quot; or &quot;csv&quot;</span>
+</code></pre></div>
+
+<hr />
+<p><em>Last Updated: January 2026</em>
+<em>Version: 1.0.0</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

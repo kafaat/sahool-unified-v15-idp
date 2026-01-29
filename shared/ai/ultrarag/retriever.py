@@ -170,7 +170,7 @@ class DenseRetriever(Retriever):
 
     async def _get_embedding(self, text: str) -> List[float]:
         """Get embedding with caching"""
-        cache_key = hashlib.md5(text.encode()).hexdigest()
+        cache_key = hashlib.md5(text.encode(), usedforsecurity=False).hexdigest()
 
         if cache_key in self._cache:
             return self._cache[cache_key]

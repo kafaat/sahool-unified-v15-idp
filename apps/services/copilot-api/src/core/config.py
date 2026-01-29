@@ -34,8 +34,8 @@ class Settings(BaseSettings):
     debug: bool = Field(default=False, description="Debug mode")
     log_level: str = Field(default="INFO", description="Log level")
 
-    # Server settings
-    host: str = Field(default="0.0.0.0", description="Server host")
+    # Server settings (0.0.0.0 is intentional for containerized deployment)
+    host: str = Field(default="0.0.0.0", description="Server host")  # nosec B104
     port: int = Field(default=8088, description="Server port")
     workers: int = Field(default=1, description="Number of workers")
 

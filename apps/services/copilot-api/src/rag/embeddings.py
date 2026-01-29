@@ -305,7 +305,7 @@ class EmbeddingService:
 
         for i, word in enumerate(words):
             # Hash word to get index
-            word_hash = int(hashlib.md5(word.encode()).hexdigest(), 16)
+            word_hash = int(hashlib.md5(word.encode(), usedforsecurity=False).hexdigest(), 16)
             idx = word_hash % dimension
             # Add position-weighted value
             embedding[idx] += 1.0 / (1 + i * 0.1)
@@ -320,7 +320,8 @@ class EmbeddingService:
     def _get_cache_key(self, text: str) -> str:
         """Generate cache key for text"""
         return hashlib.md5(
-            f"{self.config.provider}:{self.config.model}:{text}".encode()
+            f"{self.config.provider}:{self.config.model}:{text}".encode(),
+            usedforsecurity=False
         ).hexdigest()
 
     @property

@@ -39,8 +39,8 @@ RUN cp -r ./apps/services/shared/errors_py ./shared/ || true
 COPY apps/services/weather-service/src/ ./src/
 
 # Upgrade pip, install dependencies, and set ownership
-RUN pip install --upgrade pip || true && \
-    pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt && \
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip || true && \
+    pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt && \
     chown -R sahool:sahool /app
 
 USER sahool

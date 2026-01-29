@@ -12,6 +12,8 @@ Provides maintenance scheduling functionality including:
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, date, timezone
 from enum import Enum

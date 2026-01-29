@@ -21,6 +21,8 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 import abc
 import asyncio
 import logging

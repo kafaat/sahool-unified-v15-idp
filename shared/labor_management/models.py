@@ -7,6 +7,8 @@ skill management, and safety compliance.
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime, date, time, timedelta, timezone
 from enum import Enum

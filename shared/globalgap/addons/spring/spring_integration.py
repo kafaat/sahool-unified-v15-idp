@@ -9,6 +9,8 @@ usage alerts, and seasonal pattern tracking.
 تنبيهات الاستخدام، وتتبع الأنماط الموسمية.
 """
 
+from __future__ import annotations
+
 import logging
 from datetime import date, datetime, timezone
 from enum import Enum

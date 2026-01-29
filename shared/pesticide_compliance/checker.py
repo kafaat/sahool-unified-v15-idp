@@ -3,6 +3,8 @@ Pesticide Compliance Checker - فاحص الامتثال للمبيدات
 Main compliance checking logic for PHI, REI, tank mix, and drift risk
 """
 
+from __future__ import annotations
+
 from datetime import datetime, timedelta, timezone
 
 from .models import (

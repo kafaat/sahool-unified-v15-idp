@@ -14,6 +14,8 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 import asyncio
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone

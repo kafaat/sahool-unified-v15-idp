@@ -12,6 +12,8 @@ Supports multiple classification methods and export formats.
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 import math
 from dataclasses import dataclass, field
 from datetime import datetime, timezone

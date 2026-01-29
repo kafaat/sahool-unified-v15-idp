@@ -28,8 +28,8 @@ RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 # Upgrade pip and install build tools
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade "setuptools>=68.0" wheel build
 
 # Install dependencies
 COPY apps/services/ussd-gateway/requirements.txt .
@@ -41,7 +41,7 @@ COPY shared/ ./shared/
 COPY apps/services/ussd-gateway/src/ ./src/
 
 # Install dependencies and set ownership
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt && \
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt && \
     chown -R sahool:sahool /app
 
 # Switch to non-root user

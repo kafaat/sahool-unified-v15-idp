@@ -5,6 +5,8 @@ Middleware للتحقق من الرموز الملغاة
 Checks if tokens are revoked before allowing access to protected routes.
 """
 
+from __future__ import annotations
+
 import logging
 from collections.abc import Callable
 

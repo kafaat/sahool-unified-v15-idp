@@ -3,6 +3,8 @@ JWT Authentication Middleware for FastAPI
 Middleware to extract and validate JWT tokens from requests
 """
 
+from __future__ import annotations
+
 import ipaddress
 import json
 import logging

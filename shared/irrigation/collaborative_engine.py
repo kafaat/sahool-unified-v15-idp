@@ -20,6 +20,8 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from typing import Any, Callable
 from uuid import UUID, uuid4, uuid5, NAMESPACE_DNS

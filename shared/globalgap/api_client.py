@@ -12,6 +12,8 @@ Author: SAHOOL Platform Team
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 import asyncio
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field

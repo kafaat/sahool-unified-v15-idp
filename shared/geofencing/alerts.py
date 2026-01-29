@@ -3,6 +3,8 @@ Geofencing Alerts - تنبيهات السياج الجغرافي
 Alert generation helpers for different scenarios
 """
 
+from __future__ import annotations
+
 import uuid
 from datetime import datetime, timezone
 from typing import Any

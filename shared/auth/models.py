@@ -3,6 +3,8 @@ Authentication Models for SAHOOL Platform
 Shared data models for JWT authentication across all services
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum

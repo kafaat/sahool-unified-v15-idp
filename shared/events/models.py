@@ -17,6 +17,8 @@ Usage:
     await nats.publish("field.created", event.model_dump_json())
 """
 
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from enum import Enum
 from uuid import UUID

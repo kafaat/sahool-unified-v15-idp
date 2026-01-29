@@ -17,6 +17,8 @@ Note: This module uses the Umm al-Qura calendar calculation method,
 which is the official calendar used in Saudi Arabia.
 """
 
+from __future__ import annotations
+
 from datetime import date, timedelta
 from typing import Any
 import math

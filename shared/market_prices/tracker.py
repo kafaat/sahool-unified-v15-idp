@@ -10,6 +10,8 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 from datetime import datetime, date, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path

@@ -9,6 +9,8 @@ and blockchain traceability records.
 بما في ذلك نسب الأسمدة، مراحل نمو المحاصيل، عتبات البيئة، وسجلات تتبع البلوكتشين.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum

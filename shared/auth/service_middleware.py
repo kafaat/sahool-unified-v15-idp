@@ -3,6 +3,8 @@ Service-to-Service Authentication Middleware for FastAPI
 Middleware and dependencies for verifying service tokens
 """
 
+from __future__ import annotations
+
 import logging
 from collections.abc import Callable
 

@@ -9,6 +9,8 @@ Provides configuration for:
 4. Connection lifecycle management
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import os

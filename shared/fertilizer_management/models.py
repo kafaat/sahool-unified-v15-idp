@@ -4,6 +4,8 @@ Fertilizer Management Models - نماذج إدارة الأسمدة
 Data models for fertilizer inventory, applications, and nutrient tracking.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from decimal import Decimal

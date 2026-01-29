@@ -9,6 +9,8 @@ at any point in the supply chain or by consumers.
 في أي نقطة من سلسلة التوريد أو من قبل المستهلكين.
 """
 
+from __future__ import annotations
+
 import base64
 import hashlib
 import json

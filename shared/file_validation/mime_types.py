@@ -4,6 +4,8 @@ MIME Type Definitions and Magic Bytes Validation
 """
 
 # MIME Type Whitelists - قوائم بيضاء لأنواع MIME
+from __future__ import annotations
+
 ALLOWED_IMAGE_TYPES = [
     "image/jpeg",
     "image/jpg",

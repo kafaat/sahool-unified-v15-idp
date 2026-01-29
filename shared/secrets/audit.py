@@ -6,6 +6,8 @@ Provides comprehensive audit logging for secret access patterns,
 anomaly detection, and security monitoring.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 from dataclasses import dataclass, field

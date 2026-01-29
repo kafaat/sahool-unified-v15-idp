@@ -3,6 +3,8 @@ Pesticide Compliance Alerts - تنبيهات امتثال المبيدات
 Generate alerts for compliance violations
 """
 
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from typing import Any
 

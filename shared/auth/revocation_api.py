@@ -5,6 +5,8 @@ Token Revocation API Endpoints
 Provides REST API endpoints for token revocation operations.
 """
 
+from __future__ import annotations
+
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status

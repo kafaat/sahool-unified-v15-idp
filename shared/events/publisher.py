@@ -176,7 +176,6 @@ class EventPublisher:
                 disconnected_cb=self._disconnected_callback,
                 reconnected_cb=self._reconnected_callback,
                 closed_cb=self._closed_callback,
-                max_pending_size=self.config.max_pending_bytes,
             )
 
             # Enable JetStream if configured

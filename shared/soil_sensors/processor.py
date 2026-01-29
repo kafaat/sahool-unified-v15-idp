@@ -3,6 +3,8 @@ Sensor Data Processor - معالج بيانات المجسات
 Data aggregation, anomaly detection, and field interpolation
 """
 
+from __future__ import annotations
+
 import math
 import uuid
 from collections import defaultdict

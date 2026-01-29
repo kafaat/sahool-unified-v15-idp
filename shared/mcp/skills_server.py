@@ -17,6 +17,8 @@ Version: 1.0.0
 Updated: January 2025
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import os

@@ -18,6 +18,8 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from typing import Any, Callable

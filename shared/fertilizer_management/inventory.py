@@ -4,6 +4,8 @@ Fertilizer Inventory Management - إدارة مخزون الأسمدة
 Track fertilizer inventory, consumption, and reorder alerts.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal

@@ -25,6 +25,8 @@ Usage:
     await publisher.publish_event("sahool.globalgap.compliance.updated", event)
 """
 
+from __future__ import annotations
+
 from datetime import date, datetime, timezone
 from uuid import UUID, uuid4
 

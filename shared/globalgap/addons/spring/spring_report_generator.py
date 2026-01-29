@@ -9,6 +9,8 @@ efficiency recommendations, and PDF-ready formatting.
 وتوصيات الكفاءة، والتنسيق الجاهز لـ PDF.
 """
 
+from __future__ import annotations
+
 from datetime import date, datetime, timezone
 from typing import Any
 

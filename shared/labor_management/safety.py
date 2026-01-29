@@ -14,6 +14,8 @@ Integrates with shared.pesticide_compliance for REI data.
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime, date, timedelta, timezone
 from enum import Enum

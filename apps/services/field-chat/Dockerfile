@@ -37,8 +37,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Upgrade pip and install build tools
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade "setuptools>=68.0" wheel build
 
 # Configure pip for better network resilience
 RUN mkdir -p /root/.pip && \
@@ -51,7 +51,7 @@ RUN mkdir -p /root/.pip && \
 
 # Install dependencies (using shared requirements)
 COPY apps/services/field-chat/requirements.txt .
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
 # Remove build-time packages to keep the runtime image small
 RUN apt-get purge -y --auto-remove build-essential gcc python3-dev libpq-dev libsqlite3-dev \

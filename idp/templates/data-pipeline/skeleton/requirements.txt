@@ -1,0 +1,33 @@
+# ${{ values.name }} - Data Pipeline Requirements
+
+# Core
+pydantic>=2.10.0
+structlog>=24.0.0
+
+# Async
+asyncio-throttle>=1.0.0
+
+# Metrics
+prometheus-client>=0.20.0
+
+{%- if values.input_source == "nats" or values.output_sink == "nats" %}
+# NATS
+nats-py>=2.9.0
+{%- endif %}
+
+{%- if values.input_source == "postgres" or values.output_sink == "postgres" %}
+# PostgreSQL
+asyncpg>=0.30.0
+{%- endif %}
+
+{%- if values.input_source == "s3" or values.output_sink == "s3" %}
+# S3
+aioboto3>=13.0.0
+{%- endif %}
+
+# Data Processing
+pandas>=2.2.0
+numpy>=2.0.0
+
+# Validation
+pydantic-settings>=2.0.0

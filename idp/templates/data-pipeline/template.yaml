@@ -1,0 +1,93 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: sahool-data-pipeline
+  title: SAHOOL Data Pipeline (Python)
+  description: Golden path for a SAHOOL data pipeline service with batch/stream processing, data validation, and monitoring.
+  tags:
+    - python
+    - data-pipeline
+    - etl
+    - streaming
+spec:
+  owner: group:sahool-platform
+  type: data-pipeline
+  parameters:
+    - title: Pipeline Settings
+      required: [name, pipeline_type]
+      properties:
+        name:
+          title: Pipeline name
+          type: string
+          description: kebab-case, e.g. ndvi-processor
+        description:
+          title: Description
+          type: string
+          description: Brief description of the pipeline
+        description_ar:
+          title: Description (Arabic)
+          type: string
+          description: وصف مختصر للخط
+        pipeline_type:
+          title: Pipeline Type
+          type: string
+          enum: [batch, streaming, hybrid]
+          default: batch
+        schedule:
+          title: Schedule (Cron)
+          type: string
+          description: Cron expression for batch pipelines (e.g., "0 */6 * * *")
+          default: "0 0 * * *"
+        input_source:
+          title: Input Source
+          type: string
+          enum: [nats, kafka, postgres, s3, api]
+          default: nats
+        output_sink:
+          title: Output Sink
+          type: string
+          enum: [nats, postgres, s3, api]
+          default: postgres
+    - title: Governance
+      required: [owner, team, tier]
+      properties:
+        owner:
+          title: Owner
+          type: string
+        team:
+          title: Team
+          type: string
+          enum: [platform, kernel, frontend, data, devops, agro, iot]
+          default: data
+        tier:
+          title: Service Tier
+          type: string
+          enum: [tier-1, tier-2, tier-3]
+          default: tier-2
+        lifecycle:
+          title: Lifecycle
+          type: string
+          enum: [experimental, internal, production]
+          default: internal
+  steps:
+    - id: fetch
+      name: Fetch base
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          description_ar: ${{ parameters.description_ar }}
+          pipeline_type: ${{ parameters.pipeline_type }}
+          schedule: ${{ parameters.schedule }}
+          input_source: ${{ parameters.input_source }}
+          output_sink: ${{ parameters.output_sink }}
+          owner: ${{ parameters.owner }}
+          team: ${{ parameters.team }}
+          tier: ${{ parameters.tier }}
+          lifecycle: ${{ parameters.lifecycle }}
+  output:
+    links:
+      - title: Open pipeline folder
+        url: .

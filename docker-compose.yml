@@ -2624,50 +2624,6 @@ services:
     networks:
       - sahool-network
 
-  # ⚠️ DEPRECATED: field_service - Migrating to field-management-service
-  # This service is being consolidated into field-management-service (Port 3000)
-  # Kept temporarily for backwards compatibility
-  field-service:
-    build:
-      context: .
-      dockerfile: apps/services/field-service/Dockerfile
-    container_name: sahool-field-service
-    environment:
-      - PORT=8115
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
-      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-    ports:
-      - "8115:8115"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8115/healthz')" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 384M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    networks:
-      - sahool-network
-
   # Inventory Service
   inventory-service:
     build:

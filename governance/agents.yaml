@@ -60,6 +60,8 @@ agents:
     name_ar: "وكيل تحليل الحقول"
     version: "1.0.0"
     category: analysis
+    type: specialist
+    owner: "data-team@sahool.io"
     description: "Analyzes field conditions using satellite data, IoT sensors, and historical patterns"
     description_ar: "يحلل ظروف الحقل باستخدام بيانات الأقمار الصناعية وأجهزة الاستشعار والأنماط التاريخية"
 
@@ -134,6 +136,8 @@ agents:
     name_ar: "وكيل خبير الأمراض"
     version: "1.0.0"
     category: intelligence
+    type: autonomous
+    owner: "data-team@sahool.io"
     description: "AI-powered crop disease diagnosis and treatment recommendations"
     description_ar: "تشخيص أمراض المحاصيل وتوصيات العلاج بالذكاء الاصطناعي"
 
@@ -219,6 +223,8 @@ agents:
     name_ar: "وكيل مستشار الري"
     version: "1.0.0"
     category: advisory
+    type: specialist
+    owner: "data-team@sahool.io"
     description: "Smart irrigation recommendations based on soil, weather, and crop needs"
     description_ar: "توصيات الري الذكي بناءً على التربة والطقس واحتياجات المحصول"
 
@@ -294,6 +300,8 @@ agents:
     name_ar: "وكيل توقع الإنتاج"
     version: "1.0.0"
     category: intelligence
+    type: autonomous
+    owner: "data-team@sahool.io"
     description: "AI-powered yield prediction using ML models and historical data"
     description_ar: "توقع الإنتاج بالذكاء الاصطناعي باستخدام نماذج التعلم الآلي"
 
@@ -370,6 +378,8 @@ agents:
     name_ar: "وكيل مستشار الأسمدة"
     version: "1.0.0"
     category: advisory
+    type: specialist
+    owner: "data-team@sahool.io"
     description: "Fertilizer recommendations based on soil analysis and crop needs"
     description_ar: "توصيات الأسمدة بناءً على تحليل التربة واحتياجات المحصول"
 
@@ -444,6 +454,8 @@ agents:
     name_ar: "وكيل مراقبة نمو المحاصيل"
     version: "1.0.0"
     category: monitoring
+    type: sub-agent
+    owner: "data-team@sahool.io"
     description: "Monitors crop growth stages and development using phenological models"
     description_ar: "يراقب مراحل نمو المحصول والتطور باستخدام النماذج الفينولوجية"
 
@@ -507,6 +519,8 @@ agents:
     name_ar: "وكيل مستشار الطقس"
     version: "1.0.0"
     category: advisory
+    type: specialist
+    owner: "data-team@sahool.io"
     description: "Weather-based agricultural recommendations and alerts"
     description_ar: "توصيات وتنبيهات زراعية بناءً على الطقس"
 
@@ -569,6 +583,8 @@ agents:
     name_ar: "وكيل تحليل الأقمار الصناعية"
     version: "1.0.0"
     category: analysis
+    type: specialist
+    owner: "data-team@sahool.io"
     description: "Satellite imagery analysis for vegetation indices and field monitoring"
     description_ar: "تحليل صور الأقمار الصناعية لمؤشرات الغطاء النباتي ومراقبة الحقول"
 
@@ -639,6 +655,8 @@ agents:
     name_ar: "وكيل التدقيق والأمان"
     version: "1.0.0"
     category: security
+    type: specialist
+    owner: "data-team@sahool.io"
     description: "Intelligent audit analysis, compliance monitoring, anomaly detection, and self-healing"
     description_ar: "تحليل التدقيق الذكي ومراقبة الامتثال وكشف الأنماط الشاذة والإصلاح التلقائي"
 
@@ -870,6 +888,8 @@ agents:
     name_ar: "وكيل إصلاح الكود"
     version: "1.0.0"
     category: intelligence
+    type: autonomous
+    owner: "data-team@sahool.io"
     description: "AI-powered code analysis, bug fixing, implementation, and test generation"
     description_ar: "تحليل الكود وإصلاح الأخطاء وتنفيذ الميزات وتوليد الاختبارات بالذكاء الاصطناعي"
 
@@ -1044,6 +1064,8 @@ agents:
     name_ar: "وكيل مراجعة الكود"
     version: "1.0.0"
     category: intelligence
+    type: autonomous
+    owner: "data-team@sahool.io"
     description: "AI-powered code review agent using Claude Agent SDK for comprehensive code analysis"
     description_ar: "وكيل مراجعة الكود بالذكاء الاصطناعي باستخدام Claude Agent SDK للتحليل الشامل"
 

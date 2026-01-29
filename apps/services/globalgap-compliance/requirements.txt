@@ -10,7 +10,7 @@ uvicorn[standard]>=0.24.0
 
 # Data Validation
 pydantic==2.9.2
-pydantic-settings==2.7.1
+pydantic-settings==2.12.0
 
 # Utilities
 python-dotenv>=1.0.0

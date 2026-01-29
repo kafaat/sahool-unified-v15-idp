@@ -1,0 +1,2209 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>مقترح هيكل الذكاء الاصطناعي - منصة SAHOOL - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#-sahool" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              مقترح هيكل الذكاء الاصطناعي - منصة SAHOOL
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="-sahool">مقترح هيكل الذكاء الاصطناعي - منصة SAHOOL<a class="headerlink" href="#-sahool" title="Permanent link">&para;</a></h1>
+<h1 id="ai-architecture-proposal-sahool-platform">AI Architecture Proposal - SAHOOL Platform<a class="headerlink" href="#ai-architecture-proposal-sahool-platform" title="Permanent link">&para;</a></h1>
+<p><strong>التاريخ</strong>: يناير 2026
+<strong>الإصدار</strong>: 1.0
+<strong>المُعد</strong>: فريق SAHOOL
+<strong>الغرض</strong>: مقارنة الوضع الحالي بالهيكل المستقبلي المقترح</p>
+<hr />
+<h2 id="executive-summary">الملخص التنفيذي | Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>يقدم هذا المستند تحليلاً شاملاً لهيكل الذكاء الاصطناعي في منصة SAHOOL، مقارنةً بين:
+1. <strong>الوضع الحالي</strong>: 17 خدمة ذكاء اصطناعي، 13 وكيل مسجل، 19+ وحدة AI
+2. <strong>المستقبل المقترح</strong>: معمارية موحدة مبنية على 13 بحثاً عالمياً</p>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                         التحول المقترح | Proposed Transformation            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   الحالي (2026 Q1)                    المستقبل (2026 Q4)                   │
+│   ═══════════════                     ═══════════════════                   │
+│                                                                             │
+│   ┌─────────────────┐                 ┌─────────────────────────────────┐  │
+│   │ 17 خدمة منفصلة  │      ──→       │ 4 طبقات موحدة + Knowledge Graph │  │
+│   │ تكامل جزئي      │                 │ تكامل كامل A2A                   │  │
+│   └─────────────────┘                 └─────────────────────────────────┘  │
+│                                                                             │
+│   ┌─────────────────┐                 ┌─────────────────────────────────┐  │
+│   │ Ollama محلي فقط │      ──→       │ Multi-Provider + Edge AI        │  │
+│   │                 │                 │ Ollama + Cloud Fallback          │  │
+│   └─────────────────┘                 └─────────────────────────────────┘  │
+│                                                                             │
+│   ┌─────────────────┐                 ┌─────────────────────────────────┐  │
+│   │ بيانات داخلية   │      ──→       │ FAIR + FAO + AGROVOC            │  │
+│   │ فقط            │                 │ External Data Gateway            │  │
+│   └─────────────────┘                 └─────────────────────────────────┘  │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="_1">الجزء الأول: تحليل الوضع الحالي<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h2 id="part-1-current-state-analysis">Part 1: Current State Analysis<a class="headerlink" href="#part-1-current-state-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="11-17">1.1 خدمات الذكاء الاصطناعي الحالية (17 خدمة)<a class="headerlink" href="#11-17" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">┌─────────────────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                    </span><span class="err">الخدمات</span><span class="w"> </span><span class="err">الحالية</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Current</span><span class="w"> </span><span class="n">Services</span><span class="w">                       </span><span class="err">│</span>
+<span class="err">├─────────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">┌──────────────────────────────────────────────────────────────────────┐</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">                    </span><span class="err">طبقة</span><span class="w"> </span><span class="err">الاستخبارات</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Intelligence</span><span class="w"> </span><span class="n">Layer</span><span class="w">              </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">┌─────────────────┐</span><span class="w"> </span><span class="err">┌─────────────────┐</span><span class="w"> </span><span class="err">┌─────────────────┐</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="n">crop</span><span class="o">-</span><span class="n">intelligence</span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">vegetation</span><span class="o">-</span><span class="w">     </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">field</span><span class="o">-</span><span class="w">          </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="o">-</span><span class="n">service</span><span class="w">         </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">analysis</span><span class="o">-</span><span class="n">service</span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">intelligence</span><span class="w">    </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">8095</span><span class="w">       </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">8090</span><span class="w">      </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">8120</span><span class="w">      </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">أمراض</span><span class="w"> </span><span class="err">المحاصيل</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">تحليل</span><span class="w"> </span><span class="n">NDVI</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">تحليلات</span><span class="w"> </span><span class="err">الحقل</span><span class="w"> </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">كشف</span><span class="w"> </span><span class="err">الآفات</span><span class="w">     </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">صور</span><span class="w"> </span><span class="err">الأقمار</span><span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">مؤشرات</span><span class="w"> </span><span class="err">شاملة</span><span class="w">  </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">└─────────────────┘</span><span class="w"> </span><span class="err">└─────────────────┘</span><span class="w"> </span><span class="err">└─────────────────┘</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">                                                                      </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">┌─────────────────┐</span><span class="w"> </span><span class="err">┌─────────────────┐</span><span class="w"> </span><span class="err">┌─────────────────┐</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="n">lai</span><span class="o">-</span><span class="n">estimation</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">yield</span><span class="o">-</span><span class="n">prediction</span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">crop</span><span class="o">-</span><span class="n">growth</span><span class="o">-</span><span class="w">    </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">3022</span><span class="w">      </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">3021</span><span class="w">      </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="p">(</span><span class="mh">3023</span><span class="p">)</span><span class="w">    </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">مؤشر</span><span class="w"> </span><span class="err">الورقة</span><span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">تنبؤ</span><span class="w"> </span><span class="err">المحصول</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">نموذج</span><span class="w"> </span><span class="err">النمو</span><span class="w">   </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">└─────────────────┘</span><span class="w"> </span><span class="err">└─────────────────┘</span><span class="w"> </span><span class="err">└─────────────────┘</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└──────────────────────────────────────────────────────────────────────┘</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">┌──────────────────────────────────────────────────────────────────────┐</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">                      </span><span class="err">طبقة</span><span class="w"> </span><span class="err">القرار</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Decision</span><span class="w"> </span><span class="n">Layer</span><span class="w">                     </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">┌─────────────────┐</span><span class="w"> </span><span class="err">┌─────────────────┐</span><span class="w"> </span><span class="err">┌─────────────────┐</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="n">advisory</span><span class="o">-</span><span class="n">service</span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">irrigation</span><span class="o">-</span><span class="n">smart</span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">agro</span><span class="o">-</span><span class="n">advisor</span><span class="w">    </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">8093</span><span class="w">      </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">8094</span><span class="w">      </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">8105</span><span class="w">      </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">توصيات</span><span class="w"> </span><span class="err">عامة</span><span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">جدولة</span><span class="w"> </span><span class="err">الري</span><span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">استشارات</span><span class="w">      </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">└─────────────────┘</span><span class="w"> </span><span class="err">└─────────────────┘</span><span class="w"> </span><span class="err">└─────────────────┘</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">                                                                      </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">┌─────────────────┐</span><span class="w"> </span><span class="err">┌─────────────────┐</span><span class="w"> </span><span class="err">┌─────────────────┐</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="n">soil</span><span class="o">-</span><span class="n">analysis</span><span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">pest</span><span class="o">-</span><span class="n">detection</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">yield</span><span class="o">-</span><span class="n">engine</span><span class="w">    </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">8124</span><span class="w">      </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">8125</span><span class="w">      </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">8098</span><span class="w">      </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">تحليل</span><span class="w"> </span><span class="err">التربة</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">كشف</span><span class="w"> </span><span class="err">الآفات</span><span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">تقدير</span><span class="w"> </span><span class="err">المحصول│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">└─────────────────┘</span><span class="w"> </span><span class="err">└─────────────────┘</span><span class="w"> </span><span class="err">└─────────────────┘</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└──────────────────────────────────────────────────────────────────────┘</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">┌──────────────────────────────────────────────────────────────────────┐</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">                   </span><span class="err">طبقة</span><span class="w"> </span><span class="err">الوكلاء</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Agent</span><span class="w"> </span><span class="n">Layer</span><span class="w">                          </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">┌─────────────────┐</span><span class="w"> </span><span class="err">┌─────────────────┐</span><span class="w"> </span><span class="err">┌─────────────────┐</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="n">agent</span><span class="o">-</span><span class="n">registry</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">code</span><span class="o">-</span><span class="n">fix</span><span class="o">-</span><span class="n">agent</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">code</span><span class="o">-</span><span class="n">review</span><span class="o">-</span><span class="w">    </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">8160</span><span class="w">      </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">8161</span><span class="w">      </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">agent</span><span class="w"> </span><span class="p">(</span><span class="mh">8162</span><span class="p">)</span><span class="w">    </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">تسجيل</span><span class="w"> </span><span class="err">الوكلاء</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">إصلاح</span><span class="w"> </span><span class="err">الكود</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">مراجعة</span><span class="w"> </span><span class="err">الكود</span><span class="w">  </span><span class="err">│</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">└─────────────────┘</span><span class="w"> </span><span class="err">└─────────────────┘</span><span class="w"> </span><span class="err">└─────────────────┘</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">                                                                      </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">┌─────────────────┐</span><span class="w"> </span><span class="err">┌─────────────────┐</span><span class="w">                            </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="n">ai</span><span class="o">-</span><span class="n">agents</span><span class="o">-</span><span class="n">core</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">skills</span><span class="o">-</span><span class="n">service</span><span class="w">  </span><span class="err">│</span><span class="w">                            </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">8120</span><span class="w">      </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="nl">Port:</span><span class="w"> </span><span class="mh">8121</span><span class="w">      </span><span class="err">│</span><span class="w">                            </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">──────────────</span><span class="w">  </span><span class="err">│</span><span class="w">                            </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">تنسيق</span><span class="w"> </span><span class="err">الوكلاء</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="err">تقييم</span><span class="w"> </span><span class="err">المهارات│</span><span class="w">                            </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">└─────────────────┘</span><span class="w"> </span><span class="err">└─────────────────┘</span><span class="w">                            </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└──────────────────────────────────────────────────────────────────────┘</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">└─────────────────────────────────────────────────────────────────────────────┘</span>
+</code></pre></div>
+
+<h3 id="12-sharedai">1.2 وحدات الذكاء الاصطناعي (<code>shared/ai/</code>)<a class="headerlink" href="#12-sharedai" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">┌─────────────────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                      </span><span class="err">الوحدات</span><span class="w"> </span><span class="err">الحالية</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Current</span><span class="w"> </span><span class="n">Modules</span><span class="w">                      </span><span class="err">│</span>
+<span class="err">├─────────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">📦</span><span class="w"> </span><span class="n">Context</span><span class="w"> </span><span class="n">Engineering</span><span class="w">                   </span><span class="err">📦</span><span class="w"> </span><span class="n">Auto</span><span class="o">-</span><span class="n">Fix</span><span class="w"> </span><span class="n">Engine</span><span class="w">                </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="n">compression</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">643</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w">          </span><span class="err">├──</span><span class="w"> </span><span class="n">engine</span><span class="o">.</span><span class="n">py</span><span class="w">                     </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="n">memory</span><span class="o">.</span><span class="n">py</span><span class="w">                           </span><span class="err">├──</span><span class="w"> </span><span class="n">diagnostics</span><span class="o">.</span><span class="n">py</span><span class="w">                </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="n">evaluation</span><span class="o">.</span><span class="n">py</span><span class="w">                       </span><span class="err">├──</span><span class="w"> </span><span class="n">fixers</span><span class="o">.</span><span class="n">py</span><span class="w">                     </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└──</span><span class="w"> </span><span class="n">metrics</span><span class="o">.</span><span class="n">py</span><span class="w">                          </span><span class="err">└──</span><span class="w"> </span><span class="n">models</span><span class="o">.</span><span class="n">py</span><span class="w">                     </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">📦</span><span class="w"> </span><span class="n">LLM</span><span class="w"> </span><span class="n">Integration</span><span class="w">                       </span><span class="err">📦</span><span class="w"> </span><span class="n">Machine</span><span class="w"> </span><span class="n">Learning</span><span class="w">               </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="n">ollama_client</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">643</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="n">embeddings</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">739</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w">     </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="n">llm_provider</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">758</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w">         </span><span class="err">├──</span><span class="w"> </span><span class="n">vector_store</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">1306</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└──</span><span class="w"> </span><span class="n">code_llm_provider</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">780</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w">    </span><span class="err">└──</span><span class="w"> </span><span class="n">huggingface_provider</span><span class="o">.</span><span class="n">py</span><span class="w">       </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">📦</span><span class="w"> </span><span class="n">Intelligence</span><span class="w">                          </span><span class="err">📦</span><span class="w"> </span><span class="n">Training</span><span class="w">                        </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="n">explainability</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">848</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="n">model_training</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">893</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w"> </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="n">feedback</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">767</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w">             </span><span class="err">└──</span><span class="w"> </span><span class="n">grpo_trainer</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">780</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="n">experience_learning</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">685</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w">                                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="n">graph_memory</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">1084</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w">                                          </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└──</span><span class="w"> </span><span class="n">crop_vision</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">775</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w">                                            </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">📦</span><span class="w"> </span><span class="n">Observability</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">Safety</span><span class="w">                </span><span class="err">📦</span><span class="w"> </span><span class="n">Advanced</span><span class="w">                        </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="n">observability</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">1265</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="n">quality_orchestrator</span><span class="o">.</span><span class="n">py</span><span class="w">       </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="n">audit</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">765</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w">                </span><span class="err">├──</span><span class="w"> </span><span class="n">tool_registry</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="mi">1281</span><span class="w"> </span><span class="n">lines</span><span class="p">)</span><span class="w"> </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="n">circuit_breaker</span><span class="o">.</span><span class="n">py</span><span class="w">                  </span><span class="err">└──</span><span class="w"> </span><span class="n">orchestration</span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">swarm</span><span class="p">,</span><span class="w"> </span><span class="n">router</span><span class="p">)</span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└──</span><span class="w"> </span><span class="n">guardrails</span><span class="o">/</span><span class="w">                                                           </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">📊</span><span class="w"> </span><span class="err">الإجمالي</span><span class="p">:</span><span class="w"> </span><span class="mi">19</span><span class="o">+</span><span class="w"> </span><span class="err">وحدة،</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="mi">000</span><span class="o">+</span><span class="w"> </span><span class="err">سطر</span><span class="w"> </span><span class="err">كود</span><span class="w">                                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">└─────────────────────────────────────────────────────────────────────────────┘</span>
+</code></pre></div>
+
+<h3 id="13-13">1.3 الوكلاء المسجلون (13 وكيل)<a class="headerlink" href="#13-13" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفئة</th>
+<th>الوكيل</th>
+<th>الإصدار</th>
+<th>الوظيفة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>استخباراتي</strong></td>
+<td>Disease Expert</td>
+<td>v1.0.0</td>
+<td>تشخيص أمراض المحاصيل</td>
+</tr>
+<tr>
+<td><strong>استخباراتي</strong></td>
+<td>Yield Predictor</td>
+<td>v1.0.0</td>
+<td>تنبؤ المحصول بـ ML</td>
+</tr>
+<tr>
+<td><strong>استخباراتي</strong></td>
+<td>Code Fix Agent</td>
+<td>v1.0.0</td>
+<td>إصلاح الكود تلقائياً</td>
+</tr>
+<tr>
+<td><strong>استخباراتي</strong></td>
+<td>Code Review Agent</td>
+<td>v1.0.0</td>
+<td>مراجعة الكود</td>
+</tr>
+<tr>
+<td><strong>استشاري</strong></td>
+<td>Irrigation Advisor</td>
+<td>v1.0.0</td>
+<td>جدولة الري الذكي</td>
+</tr>
+<tr>
+<td><strong>استشاري</strong></td>
+<td>Fertilizer Advisor</td>
+<td>v1.0.0</td>
+<td>توصيات التسميد</td>
+</tr>
+<tr>
+<td><strong>استشاري</strong></td>
+<td>Weather Advisor</td>
+<td>v1.0.0</td>
+<td>تحليل تأثير الطقس</td>
+</tr>
+<tr>
+<td><strong>تحليلي</strong></td>
+<td>Field Analyst</td>
+<td>v1.0.0</td>
+<td>تحليل صحة الحقل</td>
+</tr>
+<tr>
+<td><strong>تحليلي</strong></td>
+<td>Satellite Analyst</td>
+<td>v1.0.0</td>
+<td>تحليل صور الأقمار</td>
+</tr>
+<tr>
+<td><strong>مراقبة</strong></td>
+<td>Crop Growth Monitor</td>
+<td>v1.0.0</td>
+<td>تتبع مراحل النمو</td>
+</tr>
+<tr>
+<td><strong>أمني</strong></td>
+<td>Audit Agent</td>
+<td>v1.0.0</td>
+<td>تحليل الامتثال</td>
+</tr>
+</tbody>
+</table>
+<h3 id="14">1.4 نقاط القوة الحالية ✅<a class="headerlink" href="#14" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                          نقاط القوة | Strengths                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ✅ Offline-First Architecture                                              │
+│     └── Ollama للعمل بدون إنترنت (codellama:7b, deepseek-coder)            │
+│                                                                             │
+│  ✅ Multi-Agent Orchestration                                               │
+│     └── A2A Protocol، Swarm Topologies، Consensus Mechanisms               │
+│                                                                             │
+│  ✅ Bilingual Support (Arabic/English)                                      │
+│     └── AGROVOC-ready، Arabic embeddings via Huggingface                   │
+│                                                                             │
+│  ✅ Context Engineering                                                      │
+│     └── Memory، Compression (3 levels)، LLM-as-Judge Evaluation            │
+│                                                                             │
+│  ✅ Explainability Layer                                                     │
+│     └── &quot;لماذا هذه التوصية؟&quot; مع تحليل العوامل                              │
+│                                                                             │
+│  ✅ Full Audit Trail                                                         │
+│     └── Cost tracking، Safety levels، Compliance-ready                     │
+│                                                                             │
+│  ✅ Hardware Optimization                                                    │
+│     └── Quantization، Edge inference، Memory optimization                  │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="15">1.5 الفجوات المحددة ⚠️<a class="headerlink" href="#15" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                           الفجوات | Gaps Identified                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ⚠️ بيانات معزولة (No External Data Integration)                            │
+│     └── لا يوجد تكامل مع FAO، AGROVOC، WaPOR، Open-Meteo                   │
+│                                                                             │
+│  ⚠️ نماذج محدودة (Limited Model Diversity)                                  │
+│     └── Ollama فقط، لا يوجد AgriGPT، Agri-LLaVA، Sinong                    │
+│                                                                             │
+│  ⚠️ Knowledge Graph غير مكتمل                                               │
+│     └── graph_memory موجود لكن بدون AGROVOC ontology                       │
+│                                                                             │
+│  ⚠️ Federated Learning غائب                                                 │
+│     └── لا يوجد تعلم موزع عبر المزارع                                       │
+│                                                                             │
+│  ⚠️ Multimodal محدود                                                        │
+│     └── crop_vision موجود لكن بدون &quot;صوّر واسأل&quot;                             │
+│                                                                             │
+│  ⚠️ IoT/Fertigation Integration ضعيف                                        │
+│     └── لا يوجد تكامل SPAD، LoRaWAN sensors                                │
+│                                                                             │
+│  ⚠️ MLOps Pipeline غير مكتمل                                                │
+│     └── model_training موجود لكن بدون ZenML، AgML integration              │
+│                                                                             │
+│  ⚠️ FAIR Data Standards غائبة                                               │
+│     └── لا يوجد metadata schemas، DOI، Zenodo integration                  │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="_2">الجزء الثاني: الهيكل المستقبلي المقترح<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h2 id="part-2-proposed-future-architecture">Part 2: Proposed Future Architecture<a class="headerlink" href="#part-2-proposed-future-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="21">2.1 المعمارية الموحدة المقترحة<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│<span class="w">                                                                             </span>│
+│<span class="w">                    </span>المعمارية<span class="w"> </span>الموحدة<span class="w"> </span>للذكاء<span class="w"> </span>الاصطناعي<span class="w">                        </span>│
+│<span class="w">                    </span><span class="nv">Unified</span><span class="w"> </span><span class="nv">AI</span><span class="w"> </span><span class="nv">Architecture</span><span class="w"> </span><span class="ss">(</span><span class="mi">2026</span><span class="ss">)</span><span class="w">                           </span>│
+│<span class="w">                                                                             </span>│
+├─────────────────────────────────────────────────────────────────────────────┤
+│<span class="w">                                                                             </span>│
+│<span class="w">  </span>╔═══════════════════════════════════════════════════════════════════════╗<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">                     </span><span class="nv">Layer</span><span class="w"> </span><span class="mi">5</span>:<span class="w"> </span><span class="nv">User</span><span class="w"> </span><span class="nv">Experience</span><span class="w">                          </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>┌─────────────┐<span class="w">  </span>┌─────────────┐<span class="w">  </span>┌─────────────┐<span class="w">  </span>┌─────────────┐<span class="w">  </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w"> </span><span class="nv">Mobile</span><span class="w"> </span><span class="nv">App</span><span class="w">  </span>│<span class="w">  </span>│<span class="w"> </span><span class="nv">Web</span><span class="w"> </span><span class="nv">Portal</span><span class="w">  </span>│<span class="w">  </span>│<span class="w"> </span><span class="nv">Voice</span><span class="o">/</span><span class="nv">Chat</span><span class="w">  </span>│<span class="w">  </span>│<span class="w"> </span><span class="nv">WhatsApp</span><span class="w">    </span>│<span class="w">  </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w"> </span><span class="ss">(</span><span class="nv">Flutter</span><span class="ss">)</span><span class="w">   </span>│<span class="w">  </span>│<span class="w"> </span><span class="ss">(</span><span class="k">Next</span>.<span class="nv">js</span><span class="ss">)</span><span class="w">   </span>│<span class="w">  </span>│<span class="w"> </span><span class="ss">(</span><span class="nv">Bilingual</span><span class="ss">)</span><span class="w"> </span>│<span class="w">  </span>│<span class="w"> </span><span class="nv">Bot</span><span class="w">         </span>│<span class="w">  </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>└─────────────┘<span class="w">  </span>└─────────────┘<span class="w">  </span>└─────────────┘<span class="w">  </span>└─────────────┘<span class="w">  </span>║<span class="w"> </span>│
+│<span class="w">  </span>╚═══════════════════════════════════════════════════════════════════════╝<span class="w"> </span>│
+│<span class="w">                                    </span>│<span class="w">                                        </span>│
+│<span class="w">                                    </span>▼<span class="w">                                        </span>│
+│<span class="w">  </span>╔═══════════════════════════════════════════════════════════════════════╗<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">                     </span><span class="nv">Layer</span><span class="w"> </span><span class="mi">4</span>:<span class="w"> </span><span class="nv">Agent</span><span class="w"> </span><span class="nv">Orchestration</span><span class="w">                      </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>┌───────────────────────────────────────────────────────────────┐<span class="w">   </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">                    </span><span class="nv">AI</span><span class="w"> </span><span class="nv">Agent</span><span class="w"> </span><span class="nv">Coordinator</span><span class="w">                        </span>│<span class="w">   </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w"> </span>│<span class="w">   </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w"> </span><span class="nv">Crop</span><span class="w">    </span>│<span class="w"> </span>│<span class="nv">Irrigation</span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Pest</span><span class="w">   </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Yield</span><span class="w">   </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Market</span><span class="w">  </span>│<span class="w"> </span>│<span class="w">   </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w"> </span><span class="nv">Expert</span><span class="w">  </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Advisor</span><span class="w"> </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Expert</span><span class="w"> </span>│<span class="w"> </span>│<span class="nv">Predictor</span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Advisor</span><span class="w"> </span>│<span class="w"> </span>│<span class="w">   </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w"> </span>│<span class="w">   </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">                                                                </span>│<span class="w">   </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>┌─────────────────────────────────────────────────────────┐<span class="w"> </span>│<span class="w">   </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w"> </span><span class="nv">A2A</span><span class="w"> </span><span class="nv">Protocol</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">Swarm</span><span class="w"> </span><span class="nv">Topology</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">Consensus</span><span class="w"> </span><span class="nv">Mechanism</span><span class="w">     </span>│<span class="w"> </span>│<span class="w">   </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>└─────────────────────────────────────────────────────────┘<span class="w"> </span>│<span class="w">   </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>└───────────────────────────────────────────────────────────────┘<span class="w">   </span>║<span class="w"> </span>│
+│<span class="w">  </span>╚═══════════════════════════════════════════════════════════════════════╝<span class="w"> </span>│
+│<span class="w">                                    </span>│<span class="w">                                        </span>│
+│<span class="w">                                    </span>▼<span class="w">                                        </span>│
+│<span class="w">  </span>╔═══════════════════════════════════════════════════════════════════════╗<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">                     </span><span class="nv">Layer</span><span class="w"> </span><span class="mi">3</span>:<span class="w"> </span><span class="nv">AI</span><span class="w"> </span><span class="nv">Model</span><span class="w"> </span><span class="nv">Hub</span><span class="w">                             </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>┌─────────────────────────────────────────────────────────────────┐<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">                      </span><span class="nv">Unified</span><span class="w"> </span><span class="nv">Model</span><span class="w"> </span><span class="nv">Registry</span><span class="w">                      </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>┌──────────────────────────────────────────────────────────┐<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">               </span><span class="nv">LOCAL</span><span class="w"> </span><span class="ss">(</span><span class="nv">Offline</span><span class="o">-</span><span class="nv">First</span><span class="ss">)</span><span class="w">                       </span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">  </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w">        </span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">  </span>│<span class="w"> </span><span class="nv">Ollama</span><span class="w">  </span>│<span class="w"> </span>│<span class="nv">Sentence</span><span class="w"> </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">ONNX</span><span class="w">    </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">TFLite</span><span class="w">  </span>│<span class="w">        </span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">  </span>│<span class="nv">codellama</span>│<span class="w"> </span>│<span class="nv">Transform</span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Runtime</span><span class="w"> </span>│<span class="w"> </span>│<span class="w"> </span><span class="ss">(</span><span class="nv">Edge</span><span class="ss">)</span><span class="w">  </span>│<span class="w">        </span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">  </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w">        </span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>└──────────────────────────────────────────────────────────┘<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>┌──────────────────────────────────────────────────────────┐<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">               </span><span class="nv">CLOUD</span><span class="w"> </span><span class="ss">(</span><span class="nv">When</span><span class="w"> </span><span class="nv">Connected</span><span class="ss">)</span><span class="w">                      </span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">  </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w">        </span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">  </span>│<span class="w"> </span><span class="nv">Claude</span><span class="w">  </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">GPT</span><span class="o">-</span><span class="mi">4</span><span class="w">   </span>│<span class="w"> </span>│<span class="nv">AgriGPT</span><span class="w">  </span>│<span class="w"> </span>│<span class="nv">Agri</span><span class="o">-</span><span class="w">    </span>│<span class="w">        </span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">  </span>│<span class="w"> </span><span class="ss">(</span><span class="nv">Sonnet</span><span class="ss">)</span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Vision</span><span class="w">  </span>│<span class="w"> </span>│<span class="ss">(</span><span class="nv">Zhejiang</span><span class="ss">)</span>│<span class="w"> </span>│<span class="nv">LLaVA</span><span class="w">    </span>│<span class="w">        </span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">  </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w">        </span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>└──────────────────────────────────────────────────────────┘<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>└─────────────────────────────────────────────────────────────────┘<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>╚═══════════════════════════════════════════════════════════════════════╝<span class="w"> </span>│
+│<span class="w">                                    </span>│<span class="w">                                        </span>│
+│<span class="w">                                    </span>▼<span class="w">                                        </span>│
+│<span class="w">  </span>╔═══════════════════════════════════════════════════════════════════════╗<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">                     </span><span class="nv">Layer</span><span class="w"> </span><span class="mi">2</span>:<span class="w"> </span><span class="nv">Knowledge</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="nv">Data</span><span class="w">                         </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>┌─────────────────────────────────────────────────────────────────┐<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">                   </span><span class="nv">Agricultural</span><span class="w"> </span><span class="nv">Knowledge</span><span class="w"> </span><span class="nv">Graph</span><span class="w">                   </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>┌───────────────┐<span class="w">  </span>┌───────────────┐<span class="w">  </span>┌───────────────┐<span class="w">       </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">   </span><span class="nv">AGROVOC</span><span class="w">     </span>│<span class="w">  </span>│<span class="w">   </span><span class="nv">Farm</span><span class="w"> </span><span class="nv">Memory</span><span class="w"> </span>│<span class="w">  </span>│<span class="w">   </span><span class="nv">RAG</span><span class="w"> </span><span class="nv">Store</span><span class="w">   </span>│<span class="w">       </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">   </span><span class="nv">Ontology</span><span class="w">    </span>│<span class="w">  </span>│<span class="w">   </span><span class="ss">(</span><span class="nv">Neo4j</span><span class="ss">)</span><span class="w">     </span>│<span class="w">  </span>│<span class="w">   </span><span class="ss">(</span><span class="nv">Vectors</span><span class="ss">)</span><span class="w">   </span>│<span class="w">       </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">  </span><span class="mi">42</span><span class="nv">K</span><span class="o">+</span><span class="w"> </span>مفهوم<span class="w">   </span>│<span class="w">  </span>│<span class="w">  </span><span class="nv">Entities</span><span class="o">/</span><span class="w">    </span>│<span class="w">  </span>│<span class="w">  </span><span class="nv">Embeddings</span><span class="w">   </span>│<span class="w">       </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">  </span><span class="nv">Arabic</span><span class="o">/</span><span class="nv">EN</span><span class="w">    </span>│<span class="w">  </span>│<span class="w">  </span><span class="nv">Events</span><span class="o">/</span><span class="w">      </span>│<span class="w">  </span>│<span class="w">  </span><span class="nv">Similarity</span><span class="w">   </span>│<span class="w">       </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>└───────────────┘<span class="w">  </span>│<span class="w">  </span><span class="nv">Outcomes</span><span class="w">     </span>│<span class="w">  </span>│<span class="w">  </span><span class="nv">Search</span><span class="w">       </span>│<span class="w">       </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">                     </span>└───────────────┘<span class="w">  </span>└───────────────┘<span class="w">       </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>└─────────────────────────────────────────────────────────────────┘<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>┌─────────────────────────────────────────────────────────────────┐<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">                   </span><span class="nv">External</span><span class="w"> </span><span class="nv">Data</span><span class="w"> </span><span class="nv">Gateway</span><span class="w"> </span><span class="ss">(</span><span class="nv">Port</span><span class="w"> </span><span class="mi">8170</span><span class="ss">)</span><span class="w">              </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w"> </span><span class="nv">FAOSTAT</span><span class="w"> </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">AQUASTAT</span>│<span class="w"> </span>│<span class="w">  </span><span class="nv">WaPOR</span><span class="w">  </span>│<span class="w"> </span>│<span class="nv">Open</span><span class="o">-</span><span class="w">    </span>│<span class="w"> </span>│<span class="nv">SoilGrids</span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w">         </span>│<span class="w"> </span>│<span class="w">         </span>│<span class="w"> </span>│<span class="w">         </span>│<span class="w"> </span>│<span class="nv">Meteo</span><span class="w">    </span>│<span class="w"> </span>│<span class="w">         </span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>└─────────────────────────────────────────────────────────────────┘<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>╚═══════════════════════════════════════════════════════════════════════╝<span class="w"> </span>│
+│<span class="w">                                    </span>│<span class="w">                                        </span>│
+│<span class="w">                                    </span>▼<span class="w">                                        </span>│
+│<span class="w">  </span>╔═══════════════════════════════════════════════════════════════════════╗<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">                     </span><span class="nv">Layer</span><span class="w"> </span><span class="mi">1</span>:<span class="w"> </span><span class="nv">Data</span><span class="w"> </span><span class="nv">Acquisition</span><span class="w">                         </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>┌─────────────────────────────────────────────────────────────────┐<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">                     </span><span class="nv">IoT</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="nv">Sensor</span><span class="w"> </span><span class="nv">Network</span><span class="w">                         </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w"> </span>┌─────────┐<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="nv">LoRaWAN</span><span class="w">  </span>│<span class="w"> </span>│<span class="w">  </span><span class="nv">SPAD</span><span class="w">   </span>│<span class="w"> </span>│<span class="nv">Satellite</span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Weather</span><span class="w"> </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Drones</span><span class="w">  </span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w"> </span><span class="nv">Sensors</span><span class="w"> </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Meters</span><span class="w">  </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Imagery</span><span class="w"> </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Stations</span>│<span class="w"> </span>│<span class="w"> </span><span class="ss">(</span><span class="nv">RGB</span><span class="o">/</span><span class="nv">MS</span><span class="ss">)</span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w"> </span>└─────────┘<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>┌─────────────────────────────────────────────────────────┐<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>│<span class="w"> </span><span class="nv">Fertigation</span><span class="w"> </span><span class="nv">System</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">Smart</span><span class="w"> </span><span class="nv">Irrigation</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">Precision</span><span class="w"> </span><span class="nv">Ag</span><span class="w">    </span>│<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>│<span class="w">  </span>└─────────────────────────────────────────────────────────┘<span class="w">  </span>│<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>║<span class="w">  </span>└─────────────────────────────────────────────────────────────────┘<span class="w"> </span>║<span class="w"> </span>│
+│<span class="w">  </span>╚═══════════════════════════════════════════════════════════════════════╝<span class="w"> </span>│
+│<span class="w">                                                                             </span>│
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="22-vs">2.2 مقارنة تفصيلية: الحالي vs المقترح<a class="headerlink" href="#22-vs" title="Permanent link">&para;</a></h3>
+<h4 id="221">2.2.1 طبقة البيانات والمعرفة<a class="headerlink" href="#221" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>المكون</th>
+<th>الحالي</th>
+<th>المقترح</th>
+<th>المصدر</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Knowledge Graph</strong></td>
+<td>graph_memory.py (محلي)</td>
+<td>Neo4j + AGROVOC (42K+ مفهوم)</td>
+<td>بحث 12</td>
+</tr>
+<tr>
+<td><strong>External Data</strong></td>
+<td>❌ غير موجود</td>
+<td>FAO Gateway (FAOSTAT, AQUASTAT, WaPOR)</td>
+<td>بحث 13</td>
+</tr>
+<tr>
+<td><strong>Data Standards</strong></td>
+<td>❌ غير موجود</td>
+<td>FAIR (Findable, Accessible, Interoperable, Reusable)</td>
+<td>بحث 12</td>
+</tr>
+<tr>
+<td><strong>Vector Store</strong></td>
+<td>vector_store.py (محلي)</td>
+<td>Apache Iceberg + Vector DB</td>
+<td>بحث 12</td>
+</tr>
+<tr>
+<td><strong>Embeddings</strong></td>
+<td>Sentence Transformers</td>
+<td>+ Arabic BERT (CAMeL)</td>
+<td>بحث 8</td>
+</tr>
+</tbody>
+</table>
+<h4 id="222">2.2.2 طبقة النماذج<a class="headerlink" href="#222" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>المكون</th>
+<th>الحالي</th>
+<th>المقترح</th>
+<th>المصدر</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Local LLM</strong></td>
+<td>Ollama (codellama:7b)</td>
+<td>+ Sinong, deepseek-coder</td>
+<td>بحث 3</td>
+</tr>
+<tr>
+<td><strong>Agricultural LLM</strong></td>
+<td>❌ غير موجود</td>
+<td>AgriGPT (Zhejiang) + Tri-RAG</td>
+<td>بحث 10</td>
+</tr>
+<tr>
+<td><strong>Multimodal</strong></td>
+<td>crop_vision.py (محدود)</td>
+<td>Agri-LLaVA (صوّر واسأل)</td>
+<td>بحث 9</td>
+</tr>
+<tr>
+<td><strong>Edge AI</strong></td>
+<td>TFLite محدود</td>
+<td>ONNX + TFLite + Quantization</td>
+<td>بحث 2</td>
+</tr>
+<tr>
+<td><strong>Model Registry</strong></td>
+<td>models_registry/</td>
+<td>+ MLflow, AgML integration</td>
+<td>بحث 12</td>
+</tr>
+</tbody>
+</table>
+<h4 id="223">2.2.3 طبقة الوكلاء<a class="headerlink" href="#223" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>المكون</th>
+<th>الحالي</th>
+<th>المقترح</th>
+<th>المصدر</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Agent Types</strong></td>
+<td>13 وكيل</td>
+<td>20+ وكيل متخصص</td>
+<td>بحث 7</td>
+</tr>
+<tr>
+<td><strong>Orchestration</strong></td>
+<td>swarm.py (أساسي)</td>
+<td>Multi-Agent + Hierarchical</td>
+<td>بحث 4</td>
+</tr>
+<tr>
+<td><strong>A2A Protocol</strong></td>
+<td>✅ موجود</td>
+<td>+ MCP Server enhancement</td>
+<td>بحث 10</td>
+</tr>
+<tr>
+<td><strong>Skills</strong></td>
+<td>.claude/skills/ (3)</td>
+<td>+ Domain-specific skills (10+)</td>
+<td>بحث 8</td>
+</tr>
+</tbody>
+</table>
+<h4 id="224">2.2.4 طبقة التطبيقات<a class="headerlink" href="#224" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>المكون</th>
+<th>الحالي</th>
+<th>المقترح</th>
+<th>المصدر</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fertigation</strong></td>
+<td>irrigation-smart (أساسي)</td>
+<td>+ SPAD Integration</td>
+<td>بحث 11</td>
+</tr>
+<tr>
+<td><strong>IoT Integration</strong></td>
+<td>iot-gateway (محدود)</td>
+<td>+ LoRaWAN, Sensor Fusion</td>
+<td>بحث 11</td>
+</tr>
+<tr>
+<td><strong>Yield Prediction</strong></td>
+<td>yield-prediction (3021)</td>
+<td>+ Digital Twin</td>
+<td>بحث 6</td>
+</tr>
+<tr>
+<td><strong>Market Advisory</strong></td>
+<td>❌ غير موجود</td>
+<td>Market Intelligence Agent</td>
+<td>بحث 7</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">الجزء الثالث: المكونات الجديدة المقترحة<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h2 id="part-3-proposed-new-components">Part 3: Proposed New Components<a class="headerlink" href="#part-3-proposed-new-components" title="Permanent link">&para;</a></h2>
+<h3 id="31-external-data-gateway">3.1 بوابة البيانات الخارجية (External Data Gateway)<a class="headerlink" href="#31-external-data-gateway" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                     External Data Gateway | Port: 8170                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                        Data Sources                                   │   │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐   │   │
+│  │  │   FAOSTAT   │ │   AQUASTAT  │ │    WaPOR    │ │ Hand-in-Hand│   │   │
+│  │  │ ─────────── │ │ ─────────── │ │ ─────────── │ │ ─────────── │   │   │
+│  │  │ • إنتاج     │ │ • موارد مائية│ │ • إنتاجية  │ │ • بيانات    │   │   │
+│  │  │ • تجارة     │ │ • استخدام   │ │   المياه   │ │   جغرافية   │   │   │
+│  │  │ • أسعار     │ │ • سدود      │ │ • ETa/ETp   │ │ • اليمن     │   │   │
+│  │  └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘   │   │
+│  │                                                                       │   │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐   │   │
+│  │  │  SoilGrids  │ │ Open-Meteo  │ │   GIEWS     │ │  SentinelHub│   │   │
+│  │  │ ─────────── │ │ ─────────── │ │ ─────────── │ │ ─────────── │   │   │
+│  │  │ • تربة      │ │ • طقس لحظي │ │ • أمن غذائي│ │ • Sentinel-2│   │   │
+│  │  │ • خصائص    │ │ • تنبؤات   │ │ • إنذارات  │ │ • NDVI      │   │   │
+│  │  └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘   │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                        │
+│                                    ▼                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                     Data Processing Pipeline                          │   │
+│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐       │   │
+│  │  │ Fetch   │→│Validate │→│Transform│→│ Cache   │→│ Publish │       │   │
+│  │  │ (async) │ │ (schema)│ │ (FAIR)  │ │ (Redis) │ │ (NATS)  │       │   │
+│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘       │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  📋 Endpoints:                                                              │
+│  ├── GET  /api/v1/fao/production/{country}                                 │
+│  ├── GET  /api/v1/fao/water/{country}                                      │
+│  ├── GET  /api/v1/weather/forecast/{location}                              │
+│  ├── GET  /api/v1/soil/{coordinates}                                       │
+│  └── POST /api/v1/sync                                                     │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="32-agricultural-knowledge-graph">3.2 رسم بياني المعرفة الزراعية (Agricultural Knowledge Graph)<a class="headerlink" href="#32-agricultural-knowledge-graph" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│<span class="w">               </span><span class="nv">Agricultural</span><span class="w"> </span><span class="nv">Knowledge</span><span class="w"> </span><span class="nv">Graph</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">Port</span>:<span class="w"> </span><span class="mi">8171</span><span class="w">                      </span>│
+├─────────────────────────────────────────────────────────────────────────────┤
+│<span class="w">                                                                             </span>│
+│<span class="w">  </span>┌─────────────────────────────────────────────────────────────────────┐<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">                         </span><span class="nv">AGROVOC</span><span class="w"> </span><span class="nv">Ontology</span><span class="w">                              </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">  </span>┌───────────────────────────────────────────────────────────────┐<span class="w">   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">  </span>│<span class="w">                    </span><span class="mi">42</span>,<span class="mi">000</span><span class="o">+</span><span class="w"> </span><span class="nv">Agricultural</span><span class="w"> </span><span class="nv">Concepts</span><span class="w">                </span>│<span class="w">   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">  </span>│<span class="w">                                                                 </span>│<span class="w">   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">  </span>│<span class="w">   </span>🌾<span class="w"> </span>المحاصيل<span class="w"> </span>──────→<span class="w"> </span>قمح،<span class="w"> </span>شعير،<span class="w"> </span>نخيل،<span class="w"> </span>طماطم<span class="w">                  </span>│<span class="w">   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">  </span>│<span class="w">       </span>↓<span class="w">                                                        </span>│<span class="w">   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">  </span>│<span class="w">   </span>🦠<span class="w"> </span>الأمراض<span class="w"> </span>──────→<span class="w"> </span>صدأ<span class="w"> </span>القمح،<span class="w"> </span>سوسة<span class="w"> </span>النخيل<span class="w">                   </span>│<span class="w">   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">  </span>│<span class="w">       </span>↓<span class="w">                                                        </span>│<span class="w">   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">  </span>│<span class="w">   </span>💊<span class="w"> </span>العلاجات<span class="w"> </span>─────→<span class="w"> </span>مبيدات،<span class="w"> </span>أسمدة،<span class="w"> </span>ممارسات<span class="w">                   </span>│<span class="w">   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">  </span>│<span class="w">       </span>↓<span class="w">                                                        </span>│<span class="w">   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">  </span>│<span class="w">   </span>🌍<span class="w"> </span>المناطق<span class="w"> </span>──────→<span class="w"> </span>اليمن،<span class="w"> </span>السعودية،<span class="w"> </span><span class="nv">NENA</span><span class="w">                    </span>│<span class="w">   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">  </span>│<span class="w">                                                                 </span>│<span class="w">   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">  </span>│<span class="w">   </span><span class="nv">Relationships</span>:<span class="w"> </span><span class="nv">broadMatch</span>,<span class="w"> </span><span class="nv">narrowMatch</span>,<span class="w"> </span><span class="nv">related</span>,<span class="w"> </span><span class="nv">replaces</span><span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">  </span>└───────────────────────────────────────────────────────────────┘<span class="w">   </span>│<span class="w">   </span>│
+│<span class="w">  </span>└─────────────────────────────────────────────────────────────────────┘<span class="w">   </span>│
+│<span class="w">                                                                             </span>│
+│<span class="w">  </span>┌─────────────────────────────────────────────────────────────────────┐<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">                         </span><span class="nv">Farm</span><span class="w"> </span><span class="nv">Memory</span><span class="w"> </span><span class="nv">Graph</span><span class="w">                             </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">                                                                       </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">     </span>┌──────┐<span class="w">    </span><span class="nv">plants</span><span class="w">    </span>┌──────┐<span class="w">    </span><span class="nv">has</span><span class="w">    </span>┌──────┐<span class="w">              </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">     </span>│<span class="nv">Farmer</span>│──────────────│<span class="nv">Field</span><span class="w"> </span>│───────────│<span class="w"> </span><span class="nv">Crop</span><span class="w"> </span>│<span class="w">              </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">     </span>└──────┘<span class="w">              </span>└──────┘<span class="w">           </span>└──────┘<span class="w">              </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">         </span>│<span class="w">                     </span>│<span class="w">                  </span>│<span class="w">                   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">    </span><span class="nv">owns</span><span class="w"> </span>│<span class="w">              </span><span class="nv">applies</span>│<span class="w">            </span><span class="nv">affects</span>│<span class="w">                  </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">         </span>▼<span class="w">                     </span>▼<span class="w">                  </span>▼<span class="w">                   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">     </span>┌──────┐<span class="w">           </span>┌──────────┐<span class="w">        </span>┌──────┐<span class="w">                </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">     </span>│<span class="w"> </span><span class="nv">Farm</span><span class="w"> </span>│<span class="w">           </span>│<span class="nv">Treatment</span><span class="w"> </span>│<span class="w">        </span>│<span class="nv">Disease</span>│<span class="w">                </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">     </span>└──────┘<span class="w">           </span>└──────────┘<span class="w">        </span>└──────┘<span class="w">                </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">         </span>│<span class="w">                     </span>│<span class="w">                  </span>│<span class="w">                   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w"> </span><span class="nv">located</span><span class="w"> </span>│<span class="w">            </span><span class="nv">produces</span><span class="w"> </span>│<span class="w">           </span><span class="nv">yields</span><span class="w"> </span>│<span class="w">                   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">         </span>▼<span class="w">                     </span>▼<span class="w">                  </span>▼<span class="w">                   </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">     </span>┌──────┐<span class="w">           </span>┌──────────┐<span class="w">        </span>┌──────┐<span class="w">                </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">     </span>│<span class="nv">Region</span>│<span class="w">           </span>│<span class="w">  </span><span class="nv">Outcome</span><span class="w"> </span>│<span class="w">        </span>│<span class="nv">Harvest</span>│<span class="w">                </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">     </span>└──────┘<span class="w">           </span>└──────────┘<span class="w">        </span>└──────┘<span class="w">                </span>│<span class="w">   </span>│
+│<span class="w">  </span>│<span class="w">                                                                       </span>│<span class="w">   </span>│
+│<span class="w">  </span>└─────────────────────────────────────────────────────────────────────┘<span class="w">   </span>│
+│<span class="w">                                                                             </span>│
+│<span class="w">  </span>🔧<span class="w"> </span><span class="nv">Technologies</span>:<span class="w">                                                           </span>│
+│<span class="w">  </span>├──<span class="w"> </span><span class="nv">Neo4j</span><span class="w"> </span><span class="ss">(</span><span class="nv">Graph</span><span class="w"> </span><span class="nv">Database</span><span class="ss">)</span><span class="w">                                                </span>│
+│<span class="w">  </span>├──<span class="w"> </span><span class="nv">SPARQL</span><span class="w"> </span><span class="nv">Endpoint</span><span class="w"> </span><span class="ss">(</span><span class="k">for</span><span class="w"> </span><span class="nv">AGROVOC</span><span class="w"> </span><span class="nv">queries</span><span class="ss">)</span><span class="w">                                 </span>│
+│<span class="w">  </span>├──<span class="w"> </span><span class="nv">GraphQL</span><span class="w"> </span><span class="nv">API</span><span class="w"> </span><span class="ss">(</span><span class="k">for</span><span class="w"> </span><span class="nv">applications</span><span class="ss">)</span><span class="w">                                        </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Knowledge</span><span class="w"> </span><span class="nv">Extraction</span><span class="w"> </span><span class="ss">(</span><span class="nv">from</span><span class="w"> </span><span class="nv">farmer</span><span class="w"> </span><span class="nv">interactions</span><span class="ss">)</span><span class="w">                       </span>│
+│<span class="w">                                                                             </span>│
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="33-mlops">3.3 منصة MLOps الزراعية<a class="headerlink" href="#33-mlops" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                     Agricultural MLOps Platform                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                        Model Training Pipeline                        │   │
+│  │                                                                       │   │
+│  │   ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐         │   │
+│  │   │ AgML    │───→│ ZenML   │───→│ MLflow  │───→│ Registry│         │   │
+│  │   │Datasets │    │Pipeline │    │Tracking │    │ (Prod)  │         │   │
+│  │   └─────────┘    └─────────┘    └─────────┘    └─────────┘         │   │
+│  │       │              │              │              │                │   │
+│  │       ▼              ▼              ▼              ▼                │   │
+│  │   Agri-342K     Training      Experiments     Deployment           │   │
+│  │   AgriBench     Validation    Metrics         Versioning           │   │
+│  │   Agri-400K     Testing       Artifacts       Rollback             │   │
+│  │                                                                       │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                        Model Serving Options                          │   │
+│  │                                                                       │   │
+│  │   LOCAL (Offline)              CLOUD (Connected)                     │   │
+│  │   ═══════════════              ═════════════════                     │   │
+│  │   ┌───────────┐                ┌───────────┐                         │   │
+│  │   │  Ollama   │                │  Claude   │                         │   │
+│  │   │codellama  │                │  Sonnet   │                         │   │
+│  │   │deepseek   │                │  GPT-4    │                         │   │
+│  │   └───────────┘                └───────────┘                         │   │
+│  │   ┌───────────┐                ┌───────────┐                         │   │
+│  │   │ TFLite    │                │ AgriGPT   │                         │   │
+│  │   │ (Mobile)  │                │ (Zhejiang)│                         │   │
+│  │   └───────────┘                └───────────┘                         │   │
+│  │   ┌───────────┐                ┌───────────┐                         │   │
+│  │   │  ONNX     │                │Agri-LLaVA │                         │   │
+│  │   │ Runtime   │                │(Multimodal│                         │   │
+│  │   └───────────┘                └───────────┘                         │   │
+│  │                                                                       │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  📊 Datasets Available:                                                     │
+│  ├── Agri-342K (AgriGPT) - 342,000 Q&amp;A pairs                              │
+│  ├── Agri-400K (Agri-LLaVA) - 400,000 image-text pairs                    │
+│  ├── AgriBench-13K - Evaluation benchmark                                  │
+│  └── SAHOOL-Custom - Platform-specific dataset                             │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="34-smart-fertigation-system">3.4 نظام الأسمدة المائية الذكي (Smart Fertigation System)<a class="headerlink" href="#34-smart-fertigation-system" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                      Smart Fertigation System | Port: 8175                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                         Sensor Network (LoRaWAN)                      │   │
+│  │                                                                       │   │
+│  │   ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐   │   │
+│  │   │  SPAD   │  │ Soil    │  │  EC     │  │  pH     │  │ Weather │   │   │
+│  │   │ Chloro- │  │Moisture │  │Conduct- │  │ Sensor  │  │ Station │   │   │
+│  │   │ phyll   │  │ Sensors │  │ ivity   │  │         │  │         │   │   │
+│  │   │ ─────── │  │ ─────── │  │ ─────── │  │ ─────── │  │ ─────── │   │   │
+│  │   │ N Status│  │ 38-42%  │  │ 1.5-2.5 │  │ 6.5-7.5 │  │ ET, Rain│   │   │
+│  │   │ SPAD&gt;40 │  │ Target  │  │ dS/m    │  │ Optimal │  │ Wind    │   │   │
+│  │   └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘   │   │
+│  │                              │                                        │   │
+│  │                              ▼                                        │   │
+│  │                    ┌─────────────────┐                               │   │
+│  │                    │   IoT Gateway   │                               │   │
+│  │                    │   (LoRaWAN)     │                               │   │
+│  │                    └─────────────────┘                               │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                        │
+│                                    ▼                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                      Fertigation AI Engine                            │   │
+│  │                                                                       │   │
+│  │   ┌─────────────────────────────────────────────────────────────┐   │   │
+│  │   │               Decision Algorithm                             │   │   │
+│  │   │                                                               │   │   │
+│  │   │   if SPAD &lt; 40:                                              │   │   │
+│  │   │       N_deficit = calculate_n_requirement(crop_stage)        │   │   │
+│  │   │       irrigation_schedule = get_optimal_timing()             │   │   │
+│  │   │       fertigation_rate = N_deficit / irrigation_volume       │   │   │
+│  │   │       apply_fertigation(rate, timing)                        │   │   │
+│  │   │                                                               │   │   │
+│  │   └─────────────────────────────────────────────────────────────┘   │   │
+│  │                                                                       │   │
+│  │   ┌─────────────────────────────────────────────────────────────┐   │   │
+│  │   │               Three Fertigation Models                        │   │   │
+│  │   │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐            │   │   │
+│  │   │  │   Drip      │ │  Substrate  │ │   Spray     │            │   │   │
+│  │   │  │  ─────────  │ │  ─────────  │ │  ─────────  │            │   │   │
+│  │   │  │ • حقول     │ │ • صوب      │ │ • أشجار    │            │   │   │
+│  │   │  │ • توفير 40%│ │ • تحكم دقيق│ │ • تغذية ورقية│            │   │   │
+│  │   │  └─────────────┘ └─────────────┘ └─────────────┘            │   │   │
+│  │   └─────────────────────────────────────────────────────────────┘   │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  📈 Expected Results (from Research 11):                                    │
+│  ├── 💧 توفير المياه: 40%                                                  │
+│  ├── 🌾 زيادة المحصول: 15-25%                                              │
+│  ├── 💰 توفير الأسمدة: 30%                                                 │
+│  └── 🎯 دقة التوصية: 85%+                                                  │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="35-multimodal-advisory">3.5 نظام "صوّر واسأل" (Multimodal Advisory)<a class="headerlink" href="#35-multimodal-advisory" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│               Multimodal Advisory System | &quot;صوّر واسأل&quot;                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                         User Input                                    │   │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                  │   │
+│  │  │   📷 صورة   │  │   🎤 صوت    │  │   💬 نص     │                  │   │
+│  │  │  ─────────  │  │  ─────────  │  │  ─────────  │                  │   │
+│  │  │ • محصول    │  │ • عربي     │  │ • سؤال     │                  │   │
+│  │  │ • مرض      │  │ • إنجليزي  │  │ • وصف      │                  │   │
+│  │  │ • آفة      │  │ • محلي     │  │ • استفسار  │                  │   │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘                  │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                        │
+│                                    ▼                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                    Multimodal Processing Pipeline                     │   │
+│  │                                                                       │   │
+│  │   ┌───────────┐    ┌───────────┐    ┌───────────┐                   │   │
+│  │   │  Vision   │    │  Speech   │    │   Text    │                   │   │
+│  │   │ Encoder   │    │   ASR     │    │ Encoder   │                   │   │
+│  │   │(ViT/CLIP) │    │ (Whisper) │    │ (BERT)    │                   │   │
+│  │   └─────┬─────┘    └─────┬─────┘    └─────┬─────┘                   │   │
+│  │         │                │                │                          │   │
+│  │         └────────────────┼────────────────┘                          │   │
+│  │                          ▼                                            │   │
+│  │                  ┌───────────────┐                                   │   │
+│  │                  │   Fusion      │                                   │   │
+│  │                  │   Module      │                                   │   │
+│  │                  └───────┬───────┘                                   │   │
+│  │                          ▼                                            │   │
+│  │                  ┌───────────────┐                                   │   │
+│  │                  │  Agri-LLaVA   │◀── 400K training samples         │   │
+│  │                  │  LLM Decoder  │                                   │   │
+│  │                  └───────────────┘                                   │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                        │
+│                                    ▼                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                         Advisory Output                               │   │
+│  │                                                                       │   │
+│  │   ┌─────────────────────────────────────────────────────────────┐   │   │
+│  │   │  🔍 التشخيص: صدأ أصفر على القمح                              │   │   │
+│  │   │                                                               │   │   │
+│  │   │  📋 التوصية:                                                 │   │   │
+│  │   │  1. رش مبيد فطري (Propiconazole 25%)                        │   │   │
+│  │   │  2. معدل: 0.5 لتر/هكتار                                      │   │   │
+│  │   │  3. التوقيت: صباحاً مع الندى                                 │   │   │
+│  │   │                                                               │   │   │
+│  │   │  💰 التكلفة المتوقعة: 85 ريال/هكتار                          │   │   │
+│  │   │  📈 العائد المتوقع: حماية 20% من المحصول                     │   │   │
+│  │   │                                                               │   │   │
+│  │   │  🔗 مصادر: AGROVOC #wheat_rust, FAO Guidelines               │   │   │
+│  │   └─────────────────────────────────────────────────────────────┘   │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  🔧 Models Used:                                                            │
+│  ├── Agri-LLaVA (Vision-Language, 400K dataset)                            │
+│  ├── AgriGPT + Tri-RAG (Knowledge retrieval)                               │
+│  ├── Whisper (Arabic speech recognition)                                    │
+│  └── CAMeL Arabic BERT (Text understanding)                                 │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="_4">الجزء الرابع: خارطة التنفيذ<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h2 id="part-4-implementation-roadmap">Part 4: Implementation Roadmap<a class="headerlink" href="#part-4-implementation-roadmap" title="Permanent link">&para;</a></h2>
+<h3 id="41-2026">4.1 خارطة الطريق 2026<a class="headerlink" href="#41-2026" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">┌─────────────────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                        </span><span class="mi">2026</span><span class="w"> </span><span class="nx">Implementation</span><span class="w"> </span><span class="nx">Roadmap</span><span class="w">                           </span><span class="err">│</span>
+<span class="err">├─────────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="nx">Q1</span><span class="w"> </span><span class="mi">2026</span><span class="w"> </span><span class="p">(</span><span class="nx">يناير</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">مارس</span><span class="p">)</span><span class="w">                                                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">═══════════════════════</span><span class="w">                                                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">┌─────────────────────────────────────────────────────────────────────┐</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="nx">Phase</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="nx">Foundation</span><span class="w">                                               </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="p">[</span><span class="err">✓</span><span class="p">]</span><span class="w"> </span><span class="nx">External</span><span class="w"> </span><span class="nx">Data</span><span class="w"> </span><span class="nx">Gateway</span><span class="w"> </span><span class="p">(</span><span class="nx">FAO</span><span class="p">,</span><span class="w"> </span><span class="nx">Open</span><span class="o">-</span><span class="nx">Meteo</span><span class="p">,</span><span class="w"> </span><span class="nx">SoilGrids</span><span class="p">)</span><span class="w">         </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="p">[</span><span class="err">✓</span><span class="p">]</span><span class="w"> </span><span class="nx">AGROVOC</span><span class="w"> </span><span class="nx">Integration</span><span class="w"> </span><span class="p">(</span><span class="nx">Arabic</span><span class="w"> </span><span class="nx">vocabulary</span><span class="p">)</span><span class="w">                     </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="p">[</span><span class="err">✓</span><span class="p">]</span><span class="w"> </span><span class="nx">Enhanced</span><span class="w"> </span><span class="nx">MLOps</span><span class="w"> </span><span class="nx">Pipeline</span><span class="w"> </span><span class="p">(</span><span class="nx">ZenML</span><span class="w"> </span><span class="nx">integration</span><span class="p">)</span><span class="w">                 </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">└──</span><span class="w"> </span><span class="p">[</span><span class="err">✓</span><span class="p">]</span><span class="w"> </span><span class="nx">FAIR</span><span class="w"> </span><span class="nx">Data</span><span class="w"> </span><span class="nx">Standards</span><span class="w"> </span><span class="nx">implementation</span><span class="w">                          </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└─────────────────────────────────────────────────────────────────────┘</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="nx">Q2</span><span class="w"> </span><span class="mi">2026</span><span class="w"> </span><span class="p">(</span><span class="nx">أبريل</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">يونيو</span><span class="p">)</span><span class="w">                                                   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">═══════════════════════</span><span class="w">                                                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">┌─────────────────────────────────────────────────────────────────────┐</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">🔄</span><span class="w"> </span><span class="nx">Phase</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="nx">Model</span><span class="w"> </span><span class="nx">Enhancement</span><span class="w">                                        </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="nx">AgriGPT</span><span class="w"> </span><span class="nx">Integration</span><span class="w"> </span><span class="p">(</span><span class="nx">Zhejiang</span><span class="w"> </span><span class="nx">model</span><span class="p">)</span><span class="w">                        </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="nx">Tri</span><span class="o">-</span><span class="nx">RAG</span><span class="w"> </span><span class="nx">Implementation</span><span class="w">                                       </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="nx">Agri</span><span class="o">-</span><span class="nx">LLaVA</span><span class="w"> </span><span class="nx">Deployment</span><span class="w"> </span><span class="p">(</span><span class="nx">Multimodal</span><span class="p">)</span><span class="w">                          </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">└──</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="nx">Arabic</span><span class="w"> </span><span class="nx">Speech</span><span class="w"> </span><span class="nx">Recognition</span><span class="w"> </span><span class="p">(</span><span class="nx">Whisper</span><span class="w"> </span><span class="nx">fine</span><span class="o">-</span><span class="nx">tuned</span><span class="p">)</span><span class="w">              </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└─────────────────────────────────────────────────────────────────────┘</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="nx">Q3</span><span class="w"> </span><span class="mi">2026</span><span class="w"> </span><span class="p">(</span><span class="nx">يوليو</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">سبتمبر</span><span class="p">)</span><span class="w">                                                  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">═══════════════════════</span><span class="w">                                                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">┌─────────────────────────────────────────────────────────────────────┐</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">🔄</span><span class="w"> </span><span class="nx">Phase</span><span class="w"> </span><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="nx">Advanced</span><span class="w"> </span><span class="nx">Features</span><span class="w">                                        </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="nx">Smart</span><span class="w"> </span><span class="nx">Fertigation</span><span class="w"> </span><span class="nx">System</span><span class="w"> </span><span class="p">(</span><span class="nx">SPAD</span><span class="p">,</span><span class="w"> </span><span class="nx">LoRaWAN</span><span class="p">)</span><span class="w">                    </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="nx">Digital</span><span class="w"> </span><span class="nx">Twin</span><span class="w"> </span><span class="nx">Framework</span><span class="w">                                       </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="nx">Knowledge</span><span class="w"> </span><span class="nx">Graph</span><span class="w"> </span><span class="nx">Enhancement</span><span class="w"> </span><span class="p">(</span><span class="nx">Neo4j</span><span class="p">)</span><span class="w">                          </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">└──</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="s">&quot;صوّر واسأل&quot;</span><span class="w"> </span><span class="nx">Feature</span><span class="w">                                        </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└─────────────────────────────────────────────────────────────────────┘</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="nx">Q4</span><span class="w"> </span><span class="mi">2026</span><span class="w"> </span><span class="p">(</span><span class="nx">أكتوبر</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">ديسمبر</span><span class="p">)</span><span class="w">                                                 </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">═══════════════════════</span><span class="w">                                                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">┌─────────────────────────────────────────────────────────────────────┐</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">🔄</span><span class="w"> </span><span class="nx">Phase</span><span class="w"> </span><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="nx">Scale</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="nx">Optimize</span><span class="w">                                         </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="nx">Federated</span><span class="w"> </span><span class="nx">Learning</span><span class="w"> </span><span class="p">(</span><span class="nx">cross</span><span class="o">-</span><span class="nx">farm</span><span class="w"> </span><span class="nx">training</span><span class="p">)</span><span class="w">                    </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="nx">Edge</span><span class="w"> </span><span class="nx">AI</span><span class="w"> </span><span class="nx">Optimization</span><span class="w"> </span><span class="p">(</span><span class="nx">quantization</span><span class="p">,</span><span class="w"> </span><span class="nx">pruning</span><span class="p">)</span><span class="w">                </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">├──</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="nx">Market</span><span class="w"> </span><span class="nx">Intelligence</span><span class="w"> </span><span class="nx">Agent</span><span class="w">                                    </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">└──</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="nx">Performance</span><span class="w"> </span><span class="nx">Optimization</span><span class="w"> </span><span class="p">(</span><span class="nx">latency</span><span class="p">,</span><span class="w"> </span><span class="nx">accuracy</span><span class="p">)</span><span class="w">                </span><span class="err">│</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└─────────────────────────────────────────────────────────────────────┘</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                             </span><span class="err">│</span>
+<span class="err">└─────────────────────────────────────────────────────────────────────────────┘</span>
+</code></pre></div>
+
+<h3 id="42">4.2 الأولويات حسب التأثير<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الأولوية</th>
+<th>المكون</th>
+<th>التأثير</th>
+<th>الجهد</th>
+<th>المصدر</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>🔴 عالية</strong></td>
+<td>External Data Gateway</td>
+<td>عالي جداً</td>
+<td>متوسط</td>
+<td>بحث 12, 13</td>
+</tr>
+<tr>
+<td><strong>🔴 عالية</strong></td>
+<td>AGROVOC Integration</td>
+<td>عالي</td>
+<td>منخفض</td>
+<td>بحث 12</td>
+</tr>
+<tr>
+<td><strong>🔴 عالية</strong></td>
+<td>Smart Fertigation</td>
+<td>عالي جداً</td>
+<td>عالي</td>
+<td>بحث 11</td>
+</tr>
+<tr>
+<td><strong>🟠 متوسطة</strong></td>
+<td>AgriGPT + Tri-RAG</td>
+<td>عالي</td>
+<td>متوسط</td>
+<td>بحث 10</td>
+</tr>
+<tr>
+<td><strong>🟠 متوسطة</strong></td>
+<td>Agri-LLaVA (صوّر واسأل)</td>
+<td>عالي</td>
+<td>متوسط</td>
+<td>بحث 9</td>
+</tr>
+<tr>
+<td><strong>🟠 متوسطة</strong></td>
+<td>Knowledge Graph (Neo4j)</td>
+<td>متوسط</td>
+<td>متوسط</td>
+<td>بحث 12</td>
+</tr>
+<tr>
+<td><strong>🟡 منخفضة</strong></td>
+<td>Digital Twin</td>
+<td>عالي</td>
+<td>عالي جداً</td>
+<td>بحث 6</td>
+</tr>
+<tr>
+<td><strong>🟡 منخفضة</strong></td>
+<td>Federated Learning</td>
+<td>متوسط</td>
+<td>عالي</td>
+<td>بحث 4</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43">4.3 الميزانية التقديرية<a class="headerlink" href="#43" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                         Budget Estimation (2026)                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  Infrastructure:                                                            │
+│  ├── GPU Servers (Ollama hosting): $15,000 - $25,000/year                  │
+│  ├── Neo4j Enterprise: $12,000 - $18,000/year                              │
+│  ├── Cloud LLM APIs (Claude, GPT-4): $8,000 - $15,000/year                 │
+│  └── IoT Sensors (LoRaWAN, SPAD): $5,000 - $10,000 (one-time)              │
+│                                                                             │
+│  Development:                                                               │
+│  ├── AI/ML Engineers (2-3): $150,000 - $250,000/year                       │
+│  ├── Data Engineers (1-2): $80,000 - $120,000/year                         │
+│  └── Domain Experts (Agriculture): $40,000 - $60,000/year                  │
+│                                                                             │
+│  Datasets &amp; Training:                                                       │
+│  ├── Fine-tuning compute: $5,000 - $10,000/year                            │
+│  ├── Data annotation: $3,000 - $5,000/year                                 │
+│  └── Evaluation benchmarks: $2,000 - $3,000/year                           │
+│                                                                             │
+│  ══════════════════════════════════════════════════════════════════════    │
+│  Total Estimated: $320,000 - $516,000/year                                 │
+│  ══════════════════════════════════════════════════════════════════════    │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="_5">الجزء الخامس: مقاييس النجاح<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h2 id="part-5-success-metrics">Part 5: Success Metrics<a class="headerlink" href="#part-5-success-metrics" title="Permanent link">&para;</a></h2>
+<h3 id="51-kpis">5.1 مؤشرات الأداء الرئيسية (KPIs)<a class="headerlink" href="#51-kpis" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                          Key Performance Indicators                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  📊 دقة التوصيات | Advisory Accuracy                                        │
+│  ├── الحالي: 75%                                                           │
+│  ├── الهدف Q2: 85%                                                          │
+│  └── الهدف Q4: 92%                                                          │
+│                                                                             │
+│  💧 توفير المياه | Water Savings                                            │
+│  ├── الحالي: 20%                                                            │
+│  ├── الهدف Q2: 30%                                                          │
+│  └── الهدف Q4: 40% (from Research 11)                                       │
+│                                                                             │
+│  🌾 زيادة المحصول | Yield Improvement                                        │
+│  ├── الحالي: 10%                                                            │
+│  ├── الهدف Q2: 15%                                                          │
+│  └── الهدف Q4: 20-25%                                                       │
+│                                                                             │
+│  ⚡ زمن الاستجابة | Response Latency                                        │
+│  ├── الحالي: 3-5 ثواني                                                      │
+│  ├── الهدف Q2: 2 ثانية                                                      │
+│  └── الهدف Q4: &lt;1 ثانية                                                     │
+│                                                                             │
+│  📱 Offline Availability                                                     │
+│  ├── الحالي: 80%                                                            │
+│  ├── الهدف Q2: 90%                                                          │
+│  └── الهدف Q4: 95%                                                          │
+│                                                                             │
+│  🌐 External Data Integration                                                │
+│  ├── الحالي: 0 مصادر                                                        │
+│  ├── الهدف Q2: 5 مصادر (FAO, Open-Meteo, SoilGrids, WaPOR, AGROVOC)        │
+│  └── الهدف Q4: 10+ مصادر                                                    │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="conclusion">الخلاصة | Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<h3 id="_6">الملخص التنفيذي للتحول<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│<span class="w">                    </span><span class="nv">Transformation</span><span class="w"> </span><span class="nv">Summary</span><span class="w">                                    </span>│
+├─────────────────────────────────────────────────────────────────────────────┤
+│<span class="w">                                                                             </span>│
+│<span class="w">  </span><span class="nv">FROM</span><span class="w"> </span><span class="ss">(</span><span class="nv">Current</span><span class="ss">)</span><span class="w">                        </span><span class="nv">TO</span><span class="w"> </span><span class="ss">(</span><span class="nv">Proposed</span><span class="ss">)</span><span class="w">                        </span>│
+│<span class="w">  </span>═════════════<span class="w">                         </span>═══════════════<span class="w">                       </span>│
+│<span class="w">                                                                             </span>│
+│<span class="w">  </span>•<span class="w"> </span><span class="mi">17</span><span class="w"> </span>خدمة<span class="w"> </span>منفصلة<span class="w">                      </span>•<span class="w"> </span><span class="mi">4</span><span class="w"> </span>طبقات<span class="w"> </span>موحدة<span class="w">                      </span>│
+│<span class="w">  </span>•<span class="w"> </span>بيانات<span class="w"> </span>داخلية<span class="w"> </span>فقط<span class="w">                   </span>•<span class="w"> </span><span class="nv">FAO</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">AGROVOC</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">10</span><span class="o">+</span><span class="w"> </span>مصادر<span class="w">          </span>│
+│<span class="w">  </span>•<span class="w"> </span><span class="nv">Ollama</span><span class="w"> </span>محلي<span class="w"> </span>فقط<span class="w">                     </span>•<span class="w"> </span><span class="nv">Multi</span><span class="o">-</span><span class="nv">Provider</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">Edge</span><span class="w"> </span><span class="nv">AI</span><span class="w">           </span>│
+│<span class="w">  </span>•<span class="w"> </span><span class="nv">Knowledge</span><span class="w"> </span><span class="nv">Graph</span><span class="w"> </span>محلي<span class="w">                </span>•<span class="w"> </span><span class="nv">Neo4j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">SPARQL</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">GraphQL</span><span class="w">           </span>│
+│<span class="w">  </span>•<span class="w"> </span>نص<span class="w"> </span>فقط<span class="w">                              </span>•<span class="w"> </span><span class="nv">Multimodal</span><span class="w"> </span><span class="ss">(</span>صوّر<span class="w"> </span>واسأل<span class="ss">)</span><span class="w">            </span>│
+│<span class="w">  </span>•<span class="w"> </span>ري<span class="w"> </span>أساسي<span class="w">                            </span>•<span class="w"> </span><span class="nv">Fertigation</span><span class="w"> </span>ذكي<span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">SPAD</span><span class="w">            </span>│
+│<span class="w">  </span>•<span class="w"> </span><span class="mi">13</span><span class="w"> </span>وكيل<span class="w">                             </span>•<span class="w"> </span><span class="mi">20</span><span class="o">+</span><span class="w"> </span>وكيل<span class="w"> </span>متخصص<span class="w">                     </span>│
+│<span class="w">  </span>•<span class="w"> </span>تقييم<span class="w"> </span>يدوي<span class="w">                          </span>•<span class="w"> </span><span class="nv">LLM</span><span class="o">-</span><span class="nv">as</span><span class="o">-</span><span class="nv">Judge</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">Feedback</span><span class="w"> </span><span class="k">Loop</span><span class="w">       </span>│
+│<span class="w">                                                                             </span>│
+│<span class="w">  </span>══════════════════════════════════════════════════════════════════════<span class="w">    </span>│
+│<span class="w">                                                                             </span>│
+│<span class="w">  </span>💡<span class="w"> </span>القيمة<span class="w"> </span>المضافة:<span class="w">                                                         </span>│
+│<span class="w">  </span>├──<span class="w"> </span>دقة<span class="w"> </span>أعلى:<span class="w"> </span><span class="mi">75</span><span class="o">%</span><span class="w"> </span>→<span class="w"> </span><span class="mi">92</span><span class="o">%</span><span class="w">                                                   </span>│
+│<span class="w">  </span>├──<span class="w"> </span>توفير<span class="w"> </span>مياه:<span class="w"> </span><span class="mi">20</span><span class="o">%</span><span class="w"> </span>→<span class="w"> </span><span class="mi">40</span><span class="o">%</span><span class="w">                                                  </span>│
+│<span class="w">  </span>├──<span class="w"> </span>زيادة<span class="w"> </span>محصول:<span class="w"> </span><span class="mi">10</span><span class="o">%</span><span class="w"> </span>→<span class="w"> </span><span class="mi">25</span><span class="o">%</span><span class="w">                                                 </span>│
+│<span class="w">  </span>└──<span class="w"> </span>استجابة<span class="w"> </span>أسرع:<span class="w"> </span><span class="mi">5</span><span class="nv">s</span><span class="w"> </span>→<span class="w"> </span><span class="o">&lt;</span><span class="mi">1</span><span class="nv">s</span><span class="w">                                                 </span>│
+│<span class="w">                                                                             </span>│
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<p><strong>المراجع | References</strong>:
+- البحث 1-13 من تقرير AGRICULTURAL_AI_LANDSCAPE_REPORT_2026.md
+- governance/agents.yaml
+- shared/ai/ modules
+- .claude/skills/</p>
+<hr />
+<p><em>آخر تحديث: يناير 2026</em>
+<em>Last Updated: January 2026</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

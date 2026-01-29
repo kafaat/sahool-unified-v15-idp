@@ -437,7 +437,7 @@ services:
     build:
       context: ../../apps/services/vegetation-analysis-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-vegetation-analysis-service
+    container_name: sahool-enterprise-ndvi-engine
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
@@ -623,7 +623,7 @@ services:
     build:
       context: ../../apps/services/advisory-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-advisory-service
+    container_name: sahool-enterprise-fertilizer-advisor
     environment:
       - PORT=8093
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -976,7 +976,7 @@ services:
     build:
       context: ../../apps/services/crop-intelligence-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-crop-intelligence-service
+    container_name: sahool-enterprise-crop-growth-model
     environment:
       - PORT=3023
       - NODE_ENV=production
@@ -1016,7 +1016,7 @@ services:
     build:
       context: ../../apps/services/vegetation-analysis-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-vegetation-analysis-service
+    container_name: sahool-enterprise-lai-estimation
     environment:
       - PORT=3022
       - NODE_ENV=production

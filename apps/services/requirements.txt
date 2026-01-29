@@ -37,7 +37,7 @@ opentelemetry-sdk==1.29.0
 opentelemetry-instrumentation-fastapi==0.50b0
 
 # Utilities
-python-multipart==0.0.18
+python-multipart==0.0.22
 python-jose[cryptography]==3.4.0
 passlib[bcrypt]==1.7.4
 

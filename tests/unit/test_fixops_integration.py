@@ -507,3 +507,204 @@ def sample_diagnostic():
         rule_id="E501",
         tool=ToolType.RUFF,
     )
+
+
+class TestFixOpsScheduler:
+    """Test FixOps Scheduler functionality."""
+
+    def test_scheduler_initialization(self):
+        """Test scheduler initializes correctly."""
+        from tools.fixops.scheduler import FixOpsScheduler
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            scheduler = FixOpsScheduler(repo_root=Path(tmpdir))
+            assert scheduler is not None
+            assert len(scheduler.checks) > 0
+
+    def test_check_type_values(self):
+        """Test CheckType enum values."""
+        from tools.fixops.scheduler import CheckType
+
+        assert CheckType.PRE_COMMIT.value == "pre_commit"
+        assert CheckType.POST_FIX.value == "post_fix"
+        assert CheckType.PERIODIC.value == "periodic"
+        assert CheckType.CI_CD.value == "ci_cd"
+
+    def test_check_frequency_values(self):
+        """Test CheckFrequency enum values."""
+        from tools.fixops.scheduler import CheckFrequency
+
+        assert CheckFrequency.HOURLY.value == "hourly"
+        assert CheckFrequency.DAILY.value == "daily"
+        assert CheckFrequency.WEEKLY.value == "weekly"
+        assert CheckFrequency.MONTHLY.value == "monthly"
+
+    def test_scheduled_check_creation(self):
+        """Test ScheduledCheck creation."""
+        from tools.fixops.scheduler import ScheduledCheck, CheckType, CheckFrequency
+
+        check = ScheduledCheck(
+            id="test-check",
+            name="Test Check",
+            name_ar="فحص اختباري",
+            check_type=CheckType.PERIODIC,
+            frequency=CheckFrequency.DAILY,
+            tools=["ruff", "mypy"],
+        )
+
+        assert check.id == "test-check"
+        assert check.check_type == CheckType.PERIODIC
+        assert check.frequency == CheckFrequency.DAILY
+
+    def test_scheduled_check_to_dict(self):
+        """Test ScheduledCheck to_dict method."""
+        from tools.fixops.scheduler import ScheduledCheck, CheckType
+
+        check = ScheduledCheck(
+            id="test-check",
+            name="Test Check",
+            name_ar="فحص اختباري",
+            check_type=CheckType.PRE_COMMIT,
+            tools=["ruff"],
+        )
+
+        data = check.to_dict()
+        assert data["id"] == "test-check"
+        assert data["check_type"] == "pre_commit"
+
+    def test_get_due_checks(self):
+        """Test getting due checks."""
+        from tools.fixops.scheduler import FixOpsScheduler
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            scheduler = FixOpsScheduler(repo_root=Path(tmpdir))
+            due = scheduler.get_due_checks()
+            # Should have at least some checks due (never run before)
+            assert isinstance(due, list)
+
+    @pytest.mark.asyncio
+    async def test_run_pre_commit_check(self):
+        """Test running pre-commit check."""
+        from tools.fixops.scheduler import FixOpsScheduler
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create test file
+            test_file = Path(tmpdir) / "test.py"
+            test_file.write_text("x = 1\n")
+
+            scheduler = FixOpsScheduler(repo_root=Path(tmpdir))
+            result = await scheduler.run_pre_commit_check([str(test_file)])
+
+            assert result is not None
+            assert result.check_id is not None
+
+
+class TestLogAnalyzer:
+    """Test LogAnalyzer functionality."""
+
+    def test_log_analyzer_initialization(self):
+        """Test LogAnalyzer initialization."""
+        from tools.fixops.scheduler import LogAnalyzer
+
+        analyzer = LogAnalyzer()
+        assert analyzer is not None
+
+    def test_analyze_log_file(self):
+        """Test analyzing a single log file."""
+        from tools.fixops.scheduler import LogAnalyzer
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_file = Path(tmpdir) / "test.log"
+            log_file.write_text("""
+2026-01-29 10:00:00 INFO Starting service
+2026-01-29 10:00:01 ERROR Connection failed
+2026-01-29 10:00:02 WARNING Retry attempt 1
+2026-01-29 10:00:03 CRITICAL Database unavailable
+""")
+
+            analyzer = LogAnalyzer()
+            result = analyzer.analyze_log_file(log_file)
+
+            assert result is not None
+            assert result.get("issues_found", 0) >= 2  # ERROR and CRITICAL
+            assert "by_category" in result
+
+    def test_error_patterns(self):
+        """Test error patterns are defined."""
+        from tools.fixops.scheduler import LogAnalyzer
+
+        assert len(LogAnalyzer.ERROR_PATTERNS) > 0
+
+        pattern_names = [p[1] for p in LogAnalyzer.ERROR_PATTERNS]
+        assert "error" in pattern_names
+        assert "critical" in pattern_names
+        assert "exception" in pattern_names
+
+
+class TestCheckResult:
+    """Test CheckResult data class."""
+
+    def test_check_result_creation(self):
+        """Test CheckResult creation."""
+        from tools.fixops.scheduler import CheckResult, CheckType
+        from datetime import datetime, timezone
+
+        result = CheckResult(
+            check_id="test-001",
+            check_type=CheckType.PERIODIC,
+            started_at=datetime.now(timezone.utc),
+            success=True,
+            total_issues=5,
+            critical_issues=1,
+        )
+
+        assert result.check_id == "test-001"
+        assert result.success is True
+        assert result.total_issues == 5
+
+    def test_check_result_to_dict(self):
+        """Test CheckResult to_dict method."""
+        from tools.fixops.scheduler import CheckResult, CheckType
+        from datetime import datetime, timezone
+
+        result = CheckResult(
+            check_id="test-001",
+            check_type=CheckType.PRE_COMMIT,
+            started_at=datetime.now(timezone.utc),
+        )
+
+        data = result.to_dict()
+        assert data["check_id"] == "test-001"
+        assert data["check_type"] == "pre_commit"
+
+
+class TestConvenienceFunctions:
+    """Test convenience functions."""
+
+    @pytest.mark.asyncio
+    async def test_run_pre_commit_function(self):
+        """Test run_pre_commit convenience function."""
+        from tools.fixops.scheduler import run_pre_commit
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            result = await run_pre_commit(repo_root=Path(tmpdir))
+            assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_run_post_fix_function(self):
+        """Test run_post_fix convenience function."""
+        from tools.fixops.scheduler import run_post_fix
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            result = await run_post_fix(repo_root=Path(tmpdir))
+            assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_analyze_logs_function(self):
+        """Test analyze_logs convenience function."""
+        from tools.fixops.scheduler import analyze_logs
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            result = await analyze_logs(repo_root=Path(tmpdir))
+            assert result is not None
+            assert "analyzed_at" in result

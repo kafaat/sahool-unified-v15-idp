@@ -17,7 +17,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy requirements and install dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
+    pip install --no-cache-dir --timeout=300 --retries=10 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --prefix=/install -r requirements.txt
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Production stage

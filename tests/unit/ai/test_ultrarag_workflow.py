@@ -197,21 +197,12 @@ class TestWorkflowEngine:
         """Test executing a simple workflow"""
         engine.register_workflow(simple_workflow)
 
-        # Mock the step handlers
+        # Mock the step handlers - handlers return (output, next_step) tuple
         engine._step_handlers["retrieve"] = AsyncMock(
-            return_value=StepExecutionResult(
-                step_id="step1",
-                success=True,
-                output={"results": []},
-                next_step="step2",
-            )
+            return_value=({"results": []}, "step2")
         )
         engine._step_handlers["generate"] = AsyncMock(
-            return_value=StepExecutionResult(
-                step_id="step2",
-                success=True,
-                output={"answer": "Generated response"},
-            )
+            return_value=({"answer": "Generated response"}, None)
         )
 
         result = await engine.execute("simple_wf")
@@ -241,8 +232,9 @@ class TestWorkflowEngine:
         )
         engine.register_workflow(workflow)
 
+        # Handler returns (output, next_step) tuple
         engine._step_handlers["transform"] = AsyncMock(
-            return_value=StepExecutionResult(step_id="start", success=True)
+            return_value=({"transformed": True}, None)
         )
 
         result = await engine.execute(
@@ -271,12 +263,9 @@ class TestWorkflowEngine:
         )
         engine.register_workflow(workflow)
 
+        # Handler raises exception to simulate failure
         engine._step_handlers["retrieve"] = AsyncMock(
-            return_value=StepExecutionResult(
-                step_id="fail_step",
-                success=False,
-                error="Database unavailable",
-            )
+            side_effect=ValueError("Database unavailable")
         )
 
         result = await engine.execute("fail_wf")
@@ -314,15 +303,13 @@ class TestWorkflowEngine:
         )
         engine.register_workflow(workflow)
 
-        # Condition succeeds
+        # Handlers return (output, next_step) tuple
+        # Condition returns next_step to indicate branching
         engine._step_handlers["condition"] = AsyncMock(
-            return_value=StepExecutionResult(
-                step_id="check",
-                success=True,
-            )
+            return_value=({"condition_result": True}, "success_step")
         )
         engine._step_handlers["generate"] = AsyncMock(
-            return_value=StepExecutionResult(step_id="success_step", success=True)
+            return_value=({"answer": "Generated"}, None)
         )
 
         result = await engine.execute("branch_wf")
@@ -347,16 +334,17 @@ class TestWorkflowEngine:
         )
         engine.register_workflow(workflow)
 
+        # Handler returns (output, next_step) - next_step points to nonexistent step
         engine._step_handlers["retrieve"] = AsyncMock(
-            return_value=StepExecutionResult(
-                step_id="start",
-                success=True,
-                next_step="nonexistent",
-            )
+            return_value=({"results": []}, "nonexistent")
         )
 
-        with pytest.raises(ValueError, match="Step not found"):
-            await engine.execute("invalid_wf")
+        # execute_workflow catches exceptions and returns error in result
+        result = await engine.execute("invalid_wf")
+
+        assert result["success"] is False
+        assert len(result["errors"]) > 0
+        assert "Step not found: nonexistent" in result["errors"][0]
 
 
 class TestBuiltinConditions:

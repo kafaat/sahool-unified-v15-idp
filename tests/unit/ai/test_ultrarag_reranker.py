@@ -390,7 +390,16 @@ class TestReciprocalRankFusionReranker:
         reranker_low_k = ReciprocalRankFusionReranker(k=10)
         reranker_high_k = ReciprocalRankFusionReranker(k=100)
 
-        results = [
+        # Create separate result lists to avoid mutation issues
+        results_low = [
+            RetrievalResult(
+                chunk=KnowledgeChunk(id="c1", text="Doc 1"),
+                score=0.9,
+                rank=1,
+                retrieval_method="dense",
+            ),
+        ]
+        results_high = [
             RetrievalResult(
                 chunk=KnowledgeChunk(id="c1", text="Doc 1"),
                 score=0.9,
@@ -400,10 +409,12 @@ class TestReciprocalRankFusionReranker:
         ]
 
         config = RerankConfig(top_k=5)
-        result_low = await reranker_low_k.rerank("q", results, config)
-        result_high = await reranker_high_k.rerank("q", results, config)
+        result_low = await reranker_low_k.rerank("q", results_low, config)
+        result_high = await reranker_high_k.rerank("q", results_high, config)
 
         # Lower k should give higher RRF scores
+        # k=10: 1/(10+1) ≈ 0.0909
+        # k=100: 1/(100+1) ≈ 0.0099
         assert result_low.results[0].score > result_high.results[0].score
 
 

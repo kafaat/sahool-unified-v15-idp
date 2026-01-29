@@ -78,8 +78,10 @@ class TestSparseRetriever:
         assert "quick" in tokens
         assert "brown" in tokens
         assert "jumps" in tokens
-        # Short words (<=2 chars) should be removed
-        assert "the" not in tokens
+        # Words > 2 chars are kept (including "the" which has 3 chars)
+        assert "the" in tokens
+        assert "fox" in tokens
+        assert "lazy" in tokens
 
     def test_tokenize_arabic(self, sparse_retriever):
         """Test tokenization of Arabic text"""

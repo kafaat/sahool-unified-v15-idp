@@ -28,7 +28,7 @@ import { ChatService } from "./chat.service";
 import { CreateConversationDto } from "./dto/create-conversation.dto";
 import { SendMessageDto } from "./dto/send-message.dto";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
-import { UserId, CurrentUser } from "../auth/decorators";
+import { UserId } from "../auth/decorators";
 
 @ApiTags("Chat")
 @Controller("chat")

@@ -3,14 +3,13 @@
 // Database-backed disaster management with PostgreSQL persistence
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import {
   CreateDisasterReportDto,
   DisasterAssessmentDto,
   DisasterType,
   Severity,
-  DisasterStatus,
 } from "./disaster.dto";
 import {
   DisasterType as PrismaDisasterType,

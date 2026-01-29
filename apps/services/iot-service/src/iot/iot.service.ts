@@ -740,7 +740,6 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     alertType: "low" | "high",
     threshold: number,
   ): void {
-    const alertTypeAr = alertType === "low" ? "منخفض" : "مرتفع";
     const sensorTypeAr = this.getSensorTypeArabic(reading.sensorType);
 
     const subject =

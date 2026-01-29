@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  BadRequestException,
-} from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@/config/prisma.service";
 import { Prisma } from "@prisma/client";
 import { SignatureService } from "@/core/services/signature.service";

@@ -56,7 +56,7 @@ if (!JWT_SECRET_KEY || JWT_SECRET_KEY.trim().length === 0) {
 
 // Authentication is always required - no bypass option
 // المصادقة إلزامية دائماً - لا يمكن تعطيلها
-const REQUIRE_AUTH = true;
+// Note: Authentication is mandatory and cannot be disabled
 
 // CORS Origins - configurable via environment
 const ALLOWED_ORIGINS = process.env.CORS_ORIGINS
@@ -254,7 +254,7 @@ async function addMessageToRoom(roomId, message) {
     let room = await prisma.chatRoom.findUnique({ where: { id: roomId } });
     if (!room) {
       // Create room if it doesn't exist
-      room = await prisma.chatRoom.create({
+      await prisma.chatRoom.create({
         data: {
           id: roomId,
           name: roomId,

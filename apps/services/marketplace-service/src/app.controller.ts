@@ -31,10 +31,6 @@ import {
   RecordCreditEventDto,
   RequestLoanDto,
   WalletTransactionDto,
-  RepayLoanDto,
-  CreateEscrowDto,
-  EscrowActionDto,
-  CreateScheduledPaymentDto,
 } from "./dto/market.dto";
 
 @Controller()

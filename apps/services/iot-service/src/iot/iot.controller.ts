@@ -9,7 +9,6 @@ import {
   Post,
   Body,
   Param,
-  Query,
   HttpCode,
   HttpStatus,
   UseGuards,

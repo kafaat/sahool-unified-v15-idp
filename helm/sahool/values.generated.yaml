@@ -2024,7 +2024,9 @@ infrastructure:
   postgresql:
     enabled: true
     auth:
-      postgresPassword: ''
+      # SECURITY: Override with secure password via --set or values override
+      # Example: helm install --set infrastructure.postgresql.auth.postgresPassword=$POSTGRES_PASSWORD
+      postgresPassword: "CHANGE_ME_USE_HELM_SECRETS"
       database: sahool
     primary:
       persistence:
@@ -2032,7 +2034,8 @@ infrastructure:
   redis:
     enabled: true
     auth:
-      password: ''
+      # SECURITY: Override with secure password via --set or values override
+      password: "CHANGE_ME_USE_HELM_SECRETS"
     master:
       persistence:
         size: 5Gi

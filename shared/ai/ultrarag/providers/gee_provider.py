@@ -11,9 +11,8 @@
 # Based on research: "GEE Toolkit for Visual Interpretation and Land Cover Analysis"
 # ===============================================================================
 
-import asyncio
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -22,7 +21,6 @@ import structlog
 from ..models import (
     EntityType,
     RelationType,
-    KnowledgeChunk,
     RetrievalStrategy,
     TriRAGConfig,
 )
@@ -1182,31 +1180,28 @@ class GEERAGProvider:
             classification[LandCoverClass.WATER] = 0.9
             return classification
 
-        # Bare soil / Desert
+        # Bare soil / Desert (ndvi < 0.15)
         if ndvi < 0.15:
             classification[LandCoverClass.BARE_SOIL] = 0.5
             classification[LandCoverClass.DESERT] = 0.4
             return classification
 
-        # Sparse vegetation (grassland)
-        if 0.15 <= ndvi < 0.35:
+        # Sparse vegetation / grassland (0.15 <= ndvi < 0.35)
+        if ndvi < 0.35:
             classification[LandCoverClass.GRASSLAND] = 0.6
             classification[LandCoverClass.BARE_SOIL] = 0.3
             return classification
 
-        # Moderate vegetation (cropland or grassland)
-        if 0.35 <= ndvi < 0.6:
+        # Moderate vegetation / cropland (0.35 <= ndvi < 0.6)
+        if ndvi < 0.6:
             classification[LandCoverClass.CROPLAND] = 0.7
             classification[LandCoverClass.GRASSLAND] = 0.2
             return classification
 
-        # Dense vegetation (forest or healthy cropland)
-        if ndvi >= 0.6:
-            classification[LandCoverClass.FOREST] = 0.5
-            classification[LandCoverClass.CROPLAND] = 0.4
-            return classification
-
-        return {LandCoverClass.CROPLAND: 1.0}
+        # Dense vegetation / forest (ndvi >= 0.6)
+        classification[LandCoverClass.FOREST] = 0.5
+        classification[LandCoverClass.CROPLAND] = 0.4
+        return classification
 
     def _generate_change_description(
         self,

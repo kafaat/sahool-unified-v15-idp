@@ -2806,7 +2806,6 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8201:8200"
       - "8201:8201"
     depends_on:
       kong:

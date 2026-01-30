@@ -345,6 +345,12 @@ class EntityType(Enum):
     TECHNIQUE = "technique"          # تقنية
     REGION = "region"                # منطقة
     SEASON = "season"                # موسم
+    # Satellite & GEE Entity Types - أنواع كيانات الأقمار الصناعية
+    SENSOR = "sensor"                # مستشعر (satellite sensor)
+    INDICATOR = "indicator"          # مؤشر (vegetation index)
+    METHOD = "method"                # طريقة (analysis method)
+    EVENT = "event"                  # حدث (change event)
+    LOCATION = "location"            # موقع (land cover type)
 
 
 class RelationType(Enum):
@@ -361,6 +367,13 @@ class RelationType(Enum):
     PART_OF = "part_of"              # جزء من
     CAUSES = "causes"                # يسبب
     SYMPTOM_OF = "symptom_of"        # عرض لـ
+    # Satellite & GEE Relations - علاقات الأقمار الصناعية
+    PROVIDES = "provides"            # يوفر (satellite provides index)
+    INDICATES = "indicates"          # يشير إلى (index indicates land cover)
+    DETECTS = "detects"              # يكشف (index detects change)
+    ANALYZES = "analyzes"            # يحلل (method analyzes data)
+    CLASSIFIES = "classifies"        # يصنف (method classifies land cover)
+    EXHIBITS = "exhibits"            # يظهر (land cover exhibits change)
 
 
 @dataclass

@@ -17,7 +17,7 @@ from typing import Any, Optional
 
 import structlog
 
-from shared.ai.ultrarag.providers import AgriRAGProvider, CodeRAGProvider
+from shared.ai.ultrarag.providers import AgriRAGProvider, CodeRAGProvider, GEERAGProvider
 from shared.ai.ultrarag.models import TriRAGConfig, RetrievalStrategy
 from shared.ai.ultrarag.mcp_tools import RAGMCPTools
 
@@ -38,6 +38,7 @@ class UltraRAGConfig:
     # Feature flags
     enable_agri_provider: bool = True
     enable_code_provider: bool = True
+    enable_gee_provider: bool = True
     enable_mcp_tools: bool = True
 
     # Fallback
@@ -51,6 +52,7 @@ class UltraRAGConfig:
         self.kg_max_hops = int(os.getenv("ULTRARAG_KG_MAX_HOPS", str(self.kg_max_hops)))
         self.enable_agri_provider = os.getenv("ULTRARAG_ENABLE_AGRI", "true").lower() == "true"
         self.enable_code_provider = os.getenv("ULTRARAG_ENABLE_CODE", "true").lower() == "true"
+        self.enable_gee_provider = os.getenv("ULTRARAG_ENABLE_GEE", "true").lower() == "true"
 
     def to_trirag_config(self) -> TriRAGConfig:
         """Convert to TriRAGConfig"""
@@ -71,6 +73,7 @@ class UltraRAGCopilotService:
     - Tri-RAG retrieval (Dense + Sparse + Knowledge Graph)
     - Agricultural advisory through AgriRAGProvider
     - Code analysis through CodeRAGProvider
+    - Satellite imagery analysis through GEERAGProvider
     - MCP tools integration
     - Fallback to basic RAG if needed
     """
@@ -87,6 +90,7 @@ class UltraRAGCopilotService:
         # UltraRAG providers
         self._agri_provider: Optional[AgriRAGProvider] = None
         self._code_provider: Optional[CodeRAGProvider] = None
+        self._gee_provider: Optional[GEERAGProvider] = None
         self._mcp_tools: Optional[RAGMCPTools] = None
 
         self._initialized = False
@@ -116,6 +120,15 @@ class UltraRAGCopilotService:
             except Exception as e:
                 logger.error("Failed to initialize CodeRAGProvider", error=str(e))
 
+        # Initialize GEE/satellite provider
+        if self.config.enable_gee_provider:
+            try:
+                self._gee_provider = GEERAGProvider(config=trirag_config)
+                await self._gee_provider.initialize()
+                logger.info("GEERAGProvider initialized")
+            except Exception as e:
+                logger.error("Failed to initialize GEERAGProvider", error=str(e))
+
         # Initialize basic RAG if needed
         if self.basic_rag:
             await self.basic_rag.initialize()
@@ -129,6 +142,7 @@ class UltraRAGCopilotService:
             "UltraRAG Copilot service initialized",
             agri_enabled=self._agri_provider is not None,
             code_enabled=self._code_provider is not None,
+            gee_enabled=self._gee_provider is not None,
             mcp_enabled=self._mcp_tools is not None,
         )
         return True
@@ -379,13 +393,150 @@ class UltraRAGCopilotService:
         }
 
     # ═══════════════════════════════════════════════════════════════════════════
+    # Satellite & GEE Analysis Methods
+    # طرق تحليل صور الأقمار الصناعية
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    async def analyze_ndvi_timeseries(
+        self,
+        field_id: str,
+        start_date: str,
+        end_date: str,
+        index_type: str = "ndvi",
+        **kwargs,
+    ) -> dict[str, Any]:
+        """
+        Analyze NDVI time series for a field.
+        تحليل السلسلة الزمنية لـ NDVI للحقل
+        """
+        from datetime import date
+
+        await self.initialize()
+
+        if not self._gee_provider:
+            return {"error": "GEE provider not available"}
+
+        from shared.ai.ultrarag.providers.gee_provider import VegetationIndex
+
+        # Parse dates
+        start = date.fromisoformat(start_date)
+        end = date.fromisoformat(end_date)
+
+        # Map index type
+        idx_map = {
+            "ndvi": VegetationIndex.NDVI,
+            "evi": VegetationIndex.EVI,
+            "savi": VegetationIndex.SAVI,
+            "ndwi": VegetationIndex.NDWI,
+            "ndmi": VegetationIndex.NDMI,
+            "lai": VegetationIndex.LAI,
+        }
+        index = idx_map.get(index_type.lower(), VegetationIndex.NDVI)
+
+        result = await self._gee_provider.analyze_time_series(
+            field_id=field_id,
+            start_date=start,
+            end_date=end,
+            index_type=index,
+        )
+
+        if result.time_series:
+            return {
+                "field_id": field_id,
+                "analysis": result.time_series.to_dict(),
+                "confidence": result.confidence,
+                "sources": result.sources[:3],
+            }
+
+        return {"error": "No time series data available"}
+
+    async def detect_field_changes(
+        self,
+        field_id: str,
+        date1: str,
+        date2: str,
+        ndvi1: Optional[float] = None,
+        ndvi2: Optional[float] = None,
+        **kwargs,
+    ) -> dict[str, Any]:
+        """
+        Detect vegetation changes between two dates.
+        كشف تغيرات الغطاء النباتي بين تاريخين
+        """
+        from datetime import date
+
+        await self.initialize()
+
+        if not self._gee_provider:
+            return {"error": "GEE provider not available"}
+
+        d1 = date.fromisoformat(date1)
+        d2 = date.fromisoformat(date2)
+
+        result = await self._gee_provider.detect_changes(
+            field_id=field_id,
+            date1=d1,
+            date2=d2,
+            ndvi1=ndvi1,
+            ndvi2=ndvi2,
+        )
+
+        if result.change_detection:
+            return {
+                "field_id": field_id,
+                "change": result.change_detection.to_dict(),
+                "confidence": result.confidence,
+                "sources": result.sources[:3],
+            }
+
+        return {"error": "No change detection result"}
+
+    async def classify_land_cover(
+        self,
+        field_id: str,
+        analysis_date: Optional[str] = None,
+        ndvi: Optional[float] = None,
+        ndwi: Optional[float] = None,
+        **kwargs,
+    ) -> dict[str, Any]:
+        """
+        Classify land cover for a field.
+        تصنيف الغطاء الأرضي للحقل
+        """
+        from datetime import date
+
+        await self.initialize()
+
+        if not self._gee_provider:
+            return {"error": "GEE provider not available"}
+
+        analysis_d = date.fromisoformat(analysis_date) if analysis_date else date.today()
+
+        result = await self._gee_provider.classify_land_cover(
+            field_id=field_id,
+            analysis_date=analysis_d,
+            ndvi=ndvi,
+            ndwi=ndwi,
+        )
+
+        if result.land_cover:
+            return {
+                "field_id": field_id,
+                "classification": result.land_cover.to_dict(),
+                "confidence": result.confidence,
+                "sources": result.sources[:3],
+            }
+
+        return {"error": "No land cover classification result"}
+
+    # ═══════════════════════════════════════════════════════════════════════════
     # General Query Methods
     # ═══════════════════════════════════════════════════════════════════════════
 
     async def query(
         self,
         query: str,
-        domain: str = "auto",  # auto, agricultural, code
+        domain: str = "auto",  # auto, agricultural, code, satellite
         **kwargs,
     ) -> dict[str, Any]:
         """
@@ -415,6 +566,16 @@ class UltraRAGCopilotService:
                 "domain": "code",
                 "query": result.query,
                 "response": result.analysis,
+                "confidence": result.confidence,
+                "sources": result.sources[:5],
+            }
+
+        elif domain == "satellite" and self._gee_provider:
+            result = await self._gee_provider.general_query(query)
+            return {
+                "domain": "satellite",
+                "query": result.query,
+                "response": str(result.related_entities) if result.related_entities else "",
                 "confidence": result.confidence,
                 "sources": result.sources[:5],
             }
@@ -451,12 +612,28 @@ class UltraRAGCopilotService:
             "security", "vulnerability", "api", "database",
         ]
 
+        # Satellite/GEE keywords
+        satellite_keywords = [
+            "ndvi", "evi", "savi", "ndwi", "ndmi", "lai",
+            "satellite", "sentinel", "landsat", "modis",
+            "vegetation", "land cover", "change detection",
+            "time series", "remote sensing", "imagery",
+            "قمر صناعي", "غطاء نباتي", "صور", "تغيرات",
+        ]
+
         agri_score = sum(1 for kw in agri_keywords if kw in query_lower)
         code_score = sum(1 for kw in code_keywords if kw in query_lower)
+        satellite_score = sum(1 for kw in satellite_keywords if kw in query_lower)
 
-        if agri_score > code_score:
+        max_score = max(agri_score, code_score, satellite_score)
+        if max_score == 0:
+            return "general"
+
+        if satellite_score == max_score:
+            return "satellite"
+        elif agri_score == max_score:
             return "agricultural"
-        elif code_score > agri_score:
+        elif code_score == max_score:
             return "code"
         return "general"
 

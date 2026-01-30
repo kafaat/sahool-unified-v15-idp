@@ -655,7 +655,7 @@ scrape_configs:
   # MCP Server - خادم بروتوكول سياق النموذج
   - job_name: 'mcp-server'
     static_configs:
-      - targets: ['mcp_server:8200']
+      - targets: ['mcp_server:8201']
         labels:
           tier: 'ai-ml'
           component: 'model-context'

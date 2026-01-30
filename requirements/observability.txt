@@ -4,12 +4,12 @@
 # Updated: December 2025
 
 # Prometheus Metrics
-prometheus-client==0.21.1
+prometheus-client==0.24.1
 
 # OpenTelemetry Stack
-opentelemetry-api==1.29.0
-opentelemetry-sdk==1.29.0
-opentelemetry-instrumentation-fastapi==0.50b0
+opentelemetry-api==1.39.1
+opentelemetry-sdk==1.39.1
+opentelemetry-instrumentation-fastapi==0.60b1
 
 # Structured Logging
 structlog==24.4.0

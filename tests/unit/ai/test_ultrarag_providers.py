@@ -4,7 +4,6 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock
 
 from shared.ai.ultrarag.providers import AgriRAGProvider, CodeRAGProvider, GEERAGProvider
 from shared.ai.ultrarag.providers.agri_provider import AgriQueryContext, AgriAdvisoryResult
@@ -13,9 +12,6 @@ from shared.ai.ultrarag.providers.gee_provider import (
     GEEQueryContext,
     GEEAnalysisResult,
     TimeSeriesPoint,
-    TimeSeriesAnalysis,
-    ChangeDetectionResult,
-    LandCoverResult,
     SatelliteSource,
     VegetationIndex,
     LandCoverClass,

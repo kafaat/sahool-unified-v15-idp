@@ -14,7 +14,7 @@
       }
     },
     "sahool-http": {
-      "url": "http://localhost:8200/mcp",
+      "url": "http://localhost:8201/mcp",
       "transport": "http",
       "description": "SAHOOL MCP Server via HTTP",
       "capabilities": {

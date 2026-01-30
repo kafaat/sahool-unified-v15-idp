@@ -44,8 +44,8 @@ class TestEntityType:
         assert EntityType.SOIL.value == "soil"
 
     def test_entity_type_count(self):
-        """Test we have all expected entity types"""
-        assert len(EntityType) == 12
+        """Test we have all expected entity types (12 base + 5 satellite)"""
+        assert len(EntityType) == 17
 
 
 class TestRelationType:
@@ -60,8 +60,8 @@ class TestRelationType:
         assert RelationType.SYMPTOM_OF.value == "symptom_of"
 
     def test_relation_type_count(self):
-        """Test we have all expected relation types"""
-        assert len(RelationType) == 12
+        """Test we have all expected relation types (12 base + 6 satellite)"""
+        assert len(RelationType) == 18
 
 
 class TestKnowledgeEntity:

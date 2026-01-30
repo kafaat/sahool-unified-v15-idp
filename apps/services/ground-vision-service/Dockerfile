@@ -58,10 +58,7 @@ RUN useradd --create-home --shell /bin/bash appuser
 COPY --from=builder /install /usr/local
 
 # Copy application code
-<<<<<<< HEAD
 COPY apps/services/ground-vision-service/requirements.txt .
-=======
->>>>>>> 143475e7a2c3a825e4a7015a6b539c2915275fb5
 COPY apps/services/ground-vision-service/src/ ./src/
 
 # Set ownership

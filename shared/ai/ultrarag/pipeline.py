@@ -26,9 +26,11 @@ from .retriever import (
     AdaptiveRetriever,
     DenseRetriever,
     HybridRetriever,
+    KnowledgeGraphRetriever,
     RetrievalConfig,
     Retriever,
     SparseRetriever,
+    TriRAGRetriever,
 )
 from .reranker import (
     get_reranker,
@@ -146,6 +148,10 @@ class RAGPipeline:
             return sparse
         elif self.config.retrieval_strategy == RetrievalStrategy.HYBRID:
             return HybridRetriever(dense, sparse)
+        elif self.config.retrieval_strategy == RetrievalStrategy.TRI_RAG:
+            # AgriGPT-style Tri-RAG with Knowledge Graph
+            kg = KnowledgeGraphRetriever(self.embedding_service)
+            return TriRAGRetriever(dense, sparse, kg)
         else:  # ADAPTIVE
             hybrid = HybridRetriever(dense, sparse)
             return AdaptiveRetriever(dense, sparse, hybrid)

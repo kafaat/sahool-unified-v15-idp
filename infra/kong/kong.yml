@@ -432,7 +432,7 @@ upstreams:
     algorithm: round-robin
     slots: 10000
     targets:
-      - target: mcp-server:8200
+      - target: mcp-server:8201
         weight: 100
     healthchecks:
       active:

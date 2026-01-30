@@ -571,7 +571,7 @@ services:
 
   - name: mcp-server
     host: mcp-server
-    port: 8200
+    port: 8201
     protocol: http
     routes:
       - name: mcp-server-route

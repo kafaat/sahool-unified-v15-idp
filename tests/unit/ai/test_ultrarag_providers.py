@@ -6,9 +6,22 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from shared.ai.ultrarag.providers import AgriRAGProvider, CodeRAGProvider
+from shared.ai.ultrarag.providers import AgriRAGProvider, CodeRAGProvider, GEERAGProvider
 from shared.ai.ultrarag.providers.agri_provider import AgriQueryContext, AgriAdvisoryResult
 from shared.ai.ultrarag.providers.code_provider import CodeQueryContext, CodeAnalysisResult
+from shared.ai.ultrarag.providers.gee_provider import (
+    GEEQueryContext,
+    GEEAnalysisResult,
+    TimeSeriesPoint,
+    TimeSeriesAnalysis,
+    ChangeDetectionResult,
+    LandCoverResult,
+    SatelliteSource,
+    VegetationIndex,
+    LandCoverClass,
+    ChangeType,
+    AnalysisType,
+)
 from shared.ai.ultrarag.models import TriRAGConfig, EntityType, RelationType
 
 
@@ -352,3 +365,270 @@ class TestProvidersIntegration:
         agri_ids = set(agri._kg_retriever._entities.keys())
         code_ids = set(code._kg_retriever._entities.keys())
         assert len(agri_ids & code_ids) == 0  # No overlap
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# GEERAGProvider Tests
+# اختبارات مزود الأقمار الصناعية
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class TestGEERAGProvider:
+    """Tests for GEERAGProvider"""
+
+    @pytest.fixture
+    def provider(self):
+        """Create GEERAGProvider instance"""
+        return GEERAGProvider()
+
+    @pytest.mark.asyncio
+    async def test_initialize(self, provider):
+        """Test provider initialization"""
+        await provider.initialize()
+        assert provider._initialized is True
+        assert provider._kg_retriever is not None
+        assert provider._tri_rag is not None
+
+    @pytest.mark.asyncio
+    async def test_knowledge_graph_loaded(self, provider):
+        """Test satellite knowledge graph is loaded"""
+        await provider.initialize()
+
+        entities = provider._kg_retriever._entities
+        assert len(entities) > 0
+
+        # Check for satellite entities
+        sat_ids = [eid for eid in entities if eid.startswith("sat_")]
+        assert len(sat_ids) >= 3  # sentinel2, landsat8, landsat9, modis
+
+        # Check for index entities
+        idx_ids = [eid for eid in entities if eid.startswith("idx_")]
+        assert len(idx_ids) >= 5  # ndvi, evi, savi, ndwi, ndmi, lai
+
+        # Check for land cover entities
+        lc_ids = [eid for eid in entities if eid.startswith("lc_")]
+        assert len(lc_ids) >= 5
+
+        # Check for change entities
+        chg_ids = [eid for eid in entities if eid.startswith("chg_")]
+        assert len(chg_ids) >= 5
+
+        # Check for method entities
+        meth_ids = [eid for eid in entities if eid.startswith("meth_")]
+        assert len(meth_ids) >= 3
+
+    @pytest.mark.asyncio
+    async def test_analyze_time_series(self, provider):
+        """Test time series analysis"""
+        from datetime import date, timedelta
+
+        start_date = date.today() - timedelta(days=90)
+        end_date = date.today()
+
+        result = await provider.analyze_time_series(
+            field_id="FIELD-001",
+            start_date=start_date,
+            end_date=end_date,
+            index_type=VegetationIndex.NDVI,
+        )
+
+        assert isinstance(result, GEEAnalysisResult)
+        assert result.analysis_type == AnalysisType.TIME_SERIES
+        assert result.time_series is not None
+        assert result.time_series.field_id == "FIELD-001"
+        assert result.time_series.index_type == VegetationIndex.NDVI
+        assert len(result.time_series.data_points) > 0
+        assert result.time_series.mean >= -1 and result.time_series.mean <= 1
+
+    @pytest.mark.asyncio
+    async def test_detect_changes(self, provider):
+        """Test change detection"""
+        from datetime import date, timedelta
+
+        date1 = date.today() - timedelta(days=30)
+        date2 = date.today()
+
+        result = await provider.detect_changes(
+            field_id="FIELD-001",
+            date1=date1,
+            date2=date2,
+            ndvi1=0.65,
+            ndvi2=0.45,
+        )
+
+        assert isinstance(result, GEEAnalysisResult)
+        assert result.analysis_type == AnalysisType.CHANGE_DETECTION
+        assert result.change_detection is not None
+        assert result.change_detection.field_id == "FIELD-001"
+        assert result.change_detection.ndvi_before == 0.65
+        assert result.change_detection.ndvi_after == 0.45
+        assert result.change_detection.change_magnitude < 0  # Decrease
+        assert result.change_detection.severity in ["low", "medium", "high", "critical"]
+
+    @pytest.mark.asyncio
+    async def test_classify_land_cover(self, provider):
+        """Test land cover classification"""
+        from datetime import date
+
+        result = await provider.classify_land_cover(
+            field_id="FIELD-001",
+            analysis_date=date.today(),
+            ndvi=0.55,
+            ndwi=0.1,
+        )
+
+        assert isinstance(result, GEEAnalysisResult)
+        assert result.analysis_type == AnalysisType.LAND_COVER
+        assert result.land_cover is not None
+        assert result.land_cover.field_id == "FIELD-001"
+        assert result.land_cover.dominant_class in LandCoverClass
+        assert result.land_cover.vegetation_fraction >= 0
+
+    @pytest.mark.asyncio
+    async def test_general_query(self, provider):
+        """Test general satellite query"""
+        result = await provider.general_query(
+            query="How to calculate NDVI from Sentinel-2 imagery"
+        )
+
+        assert isinstance(result, GEEAnalysisResult)
+        assert result.query is not None
+
+    @pytest.mark.asyncio
+    async def test_change_classification(self, provider):
+        """Test different change type classifications"""
+        await provider.initialize()
+
+        # Harvest detection
+        change_type = provider._classify_change(0.7, 0.2, 14)
+        assert change_type == ChangeType.HARVEST
+
+        # Planting detection
+        change_type = provider._classify_change(0.15, 0.4, 21)
+        assert change_type == ChangeType.PLANTING
+
+        # Drought detection
+        change_type = provider._classify_change(0.6, 0.3, 45)
+        assert change_type == ChangeType.DROUGHT
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# GEEQueryContext Tests
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class TestGEEQueryContext:
+    """Tests for GEEQueryContext"""
+
+    def test_default_context(self):
+        """Test default context creation"""
+        ctx = GEEQueryContext()
+        assert ctx.satellite == SatelliteSource.SENTINEL_2
+        assert VegetationIndex.NDVI in ctx.indices
+        assert ctx.cloud_cover_max == 30.0
+
+    def test_custom_context(self):
+        """Test custom context creation"""
+        ctx = GEEQueryContext(
+            field_id="FIELD-001",
+            latitude=24.7136,
+            longitude=46.6753,
+            satellite=SatelliteSource.LANDSAT_8,
+            indices=[VegetationIndex.NDVI, VegetationIndex.EVI],
+            cloud_cover_max=20.0,
+        )
+        assert ctx.field_id == "FIELD-001"
+        assert ctx.satellite == SatelliteSource.LANDSAT_8
+        assert len(ctx.indices) == 2
+        assert ctx.cloud_cover_max == 20.0
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TimeSeriesPoint Tests
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class TestTimeSeriesPoint:
+    """Tests for TimeSeriesPoint"""
+
+    def test_point_creation(self):
+        """Test time series point creation"""
+        from datetime import date
+
+        point = TimeSeriesPoint(
+            date=date(2025, 1, 15),
+            value=0.65,
+            index_type=VegetationIndex.NDVI,
+            quality=0.95,
+            cloud_cover=10.5,
+        )
+
+        assert point.value == 0.65
+        assert point.index_type == VegetationIndex.NDVI
+        assert point.quality == 0.95
+
+    def test_point_to_dict(self):
+        """Test point serialization"""
+        from datetime import date
+
+        point = TimeSeriesPoint(
+            date=date(2025, 1, 15),
+            value=0.65,
+            index_type=VegetationIndex.NDVI,
+        )
+
+        d = point.to_dict()
+        assert d["date"] == "2025-01-15"
+        assert d["value"] == 0.65
+        assert d["index_type"] == "ndvi"
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# All Three Providers Integration Tests
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class TestAllProvidersIntegration:
+    """Integration tests for all providers together"""
+
+    @pytest.mark.asyncio
+    async def test_all_providers_together(self):
+        """Test all three providers can work together"""
+        agri = AgriRAGProvider()
+        code = CodeRAGProvider()
+        gee = GEERAGProvider()
+
+        await agri.initialize()
+        await code.initialize()
+        await gee.initialize()
+
+        # All should be initialized independently
+        assert agri._initialized is True
+        assert code._initialized is True
+        assert gee._initialized is True
+
+        # All should have separate knowledge graphs
+        assert len(agri._kg_retriever._entities) > 0
+        assert len(code._kg_retriever._entities) > 0
+        assert len(gee._kg_retriever._entities) > 0
+
+        # Check unique prefixes for each provider
+        agri_ids = set(agri._kg_retriever._entities.keys())
+        code_ids = set(code._kg_retriever._entities.keys())
+        gee_ids = set(gee._kg_retriever._entities.keys())
+
+        # No overlap between any providers
+        assert len(agri_ids & code_ids) == 0
+        assert len(agri_ids & gee_ids) == 0
+        assert len(code_ids & gee_ids) == 0
+
+    @pytest.mark.asyncio
+    async def test_gee_provider_entity_counts(self):
+        """Test GEE provider has expected entity counts"""
+        provider = GEERAGProvider()
+        await provider.initialize()
+
+        entities = provider._kg_retriever._entities
+        relations = provider._kg_retriever._relations
+
+        # Should have at least 24 entities
+        assert len(entities) >= 20
+
+        # Should have at least 20 relations
+        assert len(relations) >= 15

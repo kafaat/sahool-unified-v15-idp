@@ -354,6 +354,140 @@ class RAGMCPTools:
             category="agricultural",
         ))
 
+        # ═══════════════════════════════════════════════════════════════════════
+        # Satellite & GEE Analysis Tools
+        # أدوات تحليل صور الأقمار الصناعية
+        # ═══════════════════════════════════════════════════════════════════════
+
+        self._register_tool(MCPToolDefinition(
+            name="ndvi_time_series",
+            description="Analyze NDVI time series for a field to detect trends, anomalies, and phenology",
+            description_ar="تحليل السلسلة الزمنية لـ NDVI للحقل لاكتشاف الاتجاهات والشذوذ ومراحل النمو",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "field_id": {
+                        "type": "string",
+                        "description": "Field identifier | معرف الحقل",
+                    },
+                    "start_date": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Start date (YYYY-MM-DD) | تاريخ البداية",
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "End date (YYYY-MM-DD) | تاريخ النهاية",
+                    },
+                    "index_type": {
+                        "type": "string",
+                        "enum": ["ndvi", "evi", "savi", "ndwi", "ndmi", "lai"],
+                        "description": "Vegetation index type | نوع مؤشر الغطاء النباتي",
+                        "default": "ndvi",
+                    },
+                    "satellite": {
+                        "type": "string",
+                        "enum": ["sentinel_2", "landsat_8", "landsat_9", "modis"],
+                        "description": "Satellite source | مصدر القمر الصناعي",
+                        "default": "sentinel_2",
+                    },
+                },
+                "required": ["field_id", "start_date", "end_date"],
+            },
+            handler=self._handle_ndvi_time_series,
+            category="satellite",
+        ))
+
+        self._register_tool(MCPToolDefinition(
+            name="change_detection",
+            description="Detect vegetation changes between two dates (harvest, planting, stress, drought)",
+            description_ar="كشف تغيرات الغطاء النباتي بين تاريخين (حصاد، زراعة، إجهاد، جفاف)",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "field_id": {
+                        "type": "string",
+                        "description": "Field identifier | معرف الحقل",
+                    },
+                    "date1": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "First date (YYYY-MM-DD) | التاريخ الأول",
+                    },
+                    "date2": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Second date (YYYY-MM-DD) | التاريخ الثاني",
+                    },
+                    "ndvi1": {
+                        "type": "number",
+                        "description": "NDVI value at date1 (optional) | قيمة NDVI في التاريخ الأول",
+                    },
+                    "ndvi2": {
+                        "type": "number",
+                        "description": "NDVI value at date2 (optional) | قيمة NDVI في التاريخ الثاني",
+                    },
+                },
+                "required": ["field_id", "date1", "date2"],
+            },
+            handler=self._handle_change_detection,
+            category="satellite",
+        ))
+
+        self._register_tool(MCPToolDefinition(
+            name="land_cover_classification",
+            description="Classify land cover type (cropland, forest, bare soil, water) from satellite imagery",
+            description_ar="تصنيف نوع الغطاء الأرضي (زراعي، غابة، تربة عارية، ماء) من صور الأقمار الصناعية",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "field_id": {
+                        "type": "string",
+                        "description": "Field identifier | معرف الحقل",
+                    },
+                    "analysis_date": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Date for analysis (YYYY-MM-DD) | تاريخ التحليل",
+                    },
+                    "ndvi": {
+                        "type": "number",
+                        "description": "NDVI value (optional) | قيمة NDVI",
+                    },
+                    "ndwi": {
+                        "type": "number",
+                        "description": "NDWI value (optional) | قيمة NDWI",
+                    },
+                },
+                "required": ["field_id"],
+            },
+            handler=self._handle_land_cover,
+            category="satellite",
+        ))
+
+        self._register_tool(MCPToolDefinition(
+            name="satellite_query",
+            description="General query about satellite imagery, vegetation indices, or remote sensing",
+            description_ar="استعلام عام عن صور الأقمار الصناعية أو مؤشرات الغطاء النباتي أو الاستشعار عن بعد",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Query about satellite imagery | استعلام عن صور الأقمار الصناعية",
+                    },
+                    "field_id": {
+                        "type": "string",
+                        "description": "Optional field context | سياق الحقل (اختياري)",
+                    },
+                },
+                "required": ["query"],
+            },
+            handler=self._handle_satellite_query,
+            category="satellite",
+        ))
+
     def _register_tool(self, tool: MCPToolDefinition):
         """Register a tool"""
         self._tools[tool.name] = tool
@@ -627,6 +761,149 @@ class RAGMCPTools:
             "confidence": result.generation_result.confidence if result.generation_result else 0.0,
             "sources": [r.to_dict() for r in result.retrieval_results[:3]],
         }
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Satellite & GEE Tool Handlers
+    # معالجات أدوات صور الأقمار الصناعية
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    async def _handle_ndvi_time_series(self, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle NDVI time series analysis"""
+        from datetime import date
+
+        try:
+            from .providers.gee_provider import GEERAGProvider, VegetationIndex
+
+            provider = GEERAGProvider()
+
+            # Parse dates
+            start_date = date.fromisoformat(args["start_date"])
+            end_date = date.fromisoformat(args["end_date"])
+
+            # Map index type
+            index_str = args.get("index_type", "ndvi").upper()
+            index_type = VegetationIndex[index_str] if index_str in VegetationIndex.__members__ else VegetationIndex.NDVI
+
+            result = await provider.analyze_time_series(
+                field_id=args["field_id"],
+                start_date=start_date,
+                end_date=end_date,
+                index_type=index_type,
+            )
+
+            if result.time_series:
+                return {
+                    "field_id": args["field_id"],
+                    "analysis": result.time_series.to_dict(),
+                    "confidence": result.confidence,
+                    "sources": result.sources[:3],
+                }
+
+            return {"error": "No time series data available"}
+
+        except ImportError:
+            return {"error": "GEE provider not available"}
+        except Exception as e:
+            logger.error("ndvi_time_series_error", error=str(e))
+            return {"error": str(e)}
+
+    async def _handle_change_detection(self, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle change detection between dates"""
+        from datetime import date
+
+        try:
+            from .providers.gee_provider import GEERAGProvider
+
+            provider = GEERAGProvider()
+
+            # Parse dates
+            date1 = date.fromisoformat(args["date1"])
+            date2 = date.fromisoformat(args["date2"])
+
+            result = await provider.detect_changes(
+                field_id=args["field_id"],
+                date1=date1,
+                date2=date2,
+                ndvi1=args.get("ndvi1"),
+                ndvi2=args.get("ndvi2"),
+            )
+
+            if result.change_detection:
+                return {
+                    "field_id": args["field_id"],
+                    "change": result.change_detection.to_dict(),
+                    "confidence": result.confidence,
+                    "sources": result.sources[:3],
+                }
+
+            return {"error": "No change detection result"}
+
+        except ImportError:
+            return {"error": "GEE provider not available"}
+        except Exception as e:
+            logger.error("change_detection_error", error=str(e))
+            return {"error": str(e)}
+
+    async def _handle_land_cover(self, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle land cover classification"""
+        from datetime import date
+
+        try:
+            from .providers.gee_provider import GEERAGProvider
+
+            provider = GEERAGProvider()
+
+            # Parse date or use today
+            analysis_date = date.today()
+            if "analysis_date" in args and args["analysis_date"]:
+                analysis_date = date.fromisoformat(args["analysis_date"])
+
+            result = await provider.classify_land_cover(
+                field_id=args["field_id"],
+                analysis_date=analysis_date,
+                ndvi=args.get("ndvi"),
+                ndwi=args.get("ndwi"),
+            )
+
+            if result.land_cover:
+                return {
+                    "field_id": args["field_id"],
+                    "classification": result.land_cover.to_dict(),
+                    "confidence": result.confidence,
+                    "sources": result.sources[:3],
+                }
+
+            return {"error": "No land cover classification result"}
+
+        except ImportError:
+            return {"error": "GEE provider not available"}
+        except Exception as e:
+            logger.error("land_cover_error", error=str(e))
+            return {"error": str(e)}
+
+    async def _handle_satellite_query(self, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle general satellite query"""
+        try:
+            from .providers.gee_provider import GEERAGProvider
+
+            provider = GEERAGProvider()
+
+            result = await provider.general_query(
+                query=args["query"],
+            )
+
+            return {
+                "query": args["query"],
+                "related_entities": result.related_entities,
+                "sources": result.sources[:5],
+                "confidence": result.confidence,
+            }
+
+        except ImportError:
+            return {"error": "GEE provider not available"}
+        except Exception as e:
+            logger.error("satellite_query_error", error=str(e))
+            return {"error": str(e)}
 
 
 def register_rag_tools(mcp_server: Any, rag_tools: RAGMCPTools):

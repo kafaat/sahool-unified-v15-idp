@@ -9,7 +9,6 @@
 # - yield-predictor-agent: Yield prediction
 # ═══════════════════════════════════════════════════════════════════════════════
 
-import asyncio
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
@@ -18,7 +17,6 @@ import structlog
 from ..models import (
     EntityType,
     RelationType,
-    KnowledgeChunk,
     RetrievalStrategy,
     TriRAGConfig,
 )

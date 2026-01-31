@@ -32,7 +32,12 @@ sahool-unified-v15-idp/
 │   │   ├── sahool_field_app/   # Main field app
 │   │   ├── lib/                # Core Flutter code
 │   │   └── integration_test/   # Integration tests
-│   ├── services/               # 57+ microservices (Python FastAPI & Node.js NestJS)
+│   ├── services/               # 62+ microservices (Python FastAPI & Node.js NestJS)
+│   │   ├── yolo26-vision-service/      # YOLO26 computer vision
+│   │   ├── terrain-core-service/       # DEM processing & terrain analysis
+│   │   ├── hydrology-service/          # Hydrology & drainage analysis
+│   │   ├── leveling-optimizer-service/ # Field leveling optimization
+│   │   ├── edge-orchestrator-service/  # Edge device management (Jetson Orin)
 │   └── web/                    # Web dashboard (Next.js/React)
 ├── packages/                   # Shared packages (npm workspaces)
 │   ├── shared-utils/           # Common utilities
@@ -165,9 +170,9 @@ The platform uses a 4-layer event architecture via NATS:
 
 | Layer            | Services                                                                              | Purpose                        |
 | ---------------- | ------------------------------------------------------------------------------------- | ------------------------------ |
-| **Acquisition**  | satellite-service, iot-service, weather-service, virtual-sensors, iot-gateway         | Data ingestion & normalization |
-| **Intelligence** | indicators-service, lai-estimation, crop-intelligence-service, vegetation-analysis-service, ndvi-processor, field-intelligence, skills-service | Feature extraction & AI        |
-| **Decision**     | crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, agro-advisor | Recommendations & planning     |
+| **Acquisition**  | satellite-service, iot-service, weather-service, virtual-sensors, iot-gateway, edge-orchestrator-service | Data ingestion & normalization |
+| **Intelligence** | indicators-service, lai-estimation, crop-intelligence-service, vegetation-analysis-service, ndvi-processor, field-intelligence, skills-service, yolo26-vision-service, terrain-core-service | Feature extraction & AI        |
+| **Decision**     | crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, agro-advisor, hydrology-service, leveling-optimizer-service | Recommendations & planning     |
 | **Business**     | notification-service, marketplace-service, billing-core, community-chat, task-service, equipment-service, ws-gateway | User-facing operations         |
 
 Event subject pattern: `sahool.{tenant_id}.{event_type}`
@@ -185,6 +190,9 @@ make dev-starter           # Starter package only
 make dev-professional      # Professional package
 make dev-enterprise        # All enterprise services
 make infra-up              # Infrastructure only (postgres, redis, nats, kong)
+make dev-vision            # Start vision services (yolo26-vision-service)
+make dev-terrain           # Start terrain services (terrain-core, hydrology, leveling)
+make dev-edge              # Start edge orchestrator service
 
 # Build
 make build                 # Build all Docker images (parallel)
@@ -229,6 +237,11 @@ npm run test:coverage     # With coverage
 
 # Docker tests
 make test-docker          # Run tests in Docker containers
+
+# Vision & Terrain tests
+make test-vision          # Run vision service tests
+make test-terrain         # Run terrain service tests
+make test-edge            # Run edge orchestrator tests
 
 # Flutter tests
 flutter test              # Unit tests
@@ -531,6 +544,40 @@ GET /metrics         # Prometheus metrics
 /api/v2/[resource]   # New version (if applicable)
 ```
 
+### Service API Routes
+
+```
+# Vision Services
+/api/v1/vision/*              # Vision detection endpoints (pest, disease, weed)
+/api/v1/vision/detect         # Image detection
+/api/v1/vision/batch          # Batch image processing
+/api/v1/vision/models         # Model management
+
+# Terrain Services
+/api/v1/terrain/*             # Terrain analysis endpoints
+/api/v1/terrain/dem           # DEM processing
+/api/v1/terrain/slope         # Slope analysis
+/api/v1/terrain/aspect        # Aspect analysis
+
+# Hydrology Services
+/api/v1/hydrology/*           # Hydrology analysis endpoints
+/api/v1/hydrology/drainage    # Drainage analysis
+/api/v1/hydrology/watershed   # Watershed delineation
+/api/v1/hydrology/flow        # Flow accumulation
+
+# Leveling Services
+/api/v1/leveling/*            # Field leveling endpoints
+/api/v1/leveling/optimize     # Leveling optimization
+/api/v1/leveling/cut-fill     # Cut/fill calculations
+/api/v1/leveling/cost         # Cost estimation
+
+# Edge Device Services
+/api/v1/edge/*                # Edge device management endpoints
+/api/v1/edge/devices          # Device registration & status
+/api/v1/edge/deploy           # Model deployment to edge
+/api/v1/edge/sync             # Data synchronization
+```
+
 ### Rate Limiting Tiers
 
 | Tier     | Requests/min | Requests/hour |
@@ -769,6 +816,16 @@ This service has been migrated to [new-service]
 | globalgap-compliance  | Python  | 8120 | GlobalGAP compliance     |
 | audit-service         | Python  | 8122 | Audit logging            |
 | traceability-service  | Python  | 8123 | Product traceability     |
+
+### Vision, Terrain & Edge Services (New)
+
+| Service                    | Type   | Port | Description                                        |
+| -------------------------- | ------ | ---- | -------------------------------------------------- |
+| yolo26-vision-service      | Python | 8150 | YOLO26 computer vision for pest/disease/weed detection |
+| terrain-core-service       | Python | 8160 | DEM processing and terrain analysis                |
+| hydrology-service          | Python | 8165 | Hydrology and drainage analysis                    |
+| leveling-optimizer-service | Python | 8170 | Field leveling optimization                        |
+| edge-orchestrator-service  | Python | 8180 | Edge device management (Jetson Orin)               |
 
 ---
 

@@ -1,0 +1,57 @@
+# SAHOOL Terrain Core Service ArgoCD Application
+# ===============================================
+# Digital Elevation Model (DEM) processing for terrain analysis
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: terrain-core-service
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: terrain-core-service
+    app.kubernetes.io/part-of: sahool
+    app.kubernetes.io/component: terrain
+    sahool.io/layer: intelligence
+    sahool.io/tier: geospatial
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: sahool-deployments
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: sahool-services
+  source:
+    repoURL: https://github.com/kafaat/sahool-unified-v15-idp
+    targetRevision: HEAD
+    path: helm/services/terrain-core-service
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-staging.yaml
+      parameters:
+        - name: environment
+          value: staging
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sahool-intelligence
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas

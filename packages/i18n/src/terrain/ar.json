@@ -1,0 +1,54 @@
+{
+  "terrain": {
+    "title": "تحليل التضاريس",
+    "slope": "انحدار",
+    "slope_description": "زاوية ميل الأرض",
+    "aspect": "اتجاه السطح",
+    "aspect_description": "اتجاه توجه السطح",
+    "elevation": "ارتفاع",
+    "elevation_description": "الارتفاع عن سطح البحر",
+    "flow_direction": "اتجاه التدفق",
+    "flow_direction_description": "مسار حركة المياه",
+    "drainage": "صرف",
+    "drainage_description": "قدرة تصريف المياه",
+    "leveling": "تسوية",
+    "leveling_description": "ضبط استواء السطح",
+    "cut_fill": "قطع وردم",
+    "cut_fill_description": "حساب حجم أعمال الحفر",
+    "contour": "خط الكنتور",
+    "contour_lines": "خطوط الكنتور",
+    "watershed": "مستجمع المياه",
+    "basin": "حوض",
+    "ridge": "سلسلة جبلية",
+    "valley": "وادي",
+    "flat": "مستوي",
+    "gentle": "انحدار خفيف",
+    "moderate": "انحدار متوسط",
+    "steep": "انحدار شديد",
+    "very_steep": "انحدار شديد جداً",
+    "units": {
+      "meters": "متر",
+      "feet": "قدم",
+      "degrees": "درجة",
+      "percent": "نسبة مئوية",
+      "cubic_meters": "متر مكعب"
+    },
+    "directions": {
+      "north": "شمال",
+      "northeast": "شمال شرق",
+      "east": "شرق",
+      "southeast": "جنوب شرق",
+      "south": "جنوب",
+      "southwest": "جنوب غرب",
+      "west": "غرب",
+      "northwest": "شمال غرب"
+    },
+    "drainage_classes": {
+      "excellent": "صرف ممتاز",
+      "good": "صرف جيد",
+      "moderate": "صرف متوسط",
+      "poor": "صرف ضعيف",
+      "very_poor": "صرف ضعيف جداً"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{{- if .Values.storage.demData.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "terrain-core-service.fullname" . }}-dem-data
+  labels:
+    {{- include "terrain-core-service.labels" . | nindent 4 }}
+    app.kubernetes.io/component: dem-storage
+spec:
+  accessModes:
+    - {{ .Values.storage.demData.accessMode }}
+  {{- if .Values.storage.demData.storageClass }}
+  storageClassName: {{ .Values.storage.demData.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.demData.size }}
+{{- end }}
+---
+{{- if .Values.storage.tileCache.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "terrain-core-service.fullname" . }}-tile-cache
+  labels:
+    {{- include "terrain-core-service.labels" . | nindent 4 }}
+    app.kubernetes.io/component: tile-cache
+spec:
+  accessModes:
+    - {{ .Values.storage.tileCache.accessMode }}
+  {{- if .Values.storage.tileCache.storageClass }}
+  storageClassName: {{ .Values.storage.tileCache.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.tileCache.size }}
+{{- end }}

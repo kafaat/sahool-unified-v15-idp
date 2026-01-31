@@ -834,6 +834,165 @@ upstreams:
           http_statuses: [500, 502, 503, 504]
           tcp_failures: 3
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW UPSTREAMS - Intelligence & Edge Services (Added 2026-01-31)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # ============================================================================
+  # Vision Service - YOLOv26 AI Vision
+  # خدمة الرؤية الاصطناعية
+  # ============================================================================
+  - name: yolo26-vision-upstream
+    algorithm: round-robin
+    slots: 10000
+    targets:
+      - target: yolo26-vision-service:8150
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+        healthy:
+          interval: 5
+          successes: 2
+          http_statuses: [200, 201, 204]
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          tcp_failures: 3
+          timeouts: 3
+          http_statuses: [500, 502, 503, 504]
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204]
+        unhealthy:
+          http_statuses: [500, 502, 503, 504]
+          tcp_failures: 3
+
+  # ============================================================================
+  # Terrain Service - Terrain Analysis
+  # خدمة تحليل التضاريس
+  # ============================================================================
+  - name: terrain-core-upstream
+    algorithm: round-robin
+    slots: 10000
+    targets:
+      - target: terrain-core-service:8160
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+        healthy:
+          interval: 5
+          successes: 2
+          http_statuses: [200, 201, 204]
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          tcp_failures: 3
+          timeouts: 3
+          http_statuses: [500, 502, 503, 504]
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204]
+        unhealthy:
+          http_statuses: [500, 502, 503, 504]
+          tcp_failures: 3
+
+  # ============================================================================
+  # Hydrology Service - Hydrology Analysis
+  # خدمة تحليل الهيدرولوجيا
+  # ============================================================================
+  - name: hydrology-upstream
+    algorithm: round-robin
+    slots: 10000
+    targets:
+      - target: hydrology-service:8165
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+        healthy:
+          interval: 5
+          successes: 2
+          http_statuses: [200, 201, 204]
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          tcp_failures: 3
+          timeouts: 3
+          http_statuses: [500, 502, 503, 504]
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204]
+        unhealthy:
+          http_statuses: [500, 502, 503, 504]
+          tcp_failures: 3
+
+  # ============================================================================
+  # Leveling Service - Land Leveling Optimizer
+  # خدمة تحسين تسوية الأراضي
+  # ============================================================================
+  - name: leveling-optimizer-upstream
+    algorithm: round-robin
+    slots: 10000
+    targets:
+      - target: leveling-optimizer-service:8170
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+        healthy:
+          interval: 5
+          successes: 2
+          http_statuses: [200, 201, 204]
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          tcp_failures: 3
+          timeouts: 3
+          http_statuses: [500, 502, 503, 504]
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204]
+        unhealthy:
+          http_statuses: [500, 502, 503, 504]
+          tcp_failures: 3
+
+  # ============================================================================
+  # Edge Orchestrator - Edge Computing Management
+  # خدمة تنسيق الحافة
+  # ============================================================================
+  - name: edge-orchestrator-upstream
+    algorithm: round-robin
+    slots: 10000
+    targets:
+      - target: edge-orchestrator-service:8180
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+        healthy:
+          interval: 5
+          successes: 2
+          http_statuses: [200, 201, 204]
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          tcp_failures: 3
+          timeouts: 3
+          http_statuses: [500, 502, 503, 504]
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204]
+        unhealthy:
+          http_statuses: [500, 502, 503, 504]
+          tcp_failures: 3
+
 # ============================================================================
 # الخدمات الأساسية - Starter Package Services
 # للمزارعين الصغار وملاك الأراضي الجدد
@@ -2561,6 +2720,342 @@ services:
             - 10.0.0.0/8
             - 172.16.0.0/12
             - 192.168.0.0/16
+
+  # ==============================================================================
+  # New Intelligence & Edge Services - Added 2026-01-31
+  # خدمات الذكاء والحافة الجديدة
+  # ==============================================================================
+
+  # ============================================================================
+  # Vision API - YOLOv26 AI Vision Service
+  # خدمة الرؤية الاصطناعية - كشف الآفات والأمراض والأعشاب
+  # Rate limit: 60 req/min (Premium tier)
+  # ============================================================================
+  - name: yolo26-vision-service
+    host: yolo26-vision-upstream
+    tags:
+      - professional
+      - ai
+      - vision
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: vision-detect-pest-route
+        paths:
+          - /api/v1/vision/detect/pest
+        strip_path: false
+        methods:
+          - POST
+      - name: vision-detect-disease-route
+        paths:
+          - /api/v1/vision/detect/disease
+        strip_path: false
+        methods:
+          - POST
+      - name: vision-detect-weed-route
+        paths:
+          - /api/v1/vision/detect/weed
+        strip_path: false
+        methods:
+          - POST
+      - name: vision-count-plants-route
+        paths:
+          - /api/v1/vision/count/plants
+        strip_path: false
+        methods:
+          - POST
+      - name: vision-classify-ripeness-route
+        paths:
+          - /api/v1/vision/classify/ripeness
+        strip_path: false
+        methods:
+          - POST
+      - name: vision-segment-leaf-route
+        paths:
+          - /api/v1/vision/segment/leaf
+        strip_path: false
+        methods:
+          - POST
+      - name: vision-base-route
+        paths:
+          - /api/v1/vision
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 3000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 25
+          size_unit: megabytes
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Service: yolo26-vision-service"
+              - "X-Rate-Limit-Tier: premium"
+
+  # ============================================================================
+  # Terrain API - Terrain Analysis Service
+  # خدمة تحليل التضاريس - الميل والتدفق ومؤشر الرطوبة
+  # Rate limit: 30 req/min
+  # ============================================================================
+  - name: terrain-core-service
+    host: terrain-core-upstream
+    tags:
+      - professional
+      - terrain
+      - analysis
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: terrain-analyze-route
+        paths:
+          - /api/v1/terrain/analyze
+        strip_path: false
+        methods:
+          - POST
+      - name: terrain-slope-route
+        paths:
+          - /api/v1/terrain/slope
+        strip_path: false
+        methods:
+          - GET
+      - name: terrain-flow-route
+        paths:
+          - /api/v1/terrain/flow
+        strip_path: false
+        methods:
+          - GET
+      - name: terrain-twi-route
+        paths:
+          - /api/v1/terrain/twi
+        strip_path: false
+        methods:
+          - GET
+      - name: terrain-base-route
+        paths:
+          - /api/v1/terrain
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1500
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Service: terrain-core-service"
+
+  # ============================================================================
+  # Hydrology API - Hydrology Analysis Service
+  # خدمة تحليل الهيدرولوجيا - الصرف والتدفق المائي
+  # Rate limit: 30 req/min
+  # ============================================================================
+  - name: hydrology-service
+    host: hydrology-upstream
+    tags:
+      - professional
+      - hydrology
+      - analysis
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: hydrology-analyze-route
+        paths:
+          - /api/v1/hydrology/analyze
+        strip_path: false
+        methods:
+          - POST
+      - name: hydrology-drainage-route
+        paths:
+          - /api/v1/hydrology/drainage
+        strip_path: false
+        methods:
+          - GET
+      - name: hydrology-base-route
+        paths:
+          - /api/v1/hydrology
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1500
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Service: hydrology-service"
+
+  # ============================================================================
+  # Leveling API - Land Leveling Optimizer Service
+  # خدمة تحسين تسوية الأراضي - تحليل وتخطيط التسوية
+  # Rate limit: 30 req/min
+  # ============================================================================
+  - name: leveling-optimizer-service
+    host: leveling-optimizer-upstream
+    tags:
+      - professional
+      - leveling
+      - optimization
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: leveling-analyze-route
+        paths:
+          - /api/v1/leveling/analyze
+        strip_path: false
+        methods:
+          - POST
+      - name: leveling-plan-route
+        paths:
+          - /api/v1/leveling/plan
+        strip_path: false
+        methods:
+          - GET
+      - name: leveling-base-route
+        paths:
+          - /api/v1/leveling
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1500
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Service: leveling-optimizer-service"
+
+  # ============================================================================
+  # Edge API - Edge Orchestrator Service
+  # خدمة تنسيق الحافة - إدارة الأجهزة والمهام الطرفية
+  # Rate limit: 60 req/min
+  # ============================================================================
+  - name: edge-orchestrator-service
+    host: edge-orchestrator-upstream
+    tags:
+      - professional
+      - edge
+      - orchestration
+    connect_timeout: 10000
+    write_timeout: 30000
+    read_timeout: 30000
+    routes:
+      - name: edge-devices-route
+        paths:
+          - /api/v1/edge/devices
+        strip_path: false
+        methods:
+          - GET
+      - name: edge-jobs-route
+        paths:
+          - /api/v1/edge/jobs
+        strip_path: false
+        methods:
+          - POST
+      - name: edge-base-route
+        paths:
+          - /api/v1/edge
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 3000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Service: edge-orchestrator-service"
 
   # ============================================================================
   # نقاط فحص الصحة - Health Check Endpoints

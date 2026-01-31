@@ -1,0 +1,19 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: sahool-new-services-catalog
+  description: Catalog entries for new SAHOOL services (YOLO26 Vision, Terrain Core, Hydrology, Leveling Optimizer, Edge Orchestrator)
+spec:
+  targets:
+    # Service Components
+    - ./yolo26-vision-service.yaml
+    - ./terrain-core-service.yaml
+    - ./hydrology-service.yaml
+    - ./leveling-optimizer-service.yaml
+    - ./edge-orchestrator-service.yaml
+    # API Definitions
+    - ./apis/yolo26-vision-api.yaml
+    - ./apis/terrain-core-api.yaml
+    - ./apis/hydrology-api.yaml
+    - ./apis/leveling-optimizer-api.yaml
+    - ./apis/edge-orchestrator-api.yaml

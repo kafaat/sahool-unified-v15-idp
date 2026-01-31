@@ -1,0 +1,30 @@
+{
+  "vision": {
+    "title": "تحليل الرؤية",
+    "pest_detection": "كشف الآفات",
+    "disease_detection": "كشف الأمراض",
+    "weed_detection": "كشف الأعشاب الضارة",
+    "plant_counting": "عد النباتات",
+    "ripeness": "تصنيف النضج",
+    "confidence": "نسبة الثقة",
+    "detected": "تم الكشف",
+    "no_detections": "لم يتم العثور على كشوفات",
+    "pests": {
+      "locust": "جراد",
+      "aphid": "مَن",
+      "whitefly": "ذبابة بيضاء",
+      "thrips": "تربس",
+      "mites": "عناكب",
+      "bollworm": "دودة اللوز",
+      "armyworm": "دودة الجيش"
+    },
+    "diseases": {
+      "rust": "صدأ",
+      "powdery_mildew": "البياض الدقيقي",
+      "blight": "اللفحة",
+      "leaf_spot": "تبقع الأوراق",
+      "wilt": "الذبول",
+      "root_rot": "عفن الجذور"
+    }
+  }
+}

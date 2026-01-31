@@ -765,5 +765,90 @@ watch: ## مراقبة تلقائية للسجلات - Watch logs continuously
 	watch -n 2 'docker compose -f $(COMPOSE_BASE) ps'
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# YOLO26 Vision Service - خدمة الرؤية YOLO26
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: dev-vision build-vision test-vision logs-vision
+
+dev-vision: ## تشغيل خدمة الرؤية YOLO26 - Start YOLO26 vision service
+	@echo "$(GREEN)👁️  تشغيل خدمة الرؤية - Starting YOLO26 vision service...$(RESET)"
+	docker compose up -d yolo26-vision-service
+	@echo "$(GREEN)✅ خدمة الرؤية جاهزة - Vision service ready!$(RESET)"
+
+build-vision: ## بناء صورة خدمة الرؤية - Build YOLO26 vision service image
+	@echo "$(YELLOW)🔨 بناء خدمة الرؤية - Building vision service...$(RESET)"
+	docker compose build yolo26-vision-service
+	@echo "$(GREEN)✅ بناء خدمة الرؤية مكتمل - Vision service built!$(RESET)"
+
+test-vision: ## تشغيل اختبارات خدمة الرؤية - Run vision service tests
+	@echo "$(BLUE)🧪 تشغيل اختبارات الرؤية - Running vision service tests...$(RESET)"
+	pytest apps/services/yolo26-vision-service/tests -v
+	@echo "$(GREEN)✅ اختبارات الرؤية مكتملة - Vision tests complete!$(RESET)"
+
+logs-vision: ## عرض سجلات خدمة الرؤية - View vision service logs
+	@echo "$(BLUE)📋 سجلات خدمة الرؤية - Vision service logs:$(RESET)"
+	docker compose logs -f yolo26-vision-service
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Terrain Services - خدمات التضاريس
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: dev-terrain build-terrain test-terrain
+
+dev-terrain: ## تشغيل خدمات تحليل التضاريس - Start terrain analysis services
+	@echo "$(GREEN)🏔️  تشغيل خدمات التضاريس - Starting terrain services...$(RESET)"
+	docker compose up -d terrain-core-service hydrology-service leveling-optimizer-service
+	@echo "$(GREEN)✅ خدمات التضاريس جاهزة - Terrain services ready!$(RESET)"
+	@echo "$(BLUE)Services: terrain-core, hydrology, leveling-optimizer$(RESET)"
+
+build-terrain: ## بناء صور خدمات التضاريس - Build terrain services images
+	@echo "$(YELLOW)🔨 بناء خدمات التضاريس - Building terrain services...$(RESET)"
+	docker compose build terrain-core-service hydrology-service leveling-optimizer-service
+	@echo "$(GREEN)✅ بناء خدمات التضاريس مكتمل - Terrain services built!$(RESET)"
+
+test-terrain: ## تشغيل اختبارات خدمات التضاريس - Run terrain services tests
+	@echo "$(BLUE)🧪 تشغيل اختبارات التضاريس - Running terrain services tests...$(RESET)"
+	pytest apps/services/terrain-core-service/tests -v
+	pytest apps/services/hydrology-service/tests -v
+	pytest apps/services/leveling-optimizer-service/tests -v
+	@echo "$(GREEN)✅ اختبارات التضاريس مكتملة - Terrain tests complete!$(RESET)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Edge Orchestrator - منسق الحافة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: dev-edge build-edge test-edge
+
+dev-edge: ## تشغيل خدمة منسق الحافة - Start edge orchestrator service
+	@echo "$(GREEN)🌐 تشغيل منسق الحافة - Starting edge orchestrator...$(RESET)"
+	docker compose up -d edge-orchestrator-service
+	@echo "$(GREEN)✅ منسق الحافة جاهز - Edge orchestrator ready!$(RESET)"
+
+build-edge: ## بناء صورة منسق الحافة - Build edge orchestrator image
+	@echo "$(YELLOW)🔨 بناء منسق الحافة - Building edge orchestrator...$(RESET)"
+	docker compose build edge-orchestrator-service
+	@echo "$(GREEN)✅ بناء منسق الحافة مكتمل - Edge orchestrator built!$(RESET)"
+
+test-edge: ## تشغيل اختبارات منسق الحافة - Run edge orchestrator tests
+	@echo "$(BLUE)🧪 تشغيل اختبارات الحافة - Running edge orchestrator tests...$(RESET)"
+	pytest apps/services/edge-orchestrator-service/tests -v
+	@echo "$(GREEN)✅ اختبارات الحافة مكتملة - Edge tests complete!$(RESET)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Integration Services (All New) - خدمات التكامل الجديدة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: dev-integration build-integration test-integration-services
+
+dev-integration: dev-vision dev-terrain dev-edge ## تشغيل جميع خدمات التكامل الجديدة - Start all new integration services
+	@echo "$(GREEN)✅ جميع خدمات التكامل جاهزة - All integration services ready!$(RESET)"
+
+build-integration: build-vision build-terrain build-edge ## بناء جميع خدمات التكامل الجديدة - Build all new integration services
+	@echo "$(GREEN)✅ بناء جميع خدمات التكامل مكتمل - All integration services built!$(RESET)"
+
+test-integration-services: test-vision test-terrain test-edge ## اختبار جميع خدمات التكامل الجديدة - Test all new integration services
+	@echo "$(GREEN)✅ اختبارات جميع خدمات التكامل مكتملة - All integration service tests complete!$(RESET)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # End of Makefile - نهاية الملف
 # ═══════════════════════════════════════════════════════════════════════════════

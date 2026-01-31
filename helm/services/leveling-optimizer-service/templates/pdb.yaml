@@ -1,0 +1,13 @@
+{{- if .Values.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "leveling-optimizer-service.fullname" . }}
+  labels:
+    {{- include "leveling-optimizer-service.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "leveling-optimizer-service.selectorLabels" . | nindent 6 }}
+{{- end }}

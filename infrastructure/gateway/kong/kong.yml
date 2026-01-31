@@ -824,6 +824,336 @@ services:
           status_code: 200
           message: "SAHOOL Platform is healthy"
 
+# ==============================================================================
+# New Intelligence & Edge Services - Added 2026-01-31
+# خدمات الذكاء والحافة الجديدة
+# ==============================================================================
+
+  # -----------------------------
+  # Vision API - YOLOv26 AI Vision Service
+  # خدمة الرؤية الاصطناعية - كشف الآفات والأمراض والأعشاب
+  # Rate limit: 60 req/min (Premium tier)
+  # -----------------------------
+  - name: yolo26-vision-service
+    host: yolo26-vision-service
+    port: 8150
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: vision-detect-pest-route
+        paths: ["/api/v1/vision/detect/pest"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["POST"]
+      - name: vision-detect-disease-route
+        paths: ["/api/v1/vision/detect/disease"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["POST"]
+      - name: vision-detect-weed-route
+        paths: ["/api/v1/vision/detect/weed"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["POST"]
+      - name: vision-count-plants-route
+        paths: ["/api/v1/vision/count/plants"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["POST"]
+      - name: vision-classify-ripeness-route
+        paths: ["/api/v1/vision/classify/ripeness"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["POST"]
+      - name: vision-segment-leaf-route
+        paths: ["/api/v1/vision/segment/leaf"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["POST"]
+      - name: vision-base-route
+        paths: ["/api/v1/vision"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 3000
+          policy: local
+          fault_tolerant: true
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 25
+          size_unit: megabytes
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Service: yolo26-vision-service"
+              - "X-Rate-Limit-Tier: premium"
+      - name: http-log
+        config:
+          http_endpoint: http://logging-service:8080/logs
+          method: POST
+          timeout: 1000
+          keepalive: 1000
+          flush_timeout: 2
+          retry_count: 3
+          content_type: application/json
+
+  # -----------------------------
+  # Terrain API - Terrain Analysis Service
+  # خدمة تحليل التضاريس - الميل والتدفق ومؤشر الرطوبة
+  # Rate limit: 30 req/min
+  # -----------------------------
+  - name: terrain-core-service
+    host: terrain-core-service
+    port: 8160
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: terrain-analyze-route
+        paths: ["/api/v1/terrain/analyze"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["POST"]
+      - name: terrain-slope-route
+        paths: ["/api/v1/terrain/slope"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["GET"]
+      - name: terrain-flow-route
+        paths: ["/api/v1/terrain/flow"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["GET"]
+      - name: terrain-twi-route
+        paths: ["/api/v1/terrain/twi"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["GET"]
+      - name: terrain-base-route
+        paths: ["/api/v1/terrain"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1500
+          policy: local
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Service: terrain-core-service"
+      - name: http-log
+        config:
+          http_endpoint: http://logging-service:8080/logs
+          method: POST
+          timeout: 1000
+          keepalive: 1000
+          flush_timeout: 2
+          retry_count: 3
+          content_type: application/json
+
+  # -----------------------------
+  # Hydrology API - Hydrology Analysis Service
+  # خدمة تحليل الهيدرولوجيا - الصرف والتدفق المائي
+  # Rate limit: 30 req/min
+  # -----------------------------
+  - name: hydrology-service
+    host: hydrology-service
+    port: 8165
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: hydrology-analyze-route
+        paths: ["/api/v1/hydrology/analyze"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["POST"]
+      - name: hydrology-drainage-route
+        paths: ["/api/v1/hydrology/drainage"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["GET"]
+      - name: hydrology-base-route
+        paths: ["/api/v1/hydrology"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1500
+          policy: local
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Service: hydrology-service"
+      - name: http-log
+        config:
+          http_endpoint: http://logging-service:8080/logs
+          method: POST
+          timeout: 1000
+          keepalive: 1000
+          flush_timeout: 2
+          retry_count: 3
+          content_type: application/json
+
+  # -----------------------------
+  # Leveling API - Land Leveling Optimizer Service
+  # خدمة تحسين تسوية الأراضي - تحليل وتخطيط التسوية
+  # Rate limit: 30 req/min
+  # -----------------------------
+  - name: leveling-optimizer-service
+    host: leveling-optimizer-service
+    port: 8170
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: leveling-analyze-route
+        paths: ["/api/v1/leveling/analyze"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["POST"]
+      - name: leveling-plan-route
+        paths: ["/api/v1/leveling/plan"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["GET"]
+      - name: leveling-base-route
+        paths: ["/api/v1/leveling"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1500
+          policy: local
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Service: leveling-optimizer-service"
+      - name: http-log
+        config:
+          http_endpoint: http://logging-service:8080/logs
+          method: POST
+          timeout: 1000
+          keepalive: 1000
+          flush_timeout: 2
+          retry_count: 3
+          content_type: application/json
+
+  # -----------------------------
+  # Edge API - Edge Orchestrator Service
+  # خدمة تنسيق الحافة - إدارة الأجهزة والمهام الطرفية
+  # Rate limit: 60 req/min
+  # -----------------------------
+  - name: edge-orchestrator-service
+    host: edge-orchestrator-service
+    port: 8180
+    protocol: http
+    connect_timeout: 10000
+    write_timeout: 30000
+    read_timeout: 30000
+    routes:
+      - name: edge-devices-route
+        paths: ["/api/v1/edge/devices"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["GET"]
+      - name: edge-jobs-route
+        paths: ["/api/v1/edge/jobs"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["POST"]
+      - name: edge-base-route
+        paths: ["/api/v1/edge"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 3000
+          policy: local
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Service: edge-orchestrator-service"
+      - name: http-log
+        config:
+          http_endpoint: http://logging-service:8080/logs
+          method: POST
+          timeout: 1000
+          keepalive: 1000
+          flush_timeout: 2
+          retry_count: 3
+          content_type: application/json
+
 # ------------------------------------------------------------------------------
 # Intentionally NOT added to Kong (non-HTTP APIs / internal infra / workers)
 # - postgres, pgbouncer, redis, nats, nats-prometheus-exporter, mqtt, qdrant
@@ -840,6 +1170,6 @@ services:
 # - crop-health-ai → use crop-intelligence-service
 # - fertilizer-advisor → use advisory-service
 #
-# Last updated: 2026-01-23
-# Total services configured: 62 (added yield-engine, ai-agents-service, field-core, + 4 deprecated)
+# Last updated: 2026-01-31
+# Total services configured: 67 (added 5 new services: yolo26-vision, terrain-core, hydrology, leveling-optimizer, edge-orchestrator)
 # ------------------------------------------------------------------------------

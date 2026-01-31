@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "leveling-optimizer-service.fullname" . }}-config
+  labels:
+    {{- include "leveling-optimizer-service.labels" . | nindent 4 }}
+data:
+  SERVICE_NAME: "leveling-optimizer-service"
+  SERVICE_VERSION: {{ .Chart.AppVersion | quote }}
+  LOG_LEVEL: {{ .Values.env.LOG_LEVEL | default "INFO" | quote }}
+  LOG_FORMAT: "json"
+
+  # Optimization Configuration
+  OPTIMIZATION_ALGORITHM: {{ .Values.env.OPTIMIZATION_ALGORITHM | default "genetic" | quote }}
+  MAX_ITERATIONS: {{ .Values.env.MAX_ITERATIONS | default "1000" | quote }}
+  POPULATION_SIZE: {{ .Values.env.POPULATION_SIZE | default "100" | quote }}
+  GRID_RESOLUTION_M: {{ .Values.env.GRID_RESOLUTION_M | default "5" | quote }}
+  TARGET_SLOPE_PERCENT: {{ .Values.env.TARGET_SLOPE_PERCENT | default "0.1" | quote }}
+
+  # Infrastructure
+  {{- if .Values.nats.url }}
+  NATS_URL: {{ .Values.nats.url | quote }}
+  {{- else }}
+  NATS_URL: "nats://nats:4222"
+  {{- end }}
+
+  {{- if .Values.redis.url }}
+  REDIS_URL: {{ .Values.redis.url | quote }}
+  {{- else }}
+  REDIS_URL: "redis://redis:6379"
+  {{- end }}
+
+  # Feature Flags
+  ENABLE_METRICS: "true"
+  ENABLE_TRACING: "false"
+  METRICS_PORT: "8170"

@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: edge-orchestrator-api
+  description: Edge Orchestrator API for managing edge computing nodes, IoT device synchronization, and offline-first data management
+  tags:
+    - openapi
+    - edge-computing
+    - iot
+    - offline-first
+spec:
+  type: openapi
+  lifecycle: production
+  owner: platform-team
+  definition:
+    $text: ./docs/api/edge-orchestrator-api.yaml

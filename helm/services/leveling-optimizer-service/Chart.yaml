@@ -1,0 +1,15 @@
+apiVersion: v2
+name: leveling-optimizer-service
+description: SAHOOL Leveling Optimizer Service - Field leveling and grading optimization
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - leveling
+  - grading
+  - optimization
+  - field-preparation
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

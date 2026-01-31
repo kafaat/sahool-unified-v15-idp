@@ -2635,7 +2635,7 @@ services:
     health_endpoint: "/healthz"
     status: active
     owner: "ai-team@sahool.io"
-    team: ai
+    team: data
     lifecycle: production
     tier: tier-1
     events:
@@ -2673,7 +2673,7 @@ services:
     health_endpoint: "/healthz"
     status: active
     owner: "gis-team@sahool.io"
-    team: gis
+    team: data
     lifecycle: production
     tier: tier-2
     events:
@@ -2708,7 +2708,7 @@ services:
     health_endpoint: "/healthz"
     status: active
     owner: "gis-team@sahool.io"
-    team: gis
+    team: data
     lifecycle: production
     tier: tier-2
     events:
@@ -2744,7 +2744,7 @@ services:
     health_endpoint: "/healthz"
     status: active
     owner: "gis-team@sahool.io"
-    team: gis
+    team: agro
     lifecycle: production
     tier: tier-2
     events:

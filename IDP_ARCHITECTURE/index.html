@@ -23,7 +23,7 @@
     
     
       
-        <title>SAHOOL IDP Architecture (Microservices + SaaS + HCI) - SAHOOL Developer Documentation</title>
+        <title>SAHOOL Internal Developer Platform (IDP) Architecture - SAHOOL Developer Documentation</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#sahool-idp-architecture-microservices-saas-hci" class="md-skip">
+        <a href="#sahool-internal-developer-platform-idp-architecture" class="md-skip">
           Skip to content
         </a>
       
@@ -106,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              SAHOOL IDP Architecture (Microservices + SaaS + HCI)
+              SAHOOL Internal Developer Platform (IDP) Architecture
             
           </span>
         </div>
@@ -1116,53 +1116,528 @@
 
 
 
-<h1 id="sahool-idp-architecture-microservices-saas-hci">SAHOOL IDP Architecture (Microservices + SaaS + HCI)<a class="headerlink" href="#sahool-idp-architecture-microservices-saas-hci" title="Permanent link">&para;</a></h1>
-<h2 id="goals">Goals<a class="headerlink" href="#goals" title="Permanent link">&para;</a></h2>
+<h1 id="sahool-internal-developer-platform-idp-architecture">SAHOOL Internal Developer Platform (IDP) Architecture<a class="headerlink" href="#sahool-internal-developer-platform-idp-architecture" title="Permanent link">&para;</a></h1>
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>منصة المطورين الداخلية (IDP) لسهول هي نظام متكامل يهدف إلى:
+- تقليل وقت إعداد المطورين الجدد (دقائق بدلاً من أيام)
+- توحيد إنشاء الخدمات (المسارات الذهبية - Golden Paths)
+- فرض معايير الأمان والمراقبة (السياسات + القوالب)
+- الخدمة الذاتية: إنشاء خدمة ← بناء ← نشر إلى dev/staging/prod عبر GitOps</p>
+<hr />
+<h2 id="core-components">المكونات الأساسية | Core Components<a class="headerlink" href="#core-components" title="Permanent link">&para;</a></h2>
+<h3 id="1-backstage-">1. Backstage - بوابة المطورين<a class="headerlink" href="#1-backstage-" title="Permanent link">&para;</a></h3>
+<p><strong>الموقع</strong>: <code>/idp/backstage/</code></p>
+<p>Backstage هو منصة المطورين مفتوحة المصدر من Spotify، نستخدمها لـ:
+- <strong>كتالوج الخدمات</strong>: تسجيل وعرض جميع الخدمات
+- <strong>القوالب</strong>: إنشاء خدمات جديدة بسرعة
+- <strong>الوثائق</strong>: توثيق موحد لجميع الخدمات
+- <strong>المكونات الإضافية</strong>: Kubernetes, GitHub, Prometheus</p>
+<p><strong>التكوين الأساسي</strong> (<code>app-config.yaml</code>):</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">app</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SAHOOL Developer Portal</span>
+<span class="w">  </span><span class="nt">baseUrl</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://localhost:7007</span>
+
+<span class="nt">organization</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SAHOOL</span>
+
+<span class="nt">catalog</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">allow</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">Component</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">System</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">API</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">Resource</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">Location</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">Group</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">User</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">Domain</span><span class="p p-Indicator">]</span>
+
+<span class="nt">integrations</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">github</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">github.com</span>
+<span class="w">      </span><span class="nt">token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${GITHUB_TOKEN}</span>
+
+<span class="nt">kubernetes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">serviceLocatorMethod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">multiTenant</span>
+<span class="w">  </span><span class="nt">clusters</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-dev</span>
+<span class="w">      </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${K8S_CLUSTER_URL}</span>
+<span class="w">      </span><span class="nt">authProvider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">serviceAccount</span>
+</code></pre></div>
+
+<p><strong>الوصول</strong>:</p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>port-forward<span class="w"> </span>-n<span class="w"> </span>backstage<span class="w"> </span>svc/backstage<span class="w"> </span><span class="m">7007</span>:7007
+<span class="c1"># ثم افتح: http://localhost:7007</span>
+</code></pre></div>
+
+<hr />
+<h3 id="2-gitops-argo-cd-">2. GitOps (Argo CD) - التسليم المستمر<a class="headerlink" href="#2-gitops-argo-cd-" title="Permanent link">&para;</a></h3>
+<p><strong>الموقع</strong>: <code>/gitops/argocd/</code></p>
+<p>Argo CD هو أداة GitOps للنشر التصريحي على Kubernetes:
+- <strong>مزامنة تلقائية</strong>: Git هو مصدر الحقيقة الوحيد
+- <strong>التسليم التدريجي</strong>: Canary و Blue-Green deployments
+- <strong>إعادة المزامنة الذاتية</strong>: Self-heal عند التغييرات اليدوية
+- <strong>دعم عناقيد متعددة</strong>: Multi-cluster deployment</p>
+<p><strong>التطبيقات المنشورة</strong>:
+| التطبيق | النوع | الوصف |
+|---------|------|-------|
+| <code>sahool</code> | Application | المنصة الأساسية |
+| <code>cert-manager</code> | Infrastructure | إدارة شهادات TLS |
+| <code>ingress-nginx</code> | Infrastructure | وحدة Ingress |
+| <code>external-secrets</code> | Infrastructure | إدارة الأسرار |
+| <code>argo-rollouts</code> | Infrastructure | التسليم التدريجي |
+| <code>feature-flags</code> | Application | فلاغات الميزات (flagd) |
+| <code>backstage</code> | IDP | بوابة المطورين |</p>
+<p><strong>ApplicationSet للنشر المتعدد</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">argoproj.io/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ApplicationSet</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-multicluster</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">generators</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">clusters</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">sahool/enabled</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">source</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">repoURL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${REPO_URL}</span>
+<span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">k8s/helm/sahool-kernel</span>
+<span class="w">      </span><span class="nt">destination</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">server</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{server}}&#39;</span>
+<span class="w">        </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
+</code></pre></div>
+
+<hr />
+<h3 id="3-argo-rollouts-">3. Argo Rollouts - التسليم التدريجي<a class="headerlink" href="#3-argo-rollouts-" title="Permanent link">&para;</a></h3>
+<p><strong>الإصدار</strong>: 2.35.0</p>
+<p><strong>استراتيجيات النشر المدعومة</strong>:</p>
+<h4 id="canary-deployment">Canary Deployment<a class="headerlink" href="#canary-deployment" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">strategy</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">canary</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pause</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="nv">5m</span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pause</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="nv">10m</span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pause</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="nv">10m</span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">    </span><span class="nt">analysis</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">templates</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">templateName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">success-rate</span>
+<span class="w">      </span><span class="nt">startingStep</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+</code></pre></div>
+
+<h4 id="blue-green-deployment">Blue-Green Deployment<a class="headerlink" href="#blue-green-deployment" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">strategy</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">blueGreen</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">activeService</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-active</span>
+<span class="w">    </span><span class="nt">previewService</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-preview</span>
+<span class="w">    </span><span class="nt">autoPromotionEnabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">autoPromotionSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+<span class="w">    </span><span class="nt">scaleDownDelaySeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+</code></pre></div>
+
+<p><strong>لوحة التحكم</strong>:</p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>port-forward<span class="w"> </span>-n<span class="w"> </span>argo-rollouts<span class="w"> </span>svc/argo-rollouts-dashboard<span class="w"> </span><span class="m">3100</span>:3100
+<span class="c1"># ثم افتح: http://localhost:3100</span>
+</code></pre></div>
+
+<hr />
+<h3 id="4-kyverno-">4. Kyverno - سياسات الحوكمة<a class="headerlink" href="#4-kyverno-" title="Permanent link">&para;</a></h3>
+<p><strong>الموقع</strong>: <code>/governance/policies/kyverno/</code></p>
+<p>Kyverno هو محرك سياسات Kubernetes الأصلي:
+- <strong>التحقق</strong>: Validate resource configurations
+- <strong>التعديل</strong>: Mutate resources on creation
+- <strong>التوليد</strong>: Generate resources automatically
+- <strong>التدقيق</strong>: Audit existing resources</p>
+<p><strong>السياسات المفعلة</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># أمثلة على السياسات</span>
+<span class="nt">policies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">require-labels</span><span class="w">           </span><span class="c1"># فرض التسميات المطلوبة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">require-resource-limits</span><span class="w">  </span><span class="c1"># فرض حدود الموارد</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disallow-latest-tag</span><span class="w">      </span><span class="c1"># منع استخدام :latest</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">require-non-root-user</span><span class="w">    </span><span class="c1"># فرض تشغيل غير root</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">require-probes</span><span class="w">           </span><span class="c1"># فرض health probes</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">restrict-registries</span><span class="w">      </span><span class="c1"># تقييد مستودعات الصور</span>
+</code></pre></div>
+
+<hr />
+<h3 id="5-observability-stack-">5. Observability Stack - المراقبة<a class="headerlink" href="#5-observability-stack-" title="Permanent link">&para;</a></h3>
+<p><strong>المكونات</strong>:
+| المكون | الإصدار | المنفذ | الغرض |
+|--------|---------|--------|-------|
+| Prometheus | 2.48.0 | 9090 | جمع المقاييس |
+| Grafana | 10.2.0 | 3002 | لوحات التحكم |
+| Alertmanager | 0.26.0 | 9093 | إدارة التنبيهات |
+| OpenTelemetry | latest | - | التتبع الموزع |</p>
+<p><strong>التكامل مع الخدمات</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># كل خدمة يجب أن تتضمن:</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prometheus_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">Histogram</span>
+
+<span class="c1"># مقاييس أساسية</span>
+<span class="n">http_requests_total</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;http_requests_total&#39;</span><span class="p">,</span> <span class="s1">&#39;Total HTTP requests&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">])</span>
+<span class="n">http_request_duration_seconds</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="s1">&#39;http_request_duration_seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;HTTP request duration&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="golden-path-templates">القوالب الذهبية | Golden Path Templates<a class="headerlink" href="#golden-path-templates" title="Permanent link">&para;</a></h2>
+<h3 id="idptemplates">الموقع: <code>/idp/templates/</code><a class="headerlink" href="#idptemplates" title="Permanent link">&para;</a></h3>
+<h3 id="1-python-fastapi-service">1. Python FastAPI Service<a class="headerlink" href="#1-python-fastapi-service" title="Permanent link">&para;</a></h3>
+<p><strong>القالب</strong>: <code>templates/python-fastapi/template.yaml</code></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-python-fastapi</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SAHOOL Service (Python FastAPI)</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Golden path with OTel + /metrics + GitOps wiring</span>
+
+<span class="nt">parameters</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string (kebab-case)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port: integer (default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">layer</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">signal-producer</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">decision</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">action</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+
+<p><strong>ما يتضمنه</strong>:
+- <code>Dockerfile</code> مُحسَّن (Python 3.11-slim, non-root)
+- <code>requirements.txt</code> مع FastAPI 0.126.0
+- <code>src/main.py</code> مع:
+  - Health endpoints (<code>/healthz</code>, <code>/readyz</code>)
+  - Prometheus metrics (<code>/metrics</code>)
+  - Audit middleware
+  - Structured logging (structlog)
+  - OpenTelemetry integration
+- <code>catalog-info.yaml</code> للتسجيل في Backstage</p>
+<hr />
+<h3 id="2-nodejsexpress-service">2. Node.js/Express Service<a class="headerlink" href="#2-nodejsexpress-service" title="Permanent link">&para;</a></h3>
+<p><strong>القالب</strong>: <code>templates/node-service/template.yaml</code></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-node-service</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SAHOOL Service (Node/TS)</span>
+
+<span class="nt">parameters</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port: integer (default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080)</span>
+</code></pre></div>
+
+<p><strong>ما يتضمنه</strong>:
+- <code>package.json</code> مع Express 4.19.2
+- <code>src/index.ts</code> مع:
+  - Health endpoints
+  - Prometheus metrics (prom-client)
+  - Audit middleware
+  - TypeScript support</p>
+<hr />
+<h3 id="3-flutter-mobile-module">3. Flutter Mobile Module<a class="headerlink" href="#3-flutter-mobile-module" title="Permanent link">&para;</a></h3>
+<p><strong>القالب</strong>: <code>templates/flutter-mobile/template.yaml</code></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-flutter-mobile</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SAHOOL Mobile Module (Flutter)</span>
+<span class="w">  </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">flutter</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">mobile</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">offline-first</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">dart</span><span class="p p-Indicator">]</span>
+
+<span class="nt">parameters</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">snake_case (e.g., field_scanner)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">layer</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">feature</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">core</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">shared</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">has_offline_support</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">boolean</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">has_api_integration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">boolean</span>
+</code></pre></div>
+
+<p><strong>ما يتضمنه</strong>:
+- <code>pubspec.yaml</code> مع:
+  - flutter_riverpod 2.6.1
+  - dio 5.4.0
+  - drift 2.24.0 (offline)
+  - flutter_secure_storage 9.0.0
+- هيكل المجلدات:
+  <code>lib/
+  ├── src/
+  │   ├── database/
+  │   ├── models/
+  │   ├── providers/
+  │   └── services/</code></p>
+<hr />
+<h3 id="4-data-pipeline">4. Data Pipeline<a class="headerlink" href="#4-data-pipeline" title="Permanent link">&para;</a></h3>
+<p><strong>القالب</strong>: <code>templates/data-pipeline/template.yaml</code></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-data-pipeline</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SAHOOL Data Pipeline (Python)</span>
+<span class="w">  </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">python</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">data-pipeline</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">etl</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">streaming</span><span class="p p-Indicator">]</span>
+
+<span class="nt">parameters</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kebab-case</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pipeline_type</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">batch</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">streaming</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">hybrid</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">schedule</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cron expression</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">input_source</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">nats</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">kafka</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">postgres</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">s3</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">api</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">output_sink</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">nats</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">postgres</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">s3</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">api</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+
+<p><strong>ما يتضمنه</strong>:
+- <code>main.py</code> مع Pipeline class
+- Input/Output source adapters
+- Prometheus metrics
+- Signal handling للإيقاف الآمن</p>
+<hr />
+<h2 id="sahoolctl-cli-tool">أداة sahoolctl | CLI Tool<a class="headerlink" href="#sahoolctl-cli-tool" title="Permanent link">&para;</a></h2>
+<p><strong>الموقع</strong>: <code>/idp/sahoolctl/sahoolctl.py</code></p>
+<p>أداة سطر أوامر لإنشاء الخدمات مع فرض الحوكمة:</p>
+<h3 id="_1">الأوامر المتاحة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إنشاء خدمة جديدة</span>
+python3<span class="w"> </span>sahoolctl.py<span class="w"> </span>create<span class="w"> </span>&lt;name&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--template<span class="w"> </span><span class="o">[</span>python-fastapi<span class="p">|</span>node-service<span class="p">|</span>flutter-mobile<span class="p">|</span>data-pipeline<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--owner<span class="w"> </span>&lt;owner&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--team<span class="w"> </span><span class="o">[</span>platform<span class="p">|</span>kernel<span class="p">|</span>frontend<span class="p">|</span>data<span class="p">|</span>devops<span class="p">|</span>agro<span class="p">|</span>iot<span class="p">|</span>mobile<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--lifecycle<span class="w"> </span><span class="o">[</span>experimental<span class="p">|</span>internal<span class="p">|</span>production<span class="p">|</span>deprecated<span class="p">|</span>retired<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--tier<span class="w"> </span><span class="o">[</span>tier-1<span class="p">|</span>tier-2<span class="p">|</span>tier-3<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="o">[</span>--port<span class="w"> </span>PORT<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="o">[</span>--layer<span class="w"> </span>LAYER<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="o">[</span>--description<span class="w"> </span>DESC<span class="o">]</span>
+
+<span class="c1"># التحقق من حوكمة خدمة موجودة</span>
+python3<span class="w"> </span>sahoolctl.py<span class="w"> </span>validate<span class="w"> </span>&lt;path-to-service&gt;
+
+<span class="c1"># قائمة القوالب المتاحة</span>
+python3<span class="w"> </span>sahoolctl.py<span class="w"> </span>templates
+</code></pre></div>
+
+<h3 id="_2">مثال على الاستخدام<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>python3<span class="w"> </span>sahoolctl.py<span class="w"> </span>create<span class="w"> </span>ndvi-preprocessor<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--template<span class="w"> </span>python-fastapi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--owner<span class="w"> </span><span class="s2">&quot;data-team@sahool.io&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--team<span class="w"> </span>data<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--lifecycle<span class="w"> </span>production<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--tier<span class="w"> </span>tier-2<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--port<span class="w"> </span><span class="m">8150</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--layer<span class="w"> </span>intelligence
+</code></pre></div>
+
+<h3 id="_3">الإخراج المتوقع<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>✅<span class="w"> </span><span class="nv">Created</span><span class="w"> </span><span class="nv">governed</span><span class="w"> </span><span class="nv">service</span>:<span class="w"> </span><span class="nv">apps</span><span class="o">/</span><span class="nv">ndvi</span><span class="o">-</span><span class="nv">preprocessor</span>
+<span class="w">   </span>📁<span class="w"> </span><span class="nv">Service</span><span class="w"> </span><span class="nv">code</span>:<span class="w"> </span><span class="nv">apps</span><span class="o">/</span><span class="nv">ndvi</span><span class="o">-</span><span class="nv">preprocessor</span>
+<span class="w">   </span>📁<span class="w"> </span><span class="nv">Helm</span><span class="w"> </span><span class="nv">values</span>:<span class="w"> </span><span class="nv">apps</span><span class="o">/</span><span class="nv">ndvi</span><span class="o">-</span><span class="nv">preprocessor</span><span class="o">/</span><span class="nv">deploy</span><span class="o">/</span><span class="nv">values</span>.<span class="nv">yaml</span>
+<span class="w">   </span>📁<span class="w"> </span><span class="nv">Catalog</span><span class="w"> </span><span class="nv">info</span>:<span class="w"> </span><span class="nv">apps</span><span class="o">/</span><span class="nv">ndvi</span><span class="o">-</span><span class="nv">preprocessor</span><span class="o">/</span><span class="nv">catalog</span><span class="o">-</span><span class="nv">info</span>.<span class="nv">yaml</span>
+<span class="w">   </span>📁<span class="w"> </span><span class="nv">GitOps</span><span class="w"> </span><span class="nv">app</span>:<span class="w"> </span><span class="nv">gitops</span><span class="o">/</span><span class="nv">argocd</span><span class="o">/</span><span class="nv">applications</span><span class="o">/</span><span class="nv">ndvi</span><span class="o">-</span><span class="nv">preprocessor</span>.<span class="nv">yaml</span>
+
+📋<span class="w"> </span><span class="k">Next</span><span class="w"> </span><span class="nv">steps</span>:
+<span class="w">   </span><span class="mi">1</span>.<span class="w"> </span><span class="nv">git</span><span class="w"> </span><span class="nv">add</span><span class="w"> </span><span class="o">-</span><span class="nv">A</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">git</span><span class="w"> </span><span class="nv">commit</span><span class="w"> </span><span class="o">-</span><span class="nv">m</span><span class="w"> </span><span class="s1">&#39;Add ndvi-preprocessor service&#39;</span>
+<span class="w">   </span><span class="mi">2</span>.<span class="w"> </span><span class="nv">git</span><span class="w"> </span><span class="nv">push</span>
+<span class="w">   </span><span class="mi">3</span>.<span class="w"> </span><span class="nv">ArgoCD</span><span class="w"> </span><span class="nv">will</span><span class="w"> </span><span class="nv">auto</span><span class="o">-</span><span class="nv">deploy</span>
+</code></pre></div>
+
+<hr />
+<h2 id="deployment-environments">بيئات النشر | Deployment Environments<a class="headerlink" href="#deployment-environments" title="Permanent link">&para;</a></h2>
+<h3 id="_4">هيكل البيئات<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>gitops/environments/
+├── preview/           # PR Preview environments
+│   └── values.yaml
+├── staging/           # بيئة التحضير
+│   └── values.yaml
+└── production/        # بيئة الإنتاج
+    └── values.yaml
+</code></pre></div>
+
+<h3 id="pr-preview-environments">PR Preview Environments<a class="headerlink" href="#pr-preview-environments" title="Permanent link">&para;</a></h3>
+<p><strong>ApplicationSet للمعاينات</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">argoproj.io/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ApplicationSet</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-pr-previews</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">generators</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pullRequest</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">github</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">owner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${GITHUB_OWNER}</span>
+<span class="w">          </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${GITHUB_REPO}</span>
+<span class="w">        </span><span class="nt">requeueAfterSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;sahool-pr-{{number}}&#39;</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">source</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gitops/environments/preview</span>
+<span class="w">        </span><span class="nt">helm</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">parameters</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">global.environment</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;pr-{{number}}&#39;</span>
+<span class="w">      </span><span class="nt">destination</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;pr-{{number}}-sahool&#39;</span>
+</code></pre></div>
+
+<p><strong>URL المعاينة</strong>: <code>https://pr-{number}.preview.sahool.io</code></p>
+<hr />
+<h2 id="catalog-system">نظام الكتالوج | Catalog System<a class="headerlink" href="#catalog-system" title="Permanent link">&para;</a></h2>
+<h3 id="_5">تسجيل الخدمات<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<p>كل خدمة يجب أن تحتوي على <code>catalog-info.yaml</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backstage.io/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Component</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ndvi-processor</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NDVI Processing Service</span>
+<span class="w">  </span><span class="nt">tags</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fastapi</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">intelligence</span>
+<span class="w">  </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">github.com/project-slug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kafaat/sahool-unified-v15-idp</span>
+<span class="w">    </span><span class="nt">backstage.io/techdocs-ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dir:.</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service</span>
+<span class="w">  </span><span class="nt">lifecycle</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">production</span>
+<span class="w">  </span><span class="nt">owner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">group:data-team</span>
+<span class="w">  </span><span class="nt">system</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-platform</span>
+<span class="w">  </span><span class="nt">dependsOn</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">resource:postgresql</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">component:vegetation-analysis-service</span>
+<span class="w">  </span><span class="nt">providesApis</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ndvi-api</span>
+</code></pre></div>
+
+<h3 id="sahool">نظام SAHOOL<a class="headerlink" href="#sahool" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backstage.io/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">System</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-platform</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SAHOOL Smart Agriculture Platform</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">owner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">group:sahool-platform</span>
+<span class="w">  </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">agriculture</span>
+</code></pre></div>
+
+<hr />
+<h2 id="security-audit">الأمان والتدقيق | Security &amp; Audit<a class="headerlink" href="#security-audit" title="Permanent link">&para;</a></h2>
+<h3 id="backstage">إعدادات التدقيق في Backstage<a class="headerlink" href="#backstage" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">audit</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">retentionDays</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">90</span>
+<span class="w">  </span><span class="nt">alertChannels</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webhook</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">log</span>
+<span class="w">  </span><span class="nt">categories</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">authentication</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">authorization</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">configuration</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">catalog</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes</span>
+</code></pre></div>
+
+<h3 id="_6">إعدادات الأمان<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">security</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sessionTimeoutMinutes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">  </span><span class="nt">mfaRequired</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">auditAdminActions</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">rateLimit</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">maxRequestsPerMinute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+</code></pre></div>
+
+<hr />
+<h2 id="kubernetes-deployment-kubernetes">Kubernetes Deployment | نشر Kubernetes<a class="headerlink" href="#kubernetes-deployment-kubernetes" title="Permanent link">&para;</a></h2>
+<h3 id="_7">ملفات النشر<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<p><strong>الموقع</strong>: <code>/idp/backstage/k8s/</code></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># namespace.yaml</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Namespace</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backstage</span>
+
+<span class="c1"># deployment.yaml</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backstage</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backstage</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backstage</span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/backstage/backstage:latest</span>
+<span class="w">          </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7007</span>
+<span class="w">          </span><span class="nt">volumeMounts</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app-config</span>
+<span class="w">              </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/app/app-config.yaml</span>
+<span class="w">              </span><span class="nt">subPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app-config.yaml</span>
+
+<span class="c1"># service.yaml</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backstage</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backstage</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterIP</span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7007</span>
+<span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7007</span>
+</code></pre></div>
+
+<hr />
+<h2 id="environment-variables">متغيرات البيئة | Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># GitHub Integration</span>
+<span class="nv">GITHUB_TOKEN</span><span class="o">=</span>xxx
+
+<span class="c1"># Kubernetes Configuration</span>
+<span class="nv">K8S_CLUSTER_URL</span><span class="o">=</span>https://k8s-api:6443
+<span class="nv">K8S_SA_TOKEN</span><span class="o">=</span>xxx
+<span class="nv">K8S_CA_DATA</span><span class="o">=</span>xxx
+
+<span class="c1"># Audit Webhook</span>
+<span class="nv">AUDIT_WEBHOOK_URL</span><span class="o">=</span>https://audit-service/webhook
+
+<span class="c1"># Security</span>
+<span class="nv">SECURITY_MFA_REQUIRED</span><span class="o">=</span><span class="nb">false</span>
+</code></pre></div>
+
+<hr />
+<h2 id="complete-workflow">سير العمل الكامل | Complete Workflow<a class="headerlink" href="#complete-workflow" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">المطور</span><span class="w"> </span><span class="n">يريد</span><span class="w"> </span><span class="n">إنشاء</span><span class="w"> </span><span class="n">خدمة</span><span class="w"> </span><span class="n">جديدة</span>
+<span class="w">   </span><span class="err">↓</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">يستخدم</span><span class="w"> </span><span class="n">sahoolctl</span><span class="w"> </span><span class="n">أو</span><span class="w"> </span><span class="n">Backstage</span><span class="w"> </span><span class="n">Templates</span>
+<span class="w">   </span><span class="err">↓</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">يتم</span><span class="w"> </span><span class="n">توليد</span><span class="w"> </span><span class="n">الهيكل</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">catalog</span><span class="o">-</span><span class="n">info</span><span class="mf">.</span><span class="n">yaml</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ArgoCD</span><span class="w"> </span><span class="n">app</span>
+<span class="w">   </span><span class="err">↓</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">git</span><span class="w"> </span><span class="n">push</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">GitHub</span><span class="w"> </span><span class="n">Actions</span><span class="w"> </span><span class="n">CI</span>
+<span class="w">   </span><span class="err">↓</span>
+<span class="mf">5.</span><span class="w"> </span><span class="n">CI</span><span class="p">:</span><span class="w"> </span><span class="n">Lint</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Test</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Build</span><span class="w"> </span><span class="n">Docker</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Push</span><span class="w"> </span><span class="kr">to</span><span class="w"> </span><span class="n">Registry</span>
+<span class="w">   </span><span class="err">↓</span>
+<span class="mf">6.</span><span class="w"> </span><span class="n">ArgoCD</span><span class="w"> </span><span class="n">يكتشف</span><span class="w"> </span><span class="n">التغيير</span><span class="w"> </span><span class="n">ويبدأ</span><span class="w"> </span><span class="n">المزامنة</span>
+<span class="w">   </span><span class="err">↓</span>
+<span class="mf">7.</span><span class="w"> </span><span class="n">Argo</span><span class="w"> </span><span class="n">Rollouts</span><span class="w"> </span><span class="n">ينفذ</span><span class="w"> </span><span class="n">Canary</span><span class="o">/</span><span class="n">Blue</span><span class="o">-</span><span class="n">Green</span>
+<span class="w">   </span><span class="err">↓</span>
+<span class="mf">8.</span><span class="w"> </span><span class="n">التحقق</span><span class="w"> </span><span class="n">التلقائي</span><span class="w"> </span><span class="p">(</span><span class="n">Analysis</span><span class="w"> </span><span class="n">Templates</span><span class="p">)</span>
+<span class="w">   </span><span class="err">↓</span>
+<span class="mf">9.</span><span class="w"> </span><span class="n">النشر</span><span class="w"> </span><span class="n">الكامل</span><span class="w"> </span><span class="n">أو</span><span class="w"> </span><span class="n">الـ</span><span class="w"> </span><span class="n">Rollback</span><span class="w"> </span><span class="n">التلقائي</span>
+</code></pre></div>
+
+<hr />
+<h2 id="useful-commands">الأوامر المفيدة | Useful Commands<a class="headerlink" href="#useful-commands" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الوصول إلى Backstage</span>
+kubectl<span class="w"> </span>port-forward<span class="w"> </span>-n<span class="w"> </span>backstage<span class="w"> </span>svc/backstage<span class="w"> </span><span class="m">7007</span>:7007
+
+<span class="c1"># الوصول إلى ArgoCD</span>
+kubectl<span class="w"> </span>port-forward<span class="w"> </span>svc/argocd-server<span class="w"> </span>-n<span class="w"> </span>argocd<span class="w"> </span><span class="m">8080</span>:443
+
+<span class="c1"># الوصول إلى Argo Rollouts Dashboard</span>
+kubectl<span class="w"> </span>port-forward<span class="w"> </span>-n<span class="w"> </span>argo-rollouts<span class="w"> </span>svc/argo-rollouts-dashboard<span class="w"> </span><span class="m">3100</span>:3100
+
+<span class="c1"># عرض حالة التطبيقات</span>
+argocd<span class="w"> </span>app<span class="w"> </span>list
+argocd<span class="w"> </span>app<span class="w"> </span>get<span class="w"> </span>sahool
+
+<span class="c1"># عرض حالة Rollout</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>get<span class="w"> </span>rollout<span class="w"> </span>sahool-api<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># ترقية Canary يدوياً</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>promote<span class="w"> </span>sahool-api<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># الرجوع للإصدار السابق</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>undo<span class="w"> </span>sahool-api<span class="w"> </span>-n<span class="w"> </span>sahool
+</code></pre></div>
+
+<hr />
+<h2 id="references">المراجع | References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Reduce onboarding time for new devs (minutes, not days)</li>
-<li>Standardize service creation (Golden Paths)</li>
-<li>Enforce baseline security/observability (Policy + Templates)</li>
-<li>Self-service: create service → build → deploy to dev/staging/prod via GitOps</li>
+<li><a href="https://backstage.io/docs">Backstage Documentation</a></li>
+<li><a href="https://argo-cd.readthedocs.io">Argo CD Documentation</a></li>
+<li><a href="https://argoproj.github.io/argo-rollouts">Argo Rollouts Documentation</a></li>
+<li><a href="https://kyverno.io/docs">Kyverno Documentation</a></li>
+<li><a href="https://opentelemetry.io/docs">OpenTelemetry Documentation</a></li>
 </ul>
-<h2 id="core-components">Core components<a class="headerlink" href="#core-components" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>Backstage</strong>: Developer portal + catalog + templates.</li>
-<li><strong>GitOps</strong> (Argo CD): Environment reconciliation &amp; progressive delivery.</li>
-<li><strong>Rollouts</strong>: Canary/Blue-Green.</li>
-<li><strong>Policies</strong> (Kyverno): Guardrails.</li>
-<li><strong>Observability</strong>: Prometheus/Grafana/Tempo/OTel.</li>
-</ol>
-<h2 id="golden-path-service-lifecycle">Golden Path (service lifecycle)<a class="headerlink" href="#golden-path-service-lifecycle" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Scaffold service (template) → includes:</li>
-<li>Dockerfile</li>
-<li>/healthz /readyz /metrics</li>
-<li>OTel init</li>
-<li>structured logging</li>
-<li>Helm values snippet + Rollouts defaults</li>
-<li>Catalog registration (<code>catalog-info.yaml</code>)</li>
-<li>Push code → CI builds image → GitOps deploys → Rollouts runs analysis → auto-rollback on failure.</li>
-</ul>
-<h2 id="saas-multi-tenant-conventions">SaaS multi-tenant conventions<a class="headerlink" href="#saas-multi-tenant-conventions" title="Permanent link">&para;</a></h2>
-<ul>
-<li>All inbound requests must carry <code>x-tenant-id</code> (or JWT claim)</li>
-<li>Events must include <code>tenant_id</code> and <code>correlation_id</code></li>
-<li>Metrics labels include <code>tenant_id</code> (when safe)</li>
-</ul>
-<h2 id="hci-conventions">HCI conventions<a class="headerlink" href="#hci-conventions" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Use k3s/k8s on bare metal</li>
-<li>Prefer MetalLB for LoadBalancer</li>
-<li>Prefer Longhorn (or your HCI storage) for PV</li>
-<li>GitOps is the single source of truth (air-gapped friendly)</li>
-</ul>
-<h2 id="repository-layout-recommendation">Repository layout recommendation<a class="headerlink" href="#repository-layout-recommendation" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>apps/&lt;service&gt;</code> : microservices</li>
-<li><code>k8s/helm/...</code> : charts</li>
-<li><code>gitops/</code> : Argo CD apps + env overlays</li>
-<li><code>idp/</code> : Backstage + templates + tooling</li>
-</ul>
+<hr />
+<p><em>Last Updated: January 2026</em></p>
 
 
 

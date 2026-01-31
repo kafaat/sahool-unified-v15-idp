@@ -23,7 +23,7 @@
     
     
       
-        <title>Multi-Region / Multi-Cluster (HCI) - SAHOOL Developer Documentation</title>
+        <title>Multi-Region / Multi-Cluster Deployment | النشر متعدد المناطق - SAHOOL Developer Documentation</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#multi-region-multi-cluster-hci" class="md-skip">
+        <a href="#multi-region-multi-cluster-deployment" class="md-skip">
           Skip to content
         </a>
       
@@ -106,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Multi-Region / Multi-Cluster (HCI)
+              Multi-Region / Multi-Cluster Deployment | النشر متعدد المناطق
             
           </span>
         </div>
@@ -1116,19 +1116,691 @@
 
 
 
-<h1 id="multi-region-multi-cluster-hci">Multi-Region / Multi-Cluster (HCI)<a class="headerlink" href="#multi-region-multi-cluster-hci" title="Permanent link">&para;</a></h1>
-<p>Included:</p>
+<h1 id="multi-region-multi-cluster-deployment">Multi-Region / Multi-Cluster Deployment | النشر متعدد المناطق<a class="headerlink" href="#multi-region-multi-cluster-deployment" title="Permanent link">&para;</a></h1>
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>منصة سهول مصممة للنشر في بيئات HCI (Hyper-Converged Infrastructure) متعددة المناطق، مع دعم:
+- نشر على عناقيد Kubernetes متعددة
+- تكرار البيانات عبر المناطق
+- التحويل التلقائي للخدمات (Failover)
+- تزامن الإعدادات عبر GitOps</p>
+<hr />
+<h2 id="architecture">البنية المعمارية | Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>                    ┌─────────────────────────────────────┐
+                    │           Argo CD (Central)         │
+                    │         مصدر الحقيقة الوحيد          │
+                    └──────────────┬──────────────────────┘
+                                   │
+           ┌───────────────────────┼───────────────────────┐
+           │                       │                       │
+           ▼                       ▼                       ▼
+┌─────────────────────┐ ┌─────────────────────┐ ┌─────────────────────┐
+│   Region: Tihama    │ │   Region: Highlands │ │  Region: Hadramout  │
+│   منطقة: تهامة      │ │   منطقة: المرتفعات  │ │   منطقة: حضرموت     │
+│                     │ │                     │ │                     │
+│  ┌───────────────┐  │ │  ┌───────────────┐  │ │  ┌───────────────┐  │
+│  │  k3s Cluster  │  │ │  │  k3s Cluster  │  │ │  │  k3s Cluster  │  │
+│  │   (Primary)   │  │ │  │   (Primary)   │  │ │  │   (Primary)   │  │
+│  └───────────────┘  │ │  └───────────────┘  │ │  └───────────────┘  │
+│                     │ │                     │ │                     │
+│  ┌───────────────┐  │ │  ┌───────────────┐  │ │  ┌───────────────┐  │
+│  │   PostgreSQL  │  │ │  │   PostgreSQL  │  │ │  │   PostgreSQL  │  │
+│  │   (Leader)    │◀─┼─┼──│   (Replica)   │──┼─┼─▶│   (Replica)   │  │
+│  └───────────────┘  │ │  └───────────────┘  │ │  └───────────────┘  │
+│                     │ │                     │ │                     │
+│  ┌───────────────┐  │ │  ┌───────────────┐  │ │  ┌───────────────┐  │
+│  │     Redis     │◀─┼─┼──│     Redis     │──┼─┼─▶│     Redis     │  │
+│  │   (Primary)   │  │ │  │   (Replica)   │  │ │  │   (Replica)   │  │
+│  └───────────────┘  │ │  └───────────────┘  │ │  └───────────────┘  │
+│                     │ │                     │ │                     │
+│  ┌───────────────┐  │ │  ┌───────────────┐  │ │  ┌───────────────┐  │
+│  │  NATS Cluster │◀─┼─┼──│  NATS Cluster │──┼─┼─▶│  NATS Cluster │  │
+│  │   (Gateway)   │  │ │  │   (Gateway)   │  │ │  │   (Gateway)   │  │
+│  └───────────────┘  │ │  └───────────────┘  │ │  └───────────────┘  │
+└─────────────────────┘ └─────────────────────┘ └─────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="yemen-agricultural-regions">المناطق الزراعية اليمنية | Yemen Agricultural Regions<a class="headerlink" href="#yemen-agricultural-regions" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المنطقة</th>
+<th>Region ID</th>
+<th>المحافظات</th>
+<th>الخصائص</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>تهامة</strong></td>
+<td><code>tihama</code></td>
+<td>الحديدة، المحويت</td>
+<td>ساحلي، زراعة مكثفة</td>
+</tr>
+<tr>
+<td><strong>المرتفعات</strong></td>
+<td><code>highlands</code></td>
+<td>صنعاء، إب، تعز، ذمار</td>
+<td>جبلي، مدرجات زراعية</td>
+</tr>
+<tr>
+<td><strong>حضرموت</strong></td>
+<td><code>hadramout</code></td>
+<td>حضرموت، المهرة، شبوة</td>
+<td>صحراوي، نخيل التمور</td>
+</tr>
+<tr>
+<td><strong>الجوف</strong></td>
+<td><code>jawf</code></td>
+<td>الجوف، مأرب</td>
+<td>شبه صحراوي</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="cluster-setup">إعداد العناقيد | Cluster Setup<a class="headerlink" href="#cluster-setup" title="Permanent link">&para;</a></h2>
+<h3 id="1-argo-cd">1. تسجيل العناقيد في Argo CD<a class="headerlink" href="#1-argo-cd" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إضافة عنقود جديد</span>
+argocd<span class="w"> </span>cluster<span class="w"> </span>add<span class="w"> </span>k3s-tihama<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>sahool-tihama<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--kubeconfig<span class="w"> </span>/path/to/kubeconfig-tihama
+
+argocd<span class="w"> </span>cluster<span class="w"> </span>add<span class="w"> </span>k3s-highlands<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>sahool-highlands<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--kubeconfig<span class="w"> </span>/path/to/kubeconfig-highlands
+
+argocd<span class="w"> </span>cluster<span class="w"> </span>add<span class="w"> </span>k3s-hadramout<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>sahool-hadramout<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--kubeconfig<span class="w"> </span>/path/to/kubeconfig-hadramout
+</code></pre></div>
+
+<h3 id="2-labels">2. تسمية العناقيد (Labels)<a class="headerlink" href="#2-labels" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># تسمية لكل عنقود</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Secret</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-tihama</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">argocd</span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">argocd.argoproj.io/secret-type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster</span>
+<span class="w">    </span><span class="nt">sahool/enabled</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">    </span><span class="nt">sahool/region</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;tihama&quot;</span>
+<span class="w">    </span><span class="nt">sahool/tier</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;production&quot;</span>
+<span class="w">    </span><span class="nt">sahool/priority</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;primary&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="applicationset-multi-cluster-applicationset">ApplicationSet للنشر المتعدد | Multi-Cluster ApplicationSet<a class="headerlink" href="#applicationset-multi-cluster-applicationset" title="Permanent link">&para;</a></h2>
+<h3 id="gitopsargocdapplicationsetsmulti-clusteryaml">الموقع: <code>/gitops/argocd/applicationsets/multi-cluster.yaml</code><a class="headerlink" href="#gitopsargocdapplicationsetsmulti-clusteryaml" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">argoproj.io/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ApplicationSet</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-multicluster</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">argocd</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">generators</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">clusters</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">sahool/enabled</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">        </span><span class="nt">values</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{metadata.labels.sahool/region}}&#39;</span>
+<span class="w">          </span><span class="nt">tier</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{metadata.labels.sahool/tier}}&#39;</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;sahool-{{name}}&#39;</span>
+<span class="w">      </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{values.region}}&#39;</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
+<span class="w">      </span><span class="nt">source</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">repoURL</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;${REPO_URL}&#39;</span>
+<span class="w">        </span><span class="nt">targetRevision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HEAD</span>
+<span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">k8s/helm/sahool-kernel</span>
+<span class="w">        </span><span class="nt">helm</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">valueFiles</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">values.yaml</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;values-{{values.region}}.yaml&#39;</span>
+<span class="w">          </span><span class="nt">parameters</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">global.region</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{values.region}}&#39;</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">global.cluster</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{name}}&#39;</span>
+<span class="w">      </span><span class="nt">destination</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">server</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{server}}&#39;</span>
+<span class="w">        </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
+<span class="w">      </span><span class="nt">syncPolicy</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">automated</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">prune</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">selfHeal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">syncOptions</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CreateNamespace=true</span>
+</code></pre></div>
+
+<hr />
+<h2 id="region-specific-values">ملفات القيم حسب المنطقة | Region-Specific Values<a class="headerlink" href="#region-specific-values" title="Permanent link">&para;</a></h2>
+<h3 id="values-tihamayaml">values-tihama.yaml<a class="headerlink" href="#values-tihamayaml" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">global</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tihama</span>
+<span class="w">  </span><span class="nt">timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Asia/Aden</span>
+<span class="w">  </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ar</span>
+
+<span class="c1"># خدمات محددة للمنطقة</span>
+<span class="nt">irrigation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">intensive</span>
+<span class="w">  </span><span class="nt">defaultSchedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">5,17</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span><span class="w">  </span><span class="c1"># صباحاً ومساءً</span>
+
+<span class="nt">weather</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">stations</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hodeidah-central</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zabid-agricultural</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bajil-coastal</span>
+
+<span class="nt">crops</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">primary</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cotton</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sorghum</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mango</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">banana</span>
+
+<span class="nt">postgresql</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">replication</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">primary</span>
+<span class="w">    </span><span class="nt">replicaCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+
+<span class="nt">redis</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sentinel</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">masterSet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tihama-master</span>
+</code></pre></div>
+
+<h3 id="values-highlandsyaml">values-highlands.yaml<a class="headerlink" href="#values-highlandsyaml" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">global</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">highlands</span>
+<span class="w">  </span><span class="nt">timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Asia/Aden</span>
+<span class="w">  </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ar</span>
+
+<span class="nt">irrigation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">terraced</span>
+<span class="w">  </span><span class="nt">defaultSchedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">6</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span>
+
+<span class="nt">weather</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">stations</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sanaa-central</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ibb-agricultural</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">taiz-highland</span>
+
+<span class="nt">crops</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">primary</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wheat</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">barley</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qat</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">coffee</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">grapes</span>
+
+<span class="nt">postgresql</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">replication</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">replica</span>
+<span class="w">    </span><span class="nt">primaryHost</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgresql.tihama.sahool.local</span>
+
+<span class="nt">redis</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sentinel</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">masterSet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tihama-master</span>
+</code></pre></div>
+
+<h3 id="values-hadramoutyaml">values-hadramout.yaml<a class="headerlink" href="#values-hadramoutyaml" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">global</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hadramout</span>
+<span class="w">  </span><span class="nt">timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Asia/Aden</span>
+<span class="w">  </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ar</span>
+
+<span class="nt">irrigation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">drip</span>
+<span class="w">  </span><span class="nt">defaultSchedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">4</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span>
+
+<span class="nt">weather</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">stations</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mukalla-central</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">seiyun-valley</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tarim-oasis</span>
+
+<span class="nt">crops</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">primary</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dates</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">palm</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tobacco</span>
+
+<span class="nt">postgresql</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">replication</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">replica</span>
+<span class="w">    </span><span class="nt">primaryHost</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgresql.tihama.sahool.local</span>
+
+<span class="nt">redis</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sentinel</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">masterSet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tihama-master</span>
+</code></pre></div>
+
+<hr />
+<h2 id="database-replication">تكرار قاعدة البيانات | Database Replication<a class="headerlink" href="#database-replication" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql-cross-region-replication">PostgreSQL Cross-Region Replication<a class="headerlink" href="#postgresql-cross-region-replication" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Primary (Tihama)</span>
+<span class="nt">postgresql</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">architecture</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">replication</span>
+<span class="w">  </span><span class="nt">primary</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">requests</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2Gi</span>
+<span class="w">        </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000m</span>
+<span class="w">    </span><span class="nt">persistence</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100Gi</span>
+
+<span class="w">  </span><span class="nt">readReplicas</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">replicaCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">requests</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1Gi</span>
+<span class="w">        </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500m</span>
+
+<span class="w">  </span><span class="nt">replication</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">synchronousCommit</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;on&quot;</span>
+<span class="w">    </span><span class="nt">numSynchronousReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+
+<span class="w">  </span><span class="c1"># Cross-region replicas</span>
+<span class="w">  </span><span class="nt">externalReplicas</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgresql.highlands.sahool.local</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5432</span>
+<span class="w">      </span><span class="nt">async</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgresql.hadramout.sahool.local</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5432</span>
+<span class="w">      </span><span class="nt">async</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+
+<h3 id="patroni-configuration">Patroni Configuration<a class="headerlink" href="#patroni-configuration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># patroni-config.yaml</span>
+<span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-postgres-cluster</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgresql-tihama-0</span>
+
+<span class="nt">bootstrap</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dcs</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">synchronous_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">synchronous_node_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">postgresql</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">use_pg_rewind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">parameters</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">max_wal_senders</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">        </span><span class="nt">wal_keep_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1GB</span>
+<span class="w">        </span><span class="nt">hot_standby</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;on&quot;</span>
+<span class="w">        </span><span class="nt">wal_log_hints</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;on&quot;</span>
+
+<span class="w">  </span><span class="nt">initdb</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">encoding</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UTF8</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data-checksums</span>
+
+<span class="nt">standby_cluster</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgresql.tihama.sahool.local</span>
+<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5432</span>
+<span class="w">  </span><span class="nt">create_replica_methods</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">basebackup</span>
+</code></pre></div>
+
+<hr />
+<h2 id="redis-redis-replication">تكرار Redis | Redis Replication<a class="headerlink" href="#redis-redis-replication" title="Permanent link">&para;</a></h2>
+<h3 id="redis-sentinel-cross-region">Redis Sentinel Cross-Region<a class="headerlink" href="#redis-sentinel-cross-region" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># redis-sentinel.yaml</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis-sentinel-config</span>
+<span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sentinel.conf</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">sentinel monitor tihama-master redis-primary.tihama.sahool.local 6379 2</span>
+<span class="w">    </span><span class="no">sentinel down-after-milliseconds tihama-master 5000</span>
+<span class="w">    </span><span class="no">sentinel failover-timeout tihama-master 10000</span>
+<span class="w">    </span><span class="no">sentinel parallel-syncs tihama-master 1</span>
+
+<span class="w">    </span><span class="no"># Cross-region monitoring</span>
+<span class="w">    </span><span class="no">sentinel known-replica tihama-master redis.highlands.sahool.local 6379</span>
+<span class="w">    </span><span class="no">sentinel known-replica tihama-master redis.hadramout.sahool.local 6379</span>
+</code></pre></div>
+
+<hr />
+<h2 id="nats-nats-synchronization">تزامن NATS | NATS Synchronization<a class="headerlink" href="#nats-nats-synchronization" title="Permanent link">&para;</a></h2>
+<h3 id="nats-super-cluster-with-gateways">NATS Super-Cluster with Gateways<a class="headerlink" href="#nats-super-cluster-with-gateways" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="gh">#</span> nats-gateway.conf (Tihama)
+gateway {
+  name: sahool-tihama
+  listen: 0.0.0.0:7222
+
+  tls {
+    cert_file: &quot;/etc/nats/certs/server.crt&quot;
+    key_file: &quot;/etc/nats/certs/server.key&quot;
+    ca_file: &quot;/etc/nats/certs/ca.crt&quot;
+  }
+
+  gateways: [
+    {
+      name: sahool-highlands
+      urls: [
+        &quot;nats://nats.highlands.sahool.local:7222&quot;
+      ]
+    },
+    {
+      name: sahool-hadramout
+      urls: [
+        &quot;nats://nats.hadramout.sahool.local:7222&quot;
+      ]
+    }
+  ]
+}
+</code></pre></div>
+
+<hr />
+<h2 id="failover-strategy">استراتيجية التحويل | Failover Strategy<a class="headerlink" href="#failover-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="dns-based-failover">DNS-based Failover<a class="headerlink" href="#dns-based-failover" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ExternalDNS configuration</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">externaldns.k8s.io/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DNSEndpoint</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-api-geo</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">endpoints</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">dnsName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api.sahool.io</span>
+<span class="w">      </span><span class="nt">recordType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A</span>
+<span class="w">      </span><span class="nt">targets</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0.1.100</span><span class="w">  </span><span class="c1"># Tihama</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0.2.100</span><span class="w">  </span><span class="c1"># Highlands</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0.3.100</span><span class="w">  </span><span class="c1"># Hadramout</span>
+<span class="w">      </span><span class="nt">setIdentifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tihama</span>
+<span class="w">      </span><span class="nt">recordTTL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+<span class="w">      </span><span class="nt">providerSpecific</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aws/geolocation-country-code</span>
+<span class="w">          </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">YE</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aws/health-check-id</span>
+<span class="w">          </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tihama-health-check</span>
+</code></pre></div>
+
+<h3 id="health-check-configuration">Health Check Configuration<a class="headerlink" href="#health-check-configuration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Health check for each region</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">networking.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ingress</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-healthcheck</span>
+<span class="w">  </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/health-check-path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/healthz</span>
+<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/health-check-interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">health.tihama.sahool.local</span>
+<span class="w">      </span><span class="nt">http</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/</span>
+<span class="w">            </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Prefix</span>
+<span class="w">            </span><span class="nt">backend</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">service</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kong-proxy</span>
+<span class="w">                </span><span class="nt">port</span><span class="p">:</span>
+<span class="w">                  </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+</code></pre></div>
+
+<hr />
+<h2 id="cross-region-monitoring">المراقبة عبر المناطق | Cross-Region Monitoring<a class="headerlink" href="#cross-region-monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="prometheus-federation">Prometheus Federation<a class="headerlink" href="#prometheus-federation" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># prometheus-federation.yaml</span>
+<span class="nt">scrape_configs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;federate-tihama&#39;</span>
+<span class="w">    </span><span class="nt">honor_labels</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;/federate&#39;</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="s">&#39;match[]&#39;</span><span class="p p-Indicator">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;{job=~&quot;sahool.*&quot;}&#39;</span>
+<span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;prometheus.tihama.sahool.local:9090&#39;</span>
+<span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;tihama&#39;</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;federate-highlands&#39;</span>
+<span class="w">    </span><span class="nt">honor_labels</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;/federate&#39;</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="s">&#39;match[]&#39;</span><span class="p p-Indicator">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;{job=~&quot;sahool.*&quot;}&#39;</span>
+<span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;prometheus.highlands.sahool.local:9090&#39;</span>
+<span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;highlands&#39;</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;federate-hadramout&#39;</span>
+<span class="w">    </span><span class="nt">honor_labels</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;/federate&#39;</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="s">&#39;match[]&#39;</span><span class="p p-Indicator">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;{job=~&quot;sahool.*&quot;}&#39;</span>
+<span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;prometheus.hadramout.sahool.local:9090&#39;</span>
+<span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;hadramout&#39;</span>
+</code></pre></div>
+
+<h3 id="grafana-multi-region-dashboard">Grafana Multi-Region Dashboard<a class="headerlink" href="#grafana-multi-region-dashboard" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SAHOOL Multi-Region Overview&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;panels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Requests by Region&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sum(rate(http_requests_total[5m])) by (region)&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;legendFormat&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{region}}&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Replication Lag&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pg_replication_lag_seconds&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;legendFormat&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{region}}&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Service Health by Region&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;up{job=~&#39;sahool.*&#39;}&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;legendFormat&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{region}}/{{service}}&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="terraform-infrastructure-as-code">Terraform للبنية التحتية | Infrastructure as Code<a class="headerlink" href="#terraform-infrastructure-as-code" title="Permanent link">&para;</a></h2>
+<h3 id="infrastructureterraform">الموقع: <code>/infrastructure/terraform/</code><a class="headerlink" href="#infrastructureterraform" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># main.tf</span>
+<span class="kr">module</span><span class="w"> </span><span class="nv">&quot;region_tihama&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;./modules/region&quot;</span>
+
+<span class="w">  </span><span class="na">region_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tihama&quot;</span>
+<span class="w">  </span><span class="na">region_id</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ye-tihama-1&quot;</span>
+<span class="w">  </span><span class="na">is_primary</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+
+<span class="w">  </span><span class="nb">kubernetes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;1.28&quot;</span>
+<span class="w">    </span><span class="na">nodes</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="m">3</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nb">postgresql</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">instance_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;db.r6g.large&quot;</span>
+<span class="w">    </span><span class="na">storage_gb</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="m">100</span>
+<span class="w">    </span><span class="na">multi_az</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nb">redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">node_type</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;cache.r6g.large&quot;</span>
+<span class="w">    </span><span class="na">num_cache_nodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kr">module</span><span class="w"> </span><span class="nv">&quot;region_highlands&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;./modules/region&quot;</span>
+
+<span class="w">  </span><span class="na">region_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;highlands&quot;</span>
+<span class="w">  </span><span class="na">region_id</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ye-highlands-1&quot;</span>
+<span class="w">  </span><span class="na">is_primary</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="no">false</span>
+
+<span class="w">  </span><span class="na">primary_region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">module.region_tihama</span>
+
+<span class="c1">  # Same configuration...</span>
+<span class="p">}</span>
+
+<span class="kr">module</span><span class="w"> </span><span class="nv">&quot;region_hadramout&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;./modules/region&quot;</span>
+
+<span class="w">  </span><span class="na">region_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;hadramout&quot;</span>
+<span class="w">  </span><span class="na">region_id</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ye-hadramout-1&quot;</span>
+<span class="w">  </span><span class="na">is_primary</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="no">false</span>
+
+<span class="w">  </span><span class="na">primary_region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">module.region_tihama</span>
+
+<span class="c1">  # Same configuration...</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="hci-conventions">HCI Conventions | اتفاقيات البنية التحتية<a class="headerlink" href="#hci-conventions" title="Permanent link">&para;</a></h2>
+<h3 id="k3s-on-bare-metal">k3s on Bare Metal<a class="headerlink" href="#k3s-on-bare-metal" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># تثبيت k3s على العقدة الأساسية</span>
+curl<span class="w"> </span>-sfL<span class="w"> </span>https://get.k3s.io<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh<span class="w"> </span>-s<span class="w"> </span>-<span class="w"> </span>server<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cluster-init<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--disable<span class="w"> </span>traefik<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--disable<span class="w"> </span>servicelb<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--node-label<span class="w"> </span><span class="nv">region</span><span class="o">=</span>tihama<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--node-label<span class="w"> </span><span class="nv">role</span><span class="o">=</span>control-plane
+
+<span class="c1"># إضافة عقد عاملة</span>
+curl<span class="w"> </span>-sfL<span class="w"> </span>https://get.k3s.io<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="nv">K3S_URL</span><span class="o">=</span>https://master:6443<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">K3S_TOKEN</span><span class="o">=</span>xxxxx<span class="w"> </span>sh<span class="w"> </span>-s<span class="w"> </span>-<span class="w"> </span>agent<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--node-label<span class="w"> </span><span class="nv">region</span><span class="o">=</span>tihama<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--node-label<span class="w"> </span><span class="nv">role</span><span class="o">=</span>worker
+</code></pre></div>
+
+<h3 id="metallb-load-balancing">MetalLB للـ Load Balancing<a class="headerlink" href="#metallb-load-balancing" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metallb.io/v1beta1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IPAddressPool</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-pool</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metallb-system</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">addresses</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0.1.100-10.0.1.110</span><span class="w">  </span><span class="c1"># Tihama</span>
+<span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metallb.io/v1beta1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">L2Advertisement</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-l2</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metallb-system</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ipAddressPools</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-pool</span>
+</code></pre></div>
+
+<h3 id="longhorn">Longhorn للتخزين<a class="headerlink" href="#longhorn" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">longhorn.io/v1beta2</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Setting</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default-replica-count</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">longhorn-system</span>
+<span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3&quot;</span>
+<span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">storage.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">StorageClass</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">longhorn-sahool</span>
+<span class="nt">provisioner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">driver.longhorn.io</span>
+<span class="nt">parameters</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">numberOfReplicas</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3&quot;</span>
+<span class="w">  </span><span class="nt">staleReplicaTimeout</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2880&quot;</span>
+<span class="w">  </span><span class="nt">fromBackup</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">  </span><span class="nt">fsType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ext4</span>
+<span class="nt">reclaimPolicy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Retain</span>
+<span class="nt">volumeBindingMode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Immediate</span>
+</code></pre></div>
+
+<hr />
+<h2 id="failover-testing">اختبار التحويل | Failover Testing<a class="headerlink" href="#failover-testing" title="Permanent link">&para;</a></h2>
+<h3 id="_1">سكربت الاختبار<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># test-failover.sh</span>
+
+<span class="nv">REGIONS</span><span class="o">=(</span><span class="s2">&quot;tihama&quot;</span><span class="w"> </span><span class="s2">&quot;highlands&quot;</span><span class="w"> </span><span class="s2">&quot;hadramout&quot;</span><span class="o">)</span>
+<span class="nv">PRIMARY</span><span class="o">=</span><span class="s2">&quot;tihama&quot;</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Testing failover from </span><span class="nv">$PRIMARY</span><span class="s2">...&quot;</span>
+
+<span class="c1"># 1. إيقاف المنطقة الأساسية</span>
+kubectl<span class="w"> </span>--context<span class="w"> </span>sahool-<span class="nv">$PRIMARY</span><span class="w"> </span>scale<span class="w"> </span>deployment<span class="w"> </span>--all<span class="w"> </span>--replicas<span class="o">=</span><span class="m">0</span><span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># 2. التحقق من التحويل التلقائي</span>
+sleep<span class="w"> </span><span class="m">30</span>
+<span class="k">for</span><span class="w"> </span>region<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">REGIONS</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$region</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PRIMARY</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Checking </span><span class="nv">$region</span><span class="s2">...&quot;</span>
+<span class="w">    </span>kubectl<span class="w"> </span>--context<span class="w"> </span>sahool-<span class="nv">$region</span><span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="w">    </span><span class="c1"># التحقق من صحة الخدمات</span>
+<span class="w">    </span>curl<span class="w"> </span>-s<span class="w"> </span>https://api.<span class="nv">$region</span>.sahool.local/healthz
+<span class="w">  </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># 3. استعادة المنطقة الأساسية</span>
+kubectl<span class="w"> </span>--context<span class="w"> </span>sahool-<span class="nv">$PRIMARY</span><span class="w"> </span>scale<span class="w"> </span>deployment<span class="w"> </span>--all<span class="w"> </span>--replicas<span class="o">=</span><span class="m">2</span><span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Failover test complete.&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="useful-commands">الأوامر المفيدة | Useful Commands<a class="headerlink" href="#useful-commands" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># عرض حالة جميع العناقيد</span>
+argocd<span class="w"> </span>cluster<span class="w"> </span>list
+
+<span class="c1"># مزامنة تطبيق لجميع المناطق</span>
+argocd<span class="w"> </span>app<span class="w"> </span>sync<span class="w"> </span>sahool-tihama<span class="w"> </span>sahool-highlands<span class="w"> </span>sahool-hadramout
+
+<span class="c1"># عرض حالة التكرار</span>
+kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>postgresql-0<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT * FROM pg_stat_replication;&quot;</span>
+
+<span class="c1"># التحقق من NATS Gateways</span>
+nats<span class="w"> </span>server<span class="w"> </span>info<span class="w"> </span>--server<span class="w"> </span>nats.tihama.sahool.local:4222
+
+<span class="c1"># عرض مقاييس عبر المناطق</span>
+curl<span class="w"> </span>-s<span class="w"> </span>prometheus.central.sahool.local:9090/api/v1/query<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;query=up{job=~&quot;sahool.*&quot;}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.result[] | {region: .metric.region, status: .value[1]}&#39;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="references">المراجع | References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Argo CD ApplicationSet to deploy SAHOOL to multiple clusters</li>
-<li>Cluster registry pattern for on-prem HCI</li>
+<li><a href="https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/">Argo CD ApplicationSets</a></li>
+<li><a href="https://www.postgresql.org/docs/current/warm-standby.html">PostgreSQL Streaming Replication</a></li>
+<li><a href="https://docs.nats.io/running-a-nats-service/configuration/gateways">NATS Super-Cluster</a></li>
+<li><a href="https://docs.k3s.io/">k3s Documentation</a></li>
+<li><a href="https://longhorn.io/docs/">Longhorn Storage</a></li>
+<li><a href="https://metallb.universe.tf/">MetalLB</a></li>
 </ul>
-<p>Approach:</p>
-<ul>
-<li>Register clusters in Argo CD</li>
-<li>Use ApplicationSet to target clusters by labels (region=tehama, region=jawf, etc.)</li>
-<li>Environment overlays remain in git (<code>gitops/environments/*</code>)</li>
-</ul>
-<p>This is safer than Kubernetes federation for most ops teams.</p>
+<hr />
+<p><em>Last Updated: January 2026</em></p>
 
 
 

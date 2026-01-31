@@ -23,7 +23,7 @@
     
     
       
-        <title>Feature Flags + Experiments - SAHOOL Developer Documentation</title>
+        <title>Feature Flags & Experiments | فلاغات الميزات والتجارب - SAHOOL Developer Documentation</title>
       
     
     
@@ -106,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Feature Flags + Experiments
+              Feature Flags &amp; Experiments | فلاغات الميزات والتجارب
             
           </span>
         </div>
@@ -1116,25 +1116,687 @@
 
 
 
-<h1 id="feature-flags-experiments">Feature Flags + Experiments<a class="headerlink" href="#feature-flags-experiments" title="Permanent link">&para;</a></h1>
-<p>Included components:</p>
+<h1 id="feature-flags-experiments">Feature Flags &amp; Experiments | فلاغات الميزات والتجارب<a class="headerlink" href="#feature-flags-experiments" title="Permanent link">&para;</a></h1>
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>نظام فلاغات الميزات في منصة سهول يعتمد على:
+- <strong>OpenFeature SDK</strong>: واجهة موحدة للتطبيقات
+- <strong>flagd</strong>: مزود فلاغات خفيف الوزن
+- <strong>GitOps</strong>: تكوين الفلاغات عبر Git</p>
+<hr />
+<h2 id="architecture">البنية المعمارية | Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Application   │────▶│  OpenFeature    │────▶│     flagd       │
+│   (Service)     │     │     SDK         │     │   (Provider)    │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+                                                         │
+                                                         ▼
+                                                ┌─────────────────┐
+                                                │   ConfigMap     │
+                                                │  (flags.json)   │
+                                                └─────────────────┘
+                                                         │
+                                                         ▼
+                                                ┌─────────────────┐
+                                                │     GitOps      │
+                                                │   (Argo CD)     │
+                                                └─────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="installation">التثبيت | Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<h3 id="1-flagd">1. نشر flagd<a class="headerlink" href="#1-flagd" title="Permanent link">&para;</a></h3>
+<p><strong>الموقع</strong>: <code>/gitops/feature-flags/flagd/</code></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># تطبيق manifests</span>
+kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>gitops/feature-flags/flagd/
+
+<span class="c1"># أو عبر ArgoCD</span>
+argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> </span>feature-flags<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--repo<span class="w"> </span><span class="si">${</span><span class="nv">REPO_URL</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--path<span class="w"> </span>gitops/feature-flags/flagd<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--dest-namespace<span class="w"> </span>feature-flags<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--dest-server<span class="w"> </span>https://kubernetes.default.svc
+</code></pre></div>
+
+<h3 id="2-kubernetes-manifests">2. Kubernetes Manifests<a class="headerlink" href="#2-kubernetes-manifests" title="Permanent link">&para;</a></h3>
+<p><strong>namespace.yaml</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Namespace</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature-flags</span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature-flags</span>
+</code></pre></div>
+
+<p><strong>deployment.yaml</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flagd</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature-flags</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flagd</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flagd</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flagd</span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/open-feature/flagd:v0.11.1</span>
+<span class="w">          </span><span class="nt">args</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">start</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--uri</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file:/etc/flagd/flags.json</span>
+<span class="w">          </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8013</span>
+<span class="w">              </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">grpc</span>
+<span class="w">          </span><span class="nt">volumeMounts</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flags-config</span>
+<span class="w">              </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/flagd</span>
+<span class="w">      </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flags-config</span>
+<span class="w">          </span><span class="nt">configMap</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flagd-config</span>
+</code></pre></div>
+
+<p><strong>service.yaml</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flagd</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature-flags</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flagd</span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8013</span>
+<span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8013</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">grpc</span>
+</code></pre></div>
+
+<hr />
+<h2 id="flag-configuration">تكوين الفلاغات | Flag Configuration<a class="headerlink" href="#flag-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="flagsjson">ملف التكوين (flags.json)<a class="headerlink" href="#flagsjson" title="Permanent link">&para;</a></h3>
+<p><strong>الموقع</strong>: <code>/gitops/feature-flags/flagd/configmap.yaml</code></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flagd-config</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature-flags</span>
+<span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">flags.json</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">{</span>
+<span class="w">      </span><span class="no">&quot;$schema&quot;: &quot;https://flagd.dev/schema/v0/flags.json&quot;,</span>
+<span class="w">      </span><span class="no">&quot;flags&quot;: {</span>
+<span class="w">        </span><span class="no">&quot;ndvi.newPipeline&quot;: {</span>
+<span class="w">          </span><span class="no">&quot;state&quot;: &quot;ENABLED&quot;,</span>
+<span class="w">          </span><span class="no">&quot;variants&quot;: {</span>
+<span class="w">            </span><span class="no">&quot;on&quot;: true,</span>
+<span class="w">            </span><span class="no">&quot;off&quot;: false</span>
+<span class="w">          </span><span class="no">},</span>
+<span class="w">          </span><span class="no">&quot;defaultVariant&quot;: &quot;off&quot;,</span>
+<span class="w">          </span><span class="no">&quot;targeting&quot;: {</span>
+<span class="w">            </span><span class="no">&quot;if&quot;: [</span>
+<span class="w">              </span><span class="no">{&quot;in&quot;: [&quot;beta&quot;, {&quot;var&quot;: &quot;tenant_tier&quot;}]},</span>
+<span class="w">              </span><span class="no">&quot;on&quot;,</span>
+<span class="w">              </span><span class="no">&quot;off&quot;</span>
+<span class="w">            </span><span class="no">]</span>
+<span class="w">          </span><span class="no">}</span>
+<span class="w">        </span><span class="no">},</span>
+<span class="w">        </span><span class="no">&quot;advisor.promptV2&quot;: {</span>
+<span class="w">          </span><span class="no">&quot;state&quot;: &quot;ENABLED&quot;,</span>
+<span class="w">          </span><span class="no">&quot;variants&quot;: {</span>
+<span class="w">            </span><span class="no">&quot;v1&quot;: &quot;v1&quot;,</span>
+<span class="w">            </span><span class="no">&quot;v2&quot;: &quot;v2&quot;</span>
+<span class="w">          </span><span class="no">},</span>
+<span class="w">          </span><span class="no">&quot;defaultVariant&quot;: &quot;v1&quot;,</span>
+<span class="w">          </span><span class="no">&quot;targeting&quot;: {</span>
+<span class="w">            </span><span class="no">&quot;fractional&quot;: [</span>
+<span class="w">              </span><span class="no">[&quot;v1&quot;, 70],</span>
+<span class="w">              </span><span class="no">[&quot;v2&quot;, 30]</span>
+<span class="w">            </span><span class="no">]</span>
+<span class="w">          </span><span class="no">}</span>
+<span class="w">        </span><span class="no">},</span>
+<span class="w">        </span><span class="no">&quot;irrigation.smartScheduling&quot;: {</span>
+<span class="w">          </span><span class="no">&quot;state&quot;: &quot;ENABLED&quot;,</span>
+<span class="w">          </span><span class="no">&quot;variants&quot;: {</span>
+<span class="w">            </span><span class="no">&quot;enabled&quot;: true,</span>
+<span class="w">            </span><span class="no">&quot;disabled&quot;: false</span>
+<span class="w">          </span><span class="no">},</span>
+<span class="w">          </span><span class="no">&quot;defaultVariant&quot;: &quot;disabled&quot;,</span>
+<span class="w">          </span><span class="no">&quot;targeting&quot;: {</span>
+<span class="w">            </span><span class="no">&quot;if&quot;: [</span>
+<span class="w">              </span><span class="no">{&quot;in&quot;: [{&quot;var&quot;: &quot;region&quot;}, [&quot;tihama&quot;, &quot;hadramout&quot;]]},</span>
+<span class="w">              </span><span class="no">&quot;enabled&quot;,</span>
+<span class="w">              </span><span class="no">&quot;disabled&quot;</span>
+<span class="w">            </span><span class="no">]</span>
+<span class="w">          </span><span class="no">}</span>
+<span class="w">        </span><span class="no">},</span>
+<span class="w">        </span><span class="no">&quot;marketplace.newUI&quot;: {</span>
+<span class="w">          </span><span class="no">&quot;state&quot;: &quot;ENABLED&quot;,</span>
+<span class="w">          </span><span class="no">&quot;variants&quot;: {</span>
+<span class="w">            </span><span class="no">&quot;enabled&quot;: true,</span>
+<span class="w">            </span><span class="no">&quot;disabled&quot;: false</span>
+<span class="w">          </span><span class="no">},</span>
+<span class="w">          </span><span class="no">&quot;defaultVariant&quot;: &quot;disabled&quot;,</span>
+<span class="w">          </span><span class="no">&quot;targeting&quot;: {</span>
+<span class="w">            </span><span class="no">&quot;if&quot;: [</span>
+<span class="w">              </span><span class="no">{&quot;&gt;=&quot;: [{&quot;var&quot;: &quot;user_score&quot;}, 80]},</span>
+<span class="w">              </span><span class="no">&quot;enabled&quot;,</span>
+<span class="w">              </span><span class="no">&quot;disabled&quot;</span>
+<span class="w">            </span><span class="no">]</span>
+<span class="w">          </span><span class="no">}</span>
+<span class="w">        </span><span class="no">},</span>
+<span class="w">        </span><span class="no">&quot;ai.ragEnabled&quot;: {</span>
+<span class="w">          </span><span class="no">&quot;state&quot;: &quot;ENABLED&quot;,</span>
+<span class="w">          </span><span class="no">&quot;variants&quot;: {</span>
+<span class="w">            </span><span class="no">&quot;on&quot;: true,</span>
+<span class="w">            </span><span class="no">&quot;off&quot;: false</span>
+<span class="w">          </span><span class="no">},</span>
+<span class="w">          </span><span class="no">&quot;defaultVariant&quot;: &quot;off&quot;,</span>
+<span class="w">          </span><span class="no">&quot;targeting&quot;: {</span>
+<span class="w">            </span><span class="no">&quot;if&quot;: [</span>
+<span class="w">              </span><span class="no">{&quot;==&quot;: [{&quot;var&quot;: &quot;subscription&quot;}, &quot;enterprise&quot;]},</span>
+<span class="w">              </span><span class="no">&quot;on&quot;,</span>
+<span class="w">              </span><span class="no">&quot;off&quot;</span>
+<span class="w">            </span><span class="no">]</span>
+<span class="w">          </span><span class="no">}</span>
+<span class="w">        </span><span class="no">}</span>
+<span class="w">      </span><span class="no">}</span>
+<span class="w">    </span><span class="no">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="sdk-sdk-usage">استخدام SDK | SDK Usage<a class="headerlink" href="#sdk-sdk-usage" title="Permanent link">&para;</a></h2>
+<h3 id="python-fastapi">Python (FastAPI)<a class="headerlink" href="#python-fastapi" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">openfeature</span><span class="w"> </span><span class="kn">import</span> <span class="n">api</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openfeature.contrib.provider.flagd</span><span class="w"> </span><span class="kn">import</span> <span class="n">FlagdProvider</span>
+
+<span class="c1"># تهيئة المزود</span>
+<span class="n">api</span><span class="o">.</span><span class="n">set_provider</span><span class="p">(</span><span class="n">FlagdProvider</span><span class="p">(</span>
+    <span class="n">host</span><span class="o">=</span><span class="s2">&quot;flagd.feature-flags.svc.cluster.local&quot;</span><span class="p">,</span>
+    <span class="n">port</span><span class="o">=</span><span class="mi">8013</span>
+<span class="p">))</span>
+
+<span class="c1"># الحصول على العميل</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
+
+<span class="c1"># استخدام الفلاغ</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/ndvi/process&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">process_ndvi</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tenant_tier</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="c1"># سياق التقييم</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">EvaluationContext</span><span class="p">(</span>
+        <span class="n">targeting_key</span><span class="o">=</span><span class="n">tenant_id</span><span class="p">,</span>
+        <span class="n">attributes</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;tenant_tier&quot;</span><span class="p">:</span> <span class="n">tenant_tier</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># تقييم الفلاغ</span>
+    <span class="n">use_new_pipeline</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_boolean_value</span><span class="p">(</span>
+        <span class="s2">&quot;ndvi.newPipeline&quot;</span><span class="p">,</span>
+        <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">context</span><span class="o">=</span><span class="n">context</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">use_new_pipeline</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">process_with_new_pipeline</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">process_with_legacy_pipeline</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="typescript-nodejsnestjs">TypeScript (Node.js/NestJS)<a class="headerlink" href="#typescript-nodejsnestjs" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenFeature</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@openfeature/server-sdk&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FlagdProvider</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@openfeature/flagd-provider&#39;</span><span class="p">;</span>
+
+<span class="c1">// تهيئة المزود</span>
+<span class="nx">OpenFeature</span><span class="p">.</span><span class="nx">setProvider</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">FlagdProvider</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">host</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;flagd.feature-flags.svc.cluster.local&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">port</span><span class="o">:</span><span class="w"> </span><span class="kt">8013</span><span class="p">,</span>
+<span class="p">}));</span>
+
+<span class="c1">// الحصول على العميل</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">OpenFeature</span><span class="p">.</span><span class="nx">getClient</span><span class="p">();</span>
+
+<span class="c1">// استخدام الفلاغ</span>
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">getAdvisorPrompt</span><span class="p">(</span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">subscription</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">targetingKey</span><span class="o">:</span><span class="w"> </span><span class="kt">userId</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">subscription</span><span class="p">,</span>
+<span class="w">  </span><span class="p">};</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">promptVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">getStringValue</span><span class="p">(</span>
+<span class="w">    </span><span class="s1">&#39;advisor.promptV2&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;v1&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">context</span>
+<span class="w">  </span><span class="p">);</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">promptVersion</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;v2&#39;</span>
+<span class="w">    </span><span class="o">?</span><span class="w"> </span><span class="nx">getPromptV2</span><span class="p">()</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="nx">getPromptV1</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="dart-flutter">Dart (Flutter)<a class="headerlink" href="#dart-flutter" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="s1">&#39;package:openfeature/openfeature.dart&#39;</span><span class="p">;</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">FeatureFlagService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">late</span><span class="w"> </span><span class="n">OpenFeatureClient</span><span class="w"> </span><span class="n">_client</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">initialize</span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FlagdProvider</span><span class="p">(</span>
+<span class="w">      </span><span class="nl">host:</span><span class="w"> </span><span class="s1">&#39;api.sahool.io&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">port:</span><span class="w"> </span><span class="m">8013</span><span class="p">,</span>
+<span class="w">    </span><span class="p">);</span>
+
+<span class="w">    </span><span class="kd">await</span><span class="w"> </span><span class="n">OpenFeature</span><span class="p">.</span><span class="n">instance</span><span class="p">.</span><span class="n">setProvider</span><span class="p">(</span><span class="n">provider</span><span class="p">);</span>
+<span class="w">    </span><span class="n">_client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OpenFeature</span><span class="p">.</span><span class="n">instance</span><span class="p">.</span><span class="n">getClient</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">isNewUIEnabled</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">userId</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">userScore</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EvaluationContext</span><span class="p">(</span>
+<span class="w">      </span><span class="nl">targetingKey:</span><span class="w"> </span><span class="n">userId</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">attributes:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s1">&#39;user_score&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">userScore</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_client</span><span class="p">.</span><span class="n">getBooleanValue</span><span class="p">(</span>
+<span class="w">      </span><span class="s1">&#39;marketplace.newUI&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">defaultValue:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">context:</span><span class="w"> </span><span class="n">context</span><span class="p">,</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="flag-types">أنواع الفلاغات | Flag Types<a class="headerlink" href="#flag-types" title="Permanent link">&para;</a></h2>
+<h3 id="1-boolean-flags">1. Boolean Flags (فلاغات منطقية)<a class="headerlink" href="#1-boolean-flags" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;feature.enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ENABLED&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;variants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;on&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;off&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;defaultVariant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;off&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="2-string-flags">2. String Flags (فلاغات نصية)<a class="headerlink" href="#2-string-flags" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;ui.theme&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ENABLED&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;variants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;light&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;light&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;dark&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dark&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;system&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;system&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;defaultVariant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;system&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="3-number-flags">3. Number Flags (فلاغات رقمية)<a class="headerlink" href="#3-number-flags" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;rate.limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ENABLED&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;variants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;low&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;medium&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;high&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;defaultVariant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="4-object-flags">4. Object Flags (فلاغات كائنات)<a class="headerlink" href="#4-object-flags" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;experiment.config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ENABLED&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;variants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;control&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;buttonColor&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;showBanner&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;treatment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;buttonColor&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;green&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;showBanner&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;defaultVariant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;control&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="targeting-rules">قواعد الاستهداف | Targeting Rules<a class="headerlink" href="#targeting-rules" title="Permanent link">&para;</a></h2>
+<h3 id="1-percentage-rollout">1. استهداف بالنسبة المئوية (Percentage Rollout)<a class="headerlink" href="#1-percentage-rollout" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;targeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;fractional&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">[</span><span class="s2">&quot;control&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="s2">&quot;treatment&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">]</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="2-attribute-targeting">2. استهداف بالسمات (Attribute Targeting)<a class="headerlink" href="#2-attribute-targeting" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;targeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;if&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;==&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;var&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;subscription&quot;</span><span class="p">},</span><span class="w"> </span><span class="s2">&quot;enterprise&quot;</span><span class="p">]},</span>
+<span class="w">      </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;disabled&quot;</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="3-list-targeting">3. استهداف بالقائمة (List Targeting)<a class="headerlink" href="#3-list-targeting" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;targeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;if&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;in&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;var&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_id&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;user-1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user-2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user-3&quot;</span><span class="p">]]},</span>
+<span class="w">      </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;disabled&quot;</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="4-combined-targeting">4. استهداف مركب (Combined Targeting)<a class="headerlink" href="#4-combined-targeting" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;targeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;if&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;and&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span><span class="nt">&quot;==&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;var&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;subscription&quot;</span><span class="p">},</span><span class="w"> </span><span class="s2">&quot;enterprise&quot;</span><span class="p">]},</span>
+<span class="w">        </span><span class="p">{</span><span class="nt">&quot;&gt;=&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;var&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_score&quot;</span><span class="p">},</span><span class="w"> </span><span class="mi">50</span><span class="p">]}</span>
+<span class="w">      </span><span class="p">]},</span>
+<span class="w">      </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;if&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span><span class="nt">&quot;in&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;var&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;region&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;beta-regions&quot;</span><span class="p">]]},</span>
+<span class="w">        </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;disabled&quot;</span>
+<span class="w">      </span><span class="p">]}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="ab-testing-experiments">التجارب (A/B Testing) | Experiments<a class="headerlink" href="#ab-testing-experiments" title="Permanent link">&para;</a></h2>
+<h3 id="_1">تصميم التجربة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;experiment.checkout_flow&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ENABLED&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;variants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;control&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Current Flow&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;showProgress&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;variant_a&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Simplified Flow&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;showProgress&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;variant_b&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Guided Flow&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;showProgress&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;defaultVariant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;control&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;targeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;fractional&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">[</span><span class="s2">&quot;control&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">34</span><span class="p">],</span>
+<span class="w">        </span><span class="p">[</span><span class="s2">&quot;variant_a&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">33</span><span class="p">],</span>
+<span class="w">        </span><span class="p">[</span><span class="s2">&quot;variant_b&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">33</span><span class="p">]</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_2">تتبع التجربة<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openfeature</span><span class="w"> </span><span class="kn">import</span> <span class="n">api</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">checkout</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cart</span><span class="p">:</span> <span class="n">Cart</span><span class="p">):</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">EvaluationContext</span><span class="p">(</span><span class="n">targeting_key</span><span class="o">=</span><span class="n">user_id</span><span class="p">)</span>
+
+    <span class="c1"># الحصول على متغير التجربة</span>
+    <span class="n">variant</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_object_value</span><span class="p">(</span>
+        <span class="s2">&quot;experiment.checkout_flow&quot;</span><span class="p">,</span>
+        <span class="n">default_value</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;control&quot;</span><span class="p">,</span> <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+        <span class="n">context</span><span class="o">=</span><span class="n">context</span>
+    <span class="p">)</span>
+
+    <span class="c1"># تسجيل التعيين</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;experiment_assignment&quot;</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="o">=</span><span class="s2">&quot;checkout_flow&quot;</span><span class="p">,</span>
+        <span class="n">variant</span><span class="o">=</span><span class="n">variant</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+        <span class="n">user_id</span><span class="o">=</span><span class="n">user_id</span>
+    <span class="p">)</span>
+
+    <span class="c1"># تنفيذ التجربة</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">execute_checkout</span><span class="p">(</span><span class="n">cart</span><span class="p">,</span> <span class="n">variant</span><span class="p">)</span>
+
+    <span class="c1"># تسجيل النتيجة</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;experiment_outcome&quot;</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="o">=</span><span class="s2">&quot;checkout_flow&quot;</span><span class="p">,</span>
+        <span class="n">variant</span><span class="o">=</span><span class="n">variant</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+        <span class="n">user_id</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span>
+        <span class="n">success</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">,</span>
+        <span class="n">conversion_value</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">total</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div>
+
+<hr />
+<h2 id="argo-rollouts-integration-with-rollouts">التكامل مع Argo Rollouts | Integration with Rollouts<a class="headerlink" href="#argo-rollouts-integration-with-rollouts" title="Permanent link">&para;</a></h2>
+<h3 id="analysis-template">Analysis Template<a class="headerlink" href="#analysis-template" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">argoproj.io/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AnalysisTemplate</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature-flag-analysis</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">args</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flag-name</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">expected-variant</span>
+<span class="w">  </span><span class="nt">metrics</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flag-evaluation</span>
+<span class="w">      </span><span class="nt">provider</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">web</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http://flagd.feature-flags:8013/schema.v1.Service/ResolveBoolean&quot;</span>
+<span class="w">          </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">POST</span>
+<span class="w">          </span><span class="nt">body</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">            </span><span class="no">{</span>
+<span class="w">              </span><span class="no">&quot;flagKey&quot;: &quot;{{args.flag-name}}&quot;,</span>
+<span class="w">              </span><span class="no">&quot;context&quot;: {}</span>
+<span class="w">            </span><span class="no">}</span>
+<span class="w">      </span><span class="nt">successCondition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">result.variant == &quot;{{args.expected-variant}}&quot;</span>
+</code></pre></div>
+
+<h3 id="rollout-with-feature-flag">Rollout with Feature Flag<a class="headerlink" href="#rollout-with-feature-flag" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">argoproj.io/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rollout</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ndvi-processor</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">strategy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">canary</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pause</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="nv">5m</span><span class="p p-Indicator">}</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">analysis</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">templates</span><span class="p">:</span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">templateName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature-flag-analysis</span>
+<span class="w">            </span><span class="nt">args</span><span class="p">:</span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flag-name</span>
+<span class="w">                </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ndvi.newPipeline</span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">expected-variant</span>
+<span class="w">                </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;on&quot;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pause</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="nv">10m</span><span class="p p-Indicator">}</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+</code></pre></div>
+
+<hr />
+<h2 id="flag-management">إدارة الفلاغات | Flag Management<a class="headerlink" href="#flag-management" title="Permanent link">&para;</a></h2>
+<h3 id="_3">دورة حياة الفلاغ<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">DISABLED</span><span class="w"> </span><span class="p">(</span><span class="n">معطل</span><span class="p">)</span>
+<span class="w">   </span><span class="err">↓</span><span class="w"> </span><span class="n">تفعيل</span><span class="w"> </span><span class="n">للاختبار</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">ENABLED</span><span class="w"> </span><span class="p">(</span><span class="n">مفعل</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">نسبة</span><span class="w"> </span><span class="n">صغيرة</span><span class="p">)</span>
+<span class="w">   </span><span class="err">↓</span><span class="w"> </span><span class="n">توسيع</span><span class="w"> </span><span class="n">تدريجي</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">ENABLED</span><span class="w"> </span><span class="p">(</span><span class="n">مفعل</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">100</span><span class="err">%</span><span class="p">)</span>
+<span class="w">   </span><span class="err">↓</span><span class="w"> </span><span class="n">تثبيت</span><span class="w"> </span><span class="n">في</span><span class="w"> </span><span class="n">الكود</span>
+<span class="mf">4.</span><span class="w"> </span><span class="c1">REMOVED (إزالة الفلاغ)</span>
+</code></pre></div>
+
+<h3 id="_4">أفضل الممارسات<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>تسمية الفلاغات</strong>:
+   ```
+   {domain}.{feature}</li>
+</ol>
+<p>مثال:
+   - ndvi.newPipeline
+   - advisor.promptV2
+   - marketplace.newUI
+   ```</p>
+<ol>
+<li>
+<p><strong>توثيق الفلاغات</strong>:
+   <code>json
+   {
+     "myFlag": {
+       "_meta": {
+         "description": "وصف الميزة",
+         "owner": "team-name",
+         "created": "2026-01-15",
+         "expires": "2026-06-15"
+       }
+     }
+   }</code></p>
+</li>
+<li>
+<p><strong>تنظيف الفلاغات</strong>:</p>
+</li>
+<li>مراجعة أسبوعية للفلاغات المنتهية</li>
+<li>إزالة الفلاغات بعد 100% rollout</li>
+<li>أرشفة تكوينات الفلاغات القديمة</li>
+</ol>
+<hr />
+<h2 id="monitoring">المراقبة والتتبع | Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="prometheus-metrics">Prometheus Metrics<a class="headerlink" href="#prometheus-metrics" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># مقاييس flagd</span>
+<span class="l l-Scalar l-Scalar-Plain">flagd_impressions_total{flag_key, variant}</span>
+<span class="l l-Scalar l-Scalar-Plain">flagd_reasons_total{flag_key, reason}</span>
+<span class="l l-Scalar l-Scalar-Plain">flagd_evaluation_duration_seconds{flag_key}</span>
+</code></pre></div>
+
+<h3 id="grafana-dashboard">Grafana Dashboard<a class="headerlink" href="#grafana-dashboard" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Feature Flags&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;panels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Flag Evaluations&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sum(rate(flagd_impressions_total[5m])) by (flag_key, variant)&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Evaluation Latency&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;histogram_quantile(0.95, flagd_evaluation_duration_seconds)&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="advanced-alternatives">البدائل المتقدمة | Advanced Alternatives<a class="headerlink" href="#advanced-alternatives" title="Permanent link">&para;</a></h2>
+<p>إذا كنت بحاجة لميزات أكثر تقدماً:</p>
+<table>
+<thead>
+<tr>
+<th>المنصة</th>
+<th>الميزات</th>
+<th>التكلفة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Unleash</strong></td>
+<td>Self-hosted, SDKs, UI</td>
+<td>مجاني/مدفوع</td>
+</tr>
+<tr>
+<td><strong>LaunchDarkly</strong></td>
+<td>Enterprise, Analytics</td>
+<td>مدفوع</td>
+</tr>
+<tr>
+<td><strong>Split.io</strong></td>
+<td>Experimentation</td>
+<td>مدفوع</td>
+</tr>
+<tr>
+<td><strong>Flagsmith</strong></td>
+<td>Open-source, UI</td>
+<td>مجاني/مدفوع</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="useful-commands">الأوامر المفيدة | Useful Commands<a class="headerlink" href="#useful-commands" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># التحقق من حالة flagd</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>feature-flags
+
+<span class="c1"># عرض السجلات</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </span>feature-flags<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>flagd
+
+<span class="c1"># تحديث التكوين</span>
+kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>gitops/feature-flags/flagd/configmap.yaml
+
+<span class="c1"># إعادة تحميل التكوين (بدون إعادة تشغيل)</span>
+kubectl<span class="w"> </span>rollout<span class="w"> </span>restart<span class="w"> </span>deployment/flagd<span class="w"> </span>-n<span class="w"> </span>feature-flags
+
+<span class="c1"># اختبار الفلاغ</span>
+grpcurl<span class="w"> </span>-plaintext<span class="w"> </span>flagd.feature-flags:8013<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>schema.v1.Service/ResolveBoolean<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;flagKey&quot;: &quot;ndvi.newPipeline&quot;, &quot;context&quot;: {}}&#39;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="references">المراجع | References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
 <ul>
-<li>OpenFeature SDK guidance (app-side)</li>
-<li><code>flagd</code> (lightweight) as a local flag provider</li>
-<li>GitOps install manifests for <code>flagd</code></li>
-<li>Suggested A/B experiments model (tenant cohort + percentage rollout)</li>
+<li><a href="https://openfeature.dev/docs">OpenFeature Documentation</a></li>
+<li><a href="https://flagd.dev/docs">flagd Documentation</a></li>
+<li><a href="https://jsonlogic.com/">JSON Logic</a></li>
+<li><a href="https://martinfowler.com/articles/feature-toggles.html">Feature Flag Best Practices</a></li>
 </ul>
-<h2 id="how-to-use">How to use<a class="headerlink" href="#how-to-use" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Services read flags via OpenFeature</li>
-<li>Flags are configured in flagd ConfigMap (GitOps)</li>
-<li>Combine with Rollouts for progressive delivery</li>
-</ul>
-<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Replace flagd with Unleash or LaunchDarkly if desired</li>
-<li>Add experiment assignment service (optional)</li>
-</ul>
+<hr />
+<p><em>Last Updated: January 2026</em></p>
 
 
 

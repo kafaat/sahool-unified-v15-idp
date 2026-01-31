@@ -2529,6 +2529,201 @@ services:
     - sahool.category=core
     - traefik.enable=true
     - traefik.http.routers.field-service.rule=PathPrefix(`/api/v1/field/service`)
+  yolo26-vision-service:
+    build:
+      context: ./apps/services/yolo26-vision-service
+      dockerfile: Dockerfile
+    container_name: sahool-yolo26-vision-service
+    ports:
+    - 8150:8150
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8150
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8150/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=yolo26-vision-service
+    - sahool.port=8150
+    - sahool.category=analytics
+    - traefik.enable=true
+    - traefik.http.routers.yolo26-vision-service.rule=PathPrefix(`/api/v1/yolo26/vision/service`)
+  terrain-core-service:
+    build:
+      context: ./apps/services/terrain-core-service
+      dockerfile: Dockerfile
+    container_name: sahool-terrain-core-service
+    ports:
+    - 8185:8185
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8185
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8185/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=terrain-core-service
+    - sahool.port=8185
+    - sahool.category=analytics
+    - traefik.enable=true
+    - traefik.http.routers.terrain-core-service.rule=PathPrefix(`/api/v1/terrain/core/service`)
+  hydrology-service:
+    build:
+      context: ./apps/services/hydrology-service
+      dockerfile: Dockerfile
+    container_name: sahool-hydrology-service
+    ports:
+    - 8165:8165
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8165
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8165/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=hydrology-service
+    - sahool.port=8165
+    - sahool.category=analytics
+    - traefik.enable=true
+    - traefik.http.routers.hydrology-service.rule=PathPrefix(`/api/v1/hydrology/service`)
+  leveling-optimizer-service:
+    build:
+      context: ./apps/services/leveling-optimizer-service
+      dockerfile: Dockerfile
+    container_name: sahool-leveling-optimizer-service
+    ports:
+    - 8170:8170
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8170
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8170/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=leveling-optimizer-service
+    - sahool.port=8170
+    - sahool.category=analytics
+    - traefik.enable=true
+    - traefik.http.routers.leveling-optimizer-service.rule=PathPrefix(`/api/v1/leveling/optimizer/service`)
+  edge-orchestrator-service:
+    build:
+      context: ./apps/services/edge-orchestrator-service
+      dockerfile: Dockerfile
+    container_name: sahool-edge-orchestrator-service
+    ports:
+    - 8190:8190
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8190
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8190/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=edge-orchestrator-service
+    - sahool.port=8190
+    - sahool.category=integration
+    - traefik.enable=true
+    - traefik.http.routers.edge-orchestrator-service.rule=PathPrefix(`/api/v1/edge/orchestrator/service`)
   web:
     build:
       context: ./apps/web

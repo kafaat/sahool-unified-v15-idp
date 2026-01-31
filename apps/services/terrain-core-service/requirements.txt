@@ -1,0 +1,70 @@
+# ============================================
+# SAHOOL Terrain Core Service - Dependencies
+# خدمة تحليل التضاريس - المتطلبات
+# ============================================
+
+# Web Framework
+fastapi==0.126.0
+starlette>=0.49.1
+uvicorn[standard]>=0.30.0,<1.0.0
+
+# Data Validation
+pydantic==2.9.2
+pydantic-settings==2.12.0
+
+# Database (optional, for result caching)
+asyncpg==0.30.0
+
+# Messaging
+nats-py==2.9.0
+
+# HTTP Client
+httpx==0.28.1
+
+# ============================================
+# Geospatial & DEM Processing
+# ============================================
+
+# Core numerical computing
+numpy==1.26.4
+scipy==1.14.1
+
+# Raster processing (requires GDAL)
+rasterio==1.4.3
+
+# Vector processing
+shapely==2.0.6
+
+# Coordinate transformations
+pyproj==3.7.0
+
+# Affine transformations
+affine>=2.4.0
+
+# Image processing (for contour detection)
+scikit-image>=0.24.0
+
+# ============================================
+# Logging & Monitoring
+# ============================================
+
+# Structured logging
+structlog==24.1.0
+
+# Environment variables
+python-dotenv==1.0.1
+
+# Date utilities
+python-dateutil==2.8.2
+
+# ============================================
+# AWS S3 (optional, for DEM storage)
+# ============================================
+boto3==1.35.76
+
+# ============================================
+# Testing
+# ============================================
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-cov==4.1.0

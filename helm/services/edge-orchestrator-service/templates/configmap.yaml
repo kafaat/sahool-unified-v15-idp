@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "edge-orchestrator-service.fullname" . }}-config
+  labels:
+    {{- include "edge-orchestrator-service.labels" . | nindent 4 }}
+data:
+  SERVICE_NAME: "edge-orchestrator-service"
+  SERVICE_VERSION: {{ .Chart.AppVersion | quote }}
+  LOG_LEVEL: {{ .Values.env.LOG_LEVEL | default "INFO" | quote }}
+  LOG_FORMAT: "json"
+
+  # Edge Orchestration Configuration
+  SYNC_BATCH_SIZE: {{ .Values.env.SYNC_BATCH_SIZE | default "100" | quote }}
+  SYNC_INTERVAL_SECONDS: {{ .Values.env.SYNC_INTERVAL_SECONDS | default "30" | quote }}
+  MAX_OFFLINE_DAYS: {{ .Values.env.MAX_OFFLINE_DAYS | default "30" | quote }}
+  CONFLICT_RESOLUTION_STRATEGY: {{ .Values.env.CONFLICT_RESOLUTION_STRATEGY | default "last-write-wins" | quote }}
+  EDGE_HEARTBEAT_TIMEOUT_SECONDS: {{ .Values.env.EDGE_HEARTBEAT_TIMEOUT_SECONDS | default "60" | quote }}
+
+  # Infrastructure
+  {{- if .Values.nats.url }}
+  NATS_URL: {{ .Values.nats.url | quote }}
+  {{- else }}
+  NATS_URL: "nats://nats:4222"
+  {{- end }}
+
+  {{- if .Values.redis.url }}
+  REDIS_URL: {{ .Values.redis.url | quote }}
+  {{- else }}
+  REDIS_URL: "redis://redis:6379"
+  {{- end }}
+
+  # Feature Flags
+  ENABLE_METRICS: "true"
+  ENABLE_TRACING: "false"
+  METRICS_PORT: "8180"

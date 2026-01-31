@@ -1,0 +1,2185 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Edge Orchestrator Service API
+  description: |
+    # SAHOOL Edge Orchestrator Service API
+    ## واجهة برمجة تطبيقات خدمة تنسيق الحافة
+
+    Edge computing orchestration for offline-first agricultural operations.
+    تنسيق الحوسبة الطرفية لعمليات زراعية تعمل بدون اتصال أولاً.
+
+    ## Capabilities | القدرات
+
+    - **Device Management**: Register and manage edge devices
+      إدارة الأجهزة: تسجيل وإدارة أجهزة الحافة
+    - **Deployment Orchestration**: Deploy AI models and services to edge
+      تنسيق النشر: نشر نماذج الذكاء الاصطناعي والخدمات على الحافة
+    - **Sync Management**: Manage data synchronization between edge and cloud
+      إدارة المزامنة: إدارة مزامنة البيانات بين الحافة والسحابة
+    - **Health Monitoring**: Monitor edge device health and connectivity
+      مراقبة الصحة: مراقبة صحة أجهزة الحافة والاتصال
+    - **Offline Queues**: Manage offline operation queues
+      قوائم الانتظار غير المتصلة: إدارة قوائم انتظار العمليات غير المتصلة
+    - **Firmware Updates**: OTA firmware update management
+      تحديثات البرامج الثابتة: إدارة تحديثات البرامج الثابتة عبر الهواء
+
+    ## Architecture | البنية
+
+    ```
+    Cloud (SAHOOL)
+         |
+    Edge Gateway (Farm Level)
+         |
+    +----+----+----+
+    |    |    |    |
+    IoT  AI   Mobile  Sensors
+    Hub  Node  Device
+    ```
+
+    ## Authentication | المصادقة
+    - Cloud API: JWT Bearer token
+    - Edge devices: mTLS + Device certificates
+    - Mobile sync: JWT + Device binding
+
+    ## Rate Limiting | حدود الطلبات
+    - Cloud API: 100 requests/minute
+    - Edge sync: 1000 messages/minute per device
+
+  version: 1.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.io
+    url: https://sahool.io
+  license:
+    name: Proprietary
+    url: https://sahool.io/terms
+
+servers:
+  - url: https://api.sahool.io/v1/edge
+    description: Production server | خادم الإنتاج
+  - url: https://staging-api.sahool.io/v1/edge
+    description: Staging server | خادم الاختبار
+  - url: http://localhost:8158/api/v1
+    description: Local development | التطوير المحلي
+
+tags:
+  - name: Devices
+    description: |
+      Edge device registration and management
+      تسجيل وإدارة أجهزة الحافة
+  - name: Deployments
+    description: |
+      Model and service deployment to edge
+      نشر النماذج والخدمات على الحافة
+  - name: Sync
+    description: |
+      Data synchronization management
+      إدارة مزامنة البيانات
+  - name: Queues
+    description: |
+      Offline operation queue management
+      إدارة قوائم انتظار العمليات غير المتصلة
+  - name: Firmware
+    description: |
+      Firmware and OTA updates
+      تحديثات البرامج الثابتة عبر الهواء
+  - name: Monitoring
+    description: |
+      Edge fleet monitoring and telemetry
+      مراقبة أسطول الحافة والقياس عن بعد
+  - name: Policies
+    description: |
+      Edge policies and configuration
+      سياسات الحافة والتكوين
+  - name: Health Check
+    description: |
+      Service health and status endpoints
+      نقاط فحص صحة الخدمة
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication for cloud API | مصادقة JWT لواجهة السحابة
+
+    deviceAuth:
+      type: mutualTLS
+      description: mTLS for edge device authentication | mTLS لمصادقة أجهزة الحافة
+
+  parameters:
+    TenantId:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      description: Tenant identifier | معرّف المستأجر
+      schema:
+        type: string
+        format: uuid
+
+    RequestId:
+      name: X-Request-ID
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+
+    DeviceId:
+      name: device_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    DeploymentId:
+      name: deployment_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    # ==================== Enums ====================
+    DeviceType:
+      type: string
+      description: |
+        Type of edge device
+        نوع جهاز الحافة
+      enum:
+        - gateway
+        - ai_node
+        - iot_hub
+        - sensor_aggregator
+        - mobile_device
+        - weather_station
+        - irrigation_controller
+      x-enum-descriptions:
+        gateway: "بوابة الحافة - Edge gateway"
+        ai_node: "عقدة الذكاء الاصطناعي - AI processing node"
+        iot_hub: "مركز إنترنت الأشياء - IoT hub"
+        sensor_aggregator: "مجمّع المستشعرات - Sensor aggregator"
+        mobile_device: "جهاز محمول - Mobile device"
+        weather_station: "محطة طقس - Weather station"
+        irrigation_controller: "وحدة تحكم الري - Irrigation controller"
+
+    DeviceStatus:
+      type: string
+      enum:
+        - online
+        - offline
+        - degraded
+        - maintenance
+        - provisioning
+        - decommissioned
+      x-enum-descriptions:
+        online: "متصل - Device online and healthy"
+        offline: "غير متصل - Device offline"
+        degraded: "متدهور - Partially functional"
+        maintenance: "صيانة - Under maintenance"
+        provisioning: "قيد التزويد - Being provisioned"
+        decommissioned: "خارج الخدمة - Decommissioned"
+
+    ConnectivityType:
+      type: string
+      enum:
+        - cellular_4g
+        - cellular_5g
+        - wifi
+        - ethernet
+        - lora
+        - satellite
+        - offline
+      x-enum-descriptions:
+        cellular_4g: "شبكة 4G - 4G cellular"
+        cellular_5g: "شبكة 5G - 5G cellular"
+        wifi: "واي فاي - WiFi"
+        ethernet: "إيثرنت - Wired ethernet"
+        lora: "لورا - LoRaWAN"
+        satellite: "قمر صناعي - Satellite"
+        offline: "غير متصل - No connectivity"
+
+    DeploymentType:
+      type: string
+      enum:
+        - ai_model
+        - service
+        - config
+        - firmware
+        - data_package
+      x-enum-descriptions:
+        ai_model: "نموذج ذكاء اصطناعي - AI/ML model"
+        service: "خدمة - Microservice"
+        config: "تكوين - Configuration update"
+        firmware: "برامج ثابتة - Firmware update"
+        data_package: "حزمة بيانات - Data package"
+
+    DeploymentStatus:
+      type: string
+      enum:
+        - pending
+        - downloading
+        - installing
+        - running
+        - failed
+        - rolled_back
+        - completed
+      x-enum-descriptions:
+        pending: "قيد الانتظار - Waiting to deploy"
+        downloading: "قيد التحميل - Downloading artifacts"
+        installing: "قيد التثبيت - Installing"
+        running: "قيد التشغيل - Running/Active"
+        failed: "فشل - Deployment failed"
+        rolled_back: "تم التراجع - Rolled back to previous"
+        completed: "مكتمل - Successfully completed"
+
+    SyncDirection:
+      type: string
+      enum:
+        - edge_to_cloud
+        - cloud_to_edge
+        - bidirectional
+      x-enum-descriptions:
+        edge_to_cloud: "من الحافة للسحابة - Upload to cloud"
+        cloud_to_edge: "من السحابة للحافة - Download to edge"
+        bidirectional: "ثنائي الاتجاه - Both directions"
+
+    SyncStatus:
+      type: string
+      enum:
+        - synced
+        - pending
+        - syncing
+        - conflict
+        - failed
+      x-enum-descriptions:
+        synced: "متزامن - Fully synchronized"
+        pending: "قيد الانتظار - Sync pending"
+        syncing: "قيد المزامنة - Currently syncing"
+        conflict: "تعارض - Conflict detected"
+        failed: "فشل - Sync failed"
+
+    QueuePriority:
+      type: string
+      enum:
+        - critical
+        - high
+        - normal
+        - low
+        - batch
+      x-enum-descriptions:
+        critical: "حرج - Immediate processing"
+        high: "عالي - High priority"
+        normal: "عادي - Normal priority"
+        low: "منخفض - Low priority"
+        batch: "دفعي - Batch processing"
+
+    # ==================== Common Schemas ====================
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        message_ar:
+          type: string
+        details:
+          type: object
+        request_id:
+          type: string
+          format: uuid
+
+    # ==================== Device Schemas ====================
+    Device:
+      type: object
+      properties:
+        device_id:
+          type: string
+          format: uuid
+        device_name:
+          type: string
+        device_name_ar:
+          type: string
+        device_type:
+          $ref: '#/components/schemas/DeviceType'
+        status:
+          $ref: '#/components/schemas/DeviceStatus'
+        status_ar:
+          type: string
+        farm_id:
+          type: string
+          format: uuid
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+            longitude:
+              type: number
+              format: double
+            field_id:
+              type: string
+              format: uuid
+        hardware:
+          type: object
+          properties:
+            manufacturer:
+              type: string
+            model:
+              type: string
+            serial_number:
+              type: string
+            cpu:
+              type: string
+            memory_mb:
+              type: integer
+            storage_gb:
+              type: integer
+            has_gpu:
+              type: boolean
+            gpu_model:
+              type: string
+        software:
+          type: object
+          properties:
+            os:
+              type: string
+            os_version:
+              type: string
+            agent_version:
+              type: string
+            firmware_version:
+              type: string
+        connectivity:
+          type: object
+          properties:
+            type:
+              $ref: '#/components/schemas/ConnectivityType'
+            signal_strength_dbm:
+              type: integer
+            ip_address:
+              type: string
+            last_seen:
+              type: string
+              format: date-time
+            uptime_seconds:
+              type: integer
+        capabilities:
+          type: array
+          items:
+            type: string
+          example: ["ai_inference", "camera", "sensors", "relay_control"]
+        deployed_models:
+          type: array
+          items:
+            type: object
+            properties:
+              model_id:
+                type: string
+              model_name:
+                type: string
+              version:
+                type: string
+              status:
+                type: string
+        sync_status:
+          type: object
+          properties:
+            last_sync:
+              type: string
+              format: date-time
+            pending_uploads:
+              type: integer
+            pending_downloads:
+              type: integer
+            status:
+              $ref: '#/components/schemas/SyncStatus'
+        health:
+          type: object
+          properties:
+            cpu_percent:
+              type: number
+              format: float
+            memory_percent:
+              type: number
+              format: float
+            storage_percent:
+              type: number
+              format: float
+            temperature_c:
+              type: number
+              format: float
+            battery_percent:
+              type: number
+              format: float
+            alerts:
+              type: array
+              items:
+                type: object
+                properties:
+                  alert_type:
+                    type: string
+                  severity:
+                    type: string
+                  message:
+                    type: string
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    DeviceRegistration:
+      type: object
+      required:
+        - device_name
+        - device_type
+        - farm_id
+      properties:
+        device_name:
+          type: string
+        device_name_ar:
+          type: string
+        device_type:
+          $ref: '#/components/schemas/DeviceType'
+        farm_id:
+          type: string
+          format: uuid
+        field_id:
+          type: string
+          format: uuid
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+            longitude:
+              type: number
+              format: double
+        hardware:
+          type: object
+          properties:
+            manufacturer:
+              type: string
+            model:
+              type: string
+            serial_number:
+              type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+
+    DeviceCredentials:
+      type: object
+      properties:
+        device_id:
+          type: string
+          format: uuid
+        client_certificate:
+          type: string
+          description: PEM-encoded client certificate
+        client_key:
+          type: string
+          description: PEM-encoded private key (encrypted)
+        ca_certificate:
+          type: string
+          description: PEM-encoded CA certificate
+        mqtt_endpoint:
+          type: string
+          format: uri
+        api_endpoint:
+          type: string
+          format: uri
+        expires_at:
+          type: string
+          format: date-time
+
+    # ==================== Deployment Schemas ====================
+    Deployment:
+      type: object
+      properties:
+        deployment_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        deployment_type:
+          $ref: '#/components/schemas/DeploymentType'
+        artifact:
+          type: object
+          properties:
+            artifact_id:
+              type: string
+            name:
+              type: string
+            version:
+              type: string
+            size_bytes:
+              type: integer
+            checksum:
+              type: string
+            download_url:
+              type: string
+              format: uri
+        target:
+          type: object
+          properties:
+            target_type:
+              type: string
+              enum: [all, device_type, device_list, device_tags, farm]
+            device_types:
+              type: array
+              items:
+                $ref: '#/components/schemas/DeviceType'
+            device_ids:
+              type: array
+              items:
+                type: string
+                format: uuid
+            tags:
+              type: object
+              additionalProperties:
+                type: string
+            farm_ids:
+              type: array
+              items:
+                type: string
+                format: uuid
+        schedule:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [immediate, scheduled, rolling]
+            scheduled_time:
+              type: string
+              format: date-time
+            rolling_batch_size:
+              type: integer
+            rolling_interval_minutes:
+              type: integer
+        rollback:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            on_failure_percent:
+              type: number
+              format: float
+            previous_version:
+              type: string
+        status:
+          $ref: '#/components/schemas/DeploymentStatus'
+        progress:
+          type: object
+          properties:
+            total_devices:
+              type: integer
+            pending:
+              type: integer
+            in_progress:
+              type: integer
+            succeeded:
+              type: integer
+            failed:
+              type: integer
+            percent_complete:
+              type: number
+              format: float
+        device_statuses:
+          type: array
+          items:
+            type: object
+            properties:
+              device_id:
+                type: string
+                format: uuid
+              device_name:
+                type: string
+              status:
+                $ref: '#/components/schemas/DeploymentStatus'
+              error_message:
+                type: string
+              started_at:
+                type: string
+                format: date-time
+              completed_at:
+                type: string
+                format: date-time
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+        completed_at:
+          type: string
+          format: date-time
+
+    DeploymentCreateRequest:
+      type: object
+      required:
+        - name
+        - deployment_type
+        - artifact_id
+        - target
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        deployment_type:
+          $ref: '#/components/schemas/DeploymentType'
+        artifact_id:
+          type: string
+          description: ID of artifact to deploy
+        target:
+          type: object
+          required:
+            - target_type
+          properties:
+            target_type:
+              type: string
+              enum: [all, device_type, device_list, device_tags, farm]
+            device_types:
+              type: array
+              items:
+                $ref: '#/components/schemas/DeviceType'
+            device_ids:
+              type: array
+              items:
+                type: string
+                format: uuid
+            tags:
+              type: object
+              additionalProperties:
+                type: string
+            farm_ids:
+              type: array
+              items:
+                type: string
+                format: uuid
+        schedule:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [immediate, scheduled, rolling]
+              default: immediate
+            scheduled_time:
+              type: string
+              format: date-time
+            rolling_batch_size:
+              type: integer
+              default: 10
+            rolling_interval_minutes:
+              type: integer
+              default: 5
+        rollback:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            on_failure_percent:
+              type: number
+              format: float
+              default: 10
+
+    # ==================== Sync Schemas ====================
+    SyncSession:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        device_id:
+          type: string
+          format: uuid
+        direction:
+          $ref: '#/components/schemas/SyncDirection'
+        status:
+          $ref: '#/components/schemas/SyncStatus'
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        progress:
+          type: object
+          properties:
+            total_items:
+              type: integer
+            processed_items:
+              type: integer
+            failed_items:
+              type: integer
+            bytes_transferred:
+              type: integer
+        data_types:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                example: field_observations
+              items_synced:
+                type: integer
+              status:
+                $ref: '#/components/schemas/SyncStatus'
+        conflicts:
+          type: array
+          items:
+            type: object
+            properties:
+              conflict_id:
+                type: string
+              data_type:
+                type: string
+              record_id:
+                type: string
+              edge_value:
+                type: object
+              cloud_value:
+                type: object
+              resolution:
+                type: string
+                enum: [pending, edge_wins, cloud_wins, merged, manual]
+        error_message:
+          type: string
+
+    SyncPolicy:
+      type: object
+      properties:
+        policy_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        enabled:
+          type: boolean
+        data_types:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              direction:
+                $ref: '#/components/schemas/SyncDirection'
+              priority:
+                $ref: '#/components/schemas/QueuePriority'
+              conflict_resolution:
+                type: string
+                enum: [edge_wins, cloud_wins, latest_wins, manual]
+              batch_size:
+                type: integer
+              sync_interval_minutes:
+                type: integer
+        connectivity_rules:
+          type: object
+          properties:
+            sync_on_wifi_only:
+              type: boolean
+            sync_on_cellular:
+              type: boolean
+            min_signal_strength_dbm:
+              type: integer
+            max_bandwidth_kbps:
+              type: integer
+        schedule:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [continuous, scheduled, manual]
+            intervals:
+              type: array
+              items:
+                type: object
+                properties:
+                  start_time:
+                    type: string
+                    format: time
+                  end_time:
+                    type: string
+                    format: time
+                  days:
+                    type: array
+                    items:
+                      type: string
+
+    # ==================== Queue Schemas ====================
+    QueueItem:
+      type: object
+      properties:
+        item_id:
+          type: string
+          format: uuid
+        device_id:
+          type: string
+          format: uuid
+        operation_type:
+          type: string
+          example: field_observation_create
+        data_type:
+          type: string
+        priority:
+          $ref: '#/components/schemas/QueuePriority'
+        status:
+          type: string
+          enum: [queued, processing, completed, failed, cancelled]
+        payload:
+          type: object
+          description: Operation payload data
+        created_at:
+          type: string
+          format: date-time
+        processed_at:
+          type: string
+          format: date-time
+        retry_count:
+          type: integer
+        max_retries:
+          type: integer
+        error_message:
+          type: string
+        sync_session_id:
+          type: string
+          format: uuid
+
+    QueueStats:
+      type: object
+      properties:
+        device_id:
+          type: string
+          format: uuid
+        total_items:
+          type: integer
+        by_status:
+          type: object
+          properties:
+            queued:
+              type: integer
+            processing:
+              type: integer
+            completed:
+              type: integer
+            failed:
+              type: integer
+        by_priority:
+          type: object
+          additionalProperties:
+            type: integer
+        oldest_item_age_seconds:
+          type: integer
+        estimated_sync_time_seconds:
+          type: integer
+
+    # ==================== Firmware Schemas ====================
+    FirmwareVersion:
+      type: object
+      properties:
+        version_id:
+          type: string
+          format: uuid
+        version:
+          type: string
+          example: "2.5.0"
+        device_type:
+          $ref: '#/components/schemas/DeviceType'
+        release_date:
+          type: string
+          format: date
+        release_notes:
+          type: string
+        release_notes_ar:
+          type: string
+        size_bytes:
+          type: integer
+        checksum_sha256:
+          type: string
+        min_hardware_version:
+          type: string
+        required_previous_version:
+          type: string
+        is_mandatory:
+          type: boolean
+        download_url:
+          type: string
+          format: uri
+        status:
+          type: string
+          enum: [draft, testing, released, deprecated]
+
+    FirmwareUpdate:
+      type: object
+      properties:
+        update_id:
+          type: string
+          format: uuid
+        device_id:
+          type: string
+          format: uuid
+        from_version:
+          type: string
+        to_version:
+          type: string
+        status:
+          type: string
+          enum: [pending, downloading, verifying, installing, rebooting, completed, failed, rolled_back]
+        progress_percent:
+          type: number
+          format: float
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        error_message:
+          type: string
+        can_rollback:
+          type: boolean
+
+    # ==================== Monitoring Schemas ====================
+    DeviceTelemetry:
+      type: object
+      properties:
+        device_id:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        metrics:
+          type: object
+          properties:
+            cpu_percent:
+              type: number
+              format: float
+            memory_percent:
+              type: number
+              format: float
+            memory_used_mb:
+              type: integer
+            storage_percent:
+              type: number
+              format: float
+            storage_used_gb:
+              type: number
+              format: float
+            temperature_c:
+              type: number
+              format: float
+            battery_percent:
+              type: number
+              format: float
+            network_rx_bytes:
+              type: integer
+            network_tx_bytes:
+              type: integer
+            ai_inferences_count:
+              type: integer
+            ai_inference_avg_ms:
+              type: number
+              format: float
+        connectivity:
+          type: object
+          properties:
+            type:
+              $ref: '#/components/schemas/ConnectivityType'
+            signal_strength_dbm:
+              type: integer
+            latency_ms:
+              type: integer
+            packet_loss_percent:
+              type: number
+              format: float
+
+    FleetOverview:
+      type: object
+      properties:
+        total_devices:
+          type: integer
+        by_status:
+          type: object
+          additionalProperties:
+            type: integer
+          example:
+            online: 45
+            offline: 5
+            degraded: 2
+        by_type:
+          type: object
+          additionalProperties:
+            type: integer
+        connectivity_summary:
+          type: object
+          additionalProperties:
+            type: integer
+        sync_summary:
+          type: object
+          properties:
+            fully_synced:
+              type: integer
+            pending_sync:
+              type: integer
+            sync_errors:
+              type: integer
+        alerts:
+          type: array
+          items:
+            type: object
+            properties:
+              alert_id:
+                type: string
+              severity:
+                type: string
+                enum: [info, warning, critical]
+              device_count:
+                type: integer
+              message:
+                type: string
+              message_ar:
+                type: string
+        firmware_summary:
+          type: object
+          properties:
+            up_to_date:
+              type: integer
+            update_available:
+              type: integer
+            update_in_progress:
+              type: integer
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, unhealthy]
+        service:
+          type: string
+          example: edge-orchestrator-service
+        version:
+          type: string
+          example: 1.0.0
+        mqtt_broker_connected:
+          type: boolean
+        database_connected:
+          type: boolean
+        nats_connected:
+          type: boolean
+        active_connections:
+          type: integer
+        uptime_seconds:
+          type: integer
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+paths:
+  # ==================== Device Endpoints ====================
+  /devices:
+    get:
+      tags: [Devices]
+      summary: List edge devices
+      description: |
+        List all registered edge devices for the tenant.
+        قائمة جميع أجهزة الحافة المسجلة للمستأجر.
+      operationId: listDevices
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/DeviceStatus'
+        - name: device_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/DeviceType'
+        - name: farm_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of devices
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  devices:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Device'
+                  total:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Devices]
+      summary: Register new device
+      description: |
+        Register a new edge device. Returns device credentials.
+        تسجيل جهاز حافة جديد. يُعيد بيانات اعتماد الجهاز.
+      operationId: registerDevice
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceRegistration'
+            example:
+              device_name: "Farm Gateway 01"
+              device_name_ar: "بوابة المزرعة 01"
+              device_type: gateway
+              farm_id: "550e8400-e29b-41d4-a716-446655440001"
+              location:
+                latitude: 24.65
+                longitude: 46.75
+              capabilities: ["ai_inference", "mqtt_broker", "sensor_aggregation"]
+      responses:
+        '201':
+          description: Device registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device:
+                    $ref: '#/components/schemas/Device'
+                  credentials:
+                    $ref: '#/components/schemas/DeviceCredentials'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /devices/{device_id}:
+    get:
+      tags: [Devices]
+      summary: Get device details
+      operationId: getDevice
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '200':
+          description: Device details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    patch:
+      tags: [Devices]
+      summary: Update device
+      operationId: updateDevice
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeviceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                device_name:
+                  type: string
+                device_name_ar:
+                  type: string
+                location:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                    longitude:
+                      type: number
+                tags:
+                  type: object
+                  additionalProperties:
+                    type: string
+      responses:
+        '200':
+          description: Device updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags: [Devices]
+      summary: Decommission device
+      description: |
+        Decommission and remove a device.
+        إيقاف وإزالة جهاز.
+      operationId: decommissionDevice
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '204':
+          description: Device decommissioned
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /devices/{device_id}/credentials/rotate:
+    post:
+      tags: [Devices]
+      summary: Rotate device credentials
+      description: |
+        Generate new credentials and revoke old ones.
+        توليد بيانات اعتماد جديدة وإلغاء القديمة.
+      operationId: rotateDeviceCredentials
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '200':
+          description: New credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceCredentials'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /devices/{device_id}/reboot:
+    post:
+      tags: [Devices]
+      summary: Reboot device
+      operationId: rebootDevice
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '202':
+          description: Reboot command sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  message_ar:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Deployment Endpoints ====================
+  /deployments:
+    get:
+      tags: [Deployments]
+      summary: List deployments
+      operationId: listDeployments
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/DeploymentStatus'
+        - name: deployment_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/DeploymentType'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of deployments
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deployments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Deployment'
+                  total:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Deployments]
+      summary: Create deployment
+      description: |
+        Create a new deployment to edge devices.
+        إنشاء نشر جديد لأجهزة الحافة.
+      operationId: createDeployment
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentCreateRequest'
+            example:
+              name: "YOLO26 Pest Model v2.5"
+              deployment_type: ai_model
+              artifact_id: "model-yolo26-pest-v2.5"
+              target:
+                target_type: device_type
+                device_types: ["ai_node", "gateway"]
+              schedule:
+                type: rolling
+                rolling_batch_size: 5
+                rolling_interval_minutes: 10
+              rollback:
+                enabled: true
+                on_failure_percent: 15
+      responses:
+        '201':
+          description: Deployment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /deployments/{deployment_id}:
+    get:
+      tags: [Deployments]
+      summary: Get deployment details
+      operationId: getDeployment
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeploymentId'
+      responses:
+        '200':
+          description: Deployment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /deployments/{deployment_id}/cancel:
+    post:
+      tags: [Deployments]
+      summary: Cancel deployment
+      operationId: cancelDeployment
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeploymentId'
+      responses:
+        '200':
+          description: Deployment cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /deployments/{deployment_id}/rollback:
+    post:
+      tags: [Deployments]
+      summary: Rollback deployment
+      operationId: rollbackDeployment
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeploymentId'
+      responses:
+        '200':
+          description: Rollback initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Sync Endpoints ====================
+  /sync/devices/{device_id}/sessions:
+    get:
+      tags: [Sync]
+      summary: List sync sessions for device
+      operationId: listSyncSessions
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeviceId'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/SyncStatus'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Sync sessions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SyncSession'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /sync/devices/{device_id}/trigger:
+    post:
+      tags: [Sync]
+      summary: Trigger device sync
+      description: |
+        Trigger immediate synchronization for a device.
+        بدء المزامنة الفورية لجهاز.
+      operationId: triggerSync
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeviceId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                direction:
+                  $ref: '#/components/schemas/SyncDirection'
+                data_types:
+                  type: array
+                  items:
+                    type: string
+                priority:
+                  $ref: '#/components/schemas/QueuePriority'
+      responses:
+        '202':
+          description: Sync triggered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncSession'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /sync/policies:
+    get:
+      tags: [Sync]
+      summary: List sync policies
+      operationId: listSyncPolicies
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Sync policies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  policies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SyncPolicy'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Sync]
+      summary: Create sync policy
+      operationId: createSyncPolicy
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncPolicy'
+      responses:
+        '201':
+          description: Policy created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncPolicy'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /sync/conflicts:
+    get:
+      tags: [Sync]
+      summary: List unresolved sync conflicts
+      operationId: listSyncConflicts
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: device_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Sync conflicts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conflicts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        conflict_id:
+                          type: string
+                        device_id:
+                          type: string
+                          format: uuid
+                        data_type:
+                          type: string
+                        record_id:
+                          type: string
+                        edge_value:
+                          type: object
+                        cloud_value:
+                          type: object
+                        created_at:
+                          type: string
+                          format: date-time
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /sync/conflicts/{conflict_id}/resolve:
+    post:
+      tags: [Sync]
+      summary: Resolve sync conflict
+      operationId: resolveSyncConflict
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: conflict_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resolution
+              properties:
+                resolution:
+                  type: string
+                  enum: [edge_wins, cloud_wins, custom]
+                custom_value:
+                  type: object
+                  description: Required if resolution is custom
+      responses:
+        '200':
+          description: Conflict resolved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  resolved_value:
+                    type: object
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Queue Endpoints ====================
+  /queues/devices/{device_id}:
+    get:
+      tags: [Queues]
+      summary: Get device queue status
+      operationId: getDeviceQueueStatus
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '200':
+          description: Queue status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueueStats'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /queues/devices/{device_id}/items:
+    get:
+      tags: [Queues]
+      summary: List queue items
+      operationId: listQueueItems
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeviceId'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [queued, processing, completed, failed]
+        - name: priority
+          in: query
+          schema:
+            $ref: '#/components/schemas/QueuePriority'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Queue items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/QueueItem'
+                  total:
+                    type: integer
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /queues/devices/{device_id}/flush:
+    post:
+      tags: [Queues]
+      summary: Flush device queue
+      description: |
+        Process all pending queue items immediately.
+        معالجة جميع عناصر قائمة الانتظار المعلقة فوراً.
+      operationId: flushDeviceQueue
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '202':
+          description: Queue flush initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  items_to_process:
+                    type: integer
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Firmware Endpoints ====================
+  /firmware/versions:
+    get:
+      tags: [Firmware]
+      summary: List firmware versions
+      operationId: listFirmwareVersions
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: device_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/DeviceType'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, testing, released, deprecated]
+      responses:
+        '200':
+          description: Firmware versions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  versions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FirmwareVersion'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /firmware/devices/{device_id}/update:
+    post:
+      tags: [Firmware]
+      summary: Initiate firmware update
+      operationId: initiateFirmwareUpdate
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeviceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - version
+              properties:
+                version:
+                  type: string
+                  description: Target firmware version
+                force:
+                  type: boolean
+                  default: false
+                  description: Force update even if not recommended
+      responses:
+        '202':
+          description: Update initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareUpdate'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /firmware/devices/{device_id}/update/status:
+    get:
+      tags: [Firmware]
+      summary: Get firmware update status
+      operationId: getFirmwareUpdateStatus
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '200':
+          description: Update status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareUpdate'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Monitoring Endpoints ====================
+  /monitoring/fleet:
+    get:
+      tags: [Monitoring]
+      summary: Get fleet overview
+      description: |
+        Get overview of all edge devices in the fleet.
+        الحصول على نظرة عامة على جميع أجهزة الحافة في الأسطول.
+      operationId: getFleetOverview
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: farm_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Fleet overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetOverview'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /monitoring/devices/{device_id}/telemetry:
+    get:
+      tags: [Monitoring]
+      summary: Get device telemetry
+      operationId: getDeviceTelemetry
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DeviceId'
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: interval
+          in: query
+          schema:
+            type: string
+            enum: [1m, 5m, 15m, 1h, 1d]
+            default: 5m
+      responses:
+        '200':
+          description: Device telemetry
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device_id:
+                    type: string
+                    format: uuid
+                  data_points:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DeviceTelemetry'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /monitoring/alerts:
+    get:
+      tags: [Monitoring]
+      summary: List active alerts
+      operationId: listActiveAlerts
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [info, warning, critical]
+        - name: device_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Active alerts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  alerts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        alert_id:
+                          type: string
+                        device_id:
+                          type: string
+                          format: uuid
+                        device_name:
+                          type: string
+                        severity:
+                          type: string
+                        alert_type:
+                          type: string
+                        message:
+                          type: string
+                        message_ar:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /monitoring/alerts/{alert_id}/acknowledge:
+    post:
+      tags: [Monitoring]
+      summary: Acknowledge alert
+      operationId: acknowledgeAlert
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Alert acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Health Check ====================
+  /healthz:
+    get:
+      tags: [Health Check]
+      summary: Liveness probe
+      operationId: healthLive
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: edge-orchestrator-service
+                  version:
+                    type: string
+                    example: 1.0.0
+
+  /readyz:
+    get:
+      tags: [Health Check]
+      summary: Readiness probe
+      operationId: healthReady
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service not ready
+
+  /metrics:
+    get:
+      tags: [Health Check]
+      summary: Prometheus metrics
+      operationId: getMetrics
+      responses:
+        '200':
+          description: Prometheus metrics
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |
+                # HELP edge_devices_total Total number of registered edge devices
+                # TYPE edge_devices_total gauge
+                edge_devices_total{status="online"} 45
+                edge_devices_total{status="offline"} 5
+                # HELP edge_sync_operations_total Total sync operations
+                # TYPE edge_sync_operations_total counter
+                edge_sync_operations_total{direction="edge_to_cloud"} 125000
+                edge_sync_operations_total{direction="cloud_to_edge"} 85000
+
+security:
+  - bearerAuth: []

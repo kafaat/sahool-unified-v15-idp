@@ -9,6 +9,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -637,9 +638,3 @@ class Yolo26Exception implements Exception {
   String toString() =>
       'Yolo26Exception: $message${cause != null ? ' ($cause)' : ''}';
 }
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// UI Import for image codec
-// ═══════════════════════════════════════════════════════════════════════════════
-
-import 'dart:ui' as ui;

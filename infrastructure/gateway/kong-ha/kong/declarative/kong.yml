@@ -960,6 +960,213 @@ services:
           fault_tolerant: true
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Intelligence & Edge Services - خدمات الذكاء والحافة (Added 2026-01-31)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Vision API - YOLOv26 AI Vision Service
+  - name: yolo26-vision-service
+    url: http://yolo26-vision-service:8150
+    connect_timeout: 30000
+    read_timeout: 120000
+    write_timeout: 120000
+    retries: 2
+    routes:
+      - name: vision-detect-pest-route
+        paths: ["/api/v1/vision/detect/pest"]
+        strip_path: false
+        methods: ["POST"]
+      - name: vision-detect-disease-route
+        paths: ["/api/v1/vision/detect/disease"]
+        strip_path: false
+        methods: ["POST"]
+      - name: vision-detect-weed-route
+        paths: ["/api/v1/vision/detect/weed"]
+        strip_path: false
+        methods: ["POST"]
+      - name: vision-count-plants-route
+        paths: ["/api/v1/vision/count/plants"]
+        strip_path: false
+        methods: ["POST"]
+      - name: vision-classify-ripeness-route
+        paths: ["/api/v1/vision/classify/ripeness"]
+        strip_path: false
+        methods: ["POST"]
+      - name: vision-segment-leaf-route
+        paths: ["/api/v1/vision/segment/leaf"]
+        strip_path: false
+        methods: ["POST"]
+      - name: vision-base-route
+        paths: ["/api/v1/vision"]
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify: [exp]
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 3000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 25
+          size_unit: megabytes
+
+  # Terrain API - Terrain Analysis Service
+  - name: terrain-core-service
+    url: http://terrain-core-service:8160
+    connect_timeout: 15000
+    read_timeout: 60000
+    write_timeout: 60000
+    retries: 2
+    routes:
+      - name: terrain-analyze-route
+        paths: ["/api/v1/terrain/analyze"]
+        strip_path: false
+        methods: ["POST"]
+      - name: terrain-slope-route
+        paths: ["/api/v1/terrain/slope"]
+        strip_path: false
+        methods: ["GET"]
+      - name: terrain-flow-route
+        paths: ["/api/v1/terrain/flow"]
+        strip_path: false
+        methods: ["GET"]
+      - name: terrain-twi-route
+        paths: ["/api/v1/terrain/twi"]
+        strip_path: false
+        methods: ["GET"]
+      - name: terrain-base-route
+        paths: ["/api/v1/terrain"]
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify: [exp]
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1500
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Hydrology API - Hydrology Analysis Service
+  - name: hydrology-service
+    url: http://hydrology-service:8165
+    connect_timeout: 15000
+    read_timeout: 60000
+    write_timeout: 60000
+    retries: 2
+    routes:
+      - name: hydrology-analyze-route
+        paths: ["/api/v1/hydrology/analyze"]
+        strip_path: false
+        methods: ["POST"]
+      - name: hydrology-drainage-route
+        paths: ["/api/v1/hydrology/drainage"]
+        strip_path: false
+        methods: ["GET"]
+      - name: hydrology-base-route
+        paths: ["/api/v1/hydrology"]
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify: [exp]
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1500
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Leveling API - Land Leveling Optimizer Service
+  - name: leveling-optimizer-service
+    url: http://leveling-optimizer-service:8170
+    connect_timeout: 15000
+    read_timeout: 60000
+    write_timeout: 60000
+    retries: 2
+    routes:
+      - name: leveling-analyze-route
+        paths: ["/api/v1/leveling/analyze"]
+        strip_path: false
+        methods: ["POST"]
+      - name: leveling-plan-route
+        paths: ["/api/v1/leveling/plan"]
+        strip_path: false
+        methods: ["GET"]
+      - name: leveling-base-route
+        paths: ["/api/v1/leveling"]
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify: [exp]
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1500
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Edge API - Edge Orchestrator Service
+  - name: edge-orchestrator-service
+    url: http://edge-orchestrator-service:8180
+    connect_timeout: 10000
+    read_timeout: 30000
+    write_timeout: 30000
+    retries: 2
+    routes:
+      - name: edge-devices-route
+        paths: ["/api/v1/edge/devices"]
+        strip_path: false
+        methods: ["GET"]
+      - name: edge-jobs-route
+        paths: ["/api/v1/edge/jobs"]
+        strip_path: false
+        methods: ["POST"]
+      - name: edge-base-route
+        paths: ["/api/v1/edge"]
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify: [exp]
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 3000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Platform Endpoints - نقاط المنصة
   # ─────────────────────────────────────────────────────────────────────────────
 

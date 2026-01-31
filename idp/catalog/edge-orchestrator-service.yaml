@@ -1,0 +1,32 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: edge-orchestrator-service
+  description: Edge computing orchestration for offline-first agricultural operations and IoT device management
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/edge-orchestrator-service
+  tags:
+    - python
+    - fastapi
+    - edge-computing
+    - iot
+    - offline-first
+  links:
+    - url: https://api.sahool.io/v1/edge/docs
+      title: API Documentation
+    - url: https://grafana.sahool.io/d/edge-orchestrator
+      title: Grafana Dashboard
+spec:
+  type: service
+  lifecycle: production
+  owner: platform-team
+  system: sahool-platform
+  dependsOn:
+    - component:iot-gateway
+    - component:iot-service
+    - resource:postgresql
+    - resource:nats
+    - resource:redis
+  providesApis:
+    - edge-orchestrator-api

@@ -1,0 +1,80 @@
+{
+  "edge": {
+    "title": "الأجهزة الطرفية",
+    "device": "جهاز",
+    "devices": "أجهزة",
+    "status": "الحالة",
+    "online": "متصل",
+    "offline": "غير متصل",
+    "syncing": "جاري المزامنة",
+    "last_sync": "آخر مزامنة",
+    "sync_now": "مزامنة الآن",
+    "sync_pending": "مزامنة معلقة",
+    "sync_complete": "اكتملت المزامنة",
+    "sync_failed": "فشلت المزامنة",
+    "connection": {
+      "title": "الاتصال",
+      "connected": "متصل",
+      "disconnected": "غير متصل",
+      "reconnecting": "إعادة الاتصال",
+      "signal_strength": "قوة الإشارة",
+      "latency": "زمن الاستجابة",
+      "bandwidth": "عرض النطاق"
+    },
+    "storage": {
+      "title": "التخزين",
+      "used": "مستخدم",
+      "available": "متاح",
+      "total": "الإجمالي",
+      "low_storage": "تحذير: مساحة التخزين منخفضة",
+      "clear_cache": "مسح الذاكرة المؤقتة"
+    },
+    "battery": {
+      "title": "البطارية",
+      "level": "مستوى البطارية",
+      "charging": "جاري الشحن",
+      "not_charging": "لا يتم الشحن",
+      "low_battery": "تحذير: البطارية منخفضة"
+    },
+    "sensors": {
+      "title": "المستشعرات",
+      "temperature": "درجة الحرارة",
+      "humidity": "الرطوبة",
+      "soil_moisture": "رطوبة التربة",
+      "light": "شدة الإضاءة",
+      "pressure": "الضغط الجوي",
+      "wind_speed": "سرعة الرياح",
+      "rainfall": "هطول الأمطار"
+    },
+    "camera": {
+      "title": "الكاميرا",
+      "capture": "التقاط",
+      "gallery": "المعرض",
+      "resolution": "الدقة",
+      "quality": "الجودة"
+    },
+    "gps": {
+      "title": "نظام تحديد المواقع",
+      "location": "الموقع",
+      "accuracy": "الدقة",
+      "acquiring": "جاري تحديد الموقع",
+      "no_signal": "لا توجد إشارة GPS"
+    },
+    "firmware": {
+      "title": "البرنامج الثابت",
+      "version": "الإصدار",
+      "update_available": "تحديث متاح",
+      "up_to_date": "محدث",
+      "updating": "جاري التحديث",
+      "update_failed": "فشل التحديث"
+    },
+    "diagnostics": {
+      "title": "التشخيص",
+      "run_diagnostics": "تشغيل التشخيص",
+      "test_connection": "اختبار الاتصال",
+      "test_sensors": "اختبار المستشعرات",
+      "view_logs": "عرض السجلات",
+      "export_logs": "تصدير السجلات"
+    }
+  }
+}

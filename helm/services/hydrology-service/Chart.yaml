@@ -1,0 +1,15 @@
+apiVersion: v2
+name: hydrology-service
+description: SAHOOL Hydrology Service - Water flow analysis and watershed management
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - hydrology
+  - water-flow
+  - watershed
+  - irrigation
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

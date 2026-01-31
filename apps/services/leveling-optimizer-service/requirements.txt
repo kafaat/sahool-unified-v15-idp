@@ -1,0 +1,39 @@
+# Leveling Optimizer Service Requirements
+# خدمة تحسين التسوية - المتطلبات
+
+# FastAPI framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.0
+
+# Async support
+anyio==4.7.0
+starlette==0.41.3
+
+# HTTP client (for potential external calls)
+httpx==0.28.1
+
+# Database (optional)
+asyncpg==0.30.0
+
+# Message queue (optional)
+nats-py==2.9.0
+
+# Logging
+structlog==24.4.0
+
+# Scientific computing for algorithms
+numpy==2.2.1
+
+# Geospatial (optional, for advanced features)
+# shapely==2.0.6
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.25.2
+pytest-cov==6.0.0
+httpx==0.28.1
+
+# Development
+ruff==0.8.6

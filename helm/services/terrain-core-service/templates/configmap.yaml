@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "terrain-core-service.fullname" . }}-config
+  labels:
+    {{- include "terrain-core-service.labels" . | nindent 4 }}
+data:
+  SERVICE_NAME: "terrain-core-service"
+  SERVICE_VERSION: {{ .Chart.AppVersion | quote }}
+  LOG_LEVEL: {{ .Values.env.LOG_LEVEL | default "INFO" | quote }}
+  LOG_FORMAT: "json"
+
+  # DEM Configuration
+  DEM_DATA_PATH: {{ .Values.env.DEM_DATA_PATH | default "/data/dem" | quote }}
+  TILE_CACHE_SIZE: {{ .Values.env.TILE_CACHE_SIZE | default "1000" | quote }}
+  MAX_RESOLUTION: {{ .Values.env.MAX_RESOLUTION | default "30" | quote }}
+  COORDINATE_SYSTEM: {{ .Values.env.COORDINATE_SYSTEM | default "EPSG:4326" | quote }}
+
+  # Infrastructure
+  {{- if .Values.nats.url }}
+  NATS_URL: {{ .Values.nats.url | quote }}
+  {{- else }}
+  NATS_URL: "nats://nats:4222"
+  {{- end }}
+
+  {{- if .Values.redis.url }}
+  REDIS_URL: {{ .Values.redis.url | quote }}
+  {{- else }}
+  REDIS_URL: "redis://redis:6379"
+  {{- end }}
+
+  # Feature Flags
+  ENABLE_METRICS: "true"
+  ENABLE_TRACING: "false"
+  METRICS_PORT: "8185"

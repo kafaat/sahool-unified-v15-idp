@@ -1,0 +1,31 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: leveling-optimizer-service
+  description: Land leveling optimization using terrain analysis for improved irrigation efficiency
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/leveling-optimizer-service
+  tags:
+    - python
+    - fastapi
+    - optimization
+    - land-leveling
+    - precision-agriculture
+  links:
+    - url: https://api.sahool.io/v1/leveling/docs
+      title: API Documentation
+    - url: https://grafana.sahool.io/d/leveling-optimizer
+      title: Grafana Dashboard
+spec:
+  type: service
+  lifecycle: production
+  owner: geospatial-team
+  system: sahool-platform
+  dependsOn:
+    - component:terrain-core-service
+    - component:hydrology-service
+    - resource:postgresql
+    - resource:nats
+  providesApis:
+    - leveling-optimizer-api

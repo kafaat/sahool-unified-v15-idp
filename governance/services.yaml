@@ -14,7 +14,7 @@ event_architecture:
   layers:
     acquisition:
       description: "Data ingestion layer - طبقة جمع البيانات"
-      services: [vegetation-analysis-service, iot-service, iot-gateway, weather-service, weather-core, virtual-sensors, ussd-gateway, ground-vision-service]
+      services: [vegetation-analysis-service, iot-service, iot-gateway, weather-service, weather-core, virtual-sensors, ussd-gateway, ground-vision-service, edge-orchestrator-service]
       rules:
         - "No business logic"
         - "Only ingestion + normalization"
@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, ndvi-engine, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph]
+      services: [indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, ndvi-engine, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -30,7 +30,7 @@ event_architecture:
 
     decision:
       description: "Advisory & planning layer - طبقة القرار"
-      services: [crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, ai-advisor, agro-advisor]
+      services: [crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, ai-advisor, agro-advisor, leveling-optimizer-service]
       rules:
         - "Consumes from Intelligence"
         - "Produces recommendations/plans"
@@ -2613,6 +2613,185 @@ services:
       produces:
         - FieldDataSynced.v1
       consumes: []
+    resources:
+      cpu: "300m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # YOLO26 VISION SERVICE - خدمة الرؤية الحاسوبية YOLO26
+  # ═══════════════════════════════════════════════════════════════════════════
+  yolo26-vision-service:
+    name: "YOLO26 Vision Service"
+    name_ar: "خدمة الرؤية الحاسوبية YOLO26"
+    description: "Advanced agricultural computer vision using YOLO26 for pest, disease, and weed detection"
+    description_ar: "رؤية حاسوبية زراعية متقدمة باستخدام YOLO26 لكشف الآفات والأمراض والأعشاب"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/yolo26-vision-service"
+    port: 8150
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "ai-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-1
+    events:
+      produces:
+        - PestDetected.v1
+        - DiseaseDetected.v1
+        - WeedDetected.v1
+      consumes:
+        - FrameCaptured.v1
+        - SatelliteSceneIngested.v1
+    dependencies:
+      - imagery-service
+      - analytics-service
+      - alert-service
+    resources:
+      cpu: "1000m"
+      memory: "2Gi"
+      replicas: 1
+      gpu: "nvidia"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # TERRAIN CORE SERVICE - خدمة التضاريس الأساسية
+  # ═══════════════════════════════════════════════════════════════════════════
+  terrain-core-service:
+    name: "Terrain Core Service"
+    name_ar: "خدمة التضاريس الأساسية"
+    description: "DEM processing and terrain analysis for agricultural fields"
+    description_ar: "معالجة نموذج الارتفاع الرقمي وتحليل التضاريس للحقول الزراعية"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/terrain-core-service"
+    port: 8185
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "gis-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - DEMProcessed.v1
+        - TerrainAnalyzed.v1
+        - SlopeCalculated.v1
+      consumes:
+        - FieldBoundaryUpdated.v1
+    dependencies:
+      - geo-service
+      - imagery-service
+    resources:
+      cpu: "500m"
+      memory: "1Gi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # HYDROLOGY SERVICE - خدمة الهيدرولوجيا
+  # ═══════════════════════════════════════════════════════════════════════════
+  hydrology-service:
+    name: "Hydrology Service"
+    name_ar: "خدمة الهيدرولوجيا"
+    description: "Hydrology analysis including drainage, waterlogging, and basin delineation"
+    description_ar: "تحليل الهيدرولوجيا بما في ذلك الصرف والتشبع بالمياه وتحديد الأحواض"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/hydrology-service"
+    port: 8165
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "gis-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - DrainageAnalyzed.v1
+        - WaterloggingRiskAssessed.v1
+        - BasinDelineated.v1
+      consumes:
+        - DEMProcessed.v1
+        - WeatherForecastReady.v1
+    dependencies:
+      - terrain-core-service
+      - weather-service
+    resources:
+      cpu: "400m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # LEVELING OPTIMIZER SERVICE - خدمة تحسين التسوية
+  # ═══════════════════════════════════════════════════════════════════════════
+  leveling-optimizer-service:
+    name: "Leveling Optimizer Service"
+    name_ar: "خدمة تحسين التسوية"
+    description: "Field leveling optimization with cut/fill calculations and cost estimation"
+    description_ar: "تحسين تسوية الحقول مع حسابات القطع والردم وتقدير التكلفة"
+    type: python
+    category: analytics
+    layer: decision
+    path: "apps/services/leveling-optimizer-service"
+    port: 8170
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "gis-team@sahool.io"
+    team: agro
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - LevelingPlanGenerated.v1
+        - CutFillCalculated.v1
+        - CostEstimated.v1
+      consumes:
+        - DEMProcessed.v1
+        - TerrainAnalyzed.v1
+    dependencies:
+      - terrain-core-service
+    resources:
+      cpu: "400m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # EDGE ORCHESTRATOR SERVICE - خدمة تنسيق الأجهزة الطرفية
+  # ═══════════════════════════════════════════════════════════════════════════
+  edge-orchestrator-service:
+    name: "Edge Orchestrator Service"
+    name_ar: "خدمة تنسيق الأجهزة الطرفية"
+    description: "Manage edge devices (Jetson Orin) for real-time field processing"
+    description_ar: "إدارة الأجهزة الطرفية (Jetson Orin) للمعالجة الميدانية في الوقت الفعلي"
+    type: python
+    category: integration
+    layer: acquisition
+    path: "apps/services/edge-orchestrator-service"
+    port: 8190
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "iot-team@sahool.io"
+    team: iot
+    lifecycle: production
+    tier: tier-1
+    events:
+      produces:
+        - EdgeDeviceRegistered.v1
+        - EdgeProcessingCompleted.v1
+        - EdgeStatusUpdated.v1
+      consumes:
+        - PestDetected.v1
+        - DiseaseDetected.v1
+    dependencies:
+      - yolo26-vision-service
     resources:
       cpu: "300m"
       memory: "384Mi"

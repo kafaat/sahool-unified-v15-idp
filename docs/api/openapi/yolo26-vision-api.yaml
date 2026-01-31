@@ -1,0 +1,1921 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL YOLO26 Vision API
+  description: |
+    # SAHOOL YOLO26 Agricultural Vision API
+    ## واجهة برمجة تطبيقات الرؤية الحاسوبية الزراعية باستخدام YOLO26
+
+    Advanced agricultural computer vision API powered by YOLO26 for real-time crop analysis.
+    واجهة برمجة تطبيقات متقدمة للرؤية الحاسوبية الزراعية باستخدام نموذج YOLO26 للتحليل الفوري للمحاصيل.
+
+    ## Capabilities | القدرات
+
+    - **Pest Detection**: Real-time pest identification with species classification
+      كشف الآفات: تحديد الآفات في الوقت الفعلي مع تصنيف الأنواع
+    - **Disease Recognition**: Crop disease identification from leaf images
+      التعرف على الأمراض: تحديد أمراض المحاصيل من صور الأوراق
+    - **Crop Classification**: Identify crop types and growth stages
+      تصنيف المحاصيل: تحديد أنواع المحاصيل ومراحل النمو
+    - **Weed Detection**: Differentiate weeds from crops for precision agriculture
+      كشف الأعشاب الضارة: التمييز بين الأعشاب والمحاصيل للزراعة الدقيقة
+    - **Fruit Counting**: Automated yield estimation via fruit detection
+      عد الثمار: تقدير المحصول تلقائياً عبر كشف الثمار
+    - **Quality Grading**: Produce quality assessment and grading
+      تصنيف الجودة: تقييم وتصنيف جودة المنتجات
+
+    ## Model Specifications | مواصفات النموذج
+
+    | Attribute | Value |
+    |-----------|-------|
+    | Model | YOLO26-XL Agricultural |
+    | Input Resolution | 640x640 / 1280x1280 |
+    | Classes | 500+ agricultural objects |
+    | Inference Time | < 25ms on GPU |
+    | mAP@0.5 | 94.2% |
+
+    ## Authentication | المصادقة
+    All endpoints require JWT Bearer token authentication.
+    جميع النقاط النهائية تتطلب مصادقة برمز JWT Bearer.
+
+    ## Rate Limiting | حدود الطلبات
+    - Standard: 60 requests/minute | 60 طلب في الدقيقة
+    - Premium: 300 requests/minute | 300 طلب في الدقيقة
+    - Enterprise: 1000 requests/minute | 1000 طلب في الدقيقة
+
+    ## Async Processing | المعالجة غير المتزامنة
+    Batch operations and video analysis return job IDs for status polling.
+    العمليات الدفعية وتحليل الفيديو تعيد معرّفات مهام للاستعلام عن الحالة.
+
+  version: 1.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.io
+    url: https://sahool.io
+  license:
+    name: Proprietary
+    url: https://sahool.io/terms
+
+servers:
+  - url: https://api.sahool.io/v1/vision
+    description: Production server | خادم الإنتاج
+  - url: https://staging-api.sahool.io/v1/vision
+    description: Staging server | خادم الاختبار
+  - url: http://localhost:8150/api/v1
+    description: Local development | التطوير المحلي
+
+tags:
+  - name: Pest Detection
+    description: |
+      Real-time pest detection and identification
+      كشف وتحديد الآفات في الوقت الفعلي
+  - name: Disease Detection
+    description: |
+      Crop disease recognition from imagery
+      التعرف على أمراض المحاصيل من الصور
+  - name: Crop Analysis
+    description: |
+      Crop classification and growth stage detection
+      تصنيف المحاصيل وكشف مراحل النمو
+  - name: Weed Detection
+    description: |
+      Weed identification for precision agriculture
+      تحديد الأعشاب الضارة للزراعة الدقيقة
+  - name: Yield Estimation
+    description: |
+      Fruit counting and yield prediction
+      عد الثمار والتنبؤ بالإنتاجية
+  - name: Quality Assessment
+    description: |
+      Produce quality grading and assessment
+      تقييم وتصنيف جودة المنتجات
+  - name: Batch Processing
+    description: |
+      Batch image and video analysis
+      تحليل الصور والفيديو بشكل دفعي
+  - name: Models
+    description: |
+      Model management and information
+      إدارة النماذج والمعلومات
+  - name: Health Check
+    description: |
+      Service health and status endpoints
+      نقاط فحص صحة الخدمة
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT authentication token obtained from auth service
+        رمز مصادقة JWT المحصول عليه من خدمة المصادقة
+
+  parameters:
+    TenantId:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      description: |
+        Tenant identifier for multi-tenancy
+        معرّف المستأجر للعزل متعدد المستأجرين
+      schema:
+        type: string
+        format: uuid
+        example: 550e8400-e29b-41d4-a716-446655440001
+
+    RequestId:
+      name: X-Request-ID
+      in: header
+      required: false
+      description: |
+        Optional request tracking ID
+        معرّف تتبع الطلب الاختياري
+      schema:
+        type: string
+        format: uuid
+
+    ConfidenceThreshold:
+      name: confidence_threshold
+      in: query
+      required: false
+      description: |
+        Minimum confidence score for detections (0.0-1.0)
+        الحد الأدنى لدرجة الثقة للكشف (0.0-1.0)
+      schema:
+        type: number
+        format: float
+        minimum: 0.0
+        maximum: 1.0
+        default: 0.5
+
+    MaxDetections:
+      name: max_detections
+      in: query
+      required: false
+      description: |
+        Maximum number of detections to return
+        الحد الأقصى لعدد الكشوفات المُعادة
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+
+  schemas:
+    # ==================== Enums ====================
+    PestType:
+      type: string
+      description: |
+        Type of pest detected
+        نوع الآفة المكتشفة
+      enum:
+        - aphid
+        - whitefly
+        - thrips
+        - mite
+        - locust
+        - army_worm
+        - red_palm_weevil
+        - fruit_fly
+        - leafminer
+        - caterpillar
+        - beetle
+        - snail
+        - nematode
+        - unknown
+      x-enum-descriptions:
+        aphid: "المن - Aphid"
+        whitefly: "الذبابة البيضاء - Whitefly"
+        thrips: "التربس - Thrips"
+        mite: "الحلم - Mite"
+        locust: "الجراد - Locust"
+        army_worm: "دودة الحشد - Army worm"
+        red_palm_weevil: "سوسة النخيل الحمراء - Red palm weevil"
+        fruit_fly: "ذبابة الفاكهة - Fruit fly"
+        leafminer: "صانعة الأنفاق - Leafminer"
+        caterpillar: "اليرقة - Caterpillar"
+        beetle: "الخنفساء - Beetle"
+        snail: "الحلزون - Snail"
+        nematode: "النيماتودا - Nematode"
+        unknown: "غير معروف - Unknown"
+
+    DiseaseType:
+      type: string
+      description: |
+        Type of crop disease detected
+        نوع مرض المحصول المكتشف
+      enum:
+        - powdery_mildew
+        - downy_mildew
+        - rust
+        - leaf_spot
+        - blight
+        - wilt
+        - root_rot
+        - anthracnose
+        - mosaic_virus
+        - bacterial_spot
+        - fusarium
+        - botrytis
+        - scab
+        - canker
+        - unknown
+      x-enum-descriptions:
+        powdery_mildew: "البياض الدقيقي - Powdery mildew"
+        downy_mildew: "البياض الزغبي - Downy mildew"
+        rust: "الصدأ - Rust"
+        leaf_spot: "تبقع الأوراق - Leaf spot"
+        blight: "اللفحة - Blight"
+        wilt: "الذبول - Wilt"
+        root_rot: "عفن الجذور - Root rot"
+        anthracnose: "الأنثراكنوز - Anthracnose"
+        mosaic_virus: "فيروس الموزاييك - Mosaic virus"
+        bacterial_spot: "التبقع البكتيري - Bacterial spot"
+        fusarium: "الفيوزاريوم - Fusarium"
+        botrytis: "العفن الرمادي - Botrytis"
+        scab: "الجرب - Scab"
+        canker: "التقرح - Canker"
+        unknown: "غير معروف - Unknown"
+
+    CropType:
+      type: string
+      description: |
+        Type of crop
+        نوع المحصول
+      enum:
+        - wheat
+        - barley
+        - date_palm
+        - tomato
+        - cucumber
+        - pepper
+        - eggplant
+        - potato
+        - onion
+        - alfalfa
+        - corn
+        - citrus
+        - grape
+        - olive
+        - unknown
+      x-enum-descriptions:
+        wheat: "القمح - Wheat"
+        barley: "الشعير - Barley"
+        date_palm: "نخيل التمر - Date palm"
+        tomato: "الطماطم - Tomato"
+        cucumber: "الخيار - Cucumber"
+        pepper: "الفلفل - Pepper"
+        eggplant: "الباذنجان - Eggplant"
+        potato: "البطاطس - Potato"
+        onion: "البصل - Onion"
+        alfalfa: "البرسيم - Alfalfa"
+        corn: "الذرة - Corn"
+        citrus: "الحمضيات - Citrus"
+        grape: "العنب - Grape"
+        olive: "الزيتون - Olive"
+        unknown: "غير معروف - Unknown"
+
+    GrowthStage:
+      type: string
+      description: |
+        Crop growth stage
+        مرحلة نمو المحصول
+      enum:
+        - germination
+        - seedling
+        - vegetative
+        - tillering
+        - heading
+        - flowering
+        - fruiting
+        - ripening
+        - senescence
+      x-enum-descriptions:
+        germination: "الإنبات - Germination"
+        seedling: "الشتلة - Seedling"
+        vegetative: "النمو الخضري - Vegetative"
+        tillering: "التفريع - Tillering"
+        heading: "طرد السنابل - Heading"
+        flowering: "الإزهار - Flowering"
+        fruiting: "الإثمار - Fruiting"
+        ripening: "النضج - Ripening"
+        senescence: "الشيخوخة - Senescence"
+
+    QualityGrade:
+      type: string
+      description: |
+        Produce quality grade
+        درجة جودة المنتج
+      enum:
+        - premium
+        - grade_a
+        - grade_b
+        - grade_c
+        - reject
+      x-enum-descriptions:
+        premium: "ممتاز - Premium quality"
+        grade_a: "درجة أولى - Grade A"
+        grade_b: "درجة ثانية - Grade B"
+        grade_c: "درجة ثالثة - Grade C"
+        reject: "مرفوض - Rejected"
+
+    Severity:
+      type: string
+      description: |
+        Severity level of detection
+        مستوى شدة الكشف
+      enum:
+        - none
+        - low
+        - medium
+        - high
+        - critical
+      x-enum-descriptions:
+        none: "لا يوجد - None"
+        low: "منخفض - Low"
+        medium: "متوسط - Medium"
+        high: "عالي - High"
+        critical: "حرج - Critical"
+
+    JobStatus:
+      type: string
+      description: |
+        Async job status
+        حالة المهمة غير المتزامنة
+      enum:
+        - pending
+        - processing
+        - completed
+        - failed
+        - cancelled
+      x-enum-descriptions:
+        pending: "قيد الانتظار - Pending"
+        processing: "قيد المعالجة - Processing"
+        completed: "مكتمل - Completed"
+        failed: "فشل - Failed"
+        cancelled: "ملغي - Cancelled"
+
+    # ==================== Common Schemas ====================
+    BoundingBox:
+      type: object
+      description: |
+        Bounding box coordinates for detection
+        إحداثيات مربع الإحاطة للكشف
+      required:
+        - x
+        - y
+        - width
+        - height
+      properties:
+        x:
+          type: number
+          format: float
+          description: X coordinate of top-left corner (normalized 0-1)
+          example: 0.25
+        y:
+          type: number
+          format: float
+          description: Y coordinate of top-left corner (normalized 0-1)
+          example: 0.30
+        width:
+          type: number
+          format: float
+          description: Width of bounding box (normalized 0-1)
+          example: 0.15
+        height:
+          type: number
+          format: float
+          description: Height of bounding box (normalized 0-1)
+          example: 0.20
+
+    Detection:
+      type: object
+      description: |
+        Base detection result
+        نتيجة الكشف الأساسية
+      required:
+        - class_id
+        - class_name
+        - confidence
+        - bounding_box
+      properties:
+        class_id:
+          type: integer
+          description: Internal class ID
+          example: 42
+        class_name:
+          type: string
+          description: Detection class name
+          example: aphid
+        class_name_ar:
+          type: string
+          description: Arabic class name
+          example: المن
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Confidence score
+          example: 0.94
+        bounding_box:
+          $ref: '#/components/schemas/BoundingBox'
+        segmentation_mask:
+          type: string
+          format: base64
+          description: Optional segmentation mask (RLE encoded)
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: INVALID_IMAGE
+        message:
+          type: string
+          description: Error message
+          example: Image format not supported
+        message_ar:
+          type: string
+          description: Arabic error message
+          example: صيغة الصورة غير مدعومة
+        details:
+          type: object
+          description: Additional error details
+        request_id:
+          type: string
+          format: uuid
+          description: Request tracking ID
+
+    # ==================== Request Schemas ====================
+    ImageUpload:
+      type: object
+      description: |
+        Image upload for analysis
+        رفع صورة للتحليل
+      required:
+        - image
+      properties:
+        image:
+          type: string
+          format: base64
+          description: |
+            Base64 encoded image (JPEG, PNG, WEBP)
+            الصورة بترميز Base64 (JPEG, PNG, WEBP)
+        image_url:
+          type: string
+          format: uri
+          description: |
+            Alternative: URL to image
+            بديل: رابط الصورة
+        field_id:
+          type: string
+          format: uuid
+          description: |
+            Associated field ID
+            معرّف الحقل المرتبط
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+              minimum: -90
+              maximum: 90
+            longitude:
+              type: number
+              format: double
+              minimum: -180
+              maximum: 180
+        captured_at:
+          type: string
+          format: date-time
+          description: Image capture timestamp
+        metadata:
+          type: object
+          description: Additional metadata
+          additionalProperties: true
+
+    PestDetectionRequest:
+      allOf:
+        - $ref: '#/components/schemas/ImageUpload'
+        - type: object
+          properties:
+            target_pests:
+              type: array
+              items:
+                $ref: '#/components/schemas/PestType'
+              description: |
+                Filter for specific pest types (empty = all)
+                تصفية لأنواع آفات محددة (فارغ = الكل)
+            include_recommendations:
+              type: boolean
+              default: true
+              description: |
+                Include treatment recommendations
+                تضمين توصيات العلاج
+
+    DiseaseDetectionRequest:
+      allOf:
+        - $ref: '#/components/schemas/ImageUpload'
+        - type: object
+          properties:
+            crop_type:
+              $ref: '#/components/schemas/CropType'
+            include_severity:
+              type: boolean
+              default: true
+            include_treatment:
+              type: boolean
+              default: true
+
+    CropClassificationRequest:
+      allOf:
+        - $ref: '#/components/schemas/ImageUpload'
+        - type: object
+          properties:
+            detect_growth_stage:
+              type: boolean
+              default: true
+            detect_health_status:
+              type: boolean
+              default: true
+
+    WeedDetectionRequest:
+      allOf:
+        - $ref: '#/components/schemas/ImageUpload'
+        - type: object
+          properties:
+            crop_type:
+              $ref: '#/components/schemas/CropType'
+            generate_spray_map:
+              type: boolean
+              default: false
+              description: |
+                Generate precision spray map
+                توليد خريطة الرش الدقيق
+
+    FruitCountRequest:
+      allOf:
+        - $ref: '#/components/schemas/ImageUpload'
+        - type: object
+          properties:
+            crop_type:
+              $ref: '#/components/schemas/CropType'
+            count_unripe:
+              type: boolean
+              default: true
+            estimate_weight:
+              type: boolean
+              default: false
+
+    QualityGradingRequest:
+      allOf:
+        - $ref: '#/components/schemas/ImageUpload'
+        - type: object
+          properties:
+            crop_type:
+              $ref: '#/components/schemas/CropType'
+            grading_standard:
+              type: string
+              enum: [saudi_grade, export_grade, local_market]
+              default: saudi_grade
+
+    BatchProcessRequest:
+      type: object
+      required:
+        - images
+        - detection_type
+      properties:
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageUpload'
+          minItems: 1
+          maxItems: 100
+          description: |
+            Batch of images to process
+            مجموعة الصور للمعالجة
+        detection_type:
+          type: string
+          enum: [pest, disease, crop, weed, fruit, quality]
+        options:
+          type: object
+          additionalProperties: true
+        callback_url:
+          type: string
+          format: uri
+          description: |
+            Webhook URL for completion notification
+            رابط الويب هوك لإشعار الإكتمال
+
+    VideoAnalysisRequest:
+      type: object
+      required:
+        - video_url
+        - analysis_type
+      properties:
+        video_url:
+          type: string
+          format: uri
+          description: URL to video file
+        analysis_type:
+          type: string
+          enum: [pest_tracking, growth_monitoring, fruit_counting]
+        frame_interval:
+          type: integer
+          default: 30
+          description: Analyze every N frames
+        callback_url:
+          type: string
+          format: uri
+
+    # ==================== Response Schemas ====================
+    PestDetection:
+      allOf:
+        - $ref: '#/components/schemas/Detection'
+        - type: object
+          properties:
+            pest_type:
+              $ref: '#/components/schemas/PestType'
+            severity:
+              $ref: '#/components/schemas/Severity'
+            life_stage:
+              type: string
+              enum: [egg, larva, nymph, adult]
+            estimated_count:
+              type: integer
+              description: Estimated pest count in detection area
+
+    PestDetectionResponse:
+      type: object
+      required:
+        - success
+        - detections
+        - processing_time_ms
+      properties:
+        success:
+          type: boolean
+          example: true
+        detections:
+          type: array
+          items:
+            $ref: '#/components/schemas/PestDetection'
+        total_count:
+          type: integer
+          description: Total pest count across all detections
+          example: 12
+        dominant_pest:
+          $ref: '#/components/schemas/PestType'
+        severity_assessment:
+          $ref: '#/components/schemas/Severity'
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/TreatmentRecommendation'
+        processing_time_ms:
+          type: integer
+          example: 145
+        model_version:
+          type: string
+          example: yolo26-pest-v2.3
+        request_id:
+          type: string
+          format: uuid
+
+    DiseaseDetection:
+      allOf:
+        - $ref: '#/components/schemas/Detection'
+        - type: object
+          properties:
+            disease_type:
+              $ref: '#/components/schemas/DiseaseType'
+            severity:
+              $ref: '#/components/schemas/Severity'
+            affected_area_percent:
+              type: number
+              format: float
+              description: Percentage of visible plant affected
+              example: 15.5
+            spread_risk:
+              type: string
+              enum: [low, medium, high]
+
+    DiseaseDetectionResponse:
+      type: object
+      required:
+        - success
+        - detections
+      properties:
+        success:
+          type: boolean
+        detections:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiseaseDetection'
+        primary_disease:
+          $ref: '#/components/schemas/DiseaseType'
+        overall_severity:
+          $ref: '#/components/schemas/Severity'
+        affected_percentage:
+          type: number
+          format: float
+        treatments:
+          type: array
+          items:
+            $ref: '#/components/schemas/TreatmentRecommendation'
+        processing_time_ms:
+          type: integer
+        request_id:
+          type: string
+          format: uuid
+
+    CropClassificationResponse:
+      type: object
+      required:
+        - success
+        - crop_type
+        - confidence
+      properties:
+        success:
+          type: boolean
+        crop_type:
+          $ref: '#/components/schemas/CropType'
+        crop_type_ar:
+          type: string
+          example: القمح
+        confidence:
+          type: number
+          format: float
+          example: 0.97
+        growth_stage:
+          $ref: '#/components/schemas/GrowthStage'
+        growth_stage_ar:
+          type: string
+          example: مرحلة التفريع
+        days_to_harvest:
+          type: integer
+          description: Estimated days to harvest
+          example: 45
+        health_status:
+          type: string
+          enum: [healthy, stressed, diseased, nutrient_deficient]
+        health_score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          example: 85.5
+        variety_prediction:
+          type: object
+          properties:
+            variety:
+              type: string
+              example: Sakha 95
+            confidence:
+              type: number
+              format: float
+        processing_time_ms:
+          type: integer
+        request_id:
+          type: string
+          format: uuid
+
+    WeedDetection:
+      allOf:
+        - $ref: '#/components/schemas/Detection'
+        - type: object
+          properties:
+            weed_species:
+              type: string
+            weed_species_ar:
+              type: string
+            coverage_percent:
+              type: number
+              format: float
+
+    WeedDetectionResponse:
+      type: object
+      required:
+        - success
+        - detections
+      properties:
+        success:
+          type: boolean
+        detections:
+          type: array
+          items:
+            $ref: '#/components/schemas/WeedDetection'
+        total_weed_coverage:
+          type: number
+          format: float
+          description: Total weed coverage percentage
+          example: 8.5
+        weed_density:
+          type: string
+          enum: [none, sparse, moderate, dense]
+        spray_map:
+          type: object
+          description: Precision spray map data
+          properties:
+            grid_resolution_m:
+              type: number
+              format: float
+            spray_zones:
+              type: array
+              items:
+                type: object
+                properties:
+                  x:
+                    type: integer
+                  y:
+                    type: integer
+                  spray_required:
+                    type: boolean
+                  herbicide_rate:
+                    type: number
+        processing_time_ms:
+          type: integer
+        request_id:
+          type: string
+          format: uuid
+
+    FruitCountResponse:
+      type: object
+      required:
+        - success
+        - total_count
+      properties:
+        success:
+          type: boolean
+        total_count:
+          type: integer
+          example: 156
+        ripe_count:
+          type: integer
+          example: 98
+        unripe_count:
+          type: integer
+          example: 58
+        size_distribution:
+          type: object
+          properties:
+            small:
+              type: integer
+            medium:
+              type: integer
+            large:
+              type: integer
+        estimated_weight_kg:
+          type: number
+          format: float
+          example: 45.5
+        estimated_yield_per_hectare:
+          type: number
+          format: float
+          example: 12500.0
+        detections:
+          type: array
+          items:
+            $ref: '#/components/schemas/Detection'
+        processing_time_ms:
+          type: integer
+        request_id:
+          type: string
+          format: uuid
+
+    QualityGradingResponse:
+      type: object
+      required:
+        - success
+        - overall_grade
+      properties:
+        success:
+          type: boolean
+        overall_grade:
+          $ref: '#/components/schemas/QualityGrade'
+        overall_grade_ar:
+          type: string
+          example: درجة أولى
+        grade_distribution:
+          type: object
+          properties:
+            premium:
+              type: integer
+            grade_a:
+              type: integer
+            grade_b:
+              type: integer
+            grade_c:
+              type: integer
+            reject:
+              type: integer
+        defects_detected:
+          type: array
+          items:
+            type: object
+            properties:
+              defect_type:
+                type: string
+              defect_type_ar:
+                type: string
+              count:
+                type: integer
+              severity:
+                $ref: '#/components/schemas/Severity'
+        market_suitability:
+          type: object
+          properties:
+            export:
+              type: boolean
+            premium_local:
+              type: boolean
+            standard_local:
+              type: boolean
+            processing:
+              type: boolean
+        processing_time_ms:
+          type: integer
+        request_id:
+          type: string
+          format: uuid
+
+    TreatmentRecommendation:
+      type: object
+      properties:
+        recommendation_id:
+          type: string
+          format: uuid
+        treatment_type:
+          type: string
+          enum: [chemical, biological, cultural, mechanical]
+        product_name:
+          type: string
+          example: Imidacloprid 20%
+        product_name_ar:
+          type: string
+          example: إيميداكلوبريد 20%
+        application_rate:
+          type: string
+          example: 0.5 L/ha
+        application_method:
+          type: string
+        application_method_ar:
+          type: string
+        timing:
+          type: string
+          example: Apply early morning
+        timing_ar:
+          type: string
+          example: يُطبق في الصباح الباكر
+        pre_harvest_interval_days:
+          type: integer
+          example: 14
+        safety_precautions:
+          type: array
+          items:
+            type: string
+        estimated_cost_sar:
+          type: number
+          format: float
+        effectiveness_rating:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 5
+
+    BatchJobResponse:
+      type: object
+      required:
+        - job_id
+        - status
+        - created_at
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        status_ar:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        total_images:
+          type: integer
+        processed_images:
+          type: integer
+        failed_images:
+          type: integer
+        progress_percent:
+          type: number
+          format: float
+        results_url:
+          type: string
+          format: uri
+          description: URL to download results when completed
+        error_message:
+          type: string
+
+    ModelInfo:
+      type: object
+      properties:
+        model_id:
+          type: string
+          example: yolo26-pest-v2.3
+        model_name:
+          type: string
+          example: YOLO26 Pest Detection
+        model_name_ar:
+          type: string
+          example: كشف الآفات YOLO26
+        version:
+          type: string
+          example: 2.3.0
+        description:
+          type: string
+        description_ar:
+          type: string
+        supported_classes:
+          type: array
+          items:
+            type: string
+        input_resolution:
+          type: string
+          example: 640x640
+        accuracy_map:
+          type: number
+          format: float
+          example: 0.942
+        inference_time_ms:
+          type: integer
+          example: 23
+        last_updated:
+          type: string
+          format: date-time
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - service
+        - version
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, unhealthy]
+        service:
+          type: string
+          example: yolo26-vision-service
+        version:
+          type: string
+          example: 1.0.0
+        gpu_available:
+          type: boolean
+        gpu_memory_used_mb:
+          type: integer
+        gpu_memory_total_mb:
+          type: integer
+        models_loaded:
+          type: array
+          items:
+            type: string
+        uptime_seconds:
+          type: integer
+        requests_processed:
+          type: integer
+
+  responses:
+    Unauthorized:
+      description: |
+        Authentication required
+        المصادقة مطلوبة
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: UNAUTHORIZED
+            message: Invalid or expired token
+            message_ar: الرمز غير صالح أو منتهي الصلاحية
+
+    Forbidden:
+      description: |
+        Access denied
+        تم رفض الوصول
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: FORBIDDEN
+            message: Insufficient permissions
+            message_ar: صلاحيات غير كافية
+
+    NotFound:
+      description: |
+        Resource not found
+        المورد غير موجود
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: NOT_FOUND
+            message: Resource not found
+            message_ar: المورد غير موجود
+
+    RateLimitExceeded:
+      description: |
+        Rate limit exceeded
+        تم تجاوز حد الطلبات
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Request limit per minute
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Remaining requests
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+          description: Unix timestamp when limit resets
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds until retry allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: RATE_LIMIT_EXCEEDED
+            message: Too many requests
+            message_ar: طلبات كثيرة جداً
+
+    InvalidRequest:
+      description: |
+        Invalid request
+        طلب غير صالح
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: INVALID_REQUEST
+            message: Invalid image format
+            message_ar: صيغة صورة غير صالحة
+
+    ServerError:
+      description: |
+        Internal server error
+        خطأ في الخادم
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: INTERNAL_ERROR
+            message: An unexpected error occurred
+            message_ar: حدث خطأ غير متوقع
+
+paths:
+  # ==================== Pest Detection ====================
+  /detect/pest:
+    post:
+      tags: [Pest Detection]
+      summary: Detect pests in crop images
+      description: |
+        Analyze crop images to detect and identify pests using YOLO26 model.
+        تحليل صور المحاصيل لكشف وتحديد الآفات باستخدام نموذج YOLO26.
+
+        Supported pests include aphids, whiteflies, locusts, red palm weevil, and more.
+        الآفات المدعومة تشمل المن، الذبابة البيضاء، الجراد، سوسة النخيل الحمراء، والمزيد.
+      operationId: detectPest
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/ConfidenceThreshold'
+        - $ref: '#/components/parameters/MaxDetections'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PestDetectionRequest'
+            examples:
+              standard:
+                summary: Standard pest detection
+                value:
+                  image: "/9j/4AAQSkZJRgABAQAAAQABAAD..."
+                  field_id: "550e8400-e29b-41d4-a716-446655440001"
+                  include_recommendations: true
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                field_id:
+                  type: string
+                  format: uuid
+                include_recommendations:
+                  type: boolean
+      responses:
+        '200':
+          description: |
+            Successful pest detection
+            كشف آفات ناجح
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+            X-Processing-Time-Ms:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PestDetectionResponse'
+              examples:
+                aphid_detection:
+                  summary: Aphid detection example
+                  value:
+                    success: true
+                    detections:
+                      - class_id: 1
+                        class_name: aphid
+                        class_name_ar: المن
+                        confidence: 0.94
+                        bounding_box:
+                          x: 0.25
+                          y: 0.30
+                          width: 0.15
+                          height: 0.20
+                        pest_type: aphid
+                        severity: medium
+                        life_stage: adult
+                        estimated_count: 15
+                    total_count: 15
+                    dominant_pest: aphid
+                    severity_assessment: medium
+                    recommendations:
+                      - recommendation_id: "rec-001"
+                        treatment_type: chemical
+                        product_name: Imidacloprid 20%
+                        product_name_ar: إيميداكلوبريد 20%
+                        application_rate: "0.5 L/ha"
+                        timing: Apply early morning
+                        timing_ar: يُطبق في الصباح الباكر
+                        pre_harvest_interval_days: 14
+                    processing_time_ms: 145
+                    model_version: yolo26-pest-v2.3
+                    request_id: "550e8400-e29b-41d4-a716-446655440002"
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+        - bearerAuth: []
+
+  # ==================== Disease Detection ====================
+  /detect/disease:
+    post:
+      tags: [Disease Detection]
+      summary: Detect crop diseases from images
+      description: |
+        Analyze leaf and plant images to detect diseases.
+        تحليل صور الأوراق والنباتات لكشف الأمراض.
+
+        Detects powdery mildew, rust, blight, leaf spot, and 10+ other diseases.
+        يكشف البياض الدقيقي، الصدأ، اللفحة، تبقع الأوراق، و10+ أمراض أخرى.
+      operationId: detectDisease
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/ConfidenceThreshold'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiseaseDetectionRequest'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                crop_type:
+                  $ref: '#/components/schemas/CropType'
+      responses:
+        '200':
+          description: Successful disease detection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiseaseDetectionResponse'
+              examples:
+                rust_detection:
+                  summary: Rust disease detection
+                  value:
+                    success: true
+                    detections:
+                      - class_id: 3
+                        class_name: rust
+                        class_name_ar: الصدأ
+                        confidence: 0.91
+                        bounding_box:
+                          x: 0.20
+                          y: 0.25
+                          width: 0.30
+                          height: 0.35
+                        disease_type: rust
+                        severity: medium
+                        affected_area_percent: 15.5
+                        spread_risk: medium
+                    primary_disease: rust
+                    overall_severity: medium
+                    affected_percentage: 15.5
+                    treatments:
+                      - treatment_type: chemical
+                        product_name: Propiconazole 25%
+                        product_name_ar: بروبيكونازول 25%
+                        application_rate: "0.5 L/ha"
+                    processing_time_ms: 167
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+      security:
+        - bearerAuth: []
+
+  # ==================== Crop Classification ====================
+  /classify/crop:
+    post:
+      tags: [Crop Analysis]
+      summary: Classify crop type and growth stage
+      description: |
+        Identify crop type, variety, and current growth stage from images.
+        تحديد نوع المحصول، الصنف، ومرحلة النمو الحالية من الصور.
+      operationId: classifyCrop
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CropClassificationRequest'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Successful crop classification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CropClassificationResponse'
+              examples:
+                wheat_classification:
+                  summary: Wheat classification
+                  value:
+                    success: true
+                    crop_type: wheat
+                    crop_type_ar: القمح
+                    confidence: 0.97
+                    growth_stage: tillering
+                    growth_stage_ar: مرحلة التفريع
+                    days_to_harvest: 65
+                    health_status: healthy
+                    health_score: 92.5
+                    variety_prediction:
+                      variety: "Sakha 95"
+                      confidence: 0.85
+                    processing_time_ms: 98
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+      security:
+        - bearerAuth: []
+
+  # ==================== Weed Detection ====================
+  /detect/weed:
+    post:
+      tags: [Weed Detection]
+      summary: Detect weeds in crop fields
+      description: |
+        Identify and map weeds for precision herbicide application.
+        تحديد ورسم خريطة الأعشاب الضارة لتطبيق مبيدات الأعشاب بدقة.
+      operationId: detectWeed
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/ConfidenceThreshold'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeedDetectionRequest'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                crop_type:
+                  $ref: '#/components/schemas/CropType'
+                generate_spray_map:
+                  type: boolean
+      responses:
+        '200':
+          description: Successful weed detection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeedDetectionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+      security:
+        - bearerAuth: []
+
+  # ==================== Fruit Counting ====================
+  /count/fruit:
+    post:
+      tags: [Yield Estimation]
+      summary: Count fruits for yield estimation
+      description: |
+        Count fruits in images for automated yield estimation.
+        عد الثمار في الصور لتقدير المحصول تلقائياً.
+      operationId: countFruit
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FruitCountRequest'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                crop_type:
+                  $ref: '#/components/schemas/CropType'
+      responses:
+        '200':
+          description: Successful fruit count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FruitCountResponse'
+              examples:
+                tomato_count:
+                  summary: Tomato fruit count
+                  value:
+                    success: true
+                    total_count: 156
+                    ripe_count: 98
+                    unripe_count: 58
+                    size_distribution:
+                      small: 25
+                      medium: 95
+                      large: 36
+                    estimated_weight_kg: 45.5
+                    estimated_yield_per_hectare: 12500.0
+                    processing_time_ms: 234
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+      security:
+        - bearerAuth: []
+
+  # ==================== Quality Grading ====================
+  /grade/quality:
+    post:
+      tags: [Quality Assessment]
+      summary: Grade produce quality
+      description: |
+        Assess and grade produce quality for market suitability.
+        تقييم وتصنيف جودة المنتجات لملاءمة السوق.
+      operationId: gradeQuality
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QualityGradingRequest'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                crop_type:
+                  $ref: '#/components/schemas/CropType'
+                grading_standard:
+                  type: string
+      responses:
+        '200':
+          description: Successful quality grading
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QualityGradingResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+      security:
+        - bearerAuth: []
+
+  # ==================== Batch Processing ====================
+  /batch/submit:
+    post:
+      tags: [Batch Processing]
+      summary: Submit batch image processing job
+      description: |
+        Submit multiple images for batch processing. Returns job ID for status polling.
+        إرسال صور متعددة للمعالجة الدفعية. يُعيد معرّف المهمة للاستعلام عن الحالة.
+      operationId: submitBatch
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchProcessRequest'
+      responses:
+        '202':
+          description: |
+            Batch job accepted
+            تم قبول المهمة الدفعية
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchJobResponse'
+              example:
+                job_id: "550e8400-e29b-41d4-a716-446655440003"
+                status: pending
+                status_ar: قيد الانتظار
+                created_at: "2026-01-31T10:30:00Z"
+                total_images: 50
+                processed_images: 0
+                progress_percent: 0
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+      security:
+        - bearerAuth: []
+
+  /batch/{job_id}:
+    get:
+      tags: [Batch Processing]
+      summary: Get batch job status
+      description: |
+        Get status and progress of a batch processing job.
+        الحصول على حالة وتقدم مهمة المعالجة الدفعية.
+      operationId: getBatchStatus
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchJobResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags: [Batch Processing]
+      summary: Cancel batch job
+      description: |
+        Cancel a pending or processing batch job.
+        إلغاء مهمة دفعية قيد الانتظار أو المعالجة.
+      operationId: cancelBatch
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Job cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchJobResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /batch/{job_id}/results:
+    get:
+      tags: [Batch Processing]
+      summary: Download batch results
+      description: |
+        Download results of a completed batch job.
+        تحميل نتائج مهمة دفعية مكتملة.
+      operationId: getBatchResults
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, csv, geojson]
+            default: json
+      responses:
+        '200':
+          description: Batch results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+                    format: uuid
+                  results:
+                    type: array
+                    items:
+                      type: object
+            text/csv:
+              schema:
+                type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Video Analysis ====================
+  /video/analyze:
+    post:
+      tags: [Batch Processing]
+      summary: Submit video for analysis
+      description: |
+        Submit video for frame-by-frame agricultural analysis.
+        إرسال فيديو للتحليل الزراعي إطاراً بإطار.
+      operationId: analyzeVideo
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VideoAnalysisRequest'
+      responses:
+        '202':
+          description: Video analysis job accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchJobResponse'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Models ====================
+  /models:
+    get:
+      tags: [Models]
+      summary: List available models
+      description: |
+        Get list of available vision models and their capabilities.
+        الحصول على قائمة نماذج الرؤية المتاحة وقدراتها.
+      operationId: listModels
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: List of models
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  models:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ModelInfo'
+              example:
+                models:
+                  - model_id: yolo26-pest-v2.3
+                    model_name: YOLO26 Pest Detection
+                    model_name_ar: كشف الآفات YOLO26
+                    version: 2.3.0
+                    supported_classes: ["aphid", "whitefly", "locust"]
+                    input_resolution: "640x640"
+                    accuracy_map: 0.942
+                    inference_time_ms: 23
+                  - model_id: yolo26-disease-v1.8
+                    model_name: YOLO26 Disease Detection
+                    model_name_ar: كشف الأمراض YOLO26
+                    version: 1.8.0
+                    supported_classes: ["rust", "blight", "mildew"]
+                    input_resolution: "640x640"
+                    accuracy_map: 0.918
+                    inference_time_ms: 25
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /models/{model_id}:
+    get:
+      tags: [Models]
+      summary: Get model details
+      description: |
+        Get detailed information about a specific model.
+        الحصول على معلومات تفصيلية عن نموذج محدد.
+      operationId: getModel
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: model_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Model details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelInfo'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Health Check ====================
+  /healthz:
+    get:
+      tags: [Health Check]
+      summary: Liveness probe
+      description: |
+        Check if the service is alive.
+        التحقق من أن الخدمة تعمل.
+      operationId: healthLive
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: yolo26-vision-service
+                  version:
+                    type: string
+                    example: 1.0.0
+
+  /readyz:
+    get:
+      tags: [Health Check]
+      summary: Readiness probe
+      description: |
+        Check if the service is ready to accept requests.
+        التحقق من أن الخدمة جاهزة لاستقبال الطلبات.
+      operationId: healthReady
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+                service: yolo26-vision-service
+                version: 1.0.0
+                gpu_available: true
+                gpu_memory_used_mb: 2048
+                gpu_memory_total_mb: 8192
+                models_loaded:
+                  - yolo26-pest-v2.3
+                  - yolo26-disease-v1.8
+                  - yolo26-crop-v1.5
+                uptime_seconds: 86400
+                requests_processed: 125000
+        '503':
+          description: Service not ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /metrics:
+    get:
+      tags: [Health Check]
+      summary: Prometheus metrics
+      description: |
+        Get Prometheus-formatted metrics.
+        الحصول على مقاييس بتنسيق Prometheus.
+      operationId: getMetrics
+      responses:
+        '200':
+          description: Prometheus metrics
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |
+                # HELP yolo26_requests_total Total number of detection requests
+                # TYPE yolo26_requests_total counter
+                yolo26_requests_total{type="pest"} 45000
+                yolo26_requests_total{type="disease"} 32000
+                # HELP yolo26_inference_duration_seconds Inference duration histogram
+                # TYPE yolo26_inference_duration_seconds histogram
+                yolo26_inference_duration_seconds_bucket{le="0.025"} 42000
+                yolo26_inference_duration_seconds_bucket{le="0.05"} 75000
+
+security:
+  - bearerAuth: []

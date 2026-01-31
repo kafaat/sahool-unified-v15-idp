@@ -1995,6 +1995,166 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8156'
       prometheus.io/path: /metrics
+  yolo26-vision-service:
+    enabled: true
+    name: yolo26-vision-service
+    image:
+      repository: ghcr.io/kafaat/sahool-yolo26-vision-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8150
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+      limits:
+        cpu: 1000000m
+        memory: 2Gi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8150'
+    serviceAccount:
+      create: true
+      name: sahool-yolo26-vision-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8150'
+      prometheus.io/path: /metrics
+  terrain-core-service:
+    enabled: true
+    name: terrain-core-service
+    image:
+      repository: ghcr.io/kafaat/sahool-terrain-core-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8185
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 500000m
+        memory: 1Gi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8185'
+    serviceAccount:
+      create: true
+      name: sahool-terrain-core-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8185'
+      prometheus.io/path: /metrics
+  hydrology-service:
+    enabled: true
+    name: hydrology-service
+    image:
+      repository: ghcr.io/kafaat/sahool-hydrology-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8165
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 400m
+        memory: 512Mi
+      limits:
+        cpu: 400000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8165'
+    serviceAccount:
+      create: true
+      name: sahool-hydrology-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8165'
+      prometheus.io/path: /metrics
+  leveling-optimizer-service:
+    enabled: true
+    name: leveling-optimizer-service
+    image:
+      repository: ghcr.io/kafaat/sahool-leveling-optimizer-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8170
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 400m
+        memory: 512Mi
+      limits:
+        cpu: 400000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8170'
+    serviceAccount:
+      create: true
+      name: sahool-leveling-optimizer-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8170'
+      prometheus.io/path: /metrics
+  edge-orchestrator-service:
+    enabled: true
+    name: edge-orchestrator-service
+    image:
+      repository: ghcr.io/kafaat/sahool-edge-orchestrator-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8190
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 384Mi
+      limits:
+        cpu: 300000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8190'
+    serviceAccount:
+      create: true
+      name: sahool-edge-orchestrator-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8190'
+      prometheus.io/path: /metrics
 applications:
   web:
     enabled: true
@@ -2301,6 +2461,26 @@ ingress:
       pathType: Prefix
       service: field-service
       port: 8156
+    - path: /api/v1/yolo26/vision/service
+      pathType: Prefix
+      service: yolo26-vision-service
+      port: 8150
+    - path: /api/v1/terrain/core/service
+      pathType: Prefix
+      service: terrain-core-service
+      port: 8185
+    - path: /api/v1/hydrology/service
+      pathType: Prefix
+      service: hydrology-service
+      port: 8165
+    - path: /api/v1/leveling/optimizer/service
+      pathType: Prefix
+      service: leveling-optimizer-service
+      port: 8170
+    - path: /api/v1/edge/orchestrator/service
+      pathType: Prefix
+      service: edge-orchestrator-service
+      port: 8190
   tls:
   - secretName: sahool-tls
     hosts:

@@ -217,6 +217,32 @@ services:
     - postgres
     - redis
     - nats
+  leveling-optimizer-service:
+    build:
+      context: ../../apps/services/leveling-optimizer-service
+      dockerfile: Dockerfile
+    ports:
+    - 8170:8170
+    environment:
+    - PORT=8170
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8170/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 512Mi
+    depends_on:
+    - terrain-core-service
 networks:
   sahool-network:
     driver: bridge

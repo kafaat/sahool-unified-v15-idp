@@ -1,0 +1,15 @@
+apiVersion: v2
+name: edge-orchestrator-service
+description: SAHOOL Edge Orchestrator Service - Manages edge device fleet and offline synchronization
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - edge
+  - orchestration
+  - offline-sync
+  - fleet-management
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

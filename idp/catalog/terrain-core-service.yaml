@@ -1,0 +1,30 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: terrain-core-service
+  description: Terrain analysis and digital elevation model processing for agricultural land assessment
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/terrain-core-service
+  tags:
+    - python
+    - fastapi
+    - geospatial
+    - dem
+    - terrain
+  links:
+    - url: https://api.sahool.io/v1/terrain/docs
+      title: API Documentation
+    - url: https://grafana.sahool.io/d/terrain-core
+      title: Grafana Dashboard
+spec:
+  type: service
+  lifecycle: production
+  owner: geospatial-team
+  system: sahool-platform
+  dependsOn:
+    - component:field-management-service
+    - resource:postgresql
+    - resource:nats
+  providesApis:
+    - terrain-core-api

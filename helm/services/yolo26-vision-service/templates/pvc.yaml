@@ -1,0 +1,17 @@
+{{- if .Values.modelStorage.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "yolo26-vision-service.fullname" . }}-models
+  labels:
+    {{- include "yolo26-vision-service.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.modelStorage.accessMode }}
+  {{- if .Values.modelStorage.storageClass }}
+  storageClassName: {{ .Values.modelStorage.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.modelStorage.size }}
+{{- end }}

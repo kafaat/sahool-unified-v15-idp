@@ -6,3 +6,5 @@ spec:
   targets:
     - ./systems/sahool-system.yaml
     - ./templates/templates.yaml
+    # New services catalog (YOLO26 Vision, Terrain, Hydrology, Leveling, Edge)
+    - ../../catalog/all.yaml

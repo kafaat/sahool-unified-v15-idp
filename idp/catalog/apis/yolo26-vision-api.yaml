@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: yolo26-vision-api
+  description: YOLO26 Vision API for agricultural computer vision tasks including crop disease detection, pest identification, and plant health analysis
+  tags:
+    - openapi
+    - vision
+    - ml
+    - computer-vision
+spec:
+  type: openapi
+  lifecycle: production
+  owner: ai-team
+  definition:
+    $text: ./docs/api/yolo26-vision-api.yaml

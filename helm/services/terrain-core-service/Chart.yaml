@@ -1,0 +1,15 @@
+apiVersion: v2
+name: terrain-core-service
+description: SAHOOL Terrain Core Service - Digital Elevation Model (DEM) processing and terrain analysis
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - terrain
+  - dem
+  - elevation
+  - geospatial
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

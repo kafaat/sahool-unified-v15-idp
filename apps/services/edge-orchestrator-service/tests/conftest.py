@@ -8,7 +8,7 @@ Pytest configuration and fixtures for Edge Orchestrator Service tests.
 
 import asyncio
 import os
-from typing import AsyncGenerator, Generator
+from collections.abc import Generator
 from uuid import uuid4
 
 import pytest

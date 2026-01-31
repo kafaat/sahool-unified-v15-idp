@@ -24,7 +24,6 @@ from src.api.schemas import (
     EdgeJob,
     EdgeJobCreate,
     EdgeJobList,
-    JobConfig,
     JobPriority,
     JobResult,
     JobStatus,
@@ -134,7 +133,7 @@ async def execute_job_on_device(
             execution_time_ms=result.execution_time_ms,
         )
 
-    except asyncio.TimeoutError:
+    except TimeoutError:
         job.status = JobStatus.TIMEOUT
         job.completed_at = datetime.utcnow()
         job.result = JobResult(

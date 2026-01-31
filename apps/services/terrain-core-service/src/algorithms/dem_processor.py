@@ -98,7 +98,7 @@ class DEMMetadata:
     height: int
     nodata_value: float
     vertical_datum: str
-    acquisition_date: Optional[datetime] = None
+    acquisition_date: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary | التحويل إلى قاموس"""
@@ -201,7 +201,7 @@ class DEMProcessor:
 
     def __init__(
         self,
-        cache_dir: Optional[str] = None,
+        cache_dir: str | None = None,
         default_source: DEMSource = DEMSource.COPERNICUS,
         default_resolution_m: float = 30.0,
         default_crs: str = "EPSG:32637",  # UTM 37N for Middle East
@@ -220,7 +220,7 @@ class DEMProcessor:
         self.default_source = default_source
         self.default_resolution_m = default_resolution_m
         self.default_crs = default_crs
-        self._http_client: Optional[httpx.AsyncClient] = None
+        self._http_client: httpx.AsyncClient | None = None
 
         logger.info(
             "DEM processor initialized",
@@ -252,7 +252,7 @@ class DEMProcessor:
         key_str = f"{source.value}_{bounds.as_tuple}_{resolution_m}"
         return hashlib.md5(key_str.encode()).hexdigest()
 
-    def _get_cached_dem_path(self, cache_key: str) -> Optional[Path]:
+    def _get_cached_dem_path(self, cache_key: str) -> Path | None:
         """Check if DEM is cached | التحقق من وجود تخزين مؤقت"""
         cache_path = self.cache_dir / f"{cache_key}.tif"
         if cache_path.exists():
@@ -584,7 +584,7 @@ class DEMProcessor:
         self,
         dem_data: DEMData,
         target_crs: str,
-        resolution_m: Optional[float] = None,
+        resolution_m: float | None = None,
     ) -> DEMData:
         """
         Reproject DEM to different CRS | إعادة إسقاط الارتفاعات لنظام إحداثيات مختلف

@@ -6,9 +6,9 @@ Tests for device management endpoints.
 اختبارات لنقاط نهاية إدارة الأجهزة.
 """
 
-import pytest
 from uuid import uuid4
 
+import pytest
 from fastapi.testclient import TestClient
 
 from src.main import app

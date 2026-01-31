@@ -20,7 +20,7 @@ import json
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 import asyncpg
 import nats
@@ -205,7 +205,7 @@ def health():
         "service": "hydrology-service",
         "service_ar": "خدمة الهيدرولوجيا",
         "version": "16.0.0",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -230,7 +230,7 @@ def readiness():
             "terrain_service": settings.terrain_service_url,
             "weather_service": settings.weather_service_url,
         },
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -262,7 +262,7 @@ def combined_health():
                 "connected": nats_connected
             },
         },
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 

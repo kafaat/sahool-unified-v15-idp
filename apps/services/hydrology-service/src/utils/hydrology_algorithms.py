@@ -461,7 +461,7 @@ def classify_drainage_pattern(
 
     # Count flow directions
     direction_counts = {}
-    for d in D8_DIRECTIONS.keys():
+    for d in D8_DIRECTIONS:
         direction_counts[d] = np.sum(flow_dir == d)
 
     total_cells = np.sum(flow_dir > 0)
@@ -518,9 +518,7 @@ def delineate_basins(
                 ni, nj = i + di, j + dj
 
                 # Check if flows outside domain or to nodata
-                if ni < 0 or ni >= rows or nj < 0 or nj >= cols:
-                    outlets.append((i, j))
-                elif dem.elevation[ni, nj] == nodata:
+                if ni < 0 or ni >= rows or nj < 0 or nj >= cols or dem.elevation[ni, nj] == nodata:
                     outlets.append((i, j))
 
     # For each outlet with sufficient accumulation, delineate watershed

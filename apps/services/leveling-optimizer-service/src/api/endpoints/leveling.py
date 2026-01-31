@@ -84,7 +84,7 @@ EQUIPMENT_CONFIG = {
 }
 
 
-def _convert_points(elevation_points: List[ElevationPoint]) -> List[Point3D]:
+def _convert_points(elevation_points: list[ElevationPoint]) -> list[Point3D]:
     """Convert API elevation points to internal Point3D format."""
     return [
         Point3D(x=p.x, y=p.y, z=p.elevation, point_id=p.point_id)
@@ -96,7 +96,7 @@ def _calculate_cost_estimate(
     cut_fill: CutFillVolume,
     field_area_hectares: float,
     haul_distance: float,
-    equipment_recommendations: List[EquipmentRecommendation],
+    equipment_recommendations: list[EquipmentRecommendation],
 ) -> CostEstimate:
     """
     Calculate detailed cost estimate in SAR.
@@ -173,7 +173,7 @@ def _get_equipment_recommendations(
     cut_fill: CutFillVolume,
     haul_distance: float,
     method: LevelingMethod,
-) -> List[EquipmentRecommendation]:
+) -> list[EquipmentRecommendation]:
     """
     Generate equipment recommendations based on job requirements.
 
@@ -566,7 +566,7 @@ async def get_cost_estimation(
 
 @router.get(
     "/equipment/{field_id}",
-    response_model=List[EquipmentRecommendation],
+    response_model=list[EquipmentRecommendation],
     summary="Get equipment recommendations | الحصول على توصيات المعدات",
 )
 async def get_equipment_recommendations(

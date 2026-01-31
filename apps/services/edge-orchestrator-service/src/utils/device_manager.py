@@ -12,7 +12,6 @@ including SSH connections, API calls, and real-time monitoring.
 """
 
 import asyncio
-import json
 from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
@@ -27,7 +26,6 @@ from src.api.schemas import (
     DeviceStatus,
     EdgeDevice,
     JobResult,
-    JobStatus,
     SyncProgress,
     SyncRequest,
 )

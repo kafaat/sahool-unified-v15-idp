@@ -11,7 +11,6 @@ to edge devices like Jetson Orin Nano.
 على أجهزة الحافة مثل Jetson Orin Nano.
 """
 
-import asyncio
 from datetime import datetime
 from typing import Annotated, Any
 from uuid import UUID, uuid4

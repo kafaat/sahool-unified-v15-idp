@@ -13,7 +13,6 @@ operations with real-time device monitoring and model deployment.
 دون اتصال مع مراقبة الأجهزة في الوقت الفعلي ونشر النماذج.
 """
 
-import asyncio
 import json
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -27,10 +26,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from src.api.endpoints import devices, jobs, sync
-from src.api.schemas import HealthStatus, ReadinessStatus, WSMessage, WSMessageType
+from src.api.schemas import HealthStatus, ReadinessStatus
 from src.core.config import settings
 from src.events.websocket import WebSocketManager, get_websocket_manager
-from src.utils.device_manager import DeviceManager, get_device_manager
+from src.utils.device_manager import get_device_manager
 
 # Configure structured logging
 structlog.configure(

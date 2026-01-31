@@ -22,13 +22,13 @@ class Settings(BaseSettings):
     PORT: int = 8170
 
     # Database
-    DATABASE_URL: Optional[str] = None
+    DATABASE_URL: str | None = None
 
     # NATS
-    NATS_URL: Optional[str] = None
+    NATS_URL: str | None = None
 
     # Redis
-    REDIS_URL: Optional[str] = None
+    REDIS_URL: str | None = None
 
     # JWT
     JWT_SECRET_KEY: str = "test-secret-key-for-unit-tests-only-32chars"

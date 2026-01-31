@@ -52,12 +52,12 @@ class ElevationPoint(BaseModel):
     x: float = Field(..., description="X coordinate (meters) | الإحداثي السيني (متر)")
     y: float = Field(..., description="Y coordinate (meters) | الإحداثي الصادي (متر)")
     elevation: float = Field(..., description="Elevation (meters) | الارتفاع (متر)")
-    point_id: Optional[str] = Field(None, description="Point identifier | معرف النقطة")
+    point_id: str | None = Field(None, description="Point identifier | معرف النقطة")
 
 
 class FieldBoundary(BaseModel):
     """Field boundary polygon. | حدود الحقل"""
-    coordinates: List[List[float]] = Field(
+    coordinates: list[list[float]] = Field(
         ...,
         description="List of [x, y] coordinates forming boundary | قائمة إحداثيات الحدود"
     )
@@ -66,12 +66,12 @@ class FieldBoundary(BaseModel):
 class LevelingAnalysisRequest(BaseModel):
     """Request for field leveling analysis. | طلب تحليل تسوية الحقل"""
     field_id: str = Field(..., description="Field identifier | معرف الحقل")
-    elevation_points: List[ElevationPoint] = Field(
+    elevation_points: list[ElevationPoint] = Field(
         ...,
         description="Survey elevation points | نقاط المسح الطبوغرافي",
         min_length=4
     )
-    boundary: Optional[FieldBoundary] = Field(
+    boundary: FieldBoundary | None = Field(
         None,
         description="Field boundary polygon | حدود الحقل"
     )
@@ -79,11 +79,11 @@ class LevelingAnalysisRequest(BaseModel):
         SoilType.LOAMY,
         description="Soil type | نوع التربة"
     )
-    target_grade_x: Optional[float] = Field(
+    target_grade_x: float | None = Field(
         None,
         description="Target grade in X direction (%) | الميل المستهدف بالاتجاه السيني (%)"
     )
-    target_grade_y: Optional[float] = Field(
+    target_grade_y: float | None = Field(
         None,
         description="Target grade in Y direction (%) | الميل المستهدف بالاتجاه الصادي (%)"
     )
@@ -104,12 +104,12 @@ class LevelingAnalysisRequest(BaseModel):
 class SimulationRequest(BaseModel):
     """Request for leveling simulation. | طلب محاكاة التسوية"""
     field_id: str = Field(..., description="Field identifier | معرف الحقل")
-    elevation_points: List[ElevationPoint] = Field(
+    elevation_points: list[ElevationPoint] = Field(
         ...,
         description="Survey elevation points | نقاط المسح الطبوغرافي",
         min_length=4
     )
-    target_elevation: Optional[float] = Field(
+    target_elevation: float | None = Field(
         None,
         description="Target design elevation (meters) | الارتفاع التصميمي المستهدف (متر)"
     )
@@ -322,13 +322,13 @@ class LevelingPlan(BaseModel):
     )
 
     # Recommendations
-    equipment_recommendations: List[EquipmentRecommendation] = Field(
+    equipment_recommendations: list[EquipmentRecommendation] = Field(
         default_factory=list,
         description="Equipment recommendations | توصيات المعدات"
     )
 
     # Cost estimate
-    cost_estimate: Optional[CostEstimate] = Field(
+    cost_estimate: CostEstimate | None = Field(
         None,
         description="Cost estimate | تقدير التكلفة"
     )
@@ -336,11 +336,11 @@ class LevelingPlan(BaseModel):
     # Bilingual summaries
     summary_en: str = Field(..., description="Plan summary in English")
     summary_ar: str = Field(..., description="ملخص الخطة بالعربية")
-    recommendations_en: List[str] = Field(
+    recommendations_en: list[str] = Field(
         default_factory=list,
         description="Recommendations in English"
     )
-    recommendations_ar: List[str] = Field(
+    recommendations_ar: list[str] = Field(
         default_factory=list,
         description="التوصيات بالعربية"
     )
@@ -368,19 +368,19 @@ class SimulationResult(BaseModel):
     )
 
     # Original vs Simulated
-    original_points: List[ElevationPoint] = Field(
+    original_points: list[ElevationPoint] = Field(
         ...,
         description="Original elevation points | نقاط الارتفاع الأصلية"
     )
-    simulated_points: List[ElevationPoint] = Field(
+    simulated_points: list[ElevationPoint] = Field(
         ...,
         description="Simulated leveled points | نقاط المحاكاة بعد التسوية"
     )
-    cut_points: List[ElevationPoint] = Field(
+    cut_points: list[ElevationPoint] = Field(
         ...,
         description="Points requiring cut | نقاط تحتاج قطع"
     )
-    fill_points: List[ElevationPoint] = Field(
+    fill_points: list[ElevationPoint] = Field(
         ...,
         description="Points requiring fill | نقاط تحتاج ردم"
     )
@@ -432,7 +432,7 @@ class ReadinessResponse(BaseModel):
     status: str = Field(..., description="Readiness status | حالة الجاهزية")
     database: bool = Field(..., description="Database connected | الاتصال بقاعدة البيانات")
     nats: bool = Field(..., description="NATS connected | الاتصال بـ NATS")
-    checks: Dict[str, bool] = Field(
+    checks: dict[str, bool] = Field(
         default_factory=dict,
         description="Additional checks | فحوصات إضافية"
     )
@@ -442,5 +442,5 @@ class ErrorResponse(BaseModel):
     """Error response model. | نموذج استجابة الخطأ"""
     error: str = Field(..., description="Error message | رسالة الخطأ")
     error_ar: str = Field(..., description="رسالة الخطأ (عربي)")
-    detail: Optional[str] = Field(None, description="Error details | تفاصيل الخطأ")
-    request_id: Optional[str] = Field(None, description="Request ID | معرف الطلب")
+    detail: str | None = Field(None, description="Error details | تفاصيل الخطأ")
+    request_id: str | None = Field(None, description="Request ID | معرف الطلب")

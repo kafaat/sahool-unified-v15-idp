@@ -98,7 +98,7 @@ class FlowAccumulationResult:
     drainage_density: float
     channel_pixels: int
     threshold: int
-    streams: Optional[list[dict]]  # GeoJSON features
+    streams: list[dict] | None  # GeoJSON features
 
 
 @dataclass
@@ -366,7 +366,7 @@ class TerrainIndicatorCalculator:
                 if direction == "N":
                     # North wraps around 360
                     count = np.sum(
-                        ((valid_aspect >= low) | (valid_aspect < high))
+                        (valid_aspect >= low) | (valid_aspect < high)
                     )
                 else:
                     count = np.sum((valid_aspect >= low) & (valid_aspect < high))
@@ -616,8 +616,8 @@ class TerrainIndicatorCalculator:
     def calculate_twi(
         self,
         dem_data: DEMData,
-        slope_result: Optional[SlopeResult] = None,
-        flow_accumulation: Optional[FlowAccumulationResult] = None,
+        slope_result: SlopeResult | None = None,
+        flow_accumulation: FlowAccumulationResult | None = None,
     ) -> TWIResult:
         """
         Calculate Topographic Wetness Index (TWI)
@@ -790,8 +790,8 @@ class TerrainIndicatorCalculator:
         self,
         dem_data: DEMData,
         interval_m: float = 5.0,
-        min_elevation: Optional[float] = None,
-        max_elevation: Optional[float] = None,
+        min_elevation: float | None = None,
+        max_elevation: float | None = None,
         simplify_tolerance: float = 1.0,
     ) -> ContourResult:
         """

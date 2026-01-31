@@ -54,7 +54,7 @@ class Settings(BaseSettings):
     )
 
     # Database Configuration
-    DATABASE_URL: Optional[str] = Field(
+    DATABASE_URL: str | None = Field(
         default=None,
         description="PostgreSQL connection URL | رابط اتصال قاعدة البيانات",
     )
@@ -62,7 +62,7 @@ class Settings(BaseSettings):
     DB_POOL_MAX_SIZE: int = Field(default=10, description="Max pool size")
 
     # NATS Configuration
-    NATS_URL: Optional[str] = Field(
+    NATS_URL: str | None = Field(
         default=None, description="NATS server URL | رابط خادم NATS"
     )
     NATS_SUBJECT_PREFIX: str = Field(
@@ -70,7 +70,7 @@ class Settings(BaseSettings):
     )
 
     # Redis Configuration
-    REDIS_URL: Optional[str] = Field(
+    REDIS_URL: str | None = Field(
         default=None, description="Redis URL | رابط Redis"
     )
     CACHE_TTL_SECONDS: int = Field(
@@ -137,11 +137,11 @@ class Settings(BaseSettings):
     )
 
     # S3 Configuration (for DEM storage)
-    S3_BUCKET: Optional[str] = Field(
+    S3_BUCKET: str | None = Field(
         default=None, description="S3 bucket for DEM files"
     )
-    AWS_ACCESS_KEY_ID: Optional[str] = Field(default=None)
-    AWS_SECRET_ACCESS_KEY: Optional[str] = Field(default=None)
+    AWS_ACCESS_KEY_ID: str | None = Field(default=None)
+    AWS_SECRET_ACCESS_KEY: str | None = Field(default=None)
     AWS_REGION: str = Field(default="me-south-1", description="AWS region")
 
     # Logging
@@ -155,7 +155,7 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     """Get cached settings instance | الحصول على نسخة الإعدادات المخزنة"""
     return Settings()

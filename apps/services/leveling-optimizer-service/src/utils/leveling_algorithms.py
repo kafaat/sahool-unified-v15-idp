@@ -22,7 +22,7 @@ class Point3D:
     x: float
     y: float
     z: float
-    point_id: Optional[str] = None
+    point_id: str | None = None
 
 
 @dataclass
@@ -44,9 +44,9 @@ class CutFillResult:
     max_fill_depth: float  # m
     avg_cut_depth: float  # m
     avg_fill_depth: float  # m
-    cut_points: List[Point3D]
-    fill_points: List[Point3D]
-    design_points: List[Point3D]
+    cut_points: list[Point3D]
+    fill_points: list[Point3D]
+    design_points: list[Point3D]
 
 
 class LevelingOptimizer:
@@ -73,9 +73,9 @@ class LevelingOptimizer:
 
     def compute_optimal_plane(
         self,
-        points: List[Point3D],
-        target_grade_x: Optional[float] = None,
-        target_grade_y: Optional[float] = None,
+        points: list[Point3D],
+        target_grade_x: float | None = None,
+        target_grade_y: float | None = None,
         balance_cut_fill: bool = True
     ) -> PlaneParameters:
         """
@@ -135,7 +135,7 @@ class LevelingOptimizer:
 
     def _find_balanced_elevation(
         self,
-        points: List[Point3D],
+        points: list[Point3D],
         a: float,
         b: float
     ) -> float:
@@ -189,10 +189,10 @@ class LevelingOptimizer:
 
     def compute_multi_plane(
         self,
-        points: List[Point3D],
+        points: list[Point3D],
         num_planes: int = 2,
         direction: str = "y"
-    ) -> List[Tuple[PlaneParameters, List[Point3D]]]:
+    ) -> list[tuple[PlaneParameters, list[Point3D]]]:
         """
         Compute multiple planes for stepped or terraced leveling.
 
@@ -235,7 +235,7 @@ class LevelingOptimizer:
 
     def calculate_cut_fill_volumes(
         self,
-        points: List[Point3D],
+        points: list[Point3D],
         plane: PlaneParameters,
         grid_size: float = 10.0
     ) -> CutFillResult:
@@ -310,7 +310,7 @@ class LevelingOptimizer:
 
     def calculate_tin_volumes(
         self,
-        points: List[Point3D],
+        points: list[Point3D],
         plane: PlaneParameters
     ) -> CutFillResult:
         """
@@ -336,8 +336,8 @@ class LevelingOptimizer:
 
     def calculate_haul_distance(
         self,
-        cut_points: List[Point3D],
-        fill_points: List[Point3D]
+        cut_points: list[Point3D],
+        fill_points: list[Point3D]
     ) -> float:
         """
         Calculate average haul distance between cut and fill areas.
@@ -370,9 +370,9 @@ class LevelingOptimizer:
 
     def calculate_mass_haul(
         self,
-        cut_points: List[Point3D],
-        fill_points: List[Point3D]
-    ) -> Dict[str, float]:
+        cut_points: list[Point3D],
+        fill_points: list[Point3D]
+    ) -> dict[str, float]:
         """
         Calculate mass haul diagram statistics.
 
@@ -404,7 +404,7 @@ class LevelingOptimizer:
             "requires_export": total_cut > total_fill / self.soil_compaction_factor
         }
 
-    def calculate_field_area(self, points: List[Point3D]) -> float:
+    def calculate_field_area(self, points: list[Point3D]) -> float:
         """
         Calculate field area using convex hull approximation.
 
@@ -425,8 +425,8 @@ class LevelingOptimizer:
 
     def calculate_statistics(
         self,
-        points: List[Point3D]
-    ) -> Dict[str, float]:
+        points: list[Point3D]
+    ) -> dict[str, float]:
         """
         Calculate elevation statistics for survey points.
 
@@ -446,7 +446,7 @@ class LevelingOptimizer:
             "point_count": len(points)
         }
 
-    def _calculate_std_dev(self, values: List[float]) -> float:
+    def _calculate_std_dev(self, values: list[float]) -> float:
         """Calculate standard deviation."""
         if len(values) < 2:
             return 0.0
@@ -457,7 +457,7 @@ class LevelingOptimizer:
 
     def optimize_for_irrigation(
         self,
-        points: List[Point3D],
+        points: list[Point3D],
         min_grade: float = 0.1,
         max_grade: float = 0.5
     ) -> PlaneParameters:

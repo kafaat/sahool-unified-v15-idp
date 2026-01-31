@@ -14,7 +14,7 @@ import json
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from pathlib import Path
 
 import structlog
@@ -272,7 +272,7 @@ def health():
         "service": "terrain-core-service",
         "service_ar": "خدمة تحليل التضاريس",
         "version": settings.VERSION,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 

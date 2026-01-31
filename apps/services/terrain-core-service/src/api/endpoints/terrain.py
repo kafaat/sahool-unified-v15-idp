@@ -13,7 +13,7 @@ Provides REST API endpoints for terrain analysis:
 import json
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Optional
 
 import structlog
@@ -412,7 +412,7 @@ async def analyze_terrain(
             flow_dir_schema = FlowDirectionResultSchema(
                 method=FlowDirectionMethod(flow_dir_result.method.value),
                 method_name=BilingualField(
-                    en=f"D8 Algorithm" if flow_dir_result.method == FlowMethod.D8 else flow_dir_result.method.value,
+                    en="D8 Algorithm" if flow_dir_result.method == FlowMethod.D8 else flow_dir_result.method.value,
                     ar="خوارزمية D8" if flow_dir_result.method == FlowMethod.D8 else flow_dir_result.method.value,
                 ),
                 dominant_direction=flow_dir_result.dominant_direction,
@@ -519,7 +519,7 @@ async def analyze_terrain(
             field_id=request_data.field_id,
             analysis_id=analysis_id,
             status="completed",
-            analyzed_at=datetime.now(timezone.utc),
+            analyzed_at=datetime.now(UTC),
             dem_metadata=dem_metadata_schema,
             dem_statistics=dem_statistics,
             slope=slope_schema,
@@ -605,7 +605,7 @@ async def get_slope_analysis(
 
         return SlopeAnalysisResponse(
             field_id=field_id,
-            analyzed_at=datetime.now(timezone.utc),
+            analyzed_at=datetime.now(UTC),
             dem_source=dem_source,
             slope=slope_schema,
             processing_time_ms=int((time.time() - start_time) * 1000),
@@ -672,7 +672,7 @@ async def get_flow_analysis(
 
         return FlowAnalysisResponse(
             field_id=field_id,
-            analyzed_at=datetime.now(timezone.utc),
+            analyzed_at=datetime.now(UTC),
             dem_source=dem_source,
             flow_direction=flow_dir_schema,
             flow_accumulation=flow_acc_schema,
@@ -730,7 +730,7 @@ async def get_twi_analysis(
 
         return TWIAnalysisResponse(
             field_id=field_id,
-            analyzed_at=datetime.now(timezone.utc),
+            analyzed_at=datetime.now(UTC),
             dem_source=dem_source,
             twi=twi_schema,
             processing_time_ms=int((time.time() - start_time) * 1000),
@@ -793,7 +793,7 @@ async def get_contours(
 
         return ContourAnalysisResponse(
             field_id=field_id,
-            analyzed_at=datetime.now(timezone.utc),
+            analyzed_at=datetime.now(UTC),
             dem_source=dem_source,
             contours=contour_schema,
             processing_time_ms=int((time.time() - start_time) * 1000),

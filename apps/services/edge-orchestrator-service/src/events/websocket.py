@@ -12,16 +12,14 @@ including heartbeats, metrics, detection results, and job status.
 """
 
 import asyncio
-import json
 from datetime import datetime
 from typing import Any
 from uuid import UUID
 
 import structlog
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket
 
 from src.api.schemas import (
-    DetectionResult,
     DeviceMetrics,
     InferenceResult,
     WSMessage,

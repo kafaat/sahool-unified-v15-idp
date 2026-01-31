@@ -15,7 +15,7 @@ import logging
 import re
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any
 
 import httpx
@@ -37,8 +37,8 @@ def validate_field_id(field_id: str) -> str:
     """
     if not field_id or not SAFE_ID_PATTERN.match(field_id):
         raise ValueError(
-            f"Invalid field_id format: must be 1-128 alphanumeric characters, "
-            f"hyphens, or underscores"
+            "Invalid field_id format: must be 1-128 alphanumeric characters, "
+            "hyphens, or underscores"
         )
     return field_id
 
@@ -291,7 +291,7 @@ async def analyze_hydrology(
         )
 
     # Build response
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     field_area_ha = dem.rows * dem.cols * dem.cell_area / 10000
 
     # Build drainage network response
@@ -394,7 +394,7 @@ async def get_drainage_network(
     return DrainageNetworkResponse(
         success=True,
         data=drainage,
-        analyzed_at=datetime.now(timezone.utc),
+        analyzed_at=datetime.now(UTC),
         dem_source="mock",
         resolution_m=dem.resolution
     )
@@ -436,7 +436,7 @@ async def get_wetness_analysis(
     return WetnessAnalysisResponse(
         success=True,
         data=wetness,
-        analyzed_at=datetime.now(timezone.utc)
+        analyzed_at=datetime.now(UTC)
     )
 
 
@@ -472,7 +472,7 @@ async def get_depressions(
     return DepressionAnalysisResponse(
         success=True,
         data=depressions,
-        analyzed_at=datetime.now(timezone.utc)
+        analyzed_at=datetime.now(UTC)
     )
 
 
@@ -502,7 +502,7 @@ async def get_streams(
     return StreamNetworkResponse(
         success=True,
         data=streams,
-        analyzed_at=datetime.now(timezone.utc)
+        analyzed_at=datetime.now(UTC)
     )
 
 
@@ -532,7 +532,7 @@ async def get_basins(
     return BasinDelineationResponse(
         success=True,
         data=basins,
-        analyzed_at=datetime.now(timezone.utc)
+        analyzed_at=datetime.now(UTC)
     )
 
 

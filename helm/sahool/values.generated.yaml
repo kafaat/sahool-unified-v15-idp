@@ -2155,6 +2155,70 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8190'
       prometheus.io/path: /metrics
+  llm-orchestrator-service:
+    enabled: true
+    name: llm-orchestrator-service
+    image:
+      repository: ghcr.io/kafaat/sahool-llm-orchestrator-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 8220
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 500000m
+        memory: 1Gi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8220'
+    serviceAccount:
+      create: true
+      name: sahool-llm-orchestrator-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8220'
+      prometheus.io/path: /metrics
+  supply-chain-service:
+    enabled: true
+    name: supply-chain-service
+    image:
+      repository: ghcr.io/kafaat/sahool-supply-chain-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 8230
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 512Mi
+      limits:
+        cpu: 300000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8230'
+    serviceAccount:
+      create: true
+      name: sahool-supply-chain-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8230'
+      prometheus.io/path: /metrics
 applications:
   web:
     enabled: true
@@ -2481,6 +2545,14 @@ ingress:
       pathType: Prefix
       service: edge-orchestrator-service
       port: 8190
+    - path: /api/v1/llm/orchestrator/service
+      pathType: Prefix
+      service: llm-orchestrator-service
+      port: 8220
+    - path: /api/v1/supply/chain/service
+      pathType: Prefix
+      service: supply-chain-service
+      port: 8230
   tls:
   - secretName: sahool-tls
     hosts:

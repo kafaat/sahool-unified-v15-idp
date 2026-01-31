@@ -1,0 +1,368 @@
+# SPDX-License-Identifier: Proprietary
+# Copyright (c) 2026 KAFAAT - SAHOOL Platform
+"""
+SAHOOL LLM Orchestrator Service - Main API Service
+خدمة تنسيق نماذج اللغة الكبيرة - الخدمة الرئيسية
+
+This service intelligently orchestrates all SAHOOL AI agents,
+routing user requests to appropriate agents and combining results.
+
+Port: 8220
+"""
+
+# Service version - single source of truth
+VERSION = "16.0.0"
+
+import os
+import sys
+from contextlib import asynccontextmanager
+
+import structlog
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+from .agents.executor import AgentExecutor
+from .api.endpoints import router as orchestrator_router
+from .core.config import settings
+
+# Configure structured logging
+structlog.configure(
+    processors=[
+        structlog.stdlib.add_log_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.JSONRenderer(),
+    ]
+)
+
+logger = structlog.get_logger(__name__)
+
+
+# Optional imports
+try:
+    import redis.asyncio as redis
+
+    REDIS_AVAILABLE = True
+except ImportError:
+    REDIS_AVAILABLE = False
+    logger.info("Redis not available - running without cache")
+
+try:
+    import nats
+
+    NATS_AVAILABLE = True
+except ImportError:
+    NATS_AVAILABLE = False
+    logger.info("NATS not available - running without events")
+
+try:
+    import asyncpg
+
+    ASYNCPG_AVAILABLE = True
+except ImportError:
+    ASYNCPG_AVAILABLE = False
+    logger.info("asyncpg not available - running without database")
+
+# Security headers middleware
+try:
+    from shared.middleware.security_headers import setup_security_headers
+
+    SECURITY_HEADERS_AVAILABLE = True
+except ImportError:
+    SECURITY_HEADERS_AVAILABLE = False
+
+    def setup_security_headers(app):
+        pass
+
+
+# Authentication imports
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    AUTH_AVAILABLE = True
+except ImportError:
+    AUTH_AVAILABLE = False
+    User = None
+
+    def get_current_user():
+        """Placeholder when auth not available"""
+        return None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Application lifespan manager.
+    مدير دورة حياة التطبيق.
+    """
+    # Startup
+    logger.info(
+        "llm_orchestrator_service_starting",
+        version=VERSION,
+        port=settings.port,
+        environment=settings.environment,
+    )
+
+    # Initialize connection status flags
+    app.state.redis_connected = False
+    app.state.nats_connected = False
+    app.state.db_connected = False
+    app.state.redis_client = None
+    app.state.nc = None
+    app.state.db_pool = None
+    app.state.executor = None
+
+    # Initialize Redis for caching
+    if REDIS_AVAILABLE and settings.redis_url:
+        try:
+            app.state.redis_client = redis.from_url(
+                settings.redis_url,
+                encoding="utf-8",
+                decode_responses=True,
+            )
+            await app.state.redis_client.ping()
+            app.state.redis_connected = True
+            logger.info("redis_connected", url=settings.redis_url)
+        except Exception as e:
+            logger.warning("redis_connection_failed", error=str(e))
+            app.state.redis_client = None
+    else:
+        logger.info("redis_not_configured")
+
+    # Initialize NATS for events
+    if NATS_AVAILABLE and settings.nats_url:
+        try:
+            app.state.nc = await nats.connect(settings.nats_url)
+            app.state.nats_connected = True
+            logger.info("nats_connected", url=settings.nats_url)
+        except Exception as e:
+            logger.warning("nats_connection_failed", error=str(e))
+            app.state.nc = None
+    else:
+        logger.info("nats_not_configured")
+
+    # Initialize PostgreSQL database connection
+    if ASYNCPG_AVAILABLE and settings.database_url:
+        try:
+            app.state.db_pool = await asyncpg.create_pool(
+                settings.database_url,
+                min_size=settings.db_pool_min_size,
+                max_size=settings.db_pool_max_size,
+            )
+            app.state.db_connected = True
+            logger.info("database_connected")
+        except Exception as e:
+            logger.warning("database_connection_failed", error=str(e))
+            app.state.db_pool = None
+    else:
+        logger.info("database_not_configured")
+
+    # Initialize agent executor
+    app.state.executor = AgentExecutor(
+        redis_client=app.state.redis_client,
+    )
+
+    logger.info(
+        "llm_orchestrator_service_ready",
+        version=VERSION,
+        port=settings.port,
+        redis=app.state.redis_connected,
+        nats=app.state.nats_connected,
+        database=app.state.db_connected,
+    )
+
+    yield
+
+    # Shutdown
+    logger.info("llm_orchestrator_service_shutting_down")
+
+    # Close executor
+    if app.state.executor:
+        await app.state.executor.close()
+
+    # Close Redis connection
+    if app.state.redis_client:
+        await app.state.redis_client.close()
+        logger.info("redis_disconnected")
+
+    # Close NATS connection
+    if app.state.nc:
+        await app.state.nc.close()
+        logger.info("nats_disconnected")
+
+    # Close database pool
+    if app.state.db_pool:
+        await app.state.db_pool.close()
+        logger.info("database_disconnected")
+
+    logger.info("llm_orchestrator_service_stopped")
+
+
+# Create FastAPI app
+app = FastAPI(
+    title="SAHOOL LLM Orchestrator Service",
+    title_ar="خدمة تنسيق نماذج اللغة الكبيرة",
+    description="""
+    Intelligent orchestration of SAHOOL AI agents.
+
+    **Features / الميزات:**
+    - Intent classification (Arabic/English) | تصنيف النوايا (عربي/إنجليزي)
+    - Parallel agent execution | تنفيذ الوكلاء بالتوازي
+    - Response synthesis | تجميع الاستجابات
+    - Automated action recommendations | توصيات الإجراءات التلقائية
+
+    **Supported Intents / النوايا المدعومة:**
+    - Crop disease diagnosis | تشخيص أمراض المحاصيل
+    - Irrigation queries | استفسارات الري
+    - Fertilizer advice | نصائح الأسمدة
+    - Pest detection | كشف الآفات
+    - Weather queries | استفسارات الطقس
+    - Yield prediction | تنبؤ الإنتاجية
+    - Field analysis | تحليل الحقول
+    - Terrain analysis | تحليل التضاريس
+    - And more... | والمزيد...
+    """,
+    version=VERSION,
+    lifespan=lifespan,
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
+)
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
+
+# Add CORS middleware
+try:
+    from shared.cors_config import CORS_SETTINGS
+
+    app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
+except ImportError:
+    ALLOWED_ORIGINS = os.getenv(
+        "CORS_ORIGINS",
+        "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
+    ).split(",")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=ALLOWED_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
+    )
+
+# Security headers
+if SECURITY_HEADERS_AVAILABLE:
+    setup_security_headers(app)
+
+# Include routers
+app.include_router(orchestrator_router)
+
+
+# ============================================================================
+# Health Check Endpoints
+# ============================================================================
+
+
+@app.get("/healthz", tags=["Health"])
+def health():
+    """
+    Health check endpoint (liveness probe).
+    نقطة فحص الصحة (فحص الحياة).
+    """
+    return {
+        "status": "ok",
+        "service": "llm-orchestrator-service",
+        "version": VERSION,
+    }
+
+
+@app.get("/readyz", tags=["Health"])
+def readiness():
+    """
+    Kubernetes readiness probe - is the service ready to accept traffic?
+    فحص جاهزية Kubernetes - هل الخدمة جاهزة لاستقبال الحركة؟
+    """
+    redis_connected = getattr(app.state, "redis_connected", False)
+    nats_connected = getattr(app.state, "nats_connected", False)
+    db_connected = getattr(app.state, "db_connected", False)
+
+    # Determine status strings
+    if redis_connected:
+        redis_status = "connected"
+    elif settings.redis_url:
+        redis_status = "disconnected"
+    else:
+        redis_status = "not_configured"
+
+    if nats_connected:
+        nats_status = "connected"
+    elif settings.nats_url:
+        nats_status = "disconnected"
+    else:
+        nats_status = "not_configured"
+
+    if db_connected:
+        db_status = "connected"
+    elif settings.database_url:
+        db_status = "disconnected"
+    else:
+        db_status = "not_configured"
+
+    # Service is ready even without optional connections
+    return {
+        "status": "ready",
+        "service": "llm-orchestrator-service",
+        "version": VERSION,
+        "checks": {
+            "service": "ready",
+            "redis": redis_status,
+            "nats": nats_status,
+            "database": db_status,
+        },
+    }
+
+
+@app.get("/", tags=["Root"])
+def root():
+    """
+    Root endpoint with service information.
+    نقطة الجذر مع معلومات الخدمة.
+    """
+    return {
+        "service": "SAHOOL LLM Orchestrator",
+        "service_ar": "خدمة تنسيق نماذج اللغة الكبيرة",
+        "version": VERSION,
+        "description_en": "Intelligent orchestration of SAHOOL AI agents",
+        "description_ar": "تنسيق ذكي لوكلاء الذكاء الاصطناعي في سهول",
+        "endpoints": {
+            "orchestrate": "/api/v1/orchestrate",
+            "orchestrate_image": "/api/v1/orchestrate/image",
+            "plans": "/api/v1/orchestrate/plans",
+            "execute_action": "/api/v1/orchestrate/execute-action",
+            "agents": "/api/v1/agents",
+            "agents_health": "/api/v1/agents/health",
+            "health": "/healthz",
+            "readiness": "/readyz",
+            "docs": "/docs",
+        },
+    }
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        "src.main:app",
+        host=settings.host,
+        port=settings.port,
+        log_level=settings.log_level.lower(),
+        reload=settings.is_development,
+    )

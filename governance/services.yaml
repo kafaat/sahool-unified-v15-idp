@@ -2797,6 +2797,82 @@ services:
       memory: "384Mi"
       replicas: 1
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # LLM ORCHESTRATOR SERVICE - خدمة تنسيق الذكاء الاصطناعي
+  # ═══════════════════════════════════════════════════════════════════════════
+  llm-orchestrator-service:
+    name: "LLM Orchestrator Service"
+    name_ar: "خدمة تنسيق الذكاء الاصطناعي"
+    description: "Intelligent orchestration of all SAHOOL AI agents with natural language understanding"
+    description_ar: "تنسيق ذكي لجميع وكلاء SAHOOL للذكاء الاصطناعي مع فهم اللغة الطبيعية"
+    type: python
+    category: intelligence
+    layer: decision
+    path: "apps/services/llm-orchestrator-service"
+    port: 8220
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "ai-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-1
+    events:
+      produces:
+        - IntentClassified.v1
+        - AgentsOrchestrated.v1
+        - ActionRecommended.v1
+      consumes:
+        - UserQueryReceived.v1
+        - ImageUploaded.v1
+    dependencies:
+      - crop-intelligence-service
+      - advisory-service
+      - irrigation-smart
+      - pest-detection-service
+      - yolo26-vision-service
+    resources:
+      cpu: "500m"
+      memory: "1Gi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # SUPPLY CHAIN SERVICE - خدمة سلسلة التوريد
+  # ═══════════════════════════════════════════════════════════════════════════
+  supply-chain-service:
+    name: "Supply Chain Service"
+    name_ar: "خدمة سلسلة التوريد"
+    description: "Agricultural supply chain management with auto-purchase capabilities"
+    description_ar: "إدارة سلسلة التوريد الزراعية مع إمكانيات الشراء التلقائي"
+    type: python
+    category: business
+    layer: business
+    path: "apps/services/supply-chain-service"
+    port: 8230
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "business-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - OrderCreated.v1
+        - OrderShipped.v1
+        - DeliveryCompleted.v1
+      consumes:
+        - PurchaseRecommended.v1
+        - AdvisoryGenerated.v1
+    dependencies:
+      - advisory-service
+      - notification-service
+      - billing-core
+    resources:
+      cpu: "300m"
+      memory: "512Mi"
+      replicas: 2
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Applications (Frontend)
 # ─────────────────────────────────────────────────────────────────────────────

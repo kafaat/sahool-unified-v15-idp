@@ -28,7 +28,10 @@ from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 from .agents.executor import AgentExecutor
 from .api.endpoints import router as orchestrator_router
+from .api.endpoints import training as training_module
+from .api.endpoints.training import router as training_router
 from .core.config import settings
+from .training import AGLTrainer, FeedbackCollector
 
 # Configure structured logging
 structlog.configure(
@@ -169,6 +172,20 @@ async def lifespan(app: FastAPI):
         redis_client=app.state.redis_client,
     )
 
+    # Initialize Agent Lightning trainer
+    app.state.trainer = AGLTrainer(
+        enabled=os.getenv("AGL_ENABLED", "false").lower() == "true",
+    )
+    training_module.trainer = app.state.trainer
+
+    # Initialize feedback collector
+    app.state.feedback_collector = FeedbackCollector()
+    training_module.feedback_collector = app.state.feedback_collector
+
+    # Check AGL availability
+    if app.state.trainer.enabled:
+        await app.state.trainer.check_availability()
+
     logger.info(
         "llm_orchestrator_service_ready",
         version=VERSION,
@@ -264,6 +281,7 @@ if SECURITY_HEADERS_AVAILABLE:
 
 # Include routers
 app.include_router(orchestrator_router)
+app.include_router(training_router)
 
 
 # ============================================================================
@@ -349,6 +367,10 @@ def root():
             "execute_action": "/api/v1/orchestrate/execute-action",
             "agents": "/api/v1/agents",
             "agents_health": "/api/v1/agents/health",
+            "training_start": "/api/v1/training/start",
+            "training_jobs": "/api/v1/training/jobs",
+            "feedback": "/api/v1/training/feedback",
+            "feedback_statistics": "/api/v1/training/feedback/statistics",
             "health": "/healthz",
             "readiness": "/readyz",
             "docs": "/docs",

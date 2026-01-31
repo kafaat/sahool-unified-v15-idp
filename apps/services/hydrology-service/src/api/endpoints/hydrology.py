@@ -12,6 +12,7 @@ Provides endpoints for:
 """
 
 import logging
+import re
 import time
 import uuid
 from datetime import datetime, timezone
@@ -19,6 +20,27 @@ from typing import Any
 
 import httpx
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
+
+
+# ==============================================================================
+# Security: Input Validation
+# ==============================================================================
+
+# Safe pattern for field IDs: alphanumeric, hyphens, underscores only
+SAFE_ID_PATTERN = re.compile(r"^[a-zA-Z0-9_-]{1,128}$")
+
+
+def validate_field_id(field_id: str) -> str:
+    """
+    Validate field_id to prevent SSRF and path traversal attacks.
+    التحقق من معرف الحقل لمنع هجمات SSRF واختراق المسار
+    """
+    if not field_id or not SAFE_ID_PATTERN.match(field_id):
+        raise ValueError(
+            f"Invalid field_id format: must be 1-128 alphanumeric characters, "
+            f"hyphens, or underscores"
+        )
+    return field_id
 
 from ..schemas import (
     DEPRESSION_RISK_AR,
@@ -88,6 +110,13 @@ async def fetch_dem_from_terrain_service(
     """
     settings = get_settings()
 
+    # Validate field_id to prevent SSRF attacks
+    try:
+        validated_field_id = validate_field_id(field_id)
+    except ValueError as e:
+        logger.warning("Invalid field_id rejected", field_id=field_id, error=str(e))
+        return None
+
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             headers = {}
@@ -95,7 +124,7 @@ async def fetch_dem_from_terrain_service(
                 headers["X-Tenant-Id"] = tenant_id
 
             response = await client.get(
-                f"{settings.terrain_service_url}/api/v1/terrain/{field_id}/dem",
+                f"{settings.terrain_service_url}/api/v1/terrain/{validated_field_id}/dem",
                 headers=headers
             )
 

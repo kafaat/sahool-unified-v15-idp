@@ -2668,7 +2668,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/terrain-core-service"
-    port: 8160
+    port: 8185
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2774,7 +2774,7 @@ services:
     category: integration
     layer: acquisition
     path: "apps/services/edge-orchestrator-service"
-    port: 8180
+    port: 8190
     protocol: http
     health_endpoint: "/healthz"
     status: active

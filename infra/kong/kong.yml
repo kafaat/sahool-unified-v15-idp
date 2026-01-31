@@ -877,7 +877,7 @@ upstreams:
     algorithm: round-robin
     slots: 10000
     targets:
-      - target: terrain-core-service:8160
+      - target: terrain-core-service:8185
         weight: 100
     healthchecks:
       active:
@@ -970,7 +970,7 @@ upstreams:
     algorithm: round-robin
     slots: 10000
     targets:
-      - target: edge-orchestrator-service:8180
+      - target: edge-orchestrator-service:8190
         weight: 100
     healthchecks:
       active:

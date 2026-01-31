@@ -24,7 +24,7 @@ This integration plan outlines the deployment of five new agricultural intellige
 | **Budget** | $136,047 USD | 510,176 ريال سعودي | **الميزانية** |
 | **Expected ROI** | 120% (Year 1) | 120% | **العائد المتوقع** |
 | **New Services** | 5 microservices | 5 خدمات | **الخدمات الجديدة** |
-| **New Ports** | 8150-8180 range | نطاق 8150-8180 | **المنافذ الجديدة** |
+| **New Ports** | 8150-8180 range | نطاق 8150-8190 | **المنافذ الجديدة** |
 | **Edge Devices** | 50 Jetson Orin units | 50 وحدة | **أجهزة الحافة** |
 
 ### Strategic Goals | الأهداف الاستراتيجية
@@ -43,10 +43,10 @@ This integration plan outlines the deployment of five new agricultural intellige
 | Service | Port | Type | Layer | Description |
 |---------|------|------|-------|-------------|
 | **YOLO26 Vision Service** | 8150 | Python/FastAPI | Intelligence | Computer vision for pest, disease, weed detection |
-| **Terrain Core Service** | 8160 | Python/FastAPI | Intelligence | DEM processing and terrain indicator calculation |
+| **Terrain Core Service** | 8185 | Python/FastAPI | Intelligence | DEM processing and terrain indicator calculation |
 | **Hydrology Service** | 8165 | Python/FastAPI | Intelligence | Drainage network and waterlogging prediction |
 | **Leveling Optimizer Service** | 8170 | Python/FastAPI | Decision | Cut/fill volume calculation and cost estimation |
-| **Edge Orchestrator Service** | 8180 | Python/FastAPI | Acquisition | Jetson Orin device management and model deployment |
+| **Edge Orchestrator Service** | 8190 | Python/FastAPI | Acquisition | Jetson Orin device management and model deployment |
 
 ---
 
@@ -276,14 +276,14 @@ endpoints:
 
 ---
 
-### 2. Terrain Core Service (Port 8160)
+### 2. Terrain Core Service (Port 8185)
 
 #### خدمة تحليل التضاريس الأساسية
 
 ```yaml
 service_name: terrain-core-service
 name_ar: خدمة التضاريس الأساسية
-port: 8160
+port: 8185
 type: python
 framework: FastAPI
 layer: intelligence
@@ -864,14 +864,14 @@ endpoints:
 
 ---
 
-### 5. Edge Orchestrator Service (Port 8180)
+### 5. Edge Orchestrator Service (Port 8190)
 
 #### خدمة إدارة الحوسبة الطرفية
 
 ```yaml
 service_name: edge-orchestrator-service
 name_ar: خدمة إدارة الحافة
-port: 8180
+port: 8190
 type: python
 framework: FastAPI
 layer: acquisition
@@ -1150,7 +1150,7 @@ endpoints:
 
 ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
 │ Edge Orchestrator│  │  IoT Service    │  │ Weather Service │  │ Ground Vision   │
-│    :8180        │  │    :8117        │  │    :8092        │  │    :8155        │
+│    :8190        │  │    :8117        │  │    :8092        │  │    :8155        │
 │ إدارة الحافة    │  │ خدمة IoT       │  │ خدمة الطقس     │  │ الرؤية الأرضية │
 └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘
          │                    │                    │                    │
@@ -1168,7 +1168,7 @@ endpoints:
 
 ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
 │ YOLO26 Vision   │  │  Terrain Core   │  │   Hydrology     │  │ Crop Intel.     │
-│    :8150        │  │    :8160        │  │    :8165        │  │    :8095        │
+│    :8150        │  │    :8185        │  │    :8165        │  │    :8095        │
 │ الرؤية YOLO26  │  │  التضاريس      │  │ الهيدرولوجيا   │  │ ذكاء المحاصيل │
 ├─────────────────┤  ├─────────────────┤  ├─────────────────┤  ├─────────────────┤
 │ • Pest (20+)    │  │ • DEM Processing│  │ • Drainage      │  │ • Disease AI    │
@@ -1254,7 +1254,7 @@ endpoints:
 ┌──────────┐    ┌──────────────┐    ┌──────────────┐    ┌────────────────┐
 │  DEM     │───▶│ Terrain Core │───▶│  Hydrology   │───▶│    Leveling    │
 │  Source  │    │   Service    │    │   Service    │    │   Optimizer    │
-│ (4 types)│    │   :8160      │    │   :8165      │    │     :8170      │
+│ (4 types)│    │   :8185      │    │   :8165      │    │     :8170      │
 └──────────┘    └──────────────┘    └──────────────┘    └────────────────┘
      │               │                    │                     │
      │               ▼                    ▼                     ▼
@@ -2403,7 +2403,7 @@ services:
     type: python
     category: analytics
     layer: intelligence
-    port: 8160
+    port: 8185
     status: planned
     planned_date: "2026-02-15"
     owner: "GIS Team"
@@ -2460,7 +2460,7 @@ services:
     type: python
     category: integration
     layer: acquisition
-    port: 8180
+    port: 8190
     status: planned
     planned_date: "2026-03-15"
     owner: "Platform Team"

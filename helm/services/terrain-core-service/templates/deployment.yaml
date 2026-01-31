@@ -35,7 +35,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8160
+              containerPort: 8185
               protocol: TCP
           env:
             - name: ENVIRONMENT
@@ -43,7 +43,7 @@ spec:
             - name: DEPLOYMENT_SLOT
               value: {{ .Values.deploymentSlot | quote }}
             - name: SERVICE_PORT
-              value: "8160"
+              value: "8185"
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}

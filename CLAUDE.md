@@ -822,10 +822,10 @@ This service has been migrated to [new-service]
 | Service                    | Type   | Port | Description                                        |
 | -------------------------- | ------ | ---- | -------------------------------------------------- |
 | yolo26-vision-service      | Python | 8150 | YOLO26 computer vision for pest/disease/weed detection |
-| terrain-core-service       | Python | 8160 | DEM processing and terrain analysis                |
+| terrain-core-service       | Python | 8185 | DEM processing and terrain analysis                |
 | hydrology-service          | Python | 8165 | Hydrology and drainage analysis                    |
 | leveling-optimizer-service | Python | 8170 | Field leveling optimization                        |
-| edge-orchestrator-service  | Python | 8180 | Edge device management (Jetson Orin)               |
+| edge-orchestrator-service  | Python | 8190 | Edge device management (Jetson Orin)               |
 
 ---
 

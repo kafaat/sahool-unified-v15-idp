@@ -32,4 +32,4 @@ data:
   # Feature Flags
   ENABLE_METRICS: "true"
   ENABLE_TRACING: "false"
-  METRICS_PORT: "8160"
+  METRICS_PORT: "8185"

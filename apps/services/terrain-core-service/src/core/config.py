@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     SERVICE_NAME_AR: str = "خدمة تحليل التضاريس"
     VERSION: str = "16.0.0"
     DEBUG: bool = Field(default=False, description="Debug mode | وضع التصحيح")
-    PORT: int = Field(default=8160, description="Service port | منفذ الخدمة")
+    PORT: int = Field(default=8185, description="Service port | منفذ الخدمة")
     ENVIRONMENT: str = Field(
         default="development", description="Environment | البيئة"
     )

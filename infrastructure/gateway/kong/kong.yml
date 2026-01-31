@@ -685,7 +685,7 @@ services:
   # Agent Registry - AI agent management
   - name: agent-registry
     host: agent-registry
-    port: 8160
+    port: 8185
     protocol: http
     routes:
       - name: agent-registry-route
@@ -919,7 +919,7 @@ services:
   # -----------------------------
   - name: terrain-core-service
     host: terrain-core-service
-    port: 8160
+    port: 8185
     protocol: http
     connect_timeout: 15000
     write_timeout: 60000
@@ -1103,7 +1103,7 @@ services:
   # -----------------------------
   - name: edge-orchestrator-service
     host: edge-orchestrator-service
-    port: 8180
+    port: 8190
     protocol: http
     connect_timeout: 10000
     write_timeout: 30000

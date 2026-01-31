@@ -33,7 +33,7 @@ env:
   IMAGE_PREFIX: sahool
   SERVICE_NAME: edge-orchestrator-service
   SERVICE_PATH: apps/services/edge-orchestrator-service
-  SERVICE_PORT: 8135
+  SERVICE_PORT: 8190
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -421,11 +421,11 @@ jobs:
           ENV ENVIRONMENT=production
 
           HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-              CMD curl -f http://localhost:8135/healthz || exit 1
+              CMD curl -f http://localhost:8190/healthz || exit 1
 
-          EXPOSE 8135
+          EXPOSE 8190
 
-          CMD ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8135"]
+          CMD ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8190"]
           EOF
 
       - name: Build and push Docker image

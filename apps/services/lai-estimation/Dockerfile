@@ -21,7 +21,11 @@ COPY apps/services/lai-estimation ./lai-estimation/
 WORKDIR /workspace/lai-estimation
 
 # Install dependencies with retry for network resilience
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Use Taobao mirror for faster downloads in China/MENA region
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    (npm config set registry https://registry.npmjs.org && \
+    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000)
 
 # Build the application
 RUN npm run build
@@ -38,8 +42,12 @@ RUN apk add --no-cache curl
 # NOTE: Using npm ci for deterministic builds with package-lock.json
 COPY --from=builder /workspace/lai-estimation/package.json ./
 COPY --from=builder /workspace/lai-estimation/package-lock.json ./
-RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm config set registry https://registry.npmmirror.com && \
+    (npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000) || \
+    (npm config set registry https://registry.npmjs.org && \
+    (npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000))
 
 # Copy built application
 COPY --from=builder /workspace/lai-estimation/dist ./dist

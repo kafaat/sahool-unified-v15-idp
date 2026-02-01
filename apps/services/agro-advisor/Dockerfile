@@ -43,7 +43,16 @@ RUN mkdir -p /root/.pip && \
 
 # Install dependencies (using shared requirements)
 COPY apps/services/agro-advisor/requirements.txt .
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+# Install dependencies with resilient multi-mirror fallback strategy
+# Try Aliyun mirror first (fast in China), fallback to official PyPI
+RUN pip install --no-cache-dir --timeout=300 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=300 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    -r requirements.txt
 
 # Copy shared libraries (from repo root)
 COPY shared/ ./shared/

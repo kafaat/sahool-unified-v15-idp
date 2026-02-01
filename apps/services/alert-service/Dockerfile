@@ -29,8 +29,8 @@ RUN groupadd --system sahool && \
 
 # Upgrade pip and install build tools
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --upgrade pip && \
-    pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --upgrade "setuptools>=68.0" wheel build
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
 
 # Configure pip for better network resilience with fallback mirrors
 RUN mkdir -p /root/.pip && \
@@ -38,27 +38,14 @@ RUN mkdir -p /root/.pip && \
     echo "timeout = 300" >> /root/.pip/pip.conf && \
     echo "retries = 10" >> /root/.pip/pip.conf && \
     echo "default-timeout = 300" >> /root/.pip/pip.conf && \
-    echo "trusted-host = pypi.org files.pythonhosted.org pypi.tuna.tsinghua.edu.cn" >> /root/.pip/pip.conf && \
+    echo "trusted-host = pypi.org files.pythonhosted.org mirrors.aliyun.com" >> /root/.pip/pip.conf && \
     echo "[install]" >> /root/.pip/pip.conf && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
-# Install dependencies with fallback to Tsinghua mirror
+# Install dependencies with fallback to Aliyun mirror
 COPY apps/services/alert-service/requirements.txt .
-<<<<<<< HEAD
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try Aliyun mirror first (fast in China), fallback to official PyPI
-RUN pip install --no-cache-dir --timeout=300 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    -r requirements.txt || \
-    pip install --no-cache-dir --timeout=300 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
-    -r requirements.txt
-=======
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt || \
-    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt
->>>>>>> f99c62da2680b351d221bafb033e854a2b05532c
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
 # Copy shared libraries
 COPY apps/services/shared/ ./shared/

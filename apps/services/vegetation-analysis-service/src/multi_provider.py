@@ -13,7 +13,7 @@ import logging
 import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone, UTC
 from enum import Enum
 from typing import Any
 
@@ -192,7 +192,7 @@ class SentinelHubProvider(SatelliteProvider):
 
     async def _get_token(self) -> str | None:
         """Get OAuth2 token"""
-        if self._token and self._token_expires and datetime.now(timezone.utc) < self._token_expires:
+        if self._token and self._token_expires and datetime.now(UTC) < self._token_expires:
             return self._token
 
         if not self.is_configured:
@@ -211,7 +211,7 @@ class SentinelHubProvider(SatelliteProvider):
             response.raise_for_status()
             data = response.json()
             self._token = data["access_token"]
-            self._token_expires = datetime.now(timezone.utc) + timedelta(
+            self._token_expires = datetime.now(UTC) + timedelta(
                 seconds=data.get("expires_in", 3600) - 60
             )
             return self._token
@@ -427,7 +427,7 @@ class NASAEarthdataProvider(SatelliteProvider):
                         scene_id=entry.get("id", ""),
                         satellite=SatelliteType.MODIS,
                         acquisition_date=datetime.fromisoformat(
-                            entry.get("time_start", datetime.now(timezone.utc).isoformat()).replace("Z", "")
+                            entry.get("time_start", datetime.now(UTC).isoformat()).replace("Z", "")
                         ),
                         cloud_cover_pct=0,  # MODIS products are composites
                         sun_elevation=45,
@@ -513,7 +513,7 @@ class CopernicusSTACProvider(SatelliteProvider):
             scenes = []
             for feature in data.get("features", []):
                 props = feature.get("properties", {})
-                dt_str = props.get("datetime", datetime.now(timezone.utc).isoformat())
+                dt_str = props.get("datetime", datetime.now(UTC).isoformat())
                 if dt_str:
                     dt_str = dt_str.replace("Z", "").split(".")[0]
                 scenes.append(
@@ -675,13 +675,13 @@ class MultiSatelliteService:
     def _get_cached(self, key: str):
         if key in self._cache:
             data, timestamp = self._cache[key]
-            if datetime.now(timezone.utc) - timestamp < self._cache_duration:
+            if datetime.now(UTC) - timestamp < self._cache_duration:
                 return data
             del self._cache[key]
         return None
 
     def _set_cached(self, key: str, data: Any):
-        self._cache[key] = (data, datetime.now(timezone.utc))
+        self._cache[key] = (data, datetime.now(UTC))
 
     async def search_scenes(
         self,
@@ -796,7 +796,7 @@ class MultiSatelliteService:
 
         analysis = SatelliteAnalysis(
             field_id=field_id,
-            analysis_date=datetime.now(timezone.utc),
+            analysis_date=datetime.now(UTC),
             satellite=satellite,
             indices=indices,
             health_score=health_score,

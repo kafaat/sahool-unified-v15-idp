@@ -29,7 +29,7 @@ Usage:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
 from uuid import UUID, uuid4
 
@@ -143,7 +143,7 @@ class BaseVisionEvent(BaseModel):
         default_factory=lambda: str(uuid4()), description="Unique event identifier"
     )
     timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), description="Event timestamp"
+        default_factory=lambda: datetime.now(UTC), description="Event timestamp"
     )
     version: str = Field(default="1.0", description="Event schema version")
     source_service: str = Field(
@@ -704,7 +704,7 @@ class VisionAnalysisCompletedEvent(BaseVisionEvent):
     # Timing
     started_at: datetime = Field(..., description="Analysis start time")
     completed_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), description="Completion time"
+        default_factory=lambda: datetime.now(UTC), description="Completion time"
     )
     processing_duration_ms: int = Field(..., ge=0, description="Total processing time")
 
@@ -737,7 +737,7 @@ class VisionAnalysisFailedEvent(BaseVisionEvent):
     # Timing
     started_at: datetime = Field(..., description="Analysis start time")
     failed_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), description="Failure time"
+        default_factory=lambda: datetime.now(UTC), description="Failure time"
     )
 
     # Retry info

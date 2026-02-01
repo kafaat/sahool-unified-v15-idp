@@ -8,7 +8,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 from enum import Enum
 from typing import Any
 
@@ -691,7 +691,7 @@ def create_alert_if_needed(indicator: Indicator, field_id: str) -> IndicatorAler
         threshold_value=threshold,
         recommended_action_ar=get_recommendation_ar(indicator.id, indicator.value, threshold),
         recommended_action_en=get_recommendation_en(indicator.id, indicator.value, threshold),
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
 
 
@@ -796,7 +796,7 @@ async def get_field_indicators(
 
     indicators = []
     alerts = []
-    timestamp = datetime.now(timezone.utc).isoformat()
+    timestamp = datetime.now(UTC).isoformat()
 
     # Try to load existing indicators from database
     stored_indicators = await get_all_field_indicators(field_id) if not force_refresh else []
@@ -809,7 +809,7 @@ async def get_field_indicators(
             first_calc = datetime.fromisoformat(
                 stored_indicators[0].get('calculated_at', '').replace('Z', '+00:00')
             )
-            age = datetime.now(timezone.utc).replace(tzinfo=first_calc.tzinfo) - first_calc
+            age = datetime.now(UTC).replace(tzinfo=first_calc.tzinfo) - first_calc
             use_stored = age.total_seconds() < 3600  # Use if less than 1 hour old
         except (ValueError, TypeError):
             use_stored = False
@@ -841,7 +841,7 @@ async def get_field_indicators(
                 defn["min"],
                 defn["max"],
             )
-            last_updated = datetime.now(timezone.utc)
+            last_updated = datetime.now(UTC)
 
             # Save to database
             indicator_data = {
@@ -980,7 +980,7 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
         )
 
     # Publish event
-    timestamp = datetime.now(timezone.utc).isoformat()
+    timestamp = datetime.now(UTC).isoformat()
     await publish_event(
         "sahool.indicators.stored",
         {
@@ -1064,7 +1064,7 @@ async def delete_field_indicators_endpoint(field_id: str):
         )
 
     # Publish event
-    timestamp = datetime.now(timezone.utc).isoformat()
+    timestamp = datetime.now(UTC).isoformat()
     await publish_event(
         "sahool.indicators.deleted",
         {
@@ -1136,7 +1136,7 @@ async def get_dashboard_summary(tenant_id: str, num_fields: int = Query(default=
             "average_health_score": avg_health,
             "active_alerts": len(all_alerts),
             "critical_alerts": critical_alerts,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
     )
 
@@ -1168,7 +1168,7 @@ async def get_dashboard_summary(tenant_id: str, num_fields: int = Query(default=
             for f in fields_data[-3:]
             if f.overall_score < 60
         ],
-        generated_at=datetime.now(timezone.utc),
+        generated_at=datetime.now(UTC),
     )
 
 
@@ -1199,7 +1199,7 @@ async def get_tenant_alerts(
                 "message_ar": f"تنبيه: {defn['name_ar']} خارج النطاق المثالي",
                 "message_en": f"Alert: {defn['name_en']} outside optimal range",
                 "created_at": (
-                    datetime.now(timezone.utc) - timedelta(hours=random.randint(0, 48))
+                    datetime.now(UTC) - timedelta(hours=random.randint(0, 48))
                 ).isoformat(),
             }
         )
@@ -1214,7 +1214,7 @@ async def get_tenant_alerts(
             "total_alerts": len(alerts),
             "critical_count": critical_count,
             "warning_count": warning_count,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
     )
 
@@ -1241,7 +1241,7 @@ async def get_indicator_trends(
     current_value = optimal_mid + random.uniform(-0.2, 0.2) * (opt_max - opt_min)
 
     for i in range(days):
-        date_point = datetime.now(timezone.utc) - timedelta(days=days - i - 1)
+        date_point = datetime.now(UTC) - timedelta(days=days - i - 1)
         # Random walk with mean reversion
         change = random.gauss(0, (opt_max - opt_min) * 0.05)
         reversion = (optimal_mid - current_value) * 0.1
@@ -1282,7 +1282,7 @@ async def get_indicator_trends(
             "average_value": round(avg_value, 2),
             "current_value": round(values[-1], 2),
             "overall_trend": overall_trend,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
     )
 

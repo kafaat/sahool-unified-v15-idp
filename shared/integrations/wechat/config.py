@@ -174,7 +174,7 @@ class WeChatConfig:
     service_name_ar: str = "تكامل WeChat"
 
     @classmethod
-    def from_env(cls) -> "WeChatConfig":
+    def from_env(cls) -> WeChatConfig:
         """
         Create configuration from environment variables.
         إنشاء التكوين من متغيرات البيئة

@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     jwt_expiration_minutes: int = Field(default=60, description="JWT expiration")
 
     # API Key (optional for internal services)
-    api_key: Optional[str] = Field(default=None, description="API key for authentication")
+    api_key: str | None = Field(default=None, description="API key for authentication")
 
     # CORS
     cors_origins: str = Field(
@@ -77,8 +77,8 @@ class Settings(BaseSettings):
     # EXTERNAL LLM (Optional)
     # ═══════════════════════════════════════════════════════════════════════════
 
-    external_llm_base_url: Optional[str] = Field(default=None, description="External LLM URL")
-    external_llm_api_key: Optional[str] = Field(default=None, description="External LLM API key")
+    external_llm_base_url: str | None = Field(default=None, description="External LLM URL")
+    external_llm_api_key: str | None = Field(default=None, description="External LLM API key")
     external_llm_model: str = Field(default="gpt-4o-mini", description="External LLM model")
     external_llm_temperature: float = Field(default=0.2, description="LLM temperature")
 
@@ -115,8 +115,8 @@ class Settings(BaseSettings):
     # REDIS
     # ═══════════════════════════════════════════════════════════════════════════
 
-    redis_url: Optional[str] = Field(default=None, description="Redis URL")
-    redis_password: Optional[str] = Field(default=None, description="Redis password")
+    redis_url: str | None = Field(default=None, description="Redis URL")
+    redis_password: str | None = Field(default=None, description="Redis password")
 
     # ═══════════════════════════════════════════════════════════════════════════
     # NATS
@@ -193,7 +193,7 @@ class Settings(BaseSettings):
         }
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     """
     Get cached settings instance.

@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
 from typing import Any, Callable
 import uuid
@@ -147,7 +147,7 @@ class ComponentMaterial:
 
     # Metadata
     author: str = "SAHOOL"
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -227,7 +227,7 @@ class DataModel:
     # Permissions
     permissions: dict[str, list[str]] = field(default_factory=dict)
 
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def get_field(self, name: str) -> FieldDefinition | None:
         return next((f for f in self.fields if f.name == name), None)
@@ -246,7 +246,7 @@ class BlockConfig:
     props: dict[str, Any] = field(default_factory=dict)
     styles: dict[str, Any] = field(default_factory=dict)
     data_source: dict[str, Any] | None = None
-    children: list["BlockConfig"] = field(default_factory=list)
+    children: list[BlockConfig] = field(default_factory=list)
     events: dict[str, str] = field(default_factory=dict)  # event_name -> action_id
     position: dict[str, Any] = field(default_factory=lambda: {"x": 0, "y": 0})
     size: dict[str, Any] = field(default_factory=lambda: {"width": "100%", "height": "auto"})
@@ -283,8 +283,8 @@ class PageDefinition:
     description: str | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     created_by: str | None = None
 
     def to_json(self) -> str:
@@ -347,16 +347,16 @@ class PluginBase(ABC):
         return ""
 
     @abstractmethod
-    def on_install(self, engine: "LowCodeEngine") -> None:
+    def on_install(self, engine: LowCodeEngine) -> None:
         """Called when plugin is installed."""
         pass
 
     @abstractmethod
-    def on_activate(self, engine: "LowCodeEngine") -> None:
+    def on_activate(self, engine: LowCodeEngine) -> None:
         """Called when plugin is activated."""
         pass
 
-    def on_deactivate(self, engine: "LowCodeEngine") -> None:
+    def on_deactivate(self, engine: LowCodeEngine) -> None:
         """Called when plugin is deactivated."""
         pass
 
@@ -732,7 +732,7 @@ class LowCodeEngine:
         else:
             page.blocks.append(block)
 
-        page.updated_at = datetime.now(timezone.utc)
+        page.updated_at = datetime.now(UTC)
         self._emit("block:added", {"page_id": page_id, "block": block})
         return block
 

@@ -43,7 +43,7 @@ import shutil
 import subprocess
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable
@@ -151,7 +151,7 @@ class ToolResult:
     issues_count: int = 0
     fixed_count: int = 0
     error_message: str | None = None
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -718,7 +718,7 @@ class ToolRegistry:
                 else:
                     tool.status = ToolStatus.UNAVAILABLE
 
-                tool.last_check = datetime.now(timezone.utc)
+                tool.last_check = datetime.now(UTC)
                 results[tool.id] = available
 
             except Exception as e:
@@ -800,9 +800,7 @@ class ToolRegistry:
         # Add auto-fix flag if supported
         should_fix = auto_fix if auto_fix is not None else self._config.auto_fix
         if should_fix and ToolCapability.AUTO_FIX in tool.capabilities:
-            if tool_id == "ruff":
-                args.append("--fix")
-            elif tool_id == "eslint":
+            if tool_id == "ruff" or tool_id == "eslint":
                 args.append("--fix")
             elif tool_id in ("dart_format", "import_sorter"):
                 # These tools fix by default
@@ -870,7 +868,7 @@ class ToolRegistry:
 
             return result
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             duration_ms = (time.time() - start_time) * 1000
             result = ToolResult(
                 tool_id=tool_id,

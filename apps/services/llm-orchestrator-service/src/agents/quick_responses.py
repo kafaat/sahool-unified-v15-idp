@@ -340,4 +340,4 @@ def get_categories() -> list[str]:
     Get all available categories.
     الحصول على جميع الفئات المتاحة.
     """
-    return list(set(r.category for r in QUICK_RESPONSES.values()))
+    return list({r.category for r in QUICK_RESPONSES.values()})

@@ -28,11 +28,10 @@ Updated: January 2026
 
 from __future__ import annotations
 
-import asyncio
 import math
 import random
 from collections import defaultdict
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, UTC
 from typing import Any, Callable
 
 import structlog
@@ -46,7 +45,6 @@ from .models import (
     RouterStats,
     Task,
     TaskResult,
-    TaskStatus,
 )
 
 logger = structlog.get_logger()
@@ -324,7 +322,7 @@ class AgentRouter:
         decision = RoutingDecision(
             task_id=task.task_id,
             selected_agent_id=selected_agent_id,
-            candidate_scores={agent_id: score for agent_id, score in scored_candidates},
+            candidate_scores=dict(scored_candidates),
             selection_method="ucb" if not exploration_used else "exploration",
             exploration_used=exploration_used,
             reasoning=self._generate_routing_reasoning(

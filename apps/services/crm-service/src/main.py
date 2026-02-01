@@ -20,7 +20,7 @@ import re
 import sys
 from contextlib import asynccontextmanager
 from typing import Any
-from datetime import datetime, date, timezone
+from datetime import datetime, date, timezone, UTC
 from uuid import uuid4
 
 import redis.asyncio as redis_client
@@ -439,7 +439,7 @@ async def lifespan(app: FastAPI):
                 await app.state.crm_repo.run_migrations(str(migrations_dir))
                 logger.info("Database migrations completed")
 
-            print(f"✅ Database connected and initialized")
+            print("✅ Database connected and initialized")
         except Exception as e:
             print(f"⚠️ Database connection failed: {e}")
             logger.error("Database connection failed", error=str(e))
@@ -875,7 +875,7 @@ async def create_farmer(
                 "name_ar": data["name_ar"],
                 "phone": data["phone"],
                 "status": data["status"],
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -899,7 +899,7 @@ async def create_farmer(
     else:
         # Fallback to in-memory
         farmer_id = str(uuid4())
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         farmer = Farmer(
             id=farmer_id,
@@ -932,7 +932,7 @@ async def create_farmer(
                 "name_ar": farmer.name_ar,
                 "phone": farmer.phone,
                 "status": farmer.status.value,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -1190,7 +1190,7 @@ async def update_farmer(
                 "name": data["name"],
                 "name_ar": data["name_ar"],
                 "status": data["status"],
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -1204,7 +1204,7 @@ async def update_farmer(
                     "tenant_id": existing["tenant_id"],
                     "old_status": old_status,
                     "new_status": data["status"],
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 }
             )
 
@@ -1259,7 +1259,7 @@ async def update_farmer(
         if update_data.tags is not None:
             f.tags = update_data.tags
 
-        f.updated_at = datetime.now(timezone.utc)
+        f.updated_at = datetime.now(UTC)
 
         # Invalidate cache for this farmer
         await cache_delete(f"crm:farmer:{f.tenant_id}:{farmer_id}")
@@ -1274,7 +1274,7 @@ async def update_farmer(
                 "name": f.name,
                 "name_ar": f.name_ar,
                 "status": f.status.value,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -1288,7 +1288,7 @@ async def update_farmer(
                     "tenant_id": f.tenant_id,
                     "old_status": old_status.value,
                     "new_status": f.status.value,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 }
             )
 
@@ -1362,7 +1362,7 @@ async def create_deal(
                 "expected_harvest_date": data["expected_harvest_date"].isoformat() if data["expected_harvest_date"] else None,
                 "price_per_ton": data["price_per_ton"],
                 "stage": data["stage"],
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -1393,7 +1393,7 @@ async def create_deal(
         validate_tenant_access(user, farmer.tenant_id)
 
         deal_id = str(uuid4())
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         deal = HarvestDeal(
             id=deal_id,
@@ -1429,7 +1429,7 @@ async def create_deal(
                 "expected_harvest_date": deal.expected_harvest_date.isoformat(),
                 "price_per_ton": deal.price_per_ton,
                 "stage": deal.stage.value,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -1576,7 +1576,7 @@ async def update_deal_stage(
                 "old_stage": old_stage,
                 "new_stage": data["stage"],
                 "expected_quantity_tons": data["expected_quantity_tons"],
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -1614,7 +1614,7 @@ async def update_deal_stage(
         old_stage = deal.stage
 
         deal.stage = DealStage(stage)
-        deal.updated_at = datetime.now(timezone.utc)
+        deal.updated_at = datetime.now(UTC)
 
         # Invalidate pipeline stats cache
         await cache_delete(f"crm:pipeline_stats:{farmer.tenant_id}")
@@ -1631,7 +1631,7 @@ async def update_deal_stage(
                 "old_stage": old_stage.value,
                 "new_stage": deal.stage.value,
                 "expected_quantity_tons": deal.expected_quantity_tons,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -1781,7 +1781,7 @@ async def log_interaction(
 
         # Update farmer's last interaction
         await crm_repo.farmers.update(interaction_data.farmer_id, {
-            "last_interaction_at": datetime.now(timezone.utc)
+            "last_interaction_at": datetime.now(UTC)
         })
 
         # Publish interaction logged event
@@ -1797,7 +1797,7 @@ async def log_interaction(
                 "subject_ar": data["subject_ar"],
                 "outcome": data["outcome"],
                 "follow_up_date": data["follow_up_date"].isoformat() if data["follow_up_date"] else None,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -1824,7 +1824,7 @@ async def log_interaction(
         validate_tenant_access(user, farmer.tenant_id)
 
         interaction_id = str(uuid4())
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         interaction = Interaction(
             id=interaction_id,
@@ -1857,7 +1857,7 @@ async def log_interaction(
                 "subject_ar": interaction.subject_ar,
                 "outcome": interaction.outcome,
                 "follow_up_date": interaction.follow_up_date.isoformat() if interaction.follow_up_date else None,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 

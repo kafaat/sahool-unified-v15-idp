@@ -3,18 +3,16 @@
 # محرك سير العمل - تكوين منخفض الكود بـ YAML
 # ═══════════════════════════════════════════════════════════════════════════════
 
-import asyncio
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable
 
 import structlog
 import yaml
 
 from .models import (
     RAGRequest,
-    RAGResult,
     WorkflowConfig,
     WorkflowStep,
 )
@@ -26,11 +24,11 @@ logger = structlog.get_logger(__name__)
 class WorkflowExecutionContext:
     """Context for workflow execution | سياق تنفيذ سير العمل"""
     workflow_id: str
-    variables: Dict[str, Any] = field(default_factory=dict)
-    step_results: Dict[str, Any] = field(default_factory=dict)
-    current_step: Optional[str] = None
-    execution_path: List[str] = field(default_factory=list)
-    errors: List[str] = field(default_factory=list)
+    variables: dict[str, Any] = field(default_factory=dict)
+    step_results: dict[str, Any] = field(default_factory=dict)
+    current_step: str | None = None
+    execution_path: list[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
     start_time: float = 0.0
 
 
@@ -40,9 +38,9 @@ class StepExecutionResult:
     step_id: str
     success: bool
     output: Any = None
-    error: Optional[str] = None
+    error: str | None = None
     execution_time_ms: float = 0.0
-    next_step: Optional[str] = None
+    next_step: str | None = None
 
 
 class WorkflowEngine:
@@ -53,9 +51,9 @@ class WorkflowEngine:
 
     def __init__(self, rag_pipeline: Any = None):
         self.rag_pipeline = rag_pipeline
-        self._workflows: Dict[str, WorkflowConfig] = {}
-        self._step_handlers: Dict[str, Callable] = {}
-        self._condition_evaluators: Dict[str, Callable] = {}
+        self._workflows: dict[str, WorkflowConfig] = {}
+        self._step_handlers: dict[str, Callable] = {}
+        self._condition_evaluators: dict[str, Callable] = {}
 
         # Register built-in step handlers
         self._register_builtin_handlers()
@@ -99,8 +97,8 @@ class WorkflowEngine:
     async def execute(
         self,
         workflow_id: str,
-        initial_variables: Dict[str, Any] = None,
-    ) -> Dict[str, Any]:
+        initial_variables: dict[str, Any] = None,
+    ) -> dict[str, Any]:
         """
         Execute a workflow by ID
         تنفيذ سير العمل بواسطة المعرف
@@ -114,8 +112,8 @@ class WorkflowEngine:
     async def execute_workflow(
         self,
         workflow: WorkflowConfig,
-        initial_variables: Dict[str, Any] = None,
-    ) -> Dict[str, Any]:
+        initial_variables: dict[str, Any] = None,
+    ) -> dict[str, Any]:
         """
         Execute a workflow configuration
         تنفيذ تكوين سير العمل
@@ -303,7 +301,7 @@ class WorkflowEngine:
         self,
         step: WorkflowStep,
         ctx: WorkflowExecutionContext,
-    ) -> tuple[Any, Optional[str]]:
+    ) -> tuple[Any, str | None]:
         """Handle retrieve step"""
         if self.rag_pipeline is None:
             raise ValueError("RAG pipeline not configured")
@@ -331,7 +329,7 @@ class WorkflowEngine:
         self,
         step: WorkflowStep,
         ctx: WorkflowExecutionContext,
-    ) -> tuple[Any, Optional[str]]:
+    ) -> tuple[Any, str | None]:
         """Handle rerank step"""
         if self.rag_pipeline is None:
             raise ValueError("RAG pipeline not configured")
@@ -354,7 +352,7 @@ class WorkflowEngine:
         self,
         step: WorkflowStep,
         ctx: WorkflowExecutionContext,
-    ) -> tuple[Any, Optional[str]]:
+    ) -> tuple[Any, str | None]:
         """Handle generate step"""
         query = ctx.variables.get("query", "")
         context = ctx.variables.get("context", "")
@@ -392,7 +390,7 @@ class WorkflowEngine:
         self,
         step: WorkflowStep,
         ctx: WorkflowExecutionContext,
-    ) -> tuple[Any, Optional[str]]:
+    ) -> tuple[Any, str | None]:
         """Handle conditional branching"""
         condition = step.config.get("condition", "")
         true_branch = step.config.get("true_branch")
@@ -408,7 +406,7 @@ class WorkflowEngine:
         self,
         step: WorkflowStep,
         ctx: WorkflowExecutionContext,
-    ) -> tuple[Any, Optional[str]]:
+    ) -> tuple[Any, str | None]:
         """Handle loop step"""
         loop_config = step.loop_config or {}
         items = loop_config.get("items") or ctx.variables.get(loop_config.get("items_var", "items"), [])
@@ -433,7 +431,7 @@ class WorkflowEngine:
         self,
         step: WorkflowStep,
         ctx: WorkflowExecutionContext,
-    ) -> tuple[Any, Optional[str]]:
+    ) -> tuple[Any, str | None]:
         """Handle data transformation"""
         input_var = step.config.get("input", "results")
         output_var = step.config.get("output", "transformed")
@@ -465,7 +463,7 @@ class WorkflowEngine:
         self,
         step: WorkflowStep,
         ctx: WorkflowExecutionContext,
-    ) -> tuple[Any, Optional[str]]:
+    ) -> tuple[Any, str | None]:
         """Handle filtering"""
         input_var = step.config.get("input", "results")
         output_var = step.config.get("output", "filtered")
@@ -484,7 +482,7 @@ class WorkflowEngine:
         self,
         step: WorkflowStep,
         ctx: WorkflowExecutionContext,
-    ) -> tuple[Any, Optional[str]]:
+    ) -> tuple[Any, str | None]:
         """Handle parallel execution of steps"""
         parallel_steps = step.config.get("steps", [])
 
@@ -500,7 +498,7 @@ class WorkflowEngine:
         self,
         step: WorkflowStep,
         ctx: WorkflowExecutionContext,
-    ) -> tuple[Any, Optional[str]]:
+    ) -> tuple[Any, str | None]:
         """Handle aggregation of results"""
         sources = step.config.get("sources", [])
         output_var = step.config.get("output", "aggregated")
@@ -534,12 +532,11 @@ class WorkflowEngine:
         self,
         step: WorkflowStep,
         ctx: WorkflowExecutionContext,
-    ) -> tuple[Any, Optional[str]]:
+    ) -> tuple[Any, str | None]:
         """Handle full RAG pipeline call"""
         if self.rag_pipeline is None:
             raise ValueError("RAG pipeline not configured")
 
-        from .models import RAGRequest
 
         query = step.config.get("query") or ctx.variables.get("query", "")
         collection = step.config.get("collection", "default")
@@ -561,7 +558,7 @@ class WorkflowEngine:
         return result, None
 
 
-def load_workflow_from_yaml(path: Union[str, Path]) -> WorkflowConfig:
+def load_workflow_from_yaml(path: str | Path) -> WorkflowConfig:
     """
     Load workflow configuration from YAML file
     تحميل تكوين سير العمل من ملف YAML
@@ -571,13 +568,13 @@ def load_workflow_from_yaml(path: Union[str, Path]) -> WorkflowConfig:
     if not path.exists():
         raise FileNotFoundError(f"Workflow file not found: {path}")
 
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         yaml_dict = yaml.safe_load(f)
 
     return WorkflowConfig.from_yaml(yaml_dict)
 
 
-def load_workflows_from_directory(directory: Union[str, Path]) -> List[WorkflowConfig]:
+def load_workflows_from_directory(directory: str | Path) -> list[WorkflowConfig]:
     """
     Load all workflow configurations from a directory
     تحميل جميع تكوينات سير العمل من مجلد

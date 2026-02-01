@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from pathlib import Path
 from typing import Any, ClassVar
 from uuid import UUID, uuid4
@@ -80,7 +80,7 @@ class BaseEvent:
 
     # Auto-generated fields
     event_id: UUID = field(default_factory=uuid4)
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     # Optional metadata
     metadata: EventMetadata | None = None
@@ -121,12 +121,12 @@ class BaseEvent:
         return json.dumps(self.to_dict(), default=str)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "BaseEvent":
+    def from_dict(cls, data: dict[str, Any]) -> BaseEvent:
         """Deserialize event from dictionary"""
         raise NotImplementedError("Subclasses must implement from_dict")
 
     @classmethod
-    def from_json(cls, json_str: str) -> "BaseEvent":
+    def from_json(cls, json_str: str) -> BaseEvent:
         """Deserialize event from JSON string"""
         return cls.from_dict(json.loads(json_str))
 

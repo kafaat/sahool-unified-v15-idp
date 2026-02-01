@@ -5,9 +5,8 @@ Soil Sensors Models - نماذج مجسات التربة
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
-from typing import Optional
 
 
 class SensorType(str, Enum):
@@ -121,7 +120,7 @@ class SoilSensor:
     critical_max: float | None = None
 
     # Calibration
-    calibration: Optional["SensorCalibration"] = None
+    calibration: SensorCalibration | None = None
     last_calibrated_at: datetime | None = None
 
     # Network
@@ -131,8 +130,8 @@ class SoilSensor:
 
     # Metadata
     installed_at: datetime | None = None
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     is_active: bool = True
     notes: str = ""
     notes_ar: str = ""

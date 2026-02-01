@@ -100,7 +100,7 @@ class SecretBackend(str, Enum):
     AZURE_KEY_VAULT = "azure_key_vault"
 
     @classmethod
-    def from_env(cls) -> "SecretBackend":
+    def from_env(cls) -> SecretBackend:
         """Get backend from environment"""
         backend = os.getenv("SECRET_BACKEND", "environment").lower()
         try:

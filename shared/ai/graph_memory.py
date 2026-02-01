@@ -117,7 +117,7 @@ class Entity:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Entity":
+    def from_dict(cls, data: dict[str, Any]) -> Entity:
         return cls(
             id=data["id"],
             type=EntityType(data["type"]),
@@ -174,7 +174,7 @@ class Relationship:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Relationship":
+    def from_dict(cls, data: dict[str, Any]) -> Relationship:
         return cls(
             id=data["id"],
             source_id=data["source_id"],

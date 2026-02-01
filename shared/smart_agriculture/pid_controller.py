@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from .models import CropGrowthStage, FertilizerCommand, FertilizerRatio
+from .models import CropGrowthStage, FertilizerCommand
 
 
 @dataclass

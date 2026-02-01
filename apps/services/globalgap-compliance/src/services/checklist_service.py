@@ -6,7 +6,7 @@ Business logic for generating and managing GlobalGAP IFA checklists.
 منطق العمل لإنشاء وإدارة قوائم المراجعة الخاصة بمعايير GlobalGAP IFA.
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any
 
 from ..models import (
@@ -251,7 +251,7 @@ class ChecklistService:
         # Create checklist
         # إنشاء قائمة المراجعة
         checklist = Checklist(
-            id=f"checklist_{farm_id}_{datetime.now(timezone.utc).timestamp()}",
+            id=f"checklist_{farm_id}_{datetime.now(UTC).timestamp()}",
             name_ar=f"قائمة المراجعة الخاصة بالمزرعة {farm_id}",
             name_en=f"Checklist for Farm {farm_id}",
             ifa_version="6.0",
@@ -280,9 +280,9 @@ class ChecklistService:
         """
         # In real implementation, save to database
         # في التطبيق الفعلي، الحفظ في قاعدة البيانات
-        assessment.id = f"assessment_{datetime.now(timezone.utc).timestamp()}"
-        assessment.created_at = datetime.now(timezone.utc)
-        assessment.updated_at = datetime.now(timezone.utc)
+        assessment.id = f"assessment_{datetime.now(UTC).timestamp()}"
+        assessment.created_at = datetime.now(UTC)
+        assessment.updated_at = datetime.now(UTC)
         return assessment
 
     async def update_assessment(

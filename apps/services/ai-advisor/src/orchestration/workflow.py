@@ -7,7 +7,7 @@ Manages multi-step workflows for complex agricultural tasks.
 """
 
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from enum import Enum
 from typing import Any
 
@@ -90,7 +90,7 @@ class Workflow:
         self.steps: dict[str, WorkflowStep] = {}
         self.status = WorkflowStatus.PENDING
         self.results = {}
-        self.created_at = datetime.now(timezone.utc)
+        self.created_at = datetime.now(UTC)
         self.started_at = None
         self.completed_at = None
 
@@ -148,7 +148,7 @@ class Workflow:
             Workflow execution results | نتائج تنفيذ سير العمل
         """
         self.status = WorkflowStatus.RUNNING
-        self.started_at = datetime.now(timezone.utc)
+        self.started_at = datetime.now(UTC)
         context = context or {}
 
         logger.info(
@@ -185,7 +185,7 @@ class Workflow:
                     executed_steps.add(step.name)
 
             self.status = WorkflowStatus.COMPLETED
-            self.completed_at = datetime.now(timezone.utc)
+            self.completed_at = datetime.now(UTC)
 
             logger.info(
                 "workflow_execution_completed",
@@ -202,7 +202,7 @@ class Workflow:
 
         except Exception as e:
             self.status = WorkflowStatus.FAILED
-            self.completed_at = datetime.now(timezone.utc)
+            self.completed_at = datetime.now(UTC)
 
             logger.error("workflow_execution_failed", workflow_name=self.name, error=str(e))
 
@@ -227,7 +227,7 @@ class Workflow:
             context: Workflow context | سياق سير العمل
         """
         step.status = WorkflowStatus.RUNNING
-        step.started_at = datetime.now(timezone.utc)
+        step.started_at = datetime.now(UTC)
 
         logger.debug("workflow_step_started", workflow_name=self.name, step_name=step.name)
 
@@ -245,7 +245,7 @@ class Workflow:
 
             step.result = result
             step.status = WorkflowStatus.COMPLETED
-            step.completed_at = datetime.now(timezone.utc)
+            step.completed_at = datetime.now(UTC)
 
             # Store result for dependent steps
             # تخزين النتيجة للخطوات التابعة
@@ -261,7 +261,7 @@ class Workflow:
         except Exception as e:
             step.status = WorkflowStatus.FAILED
             step.error = str(e)
-            step.completed_at = datetime.now(timezone.utc)
+            step.completed_at = datetime.now(UTC)
 
             logger.error(
                 "workflow_step_failed",

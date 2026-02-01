@@ -10,7 +10,7 @@ import asyncio
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from enum import Enum
 from typing import Any
 
@@ -47,7 +47,7 @@ class ServiceHealth:
     components: list[ComponentHealth] = field(default_factory=list)
     uptime_seconds: float = 0
     timestamp: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z"
+        default_factory=lambda: datetime.now(UTC).isoformat() + "Z"
     )
 
     def to_dict(self) -> dict[str, Any]:

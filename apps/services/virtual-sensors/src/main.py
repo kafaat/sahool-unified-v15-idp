@@ -21,7 +21,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone, UTC
 from enum import Enum
 from typing import Any
 
@@ -1016,7 +1016,7 @@ async def health_check():
         "service": SERVICE_NAME,
         "version": SERVICE_VERSION,
         "nats_connected": nats_connected,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -1318,7 +1318,7 @@ async def get_irrigation_recommendation(input_data: IrrigationRecommendationInpu
 
     return IrrigationRecommendation(
         recommendation_id=str(uuid.uuid4()),
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
         crop_type=input_data.crop_type,
         crop_name_ar=crop["name_ar"],
         growth_stage=input_data.growth_stage.value,
@@ -1508,7 +1508,7 @@ def _create_virtual_sensor_action(
             "label_en": "Virtual Estimate",
             "color": "#6366F1",  # Indigo for virtual
         },
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
     }
 
 

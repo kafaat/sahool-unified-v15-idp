@@ -20,12 +20,11 @@ Updated: January 2026
 from __future__ import annotations
 
 import asyncio
-import json
 import re
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, UTC
 from typing import Any
 
 import structlog
@@ -39,7 +38,6 @@ from .models import (
     ChatInsight,
     ChatSummary,
     InsightsResponse,
-    MessageAnalysis,
     MultiChatStatus,
     PriorityLevel,
     SearchResult,
@@ -342,11 +340,11 @@ class ChatSummarizerAgent(BaseWeChatAgent):
         Returns:
             Summary response with chat summary
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         try:
             # Fetch messages
-            since = datetime.now(timezone.utc) - timedelta(hours=hours)
+            since = datetime.now(UTC) - timedelta(hours=hours)
             messages = await self.client.fetch_messages(
                 chat_id=chat_id,
                 since=since,
@@ -430,7 +428,7 @@ class ChatSummarizerAgent(BaseWeChatAgent):
                 chat_id=chat_id,
                 contact_id=messages[0].sender_id if messages else "",
                 start_time=since,
-                end_time=datetime.now(timezone.utc),
+                end_time=datetime.now(UTC),
                 message_count=len(messages),
                 summary=summary_en,
                 summary_ar=summary_ar,
@@ -444,7 +442,7 @@ class ChatSummarizerAgent(BaseWeChatAgent):
                 fields_mentioned=list(fields_mentioned),
             )
 
-            execution_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
             return SummaryResponse(
                 agent_type=self.agent_type,
@@ -635,7 +633,7 @@ class AutoReplierAgent(BaseWeChatAgent):
         Returns:
             Auto-reply response with suggested reply
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         try:
             # Detect language
@@ -669,7 +667,7 @@ class AutoReplierAgent(BaseWeChatAgent):
             suggested_replies = self._generate_alternatives(main_topic, "en")
             suggested_replies_ar = self._generate_alternatives(main_topic, "ar")
 
-            execution_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
             # Determine confidence
             confidence = 0.9 if main_topic != TopicCategory.GENERAL else 0.7
@@ -863,7 +861,7 @@ class MessageSearcherAgent(BaseWeChatAgent):
         Returns:
             Search results with relevance scoring
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         try:
             # Detect query language
@@ -916,7 +914,7 @@ class MessageSearcherAgent(BaseWeChatAgent):
                 for topic in self._detect_topics(msg.content):
                     by_topic[topic.value] = by_topic.get(topic.value, 0) + 1
 
-            execution_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
             search_result = SearchResult(
                 query=query,
@@ -983,7 +981,7 @@ class MessageSearcherAgent(BaseWeChatAgent):
         score += topic_score * 0.3
 
         # Recency boost (0.2 weight) - newer messages rank higher
-        age_days = (datetime.now(timezone.utc) - message.timestamp).days
+        age_days = (datetime.now(UTC) - message.timestamp).days
         recency_score = max(0, 1 - (age_days / 30))  # Full score within 30 days
         score += recency_score * 0.2
 
@@ -1049,7 +1047,7 @@ class MultiChatCheckerAgent(BaseWeChatAgent):
         Returns:
             Multi-chat status summary
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         try:
             # Get contacts/chats
@@ -1131,7 +1129,7 @@ class MultiChatCheckerAgent(BaseWeChatAgent):
                 agricultural_alerts=agricultural_alerts,
             )
 
-            execution_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
             return self._create_response(
                 success=True,
@@ -1157,7 +1155,7 @@ class MultiChatCheckerAgent(BaseWeChatAgent):
     ) -> dict[str, Any] | None:
         """Check a single chat for status."""
         try:
-            since = datetime.now(timezone.utc) - timedelta(hours=hours)
+            since = datetime.now(UTC) - timedelta(hours=hours)
             messages = await self.client.fetch_messages(
                 chat_id=chat_id,
                 since=since,
@@ -1339,11 +1337,11 @@ class ChatInsightsAgent(BaseWeChatAgent):
         Returns:
             Insights response with relationship analysis
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         try:
             # Fetch message history
-            since = datetime.now(timezone.utc) - timedelta(days=days)
+            since = datetime.now(UTC) - timedelta(days=days)
             messages = await self.client.fetch_messages(
                 chat_id=contact_id,
                 since=since,
@@ -1456,7 +1454,7 @@ class ChatInsightsAgent(BaseWeChatAgent):
                 analysis_period_days=days,
             )
 
-            execution_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
             return InsightsResponse(
                 agent_type=self.agent_type,

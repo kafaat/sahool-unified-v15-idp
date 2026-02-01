@@ -18,7 +18,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 import json
 
 
@@ -193,7 +193,7 @@ class Explanation:
     # Identification
     recommendation_id: str
     explanation_type: ExplanationType
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     # Summary explanation (human-readable)
     summary: str = ""

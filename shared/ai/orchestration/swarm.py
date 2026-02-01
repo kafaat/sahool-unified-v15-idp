@@ -31,14 +31,11 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from datetime import datetime, UTC
 from typing import Any, Callable, TypeVar
-from uuid import uuid4
 
 import structlog
 
 from .models import (
     AgentCapability,
-    AgentProfile,
-    ConsensusType,
     SwarmConfig,
     SwarmResult,
     SwarmState,
@@ -615,7 +612,7 @@ class SwarmCoordinator:
                 asyncio.gather(*tasks, return_exceptions=True),
                 timeout=config.timeout_seconds,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning(
                 "swarm_execution_timeout",
                 swarm_id=config.swarm_id,

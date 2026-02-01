@@ -26,8 +26,8 @@ router = APIRouter(prefix="/rag", tags=["RAG"])
 async def search(
     query: str = Query(..., min_length=1, max_length=1000, description="Search query"),
     k: int = Query(default=5, ge=1, le=50, description="Number of results"),
-    category: Optional[str] = Query(default=None, description="Filter by category"),
-    tenant_id: Optional[str] = Query(default=None, description="Tenant ID"),
+    category: str | None = Query(default=None, description="Filter by category"),
+    tenant_id: str | None = Query(default=None, description="Tenant ID"),
 ):
     """
     Search the knowledge base.
@@ -71,10 +71,10 @@ async def search(
 @router.post("/documents", response_model=RAGDocument)
 async def add_document(
     text: str,
-    text_ar: Optional[str] = None,
-    category: Optional[str] = None,
-    tenant_id: Optional[str] = None,
-    metadata: Optional[dict[str, Any]] = None,
+    text_ar: str | None = None,
+    category: str | None = None,
+    tenant_id: str | None = None,
+    metadata: dict[str, Any] | None = None,
 ):
     """
     Add a document to the knowledge base.
@@ -124,7 +124,7 @@ async def add_documents_batch(
 
 @router.get("/documents")
 async def list_documents(
-    tenant_id: Optional[str] = Query(default=None, description="Tenant ID"),
+    tenant_id: str | None = Query(default=None, description="Tenant ID"),
     limit: int = Query(default=100, ge=1, le=1000, description="Limit"),
     offset: int = Query(default=0, ge=0, description="Offset"),
 ):

@@ -3,14 +3,11 @@
 # قاعدة المعرفة - إدارة المستندات والتقسيم
 # ═══════════════════════════════════════════════════════════════════════════════
 
-import hashlib
 import re
 import time
-import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import structlog
 
@@ -31,7 +28,7 @@ class ChunkingConfig:
     chunk_overlap: int = 50
     min_chunk_size: int = 100
     max_chunk_size: int = 2000
-    separators: List[str] = field(default_factory=lambda: ["\n\n", "\n", ". ", " "])
+    separators: list[str] = field(default_factory=lambda: ["\n\n", "\n", ". ", " "])
     preserve_sentences: bool = True
     language: str = "en"  # "en", "ar", or "both"
 
@@ -42,7 +39,7 @@ class Chunker:
     تقسيم المستندات بعدة استراتيجيات
     """
 
-    def __init__(self, config: Optional[ChunkingConfig] = None):
+    def __init__(self, config: ChunkingConfig | None = None):
         self.config = config or ChunkingConfig()
 
         # Arabic-specific separators
@@ -52,8 +49,8 @@ class Chunker:
     def chunk(
         self,
         document: KnowledgeDocument,
-        config: Optional[ChunkingConfig] = None,
-    ) -> List[KnowledgeChunk]:
+        config: ChunkingConfig | None = None,
+    ) -> list[KnowledgeChunk]:
         """Chunk a document based on strategy"""
         cfg = config or self.config
 
@@ -74,7 +71,7 @@ class Chunker:
         self,
         document: KnowledgeDocument,
         config: ChunkingConfig,
-    ) -> List[KnowledgeChunk]:
+    ) -> list[KnowledgeChunk]:
         """Fixed-size chunking with overlap"""
         chunks = []
         text = document.content
@@ -119,7 +116,7 @@ class Chunker:
         self,
         document: KnowledgeDocument,
         config: ChunkingConfig,
-    ) -> List[KnowledgeChunk]:
+    ) -> list[KnowledgeChunk]:
         """Sentence-based chunking"""
         chunks = []
         sentences = self._split_sentences(document.content, config.language)
@@ -185,7 +182,7 @@ class Chunker:
         self,
         document: KnowledgeDocument,
         config: ChunkingConfig,
-    ) -> List[KnowledgeChunk]:
+    ) -> list[KnowledgeChunk]:
         """Paragraph-based chunking"""
         chunks = []
         paragraphs = document.content.split("\n\n")
@@ -246,7 +243,7 @@ class Chunker:
         self,
         document: KnowledgeDocument,
         config: ChunkingConfig,
-    ) -> List[KnowledgeChunk]:
+    ) -> list[KnowledgeChunk]:
         """Recursive character text splitter (LangChain-style)"""
         separators = config.separators.copy()
         if config.language == "ar" or config.language == "both":
@@ -282,7 +279,7 @@ class Chunker:
         self,
         document: KnowledgeDocument,
         config: ChunkingConfig,
-    ) -> List[KnowledgeChunk]:
+    ) -> list[KnowledgeChunk]:
         """Semantic chunking (requires embeddings - falls back to recursive)"""
         # For now, fall back to recursive chunking
         # Full implementation would use embeddings to find semantic boundaries
@@ -293,7 +290,7 @@ class Chunker:
         self,
         document: KnowledgeDocument,
         config: ChunkingConfig,
-    ) -> List[KnowledgeChunk]:
+    ) -> list[KnowledgeChunk]:
         """Hierarchical chunking with parent-child relationships"""
         chunks = []
 
@@ -357,7 +354,7 @@ class Chunker:
     # Helper Methods
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def _split_sentences(self, text: str, language: str = "en") -> List[str]:
+    def _split_sentences(self, text: str, language: str = "en") -> list[str]:
         """Split text into sentences"""
         if language == "ar":
             # Arabic sentence endings
@@ -385,10 +382,10 @@ class Chunker:
     def _recursive_split(
         self,
         text: str,
-        separators: List[str],
+        separators: list[str],
         chunk_size: int,
         overlap: int,
-    ) -> List[str]:
+    ) -> list[str]:
         """Recursively split text using separators"""
         if not text:
             return []
@@ -443,7 +440,7 @@ class Chunker:
         text: str,
         chunk_size: int,
         overlap: int,
-    ) -> List[str]:
+    ) -> list[str]:
         """Split long text into fixed-size chunks"""
         chunks = []
         start = 0
@@ -455,7 +452,7 @@ class Chunker:
 
         return chunks
 
-    def _split_by_headers(self, text: str) -> List[tuple[str, str]]:
+    def _split_by_headers(self, text: str) -> list[tuple[str, str]]:
         """Split text by markdown-style headers"""
         # Match headers like # Header, ## Header, ### Header
         header_pattern = r'^(#{1,6}\s+.+)$'
@@ -492,7 +489,7 @@ class KnowledgeBase:
         vector_store: Any = None,
         embedding_service: Any = None,
         retriever: Any = None,
-        chunker: Optional[Chunker] = None,
+        chunker: Chunker | None = None,
     ):
         self.vector_store = vector_store
         self.embedding_service = embedding_service
@@ -500,13 +497,13 @@ class KnowledgeBase:
         self.chunker = chunker or Chunker()
 
         # In-memory document store (for metadata)
-        self._documents: Dict[str, KnowledgeDocument] = {}
-        self._chunks: Dict[str, KnowledgeChunk] = {}
+        self._documents: dict[str, KnowledgeDocument] = {}
+        self._chunks: dict[str, KnowledgeChunk] = {}
 
     async def add_document(
         self,
         document: KnowledgeDocument,
-        chunking_config: Optional[ChunkingConfig] = None,
+        chunking_config: ChunkingConfig | None = None,
     ) -> bool:
         """
         Add a document to the knowledge base
@@ -548,8 +545,8 @@ class KnowledgeBase:
 
     async def add_documents(
         self,
-        documents: List[KnowledgeDocument],
-        chunking_config: Optional[ChunkingConfig] = None,
+        documents: list[KnowledgeDocument],
+        chunking_config: ChunkingConfig | None = None,
     ) -> int:
         """Add multiple documents"""
         success_count = 0
@@ -564,13 +561,13 @@ class KnowledgeBase:
         self,
         text: str,
         title: str = "Untitled",
-        text_ar: Optional[str] = None,
-        title_ar: Optional[str] = None,
+        text_ar: str | None = None,
+        title_ar: str | None = None,
         source: str = "",
         collection: str = "default",
-        metadata: Dict[str, Any] = None,
-        chunking_config: Optional[ChunkingConfig] = None,
-    ) -> Optional[KnowledgeDocument]:
+        metadata: dict[str, Any] = None,
+        chunking_config: ChunkingConfig | None = None,
+    ) -> KnowledgeDocument | None:
         """
         Add text content as a new document
         إضافة محتوى نصي كمستند جديد
@@ -592,11 +589,11 @@ class KnowledgeBase:
 
     async def add_file(
         self,
-        file_path: Union[str, Path],
+        file_path: str | Path,
         collection: str = "default",
-        metadata: Dict[str, Any] = None,
-        chunking_config: Optional[ChunkingConfig] = None,
-    ) -> Optional[KnowledgeDocument]:
+        metadata: dict[str, Any] = None,
+        chunking_config: ChunkingConfig | None = None,
+    ) -> KnowledgeDocument | None:
         """
         Add a file to the knowledge base
         إضافة ملف إلى قاعدة المعرفة
@@ -627,10 +624,10 @@ class KnowledgeBase:
 
     async def add_directory(
         self,
-        directory_path: Union[str, Path],
+        directory_path: str | Path,
         collection: str = "default",
-        patterns: List[str] = None,
-        chunking_config: Optional[ChunkingConfig] = None,
+        patterns: list[str] = None,
+        chunking_config: ChunkingConfig | None = None,
     ) -> int:
         """
         Add all matching files from a directory
@@ -663,11 +660,11 @@ class KnowledgeBase:
 
         return added_count
 
-    def get_document(self, document_id: str) -> Optional[KnowledgeDocument]:
+    def get_document(self, document_id: str) -> KnowledgeDocument | None:
         """Get a document by ID"""
         return self._documents.get(document_id)
 
-    def get_chunk(self, chunk_id: str) -> Optional[KnowledgeChunk]:
+    def get_chunk(self, chunk_id: str) -> KnowledgeChunk | None:
         """Get a chunk by ID"""
         return self._chunks.get(chunk_id)
 
@@ -675,7 +672,7 @@ class KnowledgeBase:
         self,
         collection: str = None,
         limit: int = 100,
-    ) -> List[KnowledgeDocument]:
+    ) -> list[KnowledgeDocument]:
         """List documents, optionally filtered by collection"""
         docs = list(self._documents.values())
 
@@ -684,7 +681,7 @@ class KnowledgeBase:
 
         return docs[:limit]
 
-    def list_collections(self) -> List[str]:
+    def list_collections(self) -> list[str]:
         """List all collections"""
         collections = set()
         for doc in self._documents.values():
@@ -721,7 +718,7 @@ class KnowledgeBase:
 
         return len(to_delete)
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get knowledge base statistics"""
         collections = {}
         for doc in self._documents.values():

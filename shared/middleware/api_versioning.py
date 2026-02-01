@@ -44,7 +44,7 @@ class APIVersion(str, Enum):
     V2 = "v2"  # Future version placeholder
 
     @classmethod
-    def latest(cls) -> "APIVersion":
+    def latest(cls) -> APIVersion:
         """Get the latest stable version"""
         return cls.V1
 

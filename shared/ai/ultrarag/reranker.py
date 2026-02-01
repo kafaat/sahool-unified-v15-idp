@@ -6,7 +6,7 @@
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, List, Optional
+from typing import Any
 
 import structlog
 
@@ -36,7 +36,7 @@ class Reranker(ABC):
     async def rerank(
         self,
         query: str,
-        results: List[RetrievalResult],
+        results: list[RetrievalResult],
         config: RerankConfig,
     ) -> RerankResult:
         """Rerank retrieval results"""
@@ -77,7 +77,7 @@ class CrossEncoderReranker(Reranker):
     async def rerank(
         self,
         query: str,
-        results: List[RetrievalResult],
+        results: list[RetrievalResult],
         config: RerankConfig,
     ) -> RerankResult:
         """Rerank using cross-encoder"""
@@ -160,7 +160,7 @@ class LLMReranker(Reranker):
     async def rerank(
         self,
         query: str,
-        results: List[RetrievalResult],
+        results: list[RetrievalResult],
         config: RerankConfig,
     ) -> RerankResult:
         """Rerank using LLM scoring"""
@@ -267,7 +267,7 @@ class ReciprocalRankFusionReranker(Reranker):
     async def rerank(
         self,
         query: str,
-        results: List[RetrievalResult],
+        results: list[RetrievalResult],
         config: RerankConfig,
     ) -> RerankResult:
         """Apply RRF scoring (useful when results come from multiple sources)"""
@@ -282,7 +282,7 @@ class ReciprocalRankFusionReranker(Reranker):
 
         try:
             # Group results by retrieval method
-            method_groups: dict[str, List[RetrievalResult]] = {}
+            method_groups: dict[str, list[RetrievalResult]] = {}
             for result in results:
                 method = result.retrieval_method
                 if method not in method_groups:
@@ -349,7 +349,7 @@ class NoReranker(Reranker):
     async def rerank(
         self,
         query: str,
-        results: List[RetrievalResult],
+        results: list[RetrievalResult],
         config: RerankConfig,
     ) -> RerankResult:
         """Simply return top_k results without reranking"""

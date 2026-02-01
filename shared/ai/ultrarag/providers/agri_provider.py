@@ -10,7 +10,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -35,13 +35,13 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class AgriQueryContext:
     """Agricultural query context | سياق الاستعلام الزراعي"""
-    crop_type: Optional[str] = None
-    growth_stage: Optional[str] = None
-    region: Optional[str] = None
-    soil_type: Optional[str] = None
-    weather: Optional[Dict[str, Any]] = None
-    field_id: Optional[str] = None
-    tenant_id: Optional[str] = None
+    crop_type: str | None = None
+    growth_stage: str | None = None
+    region: str | None = None
+    soil_type: str | None = None
+    weather: dict[str, Any] | None = None
+    field_id: str | None = None
+    tenant_id: str | None = None
     language: str = "both"  # en, ar, both
 
 
@@ -50,12 +50,12 @@ class AgriAdvisoryResult:
     """Agricultural advisory result | نتيجة الاستشارة الزراعية"""
     query: str
     advisory: str
-    advisory_ar: Optional[str] = None
+    advisory_ar: str | None = None
     confidence: float = 0.0
-    sources: List[Dict[str, Any]] = field(default_factory=list)
-    related_entities: List[Dict[str, Any]] = field(default_factory=list)
-    treatment_options: List[Dict[str, Any]] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    sources: list[dict[str, Any]] = field(default_factory=list)
+    related_entities: list[dict[str, Any]] = field(default_factory=list)
+    treatment_options: list[dict[str, Any]] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class AgriRAGProvider:
@@ -69,9 +69,9 @@ class AgriRAGProvider:
 
     def __init__(
         self,
-        config: Optional[TriRAGConfig] = None,
-        embedding_service: Optional[Any] = None,
-        vector_store: Optional[Any] = None,
+        config: TriRAGConfig | None = None,
+        embedding_service: Any | None = None,
+        vector_store: Any | None = None,
     ):
         self.config = config or TriRAGConfig()
         self.embedding_service = embedding_service
@@ -79,9 +79,9 @@ class AgriRAGProvider:
 
         # Initialize retrievers
         self._kg_retriever = KnowledgeGraphRetriever(embedding_service)
-        self._dense_retriever: Optional[DenseRetriever] = None
-        self._sparse_retriever: Optional[SparseRetriever] = None
-        self._tri_rag: Optional[TriRAGRetriever] = None
+        self._dense_retriever: DenseRetriever | None = None
+        self._sparse_retriever: SparseRetriever | None = None
+        self._tri_rag: TriRAGRetriever | None = None
 
         # Initialize knowledge graph with agricultural entities
         self._initialized = False
@@ -269,8 +269,8 @@ class AgriRAGProvider:
     async def diagnose_disease(
         self,
         symptoms: str,
-        crop_type: Optional[str] = None,
-        context: Optional[AgriQueryContext] = None,
+        crop_type: str | None = None,
+        context: AgriQueryContext | None = None,
     ) -> AgriAdvisoryResult:
         """
         Diagnose crop disease using Tri-RAG
@@ -324,9 +324,9 @@ class AgriRAGProvider:
         self,
         crop_type: str,
         growth_stage: str,
-        soil_moisture: Optional[float] = None,
-        weather_forecast: Optional[Dict[str, Any]] = None,
-        context: Optional[AgriQueryContext] = None,
+        soil_moisture: float | None = None,
+        weather_forecast: dict[str, Any] | None = None,
+        context: AgriQueryContext | None = None,
     ) -> AgriAdvisoryResult:
         """
         Recommend irrigation schedule using Tri-RAG
@@ -376,9 +376,9 @@ class AgriRAGProvider:
         self,
         crop_type: str,
         growth_stage: str,
-        soil_analysis: Optional[Dict[str, Any]] = None,
-        target_yield: Optional[float] = None,
-        context: Optional[AgriQueryContext] = None,
+        soil_analysis: dict[str, Any] | None = None,
+        target_yield: float | None = None,
+        context: AgriQueryContext | None = None,
     ) -> AgriAdvisoryResult:
         """
         Recommend fertilizer application using Tri-RAG
@@ -429,9 +429,9 @@ class AgriRAGProvider:
         self,
         crop_type: str,
         area_hectares: float,
-        growth_stage: Optional[str] = None,
-        field_data: Optional[Dict[str, Any]] = None,
-        context: Optional[AgriQueryContext] = None,
+        growth_stage: str | None = None,
+        field_data: dict[str, Any] | None = None,
+        context: AgriQueryContext | None = None,
     ) -> AgriAdvisoryResult:
         """
         Predict yield using Tri-RAG knowledge
@@ -469,7 +469,7 @@ class AgriRAGProvider:
     async def general_query(
         self,
         query: str,
-        context: Optional[AgriQueryContext] = None,
+        context: AgriQueryContext | None = None,
     ) -> AgriAdvisoryResult:
         """
         General agricultural query using Tri-RAG
@@ -509,10 +509,10 @@ class AgriRAGProvider:
 class _MockRetriever:
     """Mock retriever for testing without vector store"""
 
-    async def retrieve(self, query: str, config: RetrievalConfig) -> List:
+    async def retrieve(self, query: str, config: RetrievalConfig) -> list:
         return []
 
-    async def add_documents(self, chunks: List, collection: str = "default") -> bool:
+    async def add_documents(self, chunks: list, collection: str = "default") -> bool:
         return True
 
 

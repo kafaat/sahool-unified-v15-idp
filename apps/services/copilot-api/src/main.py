@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 import structlog
 from fastapi import FastAPI, Request
@@ -229,7 +229,7 @@ def create_app() -> FastAPI:
                 "auto_fix_engine": HAS_FIXOPS,
             },
             "llm_providers": _get_available_providers(settings),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     return app

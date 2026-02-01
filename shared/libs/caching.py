@@ -44,7 +44,7 @@ class CacheConfig:
     key_prefix: str = "sahool:"
 
     @classmethod
-    def from_env(cls) -> "CacheConfig":
+    def from_env(cls) -> CacheConfig:
         """Create configuration from environment variables"""
         return cls(
             enabled=os.getenv("CACHE_ENABLED", "true").lower() == "true",

@@ -5,7 +5,7 @@ Processes field events and triggers appropriate rules
 
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from uuid import uuid4
 
 import httpx
@@ -61,7 +61,7 @@ class EventProcessor:
         try:
             # إنشاء معرف الحدث
             event_id = str(uuid4())
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
 
             # تحويل إلى EventResponse
             event_response = EventResponse(

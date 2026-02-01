@@ -11,7 +11,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, UTC
 from typing import Any, Literal
 from uuid import uuid4
 
@@ -861,7 +861,7 @@ async def publish_disease_detected(
         "confidence": confidence,
         "severity": severity,
         "zone_id": zone_id,
-        "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+        "timestamp": datetime.now(UTC).isoformat() + "Z",
     }
     return await publish_event("sahool.crop.disease_detected", data)
 
@@ -885,7 +885,7 @@ async def publish_health_assessed(
         "health_score_ar": health_score_ar,
         "issues": issues,
         "zone_id": zone_id,
-        "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+        "timestamp": datetime.now(UTC).isoformat() + "Z",
     }
     return await publish_event("sahool.crop.health_assessed", data)
 
@@ -934,7 +934,7 @@ async def create_zone(
         "name_ar": zone.name_ar,
         "geometry": zone.geometry,
         "area_hectares": zone.area_hectares,
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
     }
 
     # Try to store in database first
@@ -1341,7 +1341,7 @@ async def export_vrt(
             "field_id": field_id,
             "date": target.isoformat(),
             "export_type": "vrt",
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
         },
     }
 

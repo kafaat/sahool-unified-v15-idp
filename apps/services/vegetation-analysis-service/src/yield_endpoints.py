@@ -36,7 +36,7 @@ except (NameError, ImportError, AttributeError):
 
 import logging
 import uuid
-from datetime import date, timedelta, timezone
+from datetime import date, timedelta, timezone, UTC
 
 from fastapi import HTTPException, Path, Query
 from pydantic import BaseModel, Field
@@ -288,7 +288,7 @@ async def get_yield_history(
     In production, this would fetch from a database. Currently returns simulated data.
     """
     import random
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
     # Import shared crop catalog
     try:
@@ -325,7 +325,7 @@ async def get_yield_history(
             base_yield = 2.0
 
         # Historical prediction (months ago)
-        prediction_date = datetime.now(timezone.utc) - timedelta(days=120 * i)
+        prediction_date = datetime.now(UTC) - timedelta(days=120 * i)
 
         # Simulated prediction and actual yield
         predicted = round(base_yield * random.uniform(0.7, 1.3), 2)

@@ -14,7 +14,7 @@ Version: 1.0.0
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, date, time, timezone
+from datetime import datetime, date, time, UTC
 from enum import Enum
 
 from .models import (
@@ -107,7 +107,7 @@ class TaskAssignment:
     task_id: str
     worker_ids: list[str]
 
-    assigned_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    assigned_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     assigned_by: str | None = None
 
     # Schedule
@@ -147,7 +147,7 @@ class SchedulingResult:
     summary_en: str = ""
     summary_ar: str = ""
 
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -398,7 +398,7 @@ class LaborScheduler:
 
         Returns list of active REI zones for the field
         """
-        check = check_time or datetime.now(timezone.utc)
+        check = check_time or datetime.now(UTC)
         active_zones = []
 
         for zone in self.rei_zones:
@@ -420,7 +420,7 @@ class LaborScheduler:
         Returns:
             Tuple of (can_enter, conflicts, required_ppe)
         """
-        check = check_time or datetime.now(timezone.utc)
+        check = check_time or datetime.now(UTC)
         conflicts = []
         required_ppe: list[PPEType] = []
 

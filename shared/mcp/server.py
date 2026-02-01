@@ -26,7 +26,7 @@ import json
 import logging
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any
 
 from fastapi import FastAPI, Request, Response
@@ -34,7 +34,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from .config import MCPConfig, TransportType, get_config
+from .config import MCPConfig, get_config
 from .resources import ResourceManager
 from .tools import SAHOOLTools
 
@@ -516,7 +516,7 @@ class SAHOOLMCPServer:
                 "server": self.name,
                 "server_ar": self.name_ar,
                 "version": self.version,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "active_agents": len(self.tools.list_active_agents()),
             }
 
@@ -590,7 +590,7 @@ class SAHOOLMCPServer:
                             break
 
                         # Send heartbeat
-                        yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.now(timezone.utc).isoformat()})}\n\n"
+                        yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.now(UTC).isoformat()})}\n\n"
 
                         await asyncio.sleep(30)
 

@@ -15,8 +15,8 @@ import json
 import re
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Callable, Optional
+from datetime import datetime, UTC
+from typing import Any, Callable
 
 import structlog
 
@@ -42,7 +42,7 @@ class GuardDecision:
     reason_ar: str = ""
     layer: str = "unknown"
     details: dict[str, Any] = field(default_factory=dict)
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -60,11 +60,11 @@ class ToolCallContext:
     """Context for a tool call | سياق استدعاء الأداة"""
     tool: str
     args: dict[str, Any]
-    session_id: Optional[str] = None
-    user_id: Optional[str] = None
-    tenant_id: Optional[str] = None
-    agent_id: Optional[str] = None
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    session_id: str | None = None
+    user_id: str | None = None
+    tenant_id: str | None = None
+    agent_id: str | None = None
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 class ToolGuard:
@@ -83,12 +83,12 @@ class ToolGuard:
 
     def __init__(
         self,
-        tool_allowlist: Optional[frozenset[str]] = None,
-        domain_allowlist: Optional[frozenset[str]] = None,
-        blocked_patterns: Optional[frozenset[str]] = None,
-        enable_external: Optional[bool] = None,
-        custom_validators: Optional[list[Callable[[ToolCallContext], Optional[GuardDecision]]]] = None,
-        audit_callback: Optional[Callable[[ToolCallContext, GuardDecision], None]] = None,
+        tool_allowlist: frozenset[str] | None = None,
+        domain_allowlist: frozenset[str] | None = None,
+        blocked_patterns: frozenset[str] | None = None,
+        enable_external: bool | None = None,
+        custom_validators: list[Callable[[ToolCallContext], GuardDecision | None]] | None = None,
+        audit_callback: Callable[[ToolCallContext, GuardDecision], None] | None = None,
     ):
         self.tool_allowlist = tool_allowlist or TOOL_ALLOWLIST
         self.domain_allowlist = domain_allowlist or DOMAIN_ALLOWLIST
@@ -188,7 +188,7 @@ class ToolGuard:
                 return GuardDecision(
                     allowed=False,
                     reason=f"Tool arguments too large: {size} > {MAX_ARGS_SIZE}",
-                    reason_ar=f"وسائط الأداة كبيرة جداً",
+                    reason_ar="وسائط الأداة كبيرة جداً",
                     layer="size_limits",
                     details={"size": size, "max_size": MAX_ARGS_SIZE},
                 )
@@ -211,7 +211,7 @@ class ToolGuard:
                 return GuardDecision(
                     allowed=False,
                     reason=f"Blocked pattern detected: {pattern}",
-                    reason_ar=f"تم اكتشاف نمط محظور",
+                    reason_ar="تم اكتشاف نمط محظور",
                     layer="blocked_patterns",
                     details={"pattern": pattern},
                 )
@@ -222,7 +222,7 @@ class ToolGuard:
                     if fnmatch.fnmatch(path, pattern):
                         return GuardDecision(
                             allowed=False,
-                            reason=f"Path matches blocked pattern",
+                            reason="Path matches blocked pattern",
                             reason_ar="المسار يطابق نمط محظور",
                             layer="blocked_patterns",
                             details={"path": path, "pattern": pattern},
@@ -265,7 +265,7 @@ class ToolGuard:
                 return GuardDecision(
                     allowed=False,
                     reason=f"Dangerous command detected: {dangerous}",
-                    reason_ar=f"تم اكتشاف أمر خطير",
+                    reason_ar="تم اكتشاف أمر خطير",
                     layer="dangerous_commands",
                     details={"command": dangerous},
                 )
@@ -297,7 +297,7 @@ class ToolGuard:
 
 
 # Global instance
-_global_guard: Optional[ToolGuard] = None
+_global_guard: ToolGuard | None = None
 
 
 def get_guard() -> ToolGuard:
@@ -307,6 +307,6 @@ def get_guard() -> ToolGuard:
     return _global_guard
 
 
-def guard_tool_call(tool: str, args: dict[str, Any], session_id: Optional[str] = None) -> GuardDecision:
+def guard_tool_call(tool: str, args: dict[str, Any], session_id: str | None = None) -> GuardDecision:
     context = ToolCallContext(tool=tool, args=args, session_id=session_id)
     return get_guard().check(context)

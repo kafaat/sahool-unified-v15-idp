@@ -20,21 +20,17 @@ Updated: January 2026
 from __future__ import annotations
 
 import json
-import os
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
-from typing import Any, AsyncIterator
+from typing import Any
 
 import structlog
 
 from .llm_provider import (
-    LLMConfig,
     LLMProvider,
     LLMProviderManager,
-    LLMResponse,
-    LLMProviderError,
 )
 
 logger = structlog.get_logger(__name__)
@@ -312,7 +308,7 @@ Provide explanations in both English and Arabic.
         Returns:
             CodeCompletionResult with completions
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         prompt = f"""Complete the following {language} code:
 
@@ -333,7 +329,7 @@ Provide {num_completions} completion(s). Return ONLY the code to insert at <CURS
         # Parse completions
         completions = self._parse_completions(response.text, num_completions)
 
-        latency_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+        latency_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
         return CodeCompletionResult(
             completions=completions,
@@ -370,7 +366,7 @@ Provide {num_completions} completion(s). Return ONLY the code to insert at <CURS
         Returns:
             CodeReviewResult with issues and suggestions
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         context = f"File: {file_path}\n" if file_path else ""
 
@@ -396,7 +392,7 @@ Return your analysis as JSON."""
         # Parse review result
         review_data = self._parse_json_response(response.text)
 
-        latency_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+        latency_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
         return CodeReviewResult(
             issues=review_data.get("issues", []),
@@ -434,7 +430,7 @@ Return your analysis as JSON."""
         Returns:
             CodeFixResult with fix suggestions
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         context = f"File: {file_path}\n" if file_path else ""
         error_context = f"\nError: {error_message}" if error_message else ""
@@ -458,7 +454,7 @@ Return your fix as JSON with fixed_code, changes, explanation, explanation_ar, a
         # Parse fix result
         fix_data = self._parse_json_response(response.text)
 
-        latency_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+        latency_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
         return CodeFixResult(
             original_code=code,

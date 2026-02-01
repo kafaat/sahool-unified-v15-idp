@@ -15,13 +15,10 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, UTC
 from enum import Enum
-from typing import Any, TypeVar, Generic
-import hashlib
-import json
+from typing import Any
 import uuid
 
 import structlog
@@ -74,8 +71,8 @@ class MemoryEntry:
     memory_type: MemoryType
     content: Any
     content_ar: str | None = None
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    last_accessed: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    last_accessed: datetime = field(default_factory=lambda: datetime.now(UTC))
     access_count: int = 0
     priority: MemoryPriority = MemoryPriority.MEDIUM
     ttl_hours: int | None = None  # None = never expires
@@ -104,11 +101,11 @@ class MemoryEntry:
         if self.ttl_hours is None:
             return False
         expiry_time = self.created_at + timedelta(hours=self.ttl_hours)
-        return datetime.now(timezone.utc) > expiry_time
+        return datetime.now(UTC) > expiry_time
 
     def touch(self) -> None:
         """Update access time and count."""
-        self.last_accessed = datetime.now(timezone.utc)
+        self.last_accessed = datetime.now(UTC)
         self.access_count += 1
 
 
@@ -215,8 +212,8 @@ class WorkingMemory:
     context_stack: list[dict[str, Any]] = field(default_factory=list)  # Nested contexts
     last_action: dict[str, Any] | None = None
     last_observation: dict[str, Any] | None = None
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     MAX_FOCUS_ITEMS = 7  # Miller's Law: 7 ± 2 items
 
@@ -226,7 +223,7 @@ class WorkingMemory:
         if len(self.focus_items) > self.MAX_FOCUS_ITEMS:
             # Remove oldest item
             self.focus_items.pop(0)
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(UTC)
 
     def clear(self) -> None:
         """Clear working memory for new task."""
@@ -240,7 +237,7 @@ class WorkingMemory:
         self.context_stack = []
         self.last_action = None
         self.last_observation = None
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(UTC)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -398,7 +395,7 @@ class MemoryStore:
             candidates.sort(key=lambda m: m.access_count, reverse=True)
         elif strategy == RetrievalStrategy.COMBINED:
             # Score based on recency and access count
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             for m in candidates:
                 age_hours = (now - m.created_at).total_seconds() / 3600
                 m.metadata["_score"] = m.access_count - age_hours * 0.1
@@ -532,7 +529,7 @@ class MemoryStore:
 
         # Recency (hours since last access)
         hours_since_access = (
-            datetime.now(timezone.utc) - memory.last_accessed
+            datetime.now(UTC) - memory.last_accessed
         ).total_seconds() / 3600
         score -= hours_since_access * 0.5
 
@@ -621,7 +618,7 @@ class AgentMemorySystem:
         self.working.task_description_ar = description_ar
         self.working.current_goal = goal
         self.working.current_goal_ar = goal_ar
-        self.working.created_at = datetime.now(timezone.utc)
+        self.working.created_at = datetime.now(UTC)
 
     def update_focus(self, item: dict[str, Any]) -> None:
         """Add item to current focus."""
@@ -630,12 +627,12 @@ class AgentMemorySystem:
     def record_action(self, action: dict[str, Any]) -> None:
         """Record an action in working memory."""
         self.working.last_action = action
-        self.working.updated_at = datetime.now(timezone.utc)
+        self.working.updated_at = datetime.now(UTC)
 
     def record_observation(self, observation: dict[str, Any]) -> None:
         """Record an observation in working memory."""
         self.working.last_observation = observation
-        self.working.updated_at = datetime.now(timezone.utc)
+        self.working.updated_at = datetime.now(UTC)
 
     def get_working_context(self) -> dict[str, Any]:
         """Get current working memory context."""

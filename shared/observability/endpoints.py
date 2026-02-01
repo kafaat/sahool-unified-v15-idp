@@ -11,6 +11,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Response
 from fastapi.responses import PlainTextResponse
+from datetime import UTC
 
 try:
     from prometheus_client import (
@@ -29,7 +30,7 @@ except ImportError:
 
 
 def create_metrics_router(
-    registry: Optional["PrometheusRegistry"] = None,
+    registry: PrometheusRegistry | None = None,
     include_default_metrics: bool = True,
 ) -> APIRouter:
     """
@@ -83,7 +84,7 @@ def create_metrics_router(
 
 
 def create_observability_router(
-    metrics_registry: Optional["PrometheusRegistry"] = None,
+    metrics_registry: PrometheusRegistry | None = None,
 ) -> APIRouter:
     """
     Create a combined observability router with multiple endpoints.
@@ -124,7 +125,7 @@ def create_observability_router(
                 "log_level": os.getenv("LOG_LEVEL", "INFO"),
             },
             "runtime": {
-                "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+                "timestamp": datetime.now(UTC).isoformat() + "Z",
                 "pid": os.getpid(),
             },
             "config": {

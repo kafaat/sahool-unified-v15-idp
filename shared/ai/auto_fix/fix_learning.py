@@ -24,8 +24,7 @@ import re
 import uuid
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import datetime, UTC
 from typing import Any
 
 import structlog
@@ -34,7 +33,6 @@ from .models import (
     CodeFix,
     Diagnostic,
     DiagnosticCategory,
-    DiagnosticSeverity,
     FixResult,
     ToolType,
 )
@@ -69,7 +67,7 @@ class FixPattern:
     total_applications: int = 0
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     last_used: datetime | None = None
     examples: list[dict] = field(default_factory=list)
 
@@ -111,7 +109,7 @@ class FixFeedback:
     comment: str | None = None
 
     # Timestamp
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -249,7 +247,7 @@ class FixLearningSystem:
                 existing = self._patterns[pattern.pattern_id]
                 existing.success_count += 1
                 existing.total_applications += 1
-                existing.last_used = datetime.now(timezone.utc)
+                existing.last_used = datetime.now(UTC)
                 # Add example if we have few
                 if len(existing.examples) < 10:
                     existing.examples.append({

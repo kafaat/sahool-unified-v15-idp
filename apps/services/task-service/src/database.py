@@ -23,6 +23,7 @@ from database import Base
 
 # Import models to ensure they're registered with Base
 from .models import Task
+from datetime import UTC
 
 logger = logging.getLogger(__name__)
 
@@ -190,7 +191,7 @@ def seed_demo_data(db: Session) -> None:
         return
 
     logger.info("Seeding demo data...")
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
     demo_tasks = [

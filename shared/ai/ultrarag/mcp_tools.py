@@ -4,21 +4,19 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 import json
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional
+from dataclasses import dataclass
+from typing import Any, Callable
 
 import structlog
 
 from .models import (
-    ChunkingStrategy,
     GenerationMode,
-    RAGPipelineConfig,
     RAGRequest,
     RerankingMethod,
     RetrievalStrategy,
 )
 from .pipeline import RAGPipeline
-from .knowledge_base import KnowledgeBase, ChunkingConfig
+from .knowledge_base import KnowledgeBase
 
 logger = structlog.get_logger(__name__)
 
@@ -29,7 +27,7 @@ class MCPToolDefinition:
     name: str
     description: str
     description_ar: str
-    input_schema: Dict[str, Any]
+    input_schema: dict[str, Any]
     handler: Callable
     category: str = "rag"
 
@@ -42,12 +40,12 @@ class RAGMCPTools:
 
     def __init__(
         self,
-        rag_pipeline: Optional[RAGPipeline] = None,
-        knowledge_base: Optional[KnowledgeBase] = None,
+        rag_pipeline: RAGPipeline | None = None,
+        knowledge_base: KnowledgeBase | None = None,
     ):
         self.rag_pipeline = rag_pipeline
         self.knowledge_base = knowledge_base
-        self._tools: Dict[str, MCPToolDefinition] = {}
+        self._tools: dict[str, MCPToolDefinition] = {}
 
         # Register built-in tools
         self._register_builtin_tools()
@@ -492,7 +490,7 @@ class RAGMCPTools:
         """Register a tool"""
         self._tools[tool.name] = tool
 
-    def get_tools(self) -> List[Dict[str, Any]]:
+    def get_tools(self) -> list[dict[str, Any]]:
         """Get all tools in MCP format"""
         return [
             {
@@ -503,7 +501,7 @@ class RAGMCPTools:
             for tool in self._tools.values()
         ]
 
-    def get_tools_by_category(self, category: str) -> List[Dict[str, Any]]:
+    def get_tools_by_category(self, category: str) -> list[dict[str, Any]]:
         """Get tools filtered by category"""
         return [
             {
@@ -518,8 +516,8 @@ class RAGMCPTools:
     async def call_tool(
         self,
         name: str,
-        arguments: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        arguments: dict[str, Any],
+    ) -> dict[str, Any]:
         """Call a tool by name"""
         if name not in self._tools:
             return {
@@ -546,7 +544,7 @@ class RAGMCPTools:
     # Tool Handlers
     # ═══════════════════════════════════════════════════════════════════════════
 
-    async def _handle_rag_query(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_rag_query(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle RAG query"""
         if self.rag_pipeline is None:
             return {"error": "RAG pipeline not configured"}
@@ -569,7 +567,7 @@ class RAGMCPTools:
             "processing_time_ms": result.total_time_ms,
         }
 
-    async def _handle_semantic_search(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_semantic_search(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle semantic search"""
         if self.rag_pipeline is None:
             return {"error": "RAG pipeline not configured"}
@@ -589,7 +587,7 @@ class RAGMCPTools:
             "count": len(results),
         }
 
-    async def _handle_add_document(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_add_document(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle add document"""
         if self.knowledge_base is None:
             return {"error": "Knowledge base not configured"}
@@ -610,7 +608,7 @@ class RAGMCPTools:
             }
         return {"error": "Failed to add document"}
 
-    async def _handle_add_file(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_add_file(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle add file"""
         if self.knowledge_base is None:
             return {"error": "Knowledge base not configured"}
@@ -628,7 +626,7 @@ class RAGMCPTools:
             }
         return {"error": "Failed to add file"}
 
-    async def _handle_list_documents(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_list_documents(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle list documents"""
         if self.knowledge_base is None:
             return {"error": "Knowledge base not configured"}
@@ -652,7 +650,7 @@ class RAGMCPTools:
             "count": len(docs),
         }
 
-    async def _handle_delete_document(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_delete_document(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle delete document"""
         if self.knowledge_base is None:
             return {"error": "Knowledge base not configured"}
@@ -660,14 +658,14 @@ class RAGMCPTools:
         success = await self.knowledge_base.delete_document(args["document_id"])
         return {"success": success}
 
-    async def _handle_kb_stats(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_kb_stats(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle KB stats"""
         if self.knowledge_base is None:
             return {"error": "Knowledge base not configured"}
 
         return self.knowledge_base.get_stats()
 
-    async def _handle_configure_pipeline(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_configure_pipeline(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle pipeline configuration"""
         if self.rag_pipeline is None:
             return {"error": "RAG pipeline not configured"}
@@ -687,14 +685,14 @@ class RAGMCPTools:
 
         return {"message": "Pipeline configured", "config": config.to_dict()}
 
-    async def _handle_get_pipeline_config(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_get_pipeline_config(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle get pipeline config"""
         if self.rag_pipeline is None:
             return {"error": "RAG pipeline not configured"}
 
         return self.rag_pipeline.config.to_dict()
 
-    async def _handle_crop_advisory(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_crop_advisory(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle crop advisory query"""
         if self.rag_pipeline is None:
             return {"error": "RAG pipeline not configured"}
@@ -731,7 +729,7 @@ class RAGMCPTools:
 
         return response
 
-    async def _handle_pest_identification(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_pest_identification(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle pest identification"""
         if self.rag_pipeline is None:
             return {"error": "RAG pipeline not configured"}
@@ -767,7 +765,7 @@ class RAGMCPTools:
     # معالجات أدوات صور الأقمار الصناعية
     # ═══════════════════════════════════════════════════════════════════════════
 
-    async def _handle_ndvi_time_series(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_ndvi_time_series(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle NDVI time series analysis"""
         from datetime import date
 
@@ -807,7 +805,7 @@ class RAGMCPTools:
             logger.error("ndvi_time_series_error", error=str(e))
             return {"error": str(e)}
 
-    async def _handle_change_detection(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_change_detection(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle change detection between dates"""
         from datetime import date
 
@@ -844,7 +842,7 @@ class RAGMCPTools:
             logger.error("change_detection_error", error=str(e))
             return {"error": str(e)}
 
-    async def _handle_land_cover(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_land_cover(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle land cover classification"""
         from datetime import date
 
@@ -881,7 +879,7 @@ class RAGMCPTools:
             logger.error("land_cover_error", error=str(e))
             return {"error": str(e)}
 
-    async def _handle_satellite_query(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_satellite_query(self, args: dict[str, Any]) -> dict[str, Any]:
         """Handle general satellite query"""
         try:
             from .providers.gee_provider import GEERAGProvider

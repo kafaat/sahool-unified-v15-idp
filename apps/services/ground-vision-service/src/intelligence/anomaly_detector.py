@@ -67,7 +67,7 @@ class AnomalyDetector:
 
     def __init__(
         self,
-        change_detector: Optional[ChangeDetector] = None,
+        change_detector: ChangeDetector | None = None,
         enable_motion_detection: bool = True,
         enable_stress_detection: bool = True,
     ):
@@ -86,7 +86,7 @@ class AnomalyDetector:
         self.enable_stress = enable_stress_detection
 
         # Background model for motion detection
-        self.background_model: Optional[np.ndarray] = None
+        self.background_model: np.ndarray | None = None
         self.background_alpha = 0.1  # Learning rate
 
         logger.info("AnomalyDetector initialized")
@@ -94,7 +94,7 @@ class AnomalyDetector:
     async def detect(
         self,
         frame: np.ndarray,
-        previous_frame: Optional[np.ndarray],
+        previous_frame: np.ndarray | None,
         frame_id: str,
         field_id: str,
         camera_id: str,
@@ -360,7 +360,7 @@ class AnomalyDetector:
     def _find_largest_region(
         self,
         mask: np.ndarray,
-    ) -> Optional[tuple[int, int, int, int]]:
+    ) -> tuple[int, int, int, int] | None:
         """Find bounding box of largest connected region in mask."""
         if np.sum(mask) == 0:
             return None

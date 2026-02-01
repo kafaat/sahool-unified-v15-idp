@@ -56,7 +56,7 @@ class FieldCreatedEvent(BaseEvent):
         return payload
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "FieldCreatedEvent":
+    def from_dict(cls, data: dict[str, Any]) -> FieldCreatedEvent:
         payload = data.get("payload", {})
         return cls(
             event_id=UUID(data["event_id"]),

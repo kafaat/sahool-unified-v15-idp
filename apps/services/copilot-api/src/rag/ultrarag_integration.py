@@ -80,18 +80,18 @@ class UltraRAGCopilotService:
 
     def __init__(
         self,
-        config: Optional[UltraRAGConfig] = None,
-        basic_rag_service: Optional[CopilotRAGService] = None,
+        config: UltraRAGConfig | None = None,
+        basic_rag_service: CopilotRAGService | None = None,
     ):
         """Initialize UltraRAG Copilot service"""
         self.config = config or UltraRAGConfig()
         self.basic_rag = basic_rag_service
 
         # UltraRAG providers
-        self._agri_provider: Optional[AgriRAGProvider] = None
-        self._code_provider: Optional[CodeRAGProvider] = None
-        self._gee_provider: Optional[GEERAGProvider] = None
-        self._mcp_tools: Optional[RAGMCPTools] = None
+        self._agri_provider: AgriRAGProvider | None = None
+        self._code_provider: CodeRAGProvider | None = None
+        self._gee_provider: GEERAGProvider | None = None
+        self._mcp_tools: RAGMCPTools | None = None
 
         self._initialized = False
 
@@ -154,7 +154,7 @@ class UltraRAGCopilotService:
     async def diagnose_disease(
         self,
         symptoms: str,
-        crop_type: Optional[str] = None,
+        crop_type: str | None = None,
         **kwargs,
     ) -> dict[str, Any]:
         """
@@ -185,7 +185,7 @@ class UltraRAGCopilotService:
         self,
         crop_type: str,
         growth_stage: str,
-        soil_moisture: Optional[float] = None,
+        soil_moisture: float | None = None,
         **kwargs,
     ) -> dict[str, Any]:
         """
@@ -216,7 +216,7 @@ class UltraRAGCopilotService:
         self,
         crop_type: str,
         growth_stage: str,
-        soil_analysis: Optional[dict[str, Any]] = None,
+        soil_analysis: dict[str, Any] | None = None,
         **kwargs,
     ) -> dict[str, Any]:
         """
@@ -247,7 +247,7 @@ class UltraRAGCopilotService:
         self,
         crop_type: str,
         area_hectares: float,
-        growth_stage: Optional[str] = None,
+        growth_stage: str | None = None,
         **kwargs,
     ) -> dict[str, Any]:
         """
@@ -366,7 +366,7 @@ class UltraRAGCopilotService:
         self,
         topic: str,
         language: str = "python",
-        framework: Optional[str] = None,
+        framework: str | None = None,
         **kwargs,
     ) -> dict[str, Any]:
         """
@@ -455,8 +455,8 @@ class UltraRAGCopilotService:
         field_id: str,
         date1: str,
         date2: str,
-        ndvi1: Optional[float] = None,
-        ndvi2: Optional[float] = None,
+        ndvi1: float | None = None,
+        ndvi2: float | None = None,
         **kwargs,
     ) -> dict[str, Any]:
         """
@@ -494,9 +494,9 @@ class UltraRAGCopilotService:
     async def classify_land_cover(
         self,
         field_id: str,
-        analysis_date: Optional[str] = None,
-        ndvi: Optional[float] = None,
-        ndwi: Optional[float] = None,
+        analysis_date: str | None = None,
+        ndvi: float | None = None,
+        ndwi: float | None = None,
         **kwargs,
     ) -> dict[str, Any]:
         """
@@ -780,7 +780,7 @@ class UltraRAGCopilotService:
 # GLOBAL INSTANCE
 # ═══════════════════════════════════════════════════════════════════════════════
 
-_ultrarag_service: Optional[UltraRAGCopilotService] = None
+_ultrarag_service: UltraRAGCopilotService | None = None
 
 
 def get_ultrarag_service() -> UltraRAGCopilotService:

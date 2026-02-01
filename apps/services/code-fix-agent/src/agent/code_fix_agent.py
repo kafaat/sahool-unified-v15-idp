@@ -23,7 +23,7 @@ import os
 import tempfile
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -1582,7 +1582,7 @@ Provide ONLY the fixed code without any explanation. Return the complete fixed c
 
         # Store feedback
         self.feedback_history.append(
-            {"feedback": feedback, "timestamp": datetime.now(timezone.utc).isoformat()}
+            {"feedback": feedback, "timestamp": datetime.now(UTC).isoformat()}
         )
 
         # Extract reward
@@ -1629,7 +1629,7 @@ Provide ONLY the fixed code without any explanation. Return the complete fixed c
             "reward_history": self.reward_history[-100:],  # Keep last 100 rewards
             "total_requests": self.total_requests,
             "successful_requests": self.successful_requests,
-            "last_updated": datetime.now(timezone.utc).isoformat(),
+            "last_updated": datetime.now(UTC).isoformat(),
         }
 
         try:

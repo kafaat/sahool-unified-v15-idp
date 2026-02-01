@@ -19,11 +19,10 @@ Updated: January 2026
 """
 
 import math
-import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 
 # Type hints for optional dependencies
 try:
@@ -179,7 +178,7 @@ class GRPOTrainingStats:
     mean_reward: float = 0.0
     mean_advantage: float = 0.0
     clip_fraction: float = 0.0
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""

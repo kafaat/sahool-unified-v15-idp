@@ -16,7 +16,7 @@ import json
 import re
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any, Callable, Optional
 
 import structlog
@@ -48,7 +48,7 @@ class GuardDecision:
     reason_ar: str = ""
     layer: str = "unknown"
     details: dict[str, Any] = field(default_factory=dict)
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization"""
@@ -70,10 +70,10 @@ class ToolCallContext:
     """
     tool: str
     args: dict[str, Any]
-    session_id: Optional[str] = None
-    user_id: Optional[str] = None
-    tenant_id: Optional[str] = None
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    session_id: str | None = None
+    user_id: str | None = None
+    tenant_id: str | None = None
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 class ToolGuard:

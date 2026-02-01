@@ -9,7 +9,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -31,10 +31,10 @@ logger = structlog.get_logger(__name__)
 class CodeQueryContext:
     """Code query context | سياق استعلام الكود"""
     language: str = "python"  # python, typescript, dart
-    file_path: Optional[str] = None
-    project_type: Optional[str] = None  # fastapi, nestjs, flutter
-    error_type: Optional[str] = None
-    framework: Optional[str] = None
+    file_path: str | None = None
+    project_type: str | None = None  # fastapi, nestjs, flutter
+    error_type: str | None = None
+    framework: str | None = None
 
 
 @dataclass
@@ -42,12 +42,12 @@ class CodeAnalysisResult:
     """Code analysis result | نتيجة تحليل الكود"""
     query: str
     analysis: str
-    suggestions: List[str] = field(default_factory=list)
-    related_patterns: List[Dict[str, Any]] = field(default_factory=list)
-    code_examples: List[Dict[str, Any]] = field(default_factory=list)
+    suggestions: list[str] = field(default_factory=list)
+    related_patterns: list[dict[str, Any]] = field(default_factory=list)
+    code_examples: list[dict[str, Any]] = field(default_factory=list)
     confidence: float = 0.0
-    sources: List[Dict[str, Any]] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    sources: list[dict[str, Any]] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class CodeRAGProvider:
@@ -61,9 +61,9 @@ class CodeRAGProvider:
 
     def __init__(
         self,
-        config: Optional[TriRAGConfig] = None,
-        embedding_service: Optional[Any] = None,
-        vector_store: Optional[Any] = None,
+        config: TriRAGConfig | None = None,
+        embedding_service: Any | None = None,
+        vector_store: Any | None = None,
     ):
         self.config = config or TriRAGConfig(
             dense_weight=0.5,
@@ -75,9 +75,9 @@ class CodeRAGProvider:
 
         # Initialize retrievers (lazy)
         self._kg_retriever = KnowledgeGraphRetriever(embedding_service)
-        self._sparse_retriever: Optional[Any] = None
-        self._dense_retriever: Optional[Any] = None
-        self._tri_rag: Optional[TriRAGRetriever] = None
+        self._sparse_retriever: Any | None = None
+        self._dense_retriever: Any | None = None
+        self._tri_rag: TriRAGRetriever | None = None
 
         self._initialized = False
 
@@ -273,7 +273,7 @@ class CodeRAGProvider:
         self,
         code: str,
         language: str = "python",
-        context: Optional[CodeQueryContext] = None,
+        context: CodeQueryContext | None = None,
     ) -> CodeAnalysisResult:
         """
         Analyze code for issues and improvements
@@ -323,7 +323,7 @@ class CodeRAGProvider:
         self,
         error_message: str,
         language: str = "python",
-        context: Optional[CodeQueryContext] = None,
+        context: CodeQueryContext | None = None,
     ) -> CodeAnalysisResult:
         """
         Find fix pattern for an error
@@ -356,7 +356,7 @@ class CodeRAGProvider:
         self,
         code: str,
         language: str = "python",
-        context: Optional[CodeQueryContext] = None,
+        context: CodeQueryContext | None = None,
     ) -> CodeAnalysisResult:
         """
         Scan code for security vulnerabilities
@@ -400,8 +400,8 @@ class CodeRAGProvider:
         self,
         topic: str,
         language: str = "python",
-        framework: Optional[str] = None,
-        context: Optional[CodeQueryContext] = None,
+        framework: str | None = None,
+        context: CodeQueryContext | None = None,
     ) -> CodeAnalysisResult:
         """
         Get best practices for a topic
@@ -435,7 +435,7 @@ class CodeRAGProvider:
     async def general_query(
         self,
         query: str,
-        context: Optional[CodeQueryContext] = None,
+        context: CodeQueryContext | None = None,
     ) -> CodeAnalysisResult:
         """
         General code query using Tri-RAG
@@ -467,10 +467,10 @@ class CodeRAGProvider:
 class _MockRetriever:
     """Mock retriever for testing without vector store"""
 
-    async def retrieve(self, query: str, config: RetrievalConfig) -> List:
+    async def retrieve(self, query: str, config: RetrievalConfig) -> list:
         return []
 
-    async def add_documents(self, chunks: List, collection: str = "default") -> bool:
+    async def add_documents(self, chunks: list, collection: str = "default") -> bool:
         return True
 
 

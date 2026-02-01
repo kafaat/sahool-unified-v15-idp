@@ -12,6 +12,7 @@ including SSH connections, API calls, and real-time monitoring.
 """
 
 import asyncio
+import contextlib
 from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
@@ -523,10 +524,8 @@ class DeviceManager:
 
         if self._heartbeat_task:
             self._heartbeat_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._heartbeat_task
-            except asyncio.CancelledError:
-                pass
 
         # Close all connections
         async with self._lock:

@@ -13,7 +13,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, time, timezone
+from datetime import datetime, time, UTC
 from enum import Enum
 from typing import Any
 import uuid
@@ -141,7 +141,7 @@ class QuietHours:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "QuietHours":
+    def from_dict(cls, data: dict[str, Any]) -> QuietHours:
         """Create from dictionary"""
         return cls(
             enabled=data.get("enabled", True),
@@ -199,7 +199,7 @@ class ChannelConfig:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ChannelConfig":
+    def from_dict(cls, data: dict[str, Any]) -> ChannelConfig:
         """Create from dictionary"""
         return cls(
             channel=NotificationChannel(data["channel"]),
@@ -262,7 +262,7 @@ class AlertTypePreference:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "AlertTypePreference":
+    def from_dict(cls, data: dict[str, Any]) -> AlertTypePreference:
         """Create from dictionary"""
         return cls(
             alert_type=AlertType(data["alert_type"]),
@@ -338,7 +338,7 @@ class TimeBasedRule:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "TimeBasedRule":
+    def from_dict(cls, data: dict[str, Any]) -> TimeBasedRule:
         """Create from dictionary"""
         return cls(
             id=data.get("id", str(uuid.uuid4())),
@@ -397,7 +397,7 @@ class UrgencyOverride:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "UrgencyOverride":
+    def from_dict(cls, data: dict[str, Any]) -> UrgencyOverride:
         """Create from dictionary"""
         return cls(
             urgency=AlertUrgency(data["urgency"]),
@@ -469,8 +469,8 @@ class UserNotificationPreferences:
     show_preview_on_lock_screen: bool = False
 
     # Timestamps
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     # Version for optimistic locking
     version: int = 1
@@ -506,7 +506,7 @@ class UserNotificationPreferences:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "UserNotificationPreferences":
+    def from_dict(cls, data: dict[str, Any]) -> UserNotificationPreferences:
         """Create from dictionary"""
         return cls(
             id=data.get("id", str(uuid.uuid4())),
@@ -531,8 +531,8 @@ class UserNotificationPreferences:
             show_badge_count=data.get("show_badge_count", True),
             show_preview=data.get("show_preview", True),
             show_preview_on_lock_screen=data.get("show_preview_on_lock_screen", False),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(timezone.utc),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(timezone.utc),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
             version=data.get("version", 1),
         )
 
@@ -596,7 +596,7 @@ class NotificationRequest:
     # Request metadata
     source_service: str = ""
     correlation_id: str | None = None
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""

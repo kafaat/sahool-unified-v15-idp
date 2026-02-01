@@ -6,7 +6,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 import uuid
 
 
@@ -51,17 +51,17 @@ class KnowledgeChunk:
     """A chunk of knowledge from a document | قطعة من المعرفة من مستند"""
     id: str
     text: str
-    text_ar: Optional[str] = None  # Arabic text
+    text_ar: str | None = None  # Arabic text
     document_id: str = ""
     collection: str = "default"
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    vector: Optional[List[float]] = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+    vector: list[float] | None = None
     start_char: int = 0
     end_char: int = 0
     chunk_index: int = 0
     created_at: datetime = field(default_factory=datetime.utcnow)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "text": self.text,
@@ -80,13 +80,13 @@ class KnowledgeDocument:
     """A document in the knowledge base | مستند في قاعدة المعرفة"""
     id: str
     title: str
-    title_ar: Optional[str] = None
+    title_ar: str | None = None
     content: str = ""
-    content_ar: Optional[str] = None
+    content_ar: str | None = None
     source: str = ""
     collection: str = "default"
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    chunks: List[KnowledgeChunk] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
+    chunks: list[KnowledgeChunk] = field(default_factory=list)
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
@@ -103,7 +103,7 @@ class RetrievalResult:
     retrieval_method: str = "dense"
     rank: int = 0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "chunk_id": self.chunk.id,
             "text": self.chunk.text,
@@ -118,7 +118,7 @@ class RetrievalResult:
 @dataclass
 class RerankResult:
     """Result from reranking | نتيجة إعادة الترتيب"""
-    results: List[RetrievalResult]
+    results: list[RetrievalResult]
     method: RerankingMethod
     processing_time_ms: float = 0.0
 
@@ -127,15 +127,15 @@ class RerankResult:
 class GenerationResult:
     """Result from generation | نتيجة التوليد"""
     answer: str
-    answer_ar: Optional[str] = None
+    answer_ar: str | None = None
     confidence: float = 0.0
-    sources: List[RetrievalResult] = field(default_factory=list)
-    reasoning: Optional[str] = None
+    sources: list[RetrievalResult] = field(default_factory=list)
+    reasoning: str | None = None
     mode: GenerationMode = GenerationMode.STANDARD
     tokens_used: int = 0
     processing_time_ms: float = 0.0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "answer": self.answer,
             "answer_ar": self.answer_ar,
@@ -152,16 +152,16 @@ class GenerationResult:
 class RAGRequest:
     """RAG request | طلب RAG"""
     query: str
-    query_ar: Optional[str] = None
+    query_ar: str | None = None
     collection: str = "default"
     top_k: int = 5
     rerank_top_k: int = 3
     strategy: RetrievalStrategy = RetrievalStrategy.HYBRID
     reranking: RerankingMethod = RerankingMethod.CROSS_ENCODER
     generation_mode: GenerationMode = GenerationMode.STANDARD
-    filters: Dict[str, Any] = field(default_factory=dict)
-    context: Dict[str, Any] = field(default_factory=dict)
-    tenant_id: Optional[str] = None
+    filters: dict[str, Any] = field(default_factory=dict)
+    context: dict[str, Any] = field(default_factory=dict)
+    tenant_id: str | None = None
     language: str = "en"  # "en" or "ar"
     include_sources: bool = True
     max_tokens: int = 1024
@@ -171,14 +171,14 @@ class RAGRequest:
 class RAGResult:
     """Complete RAG result | نتيجة RAG الكاملة"""
     request: RAGRequest
-    retrieval_results: List[RetrievalResult]
-    rerank_result: Optional[RerankResult] = None
-    generation_result: Optional[GenerationResult] = None
+    retrieval_results: list[RetrievalResult]
+    rerank_result: RerankResult | None = None
+    generation_result: GenerationResult | None = None
     total_time_ms: float = 0.0
     success: bool = True
-    error: Optional[str] = None
+    error: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "query": self.request.query,
             "answer": self.generation_result.answer if self.generation_result else None,
@@ -197,8 +197,8 @@ class PipelineStageConfig:
     name: str
     type: str  # "retrieval", "rerank", "generation", "transform"
     enabled: bool = True
-    config: Dict[str, Any] = field(default_factory=dict)
-    conditions: Dict[str, Any] = field(default_factory=dict)  # For conditional execution
+    config: dict[str, Any] = field(default_factory=dict)
+    conditions: dict[str, Any] = field(default_factory=dict)  # For conditional execution
 
 
 @dataclass
@@ -242,7 +242,7 @@ class RAGPipelineConfig:
     arabic_embedding_model: str = "CAMeL-Lab/bert-base-arabic-camelbert-mix"
 
     # Pipeline stages
-    stages: List[PipelineStageConfig] = field(default_factory=list)
+    stages: list[PipelineStageConfig] = field(default_factory=list)
 
     # Caching
     cache_enabled: bool = True
@@ -251,7 +251,7 @@ class RAGPipelineConfig:
     # Offline mode
     offline_first: bool = True
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "version": self.version,
@@ -274,12 +274,12 @@ class WorkflowStep:
     id: str
     type: str  # "retrieve", "rerank", "generate", "condition", "loop", "transform"
     name: str
-    config: Dict[str, Any] = field(default_factory=dict)
-    next_step: Optional[str] = None
-    on_success: Optional[str] = None
-    on_failure: Optional[str] = None
-    condition: Optional[str] = None  # For conditional steps
-    loop_config: Optional[Dict[str, Any]] = None  # For loop steps
+    config: dict[str, Any] = field(default_factory=dict)
+    next_step: str | None = None
+    on_success: str | None = None
+    on_failure: str | None = None
+    condition: str | None = None  # For conditional steps
+    loop_config: dict[str, Any] | None = None  # For loop steps
 
 
 @dataclass
@@ -287,16 +287,16 @@ class WorkflowConfig:
     """Configuration for a workflow | تكوين سير العمل"""
     id: str
     name: str
-    name_ar: Optional[str] = None
+    name_ar: str | None = None
     description: str = ""
     description_ar: str = ""
     version: str = "1.0.0"
-    steps: List[WorkflowStep] = field(default_factory=list)
+    steps: list[WorkflowStep] = field(default_factory=list)
     entry_point: str = ""
-    variables: Dict[str, Any] = field(default_factory=dict)
+    variables: dict[str, Any] = field(default_factory=dict)
 
     @staticmethod
-    def from_yaml(yaml_dict: Dict[str, Any]) -> "WorkflowConfig":
+    def from_yaml(yaml_dict: dict[str, Any]) -> "WorkflowConfig":
         """Create WorkflowConfig from YAML dictionary"""
         steps = []
         for step_dict in yaml_dict.get("steps", []):
@@ -381,14 +381,14 @@ class KnowledgeEntity:
     """An entity in the knowledge graph | كيان في خريطة المعرفة"""
     id: str
     name: str
-    name_ar: Optional[str] = None
+    name_ar: str | None = None
     entity_type: EntityType = EntityType.CROP
     description: str = ""
     description_ar: str = ""
-    aliases: List[str] = field(default_factory=list)
-    aliases_ar: List[str] = field(default_factory=list)
-    properties: Dict[str, Any] = field(default_factory=dict)
-    embedding: Optional[List[float]] = None
+    aliases: list[str] = field(default_factory=list)
+    aliases_ar: list[str] = field(default_factory=list)
+    properties: dict[str, Any] = field(default_factory=dict)
+    embedding: list[float] | None = None
     created_at: datetime = field(default_factory=datetime.utcnow)
 
     @staticmethod
@@ -404,8 +404,8 @@ class KnowledgeRelation:
     target_id: str
     relation_type: RelationType
     weight: float = 1.0  # Relationship strength
-    properties: Dict[str, Any] = field(default_factory=dict)
-    evidence: List[str] = field(default_factory=list)  # Source document IDs
+    properties: dict[str, Any] = field(default_factory=dict)
+    evidence: list[str] = field(default_factory=list)  # Source document IDs
     created_at: datetime = field(default_factory=datetime.utcnow)
 
     @staticmethod
@@ -416,9 +416,9 @@ class KnowledgeRelation:
 @dataclass
 class KnowledgeGraphResult:
     """Result from knowledge graph query | نتيجة استعلام خريطة المعرفة"""
-    entities: List[KnowledgeEntity]
-    relations: List[KnowledgeRelation]
-    paths: List[List[str]] = field(default_factory=list)  # Multi-hop paths
+    entities: list[KnowledgeEntity]
+    relations: list[KnowledgeRelation]
+    paths: list[list[str]] = field(default_factory=list)  # Multi-hop paths
     score: float = 0.0
     reasoning: str = ""
     reasoning_ar: str = ""

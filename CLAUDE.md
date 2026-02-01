@@ -829,6 +829,203 @@ This service has been migrated to [new-service]
 
 ---
 
+## Platform Integrations
+
+The SAHOOL platform includes integrations with external tools and libraries for enhanced agricultural intelligence.
+
+### Architecture Overview
+
+```
+shared/
+├── nlp/                         # Arabic NLP (AraBERT)
+│   ├── __init__.py
+│   └── arabic_nlp.py           # Intent classification, NER, sentiment
+├── satellite/                   # Satellite Imagery (Sentinel Hub)
+│   ├── __init__.py
+│   └── sentinel_ndvi.py        # NDVI analysis, crop health
+├── ml/                          # Agricultural ML (AgML)
+│   ├── __init__.py
+│   └── agml_integration.py     # Dataset management, disease detection
+└── agents/                      # Multi-Agent (CrewAI)
+    ├── __init__.py
+    └── crewai_orchestrator.py  # Agent orchestration
+```
+
+### Arabic NLP Integration (`shared/nlp/`)
+
+Uses AraBERT for Arabic-first natural language processing.
+
+#### Features
+
+| Feature | Description |
+|---------|-------------|
+| **Intent Classification** | Detects agricultural intents (irrigation, disease, fertilizer, pest, weather, yield) |
+| **Named Entity Recognition** | Extracts crops, diseases, pests, fertilizers, quantities |
+| **Sentiment Analysis** | Analyzes farmer feedback sentiment and urgency |
+| **Text Preprocessing** | Arabic normalization, diacritics removal |
+
+#### Usage Example
+
+```python
+from shared.nlp import ArabicNLPProcessor
+
+processor = ArabicNLPProcessor()
+await processor.initialize()
+
+result = processor.process("القمح يعاني من اصفرار الأوراق")
+print(result["intent"])      # {"primary": "crop_disease", "confidence": 0.85}
+print(result["entities"])    # [{"text": "القمح", "type": "crop"}]
+print(result["is_arabic"])   # True
+```
+
+#### Supported Intents
+
+| Intent | Arabic | English |
+|--------|--------|---------|
+| `crop_disease` | مرض المحصول | Crop disease |
+| `irrigation` | الري | Irrigation |
+| `fertilizer` | السماد | Fertilizer |
+| `pest` | الآفات | Pests |
+| `weather` | الطقس | Weather |
+| `yield` | الإنتاجية | Yield |
+
+### Satellite NDVI Integration (`shared/satellite/`)
+
+Uses Sentinel Hub for free satellite imagery analysis.
+
+#### Features
+
+| Feature | Description |
+|---------|-------------|
+| **NDVI Analysis** | Normalized Difference Vegetation Index |
+| **LAI Estimation** | Leaf Area Index calculation |
+| **Time Series** | Historical trend analysis |
+| **Crop Health** | Automatic health status classification |
+
+#### Usage Example
+
+```python
+from shared.satellite import SentinelNDVIAnalyzer, FieldBoundary
+
+analyzer = SentinelNDVIAnalyzer()
+await analyzer.initialize()
+
+field = FieldBoundary(
+    field_id="FIELD-001",
+    coordinates=[(46.7, 24.7), (46.8, 24.7), (46.8, 24.8), (46.7, 24.8)],
+    area_hectares=10.0
+)
+
+result = await analyzer.get_ndvi(field)
+print(result.mean_value)       # 0.65
+print(result.health_status)    # "healthy"
+print(result.health_status_ar) # "صحي"
+```
+
+#### Health Status Classification
+
+| NDVI Range | Status | Status (AR) |
+|------------|--------|-------------|
+| ≥ 0.6 | healthy | صحي |
+| 0.4 - 0.6 | moderate | معتدل |
+| 0.2 - 0.4 | stressed | مجهد |
+| < 0.2 | critical | حرج |
+
+### Agricultural ML Integration (`shared/ml/`)
+
+Uses AgML for standardized agricultural ML datasets.
+
+#### Available Datasets
+
+| Dataset | Crop | Classes | Images |
+|---------|------|---------|--------|
+| PlantVillage | General | 38 | 54,306 |
+| Wheat Rust | Wheat | 4 | 1,400 |
+| Rice Disease | Rice | 5 | 3,355 |
+| Tomato Disease | Tomato | 10 | 18,160 |
+| Corn Disease | Corn | 4 | 4,188 |
+| DeepWeeds | General | 9 | 17,509 |
+
+#### Usage Example
+
+```python
+from shared.ml import AgMLDatasetManager, DatasetType, CropType
+
+manager = AgMLDatasetManager()
+await manager.initialize()
+
+# List datasets for wheat
+datasets = manager.list_datasets(crop_type=CropType.WHEAT)
+
+# Get disease classes
+diseases = manager.get_disease_classes(CropType.WHEAT)
+# [{"en": "Leaf Rust", "ar": "صدأ الأوراق"}, ...]
+```
+
+### Multi-Agent Integration (`shared/agents/`)
+
+Uses CrewAI for simpler multi-agent orchestration.
+
+#### Available Agents
+
+| Role | Goal (EN) | Goal (AR) |
+|------|-----------|-----------|
+| `crop_advisor` | Crop management advice | نصائح إدارة المحاصيل |
+| `irrigation_expert` | Optimize irrigation | تحسين الري |
+| `disease_diagnostician` | Diagnose diseases | تشخيص الأمراض |
+| `pest_controller` | IPM solutions | حلول الإدارة المتكاملة |
+| `soil_analyst` | Soil analysis | تحليل التربة |
+| `yield_predictor` | Yield prediction | تنبؤ الإنتاجية |
+| `market_analyst` | Market prices | أسعار السوق |
+| `coordinator` | Coordinate specialists | تنسيق المتخصصين |
+
+#### Usage Example
+
+```python
+from shared.agents import CrewAIOrchestrator
+
+orchestrator = CrewAIOrchestrator()
+await orchestrator.initialize()
+
+result = await orchestrator.query("متى أسقي القمح؟")
+print(result.final_answer)       # English answer
+print(result.final_answer_ar)    # Arabic answer
+print(result.agents_used)        # ["irrigation_expert"]
+```
+
+### LLM Orchestrator API Endpoints
+
+All integrations are exposed via the LLM Orchestrator Service:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/integrations/nlp/process` | POST | Process text with Arabic NLP |
+| `/api/v1/integrations/nlp/intent/{text}` | GET | Classify intent |
+| `/api/v1/integrations/satellite/ndvi` | POST | Get field NDVI |
+| `/api/v1/integrations/satellite/crop-health` | POST | Analyze crop health |
+| `/api/v1/integrations/ml/datasets` | GET | List ML datasets |
+| `/api/v1/integrations/ml/diseases/{crop}` | GET | Get disease classes |
+| `/api/v1/integrations/crew/query` | POST | Query agent crew |
+| `/api/v1/integrations/crew/agents` | GET | List available agents |
+
+### Environment Variables
+
+```bash
+# AraBERT Configuration
+ARABERT_MODEL=aubmindlab/bert-base-arabertv2
+ARABERT_REVISION=main  # Pin revision for security
+
+# Sentinel Hub Configuration (free registration)
+SENTINEL_HUB_CLIENT_ID=your_client_id
+SENTINEL_HUB_CLIENT_SECRET=your_client_secret
+SENTINEL_HUB_INSTANCE_ID=your_instance_id
+
+# AgML Configuration
+AGML_CACHE_DIR=/tmp/agml
+```
+
+---
+
 ## AI Auto-Fix Engine
 
 The SAHOOL platform includes a comprehensive AI-powered code auto-fix system located in `shared/ai/` that enables automated code diagnostics, fixing, and model training capabilities.

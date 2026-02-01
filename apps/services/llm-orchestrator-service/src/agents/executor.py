@@ -75,7 +75,7 @@ class AgentExecutor:
             },
             sort_keys=True,
         )
-        return f"llm-orchestrator:cache:{hashlib.md5(data.encode()).hexdigest()}"
+        return f"llm-orchestrator:cache:{hashlib.sha256(data.encode()).hexdigest()[:32]}"
 
     async def _get_cached_result(self, cache_key: str) -> dict[str, Any] | None:
         """Get cached result if available."""

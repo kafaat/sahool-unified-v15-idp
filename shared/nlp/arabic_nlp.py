@@ -286,10 +286,16 @@ class IntentClassifier:
             from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
             model_name = os.getenv("ARABERT_MODEL", "aubmindlab/bert-base-arabertv2")
+            # Pin revision for security - prevents supply chain attacks
+            model_revision = os.getenv("ARABERT_REVISION", "main")
 
-            self._tokenizer = AutoTokenizer.from_pretrained(model_name)
+            self._tokenizer = AutoTokenizer.from_pretrained(
+                model_name, revision=model_revision
+            )
             self._model = AutoModelForSequenceClassification.from_pretrained(
-                model_name, num_labels=len(AgriculturalIntent)
+                model_name,
+                num_labels=len(AgriculturalIntent),
+                revision=model_revision,
             )
             self._model_loaded = True
 

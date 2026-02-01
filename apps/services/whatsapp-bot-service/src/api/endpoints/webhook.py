@@ -154,7 +154,8 @@ async def receive_webhook(
     except Exception as e:
         logger.error("webhook_processing_error", error=str(e))
         # Still return 200 to prevent WhatsApp from retrying
-        return {"status": "error", "message": str(e)}
+        # Don't expose exception details to external users
+        return {"status": "error", "message": "Processing error"}
 
 
 # ============================================================================

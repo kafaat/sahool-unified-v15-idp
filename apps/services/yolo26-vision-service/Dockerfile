@@ -174,8 +174,9 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONFAULTHANDLER=1
 
 # Install system dependencies
+# Note: libgl1-mesa-glx replaced by libgl1 in Debian Trixie
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxext6 \

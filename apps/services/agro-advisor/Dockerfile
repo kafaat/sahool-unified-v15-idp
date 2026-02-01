@@ -44,21 +44,8 @@ RUN mkdir -p /root/.pip && \
 
 # Install dependencies with fallback to Tsinghua mirror
 COPY apps/services/agro-advisor/requirements.txt .
-<<<<<<< HEAD
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try Aliyun mirror first (fast in China), fallback to official PyPI
-RUN pip install --no-cache-dir --timeout=300 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    -r requirements.txt || \
-    pip install --no-cache-dir --timeout=300 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
-    -r requirements.txt
-=======
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt || \
     pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt
->>>>>>> f99c62da2680b351d221bafb033e854a2b05532c
 
 # Copy shared libraries (from repo root)
 COPY shared/ ./shared/

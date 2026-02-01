@@ -629,7 +629,7 @@ class DeploymentManager:
 
         if self._mode == DeploymentMode.SAAS and self._saas_config:
             lines.extend([
-                f"Mode: SaaS (Cloud)",
+                "Mode: SaaS (Cloud)",
                 f"Tier: {self._saas_config.tier.value.title()}",
                 f"Annual Cost: {self._saas_config.annual_cost_yuan:,.0f} yuan/year",
                 f"Max Fields: {self._saas_config.max_fields}",
@@ -638,7 +638,7 @@ class DeploymentManager:
             ])
         elif self._mode == DeploymentMode.CUSTOM and self._custom_config:
             lines.extend([
-                f"Mode: Custom (On-Premise)",
+                "Mode: Custom (On-Premise)",
                 f"One-time Cost: {self._custom_config.one_time_cost_yuan:,.0f} yuan",
                 f"Hardware Cost: {self._custom_config.hardware_cost_yuan:,.0f} yuan",
                 f"Total Initial: {self._custom_config.total_cost:,.0f} yuan",
@@ -663,7 +663,7 @@ class DeploymentManager:
 
         if self._mode == DeploymentMode.SAAS and self._saas_config:
             lines.extend([
-                f"الوضع: SaaS (سحابي)",
+                "الوضع: SaaS (سحابي)",
                 f"الطبقة: {self._saas_config.tier.value}",
                 f"التكلفة السنوية: {self._saas_config.annual_cost_yuan:,.0f} يوان/سنة",
                 f"الحد الأقصى للحقول: {self._saas_config.max_fields}",
@@ -671,7 +671,7 @@ class DeploymentManager:
             ])
         elif self._mode == DeploymentMode.CUSTOM and self._custom_config:
             lines.extend([
-                f"الوضع: مخصص (محلي)",
+                "الوضع: مخصص (محلي)",
                 f"تكلفة لمرة واحدة: {self._custom_config.one_time_cost_yuan:,.0f} يوان",
                 f"تكلفة الأجهزة: {self._custom_config.hardware_cost_yuan:,.0f} يوان",
                 f"الإجمالي الأولي: {self._custom_config.total_cost:,.0f} يوان",
@@ -737,19 +737,19 @@ class DeploymentManager:
             header = "الطبقة          | السعر السنوي | الحقول | المستشعرات"
             separator = "-" * 55
             rows = [
-                f"أساسي          | 4,000 يوان   | 20     | 50",
-                f"قياسي          | 8,000 يوان   | 50     | 200",
-                f"احترافي        | 15,000 يوان  | 200    | 500",
-                f"مؤسسي         | 30,000 يوان  | 1000   | 5000",
+                "أساسي          | 4,000 يوان   | 20     | 50",
+                "قياسي          | 8,000 يوان   | 50     | 200",
+                "احترافي        | 15,000 يوان  | 200    | 500",
+                "مؤسسي         | 30,000 يوان  | 1000   | 5000",
             ]
         else:
             header = "Tier           | Annual Price | Fields | Sensors"
             separator = "-" * 55
             rows = [
-                f"Basic          | 4,000 yuan   | 20     | 50",
-                f"Standard       | 8,000 yuan   | 50     | 200",
-                f"Professional   | 15,000 yuan  | 200    | 500",
-                f"Enterprise     | 30,000 yuan  | 1000   | 5000",
+                "Basic          | 4,000 yuan   | 20     | 50",
+                "Standard       | 8,000 yuan   | 50     | 200",
+                "Professional   | 15,000 yuan  | 200    | 500",
+                "Enterprise     | 30,000 yuan  | 1000   | 5000",
             ]
 
         return "\n".join([header, separator] + rows)

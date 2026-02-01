@@ -8,7 +8,7 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 from fastapi import APIRouter, Response
 
@@ -32,7 +32,7 @@ async def liveness():
         service="copilot-api",
         version="1.0.0",
         mode=CopilotMode(settings.copilot_mode),
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
     )
 
 
@@ -86,7 +86,7 @@ async def readiness():
         version="1.0.0",
         mode=CopilotMode(settings.copilot_mode),
         components=components,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
     )
 
 

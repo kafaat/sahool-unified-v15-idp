@@ -21,7 +21,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, time
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 
 
 class ConditionOperator(Enum):

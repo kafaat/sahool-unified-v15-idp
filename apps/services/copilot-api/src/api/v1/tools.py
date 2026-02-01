@@ -145,7 +145,7 @@ async def list_tools():
     return {
         "tools": tools,
         "total": len(tools),
-        "categories": list(set(t["category"] for t in tools)),
+        "categories": list({t["category"] for t in tools}),
     }
 
 

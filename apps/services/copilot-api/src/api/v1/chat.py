@@ -11,7 +11,7 @@ Updated: January 2026
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any, Optional
 
 import structlog
@@ -128,7 +128,7 @@ async def chat(request: ChatRequest, req: Request) -> ChatResponse:
         ),
         rag_context=rag_context if rag_context else None,
         usage={"total_chars": total_chars, "response_chars": len(response_content)},
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
     )
 
 

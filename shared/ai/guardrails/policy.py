@@ -12,9 +12,9 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -42,7 +42,7 @@ class PolicyRule:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "PolicyRule":
+    def from_dict(cls, data: dict[str, Any]) -> PolicyRule:
         return cls(
             id=data["id"],
             name=data["name"],
@@ -74,8 +74,8 @@ class GuardPolicy:
     dangerous_commands: list[str] = field(default_factory=list)
     limits: dict[str, int] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -97,7 +97,7 @@ class GuardPolicy:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "GuardPolicy":
+    def from_dict(cls, data: dict[str, Any]) -> GuardPolicy:
         rules = [PolicyRule.from_dict(r) for r in data.get("rules", [])]
         return cls(
             version=data.get("version", "1.0"),
@@ -118,18 +118,18 @@ class GuardPolicy:
     def add_rule(self, rule: PolicyRule) -> None:
         """Add a rule to the policy"""
         self.rules.append(rule)
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(UTC)
 
     def remove_rule(self, rule_id: str) -> bool:
         """Remove a rule by ID"""
         for i, rule in enumerate(self.rules):
             if rule.id == rule_id:
                 del self.rules[i]
-                self.updated_at = datetime.now(timezone.utc)
+                self.updated_at = datetime.now(UTC)
                 return True
         return False
 
-    def get_rule(self, rule_id: str) -> Optional[PolicyRule]:
+    def get_rule(self, rule_id: str) -> PolicyRule | None:
         """Get a rule by ID"""
         for rule in self.rules:
             if rule.id == rule_id:
@@ -146,7 +146,7 @@ def load_policy(path: str | Path) -> GuardPolicy:
     if not path.exists():
         return GuardPolicy()
 
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
 
     return GuardPolicy.from_dict(data)

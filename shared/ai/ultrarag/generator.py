@@ -5,15 +5,14 @@
 
 import time
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass
+from typing import Any
 
 import structlog
 
 from .models import (
     GenerationMode,
     GenerationResult,
-    RetrievalResult,
 )
 
 logger = structlog.get_logger(__name__)
@@ -56,7 +55,7 @@ class OllamaGenerator(Generator):
     def __init__(
         self,
         llm_client: Any,
-        config: Optional[GeneratorConfig] = None,
+        config: GeneratorConfig | None = None,
     ):
         self.llm_client = llm_client
         self.config = config or GeneratorConfig()
@@ -281,7 +280,7 @@ Final Answer:
         self,
         response: str,
         mode: GenerationMode,
-    ) -> tuple[str, Optional[str], float]:
+    ) -> tuple[str, str | None, float]:
         """Parse LLM response based on generation mode"""
         answer = response.strip()
         reasoning = None
@@ -326,7 +325,7 @@ Final Answer:
 
         return answer, reasoning, confidence
 
-    async def _translate_to_arabic(self, text: str) -> Optional[str]:
+    async def _translate_to_arabic(self, text: str) -> str | None:
         """Translate text to Arabic"""
         try:
             prompt = f"""Translate the following English text to Arabic. Only provide the translation, nothing else.
@@ -351,7 +350,7 @@ Arabic translation:"""
 class TemplateGenerator(Generator):
     """Template-based generator for simple responses | مولد قائم على القوالب"""
 
-    def __init__(self, templates: Dict[str, str] = None):
+    def __init__(self, templates: dict[str, str] = None):
         self.templates = templates or {}
         self._default_template = "Based on the available information: {context}\n\nAnswer: {answer}"
         self._default_template_ar = "بناءً على المعلومات المتاحة: {context}\n\nالإجابة: {answer}"
@@ -404,7 +403,7 @@ class TemplateGenerator(Generator):
 class CompositeGenerator(Generator):
     """Generator that combines multiple generators | مولد يجمع بين عدة مولدات"""
 
-    def __init__(self, generators: List[Generator]):
+    def __init__(self, generators: list[Generator]):
         self.generators = generators
 
     async def generate(

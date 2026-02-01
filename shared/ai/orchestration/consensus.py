@@ -28,19 +28,14 @@ Updated: January 2026
 
 from __future__ import annotations
 
-import asyncio
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from datetime import datetime, UTC
-from typing import Any, Callable, Generic, TypeVar
-from uuid import uuid4
+from typing import Any, TypeVar
 
 import structlog
 
 from .models import (
-    AgentCapability,
-    AgentProfile,
-    AgentScore,
     ConsensusResult,
     ConsensusType,
     Vote,
@@ -607,7 +602,7 @@ class UnanimousConsensus(ConsensusProtocol):
         agreement_ratio = 1.0 if all_agree else (
             max(
                 sum(1 for v in votes if str(v.value) == val)
-                for val in set(str(v.value) for v in votes)
+                for val in {str(v.value) for v in votes}
             ) / len(votes)
         )
 

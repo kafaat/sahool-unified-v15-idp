@@ -30,7 +30,6 @@ from __future__ import annotations
 import logging
 from contextvars import ContextVar
 from dataclasses import dataclass
-from typing import Optional
 
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
@@ -39,7 +38,7 @@ from starlette.responses import JSONResponse, Response
 logger = logging.getLogger(__name__)
 
 # Context variable for tenant isolation (async-safe)
-_tenant_context: ContextVar[Optional["TenantContext"]] = ContextVar("tenant_context", default=None)
+_tenant_context: ContextVar[TenantContext | None] = ContextVar("tenant_context", default=None)
 
 
 @dataclass

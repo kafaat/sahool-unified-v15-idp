@@ -27,10 +27,8 @@ import os
 import re
 import time
 import uuid
-from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from functools import wraps
+from datetime import datetime, UTC
 from pathlib import Path
 from typing import Any
 
@@ -101,7 +99,7 @@ class CircuitBreaker:
 
         if state.state == "open":
             if state.last_failure:
-                elapsed = (datetime.now(timezone.utc) - state.last_failure).total_seconds()
+                elapsed = (datetime.now(UTC) - state.last_failure).total_seconds()
                 if elapsed >= self.recovery_timeout:
                     state.state = "half_open"
                     state.success_count = 0
@@ -129,7 +127,7 @@ class CircuitBreaker:
         """Record failed execution."""
         state = self._get_state(tool)
         state.failures += 1
-        state.last_failure = datetime.now(timezone.utc)
+        state.last_failure = datetime.now(UTC)
 
         if state.state == "half_open":
             state.state = "open"
@@ -202,7 +200,7 @@ class DiagnosticCache:
             return None
 
         # Check TTL
-        age = (datetime.now(timezone.utc) - entry.created_at).total_seconds()
+        age = (datetime.now(UTC) - entry.created_at).total_seconds()
         if age > self.ttl_seconds:
             del self._cache[key]
             self._misses += 1
@@ -228,7 +226,7 @@ class DiagnosticCache:
         key = self._make_key(file_path, tool)
         self._cache[key] = CacheEntry(
             result=result,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
             file_hash=self._compute_hash(file_path),
             tool=tool,
         )
@@ -1284,9 +1282,7 @@ class CodeDiagnostics:
 
                 # Determine category from rule ID
                 category = DiagnosticCategory.SECURITY
-                if "sql" in rule_id.lower():
-                    category = DiagnosticCategory.SECURITY
-                elif "xss" in rule_id.lower():
+                if "sql" in rule_id.lower() or "xss" in rule_id.lower():
                     category = DiagnosticCategory.SECURITY
                 elif "perf" in rule_id.lower():
                     category = DiagnosticCategory.PERFORMANCE

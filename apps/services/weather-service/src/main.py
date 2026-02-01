@@ -60,6 +60,7 @@ from .risks import (
     get_irrigation_adjustment,
     heat_stress_risk,
 )
+from datetime import UTC
 
 # Configuration
 USE_MOCK_WEATHER = os.getenv("USE_MOCK_WEATHER", "false").lower() == "true"
@@ -135,7 +136,7 @@ def health():
         "status": "healthy",
         "service": "weather-service",
         "version": "16.0.0",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -151,7 +152,7 @@ def readiness():
         "checks": {
             "service": "ready",
         },
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 

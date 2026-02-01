@@ -16,7 +16,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
 from typing import Any
 import json
@@ -125,7 +125,7 @@ class WeatherFeatures:
     forecast_hours: int = 24  # Hours ahead of forecast
 
     # Timestamp
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -146,13 +146,13 @@ class WeatherFeatures:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "WeatherFeatures":
+    def from_dict(cls, data: dict[str, Any]) -> WeatherFeatures:
         """Create from dictionary"""
         timestamp = data.get("timestamp")
         if isinstance(timestamp, str):
             timestamp = datetime.fromisoformat(timestamp)
         elif timestamp is None:
-            timestamp = datetime.now(timezone.utc)
+            timestamp = datetime.now(UTC)
 
         return cls(
             temperature_current=data["temperature_current"],
@@ -216,7 +216,7 @@ class SoilFeatures:
     sensor_depth_cm: float = 30.0
 
     # Timestamp
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     @property
     def available_water(self) -> float:
@@ -258,13 +258,13 @@ class SoilFeatures:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "SoilFeatures":
+    def from_dict(cls, data: dict[str, Any]) -> SoilFeatures:
         """Create from dictionary"""
         timestamp = data.get("timestamp")
         if isinstance(timestamp, str):
             timestamp = datetime.fromisoformat(timestamp)
         elif timestamp is None:
-            timestamp = datetime.now(timezone.utc)
+            timestamp = datetime.now(UTC)
 
         return cls(
             moisture_current=data["moisture_current"],
@@ -358,7 +358,7 @@ class CropFeatures:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "CropFeatures":
+    def from_dict(cls, data: dict[str, Any]) -> CropFeatures:
         """Create from dictionary"""
         return cls(
             crop_type=data["crop_type"],
@@ -417,7 +417,7 @@ class IrrigationFeatures:
     request_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     tenant_id: str = ""
     field_id: str = ""
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     @property
     def days_since_irrigation(self) -> float | None:
@@ -502,7 +502,7 @@ class IrrigationPrediction:
     model_version: str = ""
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -572,7 +572,7 @@ class WaterOptimizationResult:
 
     # Metadata
     analysis_period_days: int = 7
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -638,7 +638,7 @@ class IrrigationAnomaly:
     detection_method: str = ""
 
     # Timestamps
-    detected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    detected_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     first_occurrence: datetime | None = None
 
     # Status
@@ -725,7 +725,7 @@ class HistoricalPattern:
     recommendations_ar: list[str] = field(default_factory=list)
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -810,7 +810,7 @@ class IrrigationRecord:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "IrrigationRecord":
+    def from_dict(cls, data: dict[str, Any]) -> IrrigationRecord:
         """Create from dictionary"""
         irrigation_date = data.get("irrigation_date")
         if isinstance(irrigation_date, str):

@@ -7,7 +7,7 @@ REFACTORED: Now uses shared EventPublisher for consistency across services
 
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any
 
 # Use the shared EventPublisher from shared/events/
@@ -94,7 +94,7 @@ class NATSPublisher:
                 "event_type": "inventory_alert",
                 "event_id": alert["id"],
                 "source_service": "inventory-service",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "alert": alert,
                 "recipients": recipients or ["farm_manager", "owner"],
                 "notification_priority": alert["priority"],

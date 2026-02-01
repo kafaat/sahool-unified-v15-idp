@@ -27,8 +27,8 @@ def upgrade() -> None:
     result = conn.execute(
         sa.text(
             """
-            SELECT column_name 
-            FROM information_schema.columns 
+            SELECT column_name
+            FROM information_schema.columns
             WHERE table_name = 'equipment' AND column_name = 'id'
             """
         )
@@ -59,8 +59,8 @@ def downgrade() -> None:
     result = conn.execute(
         sa.text(
             """
-            SELECT column_name 
-            FROM information_schema.columns 
+            SELECT column_name
+            FROM information_schema.columns
             WHERE table_name = 'equipment' AND column_name = 'equipment_id'
             """
         )

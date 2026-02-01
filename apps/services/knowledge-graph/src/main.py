@@ -12,7 +12,7 @@ Version: 1.0.0
 import logging
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -118,7 +118,7 @@ async def health_check():
         service=SERVICE_NAME,
         version=SERVICE_VERSION,
         database=db_healthy,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
     )
 
 
@@ -138,7 +138,7 @@ async def readiness_check():
         service=SERVICE_NAME,
         version=SERVICE_VERSION,
         database=db_ready,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
     )
 
 
@@ -159,7 +159,7 @@ async def health_combined():
         "version": SERVICE_VERSION,
         "database": db_healthy,
         "graph_stats": stats,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 

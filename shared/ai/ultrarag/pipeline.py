@@ -3,11 +3,10 @@
 # محرك خط أنابيب RAG الرئيسي
 # ═══════════════════════════════════════════════════════════════════════════════
 
-import asyncio
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable
 
 import structlog
 
@@ -57,7 +56,7 @@ class StageResult:
     stage: RAGStage
     success: bool
     data: Any = None
-    error: Optional[str] = None
+    error: str | None = None
     processing_time_ms: float = 0.0
 
 
@@ -66,13 +65,13 @@ class PipelineContext:
     """Context passed through pipeline stages | السياق الممرر عبر المراحل"""
     request: RAGRequest
     query: str
-    expanded_queries: List[str] = field(default_factory=list)
-    retrieval_results: List[RetrievalResult] = field(default_factory=list)
-    rerank_result: Optional[RerankResult] = None
+    expanded_queries: list[str] = field(default_factory=list)
+    retrieval_results: list[RetrievalResult] = field(default_factory=list)
+    rerank_result: RerankResult | None = None
     context_text: str = ""
-    generation_result: Optional[GenerationResult] = None
-    stage_results: Dict[RAGStage, StageResult] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    generation_result: GenerationResult | None = None
+    stage_results: dict[RAGStage, StageResult] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class RAGPipeline:
@@ -84,8 +83,8 @@ class RAGPipeline:
     def __init__(
         self,
         config: RAGPipelineConfig,
-        retriever: Optional[Retriever] = None,
-        reranker: Optional[Reranker] = None,
+        retriever: Retriever | None = None,
+        reranker: Reranker | None = None,
         generator: Any = None,  # Generator from generator.py
         vector_store: Any = None,
         embedding_service: Any = None,
@@ -102,8 +101,8 @@ class RAGPipeline:
         self._generator = generator
 
         # Stage hooks for extensibility
-        self._pre_hooks: Dict[RAGStage, List[Callable]] = {stage: [] for stage in RAGStage}
-        self._post_hooks: Dict[RAGStage, List[Callable]] = {stage: [] for stage in RAGStage}
+        self._pre_hooks: dict[RAGStage, list[Callable]] = {stage: [] for stage in RAGStage}
+        self._post_hooks: dict[RAGStage, list[Callable]] = {stage: [] for stage in RAGStage}
 
         # Metrics
         self._query_count = 0
@@ -290,7 +289,7 @@ class RAGPipeline:
         ctx.query = query
         return ctx
 
-    async def _expand_query(self, query: str) -> List[str]:
+    async def _expand_query(self, query: str) -> list[str]:
         """Expand query using LLM or rules | توسيع الاستعلام"""
         expansions = [query]
 
@@ -431,7 +430,7 @@ Alternative queries:"""
         """Add a post-processing hook to a stage"""
         self._post_hooks[stage].append(hook)
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """Get pipeline metrics | الحصول على مقاييس خط الأنابيب"""
         avg_latency = (
             self._total_latency_ms / self._query_count

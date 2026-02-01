@@ -20,12 +20,11 @@ Updated: January 2026
 
 from __future__ import annotations
 
-import asyncio
 import statistics
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, UTC
 from typing import Any, Callable
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import structlog
 
@@ -214,7 +213,7 @@ class DataCleaner:
         """
         if device_id:
             keys_to_remove = [
-                k for k in self._history.keys()
+                k for k in self._history
                 if k.startswith(device_id)
             ]
             for key in keys_to_remove:
@@ -299,7 +298,7 @@ class RuleEngine:
         Returns:
             List of (rule, actions) tuples for triggered rules
         """
-        current_time = current_time or datetime.now(timezone.utc)
+        current_time = current_time or datetime.now(UTC)
         triggered: list[tuple[IFTTTRule, list[RuleAction]]] = []
 
         # Index readings by sensor type for fast lookup
@@ -494,13 +493,13 @@ class LocalInferenceEngine:
         Returns:
             Inference result with latency
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         # Placeholder for actual inference
         # In production, this would use TFLite, ONNX, or similar
         result = await self._simple_inference(model_name, data)
 
-        end_time = datetime.now(timezone.utc)
+        end_time = datetime.now(UTC)
         latency_ms = (end_time - start_time).total_seconds() * 1000
 
         self._inference_count += 1
@@ -776,7 +775,7 @@ class EdgeComputingLayer:
                 # Execute irrigation
                 pass
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         # Convert readings to dict format
         if isinstance(data, list):
@@ -999,7 +998,7 @@ class EdgeComputingLayer:
                 else:
                     decision.executed = await self._execute_action(action)
                     if decision.executed:
-                        decision.executed_at = datetime.now(timezone.utc)
+                        decision.executed_at = datetime.now(UTC)
 
                 self._record_decision(decision)
                 decisions.append(decision)
@@ -1161,7 +1160,7 @@ class EdgeComputingLayer:
             Number of decisions marked
         """
         count = 0
-        sync_time = datetime.now(timezone.utc)
+        sync_time = datetime.now(UTC)
 
         for decision in self._decisions:
             if decision.id in decision_ids:

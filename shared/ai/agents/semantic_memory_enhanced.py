@@ -19,24 +19,18 @@ Created: January 2026
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any
 
 import structlog
 
 from .memory_system import (
-    AgentMemorySystem,
-    MemoryStore,
-    MemoryEntry,
     MemoryType,
     MemoryPriority,
-    RetrievalStrategy,
 )
 from ..ot_embeddings import (
-    OTEmbeddingMatcher,
     BilingualOTMatcher,
     OTConfig,
-    MatchResult,
 )
 from ..embeddings import EmbeddingsAdapter, EmbeddingConfig, EmbeddingProvider
 
@@ -63,7 +57,7 @@ class SemanticMemoryEntry:
     priority: MemoryPriority = MemoryPriority.NORMAL
     tags: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     last_accessed: datetime | None = None
     access_count: int = 0
     importance_score: float = 0.5
@@ -81,7 +75,7 @@ class SemanticCluster:
     name_ar: str
     centroid: list[float] | None = None
     member_ids: list[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -354,7 +348,7 @@ class EnhancedSemanticMemory:
 
                     # Update access count
                     entry.access_count += 1
-                    entry.last_accessed = datetime.now(timezone.utc)
+                    entry.last_accessed = datetime.now(UTC)
 
         # Sort by similarity and return top_k
         results.sort(key=lambda x: x.similarity_score, reverse=True)
@@ -534,7 +528,7 @@ class EnhancedSemanticMemory:
         scored = []
         for eid, entry in self._memories.items():
             # Score based on: importance, access count, recency
-            age_days = (datetime.now(timezone.utc) - entry.created_at).days
+            age_days = (datetime.now(UTC) - entry.created_at).days
             recency_factor = max(0.1, 1 - (age_days / 365))
 
             score = (

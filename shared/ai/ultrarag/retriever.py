@@ -9,7 +9,7 @@ import re
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import structlog
 
@@ -33,7 +33,7 @@ class RetrievalConfig:
     use_query_expansion: bool = True
     max_query_terms: int = 10
     collection: str = "default"
-    filters: Dict[str, Any] = field(default_factory=dict)
+    filters: dict[str, Any] = field(default_factory=dict)
 
 
 class Retriever(ABC):
@@ -44,14 +44,14 @@ class Retriever(ABC):
         self,
         query: str,
         config: RetrievalConfig,
-    ) -> List[RetrievalResult]:
+    ) -> list[RetrievalResult]:
         """Retrieve relevant chunks for a query"""
         pass
 
     @abstractmethod
     async def add_documents(
         self,
-        chunks: List[KnowledgeChunk],
+        chunks: list[KnowledgeChunk],
         collection: str = "default",
     ) -> bool:
         """Add documents to the retriever index"""
@@ -68,14 +68,14 @@ class DenseRetriever(Retriever):
     ):
         self.vector_store = vector_store
         self.embedding_service = embedding_service
-        self._cache: Dict[str, List[float]] = {}
+        self._cache: dict[str, list[float]] = {}
         self._cache_max_size = 10000
 
     async def retrieve(
         self,
         query: str,
         config: RetrievalConfig,
-    ) -> List[RetrievalResult]:
+    ) -> list[RetrievalResult]:
         """Retrieve using dense vector similarity"""
         start_time = time.time()
 
@@ -128,7 +128,7 @@ class DenseRetriever(Retriever):
 
     async def add_documents(
         self,
-        chunks: List[KnowledgeChunk],
+        chunks: list[KnowledgeChunk],
         collection: str = "default",
     ) -> bool:
         """Add documents with embeddings to vector store"""
@@ -168,7 +168,7 @@ class DenseRetriever(Retriever):
             logger.error("add_documents_error", error=str(e))
             return False
 
-    async def _get_embedding(self, text: str) -> List[float]:
+    async def _get_embedding(self, text: str) -> list[float]:
         """Get embedding with caching"""
         cache_key = hashlib.md5(text.encode(), usedforsecurity=False).hexdigest()
 
@@ -188,7 +188,7 @@ class DenseRetriever(Retriever):
         self._cache[cache_key] = vector
         return vector
 
-    async def _get_embeddings_batch(self, texts: List[str]) -> List[List[float]]:
+    async def _get_embeddings_batch(self, texts: list[str]) -> list[list[float]]:
         """Get embeddings for multiple texts"""
         results = await self.embedding_service.embed_batch(texts)
         return [r.vector for r in results]
@@ -199,9 +199,9 @@ class SparseRetriever(Retriever):
 
     def __init__(self, vector_store: Any):
         self.vector_store = vector_store
-        self._index: Dict[str, Dict[str, List[Tuple[str, int]]]] = {}  # collection -> term -> [(doc_id, count)]
-        self._doc_lengths: Dict[str, Dict[str, int]] = {}  # collection -> doc_id -> length
-        self._avg_doc_length: Dict[str, float] = {}  # collection -> avg_length
+        self._index: dict[str, dict[str, list[tuple[str, int]]]] = {}  # collection -> term -> [(doc_id, count)]
+        self._doc_lengths: dict[str, dict[str, int]] = {}  # collection -> doc_id -> length
+        self._avg_doc_length: dict[str, float] = {}  # collection -> avg_length
         self._k1 = 1.5
         self._b = 0.75
 
@@ -209,7 +209,7 @@ class SparseRetriever(Retriever):
         self,
         query: str,
         config: RetrievalConfig,
-    ) -> List[RetrievalResult]:
+    ) -> list[RetrievalResult]:
         """Retrieve using BM25 scoring"""
         start_time = time.time()
 
@@ -223,7 +223,7 @@ class SparseRetriever(Retriever):
             collection = config.collection
 
             # Calculate BM25 scores
-            scores: Dict[str, float] = {}
+            scores: dict[str, float] = {}
             N = len(self._doc_lengths.get(collection, {}))
 
             if N == 0:
@@ -292,7 +292,7 @@ class SparseRetriever(Retriever):
 
     async def add_documents(
         self,
-        chunks: List[KnowledgeChunk],
+        chunks: list[KnowledgeChunk],
         collection: str = "default",
     ) -> bool:
         """Build BM25 index from documents"""
@@ -308,7 +308,7 @@ class SparseRetriever(Retriever):
                 self._doc_lengths[collection][chunk.id] = len(terms)
                 total_length += len(terms)
 
-                term_counts: Dict[str, int] = {}
+                term_counts: dict[str, int] = {}
                 for term in terms:
                     term_counts[term] = term_counts.get(term, 0) + 1
 
@@ -333,7 +333,7 @@ class SparseRetriever(Retriever):
             logger.error("sparse_add_documents_error", error=str(e))
             return False
 
-    def _tokenize(self, text: str) -> List[str]:
+    def _tokenize(self, text: str) -> list[str]:
         """Simple tokenization with Arabic support"""
         # Lowercase and split on non-alphanumeric (preserving Arabic)
         text = text.lower()
@@ -370,7 +370,7 @@ class HybridRetriever(Retriever):
         self,
         query: str,
         config: RetrievalConfig,
-    ) -> List[RetrievalResult]:
+    ) -> list[RetrievalResult]:
         """Retrieve using both dense and sparse methods, then fuse results"""
         start_time = time.time()
 
@@ -387,7 +387,7 @@ class HybridRetriever(Retriever):
 
             # Reciprocal Rank Fusion (RRF)
             k = 60  # RRF constant
-            fused_scores: Dict[str, Tuple[float, KnowledgeChunk]] = {}
+            fused_scores: dict[str, tuple[float, KnowledgeChunk]] = {}
 
             # Process dense results
             for result in dense_results:
@@ -444,7 +444,7 @@ class HybridRetriever(Retriever):
 
     async def add_documents(
         self,
-        chunks: List[KnowledgeChunk],
+        chunks: list[KnowledgeChunk],
         collection: str = "default",
     ) -> bool:
         """Add documents to both dense and sparse indices"""
@@ -470,7 +470,7 @@ class AdaptiveRetriever(Retriever):
         self,
         query: str,
         config: RetrievalConfig,
-    ) -> List[RetrievalResult]:
+    ) -> list[RetrievalResult]:
         """Adaptively select retrieval strategy based on query characteristics"""
         # Analyze query
         query_type = self._analyze_query(query)
@@ -494,7 +494,7 @@ class AdaptiveRetriever(Retriever):
 
     async def add_documents(
         self,
-        chunks: List[KnowledgeChunk],
+        chunks: list[KnowledgeChunk],
         collection: str = "default",
     ) -> bool:
         """Add documents to all retriever indices"""
@@ -531,29 +531,26 @@ class KnowledgeGraphRetriever(Retriever):
 
     def __init__(
         self,
-        embedding_service: Optional[Any] = None,
+        embedding_service: Any | None = None,
     ):
         self.embedding_service = embedding_service
         # In-memory graph storage (can be replaced with Neo4j, etc.)
-        self._entities: Dict[str, Any] = {}
-        self._relations: List[Dict[str, Any]] = []
-        self._entity_embeddings: Dict[str, List[float]] = {}
+        self._entities: dict[str, Any] = {}
+        self._relations: list[dict[str, Any]] = []
+        self._entity_embeddings: dict[str, list[float]] = {}
 
     async def retrieve(
         self,
         query: str,
         config: RetrievalConfig,
-    ) -> List[RetrievalResult]:
+    ) -> list[RetrievalResult]:
         """Retrieve relevant context using knowledge graph traversal"""
         from .models import (
-            KnowledgeEntity,
-            KnowledgeRelation,
-            KnowledgeGraphResult,
             KnowledgeChunk,
         )
 
         start_time = time.time()
-        results: List[RetrievalResult] = []
+        results: list[RetrievalResult] = []
 
         try:
             # Step 1: Extract entities from query
@@ -613,7 +610,7 @@ class KnowledgeGraphRetriever(Retriever):
 
     async def add_documents(
         self,
-        chunks: List[KnowledgeChunk],
+        chunks: list[KnowledgeChunk],
         collection: str = "default",
     ) -> bool:
         """Extract entities and relations from documents to build the knowledge graph"""
@@ -647,7 +644,7 @@ class KnowledgeGraphRetriever(Retriever):
 
     async def add_entity(
         self,
-        entity: Dict[str, Any],
+        entity: dict[str, Any],
     ) -> bool:
         """Add a single entity to the knowledge graph"""
         try:
@@ -662,7 +659,7 @@ class KnowledgeGraphRetriever(Retriever):
 
     async def add_relation(
         self,
-        relation: Dict[str, Any],
+        relation: dict[str, Any],
     ) -> bool:
         """Add a relationship to the knowledge graph"""
         try:
@@ -672,7 +669,7 @@ class KnowledgeGraphRetriever(Retriever):
             logger.error("kg_add_relation_error", error=str(e))
             return False
 
-    async def _extract_entities(self, query: str) -> List[str]:
+    async def _extract_entities(self, query: str) -> list[str]:
         """Extract potential entity mentions from query"""
         # Simple keyword extraction - can be replaced with NER
         # Agricultural domain keywords
@@ -687,7 +684,7 @@ class KnowledgeGraphRetriever(Retriever):
         words = re.findall(r'[\w\u0600-\u06FF]+', query.lower())
         return [w for w in words if w in ag_keywords or len(w) > 4]
 
-    async def _extract_entities_from_text(self, text: str) -> List[Dict[str, Any]]:
+    async def _extract_entities_from_text(self, text: str) -> list[dict[str, Any]]:
         """Extract entities from document text"""
         entities = []
         # Simplified entity extraction
@@ -704,8 +701,8 @@ class KnowledgeGraphRetriever(Retriever):
     async def _extract_relations_from_text(
         self,
         text: str,
-        entities: List[Dict[str, Any]],
-    ) -> List[Dict[str, Any]]:
+        entities: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
         """Extract relations between entities (simplified)"""
         relations = []
         # Simple co-occurrence based relation extraction
@@ -721,7 +718,7 @@ class KnowledgeGraphRetriever(Retriever):
                 })
         return relations
 
-    async def _match_entities(self, query_entities: List[str]) -> List[str]:
+    async def _match_entities(self, query_entities: list[str]) -> list[str]:
         """Match query entities to knowledge graph entities"""
         matched = []
         for q_entity in query_entities:
@@ -739,11 +736,11 @@ class KnowledgeGraphRetriever(Retriever):
 
     async def _traverse_graph(
         self,
-        start_entities: List[str],
+        start_entities: list[str],
         max_hops: int = 2,
-    ) -> Dict[str, Dict[str, Any]]:
+    ) -> dict[str, dict[str, Any]]:
         """Traverse graph from start entities up to max_hops"""
-        visited: Dict[str, Dict[str, Any]] = {}
+        visited: dict[str, dict[str, Any]] = {}
         current_level = set(start_entities)
 
         for hop in range(max_hops + 1):
@@ -770,8 +767,8 @@ class KnowledgeGraphRetriever(Retriever):
 
     def _create_context_text(
         self,
-        entity: Dict[str, Any],
-        context_info: Dict[str, Any],
+        entity: dict[str, Any],
+        context_info: dict[str, Any],
     ) -> str:
         """Create context text from entity and its relations"""
         parts = [
@@ -829,7 +826,7 @@ class TriRAGRetriever(Retriever):
         dense_retriever: DenseRetriever,
         sparse_retriever: SparseRetriever,
         kg_retriever: KnowledgeGraphRetriever,
-        config: Optional[Any] = None,  # TriRAGConfig
+        config: Any | None = None,  # TriRAGConfig
     ):
         self.dense_retriever = dense_retriever
         self.sparse_retriever = sparse_retriever
@@ -851,7 +848,7 @@ class TriRAGRetriever(Retriever):
         self,
         query: str,
         config: RetrievalConfig,
-    ) -> List[RetrievalResult]:
+    ) -> list[RetrievalResult]:
         """
         Retrieve using all three channels and fuse results
 
@@ -876,7 +873,7 @@ class TriRAGRetriever(Retriever):
             )
 
             # Reciprocal Rank Fusion (RRF) across all channels
-            fused_scores: Dict[str, Tuple[float, KnowledgeChunk, str]] = {}
+            fused_scores: dict[str, tuple[float, KnowledgeChunk, str]] = {}
 
             # Process dense results
             for result in dense_results:
@@ -944,7 +941,7 @@ class TriRAGRetriever(Retriever):
 
     async def add_documents(
         self,
-        chunks: List[KnowledgeChunk],
+        chunks: list[KnowledgeChunk],
         collection: str = "default",
     ) -> bool:
         """Add documents to all three retrievers"""

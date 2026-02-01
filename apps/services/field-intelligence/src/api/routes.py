@@ -7,7 +7,7 @@ Storage: PostgreSQL with asyncpg (with in-memory fallback for testing)
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any
 from uuid import uuid4
 
@@ -336,9 +336,9 @@ async def update_event_status(
     resolved_at = None
 
     if new_status == EventStatus.ACKNOWLEDGED:
-        acknowledged_at = datetime.now(timezone.utc)
+        acknowledged_at = datetime.now(UTC)
     elif new_status == EventStatus.RESOLVED:
-        resolved_at = datetime.now(timezone.utc)
+        resolved_at = datetime.now(UTC)
 
     if db_connected:
         # Update in PostgreSQL
@@ -415,7 +415,7 @@ async def get_field_event_stats(
     """
     from datetime import timedelta
 
-    cutoff = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    cutoff = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
     cutoff = cutoff - timedelta(days=days)
 
     db_connected = await is_db_connected()
@@ -483,7 +483,7 @@ async def create_rule(
             raise HTTPException(status_code=403, detail="Tenant ID mismatch")
 
         rule_id = str(uuid4())
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         db_connected = await is_db_connected()
 
@@ -768,7 +768,7 @@ async def update_rule(
             for field, value in update_dict.items():
                 setattr(rule, field, value)
 
-        rule.updated_at = datetime.now(timezone.utc)
+        rule.updated_at = datetime.now(UTC)
         _rules_fallback[rule_id] = rule
 
         logger.info("✓ تم تحديث القاعدة %s", _sanitize_log_input(rule_id))
@@ -882,7 +882,7 @@ async def toggle_rule_status(
         else:
             rule.status = RuleStatus.ACTIVE
 
-        rule.updated_at = datetime.now(timezone.utc)
+        rule.updated_at = datetime.now(UTC)
         _rules_fallback[rule_id] = rule
 
         logger.info("✓ تم تبديل حالة القاعدة %s إلى %s", _sanitize_log_input(rule_id), rule.status.value)

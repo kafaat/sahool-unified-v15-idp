@@ -38,7 +38,7 @@ class AgentRoute:
     keywords_en: list[str]
     keywords_ar: list[str]
     priority: int = 0
-    service_url: Optional[str] = None
+    service_url: str | None = None
 
 
 @dataclass
@@ -156,7 +156,7 @@ class AgentRouter:
             RoutingResult with agent type and confidence
         """
         message_lower = message.lower()
-        best_result: Optional[RoutingResult] = None
+        best_result: RoutingResult | None = None
         best_score = 0.0
 
         for route in sorted(self.routes, key=lambda r: -r.priority):
@@ -248,7 +248,7 @@ class AgentRouter:
 # GLOBAL INSTANCE
 # ═══════════════════════════════════════════════════════════════════════════════
 
-_agent_router: Optional[AgentRouter] = None
+_agent_router: AgentRouter | None = None
 
 
 def get_agent_router() -> AgentRouter:

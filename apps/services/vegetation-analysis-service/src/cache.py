@@ -14,7 +14,7 @@ import hashlib
 import json
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from functools import wraps
 from typing import Any
 
@@ -87,7 +87,7 @@ def _ndvi_cache_key(field_id: str, date: str, satellite: str) -> str:
 
 def _analysis_cache_key(field_id: str, satellite: str) -> str:
     """Generate cache key for field analysis."""
-    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    date_str = datetime.now(UTC).strftime("%Y-%m-%d")
     return f"satellite:analysis:{field_id}:{date_str}:{satellite}"
 
 
@@ -391,9 +391,9 @@ async def cache_health_check() -> dict[str, Any]:
 
     try:
         # Ping Redis
-        start = datetime.now(timezone.utc)
+        start = datetime.now(UTC)
         await client.ping()
-        latency = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+        latency = (datetime.now(UTC) - start).total_seconds() * 1000
 
         return {
             "status": "healthy",

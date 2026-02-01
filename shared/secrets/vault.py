@@ -86,7 +86,7 @@ class VaultConfig:
         return bool(self.role_id and self.secret_id)
 
     @classmethod
-    def from_env(cls) -> "VaultConfig":
+    def from_env(cls) -> VaultConfig:
         """Create config from environment variables"""
         return cls()
 

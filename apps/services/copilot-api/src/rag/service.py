@@ -16,7 +16,7 @@ import re
 import time
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any, Optional
 
 import structlog
@@ -31,10 +31,10 @@ class RAGDocument:
     """RAG document with metadata"""
     id: str
     text: str
-    text_ar: Optional[str] = None
+    text_ar: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
-    embedding: Optional[list[float]] = None
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    embedding: list[float] | None = None
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -98,8 +98,8 @@ class CopilotRAGService:
 
     def __init__(
         self,
-        config: Optional[RAGConfig] = None,
-        embedding_service: Optional[EmbeddingService] = None,
+        config: RAGConfig | None = None,
+        embedding_service: EmbeddingService | None = None,
     ):
         """Initialize RAG service"""
         self.config = config or RAGConfig()
@@ -175,9 +175,9 @@ class CopilotRAGService:
     async def add_document(
         self,
         text: str,
-        text_ar: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
-        doc_id: Optional[str] = None,
+        text_ar: str | None = None,
+        metadata: dict[str, Any] | None = None,
+        doc_id: str | None = None,
     ) -> RAGDocument:
         """
         Add a document to the knowledge base.
@@ -260,9 +260,9 @@ class CopilotRAGService:
     async def search(
         self,
         query: str,
-        top_k: Optional[int] = None,
-        metadata_filter: Optional[dict[str, Any]] = None,
-        tenant_id: Optional[str] = None,
+        top_k: int | None = None,
+        metadata_filter: dict[str, Any] | None = None,
+        tenant_id: str | None = None,
     ) -> list[SearchResult]:
         """
         Search for relevant documents.
@@ -309,8 +309,8 @@ class CopilotRAGService:
         self,
         query: str,
         top_k: int,
-        metadata_filter: Optional[dict[str, Any]],
-        tenant_id: Optional[str],
+        metadata_filter: dict[str, Any] | None,
+        tenant_id: str | None,
     ) -> list[SearchResult]:
         """Semantic search using Qdrant"""
         try:
@@ -374,14 +374,14 @@ class CopilotRAGService:
         self,
         query: str,
         top_k: int,
-        metadata_filter: Optional[dict[str, Any]],
-        tenant_id: Optional[str],
+        metadata_filter: dict[str, Any] | None,
+        tenant_id: str | None,
     ) -> list[SearchResult]:
         """Keyword-based fallback search"""
-        query_words = set(
+        query_words = {
             w.lower() for w in re.findall(r"\w+", query)
             if len(w) > 2
-        )
+        }
 
         if not query_words:
             return []
@@ -402,10 +402,10 @@ class CopilotRAGService:
 
             # Calculate keyword overlap score
             doc_text = f"{doc.text} {doc.text_ar or ''}"
-            doc_words = set(
+            doc_words = {
                 w.lower() for w in re.findall(r"\w+", doc_text)
                 if len(w) > 2
-            )
+            }
 
             intersection = query_words & doc_words
             if not intersection:
@@ -452,7 +452,7 @@ class CopilotRAGService:
 
     async def list_documents(
         self,
-        tenant_id: Optional[str] = None,
+        tenant_id: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[RAGDocument]:
@@ -530,7 +530,7 @@ class CopilotRAGService:
 # GLOBAL INSTANCE
 # ═══════════════════════════════════════════════════════════════════════════════
 
-_rag_service: Optional[CopilotRAGService] = None
+_rag_service: CopilotRAGService | None = None
 
 
 def get_rag_service() -> CopilotRAGService:

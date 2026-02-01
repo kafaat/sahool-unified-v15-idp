@@ -99,7 +99,7 @@ class PolicyContext:
         return self.is_super_admin or Role.ADMIN in self.roles or "admin" in self.roles
 
     @classmethod
-    def from_principal(cls, principal: Any) -> "PolicyContext":
+    def from_principal(cls, principal: Any) -> PolicyContext:
         """Create context from a Principal object"""
         if principal is None:
             return cls()

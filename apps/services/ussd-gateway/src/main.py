@@ -12,7 +12,7 @@ Features:
 import os
 import json
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 import asyncpg
 import nats
@@ -306,7 +306,7 @@ async def send_sms(request: Request):
                 "phone_number": phone_number[-4:],  # Last 4 digits only for privacy
                 "message_length": len(final_message),
                 "language": language,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }).encode()
         )
 
@@ -629,7 +629,7 @@ async def send_sms_via_provider(
     # For now, log and return success
     return {
         "success": True,
-        "message_id": f"sms_{datetime.now(timezone.utc).timestamp()}",
+        "message_id": f"sms_{datetime.now(UTC).timestamp()}",
         "provider": provider,
     }
 
@@ -650,7 +650,7 @@ async def send_whatsapp_via_provider(
     # In production, integrate with Meta WhatsApp Business API
     return {
         "success": True,
-        "message_id": f"wa_{datetime.now(timezone.utc).timestamp()}",
+        "message_id": f"wa_{datetime.now(UTC).timestamp()}",
     }
 
 

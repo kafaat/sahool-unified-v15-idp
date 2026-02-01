@@ -9,6 +9,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Response
 from fastapi.responses import PlainTextResponse
+from datetime import UTC
 
 try:
     from prometheus_client import (
@@ -122,7 +123,7 @@ def create_observability_router(
                 "log_level": os.getenv("LOG_LEVEL", "INFO"),
             },
             "runtime": {
-                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
                 "pid": os.getpid(),
             },
             "config": {

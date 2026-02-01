@@ -5,7 +5,7 @@ Geofencing Models - نماذج السياج الجغرافي
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
 
 
@@ -98,8 +98,8 @@ class Geofence:
     equipment_ids: list[str] = field(default_factory=list)
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     is_active: bool = True
     notes: str = ""
     notes_ar: str = ""

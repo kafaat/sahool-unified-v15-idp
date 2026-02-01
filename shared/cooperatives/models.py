@@ -17,7 +17,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
 from typing import Any
 from decimal import Decimal
@@ -238,8 +238,8 @@ class Cooperative:
     total_land_area_ha: float = 0.0
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     tags: list[str] = field(default_factory=list)
     custom_fields: dict[str, Any] = field(default_factory=dict)
 
@@ -251,7 +251,7 @@ class Cooperative:
         name_ar: str,
         type: CooperativeType = CooperativeType.MULTI_PURPOSE,
         **kwargs,
-    ) -> "Cooperative":
+    ) -> Cooperative:
         """Factory method to create a new cooperative"""
         return cls(
             cooperative_id=f"COOP-{uuid.uuid4().hex[:8].upper()}",
@@ -370,8 +370,8 @@ class CooperativeMember:
     last_activity_date: datetime | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     notes: str | None = None
     notes_ar: str | None = None
 
@@ -384,7 +384,7 @@ class CooperativeMember:
         name_ar: str,
         phone: str,
         **kwargs,
-    ) -> "CooperativeMember":
+    ) -> CooperativeMember:
         """Factory method to create a new member"""
         return cls(
             member_id=f"MEM-{uuid.uuid4().hex[:8].upper()}",
@@ -529,8 +529,8 @@ class SharedResource:
     member_discount_percent: Decimal = Decimal("0")
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     images: list[str] = field(default_factory=list)
     documents: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
@@ -543,7 +543,7 @@ class SharedResource:
         name_ar: str,
         type: ResourceType,
         **kwargs,
-    ) -> "SharedResource":
+    ) -> SharedResource:
         """Factory method to create a new shared resource"""
         return cls(
             resource_id=f"RES-{uuid.uuid4().hex[:8].upper()}",
@@ -558,7 +558,7 @@ class SharedResource:
         """Check if resource is currently available"""
         if self.status != ResourceStatus.AVAILABLE:
             return False
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if self.available_from and now < self.available_from:
             return False
         if self.available_until and now > self.available_until:
@@ -568,7 +568,7 @@ class SharedResource:
     def needs_maintenance(self) -> bool:
         """Check if resource needs maintenance"""
         if self.next_maintenance_date:
-            return datetime.now(timezone.utc) >= self.next_maintenance_date
+            return datetime.now(UTC) >= self.next_maintenance_date
         if self.maintenance_interval_hours:
             return self.total_usage_hours >= self.maintenance_interval_hours
         return False
@@ -653,7 +653,7 @@ class ResourceBooking:
     field_id: str | None = None            # Target field for equipment
 
     # Timing
-    start_time: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    start_time: datetime = field(default_factory=lambda: datetime.now(UTC))
     end_time: datetime | None = None
     duration_hours: float = 0.0
 
@@ -676,8 +676,8 @@ class ResourceBooking:
     completion_notes: str | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     @classmethod
     def create(
@@ -690,7 +690,7 @@ class ResourceBooking:
         start_time: datetime,
         duration_hours: float,
         **kwargs,
-    ) -> "ResourceBooking":
+    ) -> ResourceBooking:
         """Factory method to create a new booking"""
         return cls(
             booking_id=f"BKG-{uuid.uuid4().hex[:8].upper()}",
@@ -784,8 +784,8 @@ class GroupPurchaseOrder:
     batch_number: str | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     created_by: str | None = None
     notes: str | None = None
 
@@ -799,7 +799,7 @@ class GroupPurchaseOrder:
         product_name: str,
         product_name_ar: str,
         **kwargs,
-    ) -> "GroupPurchaseOrder":
+    ) -> GroupPurchaseOrder:
         """Factory method to create a new group purchase order"""
         return cls(
             order_id=f"GPO-{uuid.uuid4().hex[:8].upper()}",
@@ -873,7 +873,7 @@ class MemberOrderLine:
     status: str = "pending"                # pending, confirmed, allocated, delivered
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     notes: str | None = None
 
     @classmethod
@@ -884,7 +884,7 @@ class MemberOrderLine:
         quantity: float,
         unit_price: Decimal,
         **kwargs,
-    ) -> "MemberOrderLine":
+    ) -> MemberOrderLine:
         """Factory method to create a new order line"""
         return cls(
             line_id=f"OL-{uuid.uuid4().hex[:8].upper()}",

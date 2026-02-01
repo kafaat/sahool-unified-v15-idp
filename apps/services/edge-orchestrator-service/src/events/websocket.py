@@ -12,6 +12,7 @@ including heartbeats, metrics, detection results, and job status.
 """
 
 import asyncio
+import contextlib
 from datetime import datetime
 from typing import Any
 from uuid import UUID
@@ -51,10 +52,7 @@ class WebSocketConnection:
     async def send_message(self, message: WSMessage | dict[str, Any]) -> bool:
         """Send a message to this connection."""
         try:
-            if isinstance(message, WSMessage):
-                data = message.model_dump(mode="json")
-            else:
-                data = message
+            data = message.model_dump(mode="json") if isinstance(message, WSMessage) else message
 
             await self.websocket.send_json(data)
             return True
@@ -68,10 +66,8 @@ class WebSocketConnection:
 
     async def close(self, code: int = 1000, reason: str = "Connection closed") -> None:
         """Close the WebSocket connection."""
-        try:
+        with contextlib.suppress(Exception):
             await self.websocket.close(code=code, reason=reason)
-        except Exception:
-            pass
 
 
 class WebSocketManager:
@@ -112,10 +108,8 @@ class WebSocketManager:
 
         if self._ping_task:
             self._ping_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._ping_task
-            except asyncio.CancelledError:
-                pass
 
         # Close all connections
         async with self._lock:
@@ -307,7 +301,7 @@ class WebSocketManager:
         """
         sent_count = 0
 
-        for client_id, conn in self._connections.items():
+        for _client_id, conn in self._connections.items():
             # Check subscription filter
             if event_type and conn.subscriptions and event_type not in conn.subscriptions:
                 continue

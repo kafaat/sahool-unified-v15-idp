@@ -143,7 +143,7 @@ class DistributedTracer:
             f"v{self.config.service_version}"
         )
 
-    def _add_exporters(self, provider: "TracerProvider") -> None:
+    def _add_exporters(self, provider: TracerProvider) -> None:
         """Add span exporters based on configuration."""
         if not OTEL_AVAILABLE:
             return
@@ -242,7 +242,7 @@ class DistributedTracer:
     def span(
         self,
         name: str,
-        kind: Optional["SpanKind"] = None,
+        kind: SpanKind | None = None,
         attributes: dict[str, Any] | None = None,
     ):
         """

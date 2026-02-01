@@ -6,7 +6,7 @@ Provides database operations for tasks and evidence.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -149,7 +149,7 @@ class TaskRepository:
                         }
                     setattr(task, key, value)
 
-            task.updated_at = datetime.now(timezone.utc)
+            task.updated_at = datetime.now(UTC)
 
             self.db.commit()
             self.db.refresh(task)
@@ -212,7 +212,7 @@ class TaskRepository:
         try:
             old_status = task.status
             task.status = "in_progress"
-            task.updated_at = datetime.now(timezone.utc)
+            task.updated_at = datetime.now(UTC)
 
             self.db.commit()
             self.db.refresh(task)
@@ -252,7 +252,7 @@ class TaskRepository:
 
         try:
             old_status = task.status
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
 
             task.status = "completed"
             task.completed_at = now
@@ -303,7 +303,7 @@ class TaskRepository:
         try:
             old_status = task.status
             task.status = "cancelled"
-            task.updated_at = datetime.now(timezone.utc)
+            task.updated_at = datetime.now(UTC)
 
             if reason:
                 task.task_metadata = {**(task.task_metadata or {}), "cancel_reason": reason}
@@ -342,7 +342,7 @@ class TaskRepository:
             # Update task's updated_at timestamp
             task = self.db.query(Task).filter(Task.task_id == evidence.task_id).first()
             if task:
-                task.updated_at = datetime.now(timezone.utc)
+                task.updated_at = datetime.now(UTC)
 
             self.db.commit()
             self.db.refresh(evidence)
@@ -362,7 +362,7 @@ class TaskRepository:
         """
         from datetime import timedelta
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         week_start = now - timedelta(days=now.weekday())
         week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
         week_end = week_start + timedelta(days=7)

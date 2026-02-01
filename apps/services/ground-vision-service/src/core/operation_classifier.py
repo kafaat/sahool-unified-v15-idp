@@ -8,7 +8,7 @@ from tower camera frames.
 
 import logging
 from typing import Optional
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -81,7 +81,7 @@ class OperationClassifier:
 
     def __init__(
         self,
-        model_path: Optional[str] = None,
+        model_path: str | None = None,
         confidence_threshold: float = 0.5,
         device: str = "cuda"
     ):
@@ -283,13 +283,13 @@ class OperationClassifier:
 
         return detections
 
-    def _get_equipment_type(self, class_id: int) -> Optional[EquipmentType]:
+    def _get_equipment_type(self, class_id: int) -> EquipmentType | None:
         """Get equipment type from class ID."""
         return self.EQUIPMENT_CLASS_MAP.get(class_id, EquipmentType.UNKNOWN)
 
     def _get_operation_type(
         self,
-        equipment_type: Optional[EquipmentType]
+        equipment_type: EquipmentType | None
     ) -> OperationType:
         """Get most likely operation type for equipment."""
         if equipment_type is None:
@@ -311,7 +311,7 @@ class OperationClassifier:
         self,
         detection: DetectionBox,
         projector
-    ) -> Optional[list[dict]]:
+    ) -> list[dict] | None:
         """Compute geo-coordinates for bounding box corners."""
         if projector is None:
             return None
@@ -391,7 +391,7 @@ class OperationTracker:
             List of completed operations
         """
         completed = []
-        current_time = datetime.now(timezone.utc)
+        current_time = datetime.now(UTC)
 
         # Group detections by operation type and field
         detection_groups: dict[str, list[FieldOperationDetection]] = {}
@@ -450,7 +450,7 @@ class OperationTracker:
                 "operation_type": op["operation_type"].value,
                 "started_at": op["started_at"].isoformat(),
                 "duration_minutes": int(
-                    (datetime.now(timezone.utc) - op["started_at"]).total_seconds() / 60
+                    (datetime.now(UTC) - op["started_at"]).total_seconds() / 60
                 ),
                 "detection_count": op["detection_count"],
             }

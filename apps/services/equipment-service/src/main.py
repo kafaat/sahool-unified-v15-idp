@@ -12,7 +12,7 @@ Provides equipment/asset management:
 import os
 import sys
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 from enum import Enum
 
 from fastapi import Depends, FastAPI, HTTPException, Query
@@ -269,7 +269,7 @@ def seed_demo_data(db: Session):
     if existing_count > 0:
         return  # Data already seeded
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     demo_equipment = [
         DBEquipment(
@@ -697,7 +697,7 @@ async def create_equipment(
     db: Session = Depends(get_db),
 ):
     """Create new equipment"""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     equipment_id = f"eq_{uuid.uuid4().hex[:8]}"
     qr_code = f"QR_{equipment_id.upper()}_{data.name[:10].replace(' ', '')}"
 
@@ -1046,7 +1046,7 @@ async def add_maintenance_record(
     if not eq:
         raise HTTPException(status_code=404, detail="Equipment not found")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     db_record = DBMaintenanceRecord(
         record_id=f"maint_{uuid.uuid4().hex[:8]}",
         equipment_id=equipment_id,

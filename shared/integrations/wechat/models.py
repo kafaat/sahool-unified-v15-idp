@@ -12,7 +12,7 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
 from typing import Any
 
@@ -224,8 +224,8 @@ class WeChatContact(BaseModel):
     tags: list[str] = Field(default_factory=list)
 
     # Timestamps
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     last_message_at: datetime | None = None
 
     # Statistics
@@ -267,8 +267,8 @@ class WeChatGroup(BaseModel):
     region: str | None = None
 
     # Timestamps
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 # =============================================================================
@@ -329,7 +329,7 @@ class WeChatMessage(BaseModel):
     is_edited: bool = False
 
     # Timestamps
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     read_at: datetime | None = None
     edited_at: datetime | None = None
 
@@ -379,7 +379,7 @@ class WeChatMoment(BaseModel):
     topics: list[TopicCategory] = Field(default_factory=list)
 
     # Timestamps
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 # =============================================================================
@@ -450,7 +450,7 @@ class ChatSummary(BaseModel):
     pest_issues: list[str] = Field(default_factory=list)
 
     # Metadata
-    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     confidence: float = Field(ge=0.0, le=1.0, default=0.8)
 
 
@@ -498,7 +498,7 @@ class ChatInsight(BaseModel):
 
     # Metadata
     analysis_period_days: int = 30
-    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class MultiChatStatus(BaseModel):
@@ -532,7 +532,7 @@ class MultiChatStatus(BaseModel):
     agricultural_alerts: list[dict[str, Any]] = Field(default_factory=list)
 
     # Timestamps
-    checked_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    checked_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class SearchResult(BaseModel):
@@ -598,7 +598,7 @@ class AgentResponse(BaseModel):
     # Metadata
     request_id: str | None = None
     tenant_id: str = "sahool"
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class AutoReplyResponse(AgentResponse):

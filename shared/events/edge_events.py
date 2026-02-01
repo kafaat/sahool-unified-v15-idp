@@ -27,7 +27,7 @@ Usage:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
 from uuid import UUID, uuid4
 
@@ -255,7 +255,7 @@ class BaseEdgeEvent(BaseModel):
         default_factory=lambda: str(uuid4()), description="Unique event identifier"
     )
     timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), description="Event timestamp"
+        default_factory=lambda: datetime.now(UTC), description="Event timestamp"
     )
     version: str = Field(default="1.0", description="Event schema version")
     source_service: str = Field(
@@ -631,7 +631,7 @@ class JobStartedEvent(BaseEdgeEvent):
 
     # Execution context
     started_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), description="Start time"
+        default_factory=lambda: datetime.now(UTC), description="Start time"
     )
     estimated_duration_seconds: int | None = Field(
         None, ge=0, description="Estimated duration"
@@ -687,7 +687,7 @@ class JobCompletedEvent(BaseEdgeEvent):
     # Timing
     started_at: datetime = Field(..., description="Start time")
     completed_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), description="Completion time"
+        default_factory=lambda: datetime.now(UTC), description="Completion time"
     )
     duration_seconds: int = Field(..., ge=0, description="Total duration")
 
@@ -736,7 +736,7 @@ class JobFailedEvent(BaseEdgeEvent):
     # Timing
     started_at: datetime = Field(..., description="Start time")
     failed_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), description="Failure time"
+        default_factory=lambda: datetime.now(UTC), description="Failure time"
     )
     duration_seconds: int = Field(..., ge=0, description="Duration before failure")
 
@@ -861,7 +861,7 @@ class SyncCompletedEvent(BaseEdgeEvent):
     # Timing
     started_at: datetime = Field(..., description="Sync start time")
     completed_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), description="Completion time"
+        default_factory=lambda: datetime.now(UTC), description="Completion time"
     )
     duration_seconds: int = Field(..., ge=0, description="Total duration")
 
@@ -993,7 +993,7 @@ class ModelDeployedEvent(BaseEdgeEvent):
     deployment_type: str = Field(..., description="Deployment type")
     started_at: datetime = Field(..., description="Deployment start time")
     completed_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), description="Completion time"
+        default_factory=lambda: datetime.now(UTC), description="Completion time"
     )
     duration_seconds: int = Field(..., ge=0, description="Deployment duration")
 
@@ -1186,7 +1186,7 @@ class FirmwareUpdateCompletedEvent(BaseEdgeEvent):
     # Update details
     started_at: datetime = Field(..., description="Update start time")
     completed_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), description="Completion time"
+        default_factory=lambda: datetime.now(UTC), description="Completion time"
     )
     duration_seconds: int = Field(..., ge=0, description="Update duration")
     reboot_count: int = Field(default=1, ge=0, description="Number of reboots")

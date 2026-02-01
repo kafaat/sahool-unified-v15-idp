@@ -34,7 +34,7 @@ import json
 import logging
 import os
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any
 
 from pydantic import BaseModel, Field, ValidationError
@@ -560,7 +560,7 @@ class EventSubscriber:
                 self._error_count += 1
 
                 # Record retry attempt
-                retry_timestamps.append(datetime.now(timezone.utc).isoformat())
+                retry_timestamps.append(datetime.now(UTC).isoformat())
                 retry_errors.append(str(e)[:200])  # Truncate error message
 
                 # Check if we should retry or move to DLQ

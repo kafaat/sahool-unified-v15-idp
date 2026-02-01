@@ -18,7 +18,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
 from typing import Any
 import uuid
@@ -92,8 +92,8 @@ class Farmer:
     outstanding_balance: float = 0.0
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     tags: list[str] = field(default_factory=list)
     custom_fields: dict[str, Any] = field(default_factory=dict)
 
@@ -144,7 +144,7 @@ class HarvestDeal:
     actual_price: float | None = None
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     closed_at: datetime | None = None
     notes: str | None = None
 
@@ -184,7 +184,7 @@ class Interaction:
     advisor_name: str | None = None
 
     # Timing
-    occurred_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    occurred_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     duration_minutes: int | None = None
 
     # Outcome
@@ -243,7 +243,7 @@ class SupplyContract:
     payment_terms: str | None = None  # e.g., "50% advance, 50% on delivery"
     advance_payment: float = 0.0
 
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -260,7 +260,7 @@ class Payment:
     currency: str = "SAR"
 
     payment_type: str = "bank_transfer"  # bank_transfer, cash, mobile_wallet
-    payment_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    payment_date: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     status: str = "pending"  # pending, completed, failed, refunded
     reference: str | None = None
@@ -349,7 +349,7 @@ class FarmerCRMService:
         farmer = self._farmers.get(farmer_id)
         if farmer:
             farmer.status = status
-            farmer.updated_at = datetime.now(timezone.utc)
+            farmer.updated_at = datetime.now(UTC)
         return farmer
 
     async def create_deal(
@@ -398,7 +398,7 @@ class FarmerCRMService:
             deal.probability = stage_probabilities.get(new_stage, 0.5)
 
             if new_stage in (DealStage.PAID, DealStage.CLOSED_LOST):
-                deal.closed_at = datetime.now(timezone.utc)
+                deal.closed_at = datetime.now(UTC)
 
         return deal
 
@@ -490,7 +490,7 @@ class FarmerCRMService:
 
         # Recency of last interaction (max 30 points)
         if farmer.last_interaction:
-            days_since = (datetime.now(timezone.utc) - farmer.last_interaction).days
+            days_since = (datetime.now(UTC) - farmer.last_interaction).days
             if days_since <= 7:
                 score += 30
             elif days_since <= 30:

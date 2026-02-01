@@ -14,7 +14,7 @@
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import structlog
 
@@ -101,16 +101,16 @@ class AnalysisType(str, Enum):
 @dataclass
 class GEEQueryContext:
     """سياق استعلام صور الأقمار الصناعية"""
-    field_id: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    bbox: Optional[Tuple[float, float, float, float]] = None  # minx, miny, maxx, maxy
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
+    field_id: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    bbox: tuple[float, float, float, float] | None = None  # minx, miny, maxx, maxy
+    start_date: date | None = None
+    end_date: date | None = None
     satellite: SatelliteSource = SatelliteSource.SENTINEL_2
-    indices: List[VegetationIndex] = field(default_factory=lambda: [VegetationIndex.NDVI])
+    indices: list[VegetationIndex] = field(default_factory=lambda: [VegetationIndex.NDVI])
     cloud_cover_max: float = 30.0
-    tenant_id: Optional[str] = None
+    tenant_id: str | None = None
     language: str = "both"  # en, ar, both
 
 
@@ -124,7 +124,7 @@ class TimeSeriesPoint:
     cloud_cover: float = 0.0
     satellite: SatelliteSource = SatelliteSource.SENTINEL_2
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "date": self.date.isoformat(),
             "value": round(self.value, 4),
@@ -142,19 +142,19 @@ class TimeSeriesAnalysis:
     index_type: VegetationIndex
     start_date: date
     end_date: date
-    data_points: List[TimeSeriesPoint]
+    data_points: list[TimeSeriesPoint]
     mean: float
     std: float
     min_value: float
     max_value: float
     trend_slope: float
     trend_direction: str  # increasing, decreasing, stable
-    anomalies: List[Dict[str, Any]]
-    phenology: Optional[Dict[str, Any]] = None
+    anomalies: list[dict[str, Any]]
+    phenology: dict[str, Any] | None = None
     description_ar: str = ""
     description_en: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "field_id": self.field_id,
             "index_type": self.index_type.value,
@@ -193,13 +193,13 @@ class ChangeDetectionResult:
     change_percent: float
     severity: str  # low, medium, high, critical
     confidence: float
-    affected_area_ha: Optional[float] = None
+    affected_area_ha: float | None = None
     description_ar: str = ""
     description_en: str = ""
     recommendation_ar: str = ""
     recommendation_en: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "field_id": self.field_id,
             "period": {
@@ -228,7 +228,7 @@ class LandCoverResult:
     """نتيجة تصنيف الغطاء الأرضي"""
     field_id: str
     analysis_date: date
-    classification: Dict[LandCoverClass, float]  # Class -> percentage
+    classification: dict[LandCoverClass, float]  # Class -> percentage
     dominant_class: LandCoverClass
     vegetation_fraction: float
     bare_soil_fraction: float
@@ -237,7 +237,7 @@ class LandCoverResult:
     description_ar: str = ""
     description_en: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "field_id": self.field_id,
             "analysis_date": self.analysis_date.isoformat(),
@@ -261,13 +261,13 @@ class GEEAnalysisResult:
     """نتيجة تحليل شاملة"""
     query: str
     analysis_type: AnalysisType
-    time_series: Optional[TimeSeriesAnalysis] = None
-    change_detection: Optional[ChangeDetectionResult] = None
-    land_cover: Optional[LandCoverResult] = None
-    related_entities: List[Dict[str, Any]] = field(default_factory=list)
-    sources: List[Dict[str, Any]] = field(default_factory=list)
+    time_series: TimeSeriesAnalysis | None = None
+    change_detection: ChangeDetectionResult | None = None
+    land_cover: LandCoverResult | None = None
+    related_entities: list[dict[str, Any]] = field(default_factory=list)
+    sources: list[dict[str, Any]] = field(default_factory=list)
     confidence: float = 0.0
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 # ===============================================================================
@@ -295,9 +295,9 @@ class GEERAGProvider:
 
     def __init__(
         self,
-        config: Optional[TriRAGConfig] = None,
-        embedding_service: Optional[Any] = None,
-        vector_store: Optional[Any] = None,
+        config: TriRAGConfig | None = None,
+        embedding_service: Any | None = None,
+        vector_store: Any | None = None,
     ):
         self.config = config or TriRAGConfig()
         self.embedding_service = embedding_service
@@ -305,9 +305,9 @@ class GEERAGProvider:
 
         # Initialize retrievers
         self._kg_retriever = KnowledgeGraphRetriever(embedding_service)
-        self._dense_retriever: Optional[DenseRetriever] = None
-        self._sparse_retriever: Optional[SparseRetriever] = None
-        self._tri_rag: Optional[TriRAGRetriever] = None
+        self._dense_retriever: DenseRetriever | None = None
+        self._sparse_retriever: SparseRetriever | None = None
+        self._tri_rag: TriRAGRetriever | None = None
 
         self._initialized = False
 
@@ -732,8 +732,8 @@ class GEERAGProvider:
         start_date: date,
         end_date: date,
         index_type: VegetationIndex = VegetationIndex.NDVI,
-        data_points: Optional[List[TimeSeriesPoint]] = None,
-        context: Optional[GEEQueryContext] = None,
+        data_points: list[TimeSeriesPoint] | None = None,
+        context: GEEQueryContext | None = None,
     ) -> GEEAnalysisResult:
         """
         Analyze NDVI time series for a field
@@ -826,9 +826,9 @@ class GEERAGProvider:
         field_id: str,
         date1: date,
         date2: date,
-        ndvi1: Optional[float] = None,
-        ndvi2: Optional[float] = None,
-        context: Optional[GEEQueryContext] = None,
+        ndvi1: float | None = None,
+        ndvi2: float | None = None,
+        context: GEEQueryContext | None = None,
     ) -> GEEAnalysisResult:
         """
         Detect changes between two dates
@@ -915,9 +915,9 @@ class GEERAGProvider:
         self,
         field_id: str,
         analysis_date: date,
-        ndvi: Optional[float] = None,
-        ndwi: Optional[float] = None,
-        context: Optional[GEEQueryContext] = None,
+        ndvi: float | None = None,
+        ndwi: float | None = None,
+        context: GEEQueryContext | None = None,
     ) -> GEEAnalysisResult:
         """
         Classify land cover for a field
@@ -992,7 +992,7 @@ class GEERAGProvider:
     async def general_query(
         self,
         query: str,
-        context: Optional[GEEQueryContext] = None,
+        context: GEEQueryContext | None = None,
     ) -> GEEAnalysisResult:
         """
         General satellite imagery query using Tri-RAG
@@ -1036,7 +1036,7 @@ class GEERAGProvider:
         start_date: date,
         end_date: date,
         index_type: VegetationIndex,
-    ) -> List[TimeSeriesPoint]:
+    ) -> list[TimeSeriesPoint]:
         """Generate sample time series data for testing"""
         import random
         import math
@@ -1064,7 +1064,7 @@ class GEERAGProvider:
 
         return points
 
-    def _calculate_trend_slope(self, values: List[float]) -> float:
+    def _calculate_trend_slope(self, values: list[float]) -> float:
         """Calculate linear trend slope"""
         if len(values) < 2:
             return 0.0
@@ -1085,9 +1085,9 @@ class GEERAGProvider:
 
     def _detect_anomalies(
         self,
-        data_points: List[TimeSeriesPoint],
+        data_points: list[TimeSeriesPoint],
         threshold: float = 2.0,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Detect anomalies in time series using Z-score"""
         if len(data_points) < 3:
             return []
@@ -1171,7 +1171,7 @@ class GEERAGProvider:
         self,
         ndvi: float,
         ndwi: float,
-    ) -> Dict[LandCoverClass, float]:
+    ) -> dict[LandCoverClass, float]:
         """Classify land cover based on spectral indices"""
         classification = {}
 
@@ -1208,7 +1208,7 @@ class GEERAGProvider:
         change_type: ChangeType,
         change_magnitude: float,
         change_percent: float,
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         """Generate bilingual change description"""
         descriptions = {
             ChangeType.VEGETATION_INCREASE: (
@@ -1246,7 +1246,7 @@ class GEERAGProvider:
         self,
         change_type: ChangeType,
         severity: str,
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         """Generate bilingual recommendation"""
         recommendations = {
             ChangeType.VEGETATION_INCREASE: (
@@ -1296,10 +1296,10 @@ class GEERAGProvider:
 class _MockRetriever:
     """Mock retriever for testing without vector store"""
 
-    async def retrieve(self, query: str, config: RetrievalConfig) -> List:
+    async def retrieve(self, query: str, config: RetrievalConfig) -> list:
         return []
 
-    async def add_documents(self, chunks: List, collection: str = "default") -> bool:
+    async def add_documents(self, chunks: list, collection: str = "default") -> bool:
         return True
 
 

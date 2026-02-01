@@ -12,7 +12,6 @@ Usage:
 
 import argparse
 import asyncio
-import json
 import os
 import subprocess
 import sys
@@ -46,7 +45,7 @@ class ErrorScanner:
         """Scan Python file for syntax errors"""
         try:
             # Try to compile the file
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 code = f.read()
 
             compile(code, str(file_path), "exec")
@@ -106,7 +105,7 @@ class CodeFixClient:
         self.base_url = base_url
         self.use_ollama = use_ollama
         self.client = httpx.AsyncClient(timeout=60.0)
-        
+
         # Initialize Ollama client if enabled
         if use_ollama:
             self.ollama = OllamaClient(
@@ -209,7 +208,7 @@ async def process_file(
 
     # Read file
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             original_code = f.read()
     except Exception as e:
         logger.error("read_failed", file=str(file_path), error=str(e))
@@ -226,20 +225,20 @@ async def process_file(
     # If using Ollama and deep analysis is enabled, analyze even if no syntax errors
     if use_deep_analysis and fix_client.use_ollama and fix_client.ollama:
         logger.info("deep_analysis", file=str(file_path))
-        
+
         # Use Ollama to analyze for all types of issues
         analysis_result = await fix_client.analyze_code(original_code, language, str(file_path))
-        
+
         if analysis_result.get("success"):
             ollama_issues = analysis_result.get("data", {}).get("issues", [])
-            
+
             # Combine syntax errors with Ollama-detected issues
             all_errors = syntax_errors + ollama_issues
-            
+
             if not all_errors:
                 logger.info("no_issues_found", file=str(file_path))
                 return {"success": True, "action": "skipped", "reason": "no_issues"}
-            
+
             logger.info("issues_found", file=str(file_path), count=len(all_errors))
             errors = all_errors
         else:

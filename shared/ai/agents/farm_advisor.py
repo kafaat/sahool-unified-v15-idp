@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any
 
 import structlog
@@ -35,7 +35,6 @@ from .base import (
     AgentCapability,
     BaseAutonomousAgent,
     CollaborationRole,
-    ConsensusProposal,
     ConsensusType,
     MemoryType,
     ToolResult,
@@ -77,7 +76,7 @@ class CollaborativeDecision:
     confidence: float
     consensus_type: str
     individual_recommendations: list[dict[str, Any]]
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 # ========================================
@@ -1611,7 +1610,7 @@ Create an advisory plan as JSON array."""
             "field_id": field_id,
             "task_type": task_type,
             "description": description,
-            "scheduled_date": scheduled_date or datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "scheduled_date": scheduled_date or datetime.now(UTC).strftime("%Y-%m-%d"),
             "priority": priority,
         }
 
@@ -1665,7 +1664,7 @@ Create an advisory plan as JSON array."""
         report = {
             "report_id": str(uuid.uuid4()),
             "farm_id": farm_id,
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "type": report_type,
             "summary": {
                 "en": "Farm status is good. Minor irrigation needed for Field F003.",
@@ -2079,7 +2078,7 @@ Mode: {self.mode.value} | الوضع: {'تخطيط' if self.mode == AgentMode.PL
             "comments": comments,
             "comments_ar": comments_ar,
             "corrections": corrections,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         # Store in outcomes tracking

@@ -21,13 +21,12 @@ import os
 import time
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from enum import Enum
 from functools import wraps
 from pathlib import Path
 from typing import Any, Callable
 
-from .metrics import AIMetricsCollector, get_metrics_collector
+from .metrics import get_metrics_collector
 
 logger = logging.getLogger(__name__)
 

@@ -33,8 +33,8 @@ class ChatMessage(BaseModel):
     """Single chat message | رسالة محادثة واحدة"""
     role: MessageRole
     content: str = Field(..., min_length=1, max_length=50000)
-    name: Optional[str] = None
-    tool_call_id: Optional[str] = None
+    name: str | None = None
+    tool_call_id: str | None = None
 
     model_config = {"json_schema_extra": {
         "example": {
@@ -50,7 +50,7 @@ class ChatRequest(BaseModel):
     messages: list[ChatMessage] = Field(..., min_length=1, max_length=100)
     allow_tools: bool = Field(default=True, description="Allow tool calls")
     stream: bool = Field(default=False, description="Stream response")
-    context: Optional[dict[str, Any]] = Field(default=None, description="Additional context")
+    context: dict[str, Any] | None = Field(default=None, description="Additional context")
 
     @field_validator("messages")
     @classmethod
@@ -79,9 +79,9 @@ class ChatResponse(BaseModel):
     session_id: str
     mode: CopilotMode
     message: ChatMessage
-    rag_context: Optional[list[dict[str, Any]]] = None
-    tool_calls: Optional[list[dict[str, Any]]] = None
-    usage: Optional[dict[str, int]] = None
+    rag_context: list[dict[str, Any]] | None = None
+    tool_calls: list[dict[str, Any]] | None = None
+    usage: dict[str, int] | None = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
     model_config = {"json_schema_extra": {
@@ -101,7 +101,7 @@ class ToolCallRequest(BaseModel):
     """Tool call request | طلب استدعاء أداة"""
     tool: str = Field(..., description="Tool identifier (e.g., 'rag.search')")
     args: dict[str, Any] = Field(default_factory=dict, description="Tool arguments")
-    session_id: Optional[str] = None
+    session_id: str | None = None
 
     @field_validator("tool")
     @classmethod
@@ -127,8 +127,8 @@ class ToolCallResponse(BaseModel):
     """Tool call response | رد استدعاء أداة"""
     tool: str
     success: bool
-    result: Optional[Any] = None
-    error: Optional[str] = None
+    result: Any | None = None
+    error: str | None = None
     execution_time_ms: float
 
     model_config = {"json_schema_extra": {
@@ -145,7 +145,7 @@ class GuardDecision(BaseModel):
     """Guard decision result | نتيجة قرار الحماية"""
     allowed: bool
     reason: str
-    details: Optional[dict[str, Any]] = None
+    details: dict[str, Any] | None = None
 
     model_config = {"json_schema_extra": {
         "example": {
@@ -159,9 +159,9 @@ class RAGDocument(BaseModel):
     """RAG document | وثيقة RAG"""
     id: str
     text: str
-    text_ar: Optional[str] = None
+    text_ar: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
-    embedding: Optional[list[float]] = None
+    embedding: list[float] | None = None
 
     model_config = {"json_schema_extra": {
         "example": {

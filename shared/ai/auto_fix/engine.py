@@ -22,7 +22,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any, Callable
 
 from .diagnostics import CodeDiagnostics, DiagnosticError
@@ -452,7 +452,7 @@ class AutoFixEngine:
             "# Auto-Fix Audit Log | سجل التدقيق للإصلاح التلقائي",
             "",
             f"**Total Entries | إجمالي السجلات**: {len(self._audit_log)}",
-            f"**Generated | تاريخ التوليد**: {datetime.now(timezone.utc).isoformat()}",
+            f"**Generated | تاريخ التوليد**: {datetime.now(UTC).isoformat()}",
             "",
             "## Entries | السجلات",
             "",

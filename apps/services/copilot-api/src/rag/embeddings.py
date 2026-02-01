@@ -15,7 +15,7 @@ import hashlib
 import os
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from enum import Enum
 from typing import Any, Optional
 
@@ -37,7 +37,7 @@ class EmbeddingConfig:
     provider: EmbeddingProvider = EmbeddingProvider.SENTENCE_TRANSFORMERS
     model: str = "paraphrase-multilingual-MiniLM-L12-v2"
     ollama_base_url: str = "http://localhost:11434"
-    openai_api_key: Optional[str] = None
+    openai_api_key: str | None = None
     batch_size: int = 32
     cache_enabled: bool = True
     cache_ttl_seconds: int = 3600
@@ -69,7 +69,7 @@ class EmbeddingResult:
     cached: bool = False
     provider: str = ""
     model: str = ""
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 class EmbeddingService:
@@ -83,13 +83,13 @@ class EmbeddingService:
     - OpenAI (cloud, optional)
     """
 
-    def __init__(self, config: Optional[EmbeddingConfig] = None):
+    def __init__(self, config: EmbeddingConfig | None = None):
         """Initialize embedding service"""
         self.config = config or EmbeddingConfig()
         self._cache: dict[str, tuple[list[float], float]] = {}
         self._model = None
         self._initialized = False
-        self._dimension: Optional[int] = None
+        self._dimension: int | None = None
 
     async def initialize(self) -> bool:
         """Initialize the embedding model"""
@@ -338,7 +338,7 @@ class EmbeddingService:
 # GLOBAL INSTANCE
 # ═══════════════════════════════════════════════════════════════════════════════
 
-_embedding_service: Optional[EmbeddingService] = None
+_embedding_service: EmbeddingService | None = None
 
 
 def get_embedding_service() -> EmbeddingService:

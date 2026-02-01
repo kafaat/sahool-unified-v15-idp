@@ -22,8 +22,7 @@ Updated: January 2026
 
 import json
 import logging
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -33,10 +32,10 @@ logger = logging.getLogger(__name__)
 class RAGToolResult(BaseModel):
     """Standard result format for RAG tool execution"""
     success: bool
-    data: Dict[str, Any] | None = None
+    data: dict[str, Any] | None = None
     error: str | None = None
     error_ar: str | None = None
-    metadata: Dict[str, Any] | None = None
+    metadata: dict[str, Any] | None = None
 
 
 class RAGTools:
@@ -113,7 +112,7 @@ class RAGTools:
             logger.error(f"RAG initialization error: {e}")
             self._initialized = True
 
-    def get_tool_definitions(self) -> List[Dict[str, Any]]:
+    def get_tool_definitions(self) -> list[dict[str, Any]]:
         """Get MCP tool definitions for RAG tools"""
         return [
             # ═══════════════════════════════════════════════════════════════
@@ -551,7 +550,7 @@ class RAGTools:
         title_ar: str = None,
         collection: str = "default",
         source: str = "",
-        metadata: Dict[str, Any] = None,
+        metadata: dict[str, Any] = None,
     ) -> RAGToolResult:
         """Add document to knowledge base"""
         await self.initialize()
@@ -722,7 +721,7 @@ class RAGTools:
         issue: str,
         growth_stage: str = None,
         region: str = None,
-        context: Dict[str, Any] = None,
+        context: dict[str, Any] = None,
         language: str = "both",
     ) -> RAGToolResult:
         """Get crop advisory using RAG"""
@@ -773,7 +772,7 @@ class RAGTools:
         field_id: str = None,
         soil_moisture: float = None,
         growth_stage: str = None,
-        weather_forecast: Dict[str, Any] = None,
+        weather_forecast: dict[str, Any] = None,
         language: str = "both",
     ) -> RAGToolResult:
         """Get irrigation advisory using RAG"""
@@ -821,7 +820,7 @@ class RAGTools:
         self,
         symptoms: str,
         crop: str = None,
-        affected_parts: List[str] = None,
+        affected_parts: list[str] = None,
         region: str = None,
         season: str = None,
         language: str = "both",
@@ -872,7 +871,7 @@ class RAGTools:
     async def execute_rag_workflow(
         self,
         workflow_id: str,
-        variables: Dict[str, Any] = None,
+        variables: dict[str, Any] = None,
     ) -> RAGToolResult:
         """Execute a RAG workflow"""
         await self.initialize()
@@ -911,7 +910,7 @@ class RAGTools:
     # Tool Invocation
     # ═══════════════════════════════════════════════════════════════════════════
 
-    async def invoke_tool(self, tool_name: str, arguments: Dict[str, Any]) -> RAGToolResult:
+    async def invoke_tool(self, tool_name: str, arguments: dict[str, Any]) -> RAGToolResult:
         """Invoke a RAG tool by name"""
         tool_map = {
             # Query tools

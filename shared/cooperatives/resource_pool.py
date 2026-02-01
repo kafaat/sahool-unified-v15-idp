@@ -17,7 +17,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, UTC
 from decimal import Decimal
 from typing import Any
 import uuid
@@ -62,10 +62,7 @@ class ResourceAvailability:
         """Check if resource is available at a specific hour"""
         if hour not in self.available_hours:
             return False
-        for start, end in self.booked_slots:
-            if start <= hour < end:
-                return False
-        return True
+        return all(not start <= hour < end for start, end in self.booked_slots)
 
     def get_available_slots(self) -> list[tuple[int, int]]:
         """Get list of available time slots"""
@@ -166,7 +163,7 @@ class MaintenanceRecord:
     status: str = "scheduled"              # scheduled, in_progress, completed, cancelled
 
     # Metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     notes: str | None = None
 
     @classmethod
@@ -178,7 +175,7 @@ class MaintenanceRecord:
         description_ar: str,
         scheduled_date: datetime,
         **kwargs,
-    ) -> "MaintenanceRecord":
+    ) -> MaintenanceRecord:
         """Factory method to create a maintenance record"""
         return cls(
             record_id=f"MNT-{uuid.uuid4().hex[:8].upper()}",
@@ -299,7 +296,7 @@ class ResourcePoolService:
         resource = self._resources.get(resource_id)
         if resource:
             resource.status = status
-            resource.updated_at = datetime.now(timezone.utc)
+            resource.updated_at = datetime.now(UTC)
         return resource
 
     async def list_resources(
@@ -475,13 +472,13 @@ class ResourcePoolService:
             return None
 
         # Check cancellation window
-        hours_until_start = (booking.start_time - datetime.now(timezone.utc)).total_seconds() / 3600
+        hours_until_start = (booking.start_time - datetime.now(UTC)).total_seconds() / 3600
         if hours_until_start < self._cancellation_window_hours:
             # Late cancellation - may apply penalty
             booking.notes = f"Late cancellation. {reason or ''}"
 
         booking.status = "cancelled"
-        booking.updated_at = datetime.now(timezone.utc)
+        booking.updated_at = datetime.now(UTC)
 
         return booking
 
@@ -509,7 +506,7 @@ class ResourcePoolService:
         booking.actual_hours = actual_hours
         booking.hectares_covered = hectares_covered
         booking.completion_notes = completion_notes
-        booking.updated_at = datetime.now(timezone.utc)
+        booking.updated_at = datetime.now(UTC)
 
         # Calculate actual fee
         booking.actual_fee = resource.calculate_usage_fee(
@@ -521,9 +518,9 @@ class ResourcePoolService:
         # Update resource usage statistics
         resource.total_usage_hours += actual_hours
         resource.usage_this_season += actual_hours
-        resource.last_used_date = datetime.now(timezone.utc)
+        resource.last_used_date = datetime.now(UTC)
         resource.last_used_by = booking.member_id
-        resource.updated_at = datetime.now(timezone.utc)
+        resource.updated_at = datetime.now(UTC)
 
         return booking
 
@@ -648,7 +645,7 @@ class ResourcePoolService:
         Returns:
             Tuple of (start_time, end_time) or None if no slot found
         """
-        start_date = preferred_date or datetime.now(timezone.utc)
+        start_date = preferred_date or datetime.now(UTC)
 
         for day_offset in range(search_days):
             search_date = start_date + timedelta(days=day_offset)
@@ -736,7 +733,7 @@ class ResourcePoolService:
             return None
 
         record.status = "completed"
-        record.completed_date = datetime.now(timezone.utc)
+        record.completed_date = datetime.now(UTC)
         record.duration_hours = actual_duration_hours
         record.cost = cost
         record.parts_replaced = parts_replaced or []
@@ -789,7 +786,7 @@ class ResourcePoolService:
         bookings = [b for b in self._bookings.values() if b.resource_id == resource_id]
         completed = [b for b in bookings if b.status == "completed"]
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         month_start = datetime(now.year, now.month, 1)
         year_start = datetime(now.year, 1, 1)
 
@@ -834,7 +831,7 @@ class ResourcePoolService:
         bookings = [b for b in self._bookings.values() if b.member_id == member_id]
         completed = [b for b in bookings if b.status == "completed"]
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         month_start = datetime(now.year, now.month, 1)
         year_start = datetime(now.year, 1, 1)
 
@@ -876,7 +873,7 @@ class ResourcePoolService:
         # Pending bookings
         pending_bookings = [b for b in self._bookings.values() if b.status == "confirmed"]
         upcoming_bookings = sorted(
-            [b for b in pending_bookings if b.start_time > datetime.now(timezone.utc)],
+            [b for b in pending_bookings if b.start_time > datetime.now(UTC)],
             key=lambda b: b.start_time,
         )[:5]
 
@@ -897,7 +894,7 @@ class ResourcePoolService:
                     b.actual_hours or 0
                     for b in self._bookings.values()
                     if b.status == "completed"
-                    and b.start_time >= datetime(datetime.now(timezone.utc).year, datetime.now(timezone.utc).month, 1)
+                    and b.start_time >= datetime(datetime.now(UTC).year, datetime.now(UTC).month, 1)
                 ),
             },
         }

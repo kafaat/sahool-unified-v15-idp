@@ -28,13 +28,12 @@ Updated: January 2026
 
 from __future__ import annotations
 
-import hashlib
 import re
 import time
 from collections import OrderedDict
 from datetime import datetime, timedelta, UTC
 from threading import RLock
-from typing import Any, Callable, Iterator, TypeVar
+from typing import Any, Callable, TypeVar
 from uuid import uuid4
 
 import structlog

@@ -18,7 +18,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
 from typing import Any
 import uuid
@@ -132,7 +132,7 @@ class CourseRecommendation:
     reason_text: BilingualText = field(default_factory=BilingualText)
 
     # Metadata
-    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     @property
     def primary_reason(self) -> RecommendationReason | None:
@@ -188,7 +188,7 @@ class LearningPath:
     certification_id: str | None = None
 
     # Timestamps
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     @property
     def progress_percentage(self) -> float:
@@ -547,7 +547,7 @@ class ContentRecommender:
         if not course.updated_at:
             return 50.0
 
-        days_since_update = (datetime.now(timezone.utc) - course.updated_at).days
+        days_since_update = (datetime.now(UTC) - course.updated_at).days
 
         if days_since_update < 30:
             return 100.0
@@ -618,7 +618,7 @@ class ContentRecommender:
 
     def _is_seasonally_relevant(self, course: Course) -> bool:
         """Check if course is seasonally relevant"""
-        current_month = datetime.now(timezone.utc).month
+        current_month = datetime.now(UTC).month
         seasonal_skills = SEASONAL_TOPICS.get(current_month, [])
 
         if course.category in seasonal_skills:
@@ -866,7 +866,7 @@ class ContentRecommender:
         Returns:
             List of seasonal CourseRecommendation
         """
-        current_month = datetime.now(timezone.utc).month
+        current_month = datetime.now(UTC).month
         seasonal_skills = set(SEASONAL_TOPICS.get(current_month, []))
 
         # Filter for seasonal courses

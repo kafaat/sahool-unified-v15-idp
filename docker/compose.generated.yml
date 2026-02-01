@@ -2802,6 +2802,45 @@ services:
     - sahool.category=business
     - traefik.enable=true
     - traefik.http.routers.supply-chain-service.rule=PathPrefix(`/api/v1/supply/chain/service`)
+  whatsapp-bot-service:
+    build:
+      context: ./apps/services/whatsapp-bot-service
+      dockerfile: Dockerfile
+    container_name: sahool-whatsapp-bot-service
+    ports:
+    - 8240:8240
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8240
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8240/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=whatsapp-bot-service
+    - sahool.port=8240
+    - sahool.category=integration
+    - traefik.enable=true
+    - traefik.http.routers.whatsapp-bot-service.rule=PathPrefix(`/api/v1/whatsapp/bot/service`)
   web:
     build:
       context: ./apps/web

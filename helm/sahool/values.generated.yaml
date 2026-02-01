@@ -2219,6 +2219,38 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8230'
       prometheus.io/path: /metrics
+  whatsapp-bot-service:
+    enabled: true
+    name: whatsapp-bot-service
+    image:
+      repository: ghcr.io/kafaat/sahool-whatsapp-bot-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 8240
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 512Mi
+      limits:
+        cpu: 300000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8240'
+    serviceAccount:
+      create: true
+      name: sahool-whatsapp-bot-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8240'
+      prometheus.io/path: /metrics
 applications:
   web:
     enabled: true
@@ -2553,6 +2585,10 @@ ingress:
       pathType: Prefix
       service: supply-chain-service
       port: 8230
+    - path: /api/v1/whatsapp/bot/service
+      pathType: Prefix
+      service: whatsapp-bot-service
+      port: 8240
   tls:
   - secretName: sahool-tls
     hosts:

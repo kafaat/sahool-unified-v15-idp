@@ -2873,6 +2873,43 @@ services:
       memory: "512Mi"
       replicas: 2
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WHATSAPP BOT SERVICE - خدمة بوت واتساب
+  # ═══════════════════════════════════════════════════════════════════════════
+  whatsapp-bot-service:
+    name: "WhatsApp Bot Service"
+    name_ar: "خدمة بوت واتساب"
+    description: "WhatsApp Business API integration for farmer messaging"
+    description_ar: "تكامل واجهة واتساب للأعمال للتواصل مع المزارعين"
+    type: python
+    category: integration
+    layer: business
+    path: "apps/services/whatsapp-bot-service"
+    port: 8240
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
+    events:
+      produces:
+        - WhatsAppMessageReceived.v1
+        - FarmerQueryProcessed.v1
+      consumes:
+        - AdvisoryGenerated.v1
+        - PestDetected.v1
+        - DiseaseDetected.v1
+    dependencies:
+      - llm-orchestrator-service
+      - yolo26-vision-service
+      - notification-service
+    resources:
+      cpu: "300m"
+      memory: "512Mi"
+      replicas: 2
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Applications (Frontend)
 # ─────────────────────────────────────────────────────────────────────────────

@@ -19,7 +19,10 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from ...agents.executor import AgentExecutor
+from ...agents.quick_responses import QuickResponse
 from ...agents.registry import AgentRegistry, get_agent_registry
+from ...agents.router import SimpleAgentRouter, get_router
+from ...agents.routing_rules import get_rules_for_display
 from ...core.config import settings
 from ...utils.intent_classifier import classify_intent
 from ...utils.synthesizer import synthesize_response
@@ -475,3 +478,306 @@ async def _execute_action_type(
         "tenant_id": tenant_id,
         "scheduled_at": "2026-01-31T12:00:00Z",
     }
+
+
+# =============================================================================
+# Simple Agent Routing Endpoints
+# نقاط نهاية التوجيه البسيط للوكلاء
+# =============================================================================
+
+
+@router.get(
+    "/routing-rules",
+    summary="Get Routing Rules | الحصول على قواعد التوجيه",
+    description="""
+    Get all available routing rules for agent selection.
+    Shows intent-to-agent mappings, priorities, and requirements.
+
+    الحصول على جميع قواعد التوجيه المتاحة لاختيار الوكلاء.
+    يعرض ربط النوايا بالوكلاء والأولويات والمتطلبات.
+    """,
+)
+async def get_routing_rules() -> dict[str, Any]:
+    """Get all routing rules."""
+    rules = get_rules_for_display()
+
+    return {
+        "rules": rules,
+        "total": len(rules),
+        "description_en": "Simple rule-based routing for fast agent selection",
+        "description_ar": "توجيه قائم على القواعد لاختيار الوكلاء بسرعة",
+    }
+
+
+@router.post(
+    "/route-preview",
+    summary="Preview Routing | معاينة التوجيه",
+    description="""
+    Preview which agents would be selected for a given intent or text.
+    Does not execute any agents - just shows the routing decision.
+
+    معاينة الوكلاء الذين سيتم اختيارهم لنية أو نص معين.
+    لا ينفذ أي وكلاء - يعرض قرار التوجيه فقط.
+    """,
+)
+async def preview_routing(
+    intent: str | None = None,
+    text: str | None = None,
+    has_image: bool = False,
+    has_field_id: bool = False,
+) -> dict[str, Any]:
+    """Preview routing for an intent or text."""
+    simple_router = get_router()
+
+    # If text is provided, detect intent and route
+    if text:
+        result = simple_router.route(
+            text=text,
+            intent=intent,
+            has_image=has_image,
+            has_field_id=has_field_id,
+        )
+
+        # Handle quick response
+        if result.is_quick_response and result.quick_response:
+            return {
+                "routing_type": "quick_response",
+                "intent": "quick_response",
+                "agents": [],
+                "quick_response": {
+                    "response_en": result.quick_response.response_en,
+                    "response_ar": result.quick_response.response_ar,
+                    "category": result.quick_response.category,
+                },
+                "description_en": "Query matched a pre-defined quick response",
+                "description_ar": "الاستعلام يطابق رداً سريعاً محدداً مسبقاً",
+            }
+
+        return {
+            "routing_type": "agent_routing",
+            "intent": result.intent,
+            "agents": result.agents,
+            "priority": result.priority.value,
+            "confidence": result.confidence,
+            "requires_image": result.requires_image,
+            "requires_field_id": result.requires_field_id,
+            "matched_keywords": result.matched_keywords,
+            "fallback_used": result.fallback_used,
+            "input_text": text[:100] + "..." if len(text) > 100 else text,
+        }
+
+    # If only intent is provided, show preview
+    if intent:
+        preview = simple_router.preview_route(
+            intent=intent,
+            has_image=has_image,
+            has_field_id=has_field_id,
+        )
+        return preview
+
+    # Neither text nor intent provided
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Either 'intent' or 'text' must be provided",
+    )
+
+
+@router.get(
+    "/quick-response",
+    summary="Check Quick Response | التحقق من الرد السريع",
+    description="""
+    Check if a query matches a pre-defined quick response.
+    Quick responses save API costs for common questions.
+
+    التحقق مما إذا كان الاستعلام يطابق رداً سريعاً محدداً مسبقاً.
+    الردود السريعة توفر تكاليف API للأسئلة الشائعة.
+    """,
+)
+async def check_quick_response(
+    text: str,
+) -> dict[str, Any]:
+    """Check if a query has a quick response."""
+    simple_router = get_router()
+    result = simple_router.route(text=text, has_image=False, has_field_id=False)
+
+    if result.is_quick_response and result.quick_response:
+        return {
+            "has_quick_response": True,
+            "response_en": result.quick_response.response_en,
+            "response_ar": result.quick_response.response_ar,
+            "category": result.quick_response.category,
+            "confidence": result.confidence,
+        }
+
+    return {
+        "has_quick_response": False,
+        "detected_intent": result.intent,
+        "agents": result.agents,
+        "message_en": "No quick response available. Full orchestration recommended.",
+        "message_ar": "لا يوجد رد سريع متاح. يُنصح بالتنسيق الكامل.",
+    }
+
+
+@router.post(
+    "/orchestrate/simple",
+    response_model=OrchestratorResponse,
+    summary="Simple Orchestration | تنسيق بسيط",
+    description="""
+    Simplified orchestration using rule-based routing.
+    Faster than full orchestration, returns quick responses when available.
+
+    تنسيق مبسط باستخدام التوجيه القائم على القواعد.
+    أسرع من التنسيق الكامل، يعيد الردود السريعة عند توفرها.
+    """,
+)
+async def orchestrate_simple(
+    user_intent: UserIntent,
+    request: Request,
+    registry: AgentRegistry = Depends(get_agent_registry),
+    executor: AgentExecutor = Depends(get_executor),
+) -> OrchestratorResponse:
+    """Simplified orchestration with quick responses and rule-based routing."""
+    start_time = time.time()
+    request_id = user_intent.correlation_id or str(uuid.uuid4())
+
+    logger.info(
+        "simple_orchestration_started",
+        request_id=request_id,
+        text_length=len(user_intent.text),
+    )
+
+    # Step 1: Use simple router
+    simple_router = get_router()
+    has_image = bool(user_intent.image_base64 or user_intent.image_url)
+    has_field_id = bool(user_intent.field_id)
+
+    routing_result = simple_router.route(
+        text=user_intent.text,
+        has_image=has_image,
+        has_field_id=has_field_id,
+    )
+
+    # Step 2: Check for quick response
+    if routing_result.is_quick_response and routing_result.quick_response:
+        total_time = int((time.time() - start_time) * 1000)
+
+        logger.info(
+            "quick_response_returned",
+            request_id=request_id,
+            category=routing_result.quick_response.category,
+            latency_ms=total_time,
+        )
+
+        return OrchestratorResponse(
+            request_id=request_id,
+            success=True,
+            summary_en=routing_result.quick_response.response_en,
+            summary_ar=routing_result.quick_response.response_ar,
+            detailed_results=[],
+            actions=[],
+            recommendations_en=[],
+            recommendations_ar=[],
+            intent=None,
+            total_latency_ms=total_time,
+            agents_called=0,
+            metadata={
+                "routing_type": "quick_response",
+                "category": routing_result.quick_response.category,
+            },
+        )
+
+    # Step 3: Get agents from routing result
+    agents = []
+    for agent_name in routing_result.agents:
+        agent_info = registry.get_agent(agent_name)
+        if agent_info and agent_info.active:
+            agents.append(agent_info)
+
+    if not agents:
+        # Fallback to advisory
+        advisory = registry.get_agent("advisory")
+        if advisory:
+            agents = [advisory]
+
+    # Step 4: Create execution plan using routed agents
+    agent_calls = []
+    for agent in agents[:5]:
+        # Use the first available endpoint
+        endpoint_key = list(agent.endpoints.keys())[0] if agent.endpoints else ""
+        endpoint = agent.endpoints.get(endpoint_key, "")
+        full_endpoint = f"{agent.base_url}{endpoint}"
+
+        params: dict[str, Any] = {}
+        if user_intent.field_id:
+            params["field_id"] = user_intent.field_id
+        if user_intent.tenant_id:
+            params["tenant_id"] = user_intent.tenant_id
+        if agent.requires_image and has_image:
+            if user_intent.image_base64:
+                params["image_base64"] = user_intent.image_base64
+            if user_intent.image_url:
+                params["image_url"] = user_intent.image_url
+        if user_intent.context:
+            params["context"] = user_intent.context
+
+        agent_calls.append(
+            AgentCall(
+                agent_name=agent.name,
+                endpoint=full_endpoint,
+                method="POST",
+                params=params,
+                priority=agent.priority,
+                timeout=agent.timeout,
+            )
+        )
+
+    # Step 5: Execute agents
+    plan = ExecutionPlan(
+        plan_id=f"simple_{request_id}",
+        agents=agent_calls,
+        execution_mode=ExecutionMode.PARALLEL,
+        intent=None,  # type: ignore
+    )
+
+    agent_results = await executor.execute_plan(plan)
+
+    # Step 6: Create response
+    successful_agents = sum(1 for r in agent_results if r.success)
+    total_time = int((time.time() - start_time) * 1000)
+
+    # Simple synthesis
+    if successful_agents > 0:
+        summary_en = f"Successfully received responses from {successful_agents} agent(s)."
+        summary_ar = f"تم استلام استجابات من {successful_agents} وكيل(وكلاء) بنجاح."
+    else:
+        summary_en = "Unable to get responses from agents. Please try again."
+        summary_ar = "تعذر الحصول على استجابات من الوكلاء. يرجى المحاولة مرة أخرى."
+
+    logger.info(
+        "simple_orchestration_completed",
+        request_id=request_id,
+        agents_called=len(agent_calls),
+        successful=successful_agents,
+        latency_ms=total_time,
+    )
+
+    return OrchestratorResponse(
+        request_id=request_id,
+        success=successful_agents > 0,
+        summary_en=summary_en,
+        summary_ar=summary_ar,
+        detailed_results=agent_results,
+        actions=[],
+        recommendations_en=[],
+        recommendations_ar=[],
+        intent=None,
+        total_latency_ms=total_time,
+        agents_called=len(agent_calls),
+        cached_responses=sum(1 for r in agent_results if r.cached),
+        metadata={
+            "routing_type": "simple",
+            "routed_intent": routing_result.intent,
+            "priority": routing_result.priority.value,
+            "confidence": routing_result.confidence,
+        },
+    )

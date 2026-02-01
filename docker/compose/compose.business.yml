@@ -760,6 +760,34 @@ services:
     - advisory-service
     - notification-service
     - billing-core
+  whatsapp-bot-service:
+    build:
+      context: ../../apps/services/whatsapp-bot-service
+      dockerfile: Dockerfile
+    ports:
+    - 8240:8240
+    environment:
+    - PORT=8240
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8240/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - llm-orchestrator-service
+    - yolo26-vision-service
+    - notification-service
 networks:
   sahool-network:
     driver: bridge

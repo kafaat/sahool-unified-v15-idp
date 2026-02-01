@@ -1,0 +1,1705 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>تقرير المقارنة: المدموج vs غير المدموج - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#vs" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تقرير المقارنة: المدموج vs غير المدموج
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="vs">تقرير المقارنة: المدموج vs غير المدموج<a class="headerlink" href="#vs" title="Permanent link">&para;</a></h1>
+<h1 id="comparison-report-merged-vs-unmerged-branches">Comparison Report: Merged vs Unmerged Branches<a class="headerlink" href="#comparison-report-merged-vs-unmerged-branches" title="Permanent link">&para;</a></h1>
+<p><strong>التاريخ</strong>: 2026-01-29
+<strong>المستودع</strong>: kafaat/sahool-unified-v15-idp</p>
+<hr />
+<h2 id="executive-summary">الملخص التنفيذي | Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الفئة</th>
+<th>المدموج في Main</th>
+<th>غير المدموج</th>
+<th>التوصية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>الأمان</strong></td>
+<td>5 إصلاحات</td>
+<td>6 فروع</td>
+<td>⚠️ مراجعة فورية</td>
+</tr>
+<tr>
+<td><strong>API/Kong</strong></td>
+<td>5 تحسينات</td>
+<td>10 فروع</td>
+<td>⚡ بعضها مهم</td>
+</tr>
+<tr>
+<td><strong>Mobile</strong></td>
+<td>8+ إصلاحات</td>
+<td>10 فروع</td>
+<td>✅ معظمها مكرر</td>
+</tr>
+<tr>
+<td><strong>التبعيات</strong></td>
+<td>0</td>
+<td>14 Dependabot</td>
+<td>🔴 دمج فوري</td>
+</tr>
+<tr>
+<td><strong>البنية التحتية</strong></td>
+<td>3 تحسينات</td>
+<td>8 فروع</td>
+<td>⚡ مراجعة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-security">1. الأمان | Security<a class="headerlink" href="#1-security" title="Permanent link">&para;</a></h2>
+<h3 id="main">✅ المدموج في Main (جيد)<a class="headerlink" href="#main" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Commit</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0bd8d8ef</code></td>
+<td>Claude/mobile security fixes</td>
+</tr>
+<tr>
+<td><code>16189892</code></td>
+<td>fix(mobile): fix critical security and localization issues</td>
+</tr>
+<tr>
+<td><code>87503629</code></td>
+<td>fix(security): resolve security vulnerabilities</td>
+</tr>
+<tr>
+<td><code>0e7b7ec5</code></td>
+<td>fix(critical): resolve version conflicts and security issues</td>
+</tr>
+<tr>
+<td><code>83475848</code></td>
+<td>fix(mobile): disable security checks in dev mode</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_1">⚠️ غير المدموج (يحتاج مراجعة)<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفرع</th>
+<th>الحالة</th>
+<th>الأهمية</th>
+<th>التوصية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude/security-hotfix-zcpSG</code></td>
+<td>316 ahead, 116 behind</td>
+<td>🔴 عالية</td>
+<td><strong>ترقية Next.js 15.5.9</strong> - مهم للأمان</td>
+</tr>
+<tr>
+<td><code>claude/api-gateway-security-zcpSG</code></td>
+<td>777 ahead, 116 behind</td>
+<td>🟠 متوسطة</td>
+<td>متضارب مع main - إعادة إنشاء</td>
+</tr>
+<tr>
+<td><code>claude/postgres-security-updates-UU3x3</code></td>
+<td>متضارب</td>
+<td>🟠 متوسطة</td>
+<td>تحديثات PostgreSQL - مراجعة</td>
+</tr>
+<tr>
+<td><code>claude/audit-idp-security-VCuFI</code></td>
+<td>1513 ahead</td>
+<td>🟡 منخفضة</td>
+<td>تقارير تدقيق فقط</td>
+</tr>
+<tr>
+<td><code>claude/security-enhancements-1QAAM</code></td>
+<td>قديم</td>
+<td>🟡 منخفضة</td>
+<td>حذف - قديم جداً</td>
+</tr>
+<tr>
+<td><code>claude/mobile-security-fixes-CUQpk</code></td>
+<td>مدموج جزئياً</td>
+<td>⬜ لا حاجة</td>
+<td><strong>حذف</strong> - مدموج بالفعل</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الخلاصة</strong>:
+- ✅ معظم الإصلاحات الأمنية الحرجة <strong>مدموجة بالفعل</strong>
+- ⚠️ <code>security-hotfix-zcpSG</code> يحتوي على ترقية Next.js مهمة</p>
+<hr />
+<h2 id="2-api-gateway-kong">2. API Gateway / Kong<a class="headerlink" href="#2-api-gateway-kong" title="Permanent link">&para;</a></h2>
+<h3 id="main_1">✅ المدموج في Main<a class="headerlink" href="#main_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Commit</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ff58e9aa</code></td>
+<td>fix: align Kong config with Admin/Web API requirements</td>
+</tr>
+<tr>
+<td><code>9881ae54</code></td>
+<td>docs: add comprehensive Kong-Backend API mapping</td>
+</tr>
+<tr>
+<td><code>247444ac</code></td>
+<td>docs: add Web-Kong services mapping analysis</td>
+</tr>
+<tr>
+<td><code>b416a06d</code></td>
+<td>fix(kong): add 8 missing services to gateway</td>
+</tr>
+<tr>
+<td><code>aa21e8b4</code></td>
+<td>fix: align Kong gateway ports with governance registry</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">⚠️ غير المدموج<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفرع</th>
+<th>الحالة</th>
+<th>الأهمية</th>
+<th>التوصية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude/analyze-kong-services-E8TJ8</code></td>
+<td>حديث (01-25)</td>
+<td>🟡 منخفضة</td>
+<td>تحليل فقط - حذف</td>
+</tr>
+<tr>
+<td><code>claude/fix-kong-dns-errors-*</code></td>
+<td>قديم</td>
+<td>🟠 متوسطة</td>
+<td>مراجعة أو حذف</td>
+</tr>
+<tr>
+<td><code>claude/fix-kong-config-path-jL3fw</code></td>
+<td>قديم</td>
+<td>⬜ لا حاجة</td>
+<td><strong>حذف</strong> - تم إصلاحه</td>
+</tr>
+<tr>
+<td><code>claude/api-gateway-merge-zu3aA</code></td>
+<td>قديم</td>
+<td>⬜ لا حاجة</td>
+<td><strong>حذف</strong></td>
+</tr>
+<tr>
+<td><code>copilot/fix-api-*</code></td>
+<td>متعددة</td>
+<td>⬜ لا حاجة</td>
+<td><strong>حذف</strong> - قديمة</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الخلاصة</strong>:
+- ✅ تكوين Kong <strong>مكتمل ومستقر</strong>
+- ⬜ معظم الفروع غير المدموجة <strong>قديمة ويجب حذفها</strong></p>
+<hr />
+<h2 id="3-mobile">3. تطبيق Mobile<a class="headerlink" href="#3-mobile" title="Permanent link">&para;</a></h2>
+<h3 id="main_2">✅ المدموج في Main (شامل)<a class="headerlink" href="#main_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Commit</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0bd8d8ef</code></td>
+<td>Claude/mobile security fixes</td>
+</tr>
+<tr>
+<td><code>16189892</code></td>
+<td>fix(mobile): fix critical security and localization issues</td>
+</tr>
+<tr>
+<td><code>cd3626dd</code></td>
+<td>feat(mobile): add comprehensive CI/CD pipeline</td>
+</tr>
+<tr>
+<td><code>fa9b5a15</code></td>
+<td>fix-freezed-compatibility</td>
+</tr>
+<tr>
+<td><code>19510466</code></td>
+<td>fix(mobile): auto-select device for Flutter tests</td>
+</tr>
+<tr>
+<td><code>5975794a</code></td>
+<td>fix(mobile): revert to Dart 3.6.0 compatible packages</td>
+</tr>
+<tr>
+<td><code>8282a450</code></td>
+<td>feat(mobile): add tower-level VRI zone management</td>
+</tr>
+<tr>
+<td><code>c52de6e5</code></td>
+<td>fix(mobile): add missing dependencies</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">⚠️ غير المدموج<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفرع</th>
+<th>الحالة</th>
+<th>الأهمية</th>
+<th>التوصية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude/mobile-permission-system-zcpSG</code></td>
+<td>753 ahead</td>
+<td>🟠 متوسطة</td>
+<td>نظام صلاحيات - <strong>مراجعة</strong></td>
+</tr>
+<tr>
+<td><code>claude/mobile-app-improvement-zcpSG</code></td>
+<td>قديم</td>
+<td>🟡 منخفضة</td>
+<td>تحسينات عامة</td>
+</tr>
+<tr>
+<td><code>claude/mobile-fix-JfDP3</code></td>
+<td>قديم جداً</td>
+<td>⬜ لا حاجة</td>
+<td><strong>حذف</strong></td>
+</tr>
+<tr>
+<td><code>claude/mobile-merge-zu3aA</code></td>
+<td>قديم</td>
+<td>⬜ لا حاجة</td>
+<td><strong>حذف</strong></td>
+</tr>
+<tr>
+<td><code>claude/check-mobile-app-errors-M0m9w</code></td>
+<td>قديم</td>
+<td>⬜ لا حاجة</td>
+<td><strong>حذف</strong></td>
+</tr>
+<tr>
+<td><code>copilot/fix-flutter-*</code></td>
+<td>متعددة قديمة</td>
+<td>⬜ لا حاجة</td>
+<td><strong>حذف</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>الخلاصة</strong>:
+- ✅ تطبيق Mobile <strong>يعمل بشكل جيد</strong>
+- 🟠 <code>mobile-permission-system-zcpSG</code> قد يحتوي على ميزة مفيدة
+- ⬜ باقي الفروع <strong>قديمة ويجب حذفها</strong></p>
+<hr />
+<h2 id="4-dependabot">4. تحديثات Dependabot 🔴 أولوية عالية<a class="headerlink" href="#4-dependabot" title="Permanent link">&para;</a></h2>
+<h3 id="_4">غير المدموج (يجب الدمج فوراً)<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<h4 id="python-dependencies">Python Dependencies<a class="headerlink" href="#python-dependencies" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الفرع</th>
+<th>التحديث</th>
+<th>الأهمية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dependabot/pip/apps/services/redis-hiredis--7.1.0</code></td>
+<td>Redis 5.0.1 → 7.1.0</td>
+<td>🔴 <strong>حرج</strong> - أمان وأداء</td>
+</tr>
+<tr>
+<td><code>dependabot/pip/apps/services/celery-5.6.2</code></td>
+<td>Celery 5.4.0 → 5.6.2</td>
+<td>🔴 <strong>حرج</strong> - إصلاحات</td>
+</tr>
+<tr>
+<td><code>dependabot/pip/apps/services/alembic-1.18.2</code></td>
+<td>Alembic 1.13.1 → 1.18.2</td>
+<td>🟠 متوسطة</td>
+</tr>
+<tr>
+<td><code>dependabot/pip/apps/services/pydantic-settings-2.12.0</code></td>
+<td>Pydantic Settings</td>
+<td>🟠 متوسطة</td>
+</tr>
+<tr>
+<td><code>dependabot/pip/python-minor-4983c66365</code></td>
+<td><strong>29 تحديث</strong></td>
+<td>🔴 <strong>حرج</strong></td>
+</tr>
+<tr>
+<td><code>dependabot/pip/scipy-*</code></td>
+<td>SciPy 1.11-1.18</td>
+<td>🟠 متوسطة</td>
+</tr>
+</tbody>
+</table>
+<h4 id="javascriptnodejs-dependencies">JavaScript/Node.js Dependencies<a class="headerlink" href="#javascriptnodejs-dependencies" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الفرع</th>
+<th>التحديث</th>
+<th>الأهمية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dependabot/npm_and_yarn/react-query-5.90.20</code></td>
+<td>React Query 5.90.12 → 5.90.20</td>
+<td>🟠 متوسطة</td>
+</tr>
+<tr>
+<td><code>dependabot/npm_and_yarn/next-ecosystem-*</code></td>
+<td>Next.js ecosystem</td>
+<td>🟠 متوسطة</td>
+</tr>
+<tr>
+<td><code>dependabot/npm_and_yarn/react-ecosystem-*</code></td>
+<td>React DOM</td>
+<td>🟠 متوسطة</td>
+</tr>
+<tr>
+<td><code>dependabot/npm_and_yarn/testing-*</code></td>
+<td>Testing libs</td>
+<td>🟡 منخفضة</td>
+</tr>
+<tr>
+<td><code>dependabot/npm_and_yarn/typescript-*</code></td>
+<td>TypeScript</td>
+<td>🟡 منخفضة</td>
+</tr>
+</tbody>
+</table>
+<h4 id="infrastructure">Infrastructure<a class="headerlink" href="#infrastructure" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الفرع</th>
+<th>التحديث</th>
+<th>الأهمية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dependabot/github_actions/actions-*</code></td>
+<td><strong>19 تحديث GitHub Actions</strong></td>
+<td>🔴 <strong>حرج</strong></td>
+</tr>
+<tr>
+<td><code>dependabot/docker/python-3.14-*</code></td>
+<td>Python 3.14 Docker</td>
+<td>🟠 متوسطة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-action-summary">5. ملخص التوصيات | Action Summary<a class="headerlink" href="#5-action-summary" title="Permanent link">&para;</a></h2>
+<h3 id="_5">🔴 فوري (هذا الأسبوع)<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>دمج Dependabot PRs</strong>:
+   ```</li>
+<li>redis-hiredis-7.1.0 (أمان وأداء)</li>
+<li>celery-5.6.2 (إصلاحات)</li>
+<li>python-minor (29 تحديث)</li>
+<li>
+<p>github_actions (19 تحديث)
+   ```</p>
+</li>
+<li>
+<p><strong>مراجعة إصلاحات الأمان</strong>:
+   ```</p>
+</li>
+<li>claude/security-hotfix-zcpSG (Next.js upgrade)
+   ```</li>
+</ol>
+<h3 id="_6">🟠 قريب (هذا الشهر)<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>مراجعة الميزات المحتملة</strong>:
+   ```</li>
+<li>
+<p>claude/mobile-permission-system-zcpSG
+   ```</p>
+</li>
+<li>
+<p><strong>دمج باقي Dependabot</strong>:
+   ```</p>
+</li>
+<li>react-query, next-ecosystem, etc.
+   ```</li>
+</ol>
+<h3 id="_7">⬜ حذف (فوري)<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>حذف 91 فرع قديم</strong>:
+   <code>bash
+   ./scripts/cleanup-stale-branches.sh --execute</code></li>
+</ol>
+<hr />
+<h2 id="6">6. جدول المقارنة النهائي<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المجال</th>
+<th>Main Status</th>
+<th>الفجوات</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>الأمان</strong></td>
+<td>✅ جيد (80%)</td>
+<td>ترقية Next.js</td>
+<td>🔴 عالية</td>
+</tr>
+<tr>
+<td><strong>API/Kong</strong></td>
+<td>✅ مكتمل (95%)</td>
+<td>لا شيء</td>
+<td>⬜ لا حاجة</td>
+</tr>
+<tr>
+<td><strong>Mobile</strong></td>
+<td>✅ يعمل (85%)</td>
+<td>نظام صلاحيات</td>
+<td>🟠 متوسطة</td>
+</tr>
+<tr>
+<td><strong>التبعيات</strong></td>
+<td>⚠️ قديمة (60%)</td>
+<td>14 تحديث</td>
+<td>🔴 عالية</td>
+</tr>
+<tr>
+<td><strong>CI/CD</strong></td>
+<td>✅ جيد (90%)</td>
+<td>تحديث Actions</td>
+<td>🟠 متوسطة</td>
+</tr>
+<tr>
+<td><strong>Documentation</strong></td>
+<td>✅ شامل (95%)</td>
+<td>لا شيء</td>
+<td>⬜ لا حاجة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_8">الخلاصة النهائية<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<h3 id="main_3">ما هو موجود في Main ✅<a class="headerlink" href="#main_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>إصلاحات الأمان الحرجة</li>
+<li>تكوين Kong/API Gateway كامل</li>
+<li>تطبيق Mobile يعمل مع CI/CD</li>
+<li>توثيق شامل</li>
+<li>بنية تحتية مستقرة</li>
+</ul>
+<h3 id="_9">ما ينقص ⚠️<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>تحديثات التبعيات</strong> (14 PR من Dependabot)</li>
+<li><strong>ترقية Next.js 15.5.9</strong> (أمان)</li>
+<li><strong>نظام صلاحيات Mobile</strong> (ميزة جديدة)</li>
+</ol>
+<h3 id="_10">ما يجب حذفه 🗑️<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>91 فرع قديم</strong> (&gt; 30 يوم)</li>
+<li>فروع <code>sub-pr-*</code> المؤقتة</li>
+<li>فروع <code>revert-*</code> المعالجة</li>
+<li>فروع مكررة ومتضاربة</li>
+</ul>
+<hr />
+<p><em>تم إنشاء هذا التقرير بواسطة Claude Code</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

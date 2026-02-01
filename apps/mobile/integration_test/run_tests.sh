@@ -74,19 +74,26 @@ check_devices() {
     print_success "$DEVICE_COUNT device(s) found"
 
     # Auto-select device if not specified and multiple devices available
+    # NOTE: Web/Chrome devices are NOT supported for Flutter integration tests
     if [ -z "$DEVICE_ID" ] && [ "$DEVICE_COUNT" -gt 1 ]; then
-        # Prefer Chrome for integration tests (web-javascript)
-        if flutter devices | grep -q "chrome"; then
-            DEVICE_ID="chrome"
-            print_info "Auto-selected device: chrome (web)"
-        # Fallback to Linux desktop
-        elif flutter devices | grep -q "linux"; then
-            DEVICE_ID="linux"
-            print_info "Auto-selected device: linux (desktop)"
+        # Prefer Android emulator for integration tests (most compatible)
+        if flutter devices | grep -q "emulator\|android"; then
+            DEVICE_ID=$(flutter devices | grep -E "emulator|android" | head -1 | awk '{print $2}')
+            print_info "Auto-selected device: $DEVICE_ID (Android)"
+        # Fallback to iOS simulator
+        elif flutter devices | grep -q "simulator\|iphone\|ipad"; then
+            DEVICE_ID=$(flutter devices | grep -E "simulator|iphone|ipad" -i | head -1 | awk '{print $2}')
+            print_info "Auto-selected device: $DEVICE_ID (iOS)"
+        # Skip web devices - not supported for integration tests
+        elif flutter devices | grep -v "chrome\|web\|linux" | grep -q "•"; then
+            DEVICE_ID=$(flutter devices | grep -v "chrome\|web\|linux" | grep "•" | head -1 | awk '{print $2}')
+            print_info "Auto-selected device: $DEVICE_ID"
         else
-            # Use first available device
-            DEVICE_ID=$(flutter devices | grep "•" | head -1 | awk '{print $2}')
-            print_info "Auto-selected first available device: $DEVICE_ID"
+            print_error "No supported device found for integration tests."
+            print_warning "Integration tests require Android emulator or iOS simulator."
+            print_warning "Web devices (Chrome) are NOT supported."
+            print_info "Please start an emulator with: flutter emulators --launch <emulator_name>"
+            exit 1
         fi
     fi
 }

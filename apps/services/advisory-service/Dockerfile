@@ -25,12 +25,20 @@ RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 
-# Upgrade pip (non-fatal in case of network issues)
+# Configure pip for network resilience with fallback mirrors
+RUN mkdir -p /root/.pip && \
+    echo "[global]" > /root/.pip/pip.conf && \
+    echo "timeout = 300" >> /root/.pip/pip.conf && \
+    echo "retries = 10" >> /root/.pip/pip.conf && \
+    echo "trusted-host = pypi.org files.pythonhosted.org pypi.tuna.tsinghua.edu.cn" >> /root/.pip/pip.conf
+
+# Upgrade pip
 RUN pip install --no-cache-dir --upgrade pip || true
 
-# Install dependencies (using shared requirements)
+# Install dependencies with fallback to Tsinghua mirror
 COPY apps/services/advisory-service/requirements.txt .
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt || \
+    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt
 
 # Copy shared libraries
 COPY apps/services/shared/ ./shared/

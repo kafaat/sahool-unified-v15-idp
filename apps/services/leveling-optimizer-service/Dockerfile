@@ -30,12 +30,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+# Configure pip for network resilience with fallback mirrors
+RUN mkdir -p /root/.pip && \
+    echo "[global]" > /root/.pip/pip.conf && \
+    echo "timeout = 300" >> /root/.pip/pip.conf && \
+    echo "retries = 10" >> /root/.pip/pip.conf && \
+    echo "trusted-host = pypi.org files.pythonhosted.org pypi.tuna.tsinghua.edu.cn" >> /root/.pip/pip.conf
+
 # Copy requirements first for better caching
 # Note: Build context is repo root, so use full path
 COPY apps/services/leveling-optimizer-service/requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies with fallback to Tsinghua mirror
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt || \
+    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt
 
 # Production stage
 FROM base AS production

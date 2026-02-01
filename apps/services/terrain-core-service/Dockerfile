@@ -67,12 +67,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build numpy
 
-# Configure pip for better network resilience
+# Configure pip for better network resilience with fallback mirrors
 RUN mkdir -p /root/.pip && \
     echo "[global]" > /root/.pip/pip.conf && \
     echo "timeout = 300" >> /root/.pip/pip.conf && \
     echo "retries = 10" >> /root/.pip/pip.conf && \
     echo "default-timeout = 300" >> /root/.pip/pip.conf && \
+    echo "trusted-host = pypi.org files.pythonhosted.org pypi.tuna.tsinghua.edu.cn" >> /root/.pip/pip.conf && \
     echo "[install]" >> /root/.pip/pip.conf && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
@@ -80,10 +81,10 @@ RUN mkdir -p /root/.pip && \
 COPY apps/services/terrain-core-service/requirements.txt .
 
 # Install Python dependencies
-# Install GDAL Python bindings matching system version
-RUN pip install --no-cache-dir --timeout=300 --retries=10 \
-    GDAL==$(gdal-config --version) && \
-    pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+# Install GDAL Python bindings matching system version, with fallback to Tsinghua mirror
+RUN pip install --no-cache-dir --timeout=300 --retries=10 GDAL==$(gdal-config --version) && \
+    (pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt || \
+     pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt)
 
 # Copy shared libraries
 COPY shared/ ./shared/

@@ -26,6 +26,10 @@ infrastructure = [
     "redis==5.3.1",
     "python-jose[cryptography]==3.5.0",  # CVE-2024-33663, CVE-2024-33664
     "passlib[bcrypt]==1.7.4",
+    # Security: minimum versions to fix known CVEs
+    "cryptography>=43.0.1",  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p
+    "setuptools>=78.1.1",    # PYSEC-2025-49, GHSA-cx63-2mw6-8hw5
+    "wheel>=0.46.2",         # GHSA-8rrh-rw8j-w5fx
 ]
 observability = [
     "prometheus-client==0.24.1",

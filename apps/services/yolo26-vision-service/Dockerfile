@@ -60,6 +60,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+# Configure pip for network resilience with fallback mirrors
+RUN mkdir -p /root/.pip && \
+    echo "[global]" > /root/.pip/pip.conf && \
+    echo "timeout = 300" >> /root/.pip/pip.conf && \
+    echo "retries = 10" >> /root/.pip/pip.conf && \
+    echo "trusted-host = pypi.org files.pythonhosted.org pypi.tuna.tsinghua.edu.cn download.pytorch.org" >> /root/.pip/pip.conf
+
 # Upgrade pip
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
@@ -69,13 +76,14 @@ COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
 
 # Install Python dependencies
 # Install PyTorch with CUDA support first
-RUN pip install --no-cache-dir \
+RUN pip install --no-cache-dir --timeout=300 --retries=10 \
     torch==2.2.0 \
     torchvision==0.17.0 \
     --index-url https://download.pytorch.org/whl/cu121
 
-# Install remaining dependencies
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+# Install remaining dependencies with fallback to Tsinghua mirror
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r /tmp/requirements.txt || \
+    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r /tmp/requirements.txt
 
 # -----------------------------------------------------------------------------
 # Stage 3: Production image
@@ -140,8 +148,8 @@ FROM production AS development
 # Switch back to root for development setup
 USER root
 
-# Install development dependencies
-RUN pip install --no-cache-dir \
+# Install development dependencies with fallback
+RUN pip install --no-cache-dir --timeout=300 --retries=10 \
     pytest \
     pytest-asyncio \
     pytest-cov \
@@ -149,7 +157,9 @@ RUN pip install --no-cache-dir \
     black \
     ruff \
     mypy \
-    ipython
+    ipython || \
+    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
+    pytest pytest-asyncio pytest-cov httpx black ruff mypy ipython
 
 # Set development environment
 ENV ENVIRONMENT=development
@@ -201,10 +211,18 @@ WORKDIR /app
 # Note: Build context is repo root, so use full path
 COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
 
-# Install Python dependencies (CPU only)
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
-    && pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu \
-    && pip install --no-cache-dir -r /tmp/requirements.txt
+# Configure pip for network resilience with fallback mirrors
+RUN mkdir -p /root/.pip && \
+    echo "[global]" > /root/.pip/pip.conf && \
+    echo "timeout = 300" >> /root/.pip/pip.conf && \
+    echo "retries = 10" >> /root/.pip/pip.conf && \
+    echo "trusted-host = pypi.org files.pythonhosted.org pypi.tuna.tsinghua.edu.cn download.pytorch.org" >> /root/.pip/pip.conf
+
+# Install Python dependencies (CPU only) with fallback to Tsinghua mirror
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir --timeout=300 --retries=10 torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
+    (pip install --no-cache-dir --timeout=300 --retries=10 -r /tmp/requirements.txt || \
+     pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r /tmp/requirements.txt)
 
 # Create directories
 RUN mkdir -p /app/src /app/models /app/logs /app/data \

@@ -29,8 +29,8 @@ RUN groupadd --system sahool && \
 
 # Upgrade pip and install build tools
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
-    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade "setuptools>=68.0" wheel build
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
 
 # Configure pip for better network resilience
 RUN mkdir -p /root/.pip && \
@@ -43,7 +43,7 @@ RUN mkdir -p /root/.pip && \
 
 # Install dependencies (using shared requirements)
 COPY apps/services/agro-advisor/requirements.txt .
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared libraries (from repo root)
 COPY shared/ ./shared/
@@ -70,4 +70,4 @@ EXPOSE 8105
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8105/healthz')" || exit 1
 
-CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT}"]
+CMD ["sh", "-c", "python -m uvicorn src.main:app --host 0.0.0.0 --port ${PORT}"]

@@ -36,12 +36,8 @@ COPY apps/services/shared ./shared/
 COPY apps/services/crop-intelligence-service/src/ ./src/
 
 # Upgrade pip, install dependencies, and set ownership
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip || true && \
-    (pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt || \
-    pip install --no-cache-dir --timeout=300 --retries=10 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    -r requirements.txt) && \
+RUN pip install --no-cache-dir --upgrade pip || true && \
+    pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt && \
     chown -R sahool:sahool /app
 
 USER sahool
@@ -51,4 +47,4 @@ EXPOSE 8095
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8095/healthz')" || exit 1
 
-CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8095}"]
+CMD ["sh", "-c", "python -m uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8095}"]

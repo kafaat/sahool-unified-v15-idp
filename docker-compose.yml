@@ -1262,7 +1262,8 @@ services:
     environment:
       - PORT=8114
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
@@ -1463,7 +1464,8 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3025
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
@@ -1524,7 +1526,8 @@ services:
     container_name: sahool-field-ops-deprecated
     environment:
       - PORT=8080
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
@@ -1534,7 +1537,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      postgres:
+      # FIX: Use pgbouncer instead of postgres for proper connection pooling
+      pgbouncer:
         condition: service_healthy
       nats:
         condition: service_healthy
@@ -1612,7 +1616,8 @@ services:
       - PORT=8089
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      # FIX: Add ssl=disable for asyncpg (different parameter name than psycopg2)
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?ssl=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - STRIPE_API_KEY=${STRIPE_API_KEY:-}
@@ -2154,7 +2159,8 @@ services:
     environment:
       - PORT=8104
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
@@ -2326,7 +2332,8 @@ services:
       - legacy
     environment:
       - PORT=8107
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
@@ -2335,7 +2342,8 @@ services:
     ports:
       - "8107:8107"
     depends_on:
-      postgres:
+      # FIX: Use pgbouncer instead of postgres for proper connection pooling
+      pgbouncer:
         condition: service_healthy
       nats:
         condition: service_healthy
@@ -2378,7 +2386,8 @@ services:
       - legacy
     environment:
       - PORT=8108
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
@@ -2391,7 +2400,8 @@ services:
     ports:
       - "8108:8108"
     depends_on:
-      postgres:
+      # FIX: Use pgbouncer instead of postgres for proper connection pooling
+      pgbouncer:
         condition: service_healthy
       nats:
         condition: service_healthy
@@ -2870,7 +2880,8 @@ services:
     depends_on:
       kong:
         condition: service_healthy
-      postgres:
+      # FIX: Use pgbouncer instead of postgres for consistency
+      pgbouncer:
         condition: service_healthy
       nats:
         condition: service_healthy
@@ -2952,7 +2963,8 @@ services:
     depends_on:
       kong:
         condition: service_healthy
-      postgres:
+      # FIX: Use pgbouncer instead of postgres for consistency
+      pgbouncer:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -3131,7 +3143,8 @@ services:
       - PORT=8133
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - WECHAT_APP_ID=${WECHAT_APP_ID:-}

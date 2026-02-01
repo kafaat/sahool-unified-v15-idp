@@ -16,7 +16,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Extract version
         id: version
@@ -37,10 +37,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -79,7 +79,7 @@ jobs:
           - crop-health
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Login to Docker Hub BEFORE setup-buildx to avoid rate limiting when pulling buildkit image
       # Configure DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets for better reliability
@@ -133,7 +133,7 @@ jobs:
 
       - name: Build and push
         if: steps.check.outputs.exists == 'true'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           # Use repository root as context for shared module access
           context: .
@@ -156,7 +156,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Generate release notes
         id: notes
@@ -200,7 +200,7 @@ jobs:
           EOF
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: SAHOOL v${{ needs.validate.outputs.version }}
           body_path: release_notes.md

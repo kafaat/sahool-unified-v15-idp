@@ -11,7 +11,7 @@ jobs:
     name: Validate Repository Structure
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Block forbidden paths
         run: |

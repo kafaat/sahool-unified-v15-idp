@@ -350,15 +350,15 @@ ps: ## قائمة الحاويات قيد التشغيل - List running containe
 
 fixops: ## معاينة مشاكل الكود - Preview code issues (dry-run)
 	@echo "$(BLUE)🔧 FixOps - معاينة المشاكل - Preview Mode...$(RESET)"
-	python3 -m tools.fixops.cli --dry-run
+	python -m tools.fixops.cli --dry-run
 
 fixops-run: ## إصلاح المشاكل تلقائياً (safe) - Fix issues automatically (safe strategy)
 	@echo "$(GREEN)🔧 FixOps - تطبيق الإصلاحات - Applying Fixes...$(RESET)"
-	python3 -m tools.fixops.cli --no-dry-run --strategy safe
+	python -m tools.fixops.cli --no-dry-run --strategy safe
 
 fixops-comprehensive: ## إصلاح شامل لجميع المشاكل - Comprehensive fix (all issues)
 	@echo "$(YELLOW)🔧 FixOps - إصلاح شامل - Comprehensive Fix...$(RESET)"
-	python3 -m tools.fixops.cli --no-dry-run --strategy comprehensive
+	python -m tools.fixops.cli --no-dry-run --strategy comprehensive
 
 fixops-json: ## مخرجات JSON للتكامل - JSON output for CI/CD integration
 	@python3 -m tools.fixops.cli --dry-run --json

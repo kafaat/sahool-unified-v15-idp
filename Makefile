@@ -10,6 +10,7 @@
 .PHONY: help dev build up down restart logs clean test health
 .PHONY: mobile-test mobile-build mobile-build-release mobile-build-aab mobile-analyze
 .PHONY: mobile-format mobile-clean mobile-deps mobile-codegen mobile-doctor mobile-ci
+.PHONY: fixops fixops-run fixops-comprehensive fixops-json
 .DEFAULT_GOAL := help
 
 # ─────────────────────────────────────────────────────────────────────────────

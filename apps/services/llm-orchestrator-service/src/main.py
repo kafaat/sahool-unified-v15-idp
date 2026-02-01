@@ -30,8 +30,11 @@ from .agents.executor import AgentExecutor
 from .api.endpoints import router as orchestrator_router
 from .api.endpoints import training as training_module
 from .api.endpoints.training import router as training_router
+from .api.endpoints import integrations as integrations_module
+from .api.endpoints.integrations import router as integrations_router
 from .core.config import settings
 from .training import AGLTrainer, FeedbackCollector
+from .integrations import NLPService, SatelliteService, MLService, CrewService
 
 # Configure structured logging
 structlog.configure(
@@ -186,6 +189,24 @@ async def lifespan(app: FastAPI):
     if app.state.trainer.enabled:
         await app.state.trainer.check_availability()
 
+    # Initialize integration services (AraBERT, Sentinel, AgML, CrewAI)
+    app.state.nlp_service = NLPService()
+    app.state.satellite_service = SatelliteService()
+    app.state.ml_service = MLService()
+    app.state.crew_service = CrewService()
+
+    # Initialize services asynchronously
+    await app.state.nlp_service.initialize()
+    await app.state.satellite_service.initialize()
+    await app.state.ml_service.initialize()
+    await app.state.crew_service.initialize()
+
+    # Wire up integrations module
+    integrations_module.nlp_service = app.state.nlp_service
+    integrations_module.satellite_service = app.state.satellite_service
+    integrations_module.ml_service = app.state.ml_service
+    integrations_module.crew_service = app.state.crew_service
+
     logger.info(
         "llm_orchestrator_service_ready",
         version=VERSION,
@@ -193,6 +214,7 @@ async def lifespan(app: FastAPI):
         redis=app.state.redis_connected,
         nats=app.state.nats_connected,
         database=app.state.db_connected,
+        integrations=["nlp", "satellite", "ml", "crew"],
     )
 
     yield
@@ -282,6 +304,7 @@ if SECURITY_HEADERS_AVAILABLE:
 # Include routers
 app.include_router(orchestrator_router)
 app.include_router(training_router)
+app.include_router(integrations_router)
 
 
 # ============================================================================
@@ -371,6 +394,12 @@ def root():
             "training_jobs": "/api/v1/training/jobs",
             "feedback": "/api/v1/training/feedback",
             "feedback_statistics": "/api/v1/training/feedback/statistics",
+            "nlp_process": "/api/v1/integrations/nlp/process",
+            "satellite_ndvi": "/api/v1/integrations/satellite/ndvi",
+            "satellite_crop_health": "/api/v1/integrations/satellite/crop-health",
+            "ml_datasets": "/api/v1/integrations/ml/datasets",
+            "crew_query": "/api/v1/integrations/crew/query",
+            "crew_agents": "/api/v1/integrations/crew/agents",
             "health": "/healthz",
             "readiness": "/readyz",
             "docs": "/docs",

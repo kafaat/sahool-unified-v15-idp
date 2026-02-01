@@ -21,7 +21,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY requirements.txt .
+# Note: Build context is repo root, so use full path
+COPY apps/services/edge-orchestrator-service/requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
@@ -58,7 +59,9 @@ COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code
-COPY --chown=sahool:sahool . .
+# Note: Build context is repo root, so use full path
+COPY --chown=sahool:sahool apps/services/edge-orchestrator-service/src ./src
+COPY --chown=sahool:sahool apps/services/edge-orchestrator-service/tests ./tests
 
 # Create necessary directories
 RUN mkdir -p /data/uploads /data/models /data/logs && \

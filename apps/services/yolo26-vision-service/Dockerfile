@@ -64,7 +64,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 # Copy requirements file
-COPY requirements.txt /tmp/requirements.txt
+# Note: Build context is repo root, so use full path
+COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
 
 # Install Python dependencies
 # Install PyTorch with CUDA support first
@@ -93,8 +94,9 @@ RUN mkdir -p /app/src /app/models /app/logs /app/data \
     && chown -R sahool:sahool /app
 
 # Copy application code
-COPY --chown=sahool:sahool src/ /app/src/
-COPY --chown=sahool:sahool requirements.txt /app/
+# Note: Build context is repo root, so use full path
+COPY --chown=sahool:sahool apps/services/yolo26-vision-service/src/ /app/src/
+COPY --chown=sahool:sahool apps/services/yolo26-vision-service/requirements.txt /app/
 
 # Create __init__.py files for proper Python packaging
 RUN touch /app/src/__init__.py \
@@ -195,7 +197,8 @@ RUN groupadd -r sahool && useradd -r -g sahool sahool
 WORKDIR /app
 
 # Copy requirements
-COPY requirements.txt /tmp/requirements.txt
+# Note: Build context is repo root, so use full path
+COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
 
 # Install Python dependencies (CPU only)
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
@@ -207,7 +210,8 @@ RUN mkdir -p /app/src /app/models /app/logs /app/data \
     && chown -R sahool:sahool /app
 
 # Copy application code
-COPY --chown=sahool:sahool src/ /app/src/
+# Note: Build context is repo root, so use full path
+COPY --chown=sahool:sahool apps/services/yolo26-vision-service/src/ /app/src/
 
 # Create __init__.py files
 RUN touch /app/src/__init__.py \

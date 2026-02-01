@@ -11,6 +11,7 @@
 .PHONY: mobile-test mobile-build mobile-build-release mobile-build-aab mobile-analyze
 .PHONY: mobile-format mobile-clean mobile-deps mobile-codegen mobile-doctor mobile-ci
 .PHONY: fixops fixops-run fixops-comprehensive fixops-json
+.PHONY: deps-check deps-tree deps-audit deps-outdated deps-security deps-install-tools
 .DEFAULT_GOAL := help
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -388,6 +389,43 @@ monitoring-down: ## إيقاف المراقبة - Stop monitoring stack
 monitoring-logs: ## عرض سجلات المراقبة - View monitoring logs
 	@echo "$(BLUE)📋 سجلات المراقبة - Monitoring logs:$(RESET)"
 	docker compose -f $(COMPOSE_MONITORING) logs -f
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Dependency Management - إدارة الاعتماديات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+deps-check: ## فحص توافق الاعتماديات - Check dependency compatibility
+	@echo "$(BLUE)🔍 فحص توافق الاعتماديات - Checking dependency compatibility...$(RESET)"
+	@pip check || true
+	@echo ""
+	@echo "$(YELLOW)التعارضات المحتملة:$(RESET)"
+	@pipdeptree --warn fail 2>&1 | grep -A2 "Warning!!! Possibly conflicting" || echo "$(GREEN)✅ لا توجد تعارضات$(RESET)"
+
+deps-tree: ## عرض شجرة الاعتماديات - Show dependency tree
+	@echo "$(BLUE)🌳 شجرة الاعتماديات - Dependency tree:$(RESET)"
+	@pipdeptree --warn silence | head -100
+
+deps-audit: ## فحص الثغرات الأمنية - Audit dependencies for vulnerabilities
+	@echo "$(BLUE)🔒 فحص الثغرات الأمنية - Security audit...$(RESET)"
+	@pip-audit --desc 2>&1 | head -50
+
+deps-outdated: ## عرض الاعتماديات القديمة - Show outdated dependencies
+	@echo "$(BLUE)📦 الاعتماديات القديمة - Outdated packages:$(RESET)"
+	@pip list --outdated 2>/dev/null | head -30
+
+deps-security: ## فحص أمني شامل - Full security scan (Bandit + pip-audit)
+	@echo "$(BLUE)🛡️ فحص أمني شامل - Full security scan...$(RESET)"
+	@echo ""
+	@echo "$(YELLOW)=== Bandit (Python Security) ===$(RESET)"
+	@bandit -r apps/services/ shared/ -f json 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); h=len([r for r in d.get('results',[]) if r['issue_severity']=='HIGH']); m=len([r for r in d.get('results',[]) if r['issue_severity']=='MEDIUM']); print(f'HIGH: {h}, MEDIUM: {m}')" || echo "Bandit not available"
+	@echo ""
+	@echo "$(YELLOW)=== pip-audit (CVE Check) ===$(RESET)"
+	@pip-audit 2>&1 | grep -E "^Found|^Name|^No vulnerable" | head -10
+
+deps-install-tools: ## تثبيت أدوات إدارة الاعتماديات - Install dependency management tools
+	@echo "$(BLUE)📥 تثبيت الأدوات - Installing tools...$(RESET)"
+	pip install --ignore-installed pip-tools pipdeptree pip-audit bandit safety yamllint
+	@echo "$(GREEN)✅ تم التثبيت - Tools installed!$(RESET)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Code Quality - جودة الكود

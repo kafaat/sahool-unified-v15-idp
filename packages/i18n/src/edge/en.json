@@ -1,0 +1,80 @@
+{
+  "edge": {
+    "title": "Edge Devices",
+    "device": "Device",
+    "devices": "Devices",
+    "status": "Status",
+    "online": "Online",
+    "offline": "Offline",
+    "syncing": "Syncing",
+    "last_sync": "Last Sync",
+    "sync_now": "Sync Now",
+    "sync_pending": "Sync Pending",
+    "sync_complete": "Sync Complete",
+    "sync_failed": "Sync Failed",
+    "connection": {
+      "title": "Connection",
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "reconnecting": "Reconnecting",
+      "signal_strength": "Signal Strength",
+      "latency": "Latency",
+      "bandwidth": "Bandwidth"
+    },
+    "storage": {
+      "title": "Storage",
+      "used": "Used",
+      "available": "Available",
+      "total": "Total",
+      "low_storage": "Low Storage Warning",
+      "clear_cache": "Clear Cache"
+    },
+    "battery": {
+      "title": "Battery",
+      "level": "Battery Level",
+      "charging": "Charging",
+      "not_charging": "Not Charging",
+      "low_battery": "Low Battery Warning"
+    },
+    "sensors": {
+      "title": "Sensors",
+      "temperature": "Temperature",
+      "humidity": "Humidity",
+      "soil_moisture": "Soil Moisture",
+      "light": "Light Intensity",
+      "pressure": "Atmospheric Pressure",
+      "wind_speed": "Wind Speed",
+      "rainfall": "Rainfall"
+    },
+    "camera": {
+      "title": "Camera",
+      "capture": "Capture",
+      "gallery": "Gallery",
+      "resolution": "Resolution",
+      "quality": "Quality"
+    },
+    "gps": {
+      "title": "GPS",
+      "location": "Location",
+      "accuracy": "Accuracy",
+      "acquiring": "Acquiring Location",
+      "no_signal": "No GPS Signal"
+    },
+    "firmware": {
+      "title": "Firmware",
+      "version": "Version",
+      "update_available": "Update Available",
+      "up_to_date": "Up to Date",
+      "updating": "Updating",
+      "update_failed": "Update Failed"
+    },
+    "diagnostics": {
+      "title": "Diagnostics",
+      "run_diagnostics": "Run Diagnostics",
+      "test_connection": "Test Connection",
+      "test_sensors": "Test Sensors",
+      "view_logs": "View Logs",
+      "export_logs": "Export Logs"
+    }
+  }
+}

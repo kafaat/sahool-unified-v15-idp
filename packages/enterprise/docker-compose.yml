@@ -5,11 +5,13 @@
 #
 # Services included:
 # - All Professional services
-# - AI Services: ai_advisor (with RAG), qdrant
+# - AI Services: ai_advisor (with RAG), qdrant, copilot_api, code_fix_agent
+# - Code Intelligence: copilot_api (Multi-LLM), code_fix_agent (Auto-Fix)
 # - IoT: iot_gateway
 # - Research: research_core, crop_growth_model, lai_estimation, disaster_assessment
 # - Business: marketplace_service, billing_core
 # - Monitoring: prometheus, grafana
+# - Optional: ollama (Local LLM - use profile: with-ollama)
 #
 # Usage:
 #   docker-compose up -d
@@ -435,7 +437,7 @@ services:
     build:
       context: ../../apps/services/vegetation-analysis-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-vegetation-analysis-service
+    container_name: sahool-enterprise-ndvi-engine
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
@@ -621,7 +623,7 @@ services:
     build:
       context: ../../apps/services/advisory-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-advisory-service
+    container_name: sahool-enterprise-fertilizer-advisor
     environment:
       - PORT=8093
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -974,7 +976,7 @@ services:
     build:
       context: ../../apps/services/crop-intelligence-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-crop-intelligence-service
+    container_name: sahool-enterprise-crop-growth-model
     environment:
       - PORT=3023
       - NODE_ENV=production
@@ -1014,7 +1016,7 @@ services:
     build:
       context: ../../apps/services/vegetation-analysis-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-vegetation-analysis-service
+    container_name: sahool-enterprise-lai-estimation
     environment:
       - PORT=3022
       - NODE_ENV=production
@@ -1048,6 +1050,173 @@ services:
     restart: unless-stopped
     networks:
       - sahool-enterprise-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # AI Copilot & Code Intelligence Services - خدمات الذكاء الاصطناعي للكود
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Copilot API - واجهة المساعد الذكي للمطورين
+  copilot_api:
+    build:
+      context: ../../apps/services/copilot-api
+      dockerfile: Dockerfile
+    container_name: sahool-enterprise-copilot-api
+    environment:
+      - PORT=8088
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # Database & Cache
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      - NATS_URL=nats://nats:4222
+      # JWT Authentication
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      # RAG Configuration - إعدادات RAG
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - QDRANT_COLLECTION=sahool_copilot_docs
+      - EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
+      - ENABLE_SEMANTIC_SEARCH=true
+      # Ollama (Local LLM) - نموذج اللغة المحلي
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-codellama:7b}
+      - OLLAMA_TIMEOUT=${OLLAMA_TIMEOUT:-120}
+      # Multi-Provider LLM Configuration - مزودي الذكاء الاصطناعي المتعددين
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      - PRIMARY_LLM_PROVIDER=${PRIMARY_LLM_PROVIDER:-ollama}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-3-5-sonnet-20241022}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-pro}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-deepseek-coder}
+      # Guardrails Configuration - إعدادات حواجز الحماية
+      - ENABLE_GUARDRAILS=true
+      - MAX_TOOL_OUTPUT_SIZE=10485760
+      - MAX_FILES_CHANGED=20
+      # Agent URLs
+      - CODE_FIX_AGENT_URL=http://code_fix_agent:8161
+      - AI_ADVISOR_URL=http://ai_advisor:8112
+    ports:
+      - "8088:8088"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+        reservations:
+          cpus: '2.0'
+          memory: 2G
+    restart: unless-stopped
+    networks:
+      - sahool-enterprise-network
+
+  # Code Fix Agent - وكيل إصلاح الكود الذكي
+  code_fix_agent:
+    build:
+      context: ../../apps/services/code-fix-agent
+      dockerfile: Dockerfile
+    container_name: sahool-enterprise-code-fix-agent
+    environment:
+      - PORT=8161
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # Database & Cache
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      - NATS_URL=nats://nats:4222
+      # JWT Authentication
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      # LLM Configuration
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-codellama:7b}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      # Auto-Fix Configuration - إعدادات الإصلاح التلقائي
+      - AUTO_FIX_ENABLED=${AUTO_FIX_ENABLED:-true}
+      - AUTO_FIX_DRY_RUN=${AUTO_FIX_DRY_RUN:-false}
+      - AUTO_FIX_AUDIT_ENABLED=${AUTO_FIX_AUDIT_ENABLED:-true}
+      - FIX_STRATEGY=${FIX_STRATEGY:-safe}
+      - MAX_FILES_CHANGED=20
+    ports:
+      - "8161:8161"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../../:/workspace:rw
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8161/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+        reservations:
+          cpus: '2.0'
+          memory: 2G
+    restart: unless-stopped
+    networks:
+      - sahool-enterprise-network
+
+  # Ollama Local LLM - نموذج اللغة المحلي (اختياري)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sahool-enterprise-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "127.0.0.1:11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_MODELS=${OLLAMA_MODELS:-codellama:7b,deepseek-coder:6.7b}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:11434/api/tags || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '8.0'
+          memory: 16G
+        reservations:
+          cpus: '4.0'
+          memory: 8G
+    restart: unless-stopped
+    networks:
+      - sahool-enterprise-network
+    profiles:
+      - with-ollama
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Observability Stack
@@ -1151,3 +1320,5 @@ volumes:
     name: sahool-enterprise-prometheus-data
   grafana_data:
     name: sahool-enterprise-grafana-data
+  ollama_data:
+    name: sahool-enterprise-ollama-data

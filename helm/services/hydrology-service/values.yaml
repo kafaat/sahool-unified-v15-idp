@@ -1,0 +1,113 @@
+# SAHOOL Hydrology Service - Water flow analysis and watershed management
+# Version: 16.0.0
+
+replicaCount: 2
+
+image:
+  repository: ghcr.io/kafaat/sahool/hydrology-service
+  tag: "16.0.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+service:
+  type: ClusterIP
+  port: 8165
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+environment: staging
+deploymentSlot: blue
+
+# Environment variables
+env:
+  LOG_LEVEL: "INFO"
+  FLOW_ACCUMULATION_THRESHOLD: "100"
+  WATERSHED_MIN_AREA_HA: "1"
+  MANNING_COEFFICIENT: "0.035"
+  RUNOFF_COEFFICIENT: "0.3"
+
+secrets:
+  jwtSecret: ""
+
+database:
+  url: ""
+
+nats:
+  url: ""
+
+redis:
+  url: ""
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Pod Disruption Budget
+pdb:
+  enabled: true
+  minAvailable: 1
+
+# VPA Configuration
+vpa:
+  enabled: true
+  updateMode: "Initial"
+  controlledValues: "RequestsAndLimits"
+
+# Health probes
+probes:
+  liveness:
+    path: /healthz
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    path: /readyz
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Pod annotations
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8165"
+  prometheus.io/path: "/metrics"
+
+# Security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true

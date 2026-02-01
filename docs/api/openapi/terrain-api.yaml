@@ -1,0 +1,1708 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Terrain Analysis API
+  description: |
+    # SAHOOL Terrain Core Service API
+    ## واجهة برمجة تطبيقات تحليل التضاريس
+
+    Comprehensive terrain analysis and digital elevation modeling for precision agriculture.
+    تحليل شامل للتضاريس ونمذجة الارتفاعات الرقمية للزراعة الدقيقة.
+
+    ## Capabilities | القدرات
+
+    - **DEM Processing**: Digital Elevation Model generation and analysis
+      معالجة DEM: توليد وتحليل نموذج الارتفاعات الرقمية
+    - **Slope Analysis**: Calculate slope gradients and aspects
+      تحليل الميول: حساب درجات الانحدار والاتجاهات
+    - **Contour Generation**: Create elevation contour lines
+      توليد الخطوط الكنتورية: إنشاء خطوط الارتفاع المتساوية
+    - **Watershed Delineation**: Identify drainage basins and flow paths
+      تحديد مستجمعات المياه: تحديد أحواض الصرف ومسارات التدفق
+    - **Terrain Classification**: Classify terrain types for agricultural suitability
+      تصنيف التضاريس: تصنيف أنواع التضاريس لملاءمة الزراعة
+    - **3D Visualization**: Generate 3D terrain models
+      التصور ثلاثي الأبعاد: توليد نماذج تضاريس ثلاثية الأبعاد
+
+    ## Data Sources | مصادر البيانات
+
+    | Source | Resolution | Coverage |
+    |--------|------------|----------|
+    | SRTM | 30m | Global |
+    | ALOS DEM | 12.5m | Middle East |
+    | LiDAR | 1m | Custom surveys |
+    | Drone Survey | 5cm | Field-level |
+
+    ## Authentication | المصادقة
+    All endpoints require JWT Bearer token authentication.
+    جميع النقاط النهائية تتطلب مصادقة برمز JWT Bearer.
+
+    ## Rate Limiting | حدود الطلبات
+    - Standard: 30 requests/minute | 30 طلب في الدقيقة
+    - Premium: 100 requests/minute | 100 طلب في الدقيقة
+    - Enterprise: 500 requests/minute | 500 طلب في الدقيقة
+
+  version: 1.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.io
+    url: https://sahool.io
+  license:
+    name: Proprietary
+    url: https://sahool.io/terms
+
+servers:
+  - url: https://api.sahool.io/v1/terrain
+    description: Production server | خادم الإنتاج
+  - url: https://staging-api.sahool.io/v1/terrain
+    description: Staging server | خادم الاختبار
+  - url: http://localhost:8155/api/v1
+    description: Local development | التطوير المحلي
+
+tags:
+  - name: DEM
+    description: |
+      Digital Elevation Model operations
+      عمليات نموذج الارتفاعات الرقمية
+  - name: Slope Analysis
+    description: |
+      Slope and aspect calculations
+      حسابات الميل والاتجاه
+  - name: Contours
+    description: |
+      Contour line generation and analysis
+      توليد وتحليل الخطوط الكنتورية
+  - name: Watershed
+    description: |
+      Watershed and drainage analysis
+      تحليل مستجمعات المياه والصرف
+  - name: Classification
+    description: |
+      Terrain type classification
+      تصنيف أنواع التضاريس
+  - name: 3D Models
+    description: |
+      3D terrain model generation
+      توليد نماذج التضاريس ثلاثية الأبعاد
+  - name: Field Analysis
+    description: |
+      Field-specific terrain analysis
+      تحليل تضاريس الحقل
+  - name: Health Check
+    description: |
+      Service health and status endpoints
+      نقاط فحص صحة الخدمة
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT authentication token
+        رمز مصادقة JWT
+
+  parameters:
+    TenantId:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      description: |
+        Tenant identifier for multi-tenancy
+        معرّف المستأجر للعزل متعدد المستأجرين
+      schema:
+        type: string
+        format: uuid
+
+    RequestId:
+      name: X-Request-ID
+      in: header
+      required: false
+      description: |
+        Optional request tracking ID
+        معرّف تتبع الطلب الاختياري
+      schema:
+        type: string
+        format: uuid
+
+    FieldId:
+      name: field_id
+      in: path
+      required: true
+      description: |
+        Field identifier
+        معرّف الحقل
+      schema:
+        type: string
+        format: uuid
+
+    Resolution:
+      name: resolution
+      in: query
+      required: false
+      description: |
+        Output resolution in meters
+        دقة المخرجات بالأمتار
+      schema:
+        type: number
+        format: float
+        minimum: 0.05
+        maximum: 90
+        default: 10
+
+  schemas:
+    # ==================== Enums ====================
+    DEMSource:
+      type: string
+      description: |
+        Source of elevation data
+        مصدر بيانات الارتفاع
+      enum:
+        - srtm
+        - alos
+        - lidar
+        - drone
+        - composite
+      x-enum-descriptions:
+        srtm: "SRTM 30m - بيانات SRTM"
+        alos: "ALOS 12.5m - بيانات ALOS"
+        lidar: "LiDAR 1m - بيانات الليدار"
+        drone: "Drone Survey - مسح الطائرات بدون طيار"
+        composite: "Multiple sources merged - مصادر متعددة مدمجة"
+
+    TerrainType:
+      type: string
+      description: |
+        Terrain classification type
+        نوع تصنيف التضاريس
+      enum:
+        - flat
+        - gentle_slope
+        - moderate_slope
+        - steep_slope
+        - very_steep
+        - depression
+        - ridge
+        - valley
+        - plateau
+      x-enum-descriptions:
+        flat: "مسطح - Flat terrain (0-2%)"
+        gentle_slope: "ميل لطيف - Gentle slope (2-5%)"
+        moderate_slope: "ميل متوسط - Moderate slope (5-10%)"
+        steep_slope: "ميل حاد - Steep slope (10-20%)"
+        very_steep: "ميل شديد - Very steep (>20%)"
+        depression: "منخفض - Depression/hollow"
+        ridge: "سلسلة - Ridge line"
+        valley: "وادي - Valley"
+        plateau: "هضبة - Plateau"
+
+    SlopeClass:
+      type: string
+      description: |
+        Slope classification for agriculture
+        تصنيف الميل للزراعة
+      enum:
+        - level
+        - nearly_level
+        - gently_sloping
+        - moderately_sloping
+        - strongly_sloping
+        - steep
+        - very_steep
+      x-enum-descriptions:
+        level: "مستوي (0-0.5%) - Level"
+        nearly_level: "شبه مستوي (0.5-2%) - Nearly level"
+        gently_sloping: "ميل لطيف (2-5%) - Gently sloping"
+        moderately_sloping: "ميل معتدل (5-10%) - Moderately sloping"
+        strongly_sloping: "ميل قوي (10-15%) - Strongly sloping"
+        steep: "حاد (15-30%) - Steep"
+        very_steep: "شديد الحدة (>30%) - Very steep"
+
+    AspectDirection:
+      type: string
+      description: |
+        Slope aspect direction
+        اتجاه ميل السطح
+      enum:
+        - flat
+        - north
+        - northeast
+        - east
+        - southeast
+        - south
+        - southwest
+        - west
+        - northwest
+      x-enum-descriptions:
+        flat: "مسطح - Flat (no aspect)"
+        north: "شمال - North (337.5-22.5)"
+        northeast: "شمال شرق - Northeast (22.5-67.5)"
+        east: "شرق - East (67.5-112.5)"
+        southeast: "جنوب شرق - Southeast (112.5-157.5)"
+        south: "جنوب - South (157.5-202.5)"
+        southwest: "جنوب غرب - Southwest (202.5-247.5)"
+        west: "غرب - West (247.5-292.5)"
+        northwest: "شمال غرب - Northwest (292.5-337.5)"
+
+    OutputFormat:
+      type: string
+      description: |
+        Output data format
+        تنسيق البيانات الناتجة
+      enum:
+        - geotiff
+        - geojson
+        - png
+        - obj
+        - gltf
+        - csv
+
+    JobStatus:
+      type: string
+      enum:
+        - pending
+        - processing
+        - completed
+        - failed
+        - cancelled
+
+    # ==================== Common Schemas ====================
+    GeoJsonPolygon:
+      type: object
+      description: |
+        GeoJSON Polygon geometry
+        شكل هندسي متعدد الأضلاع GeoJSON
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum: [Polygon]
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 2
+          description: Array of linear rings (first is exterior, rest are holes)
+
+    BoundingBox:
+      type: object
+      description: |
+        Geographic bounding box
+        المربع المحيط الجغرافي
+      required:
+        - min_lat
+        - min_lon
+        - max_lat
+        - max_lon
+      properties:
+        min_lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: Minimum latitude
+        min_lon:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: Minimum longitude
+        max_lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: Maximum latitude
+        max_lon:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: Maximum longitude
+
+    ElevationStats:
+      type: object
+      description: |
+        Elevation statistics
+        إحصائيات الارتفاع
+      properties:
+        min_elevation_m:
+          type: number
+          format: float
+          description: Minimum elevation in meters
+          example: 450.5
+        max_elevation_m:
+          type: number
+          format: float
+          description: Maximum elevation in meters
+          example: 485.2
+        mean_elevation_m:
+          type: number
+          format: float
+          description: Mean elevation in meters
+          example: 467.8
+        std_elevation_m:
+          type: number
+          format: float
+          description: Standard deviation of elevation
+          example: 8.5
+        elevation_range_m:
+          type: number
+          format: float
+          description: Elevation range (max - min)
+          example: 34.7
+
+    SlopeStats:
+      type: object
+      description: |
+        Slope statistics
+        إحصائيات الميل
+      properties:
+        min_slope_percent:
+          type: number
+          format: float
+          example: 0.5
+        max_slope_percent:
+          type: number
+          format: float
+          example: 15.2
+        mean_slope_percent:
+          type: number
+          format: float
+          example: 4.8
+        median_slope_percent:
+          type: number
+          format: float
+          example: 3.5
+        slope_class_distribution:
+          type: object
+          additionalProperties:
+            type: number
+            format: float
+          description: Distribution of slope classes (percentage)
+          example:
+            level: 15.5
+            nearly_level: 35.2
+            gently_sloping: 30.8
+            moderately_sloping: 12.5
+            strongly_sloping: 5.0
+            steep: 1.0
+            very_steep: 0.0
+
+    AspectStats:
+      type: object
+      description: |
+        Aspect statistics
+        إحصائيات الاتجاه
+      properties:
+        dominant_aspect:
+          $ref: '#/components/schemas/AspectDirection'
+        aspect_distribution:
+          type: object
+          additionalProperties:
+            type: number
+            format: float
+          description: Distribution of aspects (percentage)
+          example:
+            north: 12.5
+            northeast: 8.3
+            east: 15.2
+            southeast: 20.1
+            south: 18.5
+            southwest: 10.2
+            west: 8.7
+            northwest: 6.5
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message
+        message_ar:
+          type: string
+          description: Arabic error message
+        details:
+          type: object
+        request_id:
+          type: string
+          format: uuid
+
+    # ==================== Request Schemas ====================
+    DEMRequest:
+      type: object
+      description: |
+        Request for DEM data
+        طلب بيانات نموذج الارتفاعات الرقمية
+      properties:
+        boundary:
+          $ref: '#/components/schemas/GeoJsonPolygon'
+        bbox:
+          $ref: '#/components/schemas/BoundingBox'
+        field_id:
+          type: string
+          format: uuid
+          description: Get DEM for specific field
+        source:
+          $ref: '#/components/schemas/DEMSource'
+        resolution_m:
+          type: number
+          format: float
+          minimum: 0.05
+          maximum: 90
+          default: 10
+          description: Output resolution in meters
+        output_format:
+          $ref: '#/components/schemas/OutputFormat'
+        interpolation:
+          type: string
+          enum: [nearest, bilinear, cubic, lanczos]
+          default: bilinear
+        fill_nodata:
+          type: boolean
+          default: true
+
+    SlopeRequest:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        boundary:
+          $ref: '#/components/schemas/GeoJsonPolygon'
+        source:
+          $ref: '#/components/schemas/DEMSource'
+        resolution_m:
+          type: number
+          format: float
+          default: 10
+        units:
+          type: string
+          enum: [degrees, percent]
+          default: percent
+        output_format:
+          $ref: '#/components/schemas/OutputFormat'
+        include_aspect:
+          type: boolean
+          default: true
+        classification:
+          type: boolean
+          default: true
+          description: Include slope class classification
+
+    ContourRequest:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        boundary:
+          $ref: '#/components/schemas/GeoJsonPolygon'
+        source:
+          $ref: '#/components/schemas/DEMSource'
+        interval_m:
+          type: number
+          format: float
+          minimum: 0.1
+          maximum: 100
+          default: 1
+          description: Contour interval in meters
+        base_elevation_m:
+          type: number
+          format: float
+          description: Base elevation for contours
+        smoothing:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          default: 0.5
+          description: Contour smoothing factor
+        output_format:
+          type: string
+          enum: [geojson, shapefile, kml]
+          default: geojson
+
+    WatershedRequest:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        boundary:
+          $ref: '#/components/schemas/GeoJsonPolygon'
+        source:
+          $ref: '#/components/schemas/DEMSource'
+        pour_points:
+          type: array
+          items:
+            type: object
+            properties:
+              latitude:
+                type: number
+                format: double
+              longitude:
+                type: number
+                format: double
+          description: Optional pour points for watershed delineation
+        flow_accumulation_threshold:
+          type: integer
+          default: 100
+          description: Minimum cells for stream channel
+        include_flow_direction:
+          type: boolean
+          default: true
+        include_flow_accumulation:
+          type: boolean
+          default: true
+        include_stream_network:
+          type: boolean
+          default: true
+
+    TerrainClassifyRequest:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        boundary:
+          $ref: '#/components/schemas/GeoJsonPolygon'
+        source:
+          $ref: '#/components/schemas/DEMSource'
+        classification_scheme:
+          type: string
+          enum: [standard, agricultural, irrigation]
+          default: agricultural
+        output_format:
+          $ref: '#/components/schemas/OutputFormat'
+
+    Model3DRequest:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        boundary:
+          $ref: '#/components/schemas/GeoJsonPolygon'
+        source:
+          $ref: '#/components/schemas/DEMSource'
+        resolution_m:
+          type: number
+          format: float
+          default: 5
+        vertical_exaggeration:
+          type: number
+          format: float
+          minimum: 0.1
+          maximum: 10
+          default: 1.5
+          description: Vertical scale factor for visualization
+        output_format:
+          type: string
+          enum: [obj, gltf, stl]
+          default: gltf
+        include_texture:
+          type: boolean
+          default: true
+          description: Include satellite imagery texture
+        texture_date:
+          type: string
+          format: date
+          description: Date for satellite texture
+
+    # ==================== Response Schemas ====================
+    DEMResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        dem_id:
+          type: string
+          format: uuid
+        source:
+          $ref: '#/components/schemas/DEMSource'
+        resolution_m:
+          type: number
+          format: float
+        crs:
+          type: string
+          example: EPSG:4326
+        bounds:
+          $ref: '#/components/schemas/BoundingBox'
+        dimensions:
+          type: object
+          properties:
+            width:
+              type: integer
+            height:
+              type: integer
+        statistics:
+          $ref: '#/components/schemas/ElevationStats'
+        download_url:
+          type: string
+          format: uri
+          description: URL to download DEM data
+        expires_at:
+          type: string
+          format: date-time
+        processing_time_ms:
+          type: integer
+        request_id:
+          type: string
+          format: uuid
+
+    SlopeResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        field_id:
+          type: string
+          format: uuid
+        slope_statistics:
+          $ref: '#/components/schemas/SlopeStats'
+        aspect_statistics:
+          $ref: '#/components/schemas/AspectStats'
+        terrain_suitability:
+          type: object
+          properties:
+            irrigated_farming:
+              type: string
+              enum: [excellent, good, moderate, poor, unsuitable]
+            mechanized_farming:
+              type: string
+              enum: [excellent, good, moderate, poor, unsuitable]
+            gravity_irrigation:
+              type: string
+              enum: [excellent, good, moderate, poor, unsuitable]
+        slope_map_url:
+          type: string
+          format: uri
+        aspect_map_url:
+          type: string
+          format: uri
+        classification_map_url:
+          type: string
+          format: uri
+        processing_time_ms:
+          type: integer
+        request_id:
+          type: string
+          format: uuid
+
+    ContourResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        contour_count:
+          type: integer
+        interval_m:
+          type: number
+          format: float
+        elevation_range:
+          type: object
+          properties:
+            min_m:
+              type: number
+              format: float
+            max_m:
+              type: number
+              format: float
+        contours:
+          type: object
+          description: GeoJSON FeatureCollection of contour lines
+          properties:
+            type:
+              type: string
+              enum: [FeatureCollection]
+            features:
+              type: array
+              items:
+                type: object
+        download_url:
+          type: string
+          format: uri
+        processing_time_ms:
+          type: integer
+        request_id:
+          type: string
+          format: uuid
+
+    WatershedResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        watershed_count:
+          type: integer
+        total_area_ha:
+          type: number
+          format: float
+        watersheds:
+          type: array
+          items:
+            type: object
+            properties:
+              watershed_id:
+                type: string
+              area_ha:
+                type: number
+                format: float
+              perimeter_m:
+                type: number
+                format: float
+              pour_point:
+                type: object
+                properties:
+                  latitude:
+                    type: number
+                  longitude:
+                    type: number
+              outlet_elevation_m:
+                type: number
+                format: float
+              max_elevation_m:
+                type: number
+                format: float
+              mean_slope_percent:
+                type: number
+                format: float
+        flow_direction_url:
+          type: string
+          format: uri
+        flow_accumulation_url:
+          type: string
+          format: uri
+        stream_network:
+          type: object
+          description: GeoJSON FeatureCollection of stream network
+        processing_time_ms:
+          type: integer
+        request_id:
+          type: string
+          format: uuid
+
+    TerrainClassifyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        classification_summary:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              area_ha:
+                type: number
+                format: float
+              percentage:
+                type: number
+                format: float
+          example:
+            flat:
+              area_ha: 12.5
+              percentage: 45.2
+            gentle_slope:
+              area_ha: 8.3
+              percentage: 30.0
+            moderate_slope:
+              area_ha: 5.2
+              percentage: 18.8
+            steep_slope:
+              area_ha: 1.7
+              percentage: 6.0
+        dominant_terrain:
+          $ref: '#/components/schemas/TerrainType'
+        dominant_terrain_ar:
+          type: string
+          example: مسطح
+        agricultural_suitability:
+          type: object
+          properties:
+            overall_rating:
+              type: string
+              enum: [excellent, good, moderate, poor, unsuitable]
+            overall_rating_ar:
+              type: string
+            suitable_crops:
+              type: array
+              items:
+                type: string
+            constraints:
+              type: array
+              items:
+                type: string
+            recommendations:
+              type: array
+              items:
+                type: string
+            recommendations_ar:
+              type: array
+              items:
+                type: string
+        classification_map_url:
+          type: string
+          format: uri
+        processing_time_ms:
+          type: integer
+        request_id:
+          type: string
+          format: uuid
+
+    Model3DResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        model_id:
+          type: string
+          format: uuid
+        format:
+          type: string
+        dimensions:
+          type: object
+          properties:
+            width_m:
+              type: number
+              format: float
+            height_m:
+              type: number
+              format: float
+            depth_m:
+              type: number
+              format: float
+        vertex_count:
+          type: integer
+        face_count:
+          type: integer
+        file_size_mb:
+          type: number
+          format: float
+        texture_resolution:
+          type: string
+          example: 4096x4096
+        download_url:
+          type: string
+          format: uri
+        preview_url:
+          type: string
+          format: uri
+          description: URL for web-based 3D preview
+        expires_at:
+          type: string
+          format: date-time
+        processing_time_ms:
+          type: integer
+        request_id:
+          type: string
+          format: uuid
+
+    FieldTerrainAnalysis:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        field_name:
+          type: string
+        field_name_ar:
+          type: string
+        area_ha:
+          type: number
+          format: float
+        elevation:
+          $ref: '#/components/schemas/ElevationStats'
+        slope:
+          $ref: '#/components/schemas/SlopeStats'
+        aspect:
+          $ref: '#/components/schemas/AspectStats'
+        terrain_classification:
+          type: object
+          additionalProperties:
+            type: number
+            format: float
+        drainage_characteristics:
+          type: object
+          properties:
+            drainage_class:
+              type: string
+              enum: [excessive, well, moderate, poor, very_poor]
+            drainage_class_ar:
+              type: string
+            runoff_potential:
+              type: string
+              enum: [low, medium, high, very_high]
+            waterlogging_risk:
+              type: string
+              enum: [none, low, medium, high]
+        irrigation_suitability:
+          type: object
+          properties:
+            drip:
+              type: string
+              enum: [excellent, good, moderate, poor, unsuitable]
+            sprinkler:
+              type: string
+              enum: [excellent, good, moderate, poor, unsuitable]
+            flood:
+              type: string
+              enum: [excellent, good, moderate, poor, unsuitable]
+            pivot:
+              type: string
+              enum: [excellent, good, moderate, poor, unsuitable]
+        mechanization_suitability:
+          type: string
+          enum: [excellent, good, moderate, poor, unsuitable]
+        erosion_risk:
+          type: string
+          enum: [none, slight, moderate, severe, very_severe]
+        erosion_risk_ar:
+          type: string
+        recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              description:
+                type: string
+              description_ar:
+                type: string
+              priority:
+                type: string
+                enum: [high, medium, low]
+        analysis_date:
+          type: string
+          format: date-time
+        data_sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/DEMSource'
+
+    AsyncJobResponse:
+      type: object
+      required:
+        - job_id
+        - status
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        status_ar:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        progress_percent:
+          type: number
+          format: float
+        result_url:
+          type: string
+          format: uri
+        error_message:
+          type: string
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, unhealthy]
+        service:
+          type: string
+          example: terrain-core-service
+        version:
+          type: string
+          example: 1.0.0
+        dem_sources_available:
+          type: array
+          items:
+            $ref: '#/components/schemas/DEMSource'
+        storage_available_gb:
+          type: number
+          format: float
+        uptime_seconds:
+          type: integer
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: UNAUTHORIZED
+            message: Invalid or expired token
+            message_ar: الرمز غير صالح أو منتهي الصلاحية
+
+    Forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: NOT_FOUND
+            message: Field not found
+            message_ar: الحقل غير موجود
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+paths:
+  # ==================== DEM Endpoints ====================
+  /dem:
+    post:
+      tags: [DEM]
+      summary: Generate or retrieve DEM
+      description: |
+        Generate or retrieve Digital Elevation Model for an area.
+        توليد أو استرجاع نموذج الارتفاعات الرقمية لمنطقة.
+      operationId: getDEM
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DEMRequest'
+            examples:
+              field_dem:
+                summary: DEM for a field
+                value:
+                  field_id: "550e8400-e29b-41d4-a716-446655440001"
+                  source: alos
+                  resolution_m: 10
+                  output_format: geotiff
+              bbox_dem:
+                summary: DEM by bounding box
+                value:
+                  bbox:
+                    min_lat: 24.6
+                    min_lon: 46.7
+                    max_lat: 24.7
+                    max_lon: 46.8
+                  source: srtm
+                  resolution_m: 30
+      responses:
+        '200':
+          description: DEM generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DEMResponse'
+        '202':
+          description: DEM generation started (async)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncJobResponse'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+      security:
+        - bearerAuth: []
+
+  /dem/{dem_id}:
+    get:
+      tags: [DEM]
+      summary: Get DEM by ID
+      description: |
+        Retrieve a previously generated DEM by its ID.
+        استرجاع نموذج ارتفاعات رقمية تم توليده مسبقاً بواسطة معرّفه.
+      operationId: getDEMById
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: dem_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: DEM details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DEMResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /dem/elevation:
+    get:
+      tags: [DEM]
+      summary: Get elevation at point
+      description: |
+        Get elevation value at a specific geographic point.
+        الحصول على قيمة الارتفاع عند نقطة جغرافية محددة.
+      operationId: getElevation
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+            minimum: -90
+            maximum: 90
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+            minimum: -180
+            maximum: 180
+        - name: source
+          in: query
+          schema:
+            $ref: '#/components/schemas/DEMSource'
+      responses:
+        '200':
+          description: Elevation value
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  latitude:
+                    type: number
+                    format: double
+                  longitude:
+                    type: number
+                    format: double
+                  elevation_m:
+                    type: number
+                    format: float
+                  source:
+                    $ref: '#/components/schemas/DEMSource'
+                  accuracy_m:
+                    type: number
+                    format: float
+              example:
+                latitude: 24.65
+                longitude: 46.75
+                elevation_m: 612.5
+                source: alos
+                accuracy_m: 5.0
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Slope Analysis ====================
+  /slope:
+    post:
+      tags: [Slope Analysis]
+      summary: Calculate slope and aspect
+      description: |
+        Calculate slope gradient and aspect direction for an area.
+        حساب درجة الانحدار واتجاه الميل لمنطقة.
+      operationId: calculateSlope
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SlopeRequest'
+            examples:
+              field_slope:
+                summary: Slope analysis for field
+                value:
+                  field_id: "550e8400-e29b-41d4-a716-446655440001"
+                  units: percent
+                  include_aspect: true
+                  classification: true
+      responses:
+        '200':
+          description: Slope analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlopeResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+      security:
+        - bearerAuth: []
+
+  # ==================== Contours ====================
+  /contours:
+    post:
+      tags: [Contours]
+      summary: Generate contour lines
+      description: |
+        Generate elevation contour lines for an area.
+        توليد الخطوط الكنتورية للارتفاع لمنطقة.
+      operationId: generateContours
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContourRequest'
+            examples:
+              field_contours:
+                summary: Contours for field
+                value:
+                  field_id: "550e8400-e29b-41d4-a716-446655440001"
+                  interval_m: 0.5
+                  smoothing: 0.3
+      responses:
+        '200':
+          description: Contours generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContourResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+      security:
+        - bearerAuth: []
+
+  # ==================== Watershed ====================
+  /watershed:
+    post:
+      tags: [Watershed]
+      summary: Delineate watersheds
+      description: |
+        Delineate watershed boundaries and drainage patterns.
+        تحديد حدود مستجمعات المياه وأنماط الصرف.
+      operationId: delineateWatershed
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WatershedRequest'
+      responses:
+        '200':
+          description: Watershed analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WatershedResponse'
+        '202':
+          description: Watershed analysis started (async)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncJobResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Classification ====================
+  /classify:
+    post:
+      tags: [Classification]
+      summary: Classify terrain types
+      description: |
+        Classify terrain into types based on slope, aspect, and curvature.
+        تصنيف التضاريس إلى أنواع بناءً على الميل والاتجاه والانحناء.
+      operationId: classifyTerrain
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TerrainClassifyRequest'
+      responses:
+        '200':
+          description: Classification completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerrainClassifyResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== 3D Models ====================
+  /model3d:
+    post:
+      tags: [3D Models]
+      summary: Generate 3D terrain model
+      description: |
+        Generate a 3D terrain model for visualization.
+        توليد نموذج تضاريس ثلاثي الأبعاد للتصور.
+      operationId: generateModel3D
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Model3DRequest'
+      responses:
+        '202':
+          description: 3D model generation started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncJobResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /model3d/{model_id}:
+    get:
+      tags: [3D Models]
+      summary: Get 3D model status
+      description: |
+        Get status and download URL for a 3D model.
+        الحصول على حالة ورابط تحميل نموذج ثلاثي الأبعاد.
+      operationId: getModel3D
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: model_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Model status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Model3DResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Field Analysis ====================
+  /fields/{field_id}/terrain:
+    get:
+      tags: [Field Analysis]
+      summary: Get complete terrain analysis for field
+      description: |
+        Get comprehensive terrain analysis for a specific field.
+        الحصول على تحليل تضاريس شامل لحقل محدد.
+      operationId: getFieldTerrain
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/FieldId'
+        - name: include_recommendations
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Field terrain analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldTerrainAnalysis'
+              example:
+                field_id: "550e8400-e29b-41d4-a716-446655440001"
+                field_name: "North Wheat Field"
+                field_name_ar: "حقل القمح الشمالي"
+                area_ha: 25.5
+                elevation:
+                  min_elevation_m: 450.5
+                  max_elevation_m: 465.2
+                  mean_elevation_m: 457.8
+                  elevation_range_m: 14.7
+                slope:
+                  mean_slope_percent: 3.2
+                  max_slope_percent: 8.5
+                  slope_class_distribution:
+                    nearly_level: 45.0
+                    gently_sloping: 40.0
+                    moderately_sloping: 15.0
+                terrain_classification:
+                  flat: 25.0
+                  gentle_slope: 55.0
+                  moderate_slope: 20.0
+                dominant_terrain: gentle_slope
+                dominant_terrain_ar: "ميل لطيف"
+                irrigation_suitability:
+                  drip: excellent
+                  pivot: good
+                  flood: moderate
+                mechanization_suitability: excellent
+                erosion_risk: slight
+                erosion_risk_ar: "طفيف"
+                recommendations:
+                  - type: irrigation
+                    description: "Drip irrigation recommended due to gentle slope"
+                    description_ar: "يُوصى بالري بالتنقيط نظراً للميل اللطيف"
+                    priority: high
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /fields/{field_id}/terrain/profile:
+    get:
+      tags: [Field Analysis]
+      summary: Get elevation profile
+      description: |
+        Get elevation profile along a transect through the field.
+        الحصول على مقطع الارتفاع عبر خط عرضي في الحقل.
+      operationId: getFieldProfile
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/FieldId'
+        - name: start_lat
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: start_lon
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: end_lat
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: end_lon
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: num_points
+          in: query
+          schema:
+            type: integer
+            minimum: 10
+            maximum: 1000
+            default: 100
+      responses:
+        '200':
+          description: Elevation profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  field_id:
+                    type: string
+                    format: uuid
+                  profile_length_m:
+                    type: number
+                    format: float
+                  points:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        distance_m:
+                          type: number
+                          format: float
+                        elevation_m:
+                          type: number
+                          format: float
+                        latitude:
+                          type: number
+                          format: double
+                        longitude:
+                          type: number
+                          format: double
+                        slope_percent:
+                          type: number
+                          format: float
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Async Jobs ====================
+  /jobs/{job_id}:
+    get:
+      tags: [DEM, Watershed, 3D Models]
+      summary: Get async job status
+      description: |
+        Get status of an asynchronous processing job.
+        الحصول على حالة مهمة معالجة غير متزامنة.
+      operationId: getJobStatus
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncJobResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Health Check ====================
+  /healthz:
+    get:
+      tags: [Health Check]
+      summary: Liveness probe
+      operationId: healthLive
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: terrain-core-service
+                  version:
+                    type: string
+                    example: 1.0.0
+
+  /readyz:
+    get:
+      tags: [Health Check]
+      summary: Readiness probe
+      operationId: healthReady
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service not ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /metrics:
+    get:
+      tags: [Health Check]
+      summary: Prometheus metrics
+      operationId: getMetrics
+      responses:
+        '200':
+          description: Prometheus metrics
+          content:
+            text/plain:
+              schema:
+                type: string
+
+security:
+  - bearerAuth: []

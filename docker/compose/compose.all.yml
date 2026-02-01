@@ -217,6 +217,62 @@ services:
     - postgres
     - redis
     - nats
+  leveling-optimizer-service:
+    build:
+      context: ../../apps/services/leveling-optimizer-service
+      dockerfile: Dockerfile
+    ports:
+    - 8170:8170
+    environment:
+    - PORT=8170
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8170/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 512Mi
+    depends_on:
+    - terrain-core-service
+  llm-orchestrator-service:
+    build:
+      context: ../../apps/services/llm-orchestrator-service
+      dockerfile: Dockerfile
+    ports:
+    - 8220:8220
+    environment:
+    - PORT=8220
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8220/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 1Gi
+    depends_on:
+    - crop-intelligence-service
+    - advisory-service
+    - irrigation-smart
+    - pest-detection-service
+    - yolo26-vision-service
   disaster-assessment:
     build:
       context: ../../apps/services/disaster-assessment
@@ -668,6 +724,88 @@ services:
           memory: 512Mi
     depends_on:
     - redis
+  yolo26-vision-service:
+    build:
+      context: ../../apps/services/yolo26-vision-service
+      dockerfile: Dockerfile
+    ports:
+    - 8150:8150
+    environment:
+    - PORT=8150
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8150/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1000'
+          memory: 2Gi
+    depends_on:
+    - imagery-service
+    - analytics-service
+    - alert-service
+  terrain-core-service:
+    build:
+      context: ../../apps/services/terrain-core-service
+      dockerfile: Dockerfile
+    ports:
+    - 8185:8185
+    environment:
+    - PORT=8185
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8185/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 1Gi
+    depends_on:
+    - geo-service
+    - imagery-service
+  hydrology-service:
+    build:
+      context: ../../apps/services/hydrology-service
+      dockerfile: Dockerfile
+    ports:
+    - 8165:8165
+    environment:
+    - PORT=8165
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8165/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 512Mi
+    depends_on:
+    - terrain-core-service
+    - weather-service
   marketplace-service:
     build:
       context: ../../apps/services/marketplace-service
@@ -1400,6 +1538,62 @@ services:
         limits:
           cpus: '300'
           memory: 384Mi
+  supply-chain-service:
+    build:
+      context: ../../apps/services/supply-chain-service
+      dockerfile: Dockerfile
+    ports:
+    - 8230:8230
+    environment:
+    - PORT=8230
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8230/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - advisory-service
+    - notification-service
+    - billing-core
+  whatsapp-bot-service:
+    build:
+      context: ../../apps/services/whatsapp-bot-service
+      dockerfile: Dockerfile
+    ports:
+    - 8240:8240
+    environment:
+    - PORT=8240
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8240/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - llm-orchestrator-service
+    - yolo26-vision-service
+    - notification-service
   iot-service:
     build:
       context: ../../apps/services/iot-service
@@ -1637,6 +1831,32 @@ services:
           memory: 256Mi
     depends_on:
     - redis
+  edge-orchestrator-service:
+    build:
+      context: ../../apps/services/edge-orchestrator-service
+      dockerfile: Dockerfile
+    ports:
+    - 8190:8190
+    environment:
+    - PORT=8190
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8190/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 384Mi
+    depends_on:
+    - yolo26-vision-service
 networks:
   sahool-network:
     driver: bridge

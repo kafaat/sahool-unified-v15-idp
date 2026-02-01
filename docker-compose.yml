@@ -53,7 +53,7 @@ services:
   # OPTIMIZED: Enhanced pool settings based on PgBouncer audit (score 7/10 -> 9/10)
   # FIXED: Added custom entrypoint to generate userlist.txt dynamically
   pgbouncer:
-    image: edoburu/pgbouncer:1.23.1
+    image: edoburu/pgbouncer:latest
     container_name: sahool-pgbouncer
     # Custom entrypoint generates userlist.txt from environment variables
     entrypoint: [ "/entrypoint-custom.sh" ]
@@ -221,7 +221,7 @@ services:
     volumes:
       - vault_data:/vault/data
     healthcheck:
-      test: ["CMD", "vault", "status"]
+      test: [ "CMD", "vault", "status" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -353,12 +353,7 @@ services:
     container_name: sahool-mlflow
     hostname: mlflow
     command: >
-      mlflow server
-      --host 0.0.0.0
-      --port 5000
-      --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/mlflow
-      --default-artifact-root /mlflow/artifacts
-      --serve-artifacts
+      mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/mlflow --default-artifact-root /mlflow/artifacts --serve-artifacts
     environment:
       - MLFLOW_TRACKING_URI=http://localhost:5000
       - MLFLOW_S3_ENDPOINT_URL=${MLFLOW_S3_ENDPOINT_URL:-}
@@ -372,7 +367,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1364,7 +1359,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8182/healthz')"]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8182/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1383,7 +1378,7 @@ services:
           devices:
             - driver: nvidia
               count: 1
-              capabilities: [gpu]
+              capabilities: [ gpu ]
     networks:
       - sahool-network
 
@@ -2624,50 +2619,6 @@ services:
     networks:
       - sahool-network
 
-  # ⚠️ DEPRECATED: field_service - Migrating to field-management-service
-  # This service is being consolidated into field-management-service (Port 3000)
-  # Kept temporarily for backwards compatibility
-  field-service:
-    build:
-      context: .
-      dockerfile: apps/services/field-service/Dockerfile
-    container_name: sahool-field-service
-    environment:
-      - PORT=8115
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
-      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-    ports:
-      - "8115:8115"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8115/healthz')" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 384M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    networks:
-      - sahool-network
-
   # Inventory Service
   inventory-service:
     build:
@@ -2850,12 +2801,12 @@ services:
     container_name: sahool-mcp-server
     environment:
       - SAHOOL_API_URL=http://kong:8000
-      - MCP_SERVER_PORT=8200
+      - MCP_SERVER_PORT=8201
       - MCP_SERVER_HOST=0.0.0.0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8200:8200"
+      - "8201:8201"
     depends_on:
       kong:
         condition: service_healthy
@@ -2864,7 +2815,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8200/health')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8201/health')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3147,6 +3098,231 @@ services:
     networks:
       - sahool-network
 
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Vision & Terrain Services (5)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # YOLO26 Vision Service - خدمة الرؤية الحاسوبية
+  # Real-time object detection using YOLO26m model with GPU acceleration
+  yolo26-vision-service:
+    build:
+      context: .
+      dockerfile: apps/services/yolo26-vision-service/Dockerfile
+    container_name: sahool-yolo26-vision-service
+    environment:
+      - PORT=8150
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - MODEL_PATH=/app/models/yolo26m.engine
+    volumes:
+      - yolo26-models:/app/models
+    ports:
+      - "8150:8150"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8150/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '1'
+          memory: 2G
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    networks:
+      - sahool-network
+
+  # Terrain Core Service - خدمة التضاريس الأساسية
+  # Digital Elevation Model (DEM) processing and terrain analysis
+  terrain-core-service:
+    build:
+      context: .
+      dockerfile: apps/services/terrain-core-service/Dockerfile
+    container_name: sahool-terrain-core-service
+    environment:
+      - PORT=8185
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+    volumes:
+      - terrain-dem-data:/app/data/dem
+    ports:
+      - "8185:8185"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8185/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - sahool-network
+
+  # Hydrology Service - خدمة الهيدرولوجيا
+  # Water flow modeling and watershed analysis
+  hydrology-service:
+    build:
+      context: .
+      dockerfile: apps/services/hydrology-service/Dockerfile
+    container_name: sahool-hydrology-service
+    environment:
+      - PORT=8165
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - TERRAIN_SERVICE_URL=http://terrain-core-service:8185
+    ports:
+      - "8165:8165"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      terrain-core-service:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8165/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 768M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - sahool-network
+
+  # Leveling Optimizer Service - خدمة تحسين التسوية
+  # Field leveling optimization for irrigation efficiency
+  leveling-optimizer-service:
+    build:
+      context: .
+      dockerfile: apps/services/leveling-optimizer-service/Dockerfile
+    container_name: sahool-leveling-optimizer-service
+    environment:
+      - PORT=8170
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - TERRAIN_SERVICE_URL=http://terrain-core-service:8185
+    ports:
+      - "8170:8170"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      terrain-core-service:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8170/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 768M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - sahool-network
+
+  # Edge Orchestrator Service - خدمة تنسيق الحافة
+  # Orchestrates edge computing nodes and workload distribution
+  edge-orchestrator-service:
+    build:
+      context: .
+      dockerfile: apps/services/edge-orchestrator-service/Dockerfile
+    container_name: sahool-edge-orchestrator-service
+    environment:
+      - PORT=8190
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+    ports:
+      - "8190:8190"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8190/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Networks
 # ─────────────────────────────────────────────────────────────────────────────
@@ -3195,3 +3371,8 @@ volumes:
     name: sahool-minio-data
   milvus_data:
     name: sahool-milvus-data
+  # Vision & Terrain Services Volumes
+  yolo26-models:
+    name: sahool-yolo26-models
+  terrain-dem-data:
+    name: sahool-terrain-dem-data

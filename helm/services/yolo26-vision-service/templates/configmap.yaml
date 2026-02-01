@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "yolo26-vision-service.fullname" . }}-config
+  labels:
+    {{- include "yolo26-vision-service.labels" . | nindent 4 }}
+data:
+  SERVICE_NAME: "yolo26-vision-service"
+  SERVICE_VERSION: {{ .Chart.AppVersion | quote }}
+  LOG_LEVEL: {{ .Values.env.LOG_LEVEL | default "INFO" | quote }}
+  LOG_FORMAT: "json"
+
+  # Model Configuration
+  MODEL_PATH: {{ .Values.env.MODEL_PATH | default "/models/yolo26" | quote }}
+  INFERENCE_BATCH_SIZE: {{ .Values.env.INFERENCE_BATCH_SIZE | default "4" | quote }}
+  CONFIDENCE_THRESHOLD: {{ .Values.env.CONFIDENCE_THRESHOLD | default "0.5" | quote }}
+  NMS_THRESHOLD: {{ .Values.env.NMS_THRESHOLD | default "0.4" | quote }}
+  ENABLE_TENSORRT: {{ .Values.env.ENABLE_TENSORRT | default "true" | quote }}
+
+  # GPU Configuration
+  GPU_ENABLED: {{ .Values.gpu.enabled | quote }}
+  GPU_COUNT: {{ .Values.gpu.count | default 1 | quote }}
+
+  # Infrastructure
+  {{- if .Values.nats.url }}
+  NATS_URL: {{ .Values.nats.url | quote }}
+  {{- else }}
+  NATS_URL: "nats://nats:4222"
+  {{- end }}
+
+  {{- if .Values.redis.url }}
+  REDIS_URL: {{ .Values.redis.url | quote }}
+  {{- else }}
+  REDIS_URL: "redis://redis:6379"
+  {{- end }}
+
+  # Feature Flags
+  ENABLE_METRICS: "true"
+  ENABLE_TRACING: "false"
+  METRICS_PORT: "8150"

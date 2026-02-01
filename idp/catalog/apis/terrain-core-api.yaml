@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: terrain-core-api
+  description: Terrain Core API for digital elevation model processing, slope analysis, and topographic feature extraction
+  tags:
+    - openapi
+    - geospatial
+    - terrain
+    - dem
+spec:
+  type: openapi
+  lifecycle: production
+  owner: geospatial-team
+  definition:
+    $text: ./docs/api/terrain-core-api.yaml

@@ -1,0 +1,13 @@
+{{- if .Values.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "terrain-core-service.fullname" . }}
+  labels:
+    {{- include "terrain-core-service.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "terrain-core-service.selectorLabels" . | nindent 6 }}
+{{- end }}

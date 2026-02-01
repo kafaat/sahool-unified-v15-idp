@@ -198,6 +198,22 @@ agents:
       - crop-intelligence-service
       - weather-service
 
+    # UltraRAG Integration with Tri-RAG
+    rag_integration:
+      enabled: true
+      provider: "AgriRAGProvider"
+      module: "shared.ai.ultrarag.providers"
+      strategy: "tri_rag"
+      config:
+        dense_weight: 0.4
+        sparse_weight: 0.3
+        kg_weight: 0.3
+        kg_max_hops: 2
+      capabilities:
+        - diagnose_disease
+        - assess_disease_risk
+        - recommend_treatment
+
     endpoint:
       url: "https://api.sahool.app/agents/disease-expert/invoke"
       method: "POST"
@@ -209,7 +225,7 @@ agents:
       requires_authentication: true
 
     metadata:
-      tags: ["agriculture", "ai", "disease", "diagnosis", "computer-vision"]
+      tags: ["agriculture", "ai", "disease", "diagnosis", "computer-vision", "tri-rag"]
       organization: "SAHOOL"
       license: "MIT"
 
@@ -1032,6 +1048,23 @@ agents:
       default_strategy: "safe"
       audit_enabled: true
 
+    # UltraRAG Integration with Tri-RAG for code knowledge
+    rag_integration:
+      enabled: true
+      provider: "CodeRAGProvider"
+      module: "shared.ai.ultrarag.providers"
+      strategy: "tri_rag"
+      config:
+        dense_weight: 0.5
+        sparse_weight: 0.3
+        kg_weight: 0.2
+        kg_max_hops: 2
+      capabilities:
+        - analyze_code
+        - find_fix_pattern
+        - security_scan
+        - get_best_practices
+
     dependencies:
       - git-service
       - ci-cd-pipeline
@@ -1049,7 +1082,7 @@ agents:
       requires_developer_role: true
 
     metadata:
-      tags: ["code", "development", "ai", "automation", "testing", "review"]
+      tags: ["code", "development", "ai", "automation", "testing", "review", "tri-rag"]
       organization: "SAHOOL"
       license: "MIT"
       priority: "high"

@@ -4,7 +4,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Build stage for dependencies
-FROM python:3.12-slim as builder
+FROM python:3.12-slim-bookworm as builder
 
 WORKDIR /app
 
@@ -16,14 +16,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+COPY apps/services/ground-vision-service/requirements.txt .
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
+    pip install --no-cache-dir --timeout=300 --retries=10 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --prefix=/install -r requirements.txt
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Production stage
 # ═══════════════════════════════════════════════════════════════════════════════
 
-FROM python:3.12-slim
+FROM python:3.12-slim-bookworm
 
 LABEL org.opencontainers.image.title="Ground Vision Service"
 LABEL org.opencontainers.image.description="High-frequency agricultural monitoring using tower cameras"
@@ -33,18 +37,18 @@ LABEL org.opencontainers.image.source="https://github.com/kafaat/sahool-unified-
 
 WORKDIR /app
 
-# Install runtime dependencies
+# Install runtime dependencies (Bookworm package names)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     libgdal32 \
     libgeos-c1v5 \
     libproj25 \
     # OpenCV dependencies
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
-    libxrender-dev \
+    libxrender1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
@@ -54,7 +58,8 @@ RUN useradd --create-home --shell /bin/bash appuser
 COPY --from=builder /install /usr/local
 
 # Copy application code
-COPY src/ ./src/
+COPY apps/services/ground-vision-service/requirements.txt .
+COPY apps/services/ground-vision-service/src/ ./src/
 
 # Set ownership
 RUN chown -R appuser:appuser /app

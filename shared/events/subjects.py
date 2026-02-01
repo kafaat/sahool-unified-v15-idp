@@ -283,6 +283,84 @@ SAHOOL_ANALYSIS_ALL = "sahool.analysis.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Vision Subjects - موضوعات الرؤية الحاسوبية (YOLO26)
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_VISION_PEST_DETECTED = "sahool.vision.pest_detected"
+SAHOOL_VISION_DISEASE_DETECTED = "sahool.vision.disease_detected"
+SAHOOL_VISION_WEED_DETECTED = "sahool.vision.weed_detected"
+SAHOOL_VISION_PLANT_COUNT_COMPLETED = "sahool.vision.plant_count_completed"
+SAHOOL_VISION_CRITICAL_ALERT = "sahool.vision.critical_alert"
+SAHOOL_VISION_ANALYSIS_STARTED = "sahool.vision.analysis_started"
+SAHOOL_VISION_ANALYSIS_COMPLETED = "sahool.vision.analysis_completed"
+SAHOOL_VISION_ANALYSIS_FAILED = "sahool.vision.analysis_failed"
+
+# Wildcards
+SAHOOL_VISION_ALL = "sahool.vision.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Terrain Subjects - موضوعات تحليل التضاريس
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_TERRAIN_ANALYSIS_STARTED = "sahool.terrain.analysis_started"
+SAHOOL_TERRAIN_ANALYSIS_COMPLETED = "sahool.terrain.analysis_completed"
+SAHOOL_TERRAIN_ANALYSIS_FAILED = "sahool.terrain.analysis_failed"
+SAHOOL_TERRAIN_HIGH_EROSION_RISK = "sahool.terrain.high_erosion_risk"
+SAHOOL_TERRAIN_WATERLOGGING_DETECTED = "sahool.terrain.waterlogging_detected"
+SAHOOL_TERRAIN_DRAINAGE_ISSUE = "sahool.terrain.drainage_issue"
+SAHOOL_TERRAIN_LEVELING_RECOMMENDED = "sahool.terrain.leveling_recommended"
+SAHOOL_TERRAIN_DRAINAGE_RECOMMENDED = "sahool.terrain.drainage_recommended"
+SAHOOL_TERRAIN_DEM_UPDATED = "sahool.terrain.dem_updated"
+
+# Wildcards
+SAHOOL_TERRAIN_ALL = "sahool.terrain.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Edge Subjects - موضوعات أجهزة الحافة
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Device status
+SAHOOL_EDGE_DEVICE_ONLINE = "sahool.edge.device_online"
+SAHOOL_EDGE_DEVICE_OFFLINE = "sahool.edge.device_offline"
+SAHOOL_EDGE_DEVICE_REGISTERED = "sahool.edge.device_registered"
+SAHOOL_EDGE_DEVICE_HEALTH_UPDATE = "sahool.edge.device_health_update"
+SAHOOL_EDGE_DEVICE_ERROR = "sahool.edge.device_error"
+
+# Job events
+SAHOOL_EDGE_JOB_QUEUED = "sahool.edge.job_queued"
+SAHOOL_EDGE_JOB_STARTED = "sahool.edge.job_started"
+SAHOOL_EDGE_JOB_PROGRESS = "sahool.edge.job_progress"
+SAHOOL_EDGE_JOB_COMPLETED = "sahool.edge.job_completed"
+SAHOOL_EDGE_JOB_FAILED = "sahool.edge.job_failed"
+
+# Sync events
+SAHOOL_EDGE_SYNC_STARTED = "sahool.edge.sync_started"
+SAHOOL_EDGE_SYNC_COMPLETED = "sahool.edge.sync_completed"
+SAHOOL_EDGE_SYNC_FAILED = "sahool.edge.sync_failed"
+SAHOOL_EDGE_SYNC_CONFLICT = "sahool.edge.sync_conflict"
+
+# Model deployment
+SAHOOL_EDGE_MODEL_DEPLOYED = "sahool.edge.model_deployed"
+SAHOOL_EDGE_MODEL_DEPLOYMENT_STARTED = "sahool.edge.model_deployment_started"
+SAHOOL_EDGE_MODEL_DEPLOYMENT_FAILED = "sahool.edge.model_deployment_failed"
+
+# Firmware
+SAHOOL_EDGE_FIRMWARE_UPDATE_AVAILABLE = "sahool.edge.firmware_update_available"
+
+# Data
+SAHOOL_EDGE_DATA_COLLECTED = "sahool.edge.data_collected"
+
+# Wildcards
+SAHOOL_EDGE_ALL = "sahool.edge.*"
+SAHOOL_EDGE_DEVICE_ALL = "sahool.edge.device_*"
+SAHOOL_EDGE_JOB_ALL = "sahool.edge.job_*"
+SAHOOL_EDGE_SYNC_ALL = "sahool.edge.sync_*"
+SAHOOL_EDGE_MODEL_ALL = "sahool.edge.model_*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # User/Auth Subjects - موضوعات المستخدمين والمصادقة
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -411,6 +489,45 @@ SUBJECT_REGISTRY = {
     "alert.created": SAHOOL_ALERT_CREATED,
     "alert.acknowledged": SAHOOL_ALERT_ACKNOWLEDGED,
     "alert.resolved": SAHOOL_ALERT_RESOLVED,
+    # Vision (YOLO26)
+    "vision.pest_detected": SAHOOL_VISION_PEST_DETECTED,
+    "vision.disease_detected": SAHOOL_VISION_DISEASE_DETECTED,
+    "vision.weed_detected": SAHOOL_VISION_WEED_DETECTED,
+    "vision.plant_count_completed": SAHOOL_VISION_PLANT_COUNT_COMPLETED,
+    "vision.critical_alert": SAHOOL_VISION_CRITICAL_ALERT,
+    "vision.analysis_started": SAHOOL_VISION_ANALYSIS_STARTED,
+    "vision.analysis_completed": SAHOOL_VISION_ANALYSIS_COMPLETED,
+    "vision.analysis_failed": SAHOOL_VISION_ANALYSIS_FAILED,
+    # Terrain
+    "terrain.analysis_started": SAHOOL_TERRAIN_ANALYSIS_STARTED,
+    "terrain.analysis_completed": SAHOOL_TERRAIN_ANALYSIS_COMPLETED,
+    "terrain.analysis_failed": SAHOOL_TERRAIN_ANALYSIS_FAILED,
+    "terrain.high_erosion_risk": SAHOOL_TERRAIN_HIGH_EROSION_RISK,
+    "terrain.waterlogging_detected": SAHOOL_TERRAIN_WATERLOGGING_DETECTED,
+    "terrain.drainage_issue": SAHOOL_TERRAIN_DRAINAGE_ISSUE,
+    "terrain.leveling_recommended": SAHOOL_TERRAIN_LEVELING_RECOMMENDED,
+    "terrain.drainage_recommended": SAHOOL_TERRAIN_DRAINAGE_RECOMMENDED,
+    "terrain.dem_updated": SAHOOL_TERRAIN_DEM_UPDATED,
+    # Edge
+    "edge.device_online": SAHOOL_EDGE_DEVICE_ONLINE,
+    "edge.device_offline": SAHOOL_EDGE_DEVICE_OFFLINE,
+    "edge.device_registered": SAHOOL_EDGE_DEVICE_REGISTERED,
+    "edge.device_health_update": SAHOOL_EDGE_DEVICE_HEALTH_UPDATE,
+    "edge.device_error": SAHOOL_EDGE_DEVICE_ERROR,
+    "edge.job_queued": SAHOOL_EDGE_JOB_QUEUED,
+    "edge.job_started": SAHOOL_EDGE_JOB_STARTED,
+    "edge.job_progress": SAHOOL_EDGE_JOB_PROGRESS,
+    "edge.job_completed": SAHOOL_EDGE_JOB_COMPLETED,
+    "edge.job_failed": SAHOOL_EDGE_JOB_FAILED,
+    "edge.sync_started": SAHOOL_EDGE_SYNC_STARTED,
+    "edge.sync_completed": SAHOOL_EDGE_SYNC_COMPLETED,
+    "edge.sync_failed": SAHOOL_EDGE_SYNC_FAILED,
+    "edge.sync_conflict": SAHOOL_EDGE_SYNC_CONFLICT,
+    "edge.model_deployed": SAHOOL_EDGE_MODEL_DEPLOYED,
+    "edge.model_deployment_started": SAHOOL_EDGE_MODEL_DEPLOYMENT_STARTED,
+    "edge.model_deployment_failed": SAHOOL_EDGE_MODEL_DEPLOYMENT_FAILED,
+    "edge.firmware_update_available": SAHOOL_EDGE_FIRMWARE_UPDATE_AVAILABLE,
+    "edge.data_collected": SAHOOL_EDGE_DATA_COLLECTED,
 }
 
 

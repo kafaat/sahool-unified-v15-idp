@@ -1,0 +1,13 @@
+{{- if .Values.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "edge-orchestrator-service.fullname" . }}
+  labels:
+    {{- include "edge-orchestrator-service.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "edge-orchestrator-service.selectorLabels" . | nindent 6 }}
+{{- end }}

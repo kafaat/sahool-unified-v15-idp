@@ -14,6 +14,7 @@ Supported Providers:
     - Anthropic (Claude)
     - OpenAI (GPT)
     - Google (Gemini)
+    - DeepSeek (Code-specialized)
 
 Author: SAHOOL Platform Team
 Updated: January 2026
@@ -44,6 +45,7 @@ class LLMProvider(str, Enum):
     ANTHROPIC = "anthropic"
     OPENAI = "openai"
     GOOGLE = "google"
+    DEEPSEEK = "deepseek"
 
 
 @dataclass
@@ -93,6 +95,15 @@ class LLMConfig:
                 api_key=os.getenv("GOOGLE_API_KEY"),
                 priority=3,
                 enabled=bool(os.getenv("GOOGLE_API_KEY")),
+            )
+        elif provider == LLMProvider.DEEPSEEK:
+            return cls(
+                provider=provider,
+                model=os.getenv("DEEPSEEK_MODEL", "deepseek-coder"),
+                api_key=os.getenv("DEEPSEEK_API_KEY"),
+                base_url=os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com"),
+                priority=4,
+                enabled=bool(os.getenv("DEEPSEEK_API_KEY")),
             )
         else:
             raise ValueError(f"Unknown provider: {provider}")
@@ -428,6 +439,8 @@ class LLMProviderManager:
             return await self._call_openai(prompt, system_prompt, temperature, max_tokens)
         elif provider == LLMProvider.GOOGLE:
             return await self._call_google(prompt, system_prompt, temperature, max_tokens)
+        elif provider == LLMProvider.DEEPSEEK:
+            return await self._call_deepseek(prompt, system_prompt, temperature, max_tokens)
         else:
             raise LLMProviderError(f"Unknown provider: {provider}", provider)
 
@@ -628,6 +641,58 @@ class LLMProviderManager:
                 tokens_input=usage.get("promptTokenCount", 0),
                 tokens_output=usage.get("candidatesTokenCount", 0),
                 finish_reason=data.get("candidates", [{}])[0].get("finishReason"),
+                raw_response=data,
+            )
+
+    async def _call_deepseek(
+        self,
+        prompt: str,
+        system_prompt: str | None,
+        temperature: float,
+        max_tokens: int,
+    ) -> LLMResponse:
+        """Call DeepSeek API (OpenAI-compatible)."""
+        try:
+            import httpx
+        except ImportError:
+            raise LLMProviderError("httpx required for DeepSeek", LLMProvider.DEEPSEEK)
+
+        config = self.configs[LLMProvider.DEEPSEEK]
+        if not config.api_key:
+            raise LLMProviderError("DeepSeek API key not set", LLMProvider.DEEPSEEK)
+
+        async with httpx.AsyncClient(timeout=config.timeout) as client:
+            messages = []
+            if system_prompt:
+                messages.append({"role": "system", "content": system_prompt})
+            messages.append({"role": "user", "content": prompt})
+
+            base_url = config.base_url or "https://api.deepseek.com"
+            response = await client.post(
+                f"{base_url}/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {config.api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": config.model,
+                    "messages": messages,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens,
+                },
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            text = data["choices"][0]["message"]["content"]
+
+            return LLMResponse(
+                text=text,
+                provider=LLMProvider.DEEPSEEK,
+                model=config.model,
+                tokens_input=data.get("usage", {}).get("prompt_tokens", 0),
+                tokens_output=data.get("usage", {}).get("completion_tokens", 0),
+                finish_reason=data["choices"][0].get("finish_reason"),
                 raw_response=data,
             )
 

@@ -10,6 +10,7 @@
 .PHONY: help dev build up down restart logs clean test health
 .PHONY: mobile-test mobile-build mobile-build-release mobile-build-aab mobile-analyze
 .PHONY: mobile-format mobile-clean mobile-deps mobile-codegen mobile-doctor mobile-ci
+.PHONY: fixops fixops-run fixops-comprehensive fixops-json
 .DEFAULT_GOAL := help
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -342,6 +343,25 @@ endif
 ps: ## قائمة الحاويات قيد التشغيل - List running containers
 	@echo "$(BLUE)📦 الحاويات قيد التشغيل - Running containers:$(RESET)"
 	@docker compose -f $(COMPOSE_BASE) ps
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FixOps - Kimi Repair Agent - أدوات الإصلاح التلقائي
+# ═══════════════════════════════════════════════════════════════════════════════
+
+fixops: ## معاينة مشاكل الكود - Preview code issues (dry-run)
+	@echo "$(BLUE)🔧 FixOps - معاينة المشاكل - Preview Mode...$(RESET)"
+	python3 -m tools.fixops.cli --dry-run
+
+fixops-run: ## إصلاح المشاكل تلقائياً (safe) - Fix issues automatically (safe strategy)
+	@echo "$(GREEN)🔧 FixOps - تطبيق الإصلاحات - Applying Fixes...$(RESET)"
+	python3 -m tools.fixops.cli --no-dry-run --strategy safe
+
+fixops-comprehensive: ## إصلاح شامل لجميع المشاكل - Comprehensive fix (all issues)
+	@echo "$(YELLOW)🔧 FixOps - إصلاح شامل - Comprehensive Fix...$(RESET)"
+	python3 -m tools.fixops.cli --no-dry-run --strategy comprehensive
+
+fixops-json: ## مخرجات JSON للتكامل - JSON output for CI/CD integration
+	@python3 -m tools.fixops.cli --dry-run --json
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Monitoring - المراقبة

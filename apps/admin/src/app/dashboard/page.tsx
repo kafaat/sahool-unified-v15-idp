@@ -559,7 +559,13 @@ export default function DashboardPage() {
             </Link>
           </div>
           <div className="h-[400px]">
-
+            <FarmsMap
+              farms={farms}
+              onFarmClick={handleFarmClick}
+              selectedFarmId={selectedFarm?.id}
+              showHealthOverlay={true}
+              className="h-full"
+            />
           </div>
         </div>
 

@@ -35,31 +35,6 @@ COPY apps/services/shared ./shared/
 # Copy source
 COPY apps/services/crop-intelligence-service/src/ ./src/
 
-<<<<<<< HEAD
-# Upgrade pip with resilient fallback
-RUN pip install --no-cache-dir --timeout=300 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip || \
-    pip install --no-cache-dir --timeout=300 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
-    --upgrade pip || true
-
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try Aliyun mirror first (fast in China), fallback to official PyPI
-RUN pip install --no-cache-dir --timeout=300 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    -r requirements.txt || \
-    pip install --no-cache-dir --timeout=300 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
-    -r requirements.txt
-
-# Set ownership
-RUN chown -R sahool:sahool /app
-=======
 # Configure pip for network resilience with fallback mirrors
 RUN mkdir -p /root/.pip && \
     echo "[global]" > /root/.pip/pip.conf && \
@@ -72,7 +47,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
     (pip install --no-cache-dir -r requirements.txt || \
      pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt) && \
     chown -R sahool:sahool /app
->>>>>>> f99c62da2680b351d221bafb033e854a2b05532c
 
 USER sahool
 

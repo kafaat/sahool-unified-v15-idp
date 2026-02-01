@@ -16,7 +16,7 @@ python-multipart==0.0.22
 # Database dependencies
 sqlalchemy==2.0.23
 psycopg2-binary==2.9.9
-alembic==1.18.2
+alembic==1.18.3
 
 # Caching
 redis==5.0.1

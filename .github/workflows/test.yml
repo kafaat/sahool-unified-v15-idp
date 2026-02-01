@@ -34,7 +34,7 @@ jobs:
       shared: ${{ steps.filter.outputs.shared }}
       mobile: ${{ steps.filter.outputs.mobile }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: dorny/paths-filter@v3
         id: filter
@@ -66,10 +66,10 @@ jobs:
     needs: changes
     if: needs.changes.outputs.frontend == 'true' || github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -118,10 +118,10 @@ jobs:
     needs: changes
     if: needs.changes.outputs.python == 'true' || github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
@@ -152,7 +152,7 @@ jobs:
           pytest apps/services/ -v --cov=apps/services --cov-report=xml --cov-report=term-missing || true
 
       - name: Upload Coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: always()
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -172,7 +172,7 @@ jobs:
       run:
         working-directory: apps/mobile
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -232,10 +232,10 @@ jobs:
     needs: changes
     if: needs.changes.outputs.shared == 'true' || github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 

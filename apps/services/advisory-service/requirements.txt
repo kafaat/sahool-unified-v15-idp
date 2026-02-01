@@ -22,4 +22,4 @@ nats-py==2.9.0
 structlog>=24.1.0
 
 # Redis for token revocation
-redis[hiredis]==5.2.1
+redis[hiredis]==7.1.0

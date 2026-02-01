@@ -64,7 +64,7 @@ jobs:
       wait_time_stage3: ${{ steps.config.outputs.wait_time_stage3 }}
       services: ${{ steps.services.outputs.services }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.inputs.version }}
 
@@ -133,12 +133,12 @@ jobs:
     needs: [validate]
     if: github.event.inputs.skip-evaluation != 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.inputs.version }}
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -152,7 +152,7 @@ jobs:
           generate-report: 'true'
 
       - name: Upload evaluation report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: canary-evaluation-report
           path: evaluation-report.json
@@ -169,12 +169,12 @@ jobs:
     environment:
       name: ${{ github.event.inputs.environment }}-canary
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.inputs.version }}
 
       - name: Configure kubectl
-        uses: azure/k8s-set-context@v3
+        uses: azure/k8s-set-context@v4
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets[needs.validate.outputs.kubeconfig_secret] }}
@@ -305,10 +305,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [validate, health-check-stage-1]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Configure kubectl
-        uses: azure/k8s-set-context@v3
+        uses: azure/k8s-set-context@v4
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets[needs.validate.outputs.kubeconfig_secret] }}
@@ -374,10 +374,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [validate, health-check-stage-2]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Configure kubectl
-        uses: azure/k8s-set-context@v3
+        uses: azure/k8s-set-context@v4
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets[needs.validate.outputs.kubeconfig_secret] }}
@@ -440,10 +440,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [validate, health-check-stage-3]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Configure kubectl
-        uses: azure/k8s-set-context@v3
+        uses: azure/k8s-set-context@v4
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets[needs.validate.outputs.kubeconfig_secret] }}
@@ -493,7 +493,7 @@ jobs:
     if: failure()
     steps:
       - name: Configure kubectl
-        uses: azure/k8s-set-context@v3
+        uses: azure/k8s-set-context@v4
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets[needs.validate.outputs.kubeconfig_secret] }}

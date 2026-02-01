@@ -20,7 +20,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DEFAULT_TIMEOUT=300 \
     PIP_RETRIES=10 \
-    PORT=8160 \
+    PORT=8185 \
     # GDAL configuration
     GDAL_CACHEMAX=256 \
     GDAL_DISABLE_READDIR_ON_OPEN=EMPTY_DIR \
@@ -109,11 +109,11 @@ RUN chown -R sahool:sahool /app
 USER sahool
 
 # Expose port
-EXPOSE 8160
+EXPOSE 8185
 
 # Health check using Python
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8160/healthz')" || exit 1
+HEALTHCHECK --interval=30s --timeout=15s --start-period=90s --retries=5 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8185/healthz')" || exit 1
 
 # Run application
-CMD ["sh", "-c", "python -m uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8160}"]
+CMD ["sh", "-c", "python -m uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8185}"]

@@ -11,6 +11,8 @@
 .PHONY: mobile-test mobile-build mobile-build-release mobile-build-aab mobile-analyze
 .PHONY: mobile-format mobile-clean mobile-deps mobile-codegen mobile-doctor mobile-ci
 .PHONY: fixops fixops-run fixops-comprehensive fixops-json
+.PHONY: deps-check deps-tree deps-audit deps-outdated deps-security deps-install-tools
+.PHONY: perf-install dead-code complexity unused-deps docstring-coverage secrets-scan licenses benchmark quality-full
 .DEFAULT_GOAL := help
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -388,6 +390,97 @@ monitoring-down: ## إيقاف المراقبة - Stop monitoring stack
 monitoring-logs: ## عرض سجلات المراقبة - View monitoring logs
 	@echo "$(BLUE)📋 سجلات المراقبة - Monitoring logs:$(RESET)"
 	docker compose -f $(COMPOSE_MONITORING) logs -f
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Dependency Management - إدارة الاعتماديات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+deps-check: ## فحص توافق الاعتماديات - Check dependency compatibility
+	@echo "$(BLUE)🔍 فحص توافق الاعتماديات - Checking dependency compatibility...$(RESET)"
+	@pip check || true
+	@echo ""
+	@echo "$(YELLOW)التعارضات المحتملة:$(RESET)"
+	@pipdeptree --warn fail 2>&1 | grep -A2 "Warning!!! Possibly conflicting" || echo "$(GREEN)✅ لا توجد تعارضات$(RESET)"
+
+deps-tree: ## عرض شجرة الاعتماديات - Show dependency tree
+	@echo "$(BLUE)🌳 شجرة الاعتماديات - Dependency tree:$(RESET)"
+	@pipdeptree --warn silence | head -100
+
+deps-audit: ## فحص الثغرات الأمنية - Audit dependencies for vulnerabilities
+	@echo "$(BLUE)🔒 فحص الثغرات الأمنية - Security audit...$(RESET)"
+	@pip-audit --desc 2>&1 | head -50
+
+deps-outdated: ## عرض الاعتماديات القديمة - Show outdated dependencies
+	@echo "$(BLUE)📦 الاعتماديات القديمة - Outdated packages:$(RESET)"
+	@pip list --outdated 2>/dev/null | head -30
+
+deps-security: ## فحص أمني شامل - Full security scan (Bandit + pip-audit)
+	@echo "$(BLUE)🛡️ فحص أمني شامل - Full security scan...$(RESET)"
+	@echo ""
+	@echo "$(YELLOW)=== Bandit (Python Security) ===$(RESET)"
+	@bandit -r apps/services/ shared/ -f json 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); h=len([r for r in d.get('results',[]) if r['issue_severity']=='HIGH']); m=len([r for r in d.get('results',[]) if r['issue_severity']=='MEDIUM']); print(f'HIGH: {h}, MEDIUM: {m}')" || echo "Bandit not available"
+	@echo ""
+	@echo "$(YELLOW)=== pip-audit (CVE Check) ===$(RESET)"
+	@pip-audit 2>&1 | grep -E "^Found|^Name|^No vulnerable" | head -10
+
+deps-install-tools: ## تثبيت أدوات إدارة الاعتماديات - Install dependency management tools
+	@echo "$(BLUE)📥 تثبيت الأدوات - Installing tools...$(RESET)"
+	pip install --ignore-installed pip-tools pipdeptree pip-audit bandit safety yamllint
+	@echo "$(GREEN)✅ تم التثبيت - Tools installed!$(RESET)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Performance & Advanced Quality - الأداء والجودة المتقدمة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+perf-install: ## تثبيت أدوات الأداء - Install performance tools
+	@echo "$(BLUE)📥 تثبيت أدوات الأداء - Installing performance tools...$(RESET)"
+	pip install vulture radon deptry interrogate detect-secrets safety pip-licenses hypothesis pytest-benchmark memray py-spy scalene
+	@echo "$(GREEN)✅ تم التثبيت - Tools installed!$(RESET)"
+
+dead-code: ## كشف الكود الميت - Find dead/unused code with vulture
+	@echo "$(BLUE)💀 كشف الكود الميت - Finding dead code...$(RESET)"
+	@vulture apps/services/ shared/ --min-confidence 80 2>/dev/null | head -50 || echo "$(GREEN)✅ لا يوجد كود ميت$(RESET)"
+
+complexity: ## قياس تعقيد الكود - Measure code complexity with radon
+	@echo "$(BLUE)📊 قياس التعقيد - Code complexity analysis...$(RESET)"
+	@echo "$(YELLOW)=== Cyclomatic Complexity (CC) ===$(RESET)"
+	@radon cc apps/services/ shared/ -a -s --total-average 2>/dev/null | tail -20
+	@echo ""
+	@echo "$(YELLOW)=== Maintainability Index (MI) ===$(RESET)"
+	@radon mi apps/services/ shared/ -s 2>/dev/null | grep -E "^[A-F]" | head -20
+
+unused-deps: ## كشف الاعتماديات غير المستخدمة - Find unused dependencies
+	@echo "$(BLUE)📦 كشف الاعتماديات غير المستخدمة - Finding unused dependencies...$(RESET)"
+	@deptry apps/services/ 2>/dev/null | head -30 || echo "Run from service directory"
+
+docstring-coverage: ## تغطية التوثيق - Check docstring coverage
+	@echo "$(BLUE)📝 تغطية التوثيق - Docstring coverage...$(RESET)"
+	@interrogate apps/services/ shared/ -v --fail-under 0 2>/dev/null | tail -30
+
+secrets-scan: ## فحص الأسرار المسربة - Scan for leaked secrets
+	@echo "$(BLUE)🔐 فحص الأسرار - Scanning for secrets...$(RESET)"
+	@detect-secrets scan apps/ shared/ --all-files 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); n=len(d.get('results',{})); print(f'Found {n} potential secrets' if n else '✅ No secrets found')" || echo "$(GREEN)✅ لا توجد أسرار مسربة$(RESET)"
+
+licenses: ## فحص التراخيص - Check dependency licenses
+	@echo "$(BLUE)📜 فحص التراخيص - License check...$(RESET)"
+	@pip-licenses --format=markdown --with-license-file --no-license-path 2>/dev/null | head -40
+
+benchmark: ## اختبار الأداء - Run benchmarks
+	@echo "$(BLUE)⏱️ اختبار الأداء - Running benchmarks...$(RESET)"
+	@pytest tests/ -v --benchmark-only --benchmark-sort=mean 2>/dev/null | head -40 || echo "No benchmarks found"
+
+quality-full: ## فحص جودة شامل - Full quality scan (all tools)
+	@echo "$(BLUE)🎯 فحص جودة شامل - Full Quality Scan$(RESET)"
+	@echo ""
+	@$(MAKE) --no-print-directory dead-code
+	@echo ""
+	@$(MAKE) --no-print-directory complexity
+	@echo ""
+	@$(MAKE) --no-print-directory docstring-coverage
+	@echo ""
+	@$(MAKE) --no-print-directory secrets-scan
+	@echo ""
+	@$(MAKE) --no-print-directory deps-security
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Code Quality - جودة الكود

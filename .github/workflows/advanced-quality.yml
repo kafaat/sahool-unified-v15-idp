@@ -1,0 +1,297 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Advanced Quality & Performance Analysis
+# Deep code analysis, security scanning, and performance metrics
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Advanced Quality Analysis
+
+on:
+  # Run on-demand
+  workflow_dispatch:
+    inputs:
+      full_scan:
+        description: 'Run full comprehensive scan'
+        required: false
+        default: 'false'
+        type: boolean
+  # Weekly schedule (Sunday 2 AM UTC)
+  schedule:
+    - cron: '0 2 * * 0'
+  # On PRs to main (optional checks)
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/services/**/*.py'
+      - 'shared/**/*.py'
+
+concurrency:
+  group: advanced-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Dead Code Detection
+  # ─────────────────────────────────────────────────────────────────────────────
+  dead-code:
+    name: Dead Code Analysis
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install vulture
+        run: pip install vulture
+
+      - name: Find dead code
+        run: |
+          echo "🔍 Scanning for dead/unused code..."
+          vulture apps/services/ shared/ --min-confidence 80 > dead-code-report.txt 2>&1 || true
+
+          DEAD_COUNT=$(wc -l < dead-code-report.txt)
+          echo "Found $DEAD_COUNT potential dead code items"
+
+          if [ "$DEAD_COUNT" -gt 100 ]; then
+            echo "::warning::High amount of dead code detected: $DEAD_COUNT items"
+          fi
+
+          head -50 dead-code-report.txt
+
+      - name: Upload dead code report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dead-code-report
+          path: dead-code-report.txt
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Code Complexity Analysis
+  # ─────────────────────────────────────────────────────────────────────────────
+  complexity:
+    name: Code Complexity
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install radon
+        run: pip install radon
+
+      - name: Analyze complexity
+        run: |
+          echo "📊 Analyzing code complexity..."
+
+          echo "=== Cyclomatic Complexity ===" > complexity-report.txt
+          radon cc apps/services/ shared/ -a -s --total-average >> complexity-report.txt 2>&1 || true
+
+          echo "" >> complexity-report.txt
+          echo "=== Maintainability Index ===" >> complexity-report.txt
+          radon mi apps/services/ shared/ -s >> complexity-report.txt 2>&1 || true
+
+          echo "" >> complexity-report.txt
+          echo "=== Raw Metrics ===" >> complexity-report.txt
+          radon raw apps/services/ shared/ -s >> complexity-report.txt 2>&1 || true
+
+          # Check for high complexity functions
+          HIGH_COMPLEXITY=$(radon cc apps/services/ shared/ -a -s --total-average 2>/dev/null | grep -c " F " || echo "0")
+          if [ "$HIGH_COMPLEXITY" -gt 0 ]; then
+            echo "::warning::Found $HIGH_COMPLEXITY functions with F grade (very high complexity)"
+          fi
+
+          head -100 complexity-report.txt
+
+      - name: Upload complexity report
+        uses: actions/upload-artifact@v4
+        with:
+          name: complexity-report
+          path: complexity-report.txt
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Security Deep Scan
+  # ─────────────────────────────────────────────────────────────────────────────
+  security-deep:
+    name: Security Deep Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install security tools
+        run: |
+          pip install bandit pip-audit safety detect-secrets
+
+      - name: Run Bandit security scan
+        run: |
+          echo "🔒 Running Bandit security scan..."
+          bandit -r apps/services/ shared/ -f json -o bandit-report.json 2>/dev/null || true
+
+          # Parse results
+          python3 << 'EOF'
+          import json
+          with open('bandit-report.json') as f:
+              data = json.load(f)
+          results = data.get('results', [])
+          high = len([r for r in results if r['issue_severity'] == 'HIGH'])
+          medium = len([r for r in results if r['issue_severity'] == 'MEDIUM'])
+          low = len([r for r in results if r['issue_severity'] == 'LOW'])
+          print(f"Security Issues: HIGH={high}, MEDIUM={medium}, LOW={low}")
+          if high > 0:
+              print(f"::error::Found {high} HIGH severity security issues!")
+          EOF
+        continue-on-error: true
+
+      - name: Run pip-audit CVE check
+        run: |
+          echo "🔍 Checking for CVE vulnerabilities..."
+          pip-audit --desc 2>&1 | tee pip-audit-report.txt | head -30
+        continue-on-error: true
+
+      - name: Scan for secrets
+        run: |
+          echo "🔐 Scanning for leaked secrets..."
+          detect-secrets scan apps/ shared/ --all-files > secrets-report.json 2>/dev/null || true
+
+          python3 << 'EOF'
+          import json
+          with open('secrets-report.json') as f:
+              data = json.load(f)
+          results = data.get('results', {})
+          total = sum(len(v) for v in results.values())
+          if total > 0:
+              print(f"::warning::Found {total} potential secrets in code")
+          else:
+              print("✅ No secrets detected")
+          EOF
+        continue-on-error: true
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            bandit-report.json
+            pip-audit-report.txt
+            secrets-report.json
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Documentation Coverage
+  # ─────────────────────────────────────────────────────────────────────────────
+  docs-coverage:
+    name: Documentation Coverage
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install interrogate
+        run: pip install interrogate
+
+      - name: Check docstring coverage
+        run: |
+          echo "📝 Checking docstring coverage..."
+          interrogate apps/services/ shared/ -v --fail-under 0 > docs-coverage-report.txt 2>&1 || true
+
+          # Extract coverage percentage
+          COVERAGE=$(grep -oP 'TOTAL\s+\d+%' docs-coverage-report.txt | grep -oP '\d+' || echo "0")
+          echo "Documentation coverage: ${COVERAGE}%"
+
+          if [ "$COVERAGE" -lt 50 ]; then
+            echo "::warning::Low documentation coverage: ${COVERAGE}%"
+          fi
+
+          tail -30 docs-coverage-report.txt
+
+      - name: Upload docs coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-coverage-report
+          path: docs-coverage-report.txt
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # License Compliance
+  # ─────────────────────────────────────────────────────────────────────────────
+  license-check:
+    name: License Compliance
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install pip-licenses
+        run: pip install pip-licenses
+
+      - name: Check licenses
+        run: |
+          echo "📜 Checking dependency licenses..."
+          pip-licenses --format=markdown --with-license-file --no-license-path > licenses-report.md 2>/dev/null || true
+
+          # Check for problematic licenses
+          if pip-licenses 2>/dev/null | grep -qiE "GPL|AGPL|LGPL"; then
+            echo "::warning::Found GPL/AGPL/LGPL licensed dependencies - review for compliance"
+          fi
+
+          head -50 licenses-report.md
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v4
+        with:
+          name: licenses-report
+          path: licenses-report.md
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Summary Report
+  # ─────────────────────────────────────────────────────────────────────────────
+  summary:
+    name: Quality Summary
+    runs-on: ubuntu-latest
+    needs: [dead-code, complexity, security-deep, docs-coverage, license-check]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "# 📊 Advanced Quality Analysis Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Dead Code | ${{ needs.dead-code.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Complexity | ${{ needs.complexity.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security | ${{ needs.security-deep.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Documentation | ${{ needs.docs-coverage.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Licenses | ${{ needs.license-check.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📅 Run: $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY

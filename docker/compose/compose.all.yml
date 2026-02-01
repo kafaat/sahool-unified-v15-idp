@@ -243,6 +243,36 @@ services:
           memory: 512Mi
     depends_on:
     - terrain-core-service
+  llm-orchestrator-service:
+    build:
+      context: ../../apps/services/llm-orchestrator-service
+      dockerfile: Dockerfile
+    ports:
+    - 8220:8220
+    environment:
+    - PORT=8220
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8220/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 1Gi
+    depends_on:
+    - crop-intelligence-service
+    - advisory-service
+    - irrigation-smart
+    - pest-detection-service
+    - yolo26-vision-service
   disaster-assessment:
     build:
       context: ../../apps/services/disaster-assessment
@@ -1508,6 +1538,62 @@ services:
         limits:
           cpus: '300'
           memory: 384Mi
+  supply-chain-service:
+    build:
+      context: ../../apps/services/supply-chain-service
+      dockerfile: Dockerfile
+    ports:
+    - 8230:8230
+    environment:
+    - PORT=8230
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8230/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - advisory-service
+    - notification-service
+    - billing-core
+  whatsapp-bot-service:
+    build:
+      context: ../../apps/services/whatsapp-bot-service
+      dockerfile: Dockerfile
+    ports:
+    - 8240:8240
+    environment:
+    - PORT=8240
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8240/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - llm-orchestrator-service
+    - yolo26-vision-service
+    - notification-service
   iot-service:
     build:
       context: ../../apps/services/iot-service

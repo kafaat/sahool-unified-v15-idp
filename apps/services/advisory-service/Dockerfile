@@ -30,15 +30,15 @@ RUN mkdir -p /root/.pip && \
     echo "[global]" > /root/.pip/pip.conf && \
     echo "timeout = 300" >> /root/.pip/pip.conf && \
     echo "retries = 10" >> /root/.pip/pip.conf && \
-    echo "trusted-host = pypi.org files.pythonhosted.org pypi.tuna.tsinghua.edu.cn" >> /root/.pip/pip.conf
+    echo "trusted-host = pypi.org files.pythonhosted.org mirrors.aliyun.com" >> /root/.pip/pip.conf
 
 # Upgrade pip
 RUN pip install --no-cache-dir --upgrade pip || true
 
-# Install dependencies with fallback to Tsinghua mirror
+# Install dependencies with fallback to Aliyun mirror
 COPY apps/services/advisory-service/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt || \
-    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
 # Copy shared libraries
 COPY apps/services/shared/ ./shared/

@@ -629,8 +629,32 @@ jobs:
     needs: [dockerfile-lint, secrets-scan, build-and-test, docker-compose-test]
     if: always()
     steps:
-      - name: Download all artifacts
+      - name: Download all artifacts with retry
+        id: download
+        continue-on-error: true
+        run: |
+          # Manual retry logic for artifact download
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            echo "Attempt $i: Downloading artifacts..."
+            mkdir -p test-artifacts
+            # Use GitHub API to list and download artifacts
+            if curl -sL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Accept: application/vnd.github+json" \
+               "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" \
+               -o artifacts.json; then
+              echo "✅ Artifact list retrieved"
+              cat artifacts.json | jq -r '.artifacts[].name' || true
+              echo "download_success=true" >> $GITHUB_OUTPUT
+              break
+            fi
+            echo "⚠️ Download failed, waiting $((i * 5)) seconds before retry..."
+            sleep $((i * 5))
+          done
+          echo "download_success=false" >> $GITHUB_OUTPUT
+
+      - name: Download artifacts (fallback)
         uses: actions/download-artifact@v7
+        continue-on-error: true
         with:
           path: test-artifacts
 

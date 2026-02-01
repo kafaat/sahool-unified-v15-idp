@@ -43,10 +43,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
@@ -87,10 +87,10 @@ jobs:
     needs: lint
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
@@ -128,7 +128,7 @@ jobs:
           NATS_URL: ""
 
       - name: Upload coverage report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: always()
         continue-on-error: true
         with:
@@ -156,10 +156,10 @@ jobs:
     needs: lint
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -215,7 +215,7 @@ jobs:
           df -h
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -336,7 +336,7 @@ jobs:
           EOF
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ${{ env.SERVICE_PATH }}/Dockerfile
@@ -375,10 +375,10 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
           format: 'sarif'

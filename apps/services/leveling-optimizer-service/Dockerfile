@@ -31,7 +31,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
-COPY requirements.txt .
+# Note: Build context is repo root, so use full path
+COPY apps/services/leveling-optimizer-service/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -44,7 +45,8 @@ COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code
-COPY --chown=appuser:appgroup . .
+# Note: Build context is repo root, so use full path
+COPY --chown=appuser:appgroup apps/services/leveling-optimizer-service/src ./src
 
 # Switch to non-root user
 USER appuser
@@ -64,4 +66,4 @@ LABEL org.opencontainers.image.title="Leveling Optimizer Service" \
     org.opencontainers.image.source="https://github.com/kafaat/sahool"
 
 # Run the application
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8170"]
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8170"]

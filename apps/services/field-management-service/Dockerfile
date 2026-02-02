@@ -35,6 +35,9 @@ RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-sh
 # Install dependencies
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
+# Copy prisma schema (required for prisma generate)
+COPY apps/services/field-management-service/prisma ./prisma
+
 # Copy source and build
 COPY apps/services/field-management-service/tsconfig.json ./
 COPY apps/services/field-management-service/src ./src
@@ -76,6 +79,9 @@ RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mi
 
 # Copy built files
 COPY --from=builder /app/dist ./dist
+
+# Copy prisma schema for runtime migrations
+COPY --from=builder /app/prisma ./prisma
 
 # Set ownership
 RUN chown -R sahool:sahool /app

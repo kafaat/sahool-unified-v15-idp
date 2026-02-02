@@ -32,8 +32,9 @@ RUN mkdir -p /root/.pip && \
     echo "retries = 10" >> /root/.pip/pip.conf && \
     echo "trusted-host = pypi.org files.pythonhosted.org mirrors.aliyun.com" >> /root/.pip/pip.conf
 
-# Upgrade pip
-RUN pip install --no-cache-dir --upgrade pip || true
+# Upgrade pip with fallback to Aliyun mirror
+RUN pip install --no-cache-dir --upgrade pip || \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip || true
 
 # Install dependencies with fallback to Aliyun mirror
 COPY apps/services/advisory-service/requirements.txt .

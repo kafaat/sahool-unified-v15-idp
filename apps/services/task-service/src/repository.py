@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 def _sanitize_id(value: str) -> str:
     """Sanitize ID for logging to prevent log injection"""
-    return str(value).replace('\n', '').replace('\r', '')[:100] if value else ""
+    return str(value).replace("\n", "").replace("\r", "")[:100] if value else ""
 
 
 class TaskRepository:
@@ -352,7 +352,11 @@ class TaskRepository:
             self.db.commit()
             self.db.refresh(evidence)
 
-            logger.info("Added evidence: %s to task: %s", _sanitize_id(evidence.evidence_id), _sanitize_id(evidence.task_id))
+            logger.info(
+                "Added evidence: %s to task: %s",
+                _sanitize_id(evidence.evidence_id),
+                _sanitize_id(evidence.task_id),
+            )
             return evidence
 
         except Exception as e:
@@ -470,7 +474,9 @@ class TaskRepository:
             # Note: Not committing here as this is called within other transactions
 
         except Exception as e:
-            logger.error("Error recording history for task %s: %s", _sanitize_id(task_id), type(e).__name__)
+            logger.error(
+                "Error recording history for task %s: %s", _sanitize_id(task_id), type(e).__name__
+            )
             # Don't raise, just log - history should not block main operations
 
 
@@ -543,4 +549,6 @@ class AsyncTaskRepository:
             self.db.add(history)
 
         except Exception as e:
-            logger.error("Error recording history for task %s: %s", _sanitize_id(task_id), type(e).__name__)
+            logger.error(
+                "Error recording history for task %s: %s", _sanitize_id(task_id), type(e).__name__
+            )

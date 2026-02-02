@@ -10,7 +10,7 @@ import logging
 import os
 import re
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 from enum import Enum
 from typing import Any
 
@@ -34,9 +34,7 @@ ASTRONOMICAL_SERVICE_URL = os.getenv(
     "ASTRONOMICAL_SERVICE_URL", "http://astronomical-calendar:8111"
 )
 FIELD_SERVICE_URL = os.getenv("FIELD_SERVICE_URL", "http://field-service:8115")
-NOTIFICATION_SERVICE_URL = os.getenv(
-    "NOTIFICATION_SERVICE_URL", "http://notification-service:8110"
-)
+NOTIFICATION_SERVICE_URL = os.getenv("NOTIFICATION_SERVICE_URL", "http://notification-service:8110")
 
 # HTTP client timeout
 HTTP_TIMEOUT = 10.0
@@ -166,8 +164,12 @@ def create_task_model(data: TaskCreateData, task_id: str | None = None):
     if task_id is None:
         task_id = generate_task_id()
 
-    task_type_value = data.task_type.value if isinstance(data.task_type, TaskType) else data.task_type
-    priority_value = data.priority.value if isinstance(data.priority, TaskPriority) else data.priority
+    task_type_value = (
+        data.task_type.value if isinstance(data.task_type, TaskType) else data.task_type
+    )
+    priority_value = (
+        data.priority.value if isinstance(data.priority, TaskPriority) else data.priority
+    )
 
     return TaskModel(
         task_id=task_id,
@@ -425,7 +427,7 @@ def get_due_date_for_priority(priority: TaskPriority) -> datetime:
     Returns:
         datetime: Calculated due date
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     due_date_map = {
         TaskPriority.URGENT: timedelta(hours=4),
         TaskPriority.HIGH: timedelta(hours=12),
@@ -477,14 +479,11 @@ async def fetch_field_manager(field_id: str, tenant_id: str) -> str | None:
                 if manager_id:
                     log_manager_id = sanitize_for_log(manager_id)
                     logger.info(
-                        "Fetched field manager for field %s: %s",
-                        log_field_id, log_manager_id
+                        "Fetched field manager for field %s: %s", log_field_id, log_manager_id
                     )
                     return manager_id
                 else:
-                    logger.warning(
-                        "Field %s has no user_id/manager assigned", log_field_id
-                    )
+                    logger.warning("Field %s has no user_id/manager assigned", log_field_id)
                     return None
 
             elif response.status_code == 404:
@@ -493,7 +492,8 @@ async def fetch_field_manager(field_id: str, tenant_id: str) -> str | None:
             else:
                 logger.error(
                     "Field service returned status %d for field %s",
-                    response.status_code, log_field_id
+                    response.status_code,
+                    log_field_id,
                 )
                 return None
 
@@ -578,9 +578,7 @@ def get_task_type_activity(task_type: TaskType) -> str:
     return activity_map.get(task_type, "زراعة")
 
 
-async def fetch_astronomical_best_days(
-    activity: str, days: int = 30
-) -> dict:
+async def fetch_astronomical_best_days(activity: str, days: int = 30) -> dict:
     """
     Fetch best days for activity from astronomical calendar service
     جلب أفضل الأيام للنشاط من خدمة التقويم الفلكي
@@ -615,16 +613,17 @@ async def fetch_astronomical_best_days(
                 data = response.json()
                 # Cache the result
                 await astronomical_cache.set_best_days(activity, days, data)
-                logger.info("Fetched and cached astronomical data for %s", sanitize_for_log(activity))
+                logger.info(
+                    "Fetched and cached astronomical data for %s", sanitize_for_log(activity)
+                )
                 return data
             else:
                 logger.error(
                     "Astronomical service returned %d: %s",
-                    response.status_code, sanitize_for_log(str(response.text)[:200])
+                    response.status_code,
+                    sanitize_for_log(str(response.text)[:200]),
                 )
-                raise AstronomicalServiceError(
-                    f"Service returned {response.status_code}"
-                )
+                raise AstronomicalServiceError(f"Service returned {response.status_code}")
 
     except httpx.TimeoutException:
         logger.error("Timeout connecting to astronomical calendar service")
@@ -673,9 +672,7 @@ async def fetch_astronomical_daily_data(date_str: str) -> dict:
                 logger.error(
                     f"Astronomical service returned {response.status_code}: {response.text}"
                 )
-                raise AstronomicalServiceError(
-                    f"Service returned {response.status_code}"
-                )
+                raise AstronomicalServiceError(f"Service returned {response.status_code}")
 
     except httpx.TimeoutException:
         logger.error("Timeout connecting to astronomical calendar service")
@@ -685,9 +682,7 @@ async def fetch_astronomical_daily_data(date_str: str) -> dict:
         raise AstronomicalServiceError(str(e))
 
 
-async def fetch_astronomical_data(
-    due_date: datetime, task_type: TaskType
-) -> dict:
+async def fetch_astronomical_data(due_date: datetime, task_type: TaskType) -> dict:
     """
     Fetch astronomical data from astronomical calendar service
     جلب البيانات الفلكية من خدمة التقويم الفلكي
@@ -704,9 +699,7 @@ async def fetch_astronomical_data(
         date_str = due_date.strftime("%Y-%m-%d")
 
         async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
-            response = await client.get(
-                f"{ASTRONOMICAL_SERVICE_URL}/v1/date/{date_str}"
-            )
+            response = await client.get(f"{ASTRONOMICAL_SERVICE_URL}/v1/date/{date_str}")
             response.raise_for_status()
             astro_data = response.json()
 
@@ -842,10 +835,12 @@ async def send_task_notification(
     try:
         # Import ServiceClient here to avoid circular imports
         import sys
+
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 
         try:
             from integration.client import ServiceName, get_service_client
+
             notification_client = get_service_client(ServiceName.NOTIFICATION)
         except ImportError:
             # Direct HTTP call fallback

@@ -10,7 +10,7 @@ import hashlib
 import json
 import logging
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 from typing import Any, TypeVar
 
 logger = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ async def get_redis_client():
         await _redis_client.ping()
         _redis_available = True
         # Sanitize URL for logging (remove potential newlines)
-        safe_url = str(REDIS_URL).replace('\n', '').replace('\r', '')
+        safe_url = str(REDIS_URL).replace("\n", "").replace("\r", "")
         logger.info("Redis connected: %s", safe_url)
         return _redis_client
 
@@ -112,7 +112,7 @@ class InMemoryCache:
             return None
 
         value, expiry = self._cache[key]
-        if datetime.now(timezone.utc) > expiry:
+        if datetime.now(UTC) > expiry:
             del self._cache[key]
             return None
 
@@ -128,7 +128,7 @@ class InMemoryCache:
                 oldest_key = next(iter(self._cache))
                 del self._cache[oldest_key]
 
-        expiry = datetime.now(timezone.utc) + timedelta(seconds=ttl_seconds)
+        expiry = datetime.now(UTC) + timedelta(seconds=ttl_seconds)
         self._cache[key] = (value, expiry)
 
     def delete(self, key: str) -> bool:
@@ -144,7 +144,7 @@ class InMemoryCache:
 
     def _evict_expired(self) -> int:
         """Remove expired entries"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expired = [k for k, (_, exp) in self._cache.items() if now > exp]
         for key in expired:
             del self._cache[key]
@@ -218,9 +218,7 @@ class CacheAdapter:
         # Fallback to in-memory
         return _memory_cache.get(full_key)
 
-    async def set(
-        self, key: str, value: Any, ttl_seconds: int = DEFAULT_TTL_SECONDS
-    ) -> bool:
+    async def set(self, key: str, value: Any, ttl_seconds: int = DEFAULT_TTL_SECONDS) -> bool:
         """
         Set value in cache
         تعيين قيمة في التخزين المؤقت
@@ -306,6 +304,7 @@ class CacheAdapter:
         # Compute value
         if callable(factory):
             import asyncio
+
             if asyncio.iscoroutinefunction(factory):
                 value = await factory()
             else:
@@ -366,9 +365,7 @@ class AstronomicalCache:
     def __init__(self):
         self._cache = CacheAdapter(namespace="astronomical")
 
-    async def get_best_days(
-        self, activity: str, days: int
-    ) -> dict | None:
+    async def get_best_days(self, activity: str, days: int) -> dict | None:
         """
         Get cached best days for an activity
         الحصول على أفضل الأيام المخزنة مؤقتاً لنشاط ما
@@ -376,9 +373,7 @@ class AstronomicalCache:
         key = f"best_days:{activity}:{days}"
         return await self._cache.get(key)
 
-    async def set_best_days(
-        self, activity: str, days: int, data: dict
-    ) -> bool:
+    async def set_best_days(self, activity: str, days: int, data: dict) -> bool:
         """
         Cache best days for an activity
         تخزين أفضل الأيام لنشاط ما
@@ -402,9 +397,7 @@ class AstronomicalCache:
         key = f"daily:{date_str}"
         return await self._cache.set(key, data, ASTRONOMICAL_CACHE_TTL)
 
-    async def get_date_validation(
-        self, date_str: str, activity: str
-    ) -> dict | None:
+    async def get_date_validation(self, date_str: str, activity: str) -> dict | None:
         """
         Get cached date validation result
         الحصول على نتيجة التحقق من التاريخ المخزنة مؤقتاً
@@ -412,9 +405,7 @@ class AstronomicalCache:
         key = f"validation:{date_str}:{activity}"
         return await self._cache.get(key)
 
-    async def set_date_validation(
-        self, date_str: str, activity: str, data: dict
-    ) -> bool:
+    async def set_date_validation(self, date_str: str, activity: str, data: dict) -> bool:
         """
         Cache date validation result
         تخزين نتيجة التحقق من التاريخ
@@ -455,9 +446,7 @@ class TaskCache:
         key = f"stats:{tenant_id}"
         return await self._cache.get(key)
 
-    async def set_stats(
-        self, tenant_id: str, stats: dict, ttl_seconds: int = 300
-    ) -> bool:
+    async def set_stats(self, tenant_id: str, stats: dict, ttl_seconds: int = 300) -> bool:
         """Cache task statistics (5 min default TTL)"""
         key = f"stats:{tenant_id}"
         return await self._cache.set(key, stats, ttl_seconds)

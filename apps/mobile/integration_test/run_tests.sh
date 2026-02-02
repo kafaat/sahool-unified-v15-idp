@@ -78,15 +78,15 @@ check_devices() {
     if [ -z "$DEVICE_ID" ] && [ "$DEVICE_COUNT" -gt 1 ]; then
         # Prefer Android emulator for integration tests (most compatible)
         if flutter devices | grep -q "emulator\|android"; then
-            DEVICE_ID=$(flutter devices | grep -E "emulator|android" | head -1 | awk '{print $2}')
+            DEVICE_ID=$(flutter devices | grep -E "emulator|android" | head -1 | awk -F'•' '{print $2}' | xargs)
             print_info "Auto-selected device: $DEVICE_ID (Android)"
         # Fallback to iOS simulator
         elif flutter devices | grep -q "simulator\|iphone\|ipad"; then
-            DEVICE_ID=$(flutter devices | grep -E "simulator|iphone|ipad" -i | head -1 | awk '{print $2}')
+            DEVICE_ID=$(flutter devices | grep -E "simulator|iphone|ipad" -i | head -1 | awk -F'•' '{print $2}' | xargs)
             print_info "Auto-selected device: $DEVICE_ID (iOS)"
         # Skip web devices - not supported for integration tests
         elif flutter devices | grep -v "chrome\|web\|linux" | grep -q "•"; then
-            DEVICE_ID=$(flutter devices | grep -v "chrome\|web\|linux" | grep "•" | head -1 | awk '{print $2}')
+            DEVICE_ID=$(flutter devices | grep -v "chrome\|web\|linux" | grep "•" | head -1 | awk -F'•' '{print $2}' | xargs)
             print_info "Auto-selected device: $DEVICE_ID"
         else
             print_error "No supported device found for integration tests."

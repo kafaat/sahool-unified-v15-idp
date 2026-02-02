@@ -13,6 +13,7 @@ from typing import Any
 try:
     from pydantic import field_validator, model_validator
     from pydantic_core.core_schema import ValidationInfo
+
     PYDANTIC_AVAILABLE = True
 except ImportError:
     # Pydantic not available - validators will raise if used
@@ -144,9 +145,7 @@ def validate_date_string(date_str: str | None, raise_exception: bool = True) -> 
     return True
 
 
-def validate_metadata_size(
-    metadata: dict | None, raise_exception: bool = True
-) -> bool:
+def validate_metadata_size(metadata: dict | None, raise_exception: bool = True) -> bool:
     """
     Validate metadata size is within limits
     التحقق من أن حجم البيانات الوصفية ضمن الحدود
@@ -183,16 +182,17 @@ def validate_metadata_size(
         return False
 
 
-def sanitize_for_log(value: str | None, max_length: int = 100) -> str:
+def sanitize_for_log(value: str | int | float | None, max_length: int = 100) -> str:
     """
     Sanitize user input for safe logging to prevent log injection attacks
     تعقيم المدخلات لمنع هجمات حقن السجلات
 
-    This function removes ALL ASCII control characters (0x00-0x1F, 0x7F)
-    to prevent log injection attacks including newline injection.
+    This function explicitly removes newline (\\n) and carriage return (\\r) characters,
+    as well as ALL ASCII control characters (0x00-0x1F, 0x7F) to prevent log injection
+    attacks including log forging and newline injection.
 
     Args:
-        value: The input value to sanitize
+        value: The input value to sanitize (supports str, int, float, None)
         max_length: Maximum length of the output string
 
     Returns:
@@ -201,14 +201,23 @@ def sanitize_for_log(value: str | None, max_length: int = 100) -> str:
     if value is None:
         return "<none>"
 
-    # Convert to string
+    # Convert to string (supports int/float for numeric parameters)
     raw = str(value)
 
-    # Remove ALL ASCII control characters using regex
-    sanitized = CONTROL_CHAR_PATTERN.sub("", raw)
+    # Explicitly remove newline and carriage return characters first
+    # This addresses CodeQL log injection warnings directly
+    sanitized = raw.replace("\r\n", " ").replace("\n", " ").replace("\r", " ")
+
+    # Remove ALL ASCII control characters using regex (0x00-0x1F, 0x7F)
+    sanitized = CONTROL_CHAR_PATTERN.sub("", sanitized)
 
     # Additional safety: keep only printable characters
     sanitized = "".join(c for c in sanitized if c.isprintable())
+
+    # Strip whitespace and check for empty result
+    sanitized = sanitized.strip()
+    if not sanitized:
+        return "<empty>"
 
     # Truncate to max length
     return sanitized[:max_length] if len(sanitized) > max_length else sanitized
@@ -275,7 +284,7 @@ def field_id_validator(cls: Any, v: str | None) -> str | None:
         return v
 
     if len(v) > 100:
-        raise ValueError(f"Field ID too long: max 100 characters")
+        raise ValueError("Field ID too long: max 100 characters")
 
     if not FIELD_ID_PATTERN.match(v):
         raise ValueError(
@@ -304,9 +313,7 @@ def metadata_validator(cls: Any, v: dict | None) -> dict | None:
         size = len(json_str.encode("utf-8"))
 
         if size > MAX_METADATA_SIZE_BYTES:
-            raise ValueError(
-                f"Metadata too large: {size} bytes (max {MAX_METADATA_SIZE_BYTES})"
-            )
+            raise ValueError(f"Metadata too large: {size} bytes (max {MAX_METADATA_SIZE_BYTES})")
 
     except (TypeError, ValueError) as e:
         if "too large" in str(e):

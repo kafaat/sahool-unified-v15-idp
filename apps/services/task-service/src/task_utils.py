@@ -671,7 +671,7 @@ async def fetch_astronomical_daily_data(date_str: str) -> dict:
                 return data
             else:
                 logger.error(
-                    f"Astronomical service returned {response.status_code}: {response.text}"
+                    "Astronomical service returned %d", response.status_code
                 )
                 raise AstronomicalServiceError(
                     f"Service returned {response.status_code}"

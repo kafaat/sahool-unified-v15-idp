@@ -52,7 +52,8 @@ class TestInMemoryCache:
         """Test deleting non-existent key returns False"""
         cache = InMemoryCache()
 
-        assert cache.delete("nonexistent") is False
+        result = cache.delete("nonexistent")
+        assert result is False
 
     def test_clear(self):
         """Test clear operation"""

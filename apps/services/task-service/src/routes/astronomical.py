@@ -147,7 +147,8 @@ async def get_best_days_for_activity(
     - غرس (transplanting)
     """
     logger.info(
-        f"Fetching best days for activity: {activity}, days: {days}, min_score: {min_score}"
+        "Fetching best days for activity: %s, days: %d, min_score: %s",
+        sanitize_for_log(activity), days, min_score
     )
 
     try:

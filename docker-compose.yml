@@ -53,7 +53,7 @@ services:
   # OPTIMIZED: Enhanced pool settings based on PgBouncer audit (score 7/10 -> 9/10)
   # FIXED: Added custom entrypoint to generate userlist.txt dynamically
   pgbouncer:
-    image: edoburu/pgbouncer:1.23.1
+    image: edoburu/pgbouncer:latest
     container_name: sahool-pgbouncer
     # Custom entrypoint generates userlist.txt from environment variables
     entrypoint: [ "/entrypoint-custom.sh" ]

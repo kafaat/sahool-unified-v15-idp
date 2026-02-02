@@ -3661,7 +3661,7 @@ services:
       - sahool-network
 
   # Pest Detection Service - خدمة اكتشاف الآفات
-  # AI-powered pest detection and management
+  # AI-powered pest detection and management with Middle East pest database
   pest-detection-service:
     build:
       context: .

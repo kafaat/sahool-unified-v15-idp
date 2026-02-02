@@ -360,18 +360,6 @@ async def list_pests(
     return pests
 
 
-@router.get("/pests/{pest_id}", response_model=Pest)
-async def get_pest(pest_id: str):
-    """
-    Get pest details by ID.
-    الحصول على تفاصيل الآفة بواسطة المعرف.
-    """
-    pest = PEST_DATABASE.get(pest_id)
-    if not pest:
-        raise HTTPException(status_code=404, detail=f"Pest not found: {pest_id}")
-    return pest
-
-
 @router.get("/pests/search")
 async def search_pests(
     q: str = Query(..., min_length=2, description="Search query"),
@@ -602,3 +590,15 @@ async def get_seasonal_predictions(
         "predicted_pests": predicted_pests,
         "risk_level": "high" if len(predicted_pests) > 2 else "medium",
     }
+
+
+@router.get("/pests/{pest_id}", response_model=Pest)
+async def get_pest(pest_id: str):
+    """
+    Get pest details by ID.
+    الحصول على تفاصيل الآفة بواسطة المعرف.
+    """
+    pest = PEST_DATABASE.get(pest_id)
+    if not pest:
+        raise HTTPException(status_code=404, detail=f"Pest not found: {pest_id}")
+    return pest

@@ -3,6 +3,7 @@ import tsParser from "@typescript-eslint/parser";
 import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
+import nextPlugin from "@next/eslint-plugin-next";
 
 /**
  * ESLint 9.x flat config for Next.js Admin Dashboard
@@ -26,6 +27,7 @@ const eslintConfig = [
     plugins: {
       "@typescript-eslint": tseslint,
       "react-hooks": reactHooks,
+      "@next/next": nextPlugin,
     },
     languageOptions: {
       parser: tsParser,
@@ -63,6 +65,10 @@ const eslintConfig = [
       "react/prop-types": "off", // Using TypeScript for prop types
       "react-hooks/exhaustive-deps": "off", // Allow disable comments to work
       "react-hooks/rules-of-hooks": "off", // Allow disable comments to work
+
+      // Next.js rules (defined so eslint-disable comments work)
+      "@next/next/no-page-custom-font": "off",
+      "@next/next/no-img-element": "off",
     },
   },
   {

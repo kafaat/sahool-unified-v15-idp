@@ -1,0 +1,189 @@
+# SAHOOL v16.0.0 Docker Compose Patches
+# تصحيحات Docker Compose
+#
+# Apply these patches to fix identified issues
+# ==============================================
+
+# -----------------------------------------------------------------------------
+# PATCH 1: ai-agents-service - Add sslmode=disable
+# -----------------------------------------------------------------------------
+# LOCATION: apps/services/ai-agents-service section
+# CHANGE: DATABASE_URL environment variable
+
+ai-agents-service:
+  environment:
+    # BEFORE:
+    # - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+    # AFTER (add sslmode=disable):
+    - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?ssl=disable
+
+# -----------------------------------------------------------------------------
+# PATCH 2: crm-service - Add sslmode=disable
+# -----------------------------------------------------------------------------
+crm-service:
+  environment:
+    # BEFORE:
+    # - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+    # AFTER:
+    - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?ssl=disable
+
+# -----------------------------------------------------------------------------
+# PATCH 3: lowcode-engine - Add sslmode=disable
+# -----------------------------------------------------------------------------
+lowcode-engine:
+  environment:
+    # BEFORE:
+    # - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+    # AFTER:
+    - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?ssl=disable
+
+# -----------------------------------------------------------------------------
+# PATCH 4: edge-orchestrator-service - Add pgbouncer dependency
+# -----------------------------------------------------------------------------
+edge-orchestrator-service:
+  depends_on:
+    # ADD these if missing:
+    pgbouncer:
+      condition: service_healthy
+    nats:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+# -----------------------------------------------------------------------------
+# PATCH 5: provider-config - Add sslmode=disable
+# -----------------------------------------------------------------------------
+provider-config:
+  environment:
+    # BEFORE:
+    # - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+    # AFTER:
+    - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+
+# -----------------------------------------------------------------------------
+# PATCH 6: field-chat - Fix DB scheme for asyncpg
+# -----------------------------------------------------------------------------
+field-chat:
+  environment:
+    # BEFORE:
+    # - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+    # AFTER (use asyncpg scheme):
+    - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?ssl=disable
+
+# -----------------------------------------------------------------------------
+# PATCH 7: ndvi-engine (deprecated) - Add sslmode and use pgbouncer
+# -----------------------------------------------------------------------------
+ndvi-engine:
+  environment:
+    # BEFORE:
+    # - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+    # AFTER (use pgbouncer with sslmode):
+    - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+  depends_on:
+    # CHANGE from postgres to pgbouncer:
+    pgbouncer:
+      condition: service_healthy
+    nats:
+      condition: service_healthy
+
+# -----------------------------------------------------------------------------
+# PATCH 8: weather-core (deprecated) - Add sslmode and use pgbouncer
+# -----------------------------------------------------------------------------
+weather-core:
+  environment:
+    # BEFORE:
+    # - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+    # AFTER:
+    - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+  depends_on:
+    # CHANGE from postgres to pgbouncer:
+    pgbouncer:
+      condition: service_healthy
+    nats:
+      condition: service_healthy
+
+# -----------------------------------------------------------------------------
+# PATCH 9: marketplace-service - Split NATS credentials
+# -----------------------------------------------------------------------------
+# NOTE: This requires CODE CHANGE in the service, not just docker-compose
+marketplace-service:
+  environment:
+    # ADD separate NATS credentials:
+    - NATS_SERVERS=nats://nats:4222
+    - NATS_USER=${NATS_USER}
+    - NATS_PASSWORD=${NATS_PASSWORD}
+    # KEEP for backwards compatibility but update code to parse separately:
+    - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+
+# -----------------------------------------------------------------------------
+# PATCH 10: virtual-sensors - Add nats-py to requirements
+# -----------------------------------------------------------------------------
+# This is a Dockerfile/requirements.txt change, not docker-compose:
+# ADD to apps/services/virtual-sensors/requirements.txt:
+# nats-py>=2.7.0
+
+# -----------------------------------------------------------------------------
+# PATCH 11: ground-vision-service - Increase healthcheck start_period
+# -----------------------------------------------------------------------------
+ground-vision-service:
+  healthcheck:
+    # CHANGE start_period from 15s to 60s (GPU model loading takes time):
+    start_period: 60s
+    timeout: 15s
+    retries: 5
+
+# -----------------------------------------------------------------------------
+# PATCH 12: crop-intelligence-service - Increase healthcheck start_period
+# -----------------------------------------------------------------------------
+crop-intelligence-service:
+  healthcheck:
+    # CHANGE start_period from 20s to 45s (ML model loading):
+    start_period: 45s
+
+# -----------------------------------------------------------------------------
+# PATCH 13: milvus - Increase healthcheck start_period
+# -----------------------------------------------------------------------------
+milvus:
+  healthcheck:
+    # Keep at 90s (already set) - VERIFY this is correct
+    start_period: 90s
+
+# -----------------------------------------------------------------------------
+# PATCH 14: mlflow - Add proper database waiting
+# -----------------------------------------------------------------------------
+mlflow:
+  depends_on:
+    postgres:
+      condition: service_healthy
+  healthcheck:
+    # Increase start_period for pip install + server startup:
+    start_period: 60s
+
+# =============================================================================
+# SUMMARY OF CHANGES
+# =============================================================================
+#
+# SSL/Database Fixes (6 services):
+#   - ai-agents-service: Add ?ssl=disable
+#   - crm-service: Add ?ssl=disable
+#   - lowcode-engine: Add ?ssl=disable
+#   - provider-config: Add ?sslmode=disable
+#   - field-chat: Change scheme to postgresql+asyncpg and add ?ssl=disable
+#   - ndvi-engine: Add ?sslmode=disable and change to pgbouncer
+#   - weather-core: Add ?sslmode=disable and change to pgbouncer
+#
+# Dependency Fixes (3 services):
+#   - edge-orchestrator-service: Add pgbouncer dependency
+#   - ndvi-engine: Change postgres -> pgbouncer
+#   - weather-core: Change postgres -> pgbouncer
+#
+# NATS Fixes (2 services):
+#   - marketplace-service: Add separate NATS_SERVERS, NATS_USER, NATS_PASSWORD
+#   - virtual-sensors: Add nats-py to requirements.txt
+#
+# Healthcheck Fixes (4 services):
+#   - ground-vision-service: Increase start_period to 60s
+#   - crop-intelligence-service: Increase start_period to 45s
+#   - milvus: Verify 90s start_period
+#   - mlflow: Increase start_period to 60s
+#

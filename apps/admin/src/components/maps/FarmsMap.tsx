@@ -74,6 +74,9 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
     // Increment version to force new map instance on mount
     setMapVersion((v) => v + 1);
 
+    // Capture ref value for cleanup (React lint rule)
+    const containerRef = mapContainerRef.current;
+
     // Cleanup function to remove any existing Leaflet instances
     return () => {
       // Clean up the map instance if it exists
@@ -87,11 +90,10 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
       }
 
       // Force cleanup of Leaflet's internal tracker
-      if (mapContainerRef.current) {
-        const container = mapContainerRef.current;
+      if (containerRef) {
         // Remove any Leaflet-specific properties to prevent "Map container already initialized"
-        if ((container as any)._leaflet_id) {
-          delete (container as any)._leaflet_id;
+        if ((containerRef as any)._leaflet_id) {
+          delete (containerRef as any)._leaflet_id;
         }
       }
     };

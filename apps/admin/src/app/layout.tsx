@@ -38,6 +38,7 @@ export default async function RootLayout({
           Always render nonce attribute to prevent hydration mismatch.
           The nonce value may be empty string on client, but the attribute must be present.
         */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
           rel="stylesheet"

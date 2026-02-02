@@ -674,16 +674,18 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  # USSD Gateway - SMS/USSD for farmers
-  - name: ussd-gateway
-    host: ussd-gateway
-    port: 8163
-    protocol: http
-    routes:
-      - name: ussd-gateway-route
-        paths: ["/api/v1/ussd", "/ussd"]
-        strip_path: true
-        protocols: ["http", "https"]
+  # REMOVED: ussd-gateway - service does not exist in docker-compose.yml
+  # Port 8163 is now exclusively used by copilot-api
+  # If ussd-gateway is needed, add it to docker-compose.yml with a different port (e.g., 8169)
+  # - name: ussd-gateway
+  #   host: ussd-gateway
+  #   port: 8163
+  #   protocol: http
+  #   routes:
+  #     - name: ussd-gateway-route
+  #       paths: ["/api/v1/ussd", "/ussd"]
+  #       strip_path: true
+  #       protocols: ["http", "https"]
 
   # Agent Registry - AI agent management
   # FIX: Corrected port from 8185 to 8160 (matching docker-compose.yml)

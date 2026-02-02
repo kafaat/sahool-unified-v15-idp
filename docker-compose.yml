@@ -2031,9 +2031,9 @@ services:
     container_name: sahool-field-chat
     environment:
       - PORT=8099
-      # FIX: Use postgresql+asyncpg scheme for async Python services
-      # Also add sslmode=disable since PgBouncer has TLS disabled in dev
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?ssl=disable
+      # FIX: Use standard postgresql scheme (service doesn't recognize postgresql+asyncpg)
+      # sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}

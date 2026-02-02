@@ -19,7 +19,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timedelta, timezone, UTC
+from datetime import UTC, date, datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 
@@ -299,11 +299,18 @@ async def lifespan(app: FastAPI):
     yield
 
     # Cleanup
+    print("👋 Satellite Service shutting down...")
     if _multi_provider:
-        await _multi_provider.close()
+        try:
+            await _multi_provider.close()
+        except Exception as e:
+            logger.warning(f"Error closing multi-provider: {e}")
     if _sar_processor:
-        await _sar_processor.close()
-    print("👋 Satellite Service shutting down")
+        try:
+            await _sar_processor.close()
+        except Exception as e:
+            logger.warning(f"Error closing SAR processor: {e}")
+    print("✅ Satellite Service shutdown complete")
 
 
 app = FastAPI(

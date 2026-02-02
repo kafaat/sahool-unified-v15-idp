@@ -208,19 +208,13 @@ jobs:
             path: apps/services/mcp-server
             port: 8200
             container_port: 8200
-          - name: vegetation-analysis-service
-            path: apps/services/vegetation-analysis-service
-            port: 8019
-            container_port: 8090
+          # NOTE: vegetation-analysis-service is defined above (port 8001)
           - name: field-management-service
             path: apps/services/field-management-service
             port: 8020
             container_port: 3000
           # field-service DEPRECATED → field-management-service
-          - name: crop-intelligence-service
-            path: apps/services/crop-intelligence-service
-            port: 8021
-            container_port: 8095
+          # NOTE: crop-intelligence-service is defined above (port 8005)
           - name: equipment-service
             path: apps/services/equipment-service
             port: 8022

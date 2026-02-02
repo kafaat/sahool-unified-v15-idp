@@ -3181,6 +3181,714 @@ services:
       - sahool-network
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # AI & Agent Services (6)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Agent Registry Service - سجل الوكلاء
+  # Centralized registry for AI agents
+  agent-registry:
+    build:
+      context: .
+      dockerfile: apps/services/agent-registry/Dockerfile
+    container_name: sahool-agent-registry
+    environment:
+      - PORT=8160
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+    ports:
+      - "8160:8160"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8160/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # AI Agents Core Service - خدمة نواة الوكلاء الذكية
+  # Core AI agent orchestration and management
+  ai-agents-core:
+    build:
+      context: .
+      dockerfile: apps/services/ai-agents-core/Dockerfile
+    container_name: sahool-ai-agents-core
+    environment:
+      - PORT=8161
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - AGENT_REGISTRY_URL=http://agent-registry:8160
+    ports:
+      - "8161:8161"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      agent-registry:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8161/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Code Fix Agent Service - وكيل إصلاح الكود
+  # Automated code diagnostics and fixing agent
+  code-fix-agent:
+    build:
+      context: .
+      dockerfile: apps/services/code-fix-agent/Dockerfile
+    container_name: sahool-code-fix-agent
+    environment:
+      - PORT=8162
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - AGENT_REGISTRY_URL=http://agent-registry:8160
+    ports:
+      - "8162:8162"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      agent-registry:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8162/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Copilot API Service - واجهة برمجة المساعد الذكي
+  # AI copilot API for developer assistance
+  copilot-api:
+    build:
+      context: .
+      dockerfile: apps/services/copilot-api/Dockerfile
+    container_name: sahool-copilot-api
+    environment:
+      - PORT=8163
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - AGENT_REGISTRY_URL=http://agent-registry:8160
+      - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
+    ports:
+      - "8163:8163"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      agent-registry:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8163/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # LLM Orchestrator Service - خدمة تنسيق نماذج اللغة الكبيرة
+  # Multi-provider LLM orchestration and management
+  llm-orchestrator-service:
+    build:
+      context: .
+      dockerfile: apps/services/llm-orchestrator-service/Dockerfile
+    container_name: sahool-llm-orchestrator-service
+    environment:
+      - PORT=8164
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      # LLM Provider Configuration
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - OLLAMA_BASE_URL=${OLLAMA_URL:-http://ollama:11434}
+    ports:
+      - "8164:8164"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8164/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    networks:
+      - sahool-network
+
+  # Knowledge Graph Service - خدمة الرسم البياني المعرفي
+  # Agricultural knowledge graph and semantic search
+  knowledge-graph:
+    build:
+      context: .
+      dockerfile: apps/services/knowledge-graph/Dockerfile
+    container_name: sahool-knowledge-graph
+    environment:
+      - PORT=8165
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+    ports:
+      - "8165:8165"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8165/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 768M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Compliance & Audit Services (3)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Audit Service - خدمة التدقيق
+  # Comprehensive audit logging and compliance tracking
+  audit-service:
+    build:
+      context: .
+      dockerfile: apps/services/audit-service/Dockerfile
+    container_name: sahool-audit-service
+    environment:
+      - PORT=8122
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+    ports:
+      - "8122:8122"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8122/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Traceability Service - خدمة التتبع
+  # Product traceability and supply chain tracking
+  traceability-service:
+    build:
+      context: .
+      dockerfile: apps/services/traceability-service/Dockerfile
+    container_name: sahool-traceability-service
+    environment:
+      - PORT=8123
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+    ports:
+      - "8123:8123"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8123/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # GlobalGAP Compliance Service - خدمة الامتثال لمعايير GlobalGAP
+  # GlobalGAP certification and compliance management
+  globalgap-compliance:
+    build:
+      context: .
+      dockerfile: apps/services/globalgap-compliance/Dockerfile
+    container_name: sahool-globalgap-compliance
+    environment:
+      - PORT=8120
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - AUDIT_SERVICE_URL=http://audit-service:8122
+      - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
+    ports:
+      - "8120:8120"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+      traceability-service:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8120/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Agricultural Intelligence Services (3)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Soil Analysis Service - خدمة تحليل التربة
+  # Soil health analysis and recommendations
+  soil-analysis-service:
+    build:
+      context: .
+      dockerfile: apps/services/soil-analysis-service/Dockerfile
+    container_name: sahool-soil-analysis-service
+    environment:
+      - PORT=8124
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+    ports:
+      - "8124:8124"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8124/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Pest Detection Service - خدمة اكتشاف الآفات
+  # AI-powered pest detection and management
+  pest-detection-service:
+    build:
+      context: .
+      dockerfile: apps/services/pest-detection-service/Dockerfile
+    container_name: sahool-pest-detection-service
+    environment:
+      - PORT=8125
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - VISION_SERVICE_URL=http://yolo26-vision-service:8150
+    ports:
+      - "8125:8125"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8125/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Drone Service - خدمة الطائرات بدون طيار
+  # Drone integration for aerial surveys and spraying
+  drone-service:
+    build:
+      context: .
+      dockerfile: apps/services/drone-service/Dockerfile
+    container_name: sahool-drone-service
+    environment:
+      - PORT=8126
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+    ports:
+      - "8126:8126"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8126/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Supply Chain & Logistics Services (3)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Cooperative Service - خدمة التعاونيات
+  # Agricultural cooperative management
+  cooperative-service:
+    build:
+      context: .
+      dockerfile: apps/services/cooperative-service/Dockerfile
+    container_name: sahool-cooperative-service
+    environment:
+      - PORT=8127
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+    ports:
+      - "8127:8127"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8127/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Supply Chain Service - خدمة سلسلة التوريد
+  # Agricultural supply chain management
+  supply-chain-service:
+    build:
+      context: .
+      dockerfile: apps/services/supply-chain-service/Dockerfile
+    container_name: sahool-supply-chain-service
+    environment:
+      - PORT=8166
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
+    ports:
+      - "8166:8166"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      traceability-service:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8166/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Logistics Service - خدمة اللوجستيات
+  # Agricultural logistics and transportation management
+  logistics-service:
+    build:
+      context: .
+      dockerfile: apps/services/logistics-service/Dockerfile
+    container_name: sahool-logistics-service
+    environment:
+      - PORT=8167
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - SUPPLY_CHAIN_SERVICE_URL=http://supply-chain-service:8166
+    ports:
+      - "8167:8167"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      supply-chain-service:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8167/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Vision & Terrain Services (5)
   # ─────────────────────────────────────────────────────────────────────────────
 

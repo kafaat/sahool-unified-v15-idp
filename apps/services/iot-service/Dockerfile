@@ -76,8 +76,8 @@ COPY --from=builder /workspace/packages/shared-events ./packages/shared-events/
 RUN npm pkg delete dependencies.'@sahool/shared-events' || true
 
 # Install production dependencies with retry for network resilience
-RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force || \
-    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force || \
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force
 
 # Copy built shared-events package to node_modules
 RUN mkdir -p node_modules/@sahool && cp -r packages/shared-events node_modules/@sahool/shared-events && rm -rf packages

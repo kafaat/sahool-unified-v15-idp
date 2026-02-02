@@ -49,8 +49,8 @@ RUN apk add --no-cache curl openssl openssl-dev
 COPY --from=builder /workspace/marketplace-service/package.json ./
 COPY --from=builder /workspace/marketplace-service/package-lock.json ./
 # Install with npm ci (deterministic) with fallback to npm install
-RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema from builder (for migrations)
 COPY --from=builder /workspace/marketplace-service/prisma ./prisma/

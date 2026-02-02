@@ -3662,48 +3662,49 @@ services:
 
   # Pest Detection Service - خدمة اكتشاف الآفات
   # AI-powered pest detection and management
-  pest-detection-service:
-    build:
-      context: .
-      dockerfile: apps/services/pest-detection-service/Dockerfile
-    container_name: sahool-pest-detection-service
-    environment:
-      - PORT=8125
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - VISION_SERVICE_URL=http://yolo26-vision-service:8150
-    ports:
-      - "8125:8125"
-    depends_on:
-      pgbouncer:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8125/healthz')" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    networks:
-      - sahool-network
+  # DISABLED: Dockerfile not implemented yet - uncomment when ready
+  # pest-detection-service:
+  #   build:
+  #     context: .
+  #     dockerfile: apps/services/pest-detection-service/Dockerfile
+  #   container_name: sahool-pest-detection-service
+  #   environment:
+  #     - PORT=8125
+  #     - LOG_LEVEL=${LOG_LEVEL:-INFO}
+  #     - ENVIRONMENT=${ENVIRONMENT:-development}
+  #     # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+  #     - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+  #     - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+  #     - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+  #     - VISION_SERVICE_URL=http://yolo26-vision-service:8150
+  #   ports:
+  #     - "8125:8125"
+  #   depends_on:
+  #     pgbouncer:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #     nats:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8125/healthz')" ]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 15s
+  #   restart: unless-stopped
+  #   security_opt:
+  #     - no-new-privileges:true
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '1'
+  #         memory: 512M
+  #       reservations:
+  #         cpus: '0.25'
+  #         memory: 128M
+  #   networks:
+  #     - sahool-network
 
   # Drone Service - خدمة الطائرات بدون طيار
   # Drone integration for aerial surveys and spraying

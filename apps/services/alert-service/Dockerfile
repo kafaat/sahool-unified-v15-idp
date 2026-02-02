@@ -27,7 +27,18 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
-# Configure pip for better network resilience with fallback mirrors (before any pip commands)
+# Upgrade pip and install build tools with resilient multi-mirror fallback
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --timeout=300 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --upgrade pip setuptools wheel build || \
+    pip install --no-cache-dir --timeout=300 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    --upgrade pip setuptools wheel build
+
+# Configure pip for better network resilience with fallback mirrors
 RUN mkdir -p /root/.pip && \
     echo "[global]" > /root/.pip/pip.conf && \
     echo "timeout = 300" >> /root/.pip/pip.conf && \
@@ -39,10 +50,17 @@ RUN mkdir -p /root/.pip && \
 RUN pip install --no-cache-dir --upgrade pip "setuptools>=68.0" wheel build || \
     pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip "setuptools>=68.0" wheel build
 
-# Install dependencies with fallback to Aliyun mirror
+# Install dependencies with resilient multi-mirror fallback
+# Try Aliyun mirror first (fast in restricted networks), fallback to official PyPI
 COPY apps/services/alert-service/requirements.txt .
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt || \
-    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=300 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    -r requirements.txt
 
 # Copy shared libraries
 COPY apps/services/shared/ ./shared/

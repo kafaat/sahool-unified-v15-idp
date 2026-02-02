@@ -17,10 +17,10 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // TypeScript checking during build
+  // TypeScript - ignore during build since type-check runs separately in CI
   typescript: {
-    // Only ignore in development - fail on type errors in production
-    ignoreBuildErrors: process.env.NODE_ENV === "development",
+    // Type checking is done by dedicated 'typecheck' job in CI pipeline
+    ignoreBuildErrors: true,
   },
 
   // Note: i18n is handled via next-intl for App Router

@@ -329,6 +329,7 @@ export default function SecuritySettingsPage() {
                   استخدم تطبيقات مثل Google Authenticator أو Authy
                 </p>
                 <div className="flex justify-center bg-gray-50 p-4 rounded-lg">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={setupData.qr_code}
                     alt="QR Code"

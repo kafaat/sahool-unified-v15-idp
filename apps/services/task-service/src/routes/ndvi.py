@@ -163,11 +163,11 @@ async def create_task_from_ndvi_alert(
             field_manager = await fetch_field_manager(data.field_id, tenant_id)
             if field_manager:
                 assigned_to = field_manager
-                logger.info(f"Auto-assigned NDVI task to field manager: {assigned_to}")
+                logger.info("Auto-assigned NDVI task to field manager: %s", sanitize_for_log(assigned_to))
             else:
                 logger.warning(
-                    f"Could not fetch field manager for field {safe_field_id}, "
-                    f"task will be created without assignment"
+                    "Could not fetch field manager for field %s, task will be created without assignment",
+                    safe_field_id
                 )
 
         # Build metadata
@@ -227,7 +227,7 @@ async def create_task_from_ndvi_alert(
         return db_task_to_dict(created_task)
 
     except Exception as e:
-        logger.error(f"Error creating task from NDVI alert: {e}", exc_info=True)
+        logger.error("Error creating task from NDVI alert: %s", type(e).__name__, exc_info=True)
         raise HTTPException(
             status_code=500,
             detail={
@@ -258,7 +258,7 @@ async def get_task_suggestions_for_field(
     - Returns prioritized list with confidence scores
     """
     safe_field_id = sanitize_for_log(field_id)
-    logger.info(f"Generating task suggestions for field: {safe_field_id}")
+    logger.info("Generating task suggestions for field: %s", safe_field_id)
 
     try:
         # Import NDVI client
@@ -268,8 +268,8 @@ async def get_task_suggestions_for_field(
         health_data = await ndvi_client.get_field_health(field_id)
 
         logger.info(
-            f"Field {safe_field_id} health: score={health_data.health_score}, "
-            f"status={health_data.health_status.value}"
+            "Field %s health: score=%s, status=%s",
+            safe_field_id, health_data.health_score, health_data.health_status.value
         )
 
         # Generate task suggestions
@@ -318,7 +318,7 @@ async def get_task_suggestions_for_field(
                 )
             )
 
-        logger.info(f"Generated {len(suggestions)} task suggestions for field {safe_field_id}")
+        logger.info("Generated %d task suggestions for field %s", len(suggestions), safe_field_id)
 
         return {
             "field_id": field_id,
@@ -334,7 +334,7 @@ async def get_task_suggestions_for_field(
         }
 
     except Exception as e:
-        logger.error(f"Error generating task suggestions: {e}", exc_info=True)
+        logger.error("Error generating task suggestions: %s", type(e).__name__, exc_info=True)
         raise HTTPException(
             status_code=500,
             detail={
@@ -362,7 +362,7 @@ async def auto_create_tasks(
     - Returns summary of created tasks
     """
     safe_field_id = sanitize_for_log(data.field_id)
-    logger.info(f"Auto-creating {len(data.suggestions)} tasks for field {safe_field_id}")
+    logger.info("Auto-creating %d tasks for field %s", len(data.suggestions), safe_field_id)
 
     created_tasks = []
     failed_tasks = []
@@ -375,11 +375,11 @@ async def auto_create_tasks(
             field_manager = await fetch_field_manager(data.field_id, tenant_id)
             if field_manager:
                 assigned_to = field_manager
-                logger.info(f"Auto-assigned batch tasks to field manager: {assigned_to}")
+                logger.info("Auto-assigned batch tasks to field manager: %s", sanitize_for_log(assigned_to))
             else:
                 logger.warning(
-                    f"Could not fetch field manager for field {safe_field_id}, "
-                    f"tasks will be created without assignment"
+                    "Could not fetch field manager for field %s, tasks will be created without assignment",
+                    safe_field_id
                 )
 
         repo = TaskRepository(db)
@@ -416,12 +416,12 @@ async def auto_create_tasks(
                 created_tasks.append(db_task_to_dict(created_task))
 
                 logger.info(
-                    f"Auto-created task {idx + 1}/{len(data.suggestions)}: "
-                    f"{task_id} ({suggestion.task_type.value})"
+                    "Auto-created task %d/%d: %s (%s)",
+                    idx + 1, len(data.suggestions), sanitize_for_log(task_id), suggestion.task_type.value
                 )
 
             except Exception as task_error:
-                logger.error(f"Failed to create task from suggestion {idx}: {task_error}")
+                logger.error("Failed to create task from suggestion %d: %s", idx, type(task_error).__name__)
                 failed_tasks.append({
                     "index": idx,
                     "suggestion": suggestion.title,
@@ -447,10 +447,10 @@ async def auto_create_tasks(
                     notification_type="tasks_batch_created",
                 )
             except Exception as notif_error:
-                logger.warning(f"Failed to send batch notification: {notif_error}")
+                logger.warning("Failed to send batch notification: %s", type(notif_error).__name__)
 
         logger.info(
-            f"Auto-create completed: {len(created_tasks)} created, {len(failed_tasks)} failed"
+            "Auto-create completed: %d created, %d failed", len(created_tasks), len(failed_tasks)
         )
 
         return {
@@ -466,7 +466,7 @@ async def auto_create_tasks(
         }
 
     except Exception as e:
-        logger.error(f"Error in auto-create tasks: {e}", exc_info=True)
+        logger.error("Error in auto-create tasks: %s", type(e).__name__, exc_info=True)
         raise HTTPException(
             status_code=500,
             detail={
@@ -497,7 +497,7 @@ async def get_field_health(
     - Alerts and suggested actions
     """
     safe_field_id = sanitize_for_log(field_id)
-    logger.info(f"Fetching health data for field: {safe_field_id}")
+    logger.info("Fetching health data for field: %s", safe_field_id)
 
     try:
         from ..ndvi_client import get_ndvi_client
@@ -513,7 +513,7 @@ async def get_field_health(
         }
 
     except Exception as e:
-        logger.error(f"Error fetching field health: {e}", exc_info=True)
+        logger.error("Error fetching field health: %s", type(e).__name__, exc_info=True)
         raise HTTPException(
             status_code=500,
             detail={

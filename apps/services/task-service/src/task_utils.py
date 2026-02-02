@@ -601,7 +601,7 @@ async def fetch_astronomical_best_days(
 
     cached = await astronomical_cache.get_best_days(activity, days)
     if cached:
-        logger.info(f"Using cached astronomical data for {activity}")
+        logger.info("Using cached astronomical data for %s", sanitize_for_log(activity))
         return cached
 
     try:
@@ -615,11 +615,12 @@ async def fetch_astronomical_best_days(
                 data = response.json()
                 # Cache the result
                 await astronomical_cache.set_best_days(activity, days, data)
-                logger.info(f"Fetched and cached astronomical data for {activity}")
+                logger.info("Fetched and cached astronomical data for %s", sanitize_for_log(activity))
                 return data
             else:
                 logger.error(
-                    f"Astronomical service returned {response.status_code}: {response.text}"
+                    "Astronomical service returned %d: %s",
+                    response.status_code, sanitize_for_log(str(response.text)[:200])
                 )
                 raise AstronomicalServiceError(
                     f"Service returned {response.status_code}"
@@ -629,7 +630,7 @@ async def fetch_astronomical_best_days(
         logger.error("Timeout connecting to astronomical calendar service")
         raise AstronomicalServiceTimeoutError()
     except httpx.RequestError as e:
-        logger.error(f"Error connecting to astronomical service: {e}")
+        logger.error("Error connecting to astronomical service: %s", type(e).__name__)
         raise AstronomicalServiceError(str(e))
 
 
@@ -653,7 +654,7 @@ async def fetch_astronomical_daily_data(date_str: str) -> dict:
 
     cached = await astronomical_cache.get_daily_data(date_str)
     if cached:
-        logger.info(f"Using cached daily astronomical data for {date_str}")
+        logger.info("Using cached daily astronomical data for %s", sanitize_for_log(date_str))
         return cached
 
     try:
@@ -680,7 +681,7 @@ async def fetch_astronomical_daily_data(date_str: str) -> dict:
         logger.error("Timeout connecting to astronomical calendar service")
         raise AstronomicalServiceTimeoutError()
     except httpx.RequestError as e:
-        logger.error(f"Error connecting to astronomical service: {e}")
+        logger.error("Error connecting to astronomical service: %s", type(e).__name__)
         raise AstronomicalServiceError(str(e))
 
 
@@ -752,10 +753,10 @@ async def fetch_astronomical_data(
             return result
 
     except httpx.HTTPError as e:
-        logger.warning(f"Failed to fetch astronomical data: {e}")
+        logger.warning("Failed to fetch astronomical data: %s", type(e).__name__)
         return _empty_astronomical_data()
     except Exception as e:
-        logger.error(f"Error fetching astronomical data: {e}", exc_info=True)
+        logger.error("Error fetching astronomical data: %s", type(e).__name__, exc_info=True)
         return _empty_astronomical_data()
 
 
@@ -878,15 +879,18 @@ async def send_task_notification(
             "action_url": f"/tasks/{task_id}",
         }
 
+        log_task_id = sanitize_for_log(task_id)
+        log_user_id = sanitize_for_log(assigned_to)
+
         if notification_client:
             response = await notification_client.post(
                 "/api/v1/notifications", json=notification_data
             )
             if response.success:
-                logger.info(f"Notification sent for task {task_id} to user {assigned_to}")
+                logger.info("Notification sent for task %s to user %s", log_task_id, log_user_id)
                 return True
             else:
-                logger.warning(f"Failed to send notification for task {task_id}: {response.error}")
+                logger.warning("Failed to send notification for task %s", log_task_id)
                 return False
         else:
             # Direct HTTP call
@@ -896,12 +900,12 @@ async def send_task_notification(
                     json=notification_data,
                 )
                 if response.status_code in (200, 201):
-                    logger.info(f"Notification sent for task {task_id}")
+                    logger.info("Notification sent for task %s", log_task_id)
                     return True
                 else:
-                    logger.warning(f"Notification failed: {response.status_code}")
+                    logger.warning("Notification failed: %d", response.status_code)
                     return False
 
     except Exception as e:
-        logger.error(f"Error sending task notification: {e}", exc_info=True)
+        logger.error("Error sending task notification: %s", type(e).__name__, exc_info=True)
         return False

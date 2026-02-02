@@ -26,7 +26,7 @@ from ..exceptions import (
     AstronomicalServiceTimeoutError,
     InvalidDateFormatError,
 )
-from ..validators import validate_date_string
+from ..validators import validate_date_string, sanitize_for_log
 from ..task_utils import (
     TaskType,
     TaskPriority,
@@ -273,11 +273,11 @@ async def create_task_with_astronomical_recommendation(
                 }
 
         except (AstronomicalServiceError, AstronomicalServiceTimeoutError) as e:
-            logger.warning(f"Astronomical service error: {e}, using default scheduling")
+            logger.warning("Astronomical service error: %s, using default scheduling", type(e).__name__)
             due_date = now + timedelta(days=7)
             astronomical_metadata = {
                 "astronomical_recommendation": False,
-                "reason": f"Astronomical service unavailable: {e}",
+                "reason": f"Astronomical service unavailable: {type(e).__name__}",
                 "reason_ar": "خدمة التقويم الفلكي غير متاحة",
             }
 
@@ -329,7 +329,7 @@ async def validate_date_for_activity(
     Returns suitability score and recommendations based on astronomical calendar.
     يُرجع درجة الملاءمة والتوصيات بناءً على التقويم الفلكي.
     """
-    logger.info(f"Validating date {data.date} for activity {data.activity}")
+    logger.info("Validating date %s for activity %s", sanitize_for_log(data.date), sanitize_for_log(data.activity))
 
     # Validate date format
     try:

@@ -371,7 +371,7 @@ async def create_task(
     repo = TaskRepository(db)
     created_task = repo.create_task(db_task)
 
-    logger.info(f"Task created: {task_id}")
+    logger.info("Task created: %s", sanitize_for_log(task_id))
 
     return db_task_to_dict(created_task)
 
@@ -424,7 +424,7 @@ async def update_task(
             },
         )
 
-    logger.info(f"Task updated: {task_id}")
+    logger.info("Task updated: %s", sanitize_for_log(task_id))
 
     return db_task_to_dict(task)
 
@@ -452,7 +452,7 @@ async def delete_task(
             },
         )
 
-    logger.info(f"Task deleted: {task_id}")
+    logger.info("Task deleted: %s", sanitize_for_log(task_id))
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -486,7 +486,7 @@ async def start_task(
                 },
             )
 
-        logger.info(f"Task started: {task_id}")
+        logger.info("Task started: %s", sanitize_for_log(task_id))
 
         return db_task_to_dict(task)
 
@@ -546,7 +546,7 @@ async def complete_task(
             )
             repo.add_evidence(evidence)
 
-    logger.info(f"Task completed: {task_id}")
+    logger.info("Task completed: %s", sanitize_for_log(task_id))
 
     return db_task_to_dict(task)
 
@@ -577,7 +577,7 @@ async def cancel_task(
             },
         )
 
-    logger.info(f"Task cancelled: {task_id} (reason: {reason})")
+    logger.info("Task cancelled: %s (reason: %s)", sanitize_for_log(task_id), sanitize_for_log(reason))
 
     return db_task_to_dict(task)
 
@@ -627,7 +627,7 @@ async def add_evidence(
 
     saved_evidence = repo.add_evidence(db_evidence)
 
-    logger.info(f"Evidence added to task {task_id}: {saved_evidence.evidence_id}")
+    logger.info("Evidence added to task %s: %s", sanitize_for_log(task_id), sanitize_for_log(saved_evidence.evidence_id))
 
     return EvidenceResponse(
         evidence_id=saved_evidence.evidence_id,

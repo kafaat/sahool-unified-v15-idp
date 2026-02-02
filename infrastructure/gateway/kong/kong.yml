@@ -793,6 +793,198 @@ services:
         protocols: ["http", "https"]
 
   # -----------------------------
+  # Additional Services - Added 2026-02-02
+  # خدمات إضافية
+  # -----------------------------
+
+  # Code Fix Agent - AI-powered code diagnostics and fixing
+  # وكيل إصلاح الكود - تشخيص وإصلاح الكود بالذكاء الاصطناعي
+  - name: code-fix-agent
+    host: code-fix-agent
+    port: 8161
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: code-fix-agent-route
+        paths: ["/api/v1/code-fix", "/code-fix"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 500
+          policy: local
+          fault_tolerant: true
+
+  # Copilot API - AI copilot for agricultural advisory
+  # واجهة برمجة المساعد الذكي - مساعد الذكاء الاصطناعي للاستشارات الزراعية
+  - name: copilot-api
+    host: copilot-api
+    port: 8210
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: copilot-api-route
+        paths: ["/api/v1/copilot", "/copilot"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # LLM Orchestrator Service - AI model orchestration
+  # خدمة تنسيق نماذج الذكاء الاصطناعي
+  - name: llm-orchestrator-service
+    host: llm-orchestrator-service
+    port: 8220
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 180000
+    read_timeout: 180000
+    routes:
+      - name: llm-orchestrator-route
+        paths: ["/api/v1/llm", "/llm"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # Pest Detection Service - AI pest detection
+  # خدمة كشف الآفات - الكشف عن الآفات بالذكاء الاصطناعي
+  - name: pest-detection-service
+    host: pest-detection-service
+    port: 8125
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: pest-detection-route
+        paths: ["/api/v1/pest-detection", "/pest-detection"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 25
+          size_unit: megabytes
+
+  # Soil Analysis Service - Soil testing and analysis
+  # خدمة تحليل التربة - اختبار وتحليل التربة
+  - name: soil-analysis-service
+    host: soil-analysis-service
+    port: 8124
+    protocol: http
+    routes:
+      - name: soil-analysis-route
+        paths: ["/api/v1/soil", "/soil"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # Supply Chain Service - Agricultural supply chain management
+  # خدمة سلسلة التوريد - إدارة سلسلة التوريد الزراعية
+  - name: supply-chain-service
+    host: supply-chain-service
+    port: 8230
+    protocol: http
+    routes:
+      - name: supply-chain-route
+        paths: ["/api/v1/supply-chain", "/supply-chain"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # Traceability Service - Product traceability and tracking
+  # خدمة التتبع - تتبع المنتجات والتعقب
+  - name: traceability-service
+    host: traceability-service
+    port: 8156
+    protocol: http
+    routes:
+      - name: traceability-route
+        paths: ["/api/v1/traceability", "/traceability"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # Cooperative Service - Farmer cooperative management
+  # خدمة التعاونيات - إدارة تعاونيات المزارعين
+  - name: cooperative-service
+    host: cooperative-service
+    port: 8127
+    protocol: http
+    routes:
+      - name: cooperative-route
+        paths: ["/api/v1/cooperatives", "/cooperatives"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # Drone Service - Agricultural drone integration
+  # خدمة الطائرات بدون طيار - تكامل الطائرات بدون طيار الزراعية
+  - name: drone-service
+    host: drone-service
+    port: 8126
+    protocol: http
+    routes:
+      - name: drone-route
+        paths: ["/api/v1/drones", "/drones"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # -----------------------------
   # Platform endpoints
   # -----------------------------
   - name: root-endpoint
@@ -1170,6 +1362,6 @@ services:
 # - crop-health-ai → use crop-intelligence-service
 # - fertilizer-advisor → use advisory-service
 #
-# Last updated: 2026-01-31
-# Total services configured: 67 (added 5 new services: yolo26-vision, terrain-core, hydrology, leveling-optimizer, edge-orchestrator)
+# Last updated: 2026-02-02
+# Total services configured: 76 (added 9 new services: code-fix-agent, copilot-api, llm-orchestrator-service, pest-detection-service, soil-analysis-service, supply-chain-service, traceability-service, cooperative-service, drone-service)
 # ------------------------------------------------------------------------------

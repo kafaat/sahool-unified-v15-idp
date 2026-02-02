@@ -1,0 +1,52 @@
+# SAHOOL Terrain Core Service - Staging Environment Values
+# Version: 16.0.0
+
+environment: staging
+deploymentSlot: blue
+
+replicaCount: 1
+
+image:
+  tag: "16.0.0-staging"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+env:
+  LOG_LEVEL: "DEBUG"
+  DEM_DATA_PATH: "/data/dem"
+  TILE_CACHE_SIZE: "500"
+  MAX_RESOLUTION: "30"
+  COORDINATE_SYSTEM: "EPSG:4326"
+  ENVIRONMENT: "staging"
+
+# Smaller storage for staging
+storage:
+  demData:
+    enabled: true
+    size: 20Gi
+    storageClass: "standard"
+  tileCache:
+    enabled: true
+    size: 5Gi
+    storageClass: "standard"
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 75
+  targetMemoryUtilizationPercentage: 85
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+vpa:
+  enabled: true
+  updateMode: "Initial"

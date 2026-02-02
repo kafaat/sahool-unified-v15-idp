@@ -4,7 +4,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Build stage for dependencies
-FROM python:3.12-slim-bookworm as builder
+FROM python:3.11-slim-bookworm as builder
 
 WORKDIR /app
 
@@ -27,7 +27,7 @@ RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgr
 # Production stage
 # ═══════════════════════════════════════════════════════════════════════════════
 
-FROM python:3.12-slim-bookworm
+FROM python:3.11-slim-bookworm
 
 LABEL org.opencontainers.image.title="Ground Vision Service"
 LABEL org.opencontainers.image.description="High-frequency agricultural monitoring using tower cameras"

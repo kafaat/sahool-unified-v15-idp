@@ -354,10 +354,10 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Configure kubectl
-        if: needs.validate-release.outputs.kubeconfig_available == 'true'
-        run: |
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
+        uses: azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG_PRODUCTION }}
 
       - name: Set up Python
         uses: actions/setup-python@v6

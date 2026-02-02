@@ -24,6 +24,7 @@
 .env
 .env.*
 !.env.example
+!.env.test
 !.env.development
 !.env.staging
 !.env.production
@@ -225,7 +226,6 @@ config/nats/.env.nkey
 config/nats/.env.nkey.backup.*
 config/nats/generated/
 *.creds
-.env.test
 
 # Analysis reports
 analysis_report.txt

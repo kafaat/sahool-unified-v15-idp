@@ -1,0 +1,42 @@
+# SAHOOL Edge Orchestrator Service - Staging Environment Values
+# Version: 16.0.0
+
+environment: staging
+deploymentSlot: blue
+
+replicaCount: 2
+
+image:
+  tag: "16.0.0-staging"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 125m
+    memory: 256Mi
+
+env:
+  LOG_LEVEL: "DEBUG"
+  SYNC_BATCH_SIZE: "50"
+  SYNC_INTERVAL_SECONDS: "60"
+  MAX_OFFLINE_DAYS: "14"
+  CONFLICT_RESOLUTION_STRATEGY: "last-write-wins"
+  EDGE_HEARTBEAT_TIMEOUT_SECONDS: "120"
+  ENVIRONMENT: "staging"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 75
+  targetMemoryUtilizationPercentage: 85
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+vpa:
+  enabled: true
+  updateMode: "Initial"

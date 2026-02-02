@@ -27,6 +27,7 @@ export function sanitizeInput(input: string): string {
         .replace(/&#x2F;/g, "/");
 
     // Remove null bytes and control characters (except newlines and tabs)
+    // eslint-disable-next-line no-control-regex -- Intentional: sanitizing dangerous control characters
     sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
 
     // Remove any script-like content

@@ -17,6 +17,10 @@
 
 set -e
 
+# Script directory and project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -123,7 +127,7 @@ check_typescript() {
     else
         print_status "TypeScript (web)" 1
     fi
-    cd - > /dev/null
+    cd "$PROJECT_ROOT"
 
     # TypeScript type check - Admin
     echo "Checking TypeScript (admin)..."
@@ -132,7 +136,7 @@ check_typescript() {
     else
         print_status "TypeScript (admin)" 1
     fi
-    cd - > /dev/null
+    cd "$PROJECT_ROOT"
 
     # ESLint
     echo "Running ESLint..."
@@ -141,7 +145,7 @@ check_typescript() {
     else
         print_warning "ESLint found issues"
     fi
-    cd - > /dev/null
+    cd "$PROJECT_ROOT"
 
     # Vitest tests
     if [ "$QUICK" != "true" ]; then
@@ -151,7 +155,7 @@ check_typescript() {
         else
             print_status "Vitest tests" 1
         fi
-        cd - > /dev/null
+        cd "$PROJECT_ROOT"
     fi
 }
 
@@ -182,14 +186,14 @@ check_flutter() {
         else
             print_warning "Flutter analyze found issues"
         fi
-        cd - > /dev/null
+        cd "$PROJECT_ROOT"
     else
         if cd apps/mobile && flutter analyze --no-fatal-infos 2>/dev/null; then
             print_status "Flutter analyze" 0
         else
             print_warning "Flutter analyze found issues"
         fi
-        cd - > /dev/null
+        cd "$PROJECT_ROOT"
     fi
 
     # Dart format check
@@ -199,7 +203,7 @@ check_flutter() {
     else
         print_warning "Some Dart files need formatting (run: dart format .)"
     fi
-    cd - > /dev/null
+    cd "$PROJECT_ROOT"
 
     # Import sorting check (if import_sorter is available)
     if [ -f "apps/mobile/import_sorter.yaml" ]; then
@@ -209,7 +213,7 @@ check_flutter() {
         else
             print_warning "Some imports need sorting (run: dart run import_sorter:main)"
         fi
-        cd - > /dev/null
+        cd "$PROJECT_ROOT"
     fi
 
     # Flutter tests
@@ -221,14 +225,14 @@ check_flutter() {
             else
                 print_status "Flutter tests" 1
             fi
-            cd - > /dev/null
+            cd "$PROJECT_ROOT"
         else
             if cd apps/mobile && flutter test --reporter=compact 2>/dev/null; then
                 print_status "Flutter tests" 0
             else
                 print_status "Flutter tests" 1
             fi
-            cd - > /dev/null
+            cd "$PROJECT_ROOT"
         fi
     fi
 
@@ -240,7 +244,7 @@ check_flutter() {
         else
             print_warning "Code generation needs update (run: dart run build_runner build)"
         fi
-        cd - > /dev/null
+        cd "$PROJECT_ROOT"
     fi
 }
 

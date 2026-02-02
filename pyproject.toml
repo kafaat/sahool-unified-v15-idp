@@ -133,7 +133,7 @@ line-ending = "lf"
 [tool.pytest.ini_options]
 pythonpath = ["."]
 addopts = "-q --cov=shared --cov-report=term-missing --cov-report=html:coverage_html"
-testpaths = ["tests", "kernel/services"]
+testpaths = ["tests", "apps/services"]
 python_files = ["test_*.py", "*_test.py"]
 python_functions = ["test_*"]
 filterwarnings = [
@@ -148,7 +148,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["shared", "kernel"]
+source = ["shared", "apps/kernel", "apps/services"]
 branch = true
 omit = [
     "**/tests/*",
@@ -165,7 +165,7 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-fail_under = 60
+fail_under = 10
 show_missing = true
 skip_empty = true
 

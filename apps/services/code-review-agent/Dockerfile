@@ -6,7 +6,7 @@
 # ============================================================================
 # Build Stage
 # ============================================================================
-FROM node:20-slim AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -37,7 +37,7 @@ RUN npm prune --production
 # ============================================================================
 # Production Stage
 # ============================================================================
-FROM node:20-slim AS production
+FROM node:20-alpine AS production
 
 LABEL maintainer="KAFAAT <dev@kafaat.com>"
 LABEL description="AI-powered code review agent using Claude Agent SDK"

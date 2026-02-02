@@ -101,6 +101,20 @@ CREATE TABLE IF NOT EXISTS ndvi_readings_2025_q3 PARTITION OF ndvi_readings
 CREATE TABLE IF NOT EXISTS ndvi_readings_2025_q4 PARTITION OF ndvi_readings
     FOR VALUES FROM ('2025-10-01') TO ('2026-01-01');
 
+-- 2026 partitions
+CREATE TABLE IF NOT EXISTS ndvi_readings_2026_01 PARTITION OF ndvi_readings
+    FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
+CREATE TABLE IF NOT EXISTS ndvi_readings_2026_02 PARTITION OF ndvi_readings
+    FOR VALUES FROM ('2026-02-01') TO ('2026-03-01');
+CREATE TABLE IF NOT EXISTS ndvi_readings_2026_03 PARTITION OF ndvi_readings
+    FOR VALUES FROM ('2026-03-01') TO ('2026-04-01');
+CREATE TABLE IF NOT EXISTS ndvi_readings_2026_q2 PARTITION OF ndvi_readings
+    FOR VALUES FROM ('2026-04-01') TO ('2026-07-01');
+CREATE TABLE IF NOT EXISTS ndvi_readings_2026_q3 PARTITION OF ndvi_readings
+    FOR VALUES FROM ('2026-07-01') TO ('2026-10-01');
+CREATE TABLE IF NOT EXISTS ndvi_readings_2026_q4 PARTITION OF ndvi_readings
+    FOR VALUES FROM ('2026-10-01') TO ('2027-01-01');
+
 -- Create indexes on partitions
 CREATE INDEX IF NOT EXISTS idx_ndvi_field_id ON ndvi_readings(field_id);
 

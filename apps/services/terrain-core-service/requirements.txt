@@ -27,7 +27,7 @@ httpx==0.28.1
 
 # Core numerical computing
 numpy==1.26.4
-scipy==1.14.1
+scipy==1.17.0
 
 # Raster processing (requires GDAL)
 rasterio==1.4.3

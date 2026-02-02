@@ -57,7 +57,7 @@ class NatsPublisher:
             self.connected = success
             if success:
                 # Sanitize URL for logging
-                safe_url = str(nats_url).replace('\n', '').replace('\r', '')
+                safe_url = str(nats_url).replace("\n", "").replace("\r", "")
                 logger.info("✅ NATS connected: %s", safe_url)
             return success
         except Exception as e:

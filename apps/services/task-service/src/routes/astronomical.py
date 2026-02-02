@@ -10,7 +10,7 @@ This module provides astronomical calendar integration endpoints:
 import logging
 import os
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -93,7 +93,9 @@ class AstronomicalTaskCreateRequest(BaseModel):
     assigned_to: str | None = Field(None, description="المستخدم المعين للمهمة")
     zone_id: str | None = Field(None, description="معرف المنطقة")
     priority: TaskPriority = Field(default=TaskPriority.MEDIUM, description="أولوية المهمة")
-    estimated_duration_minutes: int | None = Field(None, ge=1, le=1440, description="المدة المقدرة بالدقائق")
+    estimated_duration_minutes: int | None = Field(
+        None, ge=1, le=1440, description="المدة المقدرة بالدقائق"
+    )
     search_days: int = Field(default=30, ge=7, le=90, description="عدد الأيام للبحث عن أفضل تاريخ")
 
 
@@ -147,7 +149,10 @@ async def get_best_days_for_activity(
     - غرس (transplanting)
     """
     logger.info(
-        f"Fetching best days for activity: {activity}, days: {days}, min_score: {min_score}"
+        "Fetching best days for activity: %s, days: %s, min_score: %s",
+        sanitize_for_log(activity),
+        sanitize_for_log(days),
+        sanitize_for_log(min_score),
     )
 
     try:
@@ -222,10 +227,12 @@ async def create_task_with_astronomical_recommendation(
     إذا كان use_best_date صحيحاً، سيتم جدولة المهمة في أفضل تاريخ فلكي.
     """
     logger.info(
-        f"Creating astronomical task for activity: {data.activity}, field: {data.field_id}"
+        "Creating astronomical task for activity: %s, field: %s",
+        sanitize_for_log(data.activity),
+        sanitize_for_log(data.field_id),
     )
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     task_id = generate_task_id()
 
     # Get activity translations
@@ -245,7 +252,7 @@ async def create_task_with_astronomical_recommendation(
                 # Use the first (best) day
                 best_day = best_days[0]
                 due_date_str = best_day["date"]
-                due_date = datetime.strptime(due_date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                due_date = datetime.strptime(due_date_str, "%Y-%m-%d").replace(tzinfo=UTC)
 
                 # Store astronomical metadata
                 astronomical_metadata = {
@@ -273,7 +280,9 @@ async def create_task_with_astronomical_recommendation(
                 }
 
         except (AstronomicalServiceError, AstronomicalServiceTimeoutError) as e:
-            logger.warning("Astronomical service error: %s, using default scheduling", type(e).__name__)
+            logger.warning(
+                "Astronomical service error: %s, using default scheduling", type(e).__name__
+            )
             due_date = now + timedelta(days=7)
             astronomical_metadata = {
                 "astronomical_recommendation": False,
@@ -329,7 +338,11 @@ async def validate_date_for_activity(
     Returns suitability score and recommendations based on astronomical calendar.
     يُرجع درجة الملاءمة والتوصيات بناءً على التقويم الفلكي.
     """
-    logger.info("Validating date %s for activity %s", sanitize_for_log(data.date), sanitize_for_log(data.activity))
+    logger.info(
+        "Validating date %s for activity %s",
+        sanitize_for_log(data.date),
+        sanitize_for_log(data.activity),
+    )
 
     # Validate date format
     try:

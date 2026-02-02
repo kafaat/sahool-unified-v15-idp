@@ -12,7 +12,7 @@ import logging
 import os
 import sys
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 from typing import Any
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
@@ -64,6 +64,7 @@ router = APIRouter(prefix="/api/v1/tasks", tags=["Tasks"])
 try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
+
     AUTH_AVAILABLE = True
 except ImportError:
     AUTH_AVAILABLE = False
@@ -96,7 +97,9 @@ class TaskCreateRequest(BaseModel):
     zone_id: str | None = None
     assigned_to: str | None = None
     due_date: datetime | None = None
-    scheduled_time: str | None = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$")
+    scheduled_time: str | None = Field(
+        None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$"
+    )
     estimated_duration_minutes: int | None = Field(None, ge=1, le=1440)
     metadata: dict | None = Field(None, description="Must be < 64KB when serialized")
 
@@ -122,7 +125,9 @@ class TaskUpdateRequest(BaseModel):
     zone_id: str | None = None
     assigned_to: str | None = None
     due_date: datetime | None = None
-    scheduled_time: str | None = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$")
+    scheduled_time: str | None = Field(
+        None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$"
+    )
     estimated_duration_minutes: int | None = Field(None, ge=1, le=1440)
     status: TaskStatus | None = None
     metadata: dict | None = Field(None, description="Must be < 64KB when serialized")
@@ -206,7 +211,7 @@ async def get_today_tasks(
     Get tasks due today
     الحصول على مهام اليوم
     """
-    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
     today_end = today_start + timedelta(days=1)
 
     repo = TaskRepository(db)
@@ -238,7 +243,7 @@ async def get_upcoming_tasks(
     Get upcoming tasks for the next N days
     الحصول على المهام القادمة للأيام القادمة
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     future = now + timedelta(days=days)
     tomorrow = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
 
@@ -252,10 +257,7 @@ async def get_upcoming_tasks(
     )
 
     # Filter out completed and cancelled tasks
-    upcoming = [
-        t for t in tasks
-        if t.status not in ["completed", "cancelled"]
-    ]
+    upcoming = [t for t in tasks if t.status not in ["completed", "cancelled"]]
 
     return {
         "tasks": [db_task_to_dict(t) for t in upcoming],
@@ -513,7 +515,7 @@ async def complete_task(
     """
     repo = TaskRepository(db)
     performed_by = "system"
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     task = repo.complete_task(
         task_id=task_id,
@@ -577,7 +579,9 @@ async def cancel_task(
             },
         )
 
-    logger.info("Task cancelled: %s (reason: %s)", sanitize_for_log(task_id), sanitize_for_log(reason))
+    logger.info(
+        "Task cancelled: %s (reason: %s)", sanitize_for_log(task_id), sanitize_for_log(reason)
+    )
 
     return db_task_to_dict(task)
 
@@ -621,13 +625,17 @@ async def add_evidence(
         task_id=task_id,
         type=evidence_type,
         content=content,
-        captured_at=datetime.now(timezone.utc),
+        captured_at=datetime.now(UTC),
         location={"lat": lat, "lon": lon} if lat and lon else None,
     )
 
     saved_evidence = repo.add_evidence(db_evidence)
 
-    logger.info("Evidence added to task %s: %s", sanitize_for_log(task_id), sanitize_for_log(saved_evidence.evidence_id))
+    logger.info(
+        "Evidence added to task %s: %s",
+        sanitize_for_log(task_id),
+        sanitize_for_log(saved_evidence.evidence_id),
+    )
 
     return EvidenceResponse(
         evidence_id=saved_evidence.evidence_id,

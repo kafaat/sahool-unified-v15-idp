@@ -163,7 +163,7 @@ class NDVIClient:
             Field health data with analysis results
         """
         # Sanitize field_id for logging to prevent log injection
-        safe_field_id = str(field_id).replace('\n', '').replace('\r', '')[:100]
+        safe_field_id = str(field_id).replace("\n", "").replace("\r", "")[:100]
         logger.info("Fetching health data for field: %s", safe_field_id)
 
         try:
@@ -186,7 +186,9 @@ class NDVIClient:
             return self._parse_ndvi_response(field_id, data)
 
         except httpx.HTTPError as e:
-            logger.warning("NDVI service unavailable, using local calculation: %s", type(e).__name__)
+            logger.warning(
+                "NDVI service unavailable, using local calculation: %s", type(e).__name__
+            )
             # Fall back to local calculation
             return await self._calculate_locally(field_id, image_url, red_band_data, nir_band_data)
 

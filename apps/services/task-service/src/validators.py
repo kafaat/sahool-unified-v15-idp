@@ -13,6 +13,7 @@ from typing import Any
 try:
     from pydantic import field_validator, model_validator
     from pydantic_core.core_schema import ValidationInfo
+
     PYDANTIC_AVAILABLE = True
 except ImportError:
     # Pydantic not available - validators will raise if used
@@ -144,9 +145,7 @@ def validate_date_string(date_str: str | None, raise_exception: bool = True) -> 
     return True
 
 
-def validate_metadata_size(
-    metadata: dict | None, raise_exception: bool = True
-) -> bool:
+def validate_metadata_size(metadata: dict | None, raise_exception: bool = True) -> bool:
     """
     Validate metadata size is within limits
     التحقق من أن حجم البيانات الوصفية ضمن الحدود
@@ -285,7 +284,7 @@ def field_id_validator(cls: Any, v: str | None) -> str | None:
         return v
 
     if len(v) > 100:
-        raise ValueError(f"Field ID too long: max 100 characters")
+        raise ValueError("Field ID too long: max 100 characters")
 
     if not FIELD_ID_PATTERN.match(v):
         raise ValueError(
@@ -314,9 +313,7 @@ def metadata_validator(cls: Any, v: dict | None) -> dict | None:
         size = len(json_str.encode("utf-8"))
 
         if size > MAX_METADATA_SIZE_BYTES:
-            raise ValueError(
-                f"Metadata too large: {size} bytes (max {MAX_METADATA_SIZE_BYTES})"
-            )
+            raise ValueError(f"Metadata too large: {size} bytes (max {MAX_METADATA_SIZE_BYTES})")
 
     except (TypeError, ValueError) as e:
         if "too large" in str(e):

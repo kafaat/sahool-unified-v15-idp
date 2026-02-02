@@ -12,7 +12,7 @@ import logging
 import os
 import sys
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -163,11 +163,13 @@ async def create_task_from_ndvi_alert(
             field_manager = await fetch_field_manager(data.field_id, tenant_id)
             if field_manager:
                 assigned_to = field_manager
-                logger.info("Auto-assigned NDVI task to field manager: %s", sanitize_for_log(assigned_to))
+                logger.info(
+                    "Auto-assigned NDVI task to field manager: %s", sanitize_for_log(assigned_to)
+                )
             else:
                 logger.warning(
                     "Could not fetch field manager for field %s, task will be created without assignment",
-                    safe_field_id
+                    safe_field_id,
                 )
 
         # Build metadata
@@ -269,7 +271,9 @@ async def get_task_suggestions_for_field(
 
         logger.info(
             "Field %s health: score=%s, status=%s",
-            safe_field_id, health_data.health_score, health_data.health_status.value
+            safe_field_id,
+            health_data.health_score,
+            health_data.health_status.value,
         )
 
         # Generate task suggestions
@@ -324,7 +328,7 @@ async def get_task_suggestions_for_field(
             "field_id": field_id,
             "suggestions": [s.model_dump() for s in suggestions],
             "total": len(suggestions),
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "health_summary": {
                 "score": health_data.health_score,
                 "status": health_data.health_status.value,
@@ -366,7 +370,7 @@ async def auto_create_tasks(
 
     created_tasks = []
     failed_tasks = []
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     try:
         # Determine assignee
@@ -375,11 +379,13 @@ async def auto_create_tasks(
             field_manager = await fetch_field_manager(data.field_id, tenant_id)
             if field_manager:
                 assigned_to = field_manager
-                logger.info("Auto-assigned batch tasks to field manager: %s", sanitize_for_log(assigned_to))
+                logger.info(
+                    "Auto-assigned batch tasks to field manager: %s", sanitize_for_log(assigned_to)
+                )
             else:
                 logger.warning(
                     "Could not fetch field manager for field %s, tasks will be created without assignment",
-                    safe_field_id
+                    safe_field_id,
                 )
 
         repo = TaskRepository(db)
@@ -417,16 +423,23 @@ async def auto_create_tasks(
 
                 logger.info(
                     "Auto-created task %d/%d: %s (%s)",
-                    idx + 1, len(data.suggestions), sanitize_for_log(task_id), suggestion.task_type.value
+                    idx + 1,
+                    len(data.suggestions),
+                    sanitize_for_log(task_id),
+                    suggestion.task_type.value,
                 )
 
             except Exception as task_error:
-                logger.error("Failed to create task from suggestion %d: %s", idx, type(task_error).__name__)
-                failed_tasks.append({
-                    "index": idx,
-                    "suggestion": suggestion.title,
-                    "error": str(task_error),
-                })
+                logger.error(
+                    "Failed to create task from suggestion %d: %s", idx, type(task_error).__name__
+                )
+                failed_tasks.append(
+                    {
+                        "index": idx,
+                        "suggestion": suggestion.title,
+                        "error": str(task_error),
+                    }
+                )
 
         # Send batch notification if tasks were created and assigned
         if created_tasks and assigned_to:
@@ -509,7 +522,7 @@ async def get_field_health(
             "field_id": field_id,
             "tenant_id": tenant_id,
             "health": health_data.to_dict(),
-            "fetched_at": datetime.now(timezone.utc).isoformat(),
+            "fetched_at": datetime.now(UTC).isoformat(),
         }
 
     except Exception as e:

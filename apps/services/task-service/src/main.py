@@ -55,6 +55,7 @@ try:
         setup_cors,
     )
     from shared.observability.middleware import ObservabilityMiddleware
+
     MIDDLEWARE_AVAILABLE = True
 except ImportError:
     RequestLoggingMiddleware = None
@@ -67,6 +68,7 @@ except ImportError:
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     ERROR_HANDLING_AVAILABLE = True
 except ImportError:
     setup_exception_handlers = None
@@ -76,9 +78,11 @@ except ImportError:
 # Security headers
 try:
     from shared.middleware.security_headers import setup_security_headers
+
     SECURITY_HEADERS_AVAILABLE = True
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
+
     def setup_security_headers(app):
         pass
 
@@ -104,6 +108,7 @@ if ERROR_HANDLING_AVAILABLE:
 # CORS configuration
 try:
     from shared.cors_config import CORS_SETTINGS
+
     app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
 except ImportError:
     ALLOWED_ORIGINS = os.getenv(
@@ -179,6 +184,7 @@ async def readiness_check():
     db_ok = True
     try:
         from .database import engine
+
         if engine:
             db_ok = True
     except Exception:
@@ -188,6 +194,7 @@ async def readiness_check():
     redis_ok = False
     try:
         from .cache import get_redis_client
+
         # Don't block - just check if module is available
         redis_ok = True
     except Exception:
@@ -231,6 +238,7 @@ async def startup_event():
     logger.info("Initializing database...")
     try:
         from .database import init_database, init_demo_data_if_needed
+
         init_database(create_tables=True)
         init_demo_data_if_needed()
         logger.info("✅ Database initialized successfully")
@@ -240,7 +248,7 @@ async def startup_event():
     # Initialize NATS connection
     nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
     # Sanitize URL for logging
-    safe_nats_url = str(nats_url).replace('\n', '').replace('\r', '')
+    safe_nats_url = str(nats_url).replace("\n", "").replace("\r", "")
     logger.info("Connecting to NATS at %s...", safe_nats_url)
     try:
         from .events import NatsPublisher
@@ -266,6 +274,7 @@ async def startup_event():
     logger.info("Initializing Redis cache...")
     try:
         from .cache import get_redis_client
+
         redis_client = await get_redis_client()
         if redis_client:
             logger.info("✅ Redis cache connected")
@@ -293,6 +302,7 @@ async def shutdown_event():
     # Close Redis connection
     try:
         from .cache import close_redis
+
         await close_redis()
         logger.info("✅ Redis connection closed")
     except Exception as e:
@@ -301,6 +311,7 @@ async def shutdown_event():
     # Close database connection
     try:
         from .database import close_database
+
         close_database()
         logger.info("✅ Database connection closed")
     except Exception as e:

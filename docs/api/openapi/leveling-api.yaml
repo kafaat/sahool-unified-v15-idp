@@ -1,0 +1,1922 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Leveling Optimizer Service API
+  description: |
+    # SAHOOL Leveling Optimizer Service API
+    ## واجهة برمجة تطبيقات خدمة تحسين التسوية
+
+    Precision land leveling design and optimization for improved irrigation efficiency.
+    تصميم وتحسين تسوية الأراضي الدقيقة لتحسين كفاءة الري.
+
+    ## Capabilities | القدرات
+
+    - **Survey Processing**: Process topographic survey data (GPS, RTK, LiDAR)
+      معالجة المسح: معالجة بيانات المسح الطبوغرافي (GPS، RTK، LiDAR)
+    - **Design Optimization**: Calculate optimal field grade and leveling design
+      تحسين التصميم: حساب درجة الحقل المثلى وتصميم التسوية
+    - **Cut/Fill Analysis**: Compute earthwork volumes for cut and fill
+      تحليل القطع/الردم: حساب أحجام أعمال الحفر للقطع والردم
+    - **Cost Estimation**: Estimate leveling project costs
+      تقدير التكلفة: تقدير تكاليف مشروع التسوية
+    - **Progress Tracking**: Track leveling operation progress
+      تتبع التقدم: تتبع تقدم عملية التسوية
+    - **Quality Control**: Verify leveling accuracy and uniformity
+      مراقبة الجودة: التحقق من دقة التسوية والتجانس
+
+    ## Design Methods | طرق التصميم
+
+    | Method | Description | Best For |
+    |--------|-------------|----------|
+    | Plane Method | Single plane design | Small uniform fields |
+    | Profile Method | Variable grade design | Irregular fields |
+    | Contour Method | Follow natural contours | Terraced fields |
+    | Zero Balance | Minimize earthwork | Cost optimization |
+
+    ## Authentication | المصادقة
+    All endpoints require JWT Bearer token authentication.
+
+    ## Rate Limiting | حدود الطلبات
+    - Standard: 30 requests/minute
+    - Premium: 100 requests/minute
+
+  version: 1.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.io
+    url: https://sahool.io
+  license:
+    name: Proprietary
+    url: https://sahool.io/terms
+
+servers:
+  - url: https://api.sahool.io/v1/leveling
+    description: Production server | خادم الإنتاج
+  - url: https://staging-api.sahool.io/v1/leveling
+    description: Staging server | خادم الاختبار
+  - url: http://localhost:8157/api/v1
+    description: Local development | التطوير المحلي
+
+tags:
+  - name: Survey
+    description: |
+      Topographic survey data management
+      إدارة بيانات المسح الطبوغرافي
+  - name: Design
+    description: |
+      Leveling design and optimization
+      تصميم وتحسين التسوية
+  - name: Earthwork
+    description: |
+      Cut/fill volume calculations
+      حسابات أحجام القطع/الردم
+  - name: Projects
+    description: |
+      Leveling project management
+      إدارة مشاريع التسوية
+  - name: Quality Control
+    description: |
+      Leveling quality verification
+      التحقق من جودة التسوية
+  - name: Equipment
+    description: |
+      Leveling equipment and GPS guidance
+      معدات التسوية والتوجيه بنظام GPS
+  - name: Health Check
+    description: |
+      Service health and status endpoints
+      نقاط فحص صحة الخدمة
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token | رمز مصادقة JWT
+
+  parameters:
+    TenantId:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      description: Tenant identifier | معرّف المستأجر
+      schema:
+        type: string
+        format: uuid
+
+    RequestId:
+      name: X-Request-ID
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+
+    FieldId:
+      name: field_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    ProjectId:
+      name: project_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    SurveyId:
+      name: survey_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    # ==================== Enums ====================
+    SurveyType:
+      type: string
+      description: |
+        Type of topographic survey
+        نوع المسح الطبوغرافي
+      enum:
+        - gps_rtk
+        - total_station
+        - lidar
+        - drone_photogrammetry
+        - manual_level
+      x-enum-descriptions:
+        gps_rtk: "GPS RTK - مسح GPS بتقنية RTK"
+        total_station: "محطة كلية - Total station survey"
+        lidar: "ليدار - LiDAR scanning"
+        drone_photogrammetry: "تصوير جوي بالدرون - Drone photogrammetry"
+        manual_level: "ميزان يدوي - Manual leveling"
+
+    DesignMethod:
+      type: string
+      description: |
+        Leveling design method
+        طريقة تصميم التسوية
+      enum:
+        - plane
+        - profile
+        - contour
+        - zero_balance
+        - minimum_earthwork
+      x-enum-descriptions:
+        plane: "طريقة السطح المستوي - Single plane method"
+        profile: "طريقة المقطع - Profile method"
+        contour: "طريقة الخطوط الكنتورية - Contour method"
+        zero_balance: "توازن صفري - Zero cut/fill balance"
+        minimum_earthwork: "أقل أعمال ترابية - Minimize earthwork"
+
+    IrrigationDesignType:
+      type: string
+      description: |
+        Target irrigation system type
+        نوع نظام الري المستهدف
+      enum:
+        - basin
+        - border
+        - furrow
+        - level_basin
+        - graded_border
+        - contour_furrow
+      x-enum-descriptions:
+        basin: "أحواض - Basin irrigation"
+        border: "شرائح - Border irrigation"
+        furrow: "خطوط - Furrow irrigation"
+        level_basin: "أحواض مستوية - Level basin"
+        graded_border: "شرائح مدرجة - Graded border"
+        contour_furrow: "خطوط كنتورية - Contour furrow"
+
+    ProjectStatus:
+      type: string
+      enum:
+        - draft
+        - survey_pending
+        - survey_complete
+        - design_in_progress
+        - design_complete
+        - approved
+        - in_construction
+        - completed
+        - verified
+      x-enum-descriptions:
+        draft: "مسودة - Draft"
+        survey_pending: "بانتظار المسح - Survey pending"
+        survey_complete: "المسح مكتمل - Survey complete"
+        design_in_progress: "التصميم جاري - Design in progress"
+        design_complete: "التصميم مكتمل - Design complete"
+        approved: "معتمد - Approved"
+        in_construction: "قيد التنفيذ - Under construction"
+        completed: "مكتمل - Completed"
+        verified: "تم التحقق - Verified"
+
+    QualityGrade:
+      type: string
+      enum:
+        - excellent
+        - good
+        - acceptable
+        - poor
+        - unacceptable
+      x-enum-descriptions:
+        excellent: "ممتاز - Standard deviation < 1cm"
+        good: "جيد - Standard deviation 1-2cm"
+        acceptable: "مقبول - Standard deviation 2-3cm"
+        poor: "ضعيف - Standard deviation 3-5cm"
+        unacceptable: "غير مقبول - Standard deviation > 5cm"
+
+    JobStatus:
+      type: string
+      enum:
+        - pending
+        - processing
+        - completed
+        - failed
+
+    # ==================== Common Schemas ====================
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        message_ar:
+          type: string
+        details:
+          type: object
+        request_id:
+          type: string
+          format: uuid
+
+    SurveyPoint:
+      type: object
+      description: |
+        Single survey point with coordinates and elevation
+        نقطة مسح واحدة مع الإحداثيات والارتفاع
+      required:
+        - x
+        - y
+        - z
+      properties:
+        point_id:
+          type: string
+        x:
+          type: number
+          format: double
+          description: X coordinate (Easting) in meters
+        y:
+          type: number
+          format: double
+          description: Y coordinate (Northing) in meters
+        z:
+          type: number
+          format: float
+          description: Elevation in meters
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        accuracy_m:
+          type: number
+          format: float
+          description: Positional accuracy in meters
+        point_type:
+          type: string
+          enum: [grid, boundary, break_line, control]
+
+    # ==================== Survey Schemas ====================
+    SurveyUploadRequest:
+      type: object
+      required:
+        - field_id
+        - survey_type
+        - points
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        survey_type:
+          $ref: '#/components/schemas/SurveyType'
+        survey_date:
+          type: string
+          format: date
+        coordinate_system:
+          type: string
+          description: EPSG code for coordinate reference system
+          example: "EPSG:32637"
+        grid_spacing_m:
+          type: number
+          format: float
+          description: Survey grid spacing in meters
+          example: 10.0
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/SurveyPoint'
+          minItems: 4
+        equipment_info:
+          type: object
+          properties:
+            equipment_type:
+              type: string
+            manufacturer:
+              type: string
+            model:
+              type: string
+            accuracy_spec:
+              type: string
+        notes:
+          type: string
+
+    Survey:
+      type: object
+      properties:
+        survey_id:
+          type: string
+          format: uuid
+        field_id:
+          type: string
+          format: uuid
+        survey_type:
+          $ref: '#/components/schemas/SurveyType'
+        survey_date:
+          type: string
+          format: date
+        coordinate_system:
+          type: string
+        point_count:
+          type: integer
+        coverage_area_ha:
+          type: number
+          format: float
+        grid_spacing_m:
+          type: number
+          format: float
+        elevation_stats:
+          type: object
+          properties:
+            min_m:
+              type: number
+              format: float
+            max_m:
+              type: number
+              format: float
+            mean_m:
+              type: number
+              format: float
+            std_m:
+              type: number
+              format: float
+            range_m:
+              type: number
+              format: float
+        slope_stats:
+          type: object
+          properties:
+            mean_percent:
+              type: number
+              format: float
+            max_percent:
+              type: number
+              format: float
+            direction_degrees:
+              type: number
+              format: float
+        dem_url:
+          type: string
+          format: uri
+          description: URL to download generated DEM
+        contour_url:
+          type: string
+          format: uri
+          description: URL to download contour lines
+        status:
+          type: string
+          enum: [processing, ready, error]
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+
+    # ==================== Design Schemas ====================
+    LevelingDesignRequest:
+      type: object
+      required:
+        - field_id
+        - design_method
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        survey_id:
+          type: string
+          format: uuid
+          description: Specific survey to use (latest if not specified)
+        design_method:
+          $ref: '#/components/schemas/DesignMethod'
+        irrigation_type:
+          $ref: '#/components/schemas/IrrigationDesignType'
+        constraints:
+          type: object
+          properties:
+            max_cut_m:
+              type: number
+              format: float
+              description: Maximum cut depth in meters
+              default: 0.5
+            max_fill_m:
+              type: number
+              format: float
+              description: Maximum fill depth in meters
+              default: 0.5
+            target_slope_percent:
+              type: number
+              format: float
+              description: Target longitudinal slope
+            cross_slope_percent:
+              type: number
+              format: float
+              description: Target cross slope
+            minimum_outlet_depth_m:
+              type: number
+              format: float
+              description: Minimum depth at outlet
+            preserve_topsoil:
+              type: boolean
+              default: true
+            topsoil_depth_m:
+              type: number
+              format: float
+              default: 0.15
+        optimization_objective:
+          type: string
+          enum: [minimize_earthwork, uniform_irrigation, balance_cut_fill]
+          default: minimize_earthwork
+        basin_divisions:
+          type: object
+          description: Basin division parameters
+          properties:
+            enable:
+              type: boolean
+              default: false
+            max_basin_length_m:
+              type: number
+              format: float
+            max_basin_width_m:
+              type: number
+              format: float
+
+    LevelingDesign:
+      type: object
+      properties:
+        design_id:
+          type: string
+          format: uuid
+        field_id:
+          type: string
+          format: uuid
+        survey_id:
+          type: string
+          format: uuid
+        design_method:
+          $ref: '#/components/schemas/DesignMethod'
+        irrigation_type:
+          $ref: '#/components/schemas/IrrigationDesignType'
+        design_parameters:
+          type: object
+          properties:
+            design_elevation_m:
+              type: number
+              format: float
+              description: Design plane elevation at centroid
+            longitudinal_slope_percent:
+              type: number
+              format: float
+            cross_slope_percent:
+              type: number
+              format: float
+            slope_direction_degrees:
+              type: number
+              format: float
+        earthwork_summary:
+          type: object
+          properties:
+            cut_volume_m3:
+              type: number
+              format: float
+            fill_volume_m3:
+              type: number
+              format: float
+            net_volume_m3:
+              type: number
+              format: float
+            balance_ratio:
+              type: number
+              format: float
+              description: Cut/Fill ratio (1.0 = balanced)
+            cut_area_ha:
+              type: number
+              format: float
+            fill_area_ha:
+              type: number
+              format: float
+            average_cut_m:
+              type: number
+              format: float
+            average_fill_m:
+              type: number
+              format: float
+            max_cut_m:
+              type: number
+              format: float
+            max_fill_m:
+              type: number
+              format: float
+        efficiency_metrics:
+          type: object
+          properties:
+            irrigation_uniformity_percent:
+              type: number
+              format: float
+            water_application_efficiency_percent:
+              type: number
+              format: float
+            estimated_water_savings_percent:
+              type: number
+              format: float
+        basin_layout:
+          type: object
+          description: Basin division layout if applicable
+          properties:
+            basin_count:
+              type: integer
+            basins:
+              type: array
+              items:
+                type: object
+                properties:
+                  basin_id:
+                    type: string
+                  area_ha:
+                    type: number
+                    format: float
+                  length_m:
+                    type: number
+                    format: float
+                  width_m:
+                    type: number
+                    format: float
+                  inlet_elevation_m:
+                    type: number
+                    format: float
+                  outlet_elevation_m:
+                    type: number
+                    format: float
+        cut_fill_map_url:
+          type: string
+          format: uri
+        design_contour_url:
+          type: string
+          format: uri
+        cross_sections_url:
+          type: string
+          format: uri
+        status:
+          type: string
+          enum: [processing, ready, error]
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+
+    # ==================== Earthwork Schemas ====================
+    EarthworkCalculation:
+      type: object
+      properties:
+        design_id:
+          type: string
+          format: uuid
+        calculation_method:
+          type: string
+          enum: [grid, cross_section, tin]
+        grid_resolution_m:
+          type: number
+          format: float
+        volumes:
+          type: object
+          properties:
+            gross_cut_m3:
+              type: number
+              format: float
+            gross_fill_m3:
+              type: number
+              format: float
+            shrinkage_factor:
+              type: number
+              format: float
+              description: Soil shrinkage/swell factor
+            adjusted_cut_m3:
+              type: number
+              format: float
+            adjusted_fill_m3:
+              type: number
+              format: float
+            import_required_m3:
+              type: number
+              format: float
+            export_required_m3:
+              type: number
+              format: float
+        mass_haul:
+          type: object
+          properties:
+            average_haul_distance_m:
+              type: number
+              format: float
+            mass_haul_diagram_url:
+              type: string
+              format: uri
+        by_station:
+          type: array
+          items:
+            type: object
+            properties:
+              station:
+                type: number
+                format: float
+              cut_m3:
+                type: number
+                format: float
+              fill_m3:
+                type: number
+                format: float
+              cumulative_cut_m3:
+                type: number
+                format: float
+              cumulative_fill_m3:
+                type: number
+                format: float
+
+    CostEstimate:
+      type: object
+      properties:
+        design_id:
+          type: string
+          format: uuid
+        currency:
+          type: string
+          example: SAR
+        line_items:
+          type: array
+          items:
+            type: object
+            properties:
+              item:
+                type: string
+              item_ar:
+                type: string
+              quantity:
+                type: number
+                format: float
+              unit:
+                type: string
+              unit_cost:
+                type: number
+                format: float
+              total_cost:
+                type: number
+                format: float
+        summary:
+          type: object
+          properties:
+            earthwork_cost:
+              type: number
+              format: float
+            topsoil_handling_cost:
+              type: number
+              format: float
+            equipment_cost:
+              type: number
+              format: float
+            labor_cost:
+              type: number
+              format: float
+            mobilization_cost:
+              type: number
+              format: float
+            contingency_cost:
+              type: number
+              format: float
+            total_cost:
+              type: number
+              format: float
+            cost_per_hectare:
+              type: number
+              format: float
+        roi_analysis:
+          type: object
+          properties:
+            annual_water_savings_m3:
+              type: number
+              format: float
+            annual_water_cost_savings_sar:
+              type: number
+              format: float
+            yield_improvement_percent:
+              type: number
+              format: float
+            annual_yield_benefit_sar:
+              type: number
+              format: float
+            payback_period_years:
+              type: number
+              format: float
+            npv_10yr_sar:
+              type: number
+              format: float
+        estimated_duration_days:
+          type: integer
+        valid_until:
+          type: string
+          format: date
+
+    # ==================== Project Schemas ====================
+    LevelingProject:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        field_id:
+          type: string
+          format: uuid
+        field_name:
+          type: string
+        field_name_ar:
+          type: string
+        status:
+          $ref: '#/components/schemas/ProjectStatus'
+        status_ar:
+          type: string
+        survey:
+          $ref: '#/components/schemas/Survey'
+        design:
+          $ref: '#/components/schemas/LevelingDesign'
+        cost_estimate:
+          $ref: '#/components/schemas/CostEstimate'
+        progress:
+          type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+            target_completion_date:
+              type: string
+              format: date
+            actual_completion_date:
+              type: string
+              format: date
+            percent_complete:
+              type: number
+              format: float
+            cut_complete_m3:
+              type: number
+              format: float
+            fill_complete_m3:
+              type: number
+              format: float
+            area_graded_ha:
+              type: number
+              format: float
+        contractor:
+          type: object
+          properties:
+            name:
+              type: string
+            contact:
+              type: string
+            equipment:
+              type: array
+              items:
+                type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+
+    ProjectCreateRequest:
+      type: object
+      required:
+        - field_id
+        - name
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        name_ar:
+          type: string
+        description:
+          type: string
+        target_start_date:
+          type: string
+          format: date
+        target_completion_date:
+          type: string
+          format: date
+
+    # ==================== Quality Control Schemas ====================
+    QualityCheckRequest:
+      type: object
+      required:
+        - project_id
+        - check_points
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        check_type:
+          type: string
+          enum: [intermediate, final]
+          default: intermediate
+        check_points:
+          type: array
+          items:
+            $ref: '#/components/schemas/SurveyPoint'
+          minItems: 10
+
+    QualityCheckResult:
+      type: object
+      properties:
+        check_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        check_type:
+          type: string
+        check_date:
+          type: string
+          format: date-time
+        point_count:
+          type: integer
+        statistics:
+          type: object
+          properties:
+            mean_deviation_m:
+              type: number
+              format: float
+            std_deviation_m:
+              type: number
+              format: float
+            max_deviation_m:
+              type: number
+              format: float
+            min_deviation_m:
+              type: number
+              format: float
+            rmse_m:
+              type: number
+              format: float
+            points_within_tolerance:
+              type: integer
+            points_outside_tolerance:
+              type: integer
+            tolerance_m:
+              type: number
+              format: float
+        quality_grade:
+          $ref: '#/components/schemas/QualityGrade'
+        quality_grade_ar:
+          type: string
+        pass_fail:
+          type: boolean
+        deviation_map_url:
+          type: string
+          format: uri
+        problem_areas:
+          type: array
+          items:
+            type: object
+            properties:
+              area_id:
+                type: string
+              location:
+                type: object
+                properties:
+                  x:
+                    type: number
+                  y:
+                    type: number
+              deviation_m:
+                type: number
+                format: float
+              issue_type:
+                type: string
+                enum: [high_spot, low_spot, uneven]
+              recommended_action:
+                type: string
+              recommended_action_ar:
+                type: string
+        recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              description:
+                type: string
+              description_ar:
+                type: string
+              priority:
+                type: string
+                enum: [high, medium, low]
+
+    # ==================== Equipment Schemas ====================
+    GuidanceData:
+      type: object
+      description: |
+        GPS guidance data for leveling equipment
+        بيانات التوجيه بنظام GPS لمعدات التسوية
+      properties:
+        design_id:
+          type: string
+          format: uuid
+        format:
+          type: string
+          enum: [trimble, topcon, leica, agco, generic]
+        data:
+          type: object
+          properties:
+            reference_point:
+              type: object
+              properties:
+                x:
+                  type: number
+                y:
+                  type: number
+                z:
+                  type: number
+            design_surface:
+              type: object
+              description: TIN or grid surface data
+            guidance_lines:
+              type: array
+              items:
+                type: object
+        download_url:
+          type: string
+          format: uri
+        file_format:
+          type: string
+          example: ".gc3"
+        generated_at:
+          type: string
+          format: date-time
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, unhealthy]
+        service:
+          type: string
+          example: leveling-optimizer-service
+        version:
+          type: string
+          example: 1.0.0
+        terrain_service_connected:
+          type: boolean
+        computation_engine_status:
+          type: string
+        uptime_seconds:
+          type: integer
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+paths:
+  # ==================== Survey Endpoints ====================
+  /surveys:
+    get:
+      tags: [Survey]
+      summary: List surveys
+      description: |
+        List topographic surveys for the tenant.
+        قائمة المسوحات الطبوغرافية للمستأجر.
+      operationId: listSurveys
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: field_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: survey_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/SurveyType'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of surveys
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  surveys:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Survey'
+                  total:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Survey]
+      summary: Upload survey data
+      description: |
+        Upload topographic survey data for processing.
+        رفع بيانات المسح الطبوغرافي للمعالجة.
+      operationId: uploadSurvey
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SurveyUploadRequest'
+            example:
+              field_id: "550e8400-e29b-41d4-a716-446655440001"
+              survey_type: gps_rtk
+              survey_date: "2026-01-15"
+              coordinate_system: "EPSG:32637"
+              grid_spacing_m: 10.0
+              points:
+                - point_id: "P001"
+                  x: 500000.0
+                  y: 2700000.0
+                  z: 612.45
+                  accuracy_m: 0.02
+                - point_id: "P002"
+                  x: 500010.0
+                  y: 2700000.0
+                  z: 612.52
+                  accuracy_m: 0.02
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                field_id:
+                  type: string
+                  format: uuid
+                survey_type:
+                  $ref: '#/components/schemas/SurveyType'
+                survey_file:
+                  type: string
+                  format: binary
+                  description: Survey file (CSV, TXT, DXF)
+      responses:
+        '202':
+          description: Survey upload accepted for processing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  survey_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [processing]
+                  message:
+                    type: string
+                  message_ar:
+                    type: string
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /surveys/{survey_id}:
+    get:
+      tags: [Survey]
+      summary: Get survey details
+      description: |
+        Get detailed information about a survey.
+        الحصول على معلومات تفصيلية عن المسح.
+      operationId: getSurvey
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/SurveyId'
+      responses:
+        '200':
+          description: Survey details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Survey'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags: [Survey]
+      summary: Delete survey
+      operationId: deleteSurvey
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/SurveyId'
+      responses:
+        '204':
+          description: Survey deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /surveys/{survey_id}/points:
+    get:
+      tags: [Survey]
+      summary: Get survey points
+      description: |
+        Download survey points data.
+        تحميل بيانات نقاط المسح.
+      operationId: getSurveyPoints
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/SurveyId'
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, csv, geojson]
+            default: json
+      responses:
+        '200':
+          description: Survey points
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  survey_id:
+                    type: string
+                    format: uuid
+                  point_count:
+                    type: integer
+                  points:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SurveyPoint'
+            text/csv:
+              schema:
+                type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Design Endpoints ====================
+  /designs:
+    get:
+      tags: [Design]
+      summary: List leveling designs
+      operationId: listDesigns
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: field_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of designs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  designs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LevelingDesign'
+                  total:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Design]
+      summary: Create leveling design
+      description: |
+        Create optimized leveling design for a field.
+        إنشاء تصميم تسوية محسّن للحقل.
+      operationId: createDesign
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LevelingDesignRequest'
+            example:
+              field_id: "550e8400-e29b-41d4-a716-446655440001"
+              design_method: zero_balance
+              irrigation_type: level_basin
+              constraints:
+                max_cut_m: 0.4
+                max_fill_m: 0.4
+                target_slope_percent: 0.1
+                preserve_topsoil: true
+              optimization_objective: minimize_earthwork
+      responses:
+        '202':
+          description: Design calculation started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  design_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [processing]
+                  estimated_time_seconds:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /designs/{design_id}:
+    get:
+      tags: [Design]
+      summary: Get design details
+      operationId: getDesign
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: design_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Design details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LevelingDesign'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags: [Design]
+      summary: Delete design
+      operationId: deleteDesign
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: design_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Design deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /designs/{design_id}/compare:
+    post:
+      tags: [Design]
+      summary: Compare design alternatives
+      description: |
+        Compare current design with alternatives.
+        مقارنة التصميم الحالي مع البدائل.
+      operationId: compareDesigns
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: design_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                alternative_methods:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DesignMethod'
+      responses:
+        '200':
+          description: Design comparison
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comparisons:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        method:
+                          $ref: '#/components/schemas/DesignMethod'
+                        earthwork_m3:
+                          type: number
+                          format: float
+                        estimated_cost_sar:
+                          type: number
+                          format: float
+                        irrigation_efficiency:
+                          type: number
+                          format: float
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Earthwork Endpoints ====================
+  /designs/{design_id}/earthwork:
+    get:
+      tags: [Earthwork]
+      summary: Get earthwork calculations
+      description: |
+        Get detailed earthwork volume calculations.
+        الحصول على حسابات أحجام الأعمال الترابية التفصيلية.
+      operationId: getEarthwork
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: design_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Earthwork calculations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EarthworkCalculation'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /designs/{design_id}/cost-estimate:
+    get:
+      tags: [Earthwork]
+      summary: Get cost estimate
+      description: |
+        Get detailed cost estimate for leveling project.
+        الحصول على تقدير التكلفة التفصيلي لمشروع التسوية.
+      operationId: getCostEstimate
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: design_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Cost estimate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CostEstimate'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Project Endpoints ====================
+  /projects:
+    get:
+      tags: [Projects]
+      summary: List leveling projects
+      operationId: listProjects
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ProjectStatus'
+        - name: field_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LevelingProject'
+                  total:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Projects]
+      summary: Create leveling project
+      operationId: createProject
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreateRequest'
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LevelingProject'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /projects/{project_id}:
+    get:
+      tags: [Projects]
+      summary: Get project details
+      operationId: getProject
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LevelingProject'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    patch:
+      tags: [Projects]
+      summary: Update project
+      operationId: updateProject
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: '#/components/schemas/ProjectStatus'
+                progress:
+                  type: object
+                  properties:
+                    percent_complete:
+                      type: number
+                    cut_complete_m3:
+                      type: number
+                    fill_complete_m3:
+                      type: number
+      responses:
+        '200':
+          description: Project updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LevelingProject'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /projects/{project_id}/approve:
+    post:
+      tags: [Projects]
+      summary: Approve project design
+      operationId: approveProject
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                design_id:
+                  type: string
+                  format: uuid
+                approval_notes:
+                  type: string
+      responses:
+        '200':
+          description: Project approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LevelingProject'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Quality Control Endpoints ====================
+  /projects/{project_id}/quality-checks:
+    get:
+      tags: [Quality Control]
+      summary: List quality checks
+      operationId: listQualityChecks
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: List of quality checks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quality_checks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/QualityCheckResult'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Quality Control]
+      summary: Submit quality check
+      description: |
+        Submit survey points for quality verification.
+        إرسال نقاط المسح للتحقق من الجودة.
+      operationId: submitQualityCheck
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QualityCheckRequest'
+      responses:
+        '200':
+          description: Quality check result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QualityCheckResult'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Equipment Endpoints ====================
+  /designs/{design_id}/guidance:
+    get:
+      tags: [Equipment]
+      summary: Get GPS guidance data
+      description: |
+        Generate GPS guidance data for leveling equipment.
+        توليد بيانات التوجيه بنظام GPS لمعدات التسوية.
+      operationId: getGuidanceData
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: design_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: format
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [trimble, topcon, leica, agco, generic]
+      responses:
+        '200':
+          description: Guidance data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidanceData'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /designs/{design_id}/stakeout:
+    get:
+      tags: [Equipment]
+      summary: Get stakeout points
+      description: |
+        Get stakeout points for manual leveling guidance.
+        الحصول على نقاط التوقيع للتوجيه اليدوي للتسوية.
+      operationId: getStakeoutPoints
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: design_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: grid_spacing_m
+          in: query
+          schema:
+            type: number
+            format: float
+            default: 20
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, csv, pdf]
+            default: json
+      responses:
+        '200':
+          description: Stakeout points
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  design_id:
+                    type: string
+                    format: uuid
+                  grid_spacing_m:
+                    type: number
+                  points:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        stake_id:
+                          type: string
+                        x:
+                          type: number
+                        y:
+                          type: number
+                        existing_elevation_m:
+                          type: number
+                        design_elevation_m:
+                          type: number
+                        cut_fill_m:
+                          type: number
+                          description: Positive = cut, Negative = fill
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Health Check ====================
+  /healthz:
+    get:
+      tags: [Health Check]
+      summary: Liveness probe
+      operationId: healthLive
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: leveling-optimizer-service
+                  version:
+                    type: string
+                    example: 1.0.0
+
+  /readyz:
+    get:
+      tags: [Health Check]
+      summary: Readiness probe
+      operationId: healthReady
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service not ready
+
+  /metrics:
+    get:
+      tags: [Health Check]
+      summary: Prometheus metrics
+      operationId: getMetrics
+      responses:
+        '200':
+          description: Prometheus metrics
+          content:
+            text/plain:
+              schema:
+                type: string
+
+security:
+  - bearerAuth: []

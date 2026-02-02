@@ -68,7 +68,8 @@ export const validators = {
       /%[0-9a-f]{2}/i, // URL encoding
       /\\x[0-9a-f]{2}/i, // Hex escapes
       /\\u[0-9a-f]{4}/i, // Unicode escapes
-      /[\x00\u200B\u200C\u200D\uFEFF]/i, // Null bytes and zero-width chars
+      // eslint-disable-next-line no-control-regex, no-misleading-character-class -- Intentional: detecting dangerous chars
+      /[\x00\u200B\u200C\u200D\uFEFF]/, // Null bytes and zero-width chars
       /@import/i, // CSS import
       /xlink:href/i, // SVG xlink
       /srcdoc\s*=/i, // iframe srcdoc
@@ -105,7 +106,7 @@ export const validators = {
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
     const hasNumber = /\d/.test(password);
-    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
+    const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(
       password,
     );
     return (
@@ -305,9 +306,9 @@ export function validateForm(
     { isValid: boolean; value: string; error?: string }
   > = {};
 
-  // ES5-compatible iteration
+  // Iterate over inputs
   for (const field in inputs) {
-    if (inputs.hasOwnProperty(field)) {
+    if (Object.prototype.hasOwnProperty.call(inputs, field)) {
       const value = inputs[field];
       const rule = rules[field];
       if (rule) {
@@ -330,9 +331,9 @@ export function isFormValid(
     { isValid: boolean; value: string; error?: string }
   >,
 ): boolean {
-  // ES5-compatible iteration
+  // Iterate over validation results
   for (const field in validationResults) {
-    if (validationResults.hasOwnProperty(field)) {
+    if (Object.prototype.hasOwnProperty.call(validationResults, field)) {
       if (!validationResults[field].isValid) {
         return false;
       }

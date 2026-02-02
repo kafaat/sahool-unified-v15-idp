@@ -8,7 +8,11 @@ Pydantic models for IFA v6 compliance management.
 
 from __future__ import annotations
 
+<<<<<<< HEAD
 from datetime import date, datetime, timezone
+=======
+from datetime import date, datetime, UTC
+>>>>>>> origin/main
 from enum import Enum
 from uuid import uuid4
 
@@ -166,8 +170,13 @@ class AuditFinding(BaseModel):
     auditor_id: str = Field(..., description="Auditor ID")
     audit_date: datetime = Field(..., description="Date of finding")
 
+<<<<<<< HEAD
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     class Config:
         json_encoders = {
@@ -215,8 +224,13 @@ class NonConformance(BaseModel):
     auditor_id: str = Field(..., description="Identifying auditor ID")
     farm_id: str = Field(..., description="Farm/producer ID")
 
+<<<<<<< HEAD
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     class Config:
         json_encoders = {
@@ -270,8 +284,13 @@ class CorrectiveAction(BaseModel):
     )
     evidence_photos: list[str] = Field(default_factory=list, description="Supporting photo URLs")
 
+<<<<<<< HEAD
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     class Config:
         json_encoders = {
@@ -318,8 +337,13 @@ class ProducerProfile(BaseModel):
     # Website and Social
     website: HttpUrl | None = Field(None, description="Website URL")
 
+<<<<<<< HEAD
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     @validator("email")
     def validate_email(self, v):
@@ -393,15 +417,24 @@ class FarmRegistration(BaseModel):
     parallel_ownership: bool = Field(default=False, description="Parallel ownership situations")
 
     # Registration Dates
+<<<<<<< HEAD
     registration_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    registration_date: datetime = Field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     last_audit_date: datetime | None = Field(None, description="Last audit date")
     next_audit_date: datetime | None = Field(None, description="Next audit date")
 
     # Status
     is_active: bool = Field(default=True, description="Registration active status")
 
+<<<<<<< HEAD
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     @validator("ggn")
     def validate_ggn(self, v):
@@ -481,8 +514,13 @@ class AuditSession(BaseModel):
     report_url: str | None = Field(None, description="Audit report URL")
     report_issued_date: datetime | None = Field(None, description="Report issue date")
 
+<<<<<<< HEAD
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     class Config:
         json_encoders = {

@@ -17,7 +17,11 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import date, datetime, timedelta, timezone
+=======
+from datetime import date, datetime, timedelta, UTC
+>>>>>>> origin/main
 from enum import Enum
 from typing import Any
 import uuid
@@ -715,7 +719,11 @@ class CalendarEvent:
     notes_ar: str = ""
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     created_by: str = ""
 
     def get_priority_icon(self) -> str:
@@ -831,7 +839,11 @@ class PlantingRecommendation:
     tips_ar: list[str] = field(default_factory=list)
 
     # Metadata
+<<<<<<< HEAD
     generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     model_version: str = "1.0.0"
 
     def to_dict(self) -> dict[str, Any]:
@@ -927,8 +939,13 @@ class SeasonalCalendar:
     notes_en: str = ""
 
     # Metadata
+<<<<<<< HEAD
     generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     last_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    last_updated: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def get_current_season(self, check_date: date | None = None) -> SeasonDefinition | None:
         """Get the season for a specific date"""

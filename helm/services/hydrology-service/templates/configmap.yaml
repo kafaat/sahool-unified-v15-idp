@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "hydrology-service.fullname" . }}-config
+  labels:
+    {{- include "hydrology-service.labels" . | nindent 4 }}
+data:
+  SERVICE_NAME: "hydrology-service"
+  SERVICE_VERSION: {{ .Chart.AppVersion | quote }}
+  LOG_LEVEL: {{ .Values.env.LOG_LEVEL | default "INFO" | quote }}
+  LOG_FORMAT: "json"
+
+  # Hydrology Configuration
+  FLOW_ACCUMULATION_THRESHOLD: {{ .Values.env.FLOW_ACCUMULATION_THRESHOLD | default "100" | quote }}
+  WATERSHED_MIN_AREA_HA: {{ .Values.env.WATERSHED_MIN_AREA_HA | default "1" | quote }}
+  MANNING_COEFFICIENT: {{ .Values.env.MANNING_COEFFICIENT | default "0.035" | quote }}
+  RUNOFF_COEFFICIENT: {{ .Values.env.RUNOFF_COEFFICIENT | default "0.3" | quote }}
+
+  # Infrastructure
+  {{- if .Values.nats.url }}
+  NATS_URL: {{ .Values.nats.url | quote }}
+  {{- else }}
+  NATS_URL: "nats://nats:4222"
+  {{- end }}
+
+  {{- if .Values.redis.url }}
+  REDIS_URL: {{ .Values.redis.url | quote }}
+  {{- else }}
+  REDIS_URL: "redis://redis:6379"
+  {{- end }}
+
+  # Feature Flags
+  ENABLE_METRICS: "true"
+  ENABLE_TRACING: "false"
+  METRICS_PORT: "8165"

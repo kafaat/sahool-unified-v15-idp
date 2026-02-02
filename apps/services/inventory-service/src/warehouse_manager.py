@@ -4,7 +4,11 @@ Handles warehouses, zones, locations, and stock transfers
 """
 
 from dataclasses import dataclass
+<<<<<<< HEAD
 from datetime import datetime, timedelta, timezone
+=======
+from datetime import datetime, timedelta, timezone, UTC
+>>>>>>> origin/main
 from enum import Enum
 
 
@@ -334,7 +338,11 @@ class WarehouseManager:
             data={
                 "status": "APPROVED",
                 "approvedBy": approved_by,
+<<<<<<< HEAD
                 "approvedAt": datetime.now(timezone.utc),
+=======
+                "approvedAt": datetime.now(UTC),
+>>>>>>> origin/main
             },
         )
 
@@ -361,7 +369,11 @@ class WarehouseManager:
             data={
                 "status": "COMPLETED",
                 "performedBy": performed_by,
+<<<<<<< HEAD
                 "completedAt": datetime.now(timezone.utc),
+=======
+                "completedAt": datetime.now(UTC),
+>>>>>>> origin/main
             },
         )
 
@@ -457,12 +469,20 @@ class WarehouseManager:
         Returns:
             List of expiring items
         """
+<<<<<<< HEAD
         cutoff_date = datetime.now(timezone.utc) + timedelta(days=days)
+=======
+        cutoff_date = datetime.now(UTC) + timedelta(days=days)
+>>>>>>> origin/main
 
         items = await self.db.inventoryitem.find_many(
             where={
                 "warehouseId": warehouse_id,
+<<<<<<< HEAD
                 "expiryDate": {"lte": cutoff_date, "gte": datetime.now(timezone.utc)},
+=======
+                "expiryDate": {"lte": cutoff_date, "gte": datetime.now(UTC)},
+>>>>>>> origin/main
             },
             order_by={"expiryDate": "asc"},
         )
@@ -470,7 +490,11 @@ class WarehouseManager:
         result = []
         for item in items:
             days_until_expiry = (
+<<<<<<< HEAD
                 (item.expiryDate - datetime.now(timezone.utc)).days if item.expiryDate else None
+=======
+                (item.expiryDate - datetime.now(UTC)).days if item.expiryDate else None
+>>>>>>> origin/main
             )
             result.append(
                 {

@@ -18,7 +18,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 import json
 import os
 import asyncio
@@ -105,8 +109,13 @@ class FeedbackItem:
     sentiment_score: float = 0.0  # -1.0 to 1.0
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     source: str = "mobile_app"  # mobile_app, web, api, sms
 
     # Tags for categorization
@@ -143,7 +152,7 @@ class FeedbackItem:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "FeedbackItem":
+    def from_dict(cls, data: dict[str, Any]) -> FeedbackItem:
         """Create from dictionary"""
         return cls(
             id=data.get("id", str(uuid.uuid4())),
@@ -167,8 +176,13 @@ class FeedbackItem:
             context=data.get("context", {}),
             sentiment=FeedbackSentiment(data.get("sentiment", "neutral")),
             sentiment_score=data.get("sentiment_score", 0.0),
+<<<<<<< HEAD
             created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(timezone.utc),
             updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(timezone.utc),
+=======
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
+>>>>>>> origin/main
             source=data.get("source", "mobile_app"),
             tags=data.get("tags", []),
         )
@@ -295,7 +309,11 @@ class FeedbackStorage:
     ) -> list[FeedbackItem]:
         """Load recent feedback"""
         from datetime import timedelta
+<<<<<<< HEAD
         cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+=======
+        cutoff = datetime.now(UTC) - timedelta(days=days)
+>>>>>>> origin/main
         all_feedback = await self.load_all(tenant_id)
         return [f for f in all_feedback if f.created_at >= cutoff]
 

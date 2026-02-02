@@ -7,10 +7,38 @@
 import arMessages from "./locales/ar.json";
 import enMessages from "./locales/en.json";
 
+// Vision service translations
+import visionAr from "./vision/ar.json";
+import visionEn from "./vision/en.json";
+
+// Terrain service translations
+import terrainAr from "./terrain/ar.json";
+import terrainEn from "./terrain/en.json";
+
+// Edge device translations
+import edgeAr from "./edge/ar.json";
+import edgeEn from "./edge/en.json";
+
+// Merge all messages
 export const messages = {
-  ar: arMessages,
-  en: enMessages,
+  ar: {
+    ...arMessages,
+    ...visionAr,
+    ...terrainAr,
+    ...edgeAr,
+  },
+  en: {
+    ...enMessages,
+    ...visionEn,
+    ...terrainEn,
+    ...edgeEn,
+  },
 } as const;
+
+// Export individual namespace modules for selective imports
+export const visionMessages = { ar: visionAr, en: visionEn } as const;
+export const terrainMessages = { ar: terrainAr, en: terrainEn } as const;
+export const edgeMessages = { ar: edgeAr, en: edgeEn } as const;
 
 export type Locale = keyof typeof messages;
 export type Messages = typeof arMessages;

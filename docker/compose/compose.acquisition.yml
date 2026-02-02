@@ -237,6 +237,32 @@ services:
           memory: 256Mi
     depends_on:
     - redis
+  edge-orchestrator-service:
+    build:
+      context: ../../apps/services/edge-orchestrator-service
+      dockerfile: Dockerfile
+    ports:
+    - 8190:8190
+    environment:
+    - PORT=8190
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8190/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 384Mi
+    depends_on:
+    - yolo26-vision-service
 networks:
   sahool-network:
     driver: bridge

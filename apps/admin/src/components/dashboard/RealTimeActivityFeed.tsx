@@ -325,8 +325,10 @@ export function RealTimeActivityFeed({
     } catch (e) {
       console.error("WebSocket connection failed:", e);
       // Start mock data generation as fallback
+      // Note: startMockGeneration is defined below but hoisted, intentionally not in deps
       startMockGeneration();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wsUrl, addActivity]);
 
   /**

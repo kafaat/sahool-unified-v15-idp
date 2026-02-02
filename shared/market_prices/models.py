@@ -13,7 +13,11 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, date, timezone
+=======
+from datetime import datetime, date, UTC
+>>>>>>> origin/main
 from decimal import Decimal
 from enum import Enum
 from typing import Any
@@ -328,8 +332,13 @@ class Market:
     last_price_update: datetime | None = None
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -639,7 +648,11 @@ class CropPrice:
 
     # Timestamp
     price_date: date = field(default_factory=date.today)
+<<<<<<< HEAD
     recorded_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    recorded_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     # Source
     source: str = "market_report"  # market_report, trader, api, manual
@@ -687,7 +700,7 @@ class CropPrice:
         return json.dumps(self.to_dict(), indent=indent, ensure_ascii=False)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "CropPrice":
+    def from_dict(cls, data: dict[str, Any]) -> CropPrice:
         return cls(
             id=data.get("id", str(uuid.uuid4())),
             crop_id=data.get("crop_id", ""),
@@ -708,7 +721,11 @@ class CropPrice:
             available_quantity=data.get("available_quantity"),
             quantity_unit=PriceUnit(data.get("quantity_unit", "ton")),
             price_date=date.fromisoformat(data["price_date"]) if data.get("price_date") else date.today(),
+<<<<<<< HEAD
             recorded_at=datetime.fromisoformat(data["recorded_at"]) if data.get("recorded_at") else datetime.now(timezone.utc),
+=======
+            recorded_at=datetime.fromisoformat(data["recorded_at"]) if data.get("recorded_at") else datetime.now(UTC),
+>>>>>>> origin/main
             source=data.get("source", "market_report"),
             source_id=data.get("source_id"),
             verified=data.get("verified", False),
@@ -776,8 +793,13 @@ class PriceAlert:
     name_ar: str = ""
     description: str = ""
     description_ar: str = ""
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def is_valid(self) -> bool:
         """Check if alert is currently valid"""
@@ -919,7 +941,11 @@ class PriceTrend:
     seasonal_factor: float = 1.0  # Multiplier vs. annual average
 
     # Analysis timestamp
+<<<<<<< HEAD
     analyzed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    analyzed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -998,7 +1024,11 @@ class MarketComparison:
 
     # Analysis metadata
     markets_compared: int = 0
+<<<<<<< HEAD
     analyzed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    analyzed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -1089,7 +1119,11 @@ class SellingRecommendation:
     # e.g., ["seasonal_trend", "market_demand", "weather_forecast", "storage_costs"]
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     valid_until: date | None = None
 
     def to_dict(self) -> dict[str, Any]:

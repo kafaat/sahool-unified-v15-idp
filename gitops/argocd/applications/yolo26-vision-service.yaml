@@ -1,0 +1,57 @@
+# SAHOOL YOLOv26 Vision Service ArgoCD Application
+# ================================================
+# GPU-accelerated computer vision for crop health analysis
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: yolo26-vision-service
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: yolo26-vision-service
+    app.kubernetes.io/part-of: sahool
+    app.kubernetes.io/component: vision
+    sahool.io/layer: intelligence
+    sahool.io/tier: ai
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: sahool-deployments
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: sahool-services
+  source:
+    repoURL: https://github.com/kafaat/sahool-unified-v15-idp
+    targetRevision: HEAD
+    path: helm/services/yolo26-vision-service
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-staging.yaml
+      parameters:
+        - name: environment
+          value: staging
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sahool-intelligence
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas

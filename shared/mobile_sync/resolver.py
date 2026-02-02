@@ -14,7 +14,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from typing import Any, Callable
 
 from .models import (
@@ -222,7 +226,11 @@ class ConflictResolver(ABC):
 
         conflict.resolution_strategy = self.strategy
         conflict.resolved_data = resolved_data
+<<<<<<< HEAD
         conflict.resolved_at = datetime.now(timezone.utc)
+=======
+        conflict.resolved_at = datetime.now(UTC)
+>>>>>>> origin/main
         conflict.resolved_by = resolved_by
         conflict.resolution_note = note
         conflict.resolution_note_ar = note_ar
@@ -467,10 +475,7 @@ class ManualMergeResolver(ConflictResolver):
 
     def is_complete(self, conflict: SyncConflict) -> bool:
         """Check if all conflicting fields have choices."""
-        for field_name in conflict.conflicting_fields:
-            if field_name not in self.choices:
-                return False
-        return True
+        return all(field_name in self.choices for field_name in conflict.conflicting_fields)
 
     def get_pending_fields(self, conflict: SyncConflict) -> list[str]:
         """Get fields that still need user choices."""
@@ -879,10 +884,7 @@ class ConflictResolutionManager:
 
     def _has_critical_fields(self, conflict: SyncConflict) -> bool:
         """Check if conflict involves critical fields."""
-        for field in conflict.conflicting_fields:
-            if field in self.config.critical_fields:
-                return True
-        return False
+        return any(field in self.config.critical_fields for field in conflict.conflicting_fields)
 
     def _log_resolution(self, conflict: SyncConflict) -> None:
         """Log a resolution."""

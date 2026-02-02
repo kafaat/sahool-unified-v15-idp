@@ -7,7 +7,11 @@ Nutrient recommendations based on soil tests, crop requirements, and growth stag
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from decimal import Decimal
 
 from .models import (
@@ -219,7 +223,11 @@ class FertilizerRecommendation:
     id: str
     tenant_id: str
     field_id: str
+<<<<<<< HEAD
     recommendation_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    recommendation_date: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     # Crop info
     crop: str = ""

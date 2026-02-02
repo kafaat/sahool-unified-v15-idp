@@ -27,10 +27,15 @@ import os
 import re
 import time
 import uuid
+<<<<<<< HEAD
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from functools import wraps
+=======
+from dataclasses import dataclass, field
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from pathlib import Path
 from typing import Any
 
@@ -101,7 +106,11 @@ class CircuitBreaker:
 
         if state.state == "open":
             if state.last_failure:
+<<<<<<< HEAD
                 elapsed = (datetime.now(timezone.utc) - state.last_failure).total_seconds()
+=======
+                elapsed = (datetime.now(UTC) - state.last_failure).total_seconds()
+>>>>>>> origin/main
                 if elapsed >= self.recovery_timeout:
                     state.state = "half_open"
                     state.success_count = 0
@@ -129,7 +138,11 @@ class CircuitBreaker:
         """Record failed execution."""
         state = self._get_state(tool)
         state.failures += 1
+<<<<<<< HEAD
         state.last_failure = datetime.now(timezone.utc)
+=======
+        state.last_failure = datetime.now(UTC)
+>>>>>>> origin/main
 
         if state.state == "half_open":
             state.state = "open"
@@ -202,7 +215,11 @@ class DiagnosticCache:
             return None
 
         # Check TTL
+<<<<<<< HEAD
         age = (datetime.now(timezone.utc) - entry.created_at).total_seconds()
+=======
+        age = (datetime.now(UTC) - entry.created_at).total_seconds()
+>>>>>>> origin/main
         if age > self.ttl_seconds:
             del self._cache[key]
             self._misses += 1
@@ -228,7 +245,11 @@ class DiagnosticCache:
         key = self._make_key(file_path, tool)
         self._cache[key] = CacheEntry(
             result=result,
+<<<<<<< HEAD
             created_at=datetime.now(timezone.utc),
+=======
+            created_at=datetime.now(UTC),
+>>>>>>> origin/main
             file_hash=self._compute_hash(file_path),
             tool=tool,
         )
@@ -1284,9 +1305,13 @@ class CodeDiagnostics:
 
                 # Determine category from rule ID
                 category = DiagnosticCategory.SECURITY
+<<<<<<< HEAD
                 if "sql" in rule_id.lower():
                     category = DiagnosticCategory.SECURITY
                 elif "xss" in rule_id.lower():
+=======
+                if "sql" in rule_id.lower() or "xss" in rule_id.lower():
+>>>>>>> origin/main
                     category = DiagnosticCategory.SECURITY
                 elif "perf" in rule_id.lower():
                     category = DiagnosticCategory.PERFORMANCE

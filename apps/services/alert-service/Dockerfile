@@ -27,23 +27,25 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
-# Upgrade pip and install build tools
+# Upgrade pip and install build tools with resilient multi-mirror fallback
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
-    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade "setuptools>=68.0" wheel build
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
 
-# Configure pip for better network resilience
+# Configure pip for better network resilience with fallback mirrors
 RUN mkdir -p /root/.pip && \
     echo "[global]" > /root/.pip/pip.conf && \
     echo "timeout = 300" >> /root/.pip/pip.conf && \
     echo "retries = 10" >> /root/.pip/pip.conf && \
     echo "default-timeout = 300" >> /root/.pip/pip.conf && \
+    echo "trusted-host = pypi.org files.pythonhosted.org mirrors.aliyun.com" >> /root/.pip/pip.conf && \
     echo "[install]" >> /root/.pip/pip.conf && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
-# Install dependencies
+# Install dependencies with fallback to Aliyun mirror
 COPY apps/services/alert-service/requirements.txt .
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt || \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
 # Copy shared libraries
 COPY apps/services/shared/ ./shared/
@@ -61,4 +63,4 @@ EXPOSE 8113
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8113/healthz')" || exit 1
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8113"]
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8113"]

@@ -13,7 +13,11 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, date, time, timezone
+=======
+from datetime import datetime, date, time, UTC
+>>>>>>> origin/main
 from enum import Enum
 from typing import Any
 import uuid
@@ -187,7 +191,11 @@ class WeatherAlert:
     longitude: float | None = None
 
     # Time validity
+<<<<<<< HEAD
     issued_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    issued_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     valid_from: datetime | None = None
     valid_until: datetime | None = None
 

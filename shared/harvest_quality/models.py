@@ -16,7 +16,11 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, date, timezone
+=======
+from datetime import datetime, date, UTC
+>>>>>>> origin/main
 from decimal import Decimal
 from enum import Enum
 from typing import Any
@@ -319,8 +323,13 @@ class QualityStandard:
     description: str = ""
     description_ar: str = ""
 
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def get_parameter(self, parameter_name: str) -> QualityParameter | None:
         """Get parameter by name"""
@@ -397,7 +406,11 @@ class QualityTestResult:
     # Performed by
     tester_id: str = ""
     tester_name: str = ""
+<<<<<<< HEAD
     test_timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    test_timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     # Notes
     notes: str = ""
@@ -501,8 +514,13 @@ class QualityTestRecord:
     test_facility_name_ar: str = ""
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     created_by: str = ""
 
     notes: str = ""
@@ -658,8 +676,13 @@ class BuyerRequirement:
     # Priority
     priority: int = 0  # Higher = more important
 
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     notes: str = ""
     notes_ar: str = ""
@@ -775,7 +798,11 @@ class BuyerMatch:
     recommendation: str = ""
     recommendation_ar: str = ""
 
+<<<<<<< HEAD
     matched_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    matched_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -878,7 +905,11 @@ class QualityTrendAnalysis:
     recommendations_ar: list[str] = field(default_factory=list)
 
     # Analysis metadata
+<<<<<<< HEAD
     analyzed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    analyzed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     sample_count: int = 0
     confidence_score: float = 0.0
 
@@ -988,8 +1019,13 @@ class GradePriceMatrix:
     source: str = "market"  # market, contract, government
     source_id: str = ""
 
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def get_price_for_grade(self, grade: QualityGrade) -> Decimal:
         """Get price for a specific grade"""
@@ -1086,7 +1122,11 @@ class PriceCalculation:
     vs_market_average_percent: float = 0.0
 
     # Calculation metadata
+<<<<<<< HEAD
     calculated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    calculated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     calculated_by: str = ""
 
     notes: str = ""

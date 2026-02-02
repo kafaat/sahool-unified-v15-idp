@@ -1,0 +1,57 @@
+# SAHOOL Leveling Optimizer Service ArgoCD Application
+# =====================================================
+# Field leveling optimization using cut-fill algorithms
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: leveling-optimizer-service
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: leveling-optimizer-service
+    app.kubernetes.io/part-of: sahool
+    app.kubernetes.io/component: leveling
+    sahool.io/layer: intelligence
+    sahool.io/tier: optimization
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: sahool-deployments
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: sahool-services
+  source:
+    repoURL: https://github.com/kafaat/sahool-unified-v15-idp
+    targetRevision: HEAD
+    path: helm/services/leveling-optimizer-service
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-staging.yaml
+      parameters:
+        - name: environment
+          value: staging
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sahool-intelligence
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas

@@ -1,0 +1,16 @@
+apiVersion: v2
+name: yolo26-vision-service
+description: SAHOOL YOLOv26 Vision Service - GPU-accelerated computer vision for crop and pest detection
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - vision
+  - yolo
+  - gpu
+  - crop-detection
+  - pest-detection
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

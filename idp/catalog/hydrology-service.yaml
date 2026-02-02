@@ -1,0 +1,31 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: hydrology-service
+  description: Water flow analysis, drainage pattern detection, and irrigation planning for agricultural fields
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/hydrology-service
+  tags:
+    - python
+    - fastapi
+    - hydrology
+    - water-management
+    - irrigation
+  links:
+    - url: https://api.sahool.io/v1/hydrology/docs
+      title: API Documentation
+    - url: https://grafana.sahool.io/d/hydrology
+      title: Grafana Dashboard
+spec:
+  type: service
+  lifecycle: production
+  owner: geospatial-team
+  system: sahool-platform
+  dependsOn:
+    - component:terrain-core-service
+    - component:weather-service
+    - resource:postgresql
+    - resource:nats
+  providesApis:
+    - hydrology-api

@@ -38,7 +38,11 @@ Usage:
 
 from __future__ import annotations
 
+<<<<<<< HEAD
 from datetime import date, datetime, timedelta, timezone
+=======
+from datetime import date, datetime, timedelta, UTC
+>>>>>>> origin/main
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -209,8 +213,13 @@ class FertilizerApplicationRecord(BaseModel):
 
     # Metadata
     recorded_by: UUID | None = Field(None, description="User who recorded")
+<<<<<<< HEAD
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     class Config:
         use_enum_values = True
@@ -346,8 +355,13 @@ class NutrientManagementPlan(BaseModel):
         description="Plan status",
     )
 
+<<<<<<< HEAD
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     class Config:
         json_encoders = {
@@ -401,7 +415,11 @@ class MRLComplianceCheck(BaseModel):
         default_factory=list, description="Non-compliance issues (Arabic)"
     )
 
+<<<<<<< HEAD
     checked_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    checked_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     class Config:
         json_encoders = {

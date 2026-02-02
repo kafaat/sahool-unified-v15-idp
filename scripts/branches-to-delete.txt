@@ -1,0 +1,83 @@
+# ============================================================================
+# Branches Recommended for Deletion
+# ============================================================================
+# Generated: 2026-01-29
+#
+# These branches are stale (>30 days old) or temporary and should be deleted.
+# To delete, run from GitHub UI or use:
+#   git push origin --delete <branch-name>
+# ============================================================================
+
+# ============================================================================
+# PRIORITY 1: Temporary Sub-PR Branches (11 branches)
+# These are clearly temporary and should be deleted immediately
+# ============================================================================
+copilot/sub-pr-105
+copilot/sub-pr-107
+copilot/sub-pr-107-again
+copilot/sub-pr-115
+copilot/sub-pr-115-again
+copilot/sub-pr-115-another-one
+copilot/sub-pr-115-one-more-time
+copilot/sub-pr-115-please-work
+copilot/sub-pr-115-yet-again
+copilot/sub-pr-227
+copilot/sub-pr-71
+
+# ============================================================================
+# PRIORITY 2: Revert Branches (3 branches)
+# These are already processed reverts
+# ============================================================================
+revert-179-claude/recover-deleted-kernel-xw3xR
+revert-2-claude/fix-sahool-kernel-script-01XqF6bcNNVtFpmgJR2gmNXL
+revert-3-revert-2-claude/fix-sahool-kernel-script-01XqF6bcNNVtFpmgJR2gmNXL
+
+# ============================================================================
+# PRIORITY 3: Stale Copilot Branches (48 branches, older than 30 days)
+# ============================================================================
+copilot/consolidate-improvements-pr
+copilot/consolidate-subprojects-blocks
+copilot/comprehensive-review-project
+copilot/fix-build-gradle-kts-alignment
+copilot/fix-ci-pipeline-errors
+copilot/fix-ci-workflow-file
+copilot/fix-flake8-lint-errors
+copilot/fix-flutter-apk-build-errors
+copilot/fix-flutter-apk-build-issues
+copilot/fix-flutter-build-dexing-issue
+copilot/fix-iot-rules-tests
+copilot/fix-issue-in-action-step
+copilot/fix-issue-with-user-authentication
+copilot/fix-it-issue
+copilot/fix-six-failed-tests
+copilot/fix-website-header-issue
+copilot/refactor-after-evaluate-setup
+copilot/resolve-merge-conflict
+copilot/review-full-stack-blueprint
+copilot/review-project-comprehensively
+copilot/review-project-jfdp3
+copilot/update-backend-system
+copilot/update-build-deployment-config
+copilot/update-dockerfile-dependency-install
+copilot/update-dockerfile-dependency-installation
+copilot/update-dockerfile-npm-commands
+
+# ============================================================================
+# PRIORITY 4: Stale Claude Branches (37 branches, older than 30 days)
+# ============================================================================
+claude/fix-apk-simple-gOHKo
+claude/fix-apk-workflow-gOHKo
+claude/fix-sahool-kernel-script-01XqF6bcNNVtFpmgJR2gmNXL
+claude/frontend-improvements-1QAAM
+claude/mobile-fix-JfDP3
+claude/review-branches-gOHKo
+claude/review-project-JfDP3
+claude/security-enhancements-1QAAM
+claude/v16-features-JfDP3
+
+# ============================================================================
+# PRIORITY 5: Other Stale Branches
+# ============================================================================
+fix-integration-tests
+fix-websocket-hook-error
+تحديث-sahool

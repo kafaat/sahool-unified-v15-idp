@@ -19,7 +19,11 @@ Version: 1.0.0
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from decimal import Decimal
 from enum import Enum
 from typing import Any
@@ -429,8 +433,13 @@ class SoilTestResult:
     currency: str = "SAR"
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     notes: str = ""
     notes_ar: str = ""
 
@@ -604,7 +613,11 @@ class InterpretationReport:
     # Reference
     soil_test_id: str
     field_id: str
+<<<<<<< HEAD
     interpretation_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    interpretation_date: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     # Nutrient interpretations
     interpretations: list[NutrientInterpretation] = field(default_factory=list)
@@ -754,7 +767,11 @@ class AmendmentPlan:
     field_area_ha: float = 0.0
 
     # Plan details
+<<<<<<< HEAD
     plan_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    plan_date: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     valid_until: datetime | None = None
 
     # Recommendations
@@ -893,7 +910,11 @@ class TrendReport:
     # Identification
     field_id: str
     tenant_id: str
+<<<<<<< HEAD
     report_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    report_date: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     # Analysis period
     period_start: datetime | None = None

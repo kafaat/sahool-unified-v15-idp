@@ -1,0 +1,54 @@
+{
+  "terrain": {
+    "title": "Terrain Analysis",
+    "slope": "Slope",
+    "slope_description": "Ground inclination angle",
+    "aspect": "Aspect",
+    "aspect_description": "Surface orientation direction",
+    "elevation": "Elevation",
+    "elevation_description": "Height above sea level",
+    "flow_direction": "Flow Direction",
+    "flow_direction_description": "Water movement path",
+    "drainage": "Drainage",
+    "drainage_description": "Water removal capacity",
+    "leveling": "Leveling",
+    "leveling_description": "Surface uniformity adjustment",
+    "cut_fill": "Cut and Fill",
+    "cut_fill_description": "Earthwork volume calculation",
+    "contour": "Contour",
+    "contour_lines": "Contour Lines",
+    "watershed": "Watershed",
+    "basin": "Basin",
+    "ridge": "Ridge",
+    "valley": "Valley",
+    "flat": "Flat",
+    "gentle": "Gentle Slope",
+    "moderate": "Moderate Slope",
+    "steep": "Steep Slope",
+    "very_steep": "Very Steep",
+    "units": {
+      "meters": "meters",
+      "feet": "feet",
+      "degrees": "degrees",
+      "percent": "percent",
+      "cubic_meters": "cubic meters"
+    },
+    "directions": {
+      "north": "North",
+      "northeast": "Northeast",
+      "east": "East",
+      "southeast": "Southeast",
+      "south": "South",
+      "southwest": "Southwest",
+      "west": "West",
+      "northwest": "Northwest"
+    },
+    "drainage_classes": {
+      "excellent": "Excellent Drainage",
+      "good": "Good Drainage",
+      "moderate": "Moderate Drainage",
+      "poor": "Poor Drainage",
+      "very_poor": "Very Poor Drainage"
+    }
+  }
+}

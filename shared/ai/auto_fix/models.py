@@ -13,7 +13,11 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -109,7 +113,11 @@ class Diagnostic:
     suggestion_ar: str | None = None
     documentation_url: str | None = None
     related_diagnostics: list[str] = field(default_factory=list)
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -154,7 +162,11 @@ class CodeFix:
     breaking_change: bool = False
     test_required: bool = False
     related_fixes: list[str] = field(default_factory=list)
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -216,7 +228,11 @@ class DiagnosticReport:
     total_hints: int = 0
     tools_used: list[ToolType] = field(default_factory=list)
     scan_duration_ms: float = 0.0
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def __post_init__(self):
         """Calculate totals from diagnostics."""
@@ -275,7 +291,11 @@ class FixPlan:
     review_required: int = 0
     estimated_impact: str | None = None
     estimated_impact_ar: str | None = None
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def __post_init__(self):
         """Calculate fix statistics."""
@@ -313,7 +333,11 @@ class AuditEntry:
     severity: DiagnosticSeverity | None = None
     success: bool = True
     error: str | None = None
+<<<<<<< HEAD
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""

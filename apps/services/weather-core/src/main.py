@@ -15,15 +15,15 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, Field
-
-from .events import get_publisher
-from .providers import MockWeatherProvider, MultiWeatherService, OpenMeteoProvider
-from .risks import assess_weather, get_irrigation_adjustment, heat_stress_risk
+from shared.logging_config import RequestLoggingMiddleware, get_logger, setup_logging
 
 # Import shared logging configuration
 # Note: PYTHONPATH=/app is set in Dockerfile, and shared/ is copied to /app/shared/
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
-from shared.logging_config import RequestLoggingMiddleware, get_logger, setup_logging
+
+from .events import get_publisher
+from .providers import MockWeatherProvider, MultiWeatherService, OpenMeteoProvider
+from .risks import assess_weather, get_irrigation_adjustment, heat_stress_risk
 
 # Setup structured logging
 setup_logging(service_name="weather-core")
@@ -87,10 +87,11 @@ async def lifespan(app: FastAPI):
 
     # Cleanup
     logger.info("weather_core_shutting_down")
-    if app.state.multi_provider:
+    if getattr(app.state, "multi_provider", None):
         await app.state.multi_provider.close()
-    await app.state.weather_provider.close()
-    if app.state.publisher:
+    if getattr(app.state, "weather_provider", None):
+        await app.state.weather_provider.close()
+    if getattr(app.state, "publisher", None):
         await app.state.publisher.close()
     logger.info("weather_core_shutdown_complete")
 
@@ -98,7 +99,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SAHOOL Weather Core",
     description="Agricultural weather assessment, forecasting, and alerts",
-    version="15.3.3",
+    version="16.0.0",
     lifespan=lifespan,
 )
 
@@ -115,7 +116,7 @@ app.add_middleware(RequestLoggingMiddleware, service_name="weather-core")
 
 @app.get("/healthz")
 def health():
-    return {"status": "healthy", "service": "weather-core", "version": "15.3.3"}
+    return {"status": "healthy", "service": "weather-core", "version": "16.0.0"}
 
 
 @app.get("/readyz")

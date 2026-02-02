@@ -51,7 +51,7 @@ jobs:
       kubeconfig_available: ${{ steps.secrets.outputs.kubeconfig_available }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.inputs.version || github.ref }}
 
@@ -151,7 +151,7 @@ jobs:
     if: always() && needs.validate-release.result == 'success' && needs.validate-release.outputs.kubeconfig_available == 'true' && (needs.approval.result == 'success' || needs.approval.result == 'skipped')
     steps:
       - name: Configure kubectl
-        uses: azure/k8s-set-context@v3
+        uses: azure/k8s-set-context@v4
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG_PRODUCTION }}
@@ -176,7 +176,7 @@ jobs:
           echo "✅ Backup completed"
 
       - name: Upload backup artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: production-backup-${{ needs.validate-release.outputs.deployment_id }}
           path: backups/
@@ -202,12 +202,12 @@ jobs:
       url: https://sahool.io
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ needs.validate-release.outputs.version }}
 
       - name: Configure kubectl
-        uses: azure/k8s-set-context@v3
+        uses: azure/k8s-set-context@v4
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG_PRODUCTION }}
@@ -351,16 +351,16 @@ jobs:
     if: needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Configure kubectl
-        if: needs.validate-release.outputs.kubeconfig_available == 'true'
-        run: |
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
+        uses: azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG_PRODUCTION }}
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -398,7 +398,7 @@ jobs:
     if: needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
       - name: Configure kubectl
-        uses: azure/k8s-set-context@v3
+        uses: azure/k8s-set-context@v4
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG_PRODUCTION }}
@@ -494,7 +494,7 @@ jobs:
     if: needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
       - name: Configure kubectl
-        uses: azure/k8s-set-context@v3
+        uses: azure/k8s-set-context@v4
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG_PRODUCTION }}
@@ -521,7 +521,7 @@ jobs:
     if: failure() && needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
       - name: Configure kubectl
-        uses: azure/k8s-set-context@v3
+        uses: azure/k8s-set-context@v4
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG_PRODUCTION }}

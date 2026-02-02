@@ -8,7 +8,11 @@ from __future__ import annotations
 import math
 import uuid
 from collections import defaultdict
+<<<<<<< HEAD
 from datetime import datetime, timedelta, timezone
+=======
+from datetime import datetime, timedelta, UTC
+>>>>>>> origin/main
 
 from .models import (
     SensorReading,
@@ -172,7 +176,11 @@ class SensorDataProcessor:
             return None  # Not enough data
 
         # Get recent readings (last 24 hours)
+<<<<<<< HEAD
         cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+=======
+        cutoff = datetime.now(UTC) - timedelta(hours=24)
+>>>>>>> origin/main
         recent = [r for r in sensor_readings if r.timestamp > cutoff]
 
         if len(recent) < 5:
@@ -233,7 +241,11 @@ class SensorDataProcessor:
         if not readings:
             return None
 
+<<<<<<< HEAD
         cutoff = datetime.now(timezone.utc) - timedelta(hours=period_hours)
+=======
+        cutoff = datetime.now(UTC) - timedelta(hours=period_hours)
+>>>>>>> origin/main
         period_readings = [r for r in readings if r.timestamp > cutoff]
 
         if not period_readings:
@@ -420,7 +432,11 @@ def interpolate_field_moisture(
     if not points:
         return FieldMoistureMap(
             field_id="",
+<<<<<<< HEAD
             timestamp=datetime.now(timezone.utc),
+=======
+            timestamp=datetime.now(UTC),
+>>>>>>> origin/main
             grid_resolution_m=resolution_m,
             min_lat=min_lat,
             max_lat=max_lat,
@@ -491,7 +507,11 @@ def interpolate_field_moisture(
 
     return FieldMoistureMap(
         field_id="",  # Set by caller
+<<<<<<< HEAD
         timestamp=datetime.now(timezone.utc),
+=======
+        timestamp=datetime.now(UTC),
+>>>>>>> origin/main
         grid_resolution_m=resolution_m,
         min_lat=min_lat,
         max_lat=max_lat,

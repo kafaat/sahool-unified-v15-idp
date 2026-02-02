@@ -1,0 +1,30 @@
+{
+  "vision": {
+    "title": "Vision Analysis",
+    "pest_detection": "Pest Detection",
+    "disease_detection": "Disease Detection",
+    "weed_detection": "Weed Detection",
+    "plant_counting": "Plant Counting",
+    "ripeness": "Ripeness Classification",
+    "confidence": "Confidence",
+    "detected": "Detected",
+    "no_detections": "No detections found",
+    "pests": {
+      "locust": "Locust",
+      "aphid": "Aphid",
+      "whitefly": "Whitefly",
+      "thrips": "Thrips",
+      "mites": "Mites",
+      "bollworm": "Bollworm",
+      "armyworm": "Armyworm"
+    },
+    "diseases": {
+      "rust": "Rust",
+      "powdery_mildew": "Powdery Mildew",
+      "blight": "Blight",
+      "leaf_spot": "Leaf Spot",
+      "wilt": "Wilt",
+      "root_rot": "Root Rot"
+    }
+  }
+}

@@ -18,7 +18,11 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from enum import Enum
 
 from .geometry import (
@@ -201,7 +205,11 @@ class GPSMapper:
             config=config or self.config,
         )
         session.is_active = True
+<<<<<<< HEAD
         session.started_at = datetime.now(timezone.utc)
+=======
+        session.started_at = datetime.now(UTC)
+>>>>>>> origin/main
         session.track.start_time = session.started_at
 
         self.active_sessions[session.id] = session
@@ -246,7 +254,11 @@ class GPSMapper:
             return (False, "Session is not active | الجلسة غير نشطة")
 
         session.total_points_received += 1
+<<<<<<< HEAD
         timestamp = timestamp or datetime.now(timezone.utc)
+=======
+        timestamp = timestamp or datetime.now(UTC)
+>>>>>>> origin/main
 
         # Create point
         point = BoundaryPoint(
@@ -388,7 +400,11 @@ class GPSMapper:
             )
 
         session.is_active = False
+<<<<<<< HEAD
         session.ended_at = datetime.now(timezone.utc)
+=======
+        session.ended_at = datetime.now(UTC)
+>>>>>>> origin/main
         session.track.end_time = session.ended_at
 
         # Force close if requested
@@ -475,8 +491,13 @@ class GPSMapper:
             field_id=field_id or str(uuid.uuid4()),
             tenant_id="",  # To be set by caller
             owner_id=track.user_id,
+<<<<<<< HEAD
             name=f"Field Boundary {datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
             name_ar=f"حدود الحقل {datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
+=======
+            name=f"Field Boundary {datetime.now(UTC).strftime('%Y-%m-%d')}",
+            name_ar=f"حدود الحقل {datetime.now(UTC).strftime('%Y-%m-%d')}",
+>>>>>>> origin/main
             boundary_type=BoundaryType.FIELD,
             status=BoundaryStatus.DRAFT,
             geometry=Polygon(coordinates=[simplified]),

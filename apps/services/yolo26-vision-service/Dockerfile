@@ -1,0 +1,263 @@
+# =============================================================================
+# YOLO26 Vision Service Dockerfile
+# Multi-stage build with CUDA support for GPU-accelerated inference
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Stage 1: Base image with CUDA
+# -----------------------------------------------------------------------------
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04 AS base
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONFAULTHANDLER=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-venv \
+    python3.11-dev \
+    python3-pip \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    libgeos-dev \
+    libproj-dev \
+    libffi-dev \
+    libssl-dev \
+    libpq-dev \
+    fonts-dejavu-core \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Set Python 3.11 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
+    && update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+
+# Create non-root user for security
+RUN groupadd -r sahool && useradd -r -g sahool sahool
+
+# -----------------------------------------------------------------------------
+# Stage 2: Builder stage for dependencies
+# -----------------------------------------------------------------------------
+FROM base AS builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Configure pip for network resilience with fallback mirrors
+RUN mkdir -p /root/.pip && \
+    echo "[global]" > /root/.pip/pip.conf && \
+    echo "timeout = 300" >> /root/.pip/pip.conf && \
+    echo "retries = 10" >> /root/.pip/pip.conf && \
+    echo "trusted-host = pypi.org files.pythonhosted.org pypi.tuna.tsinghua.edu.cn download.pytorch.org" >> /root/.pip/pip.conf
+
+# Upgrade pip
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# Copy requirements file
+# Note: Build context is repo root, so use full path
+COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
+
+# Install Python dependencies
+# Install PyTorch with CUDA support first
+RUN pip install --no-cache-dir --timeout=300 --retries=10 \
+    torch==2.2.0 \
+    torchvision==0.17.0 \
+    --index-url https://download.pytorch.org/whl/cu121
+
+# Install remaining dependencies with fallback to Tsinghua mirror
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r /tmp/requirements.txt || \
+    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r /tmp/requirements.txt
+
+# -----------------------------------------------------------------------------
+# Stage 3: Production image
+# -----------------------------------------------------------------------------
+FROM base AS production
+
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Set working directory
+WORKDIR /app
+
+# Create necessary directories
+RUN mkdir -p /app/src /app/models /app/logs /app/data \
+    && chown -R sahool:sahool /app
+
+# Copy application code
+# Note: Build context is repo root, so use full path
+COPY --chown=sahool:sahool apps/services/yolo26-vision-service/src/ /app/src/
+COPY --chown=sahool:sahool apps/services/yolo26-vision-service/requirements.txt /app/
+
+# Create __init__.py files for proper Python packaging
+RUN touch /app/src/__init__.py \
+    && touch /app/src/api/__init__.py \
+    && touch /app/src/api/endpoints/__init__.py \
+    && touch /app/src/core/__init__.py \
+    && touch /app/src/models/__init__.py
+
+# Environment variables
+ENV ENVIRONMENT=production
+ENV LOG_LEVEL=INFO
+ENV HOST=0.0.0.0
+ENV PORT=8150
+ENV MODEL_BASE_PATH=/app/models
+ENV DEVICE=cuda:0
+ENV HALF_PRECISION=true
+ENV ENABLE_TENSORRT=false
+
+# NVIDIA container toolkit settings
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8150/healthz || exit 1
+
+# Expose port
+EXPOSE 8150
+
+# Switch to non-root user
+USER sahool
+
+# Run the application
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8150", "--workers", "1"]
+
+# -----------------------------------------------------------------------------
+# Stage 4: Development image
+# -----------------------------------------------------------------------------
+FROM production AS development
+
+# Switch back to root for development setup
+USER root
+
+# Install development dependencies with fallback
+RUN pip install --no-cache-dir --timeout=300 --retries=10 \
+    pytest \
+    pytest-asyncio \
+    pytest-cov \
+    httpx \
+    black \
+    ruff \
+    mypy \
+    ipython || \
+    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
+    pytest pytest-asyncio pytest-cov httpx black ruff mypy ipython
+
+# Set development environment
+ENV ENVIRONMENT=development
+ENV DEBUG=true
+ENV LOG_LEVEL=DEBUG
+
+# Switch back to non-root user
+USER sahool
+
+# Run with auto-reload in development
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8150", "--reload"]
+
+# -----------------------------------------------------------------------------
+# Stage 5: CPU-only image (for environments without GPU)
+# -----------------------------------------------------------------------------
+FROM python:3.11-slim AS cpu-only
+
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONFAULTHANDLER=1
+
+# Install system dependencies
+# Note: libgl1-mesa-glx replaced by libgl1 in Debian Trixie
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    libffi-dev \
+    libssl-dev \
+    libpq-dev \
+    fonts-dejavu-core \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create non-root user
+RUN groupadd -r sahool && useradd -r -g sahool sahool
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements
+# Note: Build context is repo root, so use full path
+COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
+
+# Configure pip for network resilience with fallback mirrors
+RUN mkdir -p /root/.pip && \
+    echo "[global]" > /root/.pip/pip.conf && \
+    echo "timeout = 300" >> /root/.pip/pip.conf && \
+    echo "retries = 10" >> /root/.pip/pip.conf && \
+    echo "trusted-host = pypi.org files.pythonhosted.org pypi.tuna.tsinghua.edu.cn download.pytorch.org" >> /root/.pip/pip.conf
+
+# Install Python dependencies (CPU only) with fallback to Tsinghua mirror
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir --timeout=300 --retries=10 torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
+    (pip install --no-cache-dir --timeout=300 --retries=10 -r /tmp/requirements.txt || \
+     pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r /tmp/requirements.txt)
+
+# Create directories
+RUN mkdir -p /app/src /app/models /app/logs /app/data \
+    && chown -R sahool:sahool /app
+
+# Copy application code
+# Note: Build context is repo root, so use full path
+COPY --chown=sahool:sahool apps/services/yolo26-vision-service/src/ /app/src/
+
+# Create __init__.py files
+RUN touch /app/src/__init__.py \
+    && touch /app/src/api/__init__.py \
+    && touch /app/src/api/endpoints/__init__.py \
+    && touch /app/src/core/__init__.py \
+    && touch /app/src/models/__init__.py
+
+# Environment variables
+ENV ENVIRONMENT=production
+ENV LOG_LEVEL=INFO
+ENV HOST=0.0.0.0
+ENV PORT=8150
+ENV MODEL_BASE_PATH=/app/models
+ENV DEVICE=cpu
+ENV HALF_PRECISION=false
+ENV ENABLE_TENSORRT=false
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8150/healthz || exit 1
+
+# Expose port
+EXPOSE 8150
+
+# Switch to non-root user
+USER sahool
+
+# Run the application
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8150", "--workers", "1"]

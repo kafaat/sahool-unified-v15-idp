@@ -9,7 +9,11 @@ and provide semantic understanding of agricultural operations.
 import base64
 import logging
 import os
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, timezone, UTC
+>>>>>>> origin/main
 from typing import Optional, Protocol
 
 from pydantic import BaseModel, Field
@@ -41,7 +45,11 @@ class LLMResponse(BaseModel):
     anomalies: list[dict] = Field(default_factory=list)
     reasoning: str
     reasoning_ar: str
+<<<<<<< HEAD
     health_score: Optional[float] = None
+=======
+    health_score: float | None = None
+>>>>>>> origin/main
     recommendations: list[str] = Field(default_factory=list)
     recommendations_ar: list[str] = Field(default_factory=list)
 
@@ -62,7 +70,11 @@ class LLMProvider(Protocol):
 class AnthropicProvider:
     """Anthropic Claude provider for MLLM analysis."""
 
+<<<<<<< HEAD
     def __init__(self, api_key: Optional[str] = None):
+=======
+    def __init__(self, api_key: str | None = None):
+>>>>>>> origin/main
         """Initialize Anthropic provider."""
         self.api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
         self.client = None
@@ -150,7 +162,11 @@ class OllamaProvider:
 
     def __init__(
         self,
+<<<<<<< HEAD
         base_url: Optional[str] = None,
+=======
+        base_url: str | None = None,
+>>>>>>> origin/main
         model: str = "llava:13b"
     ):
         """Initialize Ollama provider."""
@@ -269,8 +285,13 @@ maturity/نضج, harvest_ready/جاهز للحصاد, harvested/محصود
 
     def __init__(
         self,
+<<<<<<< HEAD
         llm_provider: Optional[LLMProvider] = None,
         change_detector: Optional[ChangeDetector] = None,
+=======
+        llm_provider: LLMProvider | None = None,
+        change_detector: ChangeDetector | None = None,
+>>>>>>> origin/main
         change_threshold: float = 0.15,
         max_frames_per_analysis: int = 5,
     ):
@@ -357,7 +378,11 @@ maturity/نضج, harvest_ready/جاهز للحصاد, harvested/محصود
         frame_images: list[bytes],
         context: FieldContext,
         force: bool = False,
+<<<<<<< HEAD
     ) -> Optional[CropTimelineAnalysis]:
+=======
+    ) -> CropTimelineAnalysis | None:
+>>>>>>> origin/main
         """
         Analyze temporal sequence to identify crop stages and events.
 
@@ -415,7 +440,11 @@ maturity/نضج, harvest_ready/جاهز للحصاد, harvested/محصود
 
         # Convert response to CropTimelineAnalysis
         analysis = CropTimelineAnalysis(
+<<<<<<< HEAD
             analysis_id=f"analysis_{field_id}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
+=======
+            analysis_id=f"analysis_{field_id}_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}",
+>>>>>>> origin/main
             field_id=field_id,
             crop_type=self._parse_crop_type(response.crop_type),
             crop_type_ar=response.crop_type_ar or CROP_TYPE_AR.get(
@@ -495,7 +524,11 @@ class TimelineEntryGenerator:
     ) -> CropTimelineEntry:
         """Create a timeline entry from analysis."""
         return CropTimelineEntry(
+<<<<<<< HEAD
             entry_id=f"entry_{analysis.field_id}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
+=======
+            entry_id=f"entry_{analysis.field_id}_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}",
+>>>>>>> origin/main
             field_id=analysis.field_id,
             crop_type=analysis.crop_type,
             crop_type_ar=analysis.crop_type_ar,

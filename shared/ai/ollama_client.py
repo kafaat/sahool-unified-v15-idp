@@ -22,7 +22,11 @@ import asyncio
 import json
 import os
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from enum import Enum
 from typing import Any, AsyncIterator
 
@@ -133,7 +137,7 @@ class OllamaClient:
         self.config = config or OllamaConfig()
         self._client: httpx.AsyncClient | None = None
 
-    async def _get_client(self) -> "httpx.AsyncClient":
+    async def _get_client(self) -> httpx.AsyncClient:
         """Get or create HTTP client."""
         if self._client is None:
             self._client = httpx.AsyncClient(
@@ -256,7 +260,11 @@ class OllamaClient:
                     response=data.get("response", ""),
                     done=data.get("done", True),
                     created_at=datetime.fromisoformat(
+<<<<<<< HEAD
                         data.get("created_at", datetime.now(timezone.utc).isoformat())
+=======
+                        data.get("created_at", datetime.now(UTC).isoformat())
+>>>>>>> origin/main
                     ),
                     total_duration_ns=data.get("total_duration"),
                     load_duration_ns=data.get("load_duration"),
@@ -367,7 +375,11 @@ class OllamaClient:
                 response=data.get("message", {}).get("content", ""),
                 done=data.get("done", True),
                 created_at=datetime.fromisoformat(
+<<<<<<< HEAD
                     data.get("created_at", datetime.now(timezone.utc).isoformat())
+=======
+                    data.get("created_at", datetime.now(UTC).isoformat())
+>>>>>>> origin/main
                 ),
                 total_duration_ns=data.get("total_duration"),
                 eval_count=data.get("eval_count"),

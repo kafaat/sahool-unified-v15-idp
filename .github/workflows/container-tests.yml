@@ -31,10 +31,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run hadolint on all Dockerfiles
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.3.0
         continue-on-error: true
         with:
           dockerfile: "Dockerfile*"
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -111,7 +111,7 @@ jobs:
           fi
 
       - name: Upload gitleaks report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: gitleaks-report
@@ -208,19 +208,13 @@ jobs:
             path: apps/services/mcp-server
             port: 8200
             container_port: 8200
-          - name: vegetation-analysis-service
-            path: apps/services/vegetation-analysis-service
-            port: 8019
-            container_port: 8090
+          # NOTE: vegetation-analysis-service is defined above (port 8001)
           - name: field-management-service
             path: apps/services/field-management-service
             port: 8020
             container_port: 3000
           # field-service DEPRECATED → field-management-service
-          - name: crop-intelligence-service
-            path: apps/services/crop-intelligence-service
-            port: 8021
-            container_port: 8095
+          # NOTE: crop-intelligence-service is defined above (port 8005)
           - name: equipment-service
             path: apps/services/equipment-service
             port: 8022
@@ -257,10 +251,54 @@ jobs:
             path: apps/services/ws-gateway
             port: 8031
             container_port: 8081
+          # ─────────────────────────────────────────────────────────────
+          # Additional active services
+          # ─────────────────────────────────────────────────────────────
+          - name: agro-rules
+            path: apps/services/agro-rules
+            port: 8032
+            container_port: 8151
+          - name: weather-core
+            path: apps/services/weather-core
+            port: 8033
+            container_port: 8092
+          - name: user-service
+            path: apps/services/user-service
+            port: 8034
+            container_port: 3025
+          - name: lai-estimation
+            path: apps/services/lai-estimation
+            port: 8035
+            container_port: 3022
+          - name: research-core
+            path: apps/services/research-core
+            port: 8036
+            container_port: 3015
+          - name: iot-gateway
+            path: apps/services/iot-gateway
+            port: 8037
+            container_port: 8106
+          - name: skills-service
+            path: apps/services/skills-service
+            port: 8038
+            container_port: 8121
+          - name: field-chat
+            path: apps/services/field-chat
+            port: 8039
+            container_port: 8099
+          - name: astronomical-calendar
+            path: apps/services/astronomical-calendar
+            port: 8040
+            container_port: 8111
+          # ─────────────────────────────────────────────────────────────
+          # Heavy services - test locally (require GPU/large dependencies)
+          # ai-advisor, yolo26-vision-service, terrain-core-service,
+          # hydrology-service, leveling-optimizer-service, edge-orchestrator-service
+          # ─────────────────────────────────────────────────────────────
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Free disk space
         run: |
@@ -319,7 +357,7 @@ jobs:
       - name: Build Docker image
         if: steps.check_dockerfile.outputs.exists == 'true'
         id: build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           # Use repository root as context for shared module access
           context: .
@@ -340,7 +378,7 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         if: steps.check_dockerfile.outputs.exists == 'true'
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }}
           format: 'sarif'
@@ -359,7 +397,7 @@ jobs:
 
       - name: Generate Trivy JSON report
         if: steps.check_dockerfile.outputs.exists == 'true'
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }}
           format: 'json'
@@ -486,7 +524,7 @@ jobs:
 
       - name: Upload vulnerability report
         if: always() && steps.check_dockerfile.outputs.exists == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: trivy-report-${{ matrix.service.name }}
           path: |
@@ -516,7 +554,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Free disk space
         run: |
@@ -629,8 +667,32 @@ jobs:
     needs: [dockerfile-lint, secrets-scan, build-and-test, docker-compose-test]
     if: always()
     steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
+      - name: Download all artifacts with retry
+        id: download
+        continue-on-error: true
+        run: |
+          # Manual retry logic for artifact download
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            echo "Attempt $i: Downloading artifacts..."
+            mkdir -p test-artifacts
+            # Use GitHub API to list and download artifacts
+            if curl -sL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Accept: application/vnd.github+json" \
+               "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" \
+               -o artifacts.json; then
+              echo "✅ Artifact list retrieved"
+              cat artifacts.json | jq -r '.artifacts[].name' || true
+              echo "download_success=true" >> $GITHUB_OUTPUT
+              break
+            fi
+            echo "⚠️ Download failed, waiting $((i * 5)) seconds before retry..."
+            sleep $((i * 5))
+          done
+          echo "download_success=false" >> $GITHUB_OUTPUT
+
+      - name: Download artifacts (fallback)
+        uses: actions/download-artifact@v7
+        continue-on-error: true
         with:
           path: test-artifacts
 
@@ -709,7 +771,7 @@ jobs:
           cat test-summary.json
 
       - name: Upload test summary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: test-summary
           path: test-summary.json

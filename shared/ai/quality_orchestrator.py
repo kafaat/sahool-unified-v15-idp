@@ -44,12 +44,19 @@ Usage:
 from __future__ import annotations
 
 import asyncio
+<<<<<<< HEAD
 import hashlib
 import json
 import os
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+=======
+import json
+import uuid
+from dataclasses import dataclass, field
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -58,9 +65,12 @@ import structlog
 import yaml
 
 from .tool_registry import (
+<<<<<<< HEAD
     Language,
     QualityConfig,
     ToolCategory,
+=======
+>>>>>>> origin/main
     ToolRegistry,
     ToolResult,
     ToolStatus,
@@ -132,7 +142,11 @@ class QualityIssue:
     suggestion: str | None = None
     auto_fixable: bool = False
     fixed: bool = False
+<<<<<<< HEAD
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary - التحويل إلى قاموس"""
@@ -377,7 +391,11 @@ class AutoAudit:
         entry = AuditEntry(
             id=str(uuid.uuid4()),
             action=action,
+<<<<<<< HEAD
             timestamp=datetime.now(timezone.utc),
+=======
+            timestamp=datetime.now(UTC),
+>>>>>>> origin/main
             session_id=self.session_id,
             user_id=self.user_id,
             agent_id=self.agent_id,
@@ -565,7 +583,11 @@ class QualityOrchestrator:
         report = QualityReport(
             id=str(uuid.uuid4()),
             session_id=session_id,
+<<<<<<< HEAD
             started_at=datetime.now(timezone.utc),
+=======
+            started_at=datetime.now(UTC),
+>>>>>>> origin/main
             paths=paths or [],
             languages=languages or [],
         )
@@ -671,7 +693,11 @@ class QualityOrchestrator:
                     )
 
             # Finalize report
+<<<<<<< HEAD
             report.completed_at = datetime.now(timezone.utc)
+=======
+            report.completed_at = datetime.now(UTC)
+>>>>>>> origin/main
             report.duration_ms = (time.time() - start_time) * 1000
             report.status = "completed"
 
@@ -701,7 +727,11 @@ class QualityOrchestrator:
         except Exception as e:
             report.status = "failed"
             report.errors.append(str(e))
+<<<<<<< HEAD
             report.completed_at = datetime.now(timezone.utc)
+=======
+            report.completed_at = datetime.now(UTC)
+>>>>>>> origin/main
             report.duration_ms = (time.time() - start_time) * 1000
 
             if self._audit:

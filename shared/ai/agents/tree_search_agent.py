@@ -20,6 +20,7 @@ Updated: January 2026
 
 from abc import abstractmethod
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Callable, Awaitable
@@ -27,6 +28,13 @@ import asyncio
 import uuid
 import math
 import random
+=======
+from datetime import datetime, UTC
+from enum import Enum
+from typing import Any
+import uuid
+import math
+>>>>>>> origin/main
 
 import structlog
 
@@ -34,11 +42,17 @@ from .base import (
     BaseAutonomousAgent,
     AgentMode,
     AgentStep,
+<<<<<<< HEAD
     AgentTool,
     ToolResult,
 )
 from ..llm_provider import LLMProviderManager, get_llm_manager
 from ..audit import get_audit_logger
+=======
+    ToolResult,
+)
+from ..llm_provider import LLMProviderManager
+>>>>>>> origin/main
 
 logger = structlog.get_logger()
 
@@ -98,7 +112,11 @@ class ThoughtNode:
     execution_time_ms: float = 0.0
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -173,7 +191,11 @@ class ThoughtTree:
     strategy: SearchStrategy = SearchStrategy.BEAM
     max_depth: int = 5
     beam_width: int = 3
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     completed_at: datetime | None = None
 
     def add_node(self, node: ThoughtNode) -> None:
@@ -462,7 +484,11 @@ class TreeSearchAgent(BaseAutonomousAgent):
             Complete ThoughtTree with exploration results
         """
         context = context or {}
+<<<<<<< HEAD
         start_time = datetime.now(timezone.utc)
+=======
+        start_time = datetime.now(UTC)
+>>>>>>> origin/main
 
         # Create initial tree
         root = await self.generate_initial_thought(task, task_ar, context)
@@ -511,7 +537,11 @@ class TreeSearchAgent(BaseAutonomousAgent):
             )
 
         # Finalize
+<<<<<<< HEAD
         self.current_tree.completed_at = datetime.now(timezone.utc)
+=======
+        self.current_tree.completed_at = datetime.now(UTC)
+>>>>>>> origin/main
         self.search_history.append(self.current_tree)
 
         # Audit log

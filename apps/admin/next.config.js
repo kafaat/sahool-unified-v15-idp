@@ -69,10 +69,15 @@ const nextConfig = {
 
   // Note: telemetry is disabled via NEXT_TELEMETRY_DISABLED env var in Dockerfile
 
-  // TypeScript - strict mode enabled for production safety
+  // TypeScript - ignore during build since type-check runs separately in CI
   typescript: {
-    // Do NOT ignore build errors - ensures type safety
-    ignoreBuildErrors: false,
+    // Type checking is done by dedicated 'typecheck' job in CI pipeline
+    ignoreBuildErrors: true,
+  },
+
+  // ESLint - ignore during build since lint runs separately in CI
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 
   // Note: eslint configuration moved to .eslintrc.json or eslint.config.js

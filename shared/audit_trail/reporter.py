@@ -20,7 +20,11 @@ import csv
 import io
 import json
 from collections import Counter
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from uuid import uuid4
 
 import structlog
@@ -124,8 +128,13 @@ class AuditReportGenerator:
             return UserActivitySummary(
                 user_id=user_id,
                 tenant_id=self.tenant_id,
+<<<<<<< HEAD
                 period_start=period_start or datetime.now(timezone.utc),
                 period_end=period_end or datetime.now(timezone.utc),
+=======
+                period_start=period_start or datetime.now(UTC),
+                period_end=period_end or datetime.now(UTC),
+>>>>>>> origin/main
             )
 
         # Get user name from first entry
@@ -292,9 +301,15 @@ class AuditReportGenerator:
             description_ar="تقرير نشاط شامل للفترة المحددة",
             tenant_id=self.tenant_id,
             report_type="activity",
+<<<<<<< HEAD
             period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(timezone.utc)),
             period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(timezone.utc)),
             generated_at=datetime.now(timezone.utc),
+=======
+            period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            generated_at=datetime.now(UTC),
+>>>>>>> origin/main
             total_entries=len(entries),
             entries_by_category=dict(entries_by_category),
             entries_by_severity=dict(entries_by_severity),
@@ -381,9 +396,15 @@ class AuditReportGenerator:
             description_ar="تقرير حالة الامتثال للفترة المحددة",
             tenant_id=self.tenant_id,
             report_type="compliance",
+<<<<<<< HEAD
             period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(timezone.utc)),
             period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(timezone.utc)),
             generated_at=datetime.now(timezone.utc),
+=======
+            period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            generated_at=datetime.now(UTC),
+>>>>>>> origin/main
             total_entries=len(entries),
             entries_by_category=dict(entries_by_category),
             entries_by_severity=dict(entries_by_severity),
@@ -487,9 +508,15 @@ class AuditReportGenerator:
             description_ar=f"تقرير تدقيق امتثال GlobalGAP للرقم {ggn}",
             tenant_id=self.tenant_id,
             report_type="globalgap",
+<<<<<<< HEAD
             period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(timezone.utc)),
             period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(timezone.utc)),
             generated_at=datetime.now(timezone.utc),
+=======
+            period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            generated_at=datetime.now(UTC),
+>>>>>>> origin/main
             total_entries=len(entries),
             entries_by_category=dict(entries_by_category),
             entries_by_severity=dict(entries_by_severity),
@@ -610,9 +637,15 @@ class AuditReportGenerator:
             description_ar="تقرير تدقيق الأمان للفترة المحددة",
             tenant_id=self.tenant_id,
             report_type="security",
+<<<<<<< HEAD
             period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(timezone.utc)),
             period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(timezone.utc)),
             generated_at=datetime.now(timezone.utc),
+=======
+            period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            generated_at=datetime.now(UTC),
+>>>>>>> origin/main
             total_entries=len(entries),
             entries_by_category=dict(entries_by_category),
             entries_by_severity=dict(entries_by_severity),
@@ -659,7 +692,11 @@ class AuditReportGenerator:
         else:
             data = {
                 "entries": [e.to_dict() for e in (entries or self.entries)],
+<<<<<<< HEAD
                 "exported_at": datetime.now(timezone.utc).isoformat(),
+=======
+                "exported_at": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
                 "total_entries": len(entries or self.entries),
             }
 
@@ -903,7 +940,11 @@ class AuditReportGenerator:
 
         xml_lines = ['<?xml version="1.0" encoding="UTF-8"?>']
         xml_lines.append('<audit_trail>')
+<<<<<<< HEAD
         xml_lines.append(f'  <exported_at>{datetime.now(timezone.utc).isoformat()}</exported_at>')
+=======
+        xml_lines.append(f'  <exported_at>{datetime.now(UTC).isoformat()}</exported_at>')
+>>>>>>> origin/main
         xml_lines.append(f'  <total_entries>{len(entries)}</total_entries>')
         xml_lines.append('  <entries>')
 

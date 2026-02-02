@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: hydrology-api
+  description: Hydrology API for water flow analysis, watershed delineation, drainage pattern detection, and irrigation planning
+  tags:
+    - openapi
+    - hydrology
+    - water-management
+    - irrigation
+spec:
+  type: openapi
+  lifecycle: production
+  owner: geospatial-team
+  definition:
+    $text: ./docs/api/hydrology-api.yaml

@@ -158,7 +158,7 @@ class FertilizerRatio:
         """
         return self.n_ratio + self.p_ratio + self.k_ratio
 
-    def normalize(self) -> "FertilizerRatio":
+    def normalize(self) -> FertilizerRatio:
         """
         Normalize ratios to sum to 1.0.
         تطبيع النسب لتكون مجموعها 1.0.
@@ -283,7 +283,7 @@ class EnvironmentThreshold:
         }
 
     @classmethod
-    def for_crop(cls, crop_type: str, growth_stage: CropGrowthStage) -> "EnvironmentThreshold":
+    def for_crop(cls, crop_type: str, growth_stage: CropGrowthStage) -> EnvironmentThreshold:
         """
         Get recommended thresholds for specific crop and growth stage.
         الحصول على العتبات الموصى بها لمحصول ومرحلة نمو محددين.
@@ -368,7 +368,7 @@ class BlockchainRecord:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "BlockchainRecord":
+    def from_dict(cls, data: dict[str, Any]) -> BlockchainRecord:
         """
         Create record from dictionary.
         إنشاء سجل من القاموس.

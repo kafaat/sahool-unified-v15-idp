@@ -18,7 +18,11 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from decimal import Decimal, ROUND_HALF_UP
 from enum import Enum
 from typing import Any
@@ -93,7 +97,11 @@ class FinancialPeriod:
     total_distributed: Decimal = Decimal("0")
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     closed_at: datetime | None = None
     notes: str | None = None
 
@@ -106,7 +114,7 @@ class FinancialPeriod:
         start_date: datetime,
         end_date: datetime,
         **kwargs,
-    ) -> "FinancialPeriod":
+    ) -> FinancialPeriod:
         """Factory method to create a new financial period"""
         return cls(
             period_id=f"FP-{uuid.uuid4().hex[:8].upper()}",
@@ -174,14 +182,22 @@ class Transaction:
     source_ar: str | None = None
 
     # Timing
+<<<<<<< HEAD
     transaction_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    transaction_date: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     effective_date: datetime | None = None
 
     # Status
     status: str = "completed"              # pending, completed, reversed
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     created_by: str | None = None
     notes: str | None = None
     attachments: list[str] = field(default_factory=list)
@@ -195,7 +211,7 @@ class Transaction:
         description_ar: str,
         amount: Decimal,
         **kwargs,
-    ) -> "Transaction":
+    ) -> Transaction:
         """Factory method to create a transaction"""
         return cls(
             transaction_id=f"TXN-{uuid.uuid4().hex[:8].upper()}",
@@ -312,7 +328,11 @@ class DistributionPlan:
     approved_at: datetime | None = None
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     notes: str | None = None
     notes_ar: str | None = None
 
@@ -324,7 +344,7 @@ class DistributionPlan:
         method: RevenueShareMethod,
         total_amount: Decimal,
         **kwargs,
-    ) -> "DistributionPlan":
+    ) -> DistributionPlan:
         """Factory method to create a distribution plan"""
         return cls(
             plan_id=f"DIST-{uuid.uuid4().hex[:8].upper()}",
@@ -421,8 +441,13 @@ class MemberPayment:
     status: PaymentStatus = PaymentStatus.PENDING
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     processed_by: str | None = None
     notes: str | None = None
 
@@ -434,7 +459,7 @@ class MemberPayment:
         cooperative_id: str,
         amount: Decimal,
         **kwargs,
-    ) -> "MemberPayment":
+    ) -> MemberPayment:
         """Factory method to create a payment record"""
         return cls(
             payment_id=f"PAY-{uuid.uuid4().hex[:8].upper()}",
@@ -975,7 +1000,11 @@ class RevenueService:
 
     async def get_current_period(self) -> FinancialPeriod | None:
         """Get the current open period"""
+<<<<<<< HEAD
         now = datetime.now(timezone.utc)
+=======
+        now = datetime.now(UTC)
+>>>>>>> origin/main
         for period in self._periods.values():
             if (
                 period.status == PeriodStatus.OPEN
@@ -991,7 +1020,11 @@ class RevenueService:
             return None
 
         period.status = PeriodStatus.CLOSED
+<<<<<<< HEAD
         period.closed_at = datetime.now(timezone.utc)
+=======
+        period.closed_at = datetime.now(UTC)
+>>>>>>> origin/main
         return period
 
     # ===== Transactions =====
@@ -1176,7 +1209,11 @@ class RevenueService:
 
         plan.status = "approved"
         plan.approved_by = approved_by
+<<<<<<< HEAD
         plan.approved_at = datetime.now(timezone.utc)
+=======
+        plan.approved_at = datetime.now(UTC)
+>>>>>>> origin/main
 
         return plan
 
@@ -1238,10 +1275,17 @@ class RevenueService:
 
         payment.status = PaymentStatus.PAID
         payment.payment_method = payment_method
+<<<<<<< HEAD
         payment.payment_date = datetime.now(timezone.utc)
         payment.reference = reference
         payment.processed_by = processed_by
         payment.updated_at = datetime.now(timezone.utc)
+=======
+        payment.payment_date = datetime.now(UTC)
+        payment.reference = reference
+        payment.processed_by = processed_by
+        payment.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
 
         # Record transaction
         await self._record_distribution_transaction(payment)

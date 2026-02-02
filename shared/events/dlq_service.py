@@ -36,7 +36,11 @@ from __future__ import annotations
 import json
 import logging
 import os
+<<<<<<< HEAD
 from datetime import datetime, timedelta, timezone
+=======
+from datetime import datetime, timedelta, UTC
+>>>>>>> origin/main
 from typing import Any
 
 from fastapi import APIRouter, FastAPI, HTTPException, Query
@@ -282,7 +286,11 @@ class DLQManager:
             # Calculate oldest message age
             oldest_age = None
             if stream_info.state.first_ts:
+<<<<<<< HEAD
                 oldest_age = int((datetime.now(timezone.utc) - stream_info.state.first_ts).total_seconds())
+=======
+                oldest_age = int((datetime.now(UTC) - stream_info.state.first_ts).total_seconds())
+>>>>>>> origin/main
 
             # Get aggregated stats (simplified - would need to scan messages)
             stats = DLQStats(
@@ -381,7 +389,11 @@ class DLQManager:
         # 3. Optionally deleting from DLQ
 
         # Simplified implementation
+<<<<<<< HEAD
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=request.older_than_days)
+=======
+        cutoff_date = datetime.now(UTC) - timedelta(days=request.older_than_days)
+>>>>>>> origin/main
 
         # In production, implement actual archiving logic
         logger.info(f"Would archive messages older than {cutoff_date}")

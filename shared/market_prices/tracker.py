@@ -12,7 +12,11 @@ Updated: January 2026
 
 from __future__ import annotations
 
+<<<<<<< HEAD
 from datetime import datetime, date, timedelta, timezone
+=======
+from datetime import datetime, date, timedelta, UTC
+>>>>>>> origin/main
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -742,7 +746,11 @@ class MarketPriceTracker:
         for alert in alerts:
             if alert.id == alert_id:
                 alert.status = status
+<<<<<<< HEAD
                 alert.updated_at = datetime.now(timezone.utc)
+=======
+                alert.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
                 await self.alert_storage.save_alert(alert)
                 return alert
 
@@ -797,12 +805,20 @@ class MarketPriceTracker:
 
             # Check if alert should trigger
             if alert.check_trigger(price.price, previous_price):
+<<<<<<< HEAD
                 alert.last_triggered_at = datetime.now(timezone.utc)
+=======
+                alert.last_triggered_at = datetime.now(UTC)
+>>>>>>> origin/main
                 alert.trigger_count += 1
                 alert.last_triggered_price = price.price
                 alert.last_triggered_market_id = price.market_id
                 alert.status = AlertStatus.TRIGGERED
+<<<<<<< HEAD
                 alert.updated_at = datetime.now(timezone.utc)
+=======
+                alert.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
 
                 await self.alert_storage.save_alert(alert)
                 triggered_alerts.append(alert)

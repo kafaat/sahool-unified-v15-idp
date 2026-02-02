@@ -36,7 +36,6 @@ from .models import (
     ModelArchitecture,
     ModelCapability,
     ModelDiscoveryResult,
-    ModelEndpoint,
     ModelLicense,
     ModelStatus,
 )

@@ -21,7 +21,11 @@ import re
 import sys
 import traceback
 from contextvars import ContextVar
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, timezone, UTC
+>>>>>>> origin/main
 from typing import Any
 
 # Context variables for request tracing
@@ -232,7 +236,11 @@ class JSONFormatter(logging.Formatter):
             message = SensitiveDataMasker.mask_string(message)
 
         log_entry = {
+<<<<<<< HEAD
             "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+=======
+            "timestamp": datetime.now(UTC).isoformat() + "Z",
+>>>>>>> origin/main
             "level": record.levelname,
             "logger": record.name,
             "message": message,
@@ -297,7 +305,11 @@ class ColoredFormatter(logging.Formatter):
         color = self.COLORS.get(record.levelname, self.RESET)
 
         # Format timestamp
+<<<<<<< HEAD
         timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+=======
+        timestamp = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")
+>>>>>>> origin/main
 
         # Build message
         parts = [

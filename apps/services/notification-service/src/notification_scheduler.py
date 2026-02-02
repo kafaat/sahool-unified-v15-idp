@@ -17,7 +17,11 @@ import heapq
 import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, time, timedelta, timezone
+=======
+from datetime import datetime, time, timedelta, timezone, UTC
+>>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -249,7 +253,11 @@ class NotificationScheduler:
         Returns:
             True if within rate limit
         """
+<<<<<<< HEAD
         now = datetime.now(timezone.utc)
+=======
+        now = datetime.now(UTC)
+>>>>>>> origin/main
         one_minute_ago = now - timedelta(minutes=1)
 
         # Clean old timestamps
@@ -262,7 +270,11 @@ class NotificationScheduler:
 
     def record_send(self, recipient_token: str):
         """تسجيل إرسال للمستخدم"""
+<<<<<<< HEAD
         self._send_timestamps[recipient_token].append(datetime.now(timezone.utc))
+=======
+        self._send_timestamps[recipient_token].append(datetime.now(UTC))
+>>>>>>> origin/main
 
     async def _send_notification(self, scheduled_notif: ScheduledNotification) -> bool:
         """
@@ -297,7 +309,11 @@ class NotificationScheduler:
 
             if result:
                 scheduled_notif.status = "sent"
+<<<<<<< HEAD
                 scheduled_notif.last_attempt = datetime.now(timezone.utc)
+=======
+                scheduled_notif.last_attempt = datetime.now(UTC)
+>>>>>>> origin/main
                 self.record_send(token)
                 logger.info(f"✅ Sent notification {scheduled_notif.notification_id}")
 
@@ -321,13 +337,21 @@ class NotificationScheduler:
             logger.error(f"❌ Failed to send notification {scheduled_notif.notification_id}: {e}")
             scheduled_notif.status = "failed"
             scheduled_notif.retry_count += 1
+<<<<<<< HEAD
             scheduled_notif.last_attempt = datetime.now(timezone.utc)
+=======
+            scheduled_notif.last_attempt = datetime.now(UTC)
+>>>>>>> origin/main
 
             # Retry if possible
             if scheduled_notif.should_retry():
                 # Reschedule with exponential backoff
                 retry_delay = timedelta(minutes=2**scheduled_notif.retry_count)
+<<<<<<< HEAD
                 scheduled_notif.scheduled_time = datetime.now(timezone.utc) + retry_delay
+=======
+                scheduled_notif.scheduled_time = datetime.now(UTC) + retry_delay
+>>>>>>> origin/main
                 heapq.heappush(self._queue, scheduled_notif)
                 logger.info(
                     f"🔄 Retry {scheduled_notif.retry_count}/{scheduled_notif.max_retries} "
@@ -403,7 +427,11 @@ class NotificationScheduler:
 
         while self._running:
             try:
+<<<<<<< HEAD
                 now = datetime.now(timezone.utc)
+=======
+                now = datetime.now(UTC)
+>>>>>>> origin/main
                 batch: list[ScheduledNotification] = []
 
                 # Collect due notifications

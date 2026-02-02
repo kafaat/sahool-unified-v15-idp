@@ -3,6 +3,18 @@
 # Continuous Integration for SAHOOL Platform v16.0.0
 # Updated for apps/services structure
 # ═══════════════════════════════════════════════════════════════════════════════
+#
+# JOB DEPENDENCY GRAPH:
+#   lint ─┬─> test-unified ─────────────────> (upload coverage)
+#         ├─> test-python ─────────────────> build ──> integration
+#         ├─> arch-check
+#         ├─> event-check
+#         ├─> env-validation
+#         ├─> security
+#         └─> governance
+#
+# COVERAGE THRESHOLD: 10% (see MIN_COVERAGE in test-unified job)
+# ═══════════════════════════════════════════════════════════════════════════════
 
 name: CI Pipeline
 
@@ -31,10 +43,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -60,12 +72,12 @@ jobs:
     needs: lint
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Fetch all history for coverage comparison
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'  # Enable pip caching
@@ -80,6 +92,10 @@ jobs:
       - name: Run unified tests with coverage (parallel)
         run: |
           # Run service tests in parallel using pytest-xdist
+          # ─────────────────────────────────────────────────────────────
+          # SERVICE EXCLUSIONS:
+          # - marketplace-service: NestJS/Node.js service (not Python)
+          # ─────────────────────────────────────────────────────────────
           pytest apps/services/ -v -n auto --tb=short --ignore=apps/services/marketplace-service \
             --cov=apps/services --cov=shared --cov-report=xml --cov-report=term-missing || true
 
@@ -111,7 +127,8 @@ jobs:
           # Coverage strategy: Gradually increase threshold as test suite matures
           # SAHOOL Coverage Threshold
           # Target: 60% (pyproject.toml) - incrementally raising from baseline
-          # Current baseline: 10% (measured 2026-01-26)
+          # Current coverage: ~11% - threshold set to 10% to allow CI to pass
+          # TODO: Increase to 15% once more tests are added
           MIN_COVERAGE=10
 
           # Check if coverage meets minimum - FAIL if below threshold
@@ -128,7 +145,7 @@ jobs:
           "
 
       - name: Upload coverage report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: always()
         continue-on-error: true  # Don't fail if token is missing
         with:
@@ -140,7 +157,7 @@ jobs:
           verbose: true
 
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: coverage-report
@@ -156,10 +173,10 @@ jobs:
     needs: lint
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -184,10 +201,10 @@ jobs:
     needs: lint
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -241,10 +258,10 @@ jobs:
           # - apps/services/field-ops              # → field-management-service
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -335,7 +352,7 @@ jobs:
           df -h
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # Login to Docker Hub BEFORE setup-buildx to avoid rate limiting when pulling buildkit image
       # Configure DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets for better reliability
@@ -383,7 +400,9 @@ jobs:
 
       - name: Build Docker image
         if: steps.check-dockerfile.outputs.exists == 'true'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
+        continue-on-error: true
+        id: docker-build
         with:
           # Use repository root as context for shared module access
           context: .
@@ -392,6 +411,16 @@ jobs:
           tags: sahool/${{ matrix.service.name }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Build Docker image (no cache fallback)
+        if: steps.check-dockerfile.outputs.exists == 'true' && steps.docker-build.outcome == 'failure'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.service.path }}/Dockerfile
+          push: false
+          tags: sahool/${{ matrix.service.name }}:${{ github.sha }}
+          no-cache: true
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Environment Validation (Sprint 1 Governance)
@@ -402,10 +431,10 @@ jobs:
     needs: lint
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -429,10 +458,10 @@ jobs:
     needs: lint
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -444,7 +473,7 @@ jobs:
         run: bandit -r apps/ shared/ -ll -x "**/tests/**" || true
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.33.1
         continue-on-error: true  # Informational scan - don't block pipeline
         with:
           scan-type: 'fs'
@@ -456,7 +485,7 @@ jobs:
           # Informational scan - results are reported but don't block pipeline
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         continue-on-error: true
         with:
@@ -483,10 +512,10 @@ jobs:
     needs: lint
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -541,7 +570,7 @@ jobs:
           df -h
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Verify Docker Compose
         run: docker compose version

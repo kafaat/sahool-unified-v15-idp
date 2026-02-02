@@ -1,0 +1,96 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# UltraRAG Workflow: Simple Knowledge Search
+# سير عمل البحث في قاعدة المعرفة البسيط
+# ═══════════════════════════════════════════════════════════════════════════════
+
+id: knowledge_search_workflow
+name: Simple Knowledge Search
+name_ar: البحث البسيط في قاعدة المعرفة
+description: |
+  Basic semantic search workflow for quick information retrieval
+  from the agricultural knowledge base.
+description_ar: |
+  سير عمل بحث دلالي أساسي للاسترجاع السريع للمعلومات
+  من قاعدة المعرفة الزراعية.
+version: "1.0.0"
+
+variables:
+  top_k: 10
+  min_score: 0.3
+  collection: default
+
+entry_point: semantic_search
+
+steps:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 1: Semantic Search
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: semantic_search
+    type: retrieve
+    name: Perform semantic search
+    config:
+      query_var: query
+      collection: "${collection}"
+      top_k: "${top_k}"
+      strategy: adaptive
+      min_score: "${min_score}"
+    next_step: filter_results
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 2: Filter Low-Quality Results
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: filter_results
+    type: filter
+    name: Filter by minimum score
+    config:
+      input: results
+      output: filtered_results
+      min_score: "${min_score}"
+    next_step: check_results
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 3: Check if Results Found
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: check_results
+    type: condition
+    name: Check if results were found
+    config:
+      condition: "has_results"
+      true_branch: format_results
+      false_branch: no_results_response
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 4a: Format Results
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: format_results
+    type: transform
+    name: Format search results
+    config:
+      type: template
+      input: filtered_results
+      output: formatted_output
+      template: |
+        ## Search Results | نتائج البحث
+
+        Found {count} relevant documents:
+
+        {results_formatted}
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 4b: No Results Response
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: no_results_response
+    type: transform
+    name: Generate no results message
+    config:
+      type: template
+      template: |
+        ## No Results Found | لم يتم العثور على نتائج
+
+        No documents matching your query were found.
+        لم يتم العثور على مستندات تطابق استعلامك.
+
+        **Suggestions | اقتراحات:**
+        - Try different keywords | جرب كلمات مفتاحية مختلفة
+        - Broaden your search | وسّع نطاق البحث
+        - Check spelling | تحقق من الإملاء

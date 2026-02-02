@@ -28,7 +28,11 @@ import json
 import logging
 import time
 import uuid
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
@@ -119,7 +123,11 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
         # Prepare request log data
         request_log = {
+<<<<<<< HEAD
             "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+=======
+            "timestamp": datetime.now(UTC).isoformat() + "Z",
+>>>>>>> origin/main
             "service": self.service_name,
             "type": "request",
             "correlation_id": correlation_id,
@@ -163,7 +171,11 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
             # Log exception
             exception_log = {
+<<<<<<< HEAD
                 "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+=======
+                "timestamp": datetime.now(UTC).isoformat() + "Z",
+>>>>>>> origin/main
                 "service": self.service_name,
                 "type": "error",
                 "correlation_id": correlation_id,
@@ -187,7 +199,11 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
             # Prepare response log
             response_log = {
+<<<<<<< HEAD
                 "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+=======
+                "timestamp": datetime.now(UTC).isoformat() + "Z",
+>>>>>>> origin/main
                 "service": self.service_name,
                 "type": "response",
                 "correlation_id": correlation_id,

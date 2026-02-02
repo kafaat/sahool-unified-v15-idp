@@ -43,7 +43,11 @@ import shutil
 import subprocess
 import time
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable
@@ -151,7 +155,11 @@ class ToolResult:
     issues_count: int = 0
     fixed_count: int = 0
     error_message: str | None = None
+<<<<<<< HEAD
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
 
 @dataclass
@@ -718,7 +726,11 @@ class ToolRegistry:
                 else:
                     tool.status = ToolStatus.UNAVAILABLE
 
+<<<<<<< HEAD
                 tool.last_check = datetime.now(timezone.utc)
+=======
+                tool.last_check = datetime.now(UTC)
+>>>>>>> origin/main
                 results[tool.id] = available
 
             except Exception as e:
@@ -800,9 +812,13 @@ class ToolRegistry:
         # Add auto-fix flag if supported
         should_fix = auto_fix if auto_fix is not None else self._config.auto_fix
         if should_fix and ToolCapability.AUTO_FIX in tool.capabilities:
+<<<<<<< HEAD
             if tool_id == "ruff":
                 args.append("--fix")
             elif tool_id == "eslint":
+=======
+            if tool_id == "ruff" or tool_id == "eslint":
+>>>>>>> origin/main
                 args.append("--fix")
             elif tool_id in ("dart_format", "import_sorter"):
                 # These tools fix by default
@@ -870,7 +886,11 @@ class ToolRegistry:
 
             return result
 
+<<<<<<< HEAD
         except asyncio.TimeoutError:
+=======
+        except TimeoutError:
+>>>>>>> origin/main
             duration_ms = (time.time() - start_time) * 1000
             result = ToolResult(
                 tool_id=tool_id,

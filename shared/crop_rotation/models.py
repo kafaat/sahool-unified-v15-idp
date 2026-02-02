@@ -20,7 +20,11 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, date, timezone
+=======
+from datetime import datetime, date, UTC
+>>>>>>> origin/main
 from enum import Enum
 from typing import Any
 import uuid
@@ -324,8 +328,13 @@ class RotationSequence:
     climate_zone: str = "arid"
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     created_by: str = ""
 
     def get_slots_for_year(self, year: int) -> list[RotationSlot]:
@@ -408,8 +417,13 @@ class RotationPlan:
     projected_profit_per_ha: float | None = None
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     created_by: str = ""
     approved_by: str | None = None
     approved_at: datetime | None = None
@@ -537,7 +551,11 @@ class PestBreakRecommendation:
     warnings_ar: list[str] = field(default_factory=list)
 
     # Metadata
+<<<<<<< HEAD
     generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -759,7 +777,11 @@ class SoilHealthReport:
     recommendations_ar: list[str] = field(default_factory=list)
 
     # Metadata
+<<<<<<< HEAD
     generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     generated_by: str = ""
 
     def to_dict(self) -> dict[str, Any]:
@@ -935,7 +957,11 @@ class RotationRecommendation:
     confidence: float = 0.8  # 0-1
 
     # Metadata
+<<<<<<< HEAD
     generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     model_version: str = "1.0.0"
 
     def to_dict(self) -> dict[str, Any]:
@@ -1025,7 +1051,11 @@ class MultiYearPlan:
     key_recommendations_ar: list[str] = field(default_factory=list)
 
     # Metadata
+<<<<<<< HEAD
     generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     generated_by: str = ""
 
     def to_dict(self) -> dict[str, Any]:
@@ -1125,7 +1155,11 @@ class CropHistoryRecord:
     notes_ar: str = ""
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""

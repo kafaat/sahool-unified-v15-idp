@@ -97,22 +97,33 @@ describe("i18n", () => {
       setLocale("ar");
       const result = formatNumber(1234567.89);
       expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
+      expect(result.length).toBeGreaterThan(0);
+      // Should contain formatted number (Arabic or Western digits)
+      expect(result).toMatch(/[\d٠-٩]/);
     });
 
     it("should format numbers in English locale", () => {
       setLocale("en");
       const result = formatNumber(1234567.89);
       expect(result).toContain("1");
+      expect(result).toMatch(/1[,.]?234[,.]?567/);
     });
 
     it("should handle decimal places", () => {
+      setLocale("en");
       const result = formatNumber(1234.5678, { maximumFractionDigits: 2 });
       expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
+      // Should have limited decimal places
+      expect(result).toMatch(/1[,.]?234[.,]\d{1,2}$/);
     });
 
     it("should handle percentage", () => {
+      setLocale("en");
       const result = formatNumber(0.75, { style: "percent" });
       expect(result).toContain("75");
+      expect(result).toMatch(/%|٪/); // Contains % symbol
     });
   });
 
@@ -122,6 +133,10 @@ describe("i18n", () => {
       const date = new Date("2024-01-15");
       const result = formatDate(date);
       expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
+      expect(result.length).toBeGreaterThan(0);
+      // Arabic date should contain Arabic month name or digits
+      expect(result).toMatch(/[\u0600-\u06FF\d٠-٩]/);
     });
 
     it("should format date in English", () => {
@@ -129,36 +144,59 @@ describe("i18n", () => {
       const date = new Date("2024-01-15");
       const result = formatDate(date);
       expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
+      // Should contain year 2024 or month/day
+      expect(result).toMatch(/2024|Jan|15|1/);
     });
 
     it("should handle string dates", () => {
+      setLocale("en");
       const result = formatDate("2024-01-15");
       expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
+      expect(result.length).toBeGreaterThan(0);
     });
 
     it("should handle timestamps", () => {
+      setLocale("en");
       const result = formatDate(1705276800000);
       expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
+      // Timestamp for 2024-01-15
+      expect(result).toMatch(/2024|Jan/);
     });
   });
 
   describe("formatRelativeTime", () => {
     it("should format past time", () => {
+      setLocale("en");
       const pastDate = new Date(Date.now() - 60000); // 1 minute ago
       const result = formatRelativeTime(pastDate);
       expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
+      expect(result.length).toBeGreaterThan(0);
+      // Should contain relative time indicators
+      expect(result.toLowerCase()).toMatch(/ago|minute|قبل|دقيق/i);
     });
 
     it("should format future time", () => {
+      setLocale("en");
       const futureDate = new Date(Date.now() + 3600000); // 1 hour from now
       const result = formatRelativeTime(futureDate);
       expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
+      // Should contain future time indicators
+      expect(result.toLowerCase()).toMatch(/in|hour|ساعة|خلال/i);
     });
 
     it("should handle different time units", () => {
+      setLocale("en");
       const yesterday = new Date(Date.now() - 86400000);
       const result = formatRelativeTime(yesterday);
       expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
+      // Should contain day-related terms
+      expect(result.toLowerCase()).toMatch(/day|yesterday|ago|يوم|أمس/i);
     });
   });
 
@@ -167,17 +205,28 @@ describe("i18n", () => {
       setLocale("ar");
       const result = formatCurrency(1000, "YER");
       expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
+      expect(result.length).toBeGreaterThan(0);
+      // Should contain the number and currency indicator
+      expect(result).toMatch(/1[,.]?000|١[٬،]?٠٠٠/);
     });
 
     it("should format currency in USD", () => {
       setLocale("en");
       const result = formatCurrency(1000, "USD");
       expect(result).toContain("$");
+      expect(result).toMatch(/1[,.]?000/);
     });
 
     it("should handle different currencies", () => {
+      setLocale("en");
       const result = formatCurrency(1000, "SAR");
       expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
+      // Should contain the number
+      expect(result).toMatch(/1[,.]?000/);
+      // Should contain SAR indicator (symbol or code)
+      expect(result).toMatch(/SAR|ر\.س|﷼/);
     });
   });
 

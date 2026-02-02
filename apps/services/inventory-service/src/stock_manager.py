@@ -2,7 +2,11 @@
 Stock Manager - Handles FIFO batch consumption and stock operations
 """
 
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, timezone, UTC
+>>>>>>> origin/main
 
 from prisma import Prisma
 from prisma.models import BatchLot, InventoryItem, StockMovement
@@ -145,7 +149,11 @@ class StockManager:
             data={
                 "currentQuantity": new_current,
                 "availableQuantity": new_available,
+<<<<<<< HEAD
                 "lastRestocked": (datetime.now(timezone.utc) if is_addition else item.lastRestocked),
+=======
+                "lastRestocked": (datetime.now(UTC) if is_addition else item.lastRestocked),
+>>>>>>> origin/main
             },
         )
 
@@ -287,7 +295,11 @@ class StockManager:
         """Get batches expiring within threshold days"""
         from datetime import timedelta
 
+<<<<<<< HEAD
         threshold_date = datetime.now(timezone.utc) + timedelta(days=days_threshold)
+=======
+        threshold_date = datetime.now(UTC) + timedelta(days=days_threshold)
+>>>>>>> origin/main
 
         batches = await self.db.batchlot.find_many(
             where={

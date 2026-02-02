@@ -1,0 +1,73 @@
+# =============================================================================
+# YOLO26 Vision Service Dependencies
+# =============================================================================
+
+# Core Framework
+fastapi>=0.109.0,<0.129.0
+uvicorn[standard]>=0.27.0,<0.35.0
+pydantic>=2.5.0,<3.0.0
+pydantic-settings>=2.1.0,<3.0.0
+
+# Computer Vision & Deep Learning
+# Note: torch and torchvision are installed separately in Dockerfile with CUDA support
+ultralytics>=8.1.0,<9.0.0
+opencv-python-headless>=4.8.0,<5.0.0
+Pillow>=10.0.0,<11.0.0
+numpy>=1.24.0,<2.0.0
+
+# Image Processing
+scikit-image>=0.22.0,<0.25.0
+scipy>=1.11.0,<2.0.0
+
+# Visualization
+matplotlib>=3.7.0,<4.0.0
+
+# Logging & Monitoring
+structlog>=24.1.0,<25.0.0
+python-json-logger>=2.0.7,<3.0.0
+
+# Database (Optional - for result storage)
+asyncpg>=0.29.0,<0.31.0
+psycopg2-binary>=2.9.9,<3.0.0
+
+# Message Queue (Optional - for event publishing)
+nats-py>=2.6.0,<3.0.0
+
+# Caching (Optional)
+redis>=5.0.0,<6.0.0
+aioredis>=2.0.1,<3.0.0
+
+# HTTP Client
+httpx>=0.26.0,<0.28.0
+aiohttp>=3.9.0,<4.0.0
+
+# File Handling
+python-multipart>=0.0.6,<0.1.0
+aiofiles>=23.2.0,<24.0.0
+
+# Utilities
+python-dotenv>=1.0.0,<2.0.0
+tenacity>=8.2.0,<9.0.0
+
+# Performance
+orjson>=3.9.0,<4.0.0
+
+# TensorRT Support (Optional - for GPU optimization)
+# tensorrt>=8.6.0  # Uncomment if TensorRT is available
+
+# ONNX Support (Optional - for model export)
+onnx>=1.15.0,<2.0.0
+onnxruntime-gpu>=1.16.0,<2.0.0; platform_machine == "x86_64"
+
+# =============================================================================
+# Development Dependencies (install with: pip install -r requirements-dev.txt)
+# =============================================================================
+# pytest>=7.4.0
+# pytest-asyncio>=0.21.0
+# pytest-cov>=4.1.0
+# httpx>=0.26.0
+# black>=23.12.0
+# ruff>=0.1.0
+# mypy>=1.8.0
+# types-Pillow>=10.0.0
+# types-redis>=4.6.0

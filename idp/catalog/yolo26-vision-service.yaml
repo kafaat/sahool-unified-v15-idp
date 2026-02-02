@@ -1,0 +1,29 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: yolo26-vision-service
+  description: Advanced agricultural computer vision using YOLO26
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/yolo26-vision-service
+  tags:
+    - python
+    - fastapi
+    - ml
+    - computer-vision
+  links:
+    - url: https://api.sahool.io/v1/vision/docs
+      title: API Documentation
+    - url: https://grafana.sahool.io/d/yolo26
+      title: Grafana Dashboard
+spec:
+  type: service
+  lifecycle: production
+  owner: ai-team
+  system: sahool-platform
+  dependsOn:
+    - component:imagery-service
+    - resource:postgresql
+    - resource:nats
+  providesApis:
+    - yolo26-vision-api

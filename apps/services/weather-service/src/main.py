@@ -46,6 +46,8 @@ except ImportError:
     def setup_security_headers(app):
         pass
 
+from datetime import UTC
+
 from .events import get_publisher
 from .providers import MockWeatherProvider, MultiWeatherService, OpenMeteoProvider
 from .risks import (
@@ -110,7 +112,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SAHOOL Weather Core",
     description="Agricultural weather assessment, forecasting, and alerts",
-    version="15.3.3",
+    version="16.0.0",
     lifespan=lifespan,
 )
 
@@ -135,7 +137,11 @@ def health():
         "status": "healthy",
         "service": "weather-service",
         "version": "16.0.0",
+<<<<<<< HEAD
         "timestamp": datetime.now(timezone.utc).isoformat(),
+=======
+        "timestamp": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
     }
 
 
@@ -151,7 +157,11 @@ def readiness():
         "checks": {
             "service": "ready",
         },
+<<<<<<< HEAD
         "timestamp": datetime.now(timezone.utc).isoformat(),
+=======
+        "timestamp": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
     }
 
 

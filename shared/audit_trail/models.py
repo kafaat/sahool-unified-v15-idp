@@ -22,7 +22,11 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timedelta, timezone
+=======
+from datetime import datetime, timedelta, UTC
+>>>>>>> origin/main
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -284,7 +288,11 @@ class AuditEntry:
     # Identity
     id: str = field(default_factory=lambda: str(uuid4()))
     tenant_id: str = ""
+<<<<<<< HEAD
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     # Actor information
     actor_id: str | None = None
@@ -476,8 +484,13 @@ class UserActivitySummary:
     tenant_id: str = ""
 
     # Period
+<<<<<<< HEAD
     period_start: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     period_end: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    period_start: datetime = field(default_factory=lambda: datetime.now(UTC))
+    period_end: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     # Statistics
     total_actions: int = 0
@@ -548,11 +561,19 @@ class AuditReport:
     # Scope
     tenant_id: str = ""
     report_type: str = "compliance"  # compliance, activity, security, globalgap
+<<<<<<< HEAD
     period_start: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     period_end: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Generation info
     generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    period_start: datetime = field(default_factory=lambda: datetime.now(UTC))
+    period_end: datetime = field(default_factory=lambda: datetime.now(UTC))
+
+    # Generation info
+    generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     generated_by: str | None = None
 
     # Statistics
@@ -649,8 +670,13 @@ class RetentionPolicy:
 
     # Status
     is_active: bool = True
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     created_by: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -687,7 +713,11 @@ class RetentionJob:
     policy_id: str = ""
 
     # Execution info
+<<<<<<< HEAD
     started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     completed_at: datetime | None = None
     status: str = "running"  # running, completed, failed
 

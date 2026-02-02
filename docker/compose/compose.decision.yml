@@ -217,6 +217,62 @@ services:
     - postgres
     - redis
     - nats
+  leveling-optimizer-service:
+    build:
+      context: ../../apps/services/leveling-optimizer-service
+      dockerfile: Dockerfile
+    ports:
+    - 8170:8170
+    environment:
+    - PORT=8170
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8170/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 512Mi
+    depends_on:
+    - terrain-core-service
+  llm-orchestrator-service:
+    build:
+      context: ../../apps/services/llm-orchestrator-service
+      dockerfile: Dockerfile
+    ports:
+    - 8220:8220
+    environment:
+    - PORT=8220
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8220/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 1Gi
+    depends_on:
+    - crop-intelligence-service
+    - advisory-service
+    - irrigation-smart
+    - pest-detection-service
+    - yolo26-vision-service
 networks:
   sahool-network:
     driver: bridge

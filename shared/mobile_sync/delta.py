@@ -15,7 +15,11 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from typing import Any
 
 from .models import (
@@ -252,8 +256,8 @@ def _compute_list_delta(
     changes: list[DeltaChange] = []
 
     # For simple values, track additions and removals
-    old_set = set(str(item) for item in old_list if not isinstance(item, (dict, list)))
-    new_set = set(str(item) for item in new_list if not isinstance(item, (dict, list)))
+    old_set = {str(item) for item in old_list if not isinstance(item, (dict, list))}
+    new_set = {str(item) for item in new_list if not isinstance(item, (dict, list))}
 
     # Determine if we should use full replacement or incremental
     if len(old_list) > 100 or len(new_list) > 100:
@@ -703,7 +707,11 @@ class DeltaSyncManager:
         self._sync_tokens[device_id] = {
             "token": token,
             "timestamp": server_timestamp.isoformat(),
+<<<<<<< HEAD
             "updated_at": datetime.now(timezone.utc).isoformat(),
+=======
+            "updated_at": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
         }
 
     def get_changes_since_token(
@@ -777,7 +785,11 @@ class DeltaSyncManager:
 
         self._version_history[entity_key].append({
             "version": packet.target_version,
+<<<<<<< HEAD
             "timestamp": datetime.now(timezone.utc).isoformat(),
+=======
+            "timestamp": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
             "checksum": packet.checksum,
             "change_count": len(packet.changes),
         })

@@ -8,7 +8,7 @@ Follows SAHOOL service conventions and A2A Protocol.
 
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any
 
 import structlog
@@ -215,7 +215,7 @@ async def liveness():
         "status": "ok",
         "service": SERVICE_NAME,
         "version": SERVICE_VERSION,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -233,7 +233,7 @@ async def readiness(request: Request):
         "service": SERVICE_NAME,
         "version": SERVICE_VERSION,
         "agent": agent.status.value if agent else "not_initialized",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -254,7 +254,7 @@ async def health(request: Request):
             "status": agent.status.value if agent else "not_initialized",
             "metrics": agent.get_metrics() if agent else None,
         },
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 

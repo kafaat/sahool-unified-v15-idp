@@ -1,0 +1,165 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# UltraRAG Workflow: Crop Advisory Pipeline
+# سير عمل استشارات المحاصيل
+# ═══════════════════════════════════════════════════════════════════════════════
+
+id: crop_advisory_workflow
+name: Crop Advisory Pipeline
+name_ar: خط أنابيب استشارات المحاصيل
+description: |
+  Complete RAG workflow for generating agricultural advisory.
+  Combines multiple knowledge sources with reranking and bilingual generation.
+description_ar: |
+  سير عمل RAG كامل لتوليد الاستشارات الزراعية.
+  يجمع بين مصادر معرفة متعددة مع إعادة الترتيب والتوليد ثنائي اللغة.
+version: "1.0.0"
+
+variables:
+  default_top_k: 10
+  default_rerank_k: 5
+  confidence_threshold: 0.6
+  language: "both"
+
+entry_point: expand_query
+
+steps:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 1: Query Expansion
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: expand_query
+    type: transform
+    name: Expand agricultural query
+    config:
+      type: query_expansion
+      input: query
+      output: expanded_queries
+      expansion_method: synonym
+      agricultural_terms: true
+    next_step: retrieve_crop_knowledge
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 2: Retrieve from Crop Knowledge Base
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: retrieve_crop_knowledge
+    type: retrieve
+    name: Search crop knowledge base
+    config:
+      query_var: expanded_queries
+      collection: crop_knowledge
+      top_k: "${default_top_k}"
+      strategy: hybrid
+    next_step: retrieve_pest_knowledge
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 3: Retrieve from Pest Knowledge Base
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: retrieve_pest_knowledge
+    type: retrieve
+    name: Search pest knowledge base
+    config:
+      query_var: query
+      collection: pest_knowledge
+      top_k: 5
+      strategy: dense
+    next_step: aggregate_results
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 4: Aggregate Results
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: aggregate_results
+    type: aggregate
+    name: Combine knowledge sources
+    config:
+      sources:
+        - crop_results
+        - pest_results
+      output: combined_results
+      method: dedupe
+    next_step: rerank_results
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 5: Rerank Results
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: rerank_results
+    type: rerank
+    name: Rerank combined results
+    config:
+      input: combined_results
+      top_k: "${default_rerank_k}"
+      method: cross_encoder
+      model: cross-encoder/ms-marco-MiniLM-L-6-v2
+    next_step: check_confidence
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 6: Check Confidence
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: check_confidence
+    type: condition
+    name: Check result confidence
+    config:
+      condition: "confidence_above:threshold=${confidence_threshold}"
+      true_branch: generate_advisory
+      false_branch: fallback_search
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 7a: Generate Advisory (High Confidence)
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: generate_advisory
+    type: generate
+    name: Generate bilingual advisory
+    config:
+      mode: chain_of_thought
+      language: "${language}"
+      max_tokens: 1500
+      system_prompt: |
+        You are SAHOOL Agricultural Advisor. Provide clear, actionable advice
+        based on the retrieved knowledge. Include:
+        1. Problem identification
+        2. Root cause analysis
+        3. Recommended actions with timing
+        4. Expected outcomes
+        5. Prevention measures
+      system_prompt_ar: |
+        أنت مستشار سهول الزراعي. قدم نصائح واضحة وقابلة للتنفيذ
+        بناءً على المعرفة المسترجعة. تضمن:
+        1. تحديد المشكلة
+        2. تحليل السبب الجذري
+        3. الإجراءات الموصى بها مع التوقيت
+        4. النتائج المتوقعة
+        5. إجراءات الوقاية
+    next_step: format_output
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 7b: Fallback Search (Low Confidence)
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: fallback_search
+    type: retrieve
+    name: Fallback to general agricultural knowledge
+    config:
+      query_var: query
+      collection: general_agriculture
+      top_k: 10
+      strategy: adaptive
+    next_step: generate_advisory
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 8: Format Output
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: format_output
+    type: transform
+    name: Format final output
+    config:
+      type: template
+      template: |
+        ## Agricultural Advisory | الاستشارة الزراعية
+
+        **Query**: {query}
+
+        ### Advisory | التوصية
+        {answer}
+
+        ### Sources | المصادر
+        {sources}
+
+        ### Confidence | مستوى الثقة
+        {confidence}%

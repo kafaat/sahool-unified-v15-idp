@@ -451,6 +451,88 @@ services:
           memory: 512Mi
     depends_on:
     - redis
+  yolo26-vision-service:
+    build:
+      context: ../../apps/services/yolo26-vision-service
+      dockerfile: Dockerfile
+    ports:
+    - 8150:8150
+    environment:
+    - PORT=8150
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8150/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1000'
+          memory: 2Gi
+    depends_on:
+    - imagery-service
+    - analytics-service
+    - alert-service
+  terrain-core-service:
+    build:
+      context: ../../apps/services/terrain-core-service
+      dockerfile: Dockerfile
+    ports:
+    - 8185:8185
+    environment:
+    - PORT=8185
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8185/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 1Gi
+    depends_on:
+    - geo-service
+    - imagery-service
+  hydrology-service:
+    build:
+      context: ../../apps/services/hydrology-service
+      dockerfile: Dockerfile
+    ports:
+    - 8165:8165
+    environment:
+    - PORT=8165
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8165/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 512Mi
+    depends_on:
+    - terrain-core-service
+    - weather-service
 networks:
   sahool-network:
     driver: bridge

@@ -655,7 +655,7 @@ scrape_configs:
   # MCP Server - خادم بروتوكول سياق النموذج
   - job_name: 'mcp-server'
     static_configs:
-      - targets: ['mcp_server:8200']
+      - targets: ['mcp_server:8201']
         labels:
           tier: 'ai-ml'
           component: 'model-context'
@@ -847,3 +847,77 @@ scrape_configs:
           description: 'Prometheus Pushgateway'
           description_ar: 'بوابة دفع المقاييس'
     metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Vision, Terrain & Edge Services - خدمات الرؤية والتضاريس والحافة
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # YOLO26 Vision Service - خدمة الرؤية الحاسوبية
+  - job_name: 'yolo26-vision-service'
+    static_configs:
+      - targets: ['yolo26_vision_service:8150']
+        labels:
+          tier: 'ai-ml'
+          component: 'computer-vision'
+          service: 'yolo26-vision-service'
+          language: 'python'
+          description: 'YOLO26 GPU-Accelerated Vision for Pest/Disease/Weed Detection'
+          description_ar: 'خدمة الرؤية الحاسوبية للكشف عن الآفات والأمراض والأعشاب'
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # Terrain Core Service - خدمة التضاريس الأساسية
+  - job_name: 'terrain-core-service'
+    static_configs:
+      - targets: ['terrain_core_service:8185']
+        labels:
+          tier: 'geospatial'
+          component: 'terrain-analysis'
+          service: 'terrain-core-service'
+          language: 'python'
+          description: 'DEM Processing and Terrain Analysis Service'
+          description_ar: 'خدمة معالجة نموذج الارتفاع الرقمي وتحليل التضاريس'
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  # Hydrology Service - خدمة الهيدرولوجيا
+  - job_name: 'hydrology-service'
+    static_configs:
+      - targets: ['hydrology_service:8165']
+        labels:
+          tier: 'geospatial'
+          component: 'hydrology'
+          service: 'hydrology-service'
+          language: 'python'
+          description: 'Water Flow Analysis and Watershed Delineation'
+          description_ar: 'تحليل تدفق المياه وتحديد مستجمعات المياه'
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  # Leveling Optimizer Service - خدمة تحسين التسوية
+  - job_name: 'leveling-optimizer-service'
+    static_configs:
+      - targets: ['leveling_optimizer_service:8170']
+        labels:
+          tier: 'geospatial'
+          component: 'leveling'
+          service: 'leveling-optimizer-service'
+          language: 'python'
+          description: 'Field Leveling Optimization and Cut/Fill Calculations'
+          description_ar: 'تحسين تسوية الحقول وحسابات القطع والردم'
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  # Edge Orchestrator Service - خدمة تنسيق الحافة
+  - job_name: 'edge-orchestrator-service'
+    static_configs:
+      - targets: ['edge_orchestrator_service:8190']
+        labels:
+          tier: 'edge'
+          component: 'edge-management'
+          service: 'edge-orchestrator-service'
+          language: 'python'
+          description: 'Edge Device Fleet Management and Offline Sync (Jetson Orin)'
+          description_ar: 'إدارة أسطول أجهزة الحافة والمزامنة غير المتصلة'
+    metrics_path: /metrics
+    scrape_interval: 15s

@@ -13,7 +13,11 @@ import json
 import logging
 import os
 from collections.abc import Callable
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, timezone, UTC
+>>>>>>> origin/main
 from typing import Any
 from urllib.parse import urlparse
 
@@ -211,7 +215,11 @@ class NATSSubscriber:
                 event_type=data.get("event_type", ""),
                 source_service=data.get("source_service", ""),
                 timestamp=datetime.fromisoformat(
+<<<<<<< HEAD
                     data.get("timestamp", datetime.now(timezone.utc).isoformat())
+=======
+                    data.get("timestamp", datetime.now(UTC).isoformat())
+>>>>>>> origin/main
                 ),
                 tenant_id=data.get("tenant_id"),
                 field_id=data.get("field_id"),

@@ -20,7 +20,11 @@ Usage:
 
 from __future__ import annotations
 
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -39,7 +43,11 @@ class BaseEvent(BaseModel):
     event_id: str = Field(
         default_factory=lambda: str(uuid4()), description="Unique event identifier"
     )
+<<<<<<< HEAD
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Event timestamp")
+=======
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Event timestamp")
+>>>>>>> origin/main
     version: str = Field(default="1.0", description="Event schema version")
     source_service: str | None = Field(None, description="Service that emitted the event")
     correlation_id: str | None = Field(None, description="Correlation ID for tracing")
@@ -173,7 +181,11 @@ class SatelliteDataReadyEvent(BaseEvent):
     satellite_source: str = Field(..., description="Satellite source (e.g., Sentinel-2, Landsat)")
     capture_date: datetime = Field(..., description="Image capture date")
     processing_date: datetime = Field(
+<<<<<<< HEAD
         default_factory=lambda: datetime.now(timezone.utc), description="Processing date"
+=======
+        default_factory=lambda: datetime.now(UTC), description="Processing date"
+>>>>>>> origin/main
     )
     cloud_coverage: float | None = Field(
         None, ge=0, le=100, description="Cloud coverage percentage"
@@ -218,7 +230,11 @@ class SatelliteAnomalyEvent(BaseEvent):
     affected_area_percentage: float | None = Field(
         None, ge=0, le=100, description="Percentage of field affected"
     )
+<<<<<<< HEAD
     detection_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Detection date")
+=======
+    detection_date: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Detection date")
+>>>>>>> origin/main
 
     # Comparison values
     current_value: float | None = Field(None, description="Current index value")
@@ -310,7 +326,11 @@ class CropStressEvent(BaseEvent):
     soil_moisture_value: float | None = Field(None, ge=0, le=100, description="Soil moisture %")
 
     affected_area_hectares: float | None = Field(None, ge=0, description="Affected area")
+<<<<<<< HEAD
     detection_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Detection date")
+=======
+    detection_date: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Detection date")
+>>>>>>> origin/main
 
     # Recommendations
     action_required: str | None = Field(None, description="Required action")
@@ -454,7 +474,11 @@ class PaymentCompletedEvent(BaseEvent):
     payment_provider: str | None = Field(None, description="Payment provider (Stripe, Tap, etc.)")
 
     transaction_id: str = Field(..., description="Payment gateway transaction ID")
+<<<<<<< HEAD
     payment_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Payment date")
+=======
+    payment_date: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Payment date")
+>>>>>>> origin/main
 
     # Payment details
     description: str | None = Field(None, description="Payment description")
@@ -478,7 +502,11 @@ class SubscriptionRenewedEvent(BaseEvent):
 
     subscription_id: UUID = Field(..., description="Subscription identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
+<<<<<<< HEAD
     renewal_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Renewal date")
+=======
+    renewal_date: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Renewal date")
+>>>>>>> origin/main
     previous_end_date: datetime = Field(..., description="Previous end date")
     new_end_date: datetime = Field(..., description="New end date")
     payment_id: UUID | None = Field(None, description="Related payment")
@@ -751,7 +779,11 @@ class WeChatMessageReceivedEvent(BaseEvent):
     media_id: str | None = Field(None, description="Media ID (for media messages)")
     location_lat: float | None = Field(None, ge=-90, le=90, description="Location latitude")
     location_lon: float | None = Field(None, ge=-180, le=180, description="Location longitude")
+<<<<<<< HEAD
     received_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Message received time")
+=======
+    received_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Message received time")
+>>>>>>> origin/main
 
 
 class WeChatMessageSentEvent(BaseEvent):
@@ -772,7 +804,11 @@ class WeChatMessageSentEvent(BaseEvent):
     content: str | None = Field(None, description="Message content")
     template_id: str | None = Field(None, description="Template ID for template messages")
     status: str = Field(default="sent", description="Send status (sent, delivered, failed)")
+<<<<<<< HEAD
     sent_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Message sent time")
+=======
+    sent_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Message sent time")
+>>>>>>> origin/main
     error_message: str | None = Field(None, description="Error message if failed")
 
 
@@ -793,7 +829,11 @@ class WeChatContactAddedEvent(BaseEvent):
     country: str | None = Field(None, description="Country")
     language: str | None = Field(None, description="Language preference")
     farmer_id: str | None = Field(None, description="Linked farmer ID in CRM")
+<<<<<<< HEAD
     subscribed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Subscription time")
+=======
+    subscribed_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Subscription time")
+>>>>>>> origin/main
 
 
 class WeChatMomentPublishedEvent(BaseEvent):
@@ -811,7 +851,11 @@ class WeChatMomentPublishedEvent(BaseEvent):
     link_url: str | None = Field(None, description="External link URL")
     link_title: str | None = Field(None, description="Link title")
     visibility: str = Field(default="public", description="Visibility (public, contacts, private)")
+<<<<<<< HEAD
     published_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Publish time")
+=======
+    published_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Publish time")
+>>>>>>> origin/main
     target_audience: list[str] = Field(default_factory=list, description="Target audience tags")
 
 

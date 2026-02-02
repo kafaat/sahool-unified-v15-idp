@@ -10,7 +10,11 @@ import logging
 import os
 import traceback
 import uuid
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, timezone, UTC
+>>>>>>> origin/main
 from typing import Any
 
 from fastapi import FastAPI, Request, status
@@ -32,7 +36,11 @@ def get_request_id(request: Request) -> str:
     return (
         request.headers.get("x-request-id")
         or request.headers.get("x-correlation-id")
+<<<<<<< HEAD
         or f"req-{int(datetime.now(timezone.utc).timestamp() * 1000)}-{uuid.uuid4().hex[:8]}"
+=======
+        or f"req-{int(datetime.now(UTC).timestamp() * 1000)}-{uuid.uuid4().hex[:8]}"
+>>>>>>> origin/main
     )
 
 
@@ -97,7 +105,11 @@ def create_error_response(
         "message": sanitize_error_message(message),
         "messageAr": message_ar,
         "retryable": retryable,
+<<<<<<< HEAD
         "timestamp": datetime.now(timezone.utc).isoformat(),
+=======
+        "timestamp": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
         "path": str(request.url.path),
         "requestId": request_id,
     }

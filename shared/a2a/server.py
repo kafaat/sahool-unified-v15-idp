@@ -6,7 +6,11 @@ FastAPI router for A2A protocol endpoints with WebSocket support.
 موجه FastAPI لنقاط نهاية بروتوكول A2A مع دعم WebSocket.
 """
 
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, timezone, UTC
+>>>>>>> origin/main
 from typing import Any
 
 import structlog
@@ -330,7 +334,11 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
             stats = agent.get_stats()
             return {
                 "status": "success",
+<<<<<<< HEAD
                 "timestamp": datetime.now(timezone.utc).isoformat(),
+=======
+                "timestamp": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
                 "stats": stats,
             }
 
@@ -456,7 +464,11 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
             "agent_id": agent.agent_id,
             "agent_name": agent.name,
             "version": agent.version,
+<<<<<<< HEAD
             "timestamp": datetime.now(timezone.utc).isoformat(),
+=======
+            "timestamp": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
             "active_websocket_connections": len(server.active_connections),
         }
 

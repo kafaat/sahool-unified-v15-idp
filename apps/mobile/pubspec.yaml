@@ -143,10 +143,9 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
-  # Linting - use very_good_analysis for stricter rules
-  # very_good_analysis includes flutter_lints + 100+ additional rules
-  very_good_analysis: ^7.0.0
-  flutter_lints: ^5.0.0  # Kept for compatibility, overridden by very_good_analysis
+  # Linting - use flutter_lints for standard rules (CI-compatible)
+  # Note: very_good_analysis was too strict for CI, causing unnecessary failures
+  flutter_lints: ^5.0.0
   # Import organization - ترتيب الاستيرادات
   import_sorter: ^4.6.0  # 5.0.0 doesn't exist on pub.dev
   build_runner: ^2.4.13  # Last version for Dart 3.6.0

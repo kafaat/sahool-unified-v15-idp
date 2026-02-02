@@ -18,7 +18,11 @@ Updated: January 2026
 
 from __future__ import annotations
 
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from typing import Any, Protocol
 from uuid import UUID
 import structlog
@@ -241,7 +245,11 @@ class HMCIntegrationManager:
         """
         self._farm_advisor = advisor
         self._integrations_status["farm_advisor"]["registered"] = True
+<<<<<<< HEAD
         self._integrations_status["farm_advisor"]["registered_at"] = datetime.now(timezone.utc).isoformat()
+=======
+        self._integrations_status["farm_advisor"]["registered_at"] = datetime.now(UTC).isoformat()
+>>>>>>> origin/main
 
         logger.info("farm_advisor_registered")
 
@@ -258,7 +266,11 @@ class HMCIntegrationManager:
         """
         self._irrigation_agent = agent
         self._integrations_status["irrigation_agent"]["registered"] = True
+<<<<<<< HEAD
         self._integrations_status["irrigation_agent"]["registered_at"] = datetime.now(timezone.utc).isoformat()
+=======
+        self._integrations_status["irrigation_agent"]["registered_at"] = datetime.now(UTC).isoformat()
+>>>>>>> origin/main
 
         logger.info("irrigation_agent_registered")
 
@@ -275,7 +287,11 @@ class HMCIntegrationManager:
         """
         self._weather_service = service
         self._integrations_status["weather_service"]["registered"] = True
+<<<<<<< HEAD
         self._integrations_status["weather_service"]["registered_at"] = datetime.now(timezone.utc).isoformat()
+=======
+        self._integrations_status["weather_service"]["registered_at"] = datetime.now(UTC).isoformat()
+>>>>>>> origin/main
 
         logger.info("weather_service_registered")
 
@@ -292,7 +308,11 @@ class HMCIntegrationManager:
         """
         self._fertilization_service = service
         self._integrations_status["fertilization_service"]["registered"] = True
+<<<<<<< HEAD
         self._integrations_status["fertilization_service"]["registered_at"] = datetime.now(timezone.utc).isoformat()
+=======
+        self._integrations_status["fertilization_service"]["registered_at"] = datetime.now(UTC).isoformat()
+>>>>>>> origin/main
 
         logger.info("fertilization_service_registered")
 
@@ -324,7 +344,11 @@ class HMCIntegrationManager:
             return {"error": "Weather service not registered"}
 
         result = {
+<<<<<<< HEAD
             "synced_at": datetime.now(timezone.utc).isoformat(),
+=======
+            "synced_at": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
             "current_conditions": None,
             "forecast": None,
         }
@@ -338,7 +362,11 @@ class HMCIntegrationManager:
                     location, days=7
                 )
 
+<<<<<<< HEAD
             self._integrations_status["weather_service"]["last_sync"] = datetime.now(timezone.utc).isoformat()
+=======
+            self._integrations_status["weather_service"]["last_sync"] = datetime.now(UTC).isoformat()
+>>>>>>> origin/main
 
             logger.info("weather_service_synced", location=location)
 
@@ -378,7 +406,11 @@ class HMCIntegrationManager:
             return {"error": "Fertilization service not registered"}
 
         result = {
+<<<<<<< HEAD
             "synced_at": datetime.now(timezone.utc).isoformat(),
+=======
+            "synced_at": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
             "fertigation_schedule": None,
         }
 
@@ -388,7 +420,11 @@ class HMCIntegrationManager:
                     field_id, crop_type, growth_stage
                 )
 
+<<<<<<< HEAD
             self._integrations_status["fertilization_service"]["last_sync"] = datetime.now(timezone.utc).isoformat()
+=======
+            self._integrations_status["fertilization_service"]["last_sync"] = datetime.now(UTC).isoformat()
+>>>>>>> origin/main
 
             logger.info(
                 "fertilization_service_synced",
@@ -454,7 +490,11 @@ class HMCIntegrationManager:
                         confidence=rec.get("confidence", 0.7),
                         metadata={
                             "advisor_recommendation_id": rec.get("id"),
+<<<<<<< HEAD
                             "integrated_at": datetime.now(timezone.utc).isoformat(),
+=======
+                            "integrated_at": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
                         },
                     )
                     experience_rules.append(rule)
@@ -600,7 +640,11 @@ class HMCIntegrationManager:
         """
         event = {
             "event_type": event_type,
+<<<<<<< HEAD
             "timestamp": datetime.now(timezone.utc).isoformat(),
+=======
+            "timestamp": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
             "data": data,
         }
 

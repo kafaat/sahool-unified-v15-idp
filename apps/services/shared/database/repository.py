@@ -10,6 +10,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from .base import Base
+from datetime import UTC
 
 # Generic type for models
 ModelType = TypeVar("ModelType", bound=Base)
@@ -193,7 +194,11 @@ class BaseRepository(Generic[ModelType]):
 
         from datetime import datetime, timezone
 
+<<<<<<< HEAD
         return self.update(id, {"is_deleted": True, "deleted_at": datetime.now(timezone.utc)}) is not None
+=======
+        return self.update(id, {"is_deleted": True, "deleted_at": datetime.now(UTC)}) is not None
+>>>>>>> origin/main
 
     def get_active(
         self,

@@ -6,7 +6,11 @@ Business logic for tracking farm compliance against IFA v6 standards.
 منطق العمل لتتبع امتثال المزارع لمعايير IFA v6.
 """
 
+<<<<<<< HEAD
 from datetime import datetime, timedelta, timezone
+=======
+from datetime import datetime, timedelta, timezone, UTC
+>>>>>>> origin/main
 from typing import Any
 
 from ..models import (
@@ -105,8 +109,13 @@ class ComplianceService:
             non_compliant_points=non_compliant_points,
             major_must_fails=major_must_fails,
             minor_must_fails=minor_must_fails,
+<<<<<<< HEAD
             assessment_date=datetime.now(timezone.utc),
             next_assessment_date=datetime.now(timezone.utc) + timedelta(days=365),
+=======
+            assessment_date=datetime.now(UTC),
+            next_assessment_date=datetime.now(UTC) + timedelta(days=365),
+>>>>>>> origin/main
         )
 
         return compliance_record
@@ -176,7 +185,11 @@ class ComplianceService:
         # في التطبيق الفعلي، الحفظ في قاعدة البيانات
         key = f"{compliance_record.tenant_id}:{compliance_record.farm_id}"
         compliance_record.id = key
+<<<<<<< HEAD
         compliance_record.updated_at = datetime.now(timezone.utc)
+=======
+        compliance_record.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
         self.compliance_records[key] = compliance_record
         return compliance_record
 
@@ -228,8 +241,13 @@ class ComplianceService:
         """
         # Extract farm_id from compliance_record_id (simplified)
         # استخراج farm_id من compliance_record_id (مبسط)
+<<<<<<< HEAD
         non_conformity.id = f"nc_{datetime.now(timezone.utc).timestamp()}"
         non_conformity.identified_date = datetime.now(timezone.utc)
+=======
+        non_conformity.id = f"nc_{datetime.now(UTC).timestamp()}"
+        non_conformity.identified_date = datetime.now(UTC)
+>>>>>>> origin/main
 
         # In real implementation, save to database
         # في التطبيق الفعلي، الحفظ في قاعدة البيانات
@@ -272,7 +290,11 @@ class ComplianceService:
                     nc.corrective_action_status = status
                     if status == "completed":
                         nc.corrective_action_completed = True
+<<<<<<< HEAD
                         nc.resolved_date = datetime.now(timezone.utc)
+=======
+                        nc.resolved_date = datetime.now(UTC)
+>>>>>>> origin/main
                     return nc
 
         return None
@@ -299,7 +321,11 @@ class ComplianceService:
         # Simulate historical data
         # محاكاة البيانات التاريخية
         for i in range(months):
+<<<<<<< HEAD
             date = datetime.now(timezone.utc) - timedelta(days=30 * i)
+=======
+            date = datetime.now(UTC) - timedelta(days=30 * i)
+>>>>>>> origin/main
             trends.append(
                 {
                     "date": date.isoformat(),

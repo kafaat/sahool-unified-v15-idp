@@ -34,7 +34,7 @@ class MetricsCollector:
     جامع المقاييس لمراقبة الخدمات.
     """
 
-    def __init__(self, service_name: str, registry: Optional["CollectorRegistry"] = None):
+    def __init__(self, service_name: str, registry: CollectorRegistry | None = None):
         self.service_name = service_name
         self.registry = registry
         self._metrics: dict[str, Any] = {}
@@ -168,7 +168,7 @@ class MetricsCollector:
         name: str,
         description: str,
         labels: list[str] | None = None,
-    ) -> Optional["Counter"]:
+    ) -> Counter | None:
         """
         Create a custom counter.
         إنشاء عداد مخصص.
@@ -192,7 +192,7 @@ class MetricsCollector:
         description: str,
         labels: list[str] | None = None,
         buckets: list[float] | None = None,
-    ) -> Optional["Histogram"]:
+    ) -> Histogram | None:
         """
         Create a custom histogram.
         إنشاء مدرج تكراري مخصص.
@@ -216,7 +216,7 @@ class MetricsCollector:
         name: str,
         description: str,
         labels: list[str] | None = None,
-    ) -> Optional["Gauge"]:
+    ) -> Gauge | None:
         """
         Create a custom gauge.
         إنشاء مقياس مخصص.
@@ -302,7 +302,7 @@ class NDVIMetrics(MetricsCollector):
     جامع مقاييس NDVI.
     """
 
-    def __init__(self, registry: Optional["CollectorRegistry"] = None):
+    def __init__(self, registry: CollectorRegistry | None = None):
         super().__init__("ndvi_processor", registry)
         self._setup_ndvi_metrics()
 
@@ -396,7 +396,7 @@ class AgentMetrics(MetricsCollector):
     def __init__(
         self,
         service_name: str = "ai_agent",
-        registry: Optional["CollectorRegistry"] = None,
+        registry: CollectorRegistry | None = None,
     ):
         super().__init__(service_name, registry)
         self._setup_agent_metrics()

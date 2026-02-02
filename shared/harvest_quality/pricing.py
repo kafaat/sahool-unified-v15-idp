@@ -16,7 +16,11 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Any
 import uuid
@@ -618,7 +622,11 @@ class QualityPricingEngine:
                 (calc.final_price_per_unit - base_price) / base_price * 100
             )
 
+<<<<<<< HEAD
         calc.calculated_at = datetime.now(timezone.utc)
+=======
+        calc.calculated_at = datetime.now(UTC)
+>>>>>>> origin/main
 
         return calc
 

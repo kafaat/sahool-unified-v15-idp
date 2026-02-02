@@ -105,17 +105,29 @@ class AnomalyLocation(BaseModel):
     lon: float = Field(..., ge=-180, le=180)
 
     # Optional bounding box for area anomalies
+<<<<<<< HEAD
     bbox_coords: Optional[list[dict]] = Field(
+=======
+    bbox_coords: list[dict] | None = Field(
+>>>>>>> origin/main
         default=None,
         description="List of {lat, lon} for anomaly boundary"
     )
 
     # Affected area
+<<<<<<< HEAD
     affected_area_hectares: Optional[float] = Field(
         default=None, ge=0,
         description="Estimated affected area in hectares"
     )
     affected_area_percent: Optional[float] = Field(
+=======
+    affected_area_hectares: float | None = Field(
+        default=None, ge=0,
+        description="Estimated affected area in hectares"
+    )
+    affected_area_percent: float | None = Field(
+>>>>>>> origin/main
         default=None, ge=0, le=100,
         description="Percentage of field affected"
     )
@@ -132,7 +144,11 @@ class AnomalyDetection(BaseModel):
     # Anomaly classification
     anomaly_type: AnomalyType
     anomaly_type_ar: str = Field(default="", description="Anomaly type in Arabic")
+<<<<<<< HEAD
     sub_type: Optional[str] = Field(
+=======
+    sub_type: str | None = Field(
+>>>>>>> origin/main
         default=None,
         description="More specific classification (e.g., pest species)"
     )
@@ -157,7 +173,11 @@ class AnomalyDetection(BaseModel):
 
     # Evidence
     source_frame_id: str = Field(..., description="Frame where first detected")
+<<<<<<< HEAD
     source_frame_url: Optional[str] = None
+=======
+    source_frame_url: str | None = None
+>>>>>>> origin/main
     additional_frames: list[str] = Field(
         default_factory=list,
         description="Additional supporting frame IDs"
@@ -168,11 +188,19 @@ class AnomalyDetection(BaseModel):
         default="mllm",
         description="Method: mllm, cv_model, change_detection"
     )
+<<<<<<< HEAD
     model_version: Optional[str] = None
 
     # Timestamps
     detected_at: datetime = Field(default_factory=datetime.utcnow)
     first_observed_at: Optional[datetime] = Field(
+=======
+    model_version: str | None = None
+
+    # Timestamps
+    detected_at: datetime = Field(default_factory=datetime.utcnow)
+    first_observed_at: datetime | None = Field(
+>>>>>>> origin/main
         default=None,
         description="When anomaly was first observed (may differ from detected_at)"
     )
@@ -182,7 +210,11 @@ class AnomalyDetection(BaseModel):
         default=False,
         description="Whether this anomaly has occurred before"
     )
+<<<<<<< HEAD
     previous_occurrence_id: Optional[str] = None
+=======
+    previous_occurrence_id: str | None = None
+>>>>>>> origin/main
     progression_status: str = Field(
         default="new",
         description="new, spreading, stable, improving, resolved"
@@ -196,12 +228,21 @@ class AnomalyDetection(BaseModel):
         default="open",
         description="open, acknowledged, investigating, resolved, false_positive"
     )
+<<<<<<< HEAD
     acknowledged_by: Optional[str] = None
     acknowledged_at: Optional[datetime] = None
     resolved_by: Optional[str] = None
     resolved_at: Optional[datetime] = None
     resolution_notes: Optional[str] = None
     resolution_notes_ar: Optional[str] = None
+=======
+    acknowledged_by: str | None = None
+    acknowledged_at: datetime | None = None
+    resolved_by: str | None = None
+    resolved_at: datetime | None = None
+    resolution_notes: str | None = None
+    resolution_notes_ar: str | None = None
+>>>>>>> origin/main
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -256,8 +297,13 @@ class AnomalyAlert(BaseModel):
     recommended_actions_ar: list[str] = Field(default_factory=list)
 
     # Links
+<<<<<<< HEAD
     anomaly_details_url: Optional[str] = None
     frame_url: Optional[str] = None
+=======
+    anomaly_details_url: str | None = None
+    frame_url: str | None = None
+>>>>>>> origin/main
 
     # Distribution
     notify_roles: list[str] = Field(
@@ -271,7 +317,11 @@ class AnomalyAlert(BaseModel):
 
     # Timestamps
     created_at: datetime = Field(default_factory=datetime.utcnow)
+<<<<<<< HEAD
     expires_at: Optional[datetime] = None
+=======
+    expires_at: datetime | None = None
+>>>>>>> origin/main
 
     # Status
     delivered: bool = Field(default=False)
@@ -299,14 +349,22 @@ class AnomalySummary(BaseModel):
 
     # Resolution stats
     resolved_this_period: int
+<<<<<<< HEAD
     average_resolution_time_hours: Optional[float] = None
+=======
+    average_resolution_time_hours: float | None = None
+>>>>>>> origin/main
 
     # Trends
     trend: str = Field(
         default="stable",
         description="increasing, decreasing, stable"
     )
+<<<<<<< HEAD
     comparison_to_previous: Optional[float] = Field(
+=======
+    comparison_to_previous: float | None = Field(
+>>>>>>> origin/main
         default=None,
         description="Percentage change from previous period"
     )

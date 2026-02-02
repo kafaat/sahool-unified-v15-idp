@@ -31,147 +31,267 @@ on:
       - 'packages/i18n/**'
       - 'packages/mock-data/**'
 
+env:
+  NODE_VERSION: '20'
+  NEXT_TELEMETRY_DISABLED: 1
+
 jobs:
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # Build Shared Packages First (required for all other jobs)
+  # ═══════════════════════════════════════════════════════════════════════════════
+  build-packages:
+    name: Build Shared Packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Clean npm cache
+        run: npm cache clean --force
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps --prefer-online
+
+      - name: Clean previous builds
+        run: |
+          rm -rf packages/*/dist packages/*/build
+          echo "✅ Cleaned previous package builds"
+
+      - name: Build shared packages
+        run: |
+          echo "=== Building shared packages ==="
+          npm run build:packages
+          echo "✅ Shared packages built successfully"
+
+      - name: Verify package builds
+        run: |
+          for pkg in shared-types shared-utils i18n shared-ui api-client shared-hooks; do
+            if [ -d "packages/$pkg/dist" ]; then
+              echo "✅ packages/$pkg/dist exists"
+            else
+              echo "⚠️ packages/$pkg/dist missing (may use different output dir)"
+            fi
+          done
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # Lint - Code Quality Checks (warnings only, doesn't block build)
+  # ═══════════════════════════════════════════════════════════════════════════════
   lint:
     name: Lint Frontend
     runs-on: ubuntu-latest
+    needs: build-packages
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps --ignore-scripts
 
       - name: Run ESLint on packages
-        run: npm run lint --workspaces --if-present
-        continue-on-error: true
+        id: lint
+        run: |
+          npm run lint --workspaces --if-present 2>&1 | tee lint-output.txt || true
+          # Check if there are actual errors (not just warnings)
+          if grep -q "error" lint-output.txt; then
+            echo "has_errors=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_errors=false" >> $GITHUB_OUTPUT
+          fi
 
+      - name: Report lint results
+        if: steps.lint.outputs.has_errors == 'true'
+        run: echo "::warning::ESLint found some issues. Review lint-output.txt for details."
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # TypeScript Type Check (warnings only in CI, since builds have ignoreBuildErrors)
+  # ═══════════════════════════════════════════════════════════════════════════════
   typecheck:
     name: TypeScript Check
     runs-on: ubuntu-latest
+    needs: build-packages
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps --ignore-scripts
 
       - name: TypeScript check - Web App
-        run: cd apps/web && npx tsc --noEmit
-        continue-on-error: true
+        id: typecheck-web
+        run: |
+          cd apps/web
+          npx tsc --noEmit 2>&1 | tee ../web-typecheck.txt || true
+          if [ ${PIPESTATUS[0]} -eq 0 ]; then
+            echo "web_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "web_passed=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: TypeScript check - Admin App
-        run: cd apps/admin && npx tsc --noEmit
-        continue-on-error: true
+        id: typecheck-admin
+        run: |
+          cd apps/admin
+          npx tsc --noEmit 2>&1 | tee ../admin-typecheck.txt || true
+          if [ ${PIPESTATUS[0]} -eq 0 ]; then
+            echo "admin_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "admin_passed=false" >> $GITHUB_OUTPUT
+          fi
 
+      - name: Report typecheck results
+        run: |
+          if [ "${{ steps.typecheck-web.outputs.web_passed }}" != "true" ]; then
+            echo "::warning::Web app has TypeScript errors (builds will continue with ignoreBuildErrors)"
+          fi
+          if [ "${{ steps.typecheck-admin.outputs.admin_passed }}" != "true" ]; then
+            echo "::warning::Admin app has TypeScript errors (builds will continue with ignoreBuildErrors)"
+          fi
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # Unit Tests
+  # ═══════════════════════════════════════════════════════════════════════════════
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    needs: build-packages
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps --ignore-scripts
 
       - name: Run Vitest
-        run: npm test -- --reporter=verbose
-        continue-on-error: true
+        id: vitest
+        run: |
+          npm test -- --reporter=verbose 2>&1 | tee test-output.txt || true
+          # Check exit code
+          if grep -q "failed" test-output.txt; then
+            echo "tests_passed=false" >> $GITHUB_OUTPUT
+          else
+            echo "tests_passed=true" >> $GITHUB_OUTPUT
+          fi
 
+      - name: Report test results
+        if: steps.vitest.outputs.tests_passed == 'false'
+        run: echo "::warning::Some tests failed. Review test-output.txt for details."
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # Build Frontend Apps
+  # ═══════════════════════════════════════════════════════════════════════════════
   build:
     name: Build Frontend Apps
     runs-on: ubuntu-latest
-    needs: [lint, typecheck]
+    needs: [build-packages, lint, typecheck]
+    # Run even if lint/typecheck have warnings (they continue-on-error)
+    if: always() && needs.build-packages.result == 'success'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps --ignore-scripts
 
-      - name: Build shared packages
+      - name: Clean previous app builds
+        run: |
+          rm -rf apps/web/.next apps/admin/.next
+          echo "✅ Cleaned previous app builds"
+
+      - name: Rebuild shared packages
         run: npm run build:packages
-        continue-on-error: true
 
       - name: Build Web App
         run: npm run build:web
-        env:
-          NEXT_TELEMETRY_DISABLED: 1
-        continue-on-error: true
 
       - name: Build Admin App
         run: npm run build:admin
-        env:
-          NEXT_TELEMETRY_DISABLED: 1
-        continue-on-error: true
+
+      - name: Verify builds exist
+        run: |
+          if [ -d "apps/web/.next" ]; then
+            echo "✅ Web app build successful"
+          else
+            echo "::error::Web app build failed - .next directory not found"
+            exit 1
+          fi
+          if [ -d "apps/admin/.next" ]; then
+            echo "✅ Admin app build successful"
+          else
+            echo "::error::Admin app build failed - .next directory not found"
+            exit 1
+          fi
 
       - name: Upload Web Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: web-build
           path: apps/web/.next
           retention-days: 7
-          if-no-files-found: warn
 
       - name: Upload Admin Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: admin-build
           path: apps/admin/.next
           retention-days: 7
-          if-no-files-found: warn
 
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # Bundle Analysis (PR only)
+  # ═══════════════════════════════════════════════════════════════════════════════
   bundle-analysis:
     name: Bundle Size Analysis
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && needs.build.result == 'success'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps --ignore-scripts
 
       - name: Build with bundle analyzer
         run: |
           cd apps/web
-          ANALYZE=true npm run build || true
-        env:
-          NEXT_TELEMETRY_DISABLED: 1
+          ANALYZE=true npm run build || echo "Bundle analysis completed with some warnings"
 
       - name: Comment bundle size
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
-            const fs = require('fs');
-            let comment = '## 📦 Bundle Size Analysis\n\n';
-            comment += 'Build completed successfully. Check the artifacts for detailed bundle analysis.\n';
+            const comment = '## 📦 Bundle Size Analysis\n\n' +
+              'Build completed successfully. Check the artifacts for detailed bundle analysis.\n';
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -181,38 +301,65 @@ jobs:
             });
         continue-on-error: true
 
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # Accessibility Check
+  # ═══════════════════════════════════════════════════════════════════════════════
   accessibility:
     name: Accessibility Check
     runs-on: ubuntu-latest
     needs: build
+    if: needs.build.result == 'success'
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
+      - uses: actions/checkout@v6
 
       - name: Check a11y patterns in code
         run: |
           echo "🔍 Checking accessibility patterns..."
+
           # Check for aria-label usage
-          ARIA_COUNT=$(grep -r "aria-" apps/web/src apps/admin/src packages/shared-ui/src --include="*.tsx" | wc -l || echo "0")
+          ARIA_COUNT=$(grep -r "aria-" apps/web/src apps/admin/src packages/shared-ui/src --include="*.tsx" 2>/dev/null | wc -l || echo "0")
           echo "✅ Found $ARIA_COUNT aria attributes"
 
           # Check for alt text on images
-          IMG_WITHOUT_ALT=$(grep -r "<img" apps/web/src apps/admin/src packages/shared-ui/src --include="*.tsx" | grep -v "alt=" | wc -l || echo "0")
+          IMG_WITHOUT_ALT=$(grep -r "<img" apps/web/src apps/admin/src packages/shared-ui/src --include="*.tsx" 2>/dev/null | grep -v "alt=" | wc -l || echo "0")
           if [ "$IMG_WITHOUT_ALT" -gt "0" ]; then
-            echo "⚠️ Found $IMG_WITHOUT_ALT images without alt text"
+            echo "⚠️ Found $IMG_WITHOUT_ALT images potentially without alt text"
           else
-            echo "✅ All images have alt text"
+            echo "✅ All images appear to have alt text"
           fi
 
           # Check for button accessibility
-          BUTTON_COUNT=$(grep -r "<button" apps/web/src apps/admin/src packages/shared-ui/src --include="*.tsx" | wc -l || echo "0")
+          BUTTON_COUNT=$(grep -r "<button" apps/web/src apps/admin/src packages/shared-ui/src --include="*.tsx" 2>/dev/null | wc -l || echo "0")
           echo "📊 Found $BUTTON_COUNT button elements"
-        continue-on-error: true
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # CI Status Summary
+  # ═══════════════════════════════════════════════════════════════════════════════
+  ci-status:
+    name: CI Status
+    runs-on: ubuntu-latest
+    needs: [build-packages, lint, typecheck, test, build]
+    if: always()
+    steps:
+      - name: Check CI Results
+        run: |
+          echo "## Frontend CI Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Packages | ${{ needs.build-packages.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ${{ needs.lint.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| TypeCheck | ${{ needs.typecheck.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Test | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+
+          # Fail if critical jobs failed
+          if [ "${{ needs.build-packages.result }}" == "failure" ]; then
+            echo "::error::Build packages failed"
+            exit 1
+          fi
+          if [ "${{ needs.build.result }}" == "failure" ]; then
+            echo "::error::Frontend build failed"
+            exit 1
+          fi
+          echo "✅ Frontend CI completed successfully"

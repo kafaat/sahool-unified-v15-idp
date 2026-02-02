@@ -21,9 +21,14 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+<<<<<<< HEAD
 import os
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+=======
+from dataclasses import dataclass, field
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -77,7 +82,11 @@ class HardwareProfile:
     supports_flash_attention: bool = False
     supports_tma: bool = False  # Tensor Memory Accelerator (Hopper+)
 
+<<<<<<< HEAD
     detected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    detected_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -174,7 +183,11 @@ class InferenceStats:
     attention_time_ms: float = 0.0
     other_time_ms: float = 0.0
 
+<<<<<<< HEAD
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""

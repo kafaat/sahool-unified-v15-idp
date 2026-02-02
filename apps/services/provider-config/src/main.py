@@ -9,7 +9,11 @@ Port: 8104
 import json
 import os
 import sys
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, timezone, UTC
+>>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -766,7 +770,11 @@ async def publish_config_updated(
             "provider_type": provider_type,
             "key": key,
             "tenant_id": tenant_id,
+<<<<<<< HEAD
             "timestamp": datetime.now(timezone.utc).isoformat(),
+=======
+            "timestamp": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
         }
         await nc.publish(
             "sahool.config.updated",
@@ -801,7 +809,11 @@ async def publish_provider_status_changed(
             "provider_type": provider_type,
             "enabled": enabled,
             "tenant_id": tenant_id,
+<<<<<<< HEAD
             "timestamp": datetime.now(timezone.utc).isoformat(),
+=======
+            "timestamp": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
         }
         await nc.publish(
             "sahool.config.provider_status_changed",
@@ -832,7 +844,11 @@ async def check_map_provider_health(
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
+<<<<<<< HEAD
             last_check=datetime.now(timezone.utc),
+=======
+            last_check=datetime.now(UTC),
+>>>>>>> origin/main
             error_message="Unknown provider",
         )
 
@@ -844,36 +860,58 @@ async def check_map_provider_health(
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
+<<<<<<< HEAD
             start = datetime.now(timezone.utc)
             response = await client.head(test_url)
             response_time = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+=======
+            start = datetime.now(UTC)
+            response = await client.head(test_url)
+            response_time = (datetime.now(UTC) - start).total_seconds() * 1000
+>>>>>>> origin/main
 
             if response.status_code == 200:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.AVAILABLE,
+<<<<<<< HEAD
                     last_check=datetime.now(timezone.utc),
+=======
+                    last_check=datetime.now(UTC),
+>>>>>>> origin/main
                     response_time_ms=response_time,
                 )
             elif response.status_code == 429:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.RATE_LIMITED,
+<<<<<<< HEAD
                     last_check=datetime.now(timezone.utc),
+=======
+                    last_check=datetime.now(UTC),
+>>>>>>> origin/main
                     response_time_ms=response_time,
                 )
             else:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.UNAVAILABLE,
+<<<<<<< HEAD
                     last_check=datetime.now(timezone.utc),
+=======
+                    last_check=datetime.now(UTC),
+>>>>>>> origin/main
                     error_message=f"HTTP {response.status_code}",
                 )
     except Exception as e:
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
+<<<<<<< HEAD
             last_check=datetime.now(timezone.utc),
+=======
+            last_check=datetime.now(UTC),
+>>>>>>> origin/main
             error_message=str(e),
         )
 
@@ -887,7 +925,11 @@ async def check_weather_provider_health(
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
+<<<<<<< HEAD
             last_check=datetime.now(timezone.utc),
+=======
+            last_check=datetime.now(UTC),
+>>>>>>> origin/main
             error_message="Unknown provider",
         )
 
@@ -902,7 +944,11 @@ async def check_weather_provider_health(
             return ProviderStatusResponse(
                 provider_name=provider_name.value,
                 status=ProviderStatus.ERROR,
+<<<<<<< HEAD
                 last_check=datetime.now(timezone.utc),
+=======
+                last_check=datetime.now(UTC),
+>>>>>>> origin/main
                 error_message="API key required",
             )
         test_url = f"{provider['base_url']}/weather?lat=15.37&lon=44.19&appid={api_key}"
@@ -911,42 +957,68 @@ async def check_weather_provider_health(
             return ProviderStatusResponse(
                 provider_name=provider_name.value,
                 status=ProviderStatus.ERROR,
+<<<<<<< HEAD
                 last_check=datetime.now(timezone.utc),
+=======
+                last_check=datetime.now(UTC),
+>>>>>>> origin/main
                 error_message="API key required",
             )
         test_url = f"{provider['base_url']}/current.json?key={api_key}&q=15.37,44.19"
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
+<<<<<<< HEAD
             start = datetime.now(timezone.utc)
             response = await client.get(test_url)
             response_time = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+=======
+            start = datetime.now(UTC)
+            response = await client.get(test_url)
+            response_time = (datetime.now(UTC) - start).total_seconds() * 1000
+>>>>>>> origin/main
 
             if response.status_code == 200:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.AVAILABLE,
+<<<<<<< HEAD
                     last_check=datetime.now(timezone.utc),
+=======
+                    last_check=datetime.now(UTC),
+>>>>>>> origin/main
                     response_time_ms=response_time,
                 )
             elif response.status_code == 429:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.RATE_LIMITED,
+<<<<<<< HEAD
                     last_check=datetime.now(timezone.utc),
+=======
+                    last_check=datetime.now(UTC),
+>>>>>>> origin/main
                 )
             else:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.UNAVAILABLE,
+<<<<<<< HEAD
                     last_check=datetime.now(timezone.utc),
+=======
+                    last_check=datetime.now(UTC),
+>>>>>>> origin/main
                     error_message=f"HTTP {response.status_code}",
                 )
     except Exception as e:
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
+<<<<<<< HEAD
             last_check=datetime.now(timezone.utc),
+=======
+            last_check=datetime.now(UTC),
+>>>>>>> origin/main
             error_message=str(e),
         )
 
@@ -970,7 +1042,11 @@ async def root():
 @app.get("/healthz")
 async def health_check():
     """Health check endpoint"""
+<<<<<<< HEAD
     return {"status": "healthy", "timestamp": datetime.now(timezone.utc)}
+=======
+    return {"status": "healthy", "timestamp": datetime.now(UTC)}
+>>>>>>> origin/main
 
 
 @app.get("/readyz")
@@ -1288,7 +1364,11 @@ async def check_all_free_providers():
     results = {
         "map_providers": [],
         "weather_providers": [],
+<<<<<<< HEAD
         "timestamp": datetime.now(timezone.utc).isoformat(),
+=======
+        "timestamp": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
     }
 
     # Check free map providers

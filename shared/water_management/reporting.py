@@ -18,7 +18,11 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, date, timedelta, timezone
+=======
+from datetime import datetime, date, timedelta, UTC
+>>>>>>> origin/main
 from decimal import Decimal
 from typing import Any
 
@@ -120,7 +124,11 @@ class ComplianceIssue:
     description_ar: str
     regulation_reference: str | None = None
     regulation_reference_ar: str | None = None
+<<<<<<< HEAD
     detected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    detected_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     resolved: bool = False
     resolved_at: datetime | None = None
     resolution_notes: str = ""
@@ -710,7 +718,11 @@ class WaterReportGenerator:
             tenant_id=self.tenant_id,
             farm_id=farm_id,
             report_period=period,
+<<<<<<< HEAD
             generated_at=datetime.now(timezone.utc),
+=======
+            generated_at=datetime.now(UTC),
+>>>>>>> origin/main
         )
 
         # Set farm information
@@ -838,7 +850,11 @@ class WaterReportGenerator:
             tenant_id=self.tenant_id,
             well_id=well.id,
             report_period=period,
+<<<<<<< HEAD
             generated_at=datetime.now(timezone.utc),
+=======
+            generated_at=datetime.now(UTC),
+>>>>>>> origin/main
         )
 
         # Well information
@@ -940,7 +956,11 @@ class WaterReportGenerator:
             tenant_id=self.tenant_id,
             farm_id=farm_id,
             report_period=period,
+<<<<<<< HEAD
             generated_at=datetime.now(timezone.utc),
+=======
+            generated_at=datetime.now(UTC),
+>>>>>>> origin/main
         )
 
         report.total_sources = len(sources)
@@ -1055,7 +1075,11 @@ class WaterReportGenerator:
             tenant_id=self.tenant_id,
             farm_id=farm_id,
             report_period=period,
+<<<<<<< HEAD
             generated_at=datetime.now(timezone.utc),
+=======
+            generated_at=datetime.now(UTC),
+>>>>>>> origin/main
         )
 
         # Farm info

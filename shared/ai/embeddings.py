@@ -22,7 +22,11 @@ from typing import Any
 import hashlib
 import os
 import time
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 
 
 class EmbeddingProvider(str, Enum):
@@ -95,7 +99,11 @@ class EmbeddingResult:
     cached: bool = False
 
     # Timestamps
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""

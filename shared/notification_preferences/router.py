@@ -13,7 +13,11 @@ Updated: January 2026
 from __future__ import annotations
 
 import logging
+<<<<<<< HEAD
 from datetime import datetime, time, timedelta, timezone
+=======
+from datetime import datetime, time, timedelta, UTC
+>>>>>>> origin/main
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -91,7 +95,11 @@ class NotificationRouter:
         decision.language = preferences.language
 
         # Current time with timezone
+<<<<<<< HEAD
         now = current_time or datetime.now(timezone.utc)
+=======
+        now = current_time or datetime.now(UTC)
+>>>>>>> origin/main
 
         # Step 1: Master toggle check
         if not preferences.notifications_enabled:

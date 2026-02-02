@@ -17,7 +17,11 @@ Version: 1.0.0
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, date, timedelta, timezone
+=======
+from datetime import datetime, date, timedelta, UTC
+>>>>>>> origin/main
 from enum import Enum
 
 from .models import (
@@ -99,7 +103,11 @@ class SafetyCheckResult:
     zone_id: str | None = None
 
     # Metadata
+<<<<<<< HEAD
     checked_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    checked_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     checked_by: str | None = None
 
 
@@ -130,12 +138,21 @@ class HeatStressAssessment:
     precautions_ar: list[str] = field(default_factory=list)
 
     # Assessment time
+<<<<<<< HEAD
     assessed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     valid_until: datetime = field(default_factory=lambda: datetime.now(timezone.utc) + timedelta(hours=2))
 
     def is_valid(self) -> bool:
         """Check if assessment is still valid"""
         return datetime.now(timezone.utc) < self.valid_until
+=======
+    assessed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    valid_until: datetime = field(default_factory=lambda: datetime.now(UTC) + timedelta(hours=2))
+
+    def is_valid(self) -> bool:
+        """Check if assessment is still valid"""
+        return datetime.now(UTC) < self.valid_until
+>>>>>>> origin/main
 
 
 @dataclass
@@ -422,7 +439,11 @@ class SafetyComplianceManager:
         check_time: datetime | None = None,
     ) -> list[REIZone]:
         """Get currently active REI zones"""
+<<<<<<< HEAD
         check = check_time or datetime.now(timezone.utc)
+=======
+        check = check_time or datetime.now(UTC)
+>>>>>>> origin/main
         active = []
 
         for zone in self.rei_zones:
@@ -447,7 +468,11 @@ class SafetyComplianceManager:
 
         Returns detailed compliance result with any active restrictions.
         """
+<<<<<<< HEAD
         check = check_time or datetime.now(timezone.utc)
+=======
+        check = check_time or datetime.now(UTC)
+>>>>>>> origin/main
         active_zones = self.get_active_rei_zones(field_id=field_id, check_time=check)
 
         if not active_zones:
@@ -539,7 +564,11 @@ class SafetyComplianceManager:
 
         Returns list of zones that were expired.
         """
+<<<<<<< HEAD
         check = check_time or datetime.now(timezone.utc)
+=======
+        check = check_time or datetime.now(UTC)
+>>>>>>> origin/main
         expired = []
 
         for zone in self.rei_zones:
@@ -981,7 +1010,11 @@ class SafetyComplianceManager:
             status = SafetyCheckStatus.PASSED
             check.is_approved = True
             check.approved_by = approver_id
+<<<<<<< HEAD
             check.approved_at = datetime.now(timezone.utc)
+=======
+            check.approved_at = datetime.now(UTC)
+>>>>>>> origin/main
             message_en = "Safety check passed. Worker cleared for task."
             message_ar = "نجح فحص السلامة. العامل مخول للمهمة."
 
@@ -1084,10 +1117,17 @@ class SafetyComplianceManager:
             if violation.violation_id == violation_id:
                 violation.is_resolved = True
                 violation.resolved_by = resolved_by
+<<<<<<< HEAD
                 violation.resolved_at = datetime.now(timezone.utc)
                 violation.resolution_notes = resolution_notes
                 violation.resolution_notes_ar = resolution_notes_ar
                 violation.updated_at = datetime.now(timezone.utc)
+=======
+                violation.resolved_at = datetime.now(UTC)
+                violation.resolution_notes = resolution_notes
+                violation.resolution_notes_ar = resolution_notes_ar
+                violation.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
                 return violation
         return None
 

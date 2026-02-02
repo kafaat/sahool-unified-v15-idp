@@ -1,0 +1,41 @@
+# SAHOOL Hydrology Service - Staging Environment Values
+# Version: 16.0.0
+
+environment: staging
+deploymentSlot: blue
+
+replicaCount: 1
+
+image:
+  tag: "16.0.0-staging"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 125m
+    memory: 256Mi
+
+env:
+  LOG_LEVEL: "DEBUG"
+  FLOW_ACCUMULATION_THRESHOLD: "100"
+  WATERSHED_MIN_AREA_HA: "1"
+  MANNING_COEFFICIENT: "0.035"
+  RUNOFF_COEFFICIENT: "0.3"
+  ENVIRONMENT: "staging"
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 75
+  targetMemoryUtilizationPercentage: 85
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+vpa:
+  enabled: true
+  updateMode: "Initial"

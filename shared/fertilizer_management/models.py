@@ -7,7 +7,11 @@ Data models for fertilizer inventory, applications, and nutrient tracking.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from decimal import Decimal
 from enum import Enum
 
@@ -166,8 +170,13 @@ class Fertilizer:
     is_active: bool = True
     notes: str = ""
     notes_ar: str = ""
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
     updated_at: datetime = field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
+=======
+    created_at: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+    updated_at: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict:
         """Convert to dictionary"""
@@ -223,8 +232,13 @@ class InventoryItem:
     # Metadata
     supplier: str = ""
     supplier_ar: str = ""
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
     updated_at: datetime = field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
+=======
+    created_at: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+    updated_at: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+>>>>>>> origin/main
     notes: str = ""
     notes_ar: str = ""
 
@@ -242,7 +256,11 @@ class InventoryItem:
     def is_expired(self) -> bool:
         """Check if item is expired"""
         if self.expiry_date:
+<<<<<<< HEAD
             return datetime.now(timezone.utc).replace(tzinfo=None)() > self.expiry_date
+=======
+            return datetime.now(UTC).replace(tzinfo=None)() > self.expiry_date
+>>>>>>> origin/main
         return False
 
     @property
@@ -281,7 +299,11 @@ class FertilizerApplication:
     inventory_item_id: str | None = None
 
     # Application details
+<<<<<<< HEAD
     application_date: datetime = field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
+=======
+    application_date: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+>>>>>>> origin/main
     application_method: ApplicationMethod = ApplicationMethod.BROADCAST
 
     # Quantities
@@ -322,8 +344,13 @@ class FertilizerApplication:
     compliance_notes_ar: str = ""
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
     updated_at: datetime = field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
+=======
+    created_at: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+    updated_at: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+>>>>>>> origin/main
     notes: str = ""
     notes_ar: str = ""
 
@@ -394,7 +421,11 @@ class SoilTest:
 
     # Metadata
     sample_depth_cm: int = 30
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
+=======
+    created_at: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+>>>>>>> origin/main
     notes: str = ""
     notes_ar: str = ""
 
@@ -445,7 +476,11 @@ class NutrientBalance:
     season: str
     crop: str
     crop_ar: str
+<<<<<<< HEAD
     calculation_date: datetime = field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
+=======
+    calculation_date: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+>>>>>>> origin/main
 
     # Soil available (from soil test)
     soil_n_kg_ha: float = 0.0
@@ -507,7 +542,11 @@ class EnvironmentalCompliance:
     Environmental compliance assessment - تقييم الامتثال البيئي
     """
     field_id: str
+<<<<<<< HEAD
     assessment_date: datetime = field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
+=======
+    assessment_date: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+>>>>>>> origin/main
 
     # Overall status
     overall_status: ComplianceLevel = ComplianceLevel.COMPLIANT
@@ -573,7 +612,11 @@ class CostAnalysis:
     """
     field_id: str
     season: str
+<<<<<<< HEAD
     analysis_date: datetime = field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
+=======
+    analysis_date: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+>>>>>>> origin/main
 
     # Area
     area_ha: float = 0.0

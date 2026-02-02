@@ -39,6 +39,21 @@
       "import": "./dist/field.js",
       "require": "./dist/field.js",
       "types": "./dist/field.d.ts"
+    },
+    "./vision": {
+      "import": "./dist/vision.js",
+      "require": "./dist/vision.js",
+      "types": "./dist/vision.d.ts"
+    },
+    "./terrain": {
+      "import": "./dist/terrain.js",
+      "require": "./dist/terrain.js",
+      "types": "./dist/terrain.d.ts"
+    },
+    "./edge": {
+      "import": "./dist/edge.js",
+      "require": "./dist/edge.js",
+      "types": "./dist/edge.d.ts"
     }
   },
   "scripts": {

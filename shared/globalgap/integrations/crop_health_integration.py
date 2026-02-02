@@ -46,7 +46,11 @@ Usage:
 
 from __future__ import annotations
 
+<<<<<<< HEAD
 from datetime import date, datetime, timedelta, timezone
+=======
+from datetime import date, datetime, timedelta, UTC
+>>>>>>> origin/main
 from enum import Enum
 from uuid import UUID, uuid4
 
@@ -184,8 +188,13 @@ class PestDetectionRecord(BaseModel):
 
     # Metadata
     detected_by: UUID | None = Field(None, description="User who detected")
+<<<<<<< HEAD
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     class Config:
         use_enum_values = True
@@ -265,8 +274,13 @@ class PPPApplicationRecord(BaseModel):
 
     # Metadata
     recorded_by: UUID | None = Field(None, description="User who recorded")
+<<<<<<< HEAD
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     class Config:
         use_enum_values = True
@@ -373,7 +387,11 @@ class IPMReport(BaseModel):
     )
 
     # Report metadata
+<<<<<<< HEAD
     generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     generated_by: UUID | None = Field(None, description="User who generated report")
 
     class Config:

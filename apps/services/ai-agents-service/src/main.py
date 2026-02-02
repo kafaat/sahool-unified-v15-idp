@@ -25,7 +25,7 @@ from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Req
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from uuid import uuid4
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -720,7 +720,7 @@ async def execute_agent(
         )
 
     execution_id = str(uuid4())
-    started_at = datetime.now(timezone.utc)
+    started_at = datetime.now(UTC)
     initial_state = "planning" if agent_request.mode in ["plan", "hybrid"] else "executing"
 
     # Create initial response
@@ -827,7 +827,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
         response.status = "completed" if result.get("success") else "failed"
         response.state = "completed"
         response.final_result = result
-        response.completed_at = datetime.now(timezone.utc)
+        response.completed_at = datetime.now(UTC)
 
         if response.started_at and response.completed_at:
             response.total_duration_ms = int(
@@ -843,7 +843,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
                     action_ar=step.get("action_ar"),
                     tool_used=step.get("tool"),
                     result=step.get("result"),
-                    timestamp=step.get("timestamp", datetime.now(timezone.utc)),
+                    timestamp=step.get("timestamp", datetime.now(UTC)),
                     duration_ms=step.get("duration_ms"),
                 ))
 
@@ -860,7 +860,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
         response.status = "failed"
         response.state = "error"
         response.error = f"Validation error: {str(e)}"
-        response.completed_at = datetime.now(timezone.utc)
+        response.completed_at = datetime.now(UTC)
         logger.warning(
             "agent_validation_error",
             execution_id=execution_id,
@@ -873,7 +873,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
         response.status = "timeout"
         response.state = "error"
         response.error = f"Execution timeout: {str(e)}"
-        response.completed_at = datetime.now(timezone.utc)
+        response.completed_at = datetime.now(UTC)
         logger.warning(
             "agent_execution_timeout",
             execution_id=execution_id,
@@ -886,7 +886,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
         response.status = "failed"
         response.state = "error"
         response.error = f"Connection error: {str(e)}"
-        response.completed_at = datetime.now(timezone.utc)
+        response.completed_at = datetime.now(UTC)
         logger.error(
             "agent_connection_error",
             execution_id=execution_id,
@@ -899,7 +899,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
         response.status = "failed"
         response.state = "error"
         response.error = f"Unexpected error: {type(e).__name__}"
-        response.completed_at = datetime.now(timezone.utc)
+        response.completed_at = datetime.now(UTC)
         logger.error(
             "agent_execution_error",
             execution_id=execution_id,
@@ -998,7 +998,7 @@ async def get_execution(
                 steps=[AgentStep(**s) for s in db_exec.get("steps", [])] if db_exec.get("steps") else [],
                 final_result=db_exec.get("result"),
                 error=db_exec.get("error"),
-                started_at=db_exec.get("created_at", datetime.now(timezone.utc)),
+                started_at=db_exec.get("created_at", datetime.now(UTC)),
                 completed_at=db_exec.get("completed_at"),
                 total_duration_ms=db_exec.get("total_duration_ms"),
             )
@@ -1073,7 +1073,7 @@ async def cancel_execution(
     if execution.status == "running":
         execution.status = "cancelled"
         execution.state = "cancelled"
-        execution.completed_at = datetime.now(timezone.utc)
+        execution.completed_at = datetime.now(UTC)
         # Invalidate cache for this execution
         await cache_delete(f"ai_agents:execution_status:{execution_id}")
         return {"message": "Execution cancelled", "execution_id": execution_id}
@@ -1119,7 +1119,7 @@ async def list_executions(
                 steps=[AgentStep(**s) for s in r.get("steps", [])] if r.get("steps") else [],
                 final_result=r.get("result"),
                 error=r.get("error"),
-                started_at=r.get("created_at", datetime.now(timezone.utc)),
+                started_at=r.get("created_at", datetime.now(UTC)),
                 completed_at=r.get("completed_at"),
                 total_duration_ms=r.get("total_duration_ms"),
             )
@@ -1197,7 +1197,7 @@ async def quick_analyze(
             }
         ],
         confidence=0.85,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
     )
 
 

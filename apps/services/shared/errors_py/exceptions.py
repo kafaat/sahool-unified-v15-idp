@@ -6,7 +6,11 @@ Custom Exception Classes
 @description Custom exception classes with bilingual support
 """
 
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, timezone, UTC
+>>>>>>> origin/main
 from typing import Any
 
 from .error_codes import ERROR_REGISTRY, BilingualMessage, ErrorCode
@@ -37,7 +41,11 @@ class AppException(Exception):
         self.http_status = metadata.http_status
         self.retryable = metadata.retryable
         self.details = details or {}
+<<<<<<< HEAD
         self.timestamp = datetime.now(timezone.utc).isoformat()
+=======
+        self.timestamp = datetime.now(UTC).isoformat()
+>>>>>>> origin/main
         self.path: str | None = None
 
         super().__init__(self.message_en)
@@ -390,7 +398,11 @@ class RateLimitException(AppException):
         Create exception with retry information
         إنشاء استثناء مع معلومات إعادة المحاولة
         """
+<<<<<<< HEAD
         retry_after_date = datetime.now(timezone.utc)
+=======
+        retry_after_date = datetime.now(UTC)
+>>>>>>> origin/main
         retry_after_date = retry_after_date.replace(
             second=retry_after_date.second + retry_after_seconds
         )

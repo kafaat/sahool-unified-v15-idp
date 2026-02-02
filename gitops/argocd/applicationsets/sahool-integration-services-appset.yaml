@@ -1,0 +1,110 @@
+# SAHOOL Integration Services ApplicationSet
+# ===========================================
+# Manages deployment of new integration services across environments
+# Services: yolo26-vision, terrain-core, hydrology, leveling-optimizer, edge-orchestrator
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: sahool-integration-services
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: sahool-integration-services
+    app.kubernetes.io/part-of: sahool
+    sahool.io/managed-by: applicationset
+spec:
+  generators:
+    - list:
+        elements:
+          - name: yolo26-vision-service
+            namespace: sahool-intelligence
+            layer: intelligence
+            tier: ai
+            component: vision
+            syncWave: "2"
+            description: "GPU-accelerated computer vision for crop health"
+          - name: terrain-core-service
+            namespace: sahool-intelligence
+            layer: intelligence
+            tier: geospatial
+            component: terrain
+            syncWave: "2"
+            description: "Digital Elevation Model processing"
+          - name: hydrology-service
+            namespace: sahool-intelligence
+            layer: intelligence
+            tier: geospatial
+            component: hydrology
+            syncWave: "2"
+            description: "Water flow and drainage analysis"
+          - name: leveling-optimizer-service
+            namespace: sahool-intelligence
+            layer: intelligence
+            tier: optimization
+            component: leveling
+            syncWave: "2"
+            description: "Field leveling cut-fill optimization"
+          - name: edge-orchestrator-service
+            namespace: sahool-intelligence
+            layer: intelligence
+            tier: infrastructure
+            component: edge
+            syncWave: "1"
+            description: "Edge device orchestration"
+  template:
+    metadata:
+      name: '{{name}}'
+      namespace: argocd
+      labels:
+        app.kubernetes.io/name: '{{name}}'
+        app.kubernetes.io/part-of: sahool
+        app.kubernetes.io/component: '{{component}}'
+        sahool.io/layer: '{{layer}}'
+        sahool.io/tier: '{{tier}}'
+        sahool.io/managed-by: applicationset
+      annotations:
+        argocd.argoproj.io/sync-wave: '{{syncWave}}'
+        sahool.io/description: '{{description}}'
+        notifications.argoproj.io/subscribe.on-sync-succeeded.slack: sahool-deployments
+        notifications.argoproj.io/subscribe.on-sync-failed.slack: sahool-alerts
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: sahool-services
+      source:
+        repoURL: https://github.com/kafaat/sahool-unified-v15-idp
+        targetRevision: HEAD
+        path: 'helm/services/{{name}}'
+        helm:
+          valueFiles:
+            - values.yaml
+            - values-staging.yaml
+          parameters:
+            - name: environment
+              value: staging
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+          allowEmpty: false
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
+          - PruneLast=true
+          - ServerSideApply=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+      revisionHistoryLimit: 10
+      ignoreDifferences:
+        - group: apps
+          kind: Deployment
+          jsonPointers:
+            - /spec/replicas
+  syncPolicy:
+    preserveResourcesOnDeletion: false

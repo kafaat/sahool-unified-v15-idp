@@ -7,7 +7,11 @@ Each tool follows the Model Context Protocol specification for tool invocation.
 """
 
 import os
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, timezone, UTC
+>>>>>>> origin/main
 from typing import Any
 
 import httpx
@@ -241,7 +245,11 @@ class SAHOOLTools:
                 },
                 metadata={
                     "provider": data.get("provider", "unknown"),
+<<<<<<< HEAD
                     "updated_at": datetime.now(timezone.utc).isoformat(),
+=======
+                    "updated_at": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
                 },
             )
         except httpx.HTTPError as e:
@@ -449,7 +457,11 @@ class SAHOOLTools:
                 metadata={
                     "recommendation_basis": data.get("recommendation_basis"),
                     "confidence_score": data.get("confidence_score"),
+<<<<<<< HEAD
                     "generated_at": datetime.now(timezone.utc).isoformat(),
+=======
+                    "generated_at": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
                 },
             )
         except httpx.HTTPError as e:

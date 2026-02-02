@@ -9,7 +9,11 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, timezone, UTC
+>>>>>>> origin/main
 from pathlib import Path
 from typing import Any
 
@@ -400,7 +404,11 @@ async def store_in_memory(
         )
 
     # In production, this would store in Redis or in-memory cache
+<<<<<<< HEAD
     stored_at = datetime.now(timezone.utc).isoformat()
+=======
+    stored_at = datetime.now(UTC).isoformat()
+>>>>>>> origin/main
 
     return MemoryStoreResponse(
         skill_id=request.skill_id,
@@ -432,7 +440,11 @@ async def recall_from_memory(
 
     # In production, this would retrieve from Redis or in-memory cache
     # For now, return simulated response
+<<<<<<< HEAD
     retrieved_at = datetime.now(timezone.utc).isoformat()
+=======
+    retrieved_at = datetime.now(UTC).isoformat()
+>>>>>>> origin/main
 
     return MemoryRecallResponse(
         skill_id=request.skill_id,
@@ -490,7 +502,11 @@ async def evaluate_skill(
     ) or sum(metrics.values()) / len(metrics)
     performance_score = min(1.0, performance_score)
 
+<<<<<<< HEAD
     timestamp = datetime.now(timezone.utc).isoformat()
+=======
+    timestamp = datetime.now(UTC).isoformat()
+>>>>>>> origin/main
 
     # Publish skill evaluation event
     await publish_event(
@@ -576,7 +592,11 @@ async def assess_skill(
         feedback = "We recommend starting with basic training modules."
         feedback_ar = "نوصي بالبدء بوحدات التدريب الأساسية."
 
+<<<<<<< HEAD
     timestamp = datetime.now(timezone.utc).isoformat()
+=======
+    timestamp = datetime.now(UTC).isoformat()
+>>>>>>> origin/main
 
     # Publish skill assessment event to NATS
     await publish_event(
@@ -749,7 +769,11 @@ async def create_learning_path(
     # Get recommended order (by module_id)
     recommended_order = [m.module_id for m in modules]
 
+<<<<<<< HEAD
     timestamp = datetime.now(timezone.utc).isoformat()
+=======
+    timestamp = datetime.now(UTC).isoformat()
+>>>>>>> origin/main
 
     # Publish learning path creation event to NATS
     await publish_event(

@@ -12,7 +12,11 @@ import hashlib
 import mimetypes
 import os
 from abc import ABC, abstractmethod
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from pathlib import Path
 from uuid import uuid4
 
@@ -484,7 +488,11 @@ class DocumentStorageService:
 
         # Generate document ID and storage path
         doc_id = str(uuid4())
+<<<<<<< HEAD
         timestamp = datetime.now(timezone.utc).strftime("%Y/%m/%d")
+=======
+        timestamp = datetime.now(UTC).strftime("%Y/%m/%d")
+>>>>>>> origin/main
         safe_filename = self._sanitize_filename(filename)
         storage_path = f"{tenant_id}/{farm_id}/{timestamp}/{doc_id}_{safe_filename}"
 
@@ -586,7 +594,11 @@ class DocumentStorageService:
         else:
             # Soft delete - just mark as archived
             document.status = DocumentStatus.ARCHIVED
+<<<<<<< HEAD
             document.updated_at = datetime.now(timezone.utc)
+=======
+            document.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
 
         logger.info(
             "document_deleted",
@@ -718,7 +730,11 @@ class DocumentStorageService:
         if status is not None:
             document.status = status
 
+<<<<<<< HEAD
         document.updated_at = datetime.now(timezone.utc)
+=======
+        document.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
 
         logger.info(
             "document_updated",
@@ -775,7 +791,11 @@ class DocumentStorageService:
 
         # Archive old version
         old_document.status = DocumentStatus.ARCHIVED
+<<<<<<< HEAD
         old_document.updated_at = datetime.now(timezone.utc)
+=======
+        old_document.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
 
         logger.info(
             "document_version_created",
@@ -819,7 +839,11 @@ class DocumentStorageService:
             if hasattr(category, key) and value is not None:
                 setattr(category, key, value)
 
+<<<<<<< HEAD
         category.updated_at = datetime.now(timezone.utc)
+=======
+        category.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
         return category
 
     # ─────────────────────────────────────────────────────────────────────────

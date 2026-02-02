@@ -139,7 +139,7 @@ class VectorDocument:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "VectorDocument":
+    def from_dict(cls, data: dict[str, Any]) -> VectorDocument:
         """Create from dictionary"""
         return cls(
             id=data["id"],

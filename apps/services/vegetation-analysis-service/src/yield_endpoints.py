@@ -36,7 +36,11 @@ except (NameError, ImportError, AttributeError):
 
 import logging
 import uuid
+<<<<<<< HEAD
 from datetime import date, timedelta, timezone
+=======
+from datetime import date, timedelta, timezone, UTC
+>>>>>>> origin/main
 
 from fastapi import HTTPException, Path, Query
 from pydantic import BaseModel, Field
@@ -325,7 +329,11 @@ async def get_yield_history(
             base_yield = 2.0
 
         # Historical prediction (months ago)
+<<<<<<< HEAD
         prediction_date = datetime.now(timezone.utc) - timedelta(days=120 * i)
+=======
+        prediction_date = datetime.now(UTC) - timedelta(days=120 * i)
+>>>>>>> origin/main
 
         # Simulated prediction and actual yield
         predicted = round(base_yield * random.uniform(0.7, 1.3), 2)

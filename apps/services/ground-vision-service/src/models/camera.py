@@ -95,7 +95,11 @@ class TowerCamera(BaseModel):
     extrinsics: CameraExtrinsics
 
     # Field of View coverage (GeoJSON polygon)
+<<<<<<< HEAD
     fov_polygon: Optional[dict] = Field(
+=======
+    fov_polygon: dict | None = Field(
+>>>>>>> origin/main
         default=None,
         description="Ground coverage area as GeoJSON Polygon"
     )
@@ -109,7 +113,11 @@ class TowerCamera(BaseModel):
 
     # Status
     status: CameraStatus = Field(default=CameraStatus.OFFLINE)
+<<<<<<< HEAD
     last_frame_at: Optional[datetime] = None
+=======
+    last_frame_at: datetime | None = None
+>>>>>>> origin/main
 
     # Multi-tenancy
     tenant_id: str = Field(..., description="Tenant identifier")
@@ -121,7 +129,11 @@ class TowerCamera(BaseModel):
     # Timestamps
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+<<<<<<< HEAD
     calibrated_at: Optional[datetime] = None
+=======
+    calibrated_at: datetime | None = None
+>>>>>>> origin/main
 
     class Config:
         json_schema_extra = {
@@ -156,9 +168,18 @@ class CameraCreateRequest(BaseModel):
 
 class CameraUpdateRequest(BaseModel):
     """Request model for updating camera configuration"""
+<<<<<<< HEAD
     name: Optional[str] = None
     name_ar: Optional[str] = None
     intrinsics: Optional[CameraIntrinsics] = None
     extrinsics: Optional[CameraExtrinsics] = None
     status: Optional[CameraStatus] = None
     fields_covered: Optional[list[str]] = None
+=======
+    name: str | None = None
+    name_ar: str | None = None
+    intrinsics: CameraIntrinsics | None = None
+    extrinsics: CameraExtrinsics | None = None
+    status: CameraStatus | None = None
+    fields_covered: list[str] | None = None
+>>>>>>> origin/main

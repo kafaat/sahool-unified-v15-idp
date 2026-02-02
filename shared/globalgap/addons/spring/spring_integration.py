@@ -12,7 +12,11 @@ usage alerts, and seasonal pattern tracking.
 from __future__ import annotations
 
 import logging
+<<<<<<< HEAD
 from datetime import date, datetime, timezone
+=======
+from datetime import date, datetime, UTC
+>>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -65,7 +69,11 @@ class WaterUsageAlert(BaseModel):
     source_id: str | None = Field(None, description="Water source ID / معرف مصدر المياه")
 
     triggered_date: datetime = Field(
+<<<<<<< HEAD
         default_factory=lambda: datetime.now(timezone.utc), description="Trigger date / تاريخ التفعيل"
+=======
+        default_factory=lambda: datetime.now(UTC), description="Trigger date / تاريخ التفعيل"
+>>>>>>> origin/main
     )
 
     title_en: str = Field(..., description="Alert title (English) / عنوان التنبيه")
@@ -414,7 +422,7 @@ class SpringIntegration:
 
     def push_alerts_to_service(
         self,
-        alerts: list["WaterUsageAlert"],
+        alerts: list[WaterUsageAlert],
         timeout: float = 30.0,
     ) -> dict[str, Any]:
         """
@@ -743,7 +751,11 @@ class SpringIntegration:
                     "next_scheduled": "2025-01-15",
                 }
             ],
+<<<<<<< HEAD
             "last_system_check": datetime.now(timezone.utc).isoformat(),
+=======
+            "last_system_check": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
             "overall_system_health": "GOOD",
             "system_uptime_percent": 98.5,
         }
@@ -960,7 +972,11 @@ class SpringIntegration:
             alert_type = AlertType.PERMIT_LIMIT_APPROACHING
 
         return WaterUsageAlert(
+<<<<<<< HEAD
             alert_id=f"ALERT-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
+=======
+            alert_id=f"ALERT-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}",
+>>>>>>> origin/main
             alert_type=alert_type,
             severity=severity,
             farm_id=self.farm_id,
@@ -984,7 +1000,11 @@ class SpringIntegration:
         increase_pct = (current_usage - previous_usage) / previous_usage * 100
 
         return WaterUsageAlert(
+<<<<<<< HEAD
             alert_id=f"ALERT-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
+=======
+            alert_id=f"ALERT-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}",
+>>>>>>> origin/main
             alert_type=AlertType.EXCESSIVE_USAGE,
             severity=AlertSeverity.WARNING,
             farm_id=self.farm_id,
@@ -1006,7 +1026,11 @@ class SpringIntegration:
         severity = AlertSeverity.CRITICAL if level_change_m < -3.0 else AlertSeverity.WARNING
 
         return WaterUsageAlert(
+<<<<<<< HEAD
             alert_id=f"ALERT-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
+=======
+            alert_id=f"ALERT-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}",
+>>>>>>> origin/main
             alert_type=AlertType.GROUNDWATER_DEPLETION,
             severity=severity,
             farm_id=self.farm_id,
@@ -1027,7 +1051,11 @@ class SpringIntegration:
     def _create_qat_water_use_alert(self, qat_percentage: float) -> WaterUsageAlert:
         """Create alert for high qat water usage (Yemen-specific)"""
         return WaterUsageAlert(
+<<<<<<< HEAD
             alert_id=f"ALERT-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
+=======
+            alert_id=f"ALERT-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}",
+>>>>>>> origin/main
             alert_type=AlertType.QAT_VS_FOOD_WATER_USE,
             severity=AlertSeverity.INFO,
             farm_id=self.farm_id,

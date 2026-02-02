@@ -16,12 +16,19 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+<<<<<<< HEAD
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, TypeVar
 import asyncio
+=======
+from dataclasses import dataclass, field
+from datetime import datetime, UTC
+from enum import Enum
+from typing import Any
+>>>>>>> origin/main
 import uuid
 import json
 
@@ -212,7 +219,11 @@ class JudgeEvaluation:
     escalation_reason: str | None = None
     judge_model: str = ""
     judge_confidence: float = 0.8
+<<<<<<< HEAD
     evaluated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    evaluated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -251,7 +262,11 @@ class HumanFeedback:
     comment_ar: str = ""
     correction: str | None = None   # User's correction
     metadata: dict[str, Any] = field(default_factory=dict)
+<<<<<<< HEAD
     received_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    received_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -281,7 +296,11 @@ class OutcomeFeedback:
     metrics: dict[str, float] = field(default_factory=dict)  # e.g., yield_improvement, cost_savings
     details: str = ""
     details_ar: str = ""
+<<<<<<< HEAD
     measured_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    measured_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     time_to_measure_hours: float = 0.0
 
     def to_dict(self) -> dict[str, Any]:
@@ -312,8 +331,13 @@ class FeedbackRecord:
     outcome: OutcomeFeedback | None = None
     combined_score: float = 0.0     # Weighted combination of all feedback
     reward: float = 0.0             # Reward signal for learning
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def calculate_combined_score(self) -> float:
         """Calculate combined score from all feedback sources."""
@@ -757,7 +781,11 @@ class AgentFeedbackLoop:
 
         record = self.records[execution_id]
         record.judge_evaluation = evaluation
+<<<<<<< HEAD
         record.updated_at = datetime.now(timezone.utc)
+=======
+        record.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
 
         # Update scores
         record.combined_score = record.calculate_combined_score()
@@ -856,7 +884,11 @@ class AgentFeedbackLoop:
         time_to_measure = 0.0
         if record:
             time_to_measure = (
+<<<<<<< HEAD
                 datetime.now(timezone.utc) - record.created_at
+=======
+                datetime.now(UTC) - record.created_at
+>>>>>>> origin/main
             ).total_seconds() / 3600
 
         outcome = OutcomeFeedback(
@@ -880,7 +912,11 @@ class AgentFeedbackLoop:
 
         record = self.records[execution_id]
         record.outcome = outcome
+<<<<<<< HEAD
         record.updated_at = datetime.now(timezone.utc)
+=======
+        record.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
 
         # Update scores
         record.combined_score = record.calculate_combined_score()
@@ -907,7 +943,11 @@ class AgentFeedbackLoop:
 
         record = self.records[execution_id]
         record.human_feedback.append(feedback)
+<<<<<<< HEAD
         record.updated_at = datetime.now(timezone.utc)
+=======
+        record.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
 
         # Update scores
         record.combined_score = record.calculate_combined_score()

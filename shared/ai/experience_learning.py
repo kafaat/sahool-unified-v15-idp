@@ -68,7 +68,7 @@ class ExecutionStep:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ExecutionStep":
+    def from_dict(cls, data: dict[str, Any]) -> ExecutionStep:
         return cls(
             step_number=data["step_number"],
             action=data["action"],
@@ -121,7 +121,7 @@ class TaskExecution:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "TaskExecution":
+    def from_dict(cls, data: dict[str, Any]) -> TaskExecution:
         return cls(
             id=data["id"],
             task_type=data["task_type"],
@@ -193,7 +193,7 @@ class SOP:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "SOP":
+    def from_dict(cls, data: dict[str, Any]) -> SOP:
         return cls(
             id=data["id"],
             task_type=data["task_type"],

@@ -6,7 +6,11 @@ REFACTORED: Now uses shared EventPublisher for consistency across services
 """
 
 import logging
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, timezone, UTC
+>>>>>>> origin/main
 from typing import Any
 from uuid import uuid4
 
@@ -104,7 +108,11 @@ class NatsPublisher:
             event = {
                 "eventId": str(uuid4()),
                 "eventType": event_type,
+<<<<<<< HEAD
                 "timestamp": datetime.now(timezone.utc).isoformat(),
+=======
+                "timestamp": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
                 "version": "1.0",
                 "sourceService": self._service_name,
                 "payload": payload,
@@ -175,7 +183,11 @@ async def publish_compliance_updated(
             "overallStatus": overall_status,
             "compliancePercentage": compliance_percentage,
             "changes": changes or {},
+<<<<<<< HEAD
             "updatedAt": datetime.now(timezone.utc).isoformat(),
+=======
+            "updatedAt": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
         },
     )
 
@@ -219,7 +231,11 @@ async def publish_audit_completed(
             "auditStatus": audit_status,
             "overallScore": overall_score,
             "auditorName": auditor_name,
+<<<<<<< HEAD
             "completedAt": datetime.now(timezone.utc).isoformat(),
+=======
+            "completedAt": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
         },
     )
 
@@ -260,7 +276,11 @@ async def publish_non_conformity_created(
             "controlPointNumber": control_point_number,
             "severity": severity,
             "description": description,
+<<<<<<< HEAD
             "createdAt": datetime.now(timezone.utc).isoformat(),
+=======
+            "createdAt": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
         },
     )
 
@@ -298,7 +318,11 @@ async def publish_non_conformity_resolved(
             "tenantId": tenant_id,
             "resolutionDescription": resolution_description,
             "resolvedBy": resolved_by,
+<<<<<<< HEAD
             "resolvedAt": datetime.now(timezone.utc).isoformat(),
+=======
+            "resolvedAt": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
         },
     )
 
@@ -342,7 +366,11 @@ async def publish_certificate_created(
             "certificateType": certificate_type,
             "issuedDate": issued_date,
             "expiryDate": expiry_date,
+<<<<<<< HEAD
             "createdAt": datetime.now(timezone.utc).isoformat(),
+=======
+            "createdAt": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
         },
     )
 
@@ -380,7 +408,11 @@ async def publish_certificate_renewed(
             "tenantId": tenant_id,
             "ggnNumber": ggn_number,
             "newExpiryDate": new_expiry_date,
+<<<<<<< HEAD
             "renewedAt": datetime.now(timezone.utc).isoformat(),
+=======
+            "renewedAt": datetime.now(UTC).isoformat(),
+>>>>>>> origin/main
         },
     )
 

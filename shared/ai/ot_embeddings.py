@@ -19,7 +19,11 @@ Updated: January 2026
 
 import math
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from typing import Any
 
 
@@ -74,7 +78,11 @@ class OTMatchResult:
     converged: bool = False
     computation_time_ms: float = 0.0
 
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""

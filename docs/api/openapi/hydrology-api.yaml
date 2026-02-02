@@ -1,0 +1,2078 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Hydrology Service API
+  description: |
+    # SAHOOL Hydrology Service API
+    ## واجهة برمجة تطبيقات خدمة الهيدرولوجيا
+
+    Comprehensive water resource management and hydrological analysis for precision agriculture.
+    إدارة شاملة لموارد المياه والتحليل الهيدرولوجي للزراعة الدقيقة.
+
+    ## Capabilities | القدرات
+
+    - **Water Balance**: Calculate field-level water balance
+      الميزان المائي: حساب الميزان المائي على مستوى الحقل
+    - **Runoff Analysis**: Estimate surface runoff and infiltration
+      تحليل الجريان السطحي: تقدير الجريان السطحي والتسرب
+    - **Groundwater Modeling**: Aquifer monitoring and recharge estimation
+      نمذجة المياه الجوفية: مراقبة الخزان الجوفي وتقدير التغذية
+    - **Drainage Design**: Subsurface drainage system design
+      تصميم الصرف: تصميم نظام الصرف تحت السطحي
+    - **Flood Risk**: Flash flood risk assessment
+      مخاطر الفيضان: تقييم مخاطر الفيضانات الخاطفة
+    - **Water Quality**: Monitor irrigation water quality
+      جودة المياه: مراقبة جودة مياه الري
+
+    ## Data Integration | تكامل البيانات
+
+    | Source | Type | Update Frequency |
+    |--------|------|------------------|
+    | Weather Service | Precipitation, ET | Real-time |
+    | IoT Sensors | Soil moisture, water levels | 15 minutes |
+    | Satellite | Surface water extent | Daily |
+    | Well Monitoring | Groundwater levels | Hourly |
+
+    ## Authentication | المصادقة
+    All endpoints require JWT Bearer token authentication.
+    جميع النقاط النهائية تتطلب مصادقة برمز JWT Bearer.
+
+    ## Rate Limiting | حدود الطلبات
+    - Standard: 60 requests/minute | 60 طلب في الدقيقة
+    - Premium: 200 requests/minute | 200 طلب في الدقيقة
+
+  version: 1.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.io
+    url: https://sahool.io
+  license:
+    name: Proprietary
+    url: https://sahool.io/terms
+
+servers:
+  - url: https://api.sahool.io/v1/hydrology
+    description: Production server | خادم الإنتاج
+  - url: https://staging-api.sahool.io/v1/hydrology
+    description: Staging server | خادم الاختبار
+  - url: http://localhost:8156/api/v1
+    description: Local development | التطوير المحلي
+
+tags:
+  - name: Water Balance
+    description: |
+      Field-level water balance calculations
+      حسابات الميزان المائي على مستوى الحقل
+  - name: Runoff
+    description: |
+      Surface runoff and infiltration analysis
+      تحليل الجريان السطحي والتسرب
+  - name: Groundwater
+    description: |
+      Groundwater monitoring and modeling
+      مراقبة ونمذجة المياه الجوفية
+  - name: Drainage
+    description: |
+      Drainage system analysis and design
+      تحليل وتصميم نظام الصرف
+  - name: Flood Risk
+    description: |
+      Flood risk assessment and alerts
+      تقييم مخاطر الفيضان والتنبيهات
+  - name: Water Quality
+    description: |
+      Irrigation water quality analysis
+      تحليل جودة مياه الري
+  - name: Wells
+    description: |
+      Well and pump management
+      إدارة الآبار والمضخات
+  - name: Health Check
+    description: |
+      Service health and status endpoints
+      نقاط فحص صحة الخدمة
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token | رمز مصادقة JWT
+
+  parameters:
+    TenantId:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      description: Tenant identifier | معرّف المستأجر
+      schema:
+        type: string
+        format: uuid
+
+    RequestId:
+      name: X-Request-ID
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+
+    FieldId:
+      name: field_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    DateFrom:
+      name: from
+      in: query
+      description: Start date (YYYY-MM-DD)
+      schema:
+        type: string
+        format: date
+
+    DateTo:
+      name: to
+      in: query
+      description: End date (YYYY-MM-DD)
+      schema:
+        type: string
+        format: date
+
+  schemas:
+    # ==================== Enums ====================
+    SoilType:
+      type: string
+      description: |
+        Soil type classification
+        تصنيف نوع التربة
+      enum:
+        - sand
+        - loamy_sand
+        - sandy_loam
+        - loam
+        - silt_loam
+        - silt
+        - sandy_clay_loam
+        - clay_loam
+        - silty_clay_loam
+        - sandy_clay
+        - silty_clay
+        - clay
+      x-enum-descriptions:
+        sand: "رمل - Sand"
+        loamy_sand: "رمل طميي - Loamy sand"
+        sandy_loam: "طمي رملي - Sandy loam"
+        loam: "طمي - Loam"
+        silt_loam: "طمي سلتي - Silt loam"
+        silt: "سلت - Silt"
+        sandy_clay_loam: "طمي طيني رملي - Sandy clay loam"
+        clay_loam: "طمي طيني - Clay loam"
+        silty_clay_loam: "طمي طيني سلتي - Silty clay loam"
+        sandy_clay: "طين رملي - Sandy clay"
+        silty_clay: "طين سلتي - Silty clay"
+        clay: "طين - Clay"
+
+    DrainageClass:
+      type: string
+      description: |
+        Natural drainage classification
+        تصنيف الصرف الطبيعي
+      enum:
+        - excessively_drained
+        - somewhat_excessively_drained
+        - well_drained
+        - moderately_well_drained
+        - somewhat_poorly_drained
+        - poorly_drained
+        - very_poorly_drained
+      x-enum-descriptions:
+        excessively_drained: "مصرّف بشكل مفرط"
+        well_drained: "جيد الصرف"
+        moderately_well_drained: "معتدل الصرف"
+        poorly_drained: "سيئ الصرف"
+        very_poorly_drained: "سيئ الصرف جداً"
+
+    WaterQualityClass:
+      type: string
+      description: |
+        Irrigation water quality class (FAO)
+        فئة جودة مياه الري (الفاو)
+      enum:
+        - excellent
+        - good
+        - permissible
+        - doubtful
+        - unsuitable
+      x-enum-descriptions:
+        excellent: "ممتاز - EC < 0.25 dS/m"
+        good: "جيد - EC 0.25-0.75 dS/m"
+        permissible: "مقبول - EC 0.75-2.0 dS/m"
+        doubtful: "مشكوك فيه - EC 2.0-3.0 dS/m"
+        unsuitable: "غير مناسب - EC > 3.0 dS/m"
+
+    FloodRiskLevel:
+      type: string
+      enum:
+        - none
+        - low
+        - moderate
+        - high
+        - very_high
+      x-enum-descriptions:
+        none: "لا يوجد - No risk"
+        low: "منخفض - Low risk"
+        moderate: "متوسط - Moderate risk"
+        high: "عالي - High risk"
+        very_high: "عالي جداً - Very high risk"
+
+    WellType:
+      type: string
+      enum:
+        - shallow
+        - deep
+        - artesian
+        - spring
+      x-enum-descriptions:
+        shallow: "سطحي - Shallow well (<30m)"
+        deep: "عميق - Deep well (>30m)"
+        artesian: "ارتوازي - Artesian well"
+        spring: "ينبوع - Natural spring"
+
+    WellStatus:
+      type: string
+      enum:
+        - active
+        - inactive
+        - maintenance
+        - abandoned
+
+    JobStatus:
+      type: string
+      enum:
+        - pending
+        - processing
+        - completed
+        - failed
+
+    # ==================== Common Schemas ====================
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        message_ar:
+          type: string
+        details:
+          type: object
+        request_id:
+          type: string
+          format: uuid
+
+    DateRange:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+
+    # ==================== Water Balance Schemas ====================
+    WaterBalanceRequest:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        date_range:
+          $ref: '#/components/schemas/DateRange'
+        include_forecast:
+          type: boolean
+          default: false
+        forecast_days:
+          type: integer
+          minimum: 1
+          maximum: 14
+          default: 7
+
+    WaterBalanceResponse:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        period:
+          $ref: '#/components/schemas/DateRange'
+        summary:
+          type: object
+          properties:
+            precipitation_mm:
+              type: number
+              format: float
+              description: Total precipitation
+              example: 45.5
+            irrigation_mm:
+              type: number
+              format: float
+              description: Total irrigation applied
+              example: 120.0
+            evapotranspiration_mm:
+              type: number
+              format: float
+              description: Total ET (crop water use)
+              example: 135.5
+            runoff_mm:
+              type: number
+              format: float
+              description: Estimated surface runoff
+              example: 8.5
+            deep_percolation_mm:
+              type: number
+              format: float
+              description: Deep percolation below root zone
+              example: 15.0
+            soil_moisture_change_mm:
+              type: number
+              format: float
+              description: Change in soil water storage
+              example: 6.5
+            water_balance_mm:
+              type: number
+              format: float
+              description: Overall water balance (inputs - outputs)
+              example: 0.0
+        current_status:
+          type: object
+          properties:
+            soil_moisture_percent:
+              type: number
+              format: float
+              example: 42.5
+            available_water_mm:
+              type: number
+              format: float
+              example: 85.0
+            depletion_percent:
+              type: number
+              format: float
+              example: 35.0
+            days_to_stress:
+              type: integer
+              description: Days until crop water stress without irrigation
+              example: 4
+        daily_data:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              precipitation_mm:
+                type: number
+                format: float
+              irrigation_mm:
+                type: number
+                format: float
+              et_mm:
+                type: number
+                format: float
+              soil_moisture_percent:
+                type: number
+                format: float
+        forecast:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              predicted_et_mm:
+                type: number
+                format: float
+              rain_probability:
+                type: number
+                format: float
+              expected_rain_mm:
+                type: number
+                format: float
+              irrigation_recommended_mm:
+                type: number
+                format: float
+        recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [irrigation, drainage, monitoring]
+              priority:
+                type: string
+                enum: [high, medium, low]
+              description:
+                type: string
+              description_ar:
+                type: string
+              action_date:
+                type: string
+                format: date
+        request_id:
+          type: string
+          format: uuid
+
+    # ==================== Runoff Schemas ====================
+    RunoffRequest:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        rainfall_mm:
+          type: number
+          format: float
+          description: Rainfall amount for estimation
+        rainfall_duration_hours:
+          type: number
+          format: float
+          description: Duration of rainfall event
+        antecedent_moisture:
+          type: string
+          enum: [dry, normal, wet]
+          default: normal
+        method:
+          type: string
+          enum: [scs_cn, green_ampt, horton]
+          default: scs_cn
+
+    RunoffResponse:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        rainfall_mm:
+          type: number
+          format: float
+        runoff:
+          type: object
+          properties:
+            volume_mm:
+              type: number
+              format: float
+              example: 12.5
+            volume_m3:
+              type: number
+              format: float
+              example: 3125.0
+            coefficient:
+              type: number
+              format: float
+              description: Runoff coefficient (0-1)
+              example: 0.25
+            peak_rate_mm_hr:
+              type: number
+              format: float
+              example: 8.5
+        infiltration:
+          type: object
+          properties:
+            total_mm:
+              type: number
+              format: float
+            rate_mm_hr:
+              type: number
+              format: float
+            time_to_ponding_min:
+              type: number
+              format: float
+        curve_number:
+          type: integer
+          description: SCS Curve Number used
+          example: 75
+        soil_parameters:
+          type: object
+          properties:
+            soil_type:
+              $ref: '#/components/schemas/SoilType'
+            hydraulic_conductivity_mm_hr:
+              type: number
+              format: float
+            initial_abstraction_mm:
+              type: number
+              format: float
+        erosion_risk:
+          type: object
+          properties:
+            risk_level:
+              type: string
+              enum: [none, low, moderate, high, severe]
+            estimated_soil_loss_kg_ha:
+              type: number
+              format: float
+        request_id:
+          type: string
+          format: uuid
+
+    # ==================== Groundwater Schemas ====================
+    GroundwaterMonitoringResponse:
+      type: object
+      properties:
+        well_id:
+          type: string
+          format: uuid
+        well_name:
+          type: string
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+            longitude:
+              type: number
+              format: double
+        current_status:
+          type: object
+          properties:
+            water_level_m:
+              type: number
+              format: float
+              description: Depth to water from surface
+            static_level_m:
+              type: number
+              format: float
+            drawdown_m:
+              type: number
+              format: float
+            measurement_time:
+              type: string
+              format: date-time
+        historical_data:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                format: date-time
+              water_level_m:
+                type: number
+                format: float
+              pumping_rate_m3_hr:
+                type: number
+                format: float
+        trends:
+          type: object
+          properties:
+            weekly_change_m:
+              type: number
+              format: float
+            monthly_change_m:
+              type: number
+              format: float
+            seasonal_pattern:
+              type: string
+            trend_direction:
+              type: string
+              enum: [rising, stable, declining, rapidly_declining]
+            trend_direction_ar:
+              type: string
+        aquifer_info:
+          type: object
+          properties:
+            aquifer_name:
+              type: string
+            aquifer_type:
+              type: string
+              enum: [unconfined, confined, semi_confined]
+            estimated_depth_m:
+              type: number
+              format: float
+            transmissivity_m2_day:
+              type: number
+              format: float
+            specific_yield:
+              type: number
+              format: float
+        alerts:
+          type: array
+          items:
+            type: object
+            properties:
+              alert_type:
+                type: string
+                enum: [low_level, rapid_decline, pump_failure, quality_issue]
+              severity:
+                type: string
+                enum: [info, warning, critical]
+              message:
+                type: string
+              message_ar:
+                type: string
+        request_id:
+          type: string
+          format: uuid
+
+    RechargeEstimateResponse:
+      type: object
+      properties:
+        area_id:
+          type: string
+          format: uuid
+        period:
+          $ref: '#/components/schemas/DateRange'
+        recharge_estimate:
+          type: object
+          properties:
+            total_mm:
+              type: number
+              format: float
+            total_m3:
+              type: number
+              format: float
+            from_precipitation_mm:
+              type: number
+              format: float
+            from_irrigation_mm:
+              type: number
+              format: float
+            from_return_flow_mm:
+              type: number
+              format: float
+        recharge_rate:
+          type: object
+          properties:
+            annual_average_mm:
+              type: number
+              format: float
+            current_rate_mm_day:
+              type: number
+              format: float
+            recharge_coefficient:
+              type: number
+              format: float
+        method_used:
+          type: string
+        confidence_level:
+          type: string
+          enum: [low, medium, high]
+        request_id:
+          type: string
+          format: uuid
+
+    # ==================== Drainage Schemas ====================
+    DrainageAnalysisRequest:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        target_water_table_m:
+          type: number
+          format: float
+          description: Target water table depth in meters
+          default: 1.0
+        design_drainage_rate_mm_day:
+          type: number
+          format: float
+          default: 10
+
+    DrainageAnalysisResponse:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        current_conditions:
+          type: object
+          properties:
+            drainage_class:
+              $ref: '#/components/schemas/DrainageClass'
+            drainage_class_ar:
+              type: string
+            water_table_depth_m:
+              type: number
+              format: float
+            waterlogging_risk:
+              type: string
+              enum: [none, low, moderate, high]
+            salinity_risk:
+              type: string
+              enum: [none, low, moderate, high]
+        drainage_requirement:
+          type: object
+          properties:
+            required:
+              type: boolean
+            urgency:
+              type: string
+              enum: [none, low, medium, high, critical]
+            estimated_benefit_percent:
+              type: number
+              format: float
+              description: Expected yield improvement
+        design_parameters:
+          type: object
+          properties:
+            drain_spacing_m:
+              type: number
+              format: float
+            drain_depth_m:
+              type: number
+              format: float
+            drain_diameter_mm:
+              type: integer
+            drain_slope_percent:
+              type: number
+              format: float
+            collector_spacing_m:
+              type: number
+              format: float
+            outlet_capacity_m3_day:
+              type: number
+              format: float
+        cost_estimate:
+          type: object
+          properties:
+            installation_sar_ha:
+              type: number
+              format: float
+            annual_maintenance_sar_ha:
+              type: number
+              format: float
+            payback_period_years:
+              type: number
+              format: float
+        layout:
+          type: object
+          description: GeoJSON FeatureCollection of proposed drain layout
+        recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              description:
+                type: string
+              description_ar:
+                type: string
+              priority:
+                type: string
+                enum: [high, medium, low]
+        request_id:
+          type: string
+          format: uuid
+
+    # ==================== Flood Risk Schemas ====================
+    FloodRiskRequest:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        rainfall_scenario:
+          type: object
+          properties:
+            amount_mm:
+              type: number
+              format: float
+            duration_hours:
+              type: number
+              format: float
+            return_period_years:
+              type: integer
+              enum: [2, 5, 10, 25, 50, 100]
+
+    FloodRiskResponse:
+      type: object
+      properties:
+        field_id:
+          type: string
+          format: uuid
+        overall_risk:
+          $ref: '#/components/schemas/FloodRiskLevel'
+        overall_risk_ar:
+          type: string
+        risk_factors:
+          type: object
+          properties:
+            terrain_risk:
+              $ref: '#/components/schemas/FloodRiskLevel'
+            drainage_risk:
+              $ref: '#/components/schemas/FloodRiskLevel'
+            proximity_to_wadi:
+              $ref: '#/components/schemas/FloodRiskLevel'
+            upstream_catchment_risk:
+              $ref: '#/components/schemas/FloodRiskLevel'
+        flood_depth_estimates:
+          type: object
+          properties:
+            return_2yr_m:
+              type: number
+              format: float
+            return_10yr_m:
+              type: number
+              format: float
+            return_50yr_m:
+              type: number
+              format: float
+            return_100yr_m:
+              type: number
+              format: float
+        vulnerable_areas:
+          type: object
+          description: GeoJSON FeatureCollection of vulnerable zones
+        mitigation_recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              measure:
+                type: string
+              measure_ar:
+                type: string
+              effectiveness:
+                type: string
+                enum: [low, medium, high]
+              cost_estimate_sar:
+                type: number
+                format: float
+              priority:
+                type: string
+                enum: [immediate, short_term, long_term]
+        active_alerts:
+          type: array
+          items:
+            type: object
+            properties:
+              alert_id:
+                type: string
+              alert_type:
+                type: string
+                enum: [watch, warning, emergency]
+              message:
+                type: string
+              message_ar:
+                type: string
+              issued_at:
+                type: string
+                format: date-time
+              expires_at:
+                type: string
+                format: date-time
+        request_id:
+          type: string
+          format: uuid
+
+    # ==================== Water Quality Schemas ====================
+    WaterQualityAnalysis:
+      type: object
+      properties:
+        sample_id:
+          type: string
+          format: uuid
+        source_type:
+          type: string
+          enum: [well, canal, reservoir, treated]
+        sample_date:
+          type: string
+          format: date-time
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+            longitude:
+              type: number
+              format: double
+            source_name:
+              type: string
+        parameters:
+          type: object
+          properties:
+            ph:
+              type: number
+              format: float
+              example: 7.5
+            ec_ds_m:
+              type: number
+              format: float
+              description: Electrical conductivity
+              example: 1.2
+            tds_mg_l:
+              type: number
+              format: float
+              description: Total dissolved solids
+              example: 768
+            sar:
+              type: number
+              format: float
+              description: Sodium Adsorption Ratio
+              example: 4.5
+            rsc_meq_l:
+              type: number
+              format: float
+              description: Residual Sodium Carbonate
+            hardness_mg_l:
+              type: number
+              format: float
+            chloride_mg_l:
+              type: number
+              format: float
+            sulfate_mg_l:
+              type: number
+              format: float
+            bicarbonate_mg_l:
+              type: number
+              format: float
+            nitrate_mg_l:
+              type: number
+              format: float
+            boron_mg_l:
+              type: number
+              format: float
+            sodium_mg_l:
+              type: number
+              format: float
+            calcium_mg_l:
+              type: number
+              format: float
+            magnesium_mg_l:
+              type: number
+              format: float
+            potassium_mg_l:
+              type: number
+              format: float
+        classification:
+          type: object
+          properties:
+            overall_class:
+              $ref: '#/components/schemas/WaterQualityClass'
+            overall_class_ar:
+              type: string
+            salinity_hazard:
+              type: string
+              enum: [low, medium, high, very_high]
+            sodium_hazard:
+              type: string
+              enum: [low, medium, high, very_high]
+            specific_ion_toxicity:
+              type: object
+              properties:
+                chloride:
+                  type: string
+                  enum: [none, slight, moderate, severe]
+                boron:
+                  type: string
+                  enum: [none, slight, moderate, severe]
+                sodium:
+                  type: string
+                  enum: [none, slight, moderate, severe]
+        crop_suitability:
+          type: array
+          items:
+            type: object
+            properties:
+              crop:
+                type: string
+              crop_ar:
+                type: string
+              suitability:
+                type: string
+                enum: [excellent, good, moderate, poor, unsuitable]
+              yield_reduction_percent:
+                type: number
+                format: float
+        recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [treatment, amendment, crop_selection, irrigation_management]
+              description:
+                type: string
+              description_ar:
+                type: string
+              priority:
+                type: string
+                enum: [high, medium, low]
+        request_id:
+          type: string
+          format: uuid
+
+    # ==================== Well Schemas ====================
+    Well:
+      type: object
+      properties:
+        well_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        name_ar:
+          type: string
+        well_type:
+          $ref: '#/components/schemas/WellType'
+        status:
+          $ref: '#/components/schemas/WellStatus'
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+            longitude:
+              type: number
+              format: double
+        specifications:
+          type: object
+          properties:
+            total_depth_m:
+              type: number
+              format: float
+            casing_depth_m:
+              type: number
+              format: float
+            casing_diameter_inch:
+              type: number
+              format: float
+            screen_length_m:
+              type: number
+              format: float
+            static_water_level_m:
+              type: number
+              format: float
+            pumping_water_level_m:
+              type: number
+              format: float
+            yield_m3_hr:
+              type: number
+              format: float
+            specific_capacity_m3_hr_m:
+              type: number
+              format: float
+        pump_info:
+          type: object
+          properties:
+            pump_type:
+              type: string
+            power_hp:
+              type: number
+              format: float
+            discharge_m3_hr:
+              type: number
+              format: float
+            installation_date:
+              type: string
+              format: date
+            last_service_date:
+              type: string
+              format: date
+        current_readings:
+          type: object
+          properties:
+            water_level_m:
+              type: number
+              format: float
+            flow_rate_m3_hr:
+              type: number
+              format: float
+            running_hours_today:
+              type: number
+              format: float
+            volume_today_m3:
+              type: number
+              format: float
+            last_updated:
+              type: string
+              format: date-time
+        maintenance_schedule:
+          type: object
+          properties:
+            next_service_date:
+              type: string
+              format: date
+            service_interval_days:
+              type: integer
+            overdue:
+              type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    WellCreateRequest:
+      type: object
+      required:
+        - name
+        - well_type
+        - location
+      properties:
+        name:
+          type: string
+        name_ar:
+          type: string
+        well_type:
+          $ref: '#/components/schemas/WellType'
+        location:
+          type: object
+          required:
+            - latitude
+            - longitude
+          properties:
+            latitude:
+              type: number
+              format: double
+            longitude:
+              type: number
+              format: double
+        specifications:
+          type: object
+          properties:
+            total_depth_m:
+              type: number
+              format: float
+            casing_depth_m:
+              type: number
+              format: float
+            yield_m3_hr:
+              type: number
+              format: float
+        field_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Associated field IDs
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, unhealthy]
+        service:
+          type: string
+          example: hydrology-service
+        version:
+          type: string
+          example: 1.0.0
+        database_connected:
+          type: boolean
+        weather_service_connected:
+          type: boolean
+        iot_service_connected:
+          type: boolean
+        uptime_seconds:
+          type: integer
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+paths:
+  # ==================== Water Balance ====================
+  /water-balance/fields/{field_id}:
+    get:
+      tags: [Water Balance]
+      summary: Get field water balance
+      description: |
+        Calculate and retrieve water balance for a field.
+        حساب واسترجاع الميزان المائي للحقل.
+      operationId: getFieldWaterBalance
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/FieldId'
+        - $ref: '#/components/parameters/DateFrom'
+        - $ref: '#/components/parameters/DateTo'
+        - name: include_forecast
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: forecast_days
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 14
+            default: 7
+      responses:
+        '200':
+          description: Water balance calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WaterBalanceResponse'
+              example:
+                field_id: "550e8400-e29b-41d4-a716-446655440001"
+                period:
+                  from: "2026-01-01"
+                  to: "2026-01-31"
+                summary:
+                  precipitation_mm: 15.5
+                  irrigation_mm: 180.0
+                  evapotranspiration_mm: 165.5
+                  runoff_mm: 5.0
+                  deep_percolation_mm: 20.0
+                  soil_moisture_change_mm: 5.0
+                  water_balance_mm: 0.0
+                current_status:
+                  soil_moisture_percent: 45.0
+                  available_water_mm: 90.0
+                  depletion_percent: 30.0
+                  days_to_stress: 5
+                recommendations:
+                  - type: irrigation
+                    priority: medium
+                    description: "Schedule irrigation in 3-4 days"
+                    description_ar: "جدولة الري خلال 3-4 أيام"
+                    action_date: "2026-02-03"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Water Balance]
+      summary: Calculate water balance with custom parameters
+      operationId: calculateWaterBalance
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/FieldId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WaterBalanceRequest'
+      responses:
+        '200':
+          description: Water balance calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WaterBalanceResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Runoff ====================
+  /runoff/estimate:
+    post:
+      tags: [Runoff]
+      summary: Estimate surface runoff
+      description: |
+        Estimate surface runoff and infiltration for a rainfall event.
+        تقدير الجريان السطحي والتسرب لحدث مطري.
+      operationId: estimateRunoff
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunoffRequest'
+            example:
+              field_id: "550e8400-e29b-41d4-a716-446655440001"
+              rainfall_mm: 50
+              rainfall_duration_hours: 2
+              antecedent_moisture: normal
+              method: scs_cn
+      responses:
+        '200':
+          description: Runoff estimated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunoffResponse'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /runoff/fields/{field_id}/history:
+    get:
+      tags: [Runoff]
+      summary: Get runoff history for field
+      description: |
+        Get historical runoff events for a field.
+        الحصول على سجل أحداث الجريان السطحي للحقل.
+      operationId: getRunoffHistory
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/FieldId'
+        - $ref: '#/components/parameters/DateFrom'
+        - $ref: '#/components/parameters/DateTo'
+      responses:
+        '200':
+          description: Runoff history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  field_id:
+                    type: string
+                    format: uuid
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        rainfall_mm:
+                          type: number
+                          format: float
+                        runoff_mm:
+                          type: number
+                          format: float
+                        infiltration_mm:
+                          type: number
+                          format: float
+                  summary:
+                    type: object
+                    properties:
+                      total_rainfall_mm:
+                        type: number
+                        format: float
+                      total_runoff_mm:
+                        type: number
+                        format: float
+                      average_runoff_coefficient:
+                        type: number
+                        format: float
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Groundwater ====================
+  /groundwater/wells/{well_id}/monitoring:
+    get:
+      tags: [Groundwater]
+      summary: Get well monitoring data
+      description: |
+        Get monitoring data and trends for a well.
+        الحصول على بيانات المراقبة والاتجاهات لبئر.
+      operationId: getWellMonitoring
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: well_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/DateFrom'
+        - $ref: '#/components/parameters/DateTo'
+      responses:
+        '200':
+          description: Well monitoring data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroundwaterMonitoringResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /groundwater/recharge:
+    post:
+      tags: [Groundwater]
+      summary: Estimate groundwater recharge
+      description: |
+        Estimate groundwater recharge for an area.
+        تقدير تغذية المياه الجوفية لمنطقة.
+      operationId: estimateRecharge
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                field_id:
+                  type: string
+                  format: uuid
+                date_range:
+                  $ref: '#/components/schemas/DateRange'
+                method:
+                  type: string
+                  enum: [water_balance, chloride_mass_balance, water_table_fluctuation]
+                  default: water_balance
+      responses:
+        '200':
+          description: Recharge estimated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RechargeEstimateResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Drainage ====================
+  /drainage/fields/{field_id}/analysis:
+    get:
+      tags: [Drainage]
+      summary: Get drainage analysis for field
+      description: |
+        Get drainage analysis and design recommendations for a field.
+        الحصول على تحليل الصرف وتوصيات التصميم للحقل.
+      operationId: getDrainageAnalysis
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/FieldId'
+      responses:
+        '200':
+          description: Drainage analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DrainageAnalysisResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Drainage]
+      summary: Calculate drainage design
+      description: |
+        Calculate drainage system design parameters.
+        حساب معايير تصميم نظام الصرف.
+      operationId: calculateDrainageDesign
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/FieldId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DrainageAnalysisRequest'
+      responses:
+        '200':
+          description: Drainage design calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DrainageAnalysisResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Flood Risk ====================
+  /flood-risk/fields/{field_id}:
+    get:
+      tags: [Flood Risk]
+      summary: Get flood risk assessment
+      description: |
+        Get flood risk assessment for a field.
+        الحصول على تقييم مخاطر الفيضان للحقل.
+      operationId: getFloodRisk
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/FieldId'
+      responses:
+        '200':
+          description: Flood risk assessment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FloodRiskResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Flood Risk]
+      summary: Calculate flood risk for scenario
+      description: |
+        Calculate flood risk for a specific rainfall scenario.
+        حساب مخاطر الفيضان لسيناريو مطر محدد.
+      operationId: calculateFloodRisk
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/FieldId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FloodRiskRequest'
+      responses:
+        '200':
+          description: Flood risk calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FloodRiskResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /flood-risk/alerts:
+    get:
+      tags: [Flood Risk]
+      summary: Get active flood alerts
+      description: |
+        Get active flood alerts for the tenant's area.
+        الحصول على تنبيهات الفيضان النشطة لمنطقة المستأجر.
+      operationId: getFloodAlerts
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [all, watch, warning, emergency]
+            default: all
+      responses:
+        '200':
+          description: Active flood alerts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  alerts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        alert_id:
+                          type: string
+                        alert_type:
+                          type: string
+                        affected_area:
+                          type: object
+                        message:
+                          type: string
+                        message_ar:
+                          type: string
+                        issued_at:
+                          type: string
+                          format: date-time
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Water Quality ====================
+  /water-quality/samples:
+    get:
+      tags: [Water Quality]
+      summary: List water quality samples
+      description: |
+        List water quality analysis samples.
+        قائمة عينات تحليل جودة المياه.
+      operationId: listWaterQualitySamples
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/DateFrom'
+        - $ref: '#/components/parameters/DateTo'
+        - name: source_type
+          in: query
+          schema:
+            type: string
+            enum: [well, canal, reservoir, treated]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Water quality samples
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  samples:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WaterQualityAnalysis'
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Water Quality]
+      summary: Submit water quality analysis
+      description: |
+        Submit new water quality analysis results.
+        إرسال نتائج تحليل جودة مياه جديدة.
+      operationId: submitWaterQuality
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - source_type
+                - location
+                - parameters
+              properties:
+                source_type:
+                  type: string
+                  enum: [well, canal, reservoir, treated]
+                location:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                    longitude:
+                      type: number
+                    source_name:
+                      type: string
+                sample_date:
+                  type: string
+                  format: date-time
+                parameters:
+                  type: object
+                  properties:
+                    ph:
+                      type: number
+                    ec_ds_m:
+                      type: number
+                    tds_mg_l:
+                      type: number
+                    # ... other parameters
+      responses:
+        '201':
+          description: Water quality analysis created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WaterQualityAnalysis'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /water-quality/samples/{sample_id}:
+    get:
+      tags: [Water Quality]
+      summary: Get water quality analysis
+      description: |
+        Get detailed water quality analysis by sample ID.
+        الحصول على تحليل جودة المياه التفصيلي بمعرّف العينة.
+      operationId: getWaterQualitySample
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: sample_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Water quality analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WaterQualityAnalysis'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Wells ====================
+  /wells:
+    get:
+      tags: [Wells]
+      summary: List wells
+      description: |
+        List all wells for the tenant.
+        قائمة جميع الآبار للمستأجر.
+      operationId: listWells
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/WellStatus'
+        - name: well_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/WellType'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of wells
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  wells:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Well'
+                  total:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Wells]
+      summary: Create well
+      description: |
+        Register a new well.
+        تسجيل بئر جديد.
+      operationId: createWell
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WellCreateRequest'
+      responses:
+        '201':
+          description: Well created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Well'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /wells/{well_id}:
+    get:
+      tags: [Wells]
+      summary: Get well details
+      operationId: getWell
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: well_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Well details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Well'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    patch:
+      tags: [Wells]
+      summary: Update well
+      operationId: updateWell
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: well_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                status:
+                  $ref: '#/components/schemas/WellStatus'
+                specifications:
+                  type: object
+      responses:
+        '200':
+          description: Well updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Well'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags: [Wells]
+      summary: Delete well
+      operationId: deleteWell
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: well_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Well deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /wells/{well_id}/readings:
+    post:
+      tags: [Wells]
+      summary: Record well reading
+      description: |
+        Record a new water level or flow reading for a well.
+        تسجيل قراءة جديدة لمستوى المياه أو التدفق لبئر.
+      operationId: recordWellReading
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: well_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                water_level_m:
+                  type: number
+                  format: float
+                flow_rate_m3_hr:
+                  type: number
+                  format: float
+                pump_running:
+                  type: boolean
+                timestamp:
+                  type: string
+                  format: date-time
+      responses:
+        '201':
+          description: Reading recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reading_id:
+                    type: string
+                    format: uuid
+                  well_id:
+                    type: string
+                    format: uuid
+                  timestamp:
+                    type: string
+                    format: date-time
+                  water_level_m:
+                    type: number
+                    format: float
+                  flow_rate_m3_hr:
+                    type: number
+                    format: float
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ==================== Health Check ====================
+  /healthz:
+    get:
+      tags: [Health Check]
+      summary: Liveness probe
+      operationId: healthLive
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: hydrology-service
+                  version:
+                    type: string
+                    example: 1.0.0
+
+  /readyz:
+    get:
+      tags: [Health Check]
+      summary: Readiness probe
+      operationId: healthReady
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service not ready
+
+  /metrics:
+    get:
+      tags: [Health Check]
+      summary: Prometheus metrics
+      operationId: getMetrics
+      responses:
+        '200':
+          description: Prometheus metrics
+          content:
+            text/plain:
+              schema:
+                type: string
+
+security:
+  - bearerAuth: []

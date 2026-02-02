@@ -100,21 +100,36 @@ class TimeSeriesFrame(BaseModel):
     camera_id: str = Field(..., description="Camera that captured this frame")
     captured_at: datetime = Field(..., description="Capture timestamp")
     storage_url: str = Field(..., description="URL to frame image in storage")
+<<<<<<< HEAD
     thumbnail_url: Optional[str] = Field(
+=======
+    thumbnail_url: str | None = Field(
+>>>>>>> origin/main
         default=None, description="URL to thumbnail"
     )
 
     # Metadata
+<<<<<<< HEAD
     exposure_settings: Optional[dict] = Field(
         default=None, description="Camera exposure settings"
     )
     weather_conditions: Optional[dict] = Field(
+=======
+    exposure_settings: dict | None = Field(
+        default=None, description="Camera exposure settings"
+    )
+    weather_conditions: dict | None = Field(
+>>>>>>> origin/main
         default=None, description="Weather at capture time"
     )
 
     # Processing state
     processed: bool = Field(default=False)
+<<<<<<< HEAD
     processing_error: Optional[str] = None
+=======
+    processing_error: str | None = None
+>>>>>>> origin/main
 
 
 class CropTimelineEntry(BaseModel):
@@ -127,15 +142,26 @@ class CropTimelineEntry(BaseModel):
     # Crop identification
     crop_type: CropType
     crop_type_ar: str = Field(default="", description="Crop type in Arabic")
+<<<<<<< HEAD
     variety: Optional[str] = Field(default=None, description="Crop variety")
+=======
+    variety: str | None = Field(default=None, description="Crop variety")
+>>>>>>> origin/main
 
     # Growth stage
     growth_stage: GrowthStage
     growth_stage_ar: str = Field(default="", description="Growth stage in Arabic")
+<<<<<<< HEAD
     days_in_stage: Optional[int] = Field(
         default=None, description="Days since entering this stage"
     )
     expected_days_remaining: Optional[int] = Field(
+=======
+    days_in_stage: int | None = Field(
+        default=None, description="Days since entering this stage"
+    )
+    expected_days_remaining: int | None = Field(
+>>>>>>> origin/main
         default=None, description="Expected days until next stage"
     )
 
@@ -152,16 +178,26 @@ class CropTimelineEntry(BaseModel):
     )
 
     # Notes
+<<<<<<< HEAD
     notes: Optional[str] = None
     notes_ar: Optional[str] = None
+=======
+    notes: str | None = None
+    notes_ar: str | None = None
+>>>>>>> origin/main
 
     # Multi-tenancy
     tenant_id: str
 
     # Verification
     verified: bool = Field(default=False)
+<<<<<<< HEAD
     verified_by: Optional[str] = None
     verified_at: Optional[datetime] = None
+=======
+    verified_by: str | None = None
+    verified_at: datetime | None = None
+>>>>>>> origin/main
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -207,12 +243,21 @@ class StageTransition(BaseModel):
     after_frame_id: str
 
     # Analysis
+<<<<<<< HEAD
     transition_speed: Optional[str] = Field(
         default=None,
         description="normal, accelerated, delayed"
     )
     notes: Optional[str] = None
     notes_ar: Optional[str] = None
+=======
+    transition_speed: str | None = Field(
+        default=None,
+        description="normal, accelerated, delayed"
+    )
+    notes: str | None = None
+    notes_ar: str | None = None
+>>>>>>> origin/main
 
 
 class CropTimelineAnalysis(BaseModel):
@@ -226,7 +271,11 @@ class CropTimelineAnalysis(BaseModel):
     # Crop identification
     crop_type: CropType
     crop_type_ar: str
+<<<<<<< HEAD
     variety_detected: Optional[str] = None
+=======
+    variety_detected: str | None = None
+>>>>>>> origin/main
 
     # Current state
     current_stage: GrowthStage
@@ -234,11 +283,19 @@ class CropTimelineAnalysis(BaseModel):
     stage_confidence: float = Field(..., ge=0.0, le=1.0)
 
     # Health assessment
+<<<<<<< HEAD
     health_score: Optional[float] = Field(
         default=None, ge=0.0, le=1.0,
         description="Overall crop health (1.0 = excellent)"
     )
     vigor_assessment: Optional[str] = Field(
+=======
+    health_score: float | None = Field(
+        default=None, ge=0.0, le=1.0,
+        description="Overall crop health (1.0 = excellent)"
+    )
+    vigor_assessment: str | None = Field(
+>>>>>>> origin/main
         default=None, description="excellent, good, fair, poor"
     )
 
@@ -269,7 +326,11 @@ class CropTimelineAnalysis(BaseModel):
     # Metadata
     analyzed_at: datetime = Field(default_factory=datetime.utcnow)
     frames_analyzed: int = Field(default=0)
+<<<<<<< HEAD
     processing_time_ms: Optional[int] = None
+=======
+    processing_time_ms: int | None = None
+>>>>>>> origin/main
     model_used: str = Field(default="unknown", description="MLLM model identifier")
 
     # Multi-tenancy
@@ -280,16 +341,27 @@ class FieldContext(BaseModel):
     """Context information for field analysis"""
     field_id: str
     location_name: str
+<<<<<<< HEAD
     location_name_ar: Optional[str] = None
+=======
+    location_name_ar: str | None = None
+>>>>>>> origin/main
     lat: float
     lon: float
     area_hectares: float
 
     # Expected crop info
+<<<<<<< HEAD
     expected_crop: Optional[CropType] = None
     expected_crop_ar: Optional[str] = None
     expected_planting_date: Optional[datetime] = None
     expected_harvest_date: Optional[datetime] = None
+=======
+    expected_crop: CropType | None = None
+    expected_crop_ar: str | None = None
+    expected_planting_date: datetime | None = None
+    expected_harvest_date: datetime | None = None
+>>>>>>> origin/main
 
     # History
     rotation_history: list[dict] = Field(
@@ -298,8 +370,13 @@ class FieldContext(BaseModel):
     )
 
     # Conditions
+<<<<<<< HEAD
     soil_type: Optional[str] = None
     irrigation_type: Optional[str] = None
+=======
+    soil_type: str | None = None
+    irrigation_type: str | None = None
+>>>>>>> origin/main
 
     # Multi-tenancy
     tenant_id: str

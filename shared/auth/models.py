@@ -113,6 +113,14 @@ class User:
         """Check if user has a specific role"""
         return role in self.roles
 
+    def has_any_role(self, *roles: str) -> bool:
+        """Check if user has any of the specified roles"""
+        return any(role in self.roles for role in roles)
+
+    def has_all_roles(self, *roles: str) -> bool:
+        """Check if user has all of the specified roles"""
+        return all(role in self.roles for role in roles)
+
     def has_farm_access(self, farm_id: str) -> bool:
         """Check if user has access to a specific farm"""
         return farm_id in self.farm_ids

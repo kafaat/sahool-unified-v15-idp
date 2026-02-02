@@ -83,7 +83,11 @@ class BoundingBox(BaseModel):
     y_max: int
 
     # Geographic coordinates (corners)
+<<<<<<< HEAD
     geo_coords: Optional[list[dict]] = Field(
+=======
+    geo_coords: list[dict] | None = Field(
+>>>>>>> origin/main
         default=None,
         description="List of {lat, lon} for bounding box corners"
     )
@@ -107,12 +111,18 @@ class FieldOperationDetection(BaseModel):
     confidence_level: DetectionConfidence
 
     # Equipment
+<<<<<<< HEAD
     equipment_type: Optional[EquipmentType] = None
     equipment_type_ar: Optional[str] = None
+=======
+    equipment_type: EquipmentType | None = None
+    equipment_type_ar: str | None = None
+>>>>>>> origin/main
     equipment_count: int = Field(default=1)
 
     # Location
     bounding_box: BoundingBox
+<<<<<<< HEAD
     center_lat: Optional[float] = None
     center_lon: Optional[float] = None
     affected_area_hectares: Optional[float] = None
@@ -125,14 +135,33 @@ class FieldOperationDetection(BaseModel):
     detected_at: datetime = Field(default_factory=datetime.utcnow)
     operation_started_at: Optional[datetime] = None
     operation_ended_at: Optional[datetime] = None
+=======
+    center_lat: float | None = None
+    center_lon: float | None = None
+    affected_area_hectares: float | None = None
+
+    # Source
+    source_frame_id: str = Field(..., description="ID of source video frame")
+    source_frame_url: str | None = None
+
+    # Timestamps
+    detected_at: datetime = Field(default_factory=datetime.utcnow)
+    operation_started_at: datetime | None = None
+    operation_ended_at: datetime | None = None
+>>>>>>> origin/main
 
     # Multi-tenancy
     tenant_id: str
 
     # Verification
     verified: bool = Field(default=False)
+<<<<<<< HEAD
     verified_by: Optional[str] = None
     verified_at: Optional[datetime] = None
+=======
+    verified_by: str | None = None
+    verified_at: datetime | None = None
+>>>>>>> origin/main
 
     def __init__(self, **data):
         super().__init__(**data)

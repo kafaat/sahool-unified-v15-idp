@@ -12,7 +12,11 @@ certifications, and consumer-facing product journey display.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from enum import Enum
 from uuid import uuid4
 
@@ -209,11 +213,19 @@ class Certification:
     certificate_document_url: str | None = None
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def is_currently_valid(self) -> bool:
         """Check if certification is currently valid"""
         return self.is_valid and datetime.now(timezone.utc) < self.expiry_date
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+
+    def is_currently_valid(self) -> bool:
+        """Check if certification is currently valid"""
+        return self.is_valid and datetime.now(UTC) < self.expiry_date
+>>>>>>> origin/main
 
 
 @dataclass
@@ -293,8 +305,13 @@ class ProduceBatch:
     qr_code_data: str | None = None
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     # Custom attributes
     attributes: dict = field(default_factory=dict)
@@ -342,7 +359,11 @@ class SupplyChainEvent:
     event_type: EventType = EventType.HARVEST
 
     # Timestamp
+<<<<<<< HEAD
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     # Location
     location: GeoLocation | None = None
@@ -372,7 +393,11 @@ class SupplyChainEvent:
     signature: str | None = None
 
     # Metadata
+<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
 
 @dataclass
@@ -449,7 +474,11 @@ class StorageEvent(SupplyChainEvent):
     actual_humidity_percent: float | None = None
 
     # Duration
+<<<<<<< HEAD
     storage_start: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    storage_start: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     storage_end: datetime | None = None
 
     # Notes
@@ -678,5 +707,9 @@ class BatchTraceReport:
     compliance_issues: list[str] = field(default_factory=list)
 
     # Generated
+<<<<<<< HEAD
     generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     generated_by: str = ""

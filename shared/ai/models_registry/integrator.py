@@ -22,7 +22,11 @@ import asyncio
 import logging
 import time
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -113,7 +117,11 @@ class ModelCallResult:
     error: str | None = None
     latency_ms: float = 0.0
     tokens_used: int | None = None
+<<<<<<< HEAD
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -143,7 +151,11 @@ class ModelSelection:
     confidence_score: float = 0.0
     explanation: str = ""
     explanation_ar: str = ""
+<<<<<<< HEAD
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -559,7 +571,7 @@ class ModelIntegrator:
                 tokens_used=response.get("tokens_used"),
             )
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return ModelCallResult(
                 model_id=model_id,
                 model_name=model.name,

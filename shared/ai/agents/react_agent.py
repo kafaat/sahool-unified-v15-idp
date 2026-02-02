@@ -19,10 +19,16 @@ Updated: January 2026
 
 from abc import abstractmethod
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, AsyncIterator
 import asyncio
+=======
+from datetime import datetime, UTC
+from enum import Enum
+from typing import Any, AsyncIterator
+>>>>>>> origin/main
 import uuid
 
 import structlog
@@ -30,6 +36,7 @@ import structlog
 from .base import (
     BaseAutonomousAgent,
     AgentMode,
+<<<<<<< HEAD
     AgentState,
     AgentStep,
     AgentTool,
@@ -38,6 +45,12 @@ from .base import (
 )
 from ..llm_provider import LLMProviderManager, get_llm_manager
 from ..audit import get_audit_logger
+=======
+    AgentStep,
+    ToolResult,
+)
+from ..llm_provider import LLMProviderManager
+>>>>>>> origin/main
 
 logger = structlog.get_logger()
 
@@ -63,7 +76,11 @@ class ReActThought:
     content_ar: str                 # Arabic version
     confidence: float               # How confident in this reasoning (0-1)
     alternatives: list[str] = field(default_factory=list)  # Alternative thoughts considered
+<<<<<<< HEAD
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -93,7 +110,11 @@ class ReActAction:
     expected_outcome: str           # What we expect to happen
     expected_outcome_ar: str
     confidence: float               # Confidence in action success (0-1)
+<<<<<<< HEAD
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -125,7 +146,11 @@ class ReActObservation:
     summary: str                    # Human-readable summary
     summary_ar: str                 # Arabic version
     execution_time_ms: float        # How long it took
+<<<<<<< HEAD
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -161,7 +186,11 @@ class ReActReflection:
     should_continue: bool           # Should we continue with more steps
     needs_correction: bool          # Do we need to correct course
     correction_reason: str | None = None
+<<<<<<< HEAD
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -236,7 +265,11 @@ class ReActTrace:
     success: bool = False
     total_tokens_used: int = 0
     total_execution_time_ms: float = 0
+<<<<<<< HEAD
     started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+=======
+    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+>>>>>>> origin/main
     completed_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -501,7 +534,11 @@ class ReActAgent(BaseAutonomousAgent):
             Complete ReActTrace with all steps
         """
         context = context or {}
+<<<<<<< HEAD
         start_time = datetime.now(timezone.utc)
+=======
+        start_time = datetime.now(UTC)
+>>>>>>> origin/main
 
         # Initialize trace
         self.current_trace = ReActTrace(
@@ -570,7 +607,11 @@ class ReActAgent(BaseAutonomousAgent):
             self.current_trace.final_answer_ar = f"خطأ: {str(e)}"
 
         # Finalize trace
+<<<<<<< HEAD
         self.current_trace.completed_at = datetime.now(timezone.utc)
+=======
+        self.current_trace.completed_at = datetime.now(UTC)
+>>>>>>> origin/main
         self.current_trace.total_execution_time_ms = (
             self.current_trace.completed_at - start_time
         ).total_seconds() * 1000
@@ -638,7 +679,11 @@ class ReActAgent(BaseAutonomousAgent):
 
     async def _execute_action(self, action: ReActAction) -> ReActObservation:
         """Execute an action and return the observation."""
+<<<<<<< HEAD
         start_time = datetime.now(timezone.utc)
+=======
+        start_time = datetime.now(UTC)
+>>>>>>> origin/main
         observation_id = f"obs_{action.action_id}"
 
         try:
@@ -665,11 +710,19 @@ class ReActAgent(BaseAutonomousAgent):
                     result=None,
                     summary=f"Unknown action type: {action.action_type}",
                     summary_ar=f"نوع إجراء غير معروف: {action.action_type}",
+<<<<<<< HEAD
                     execution_time_ms=(datetime.now(timezone.utc) - start_time).total_seconds() * 1000,
                 )
 
         except Exception as e:
             execution_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+=======
+                    execution_time_ms=(datetime.now(UTC) - start_time).total_seconds() * 1000,
+                )
+
+        except Exception as e:
+            execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
+>>>>>>> origin/main
 
             return ReActObservation(
                 observation_id=observation_id,
@@ -698,7 +751,11 @@ class ReActAgent(BaseAutonomousAgent):
         Yields progress updates as the agent executes.
         """
         context = context or {}
+<<<<<<< HEAD
         start_time = datetime.now(timezone.utc)
+=======
+        start_time = datetime.now(UTC)
+>>>>>>> origin/main
 
         # Initialize trace
         self.current_trace = ReActTrace(
@@ -815,7 +872,11 @@ class ReActAgent(BaseAutonomousAgent):
             }
 
         # Finalize
+<<<<<<< HEAD
         self.current_trace.completed_at = datetime.now(timezone.utc)
+=======
+        self.current_trace.completed_at = datetime.now(UTC)
+>>>>>>> origin/main
         self.current_trace.total_execution_time_ms = (
             self.current_trace.completed_at - start_time
         ).total_seconds() * 1000

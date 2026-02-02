@@ -20,7 +20,11 @@ from __future__ import annotations
 import statistics
 import uuid
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timedelta, timezone
+=======
+from datetime import datetime, timedelta, UTC
+>>>>>>> origin/main
 from typing import Any
 
 from .models import (
@@ -224,7 +228,11 @@ class WaterLevelMonitor:
             id=str(uuid.uuid4()),
             source_id=source.id,
             tenant_id=self.tenant_id,
+<<<<<<< HEAD
             timestamp=datetime.now(timezone.utc),
+=======
+            timestamp=datetime.now(UTC),
+>>>>>>> origin/main
             level_m3=level_m3,
             level_percent=level_percent,
             depth_m=depth_m,
@@ -379,7 +387,11 @@ class WaterLevelMonitor:
         Analyze water level trend over specified period.
         تحليل اتجاه مستوى المياه خلال الفترة المحددة
         """
+<<<<<<< HEAD
         now = datetime.now(timezone.utc)
+=======
+        now = datetime.now(UTC)
+>>>>>>> origin/main
         period_start = now - timedelta(hours=hours)
 
         readings = self._readings_cache.get(source_id, [])
@@ -765,7 +777,11 @@ class WaterQualityMonitor:
         تحليل اتجاه جودة المياه خلال الفترة المحددة
         """
         tests = self._test_history.get(source_id, [])
+<<<<<<< HEAD
         cutoff = datetime.now(timezone.utc) - timedelta(days=months * 30)
+=======
+        cutoff = datetime.now(UTC) - timedelta(days=months * 30)
+>>>>>>> origin/main
         period_tests = [t for t in tests if t.tested_at >= cutoff]
 
         if not period_tests:

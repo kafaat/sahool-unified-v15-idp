@@ -95,7 +95,7 @@ services:
       dockerfile: apps/services/field-ops/Dockerfile
     container_name: sahool-field-ops-test
     environment:
-      - DATABASE_URL=postgres://sahool_test:test_password_123@postgres_test:5432/sahool_test
+      - DATABASE_URL=postgresql://sahool_test:test_password_123@postgres_test:5432/sahool_test
       - NATS_URL=nats://test_user:test_password@nats_test:4222
       - REDIS_URL=redis://:test_redis_pass@redis_test:6379/0
       - JWT_SECRET_KEY=test-secret-key-for-tests-only-do-not-use-in-production-32chars
@@ -127,7 +127,7 @@ services:
       dockerfile: apps/services/ndvi-engine/Dockerfile
     container_name: sahool-ndvi-engine-test
     environment:
-      - DATABASE_URL=postgres://sahool_test:test_password_123@postgres_test:5432/sahool_test
+      - DATABASE_URL=postgresql://sahool_test:test_password_123@postgres_test:5432/sahool_test
       - NATS_URL=nats://test_user:test_password@nats_test:4222
       - JWT_SECRET_KEY=test-secret-key-for-tests-only-do-not-use-in-production-32chars
       - JWT_ALGORITHM=HS256
@@ -157,7 +157,7 @@ services:
       dockerfile: apps/services/weather-core/Dockerfile
     container_name: sahool-weather-core-test
     environment:
-      - DATABASE_URL=postgres://sahool_test:test_password_123@postgres_test:5432/sahool_test
+      - DATABASE_URL=postgresql://sahool_test:test_password_123@postgres_test:5432/sahool_test
       - NATS_URL=nats://test_user:test_password@nats_test:4222
       - JWT_SECRET_KEY=test-secret-key-for-tests-only-do-not-use-in-production-32chars
       - JWT_ALGORITHM=HS256

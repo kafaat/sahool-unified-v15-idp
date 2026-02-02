@@ -17,7 +17,11 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
+<<<<<<< HEAD
 from datetime import datetime, timezone
+=======
+from datetime import datetime, UTC
+>>>>>>> origin/main
 
 from .models import (
     Coordinate,
@@ -1109,7 +1113,11 @@ def assess_flight_weather(
         WeatherCheck with assessment | تقييم الطقس
     """
     check = WeatherCheck(
+<<<<<<< HEAD
         check_time=datetime.now(timezone.utc),
+=======
+        check_time=datetime.now(UTC),
+>>>>>>> origin/main
         condition=WeatherCondition.OPTIMAL,
         temperature_c=temperature_c,
         humidity_percent=humidity_percent,

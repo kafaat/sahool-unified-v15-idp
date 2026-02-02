@@ -17,6 +17,13 @@
 
 set -e
 
+<<<<<<< HEAD
+=======
+# Script directory and project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+>>>>>>> origin/main
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -123,7 +130,11 @@ check_typescript() {
     else
         print_status "TypeScript (web)" 1
     fi
+<<<<<<< HEAD
     cd - > /dev/null
+=======
+    cd "$PROJECT_ROOT"
+>>>>>>> origin/main
 
     # TypeScript type check - Admin
     echo "Checking TypeScript (admin)..."
@@ -132,7 +143,11 @@ check_typescript() {
     else
         print_status "TypeScript (admin)" 1
     fi
+<<<<<<< HEAD
     cd - > /dev/null
+=======
+    cd "$PROJECT_ROOT"
+>>>>>>> origin/main
 
     # ESLint
     echo "Running ESLint..."
@@ -141,7 +156,11 @@ check_typescript() {
     else
         print_warning "ESLint found issues"
     fi
+<<<<<<< HEAD
     cd - > /dev/null
+=======
+    cd "$PROJECT_ROOT"
+>>>>>>> origin/main
 
     # Vitest tests
     if [ "$QUICK" != "true" ]; then
@@ -151,7 +170,11 @@ check_typescript() {
         else
             print_status "Vitest tests" 1
         fi
+<<<<<<< HEAD
         cd - > /dev/null
+=======
+        cd "$PROJECT_ROOT"
+>>>>>>> origin/main
     fi
 }
 
@@ -182,14 +205,22 @@ check_flutter() {
         else
             print_warning "Flutter analyze found issues"
         fi
+<<<<<<< HEAD
         cd - > /dev/null
+=======
+        cd "$PROJECT_ROOT"
+>>>>>>> origin/main
     else
         if cd apps/mobile && flutter analyze --no-fatal-infos 2>/dev/null; then
             print_status "Flutter analyze" 0
         else
             print_warning "Flutter analyze found issues"
         fi
+<<<<<<< HEAD
         cd - > /dev/null
+=======
+        cd "$PROJECT_ROOT"
+>>>>>>> origin/main
     fi
 
     # Dart format check
@@ -199,7 +230,11 @@ check_flutter() {
     else
         print_warning "Some Dart files need formatting (run: dart format .)"
     fi
+<<<<<<< HEAD
     cd - > /dev/null
+=======
+    cd "$PROJECT_ROOT"
+>>>>>>> origin/main
 
     # Import sorting check (if import_sorter is available)
     if [ -f "apps/mobile/import_sorter.yaml" ]; then
@@ -209,7 +244,11 @@ check_flutter() {
         else
             print_warning "Some imports need sorting (run: dart run import_sorter:main)"
         fi
+<<<<<<< HEAD
         cd - > /dev/null
+=======
+        cd "$PROJECT_ROOT"
+>>>>>>> origin/main
     fi
 
     # Flutter tests
@@ -221,14 +260,22 @@ check_flutter() {
             else
                 print_status "Flutter tests" 1
             fi
+<<<<<<< HEAD
             cd - > /dev/null
+=======
+            cd "$PROJECT_ROOT"
+>>>>>>> origin/main
         else
             if cd apps/mobile && flutter test --reporter=compact 2>/dev/null; then
                 print_status "Flutter tests" 0
             else
                 print_status "Flutter tests" 1
             fi
+<<<<<<< HEAD
             cd - > /dev/null
+=======
+            cd "$PROJECT_ROOT"
+>>>>>>> origin/main
         fi
     fi
 
@@ -240,7 +287,11 @@ check_flutter() {
         else
             print_warning "Code generation needs update (run: dart run build_runner build)"
         fi
+<<<<<<< HEAD
         cd - > /dev/null
+=======
+        cd "$PROJECT_ROOT"
+>>>>>>> origin/main
     fi
 }
 

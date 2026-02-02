@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: leveling-optimizer-api
+  description: Leveling Optimizer API for land leveling calculations, cut-fill optimization, and precision grading recommendations
+  tags:
+    - openapi
+    - optimization
+    - land-leveling
+    - precision-agriculture
+spec:
+  type: openapi
+  lifecycle: production
+  owner: geospatial-team
+  definition:
+    $text: ./docs/api/leveling-optimizer-api.yaml

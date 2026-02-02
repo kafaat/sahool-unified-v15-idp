@@ -25,3 +25,12 @@ export * from "./monitoring";
 
 // Field & Farm types - أنواع الحقول والمزارع
 export * from "./field";
+
+// Vision Service types - أنواع خدمة الرؤية الحاسوبية
+export * from "./vision";
+
+// Terrain Service types - أنواع خدمة التضاريس
+export * from "./terrain";
+
+// Edge Device types - أنواع أجهزة الحوسبة الطرفية
+export * from "./edge";

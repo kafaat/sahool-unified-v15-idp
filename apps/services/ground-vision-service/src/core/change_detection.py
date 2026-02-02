@@ -43,7 +43,11 @@ class ChangeDetectionResult(BaseModel):
 
     # Analysis metadata
     method_used: str = Field(default="structural_similarity")
+<<<<<<< HEAD
     processing_time_ms: Optional[int] = None
+=======
+    processing_time_ms: int | None = None
+>>>>>>> origin/main
 
     # Trigger recommendation
     should_trigger_analysis: bool = Field(
@@ -95,7 +99,11 @@ class ChangeDetector:
         self,
         frame1: np.ndarray,
         frame2: np.ndarray,
+<<<<<<< HEAD
         mask: Optional[np.ndarray] = None
+=======
+        mask: np.ndarray | None = None
+>>>>>>> origin/main
     ) -> ChangeDetectionResult:
         """
         Compute change score between two frames.

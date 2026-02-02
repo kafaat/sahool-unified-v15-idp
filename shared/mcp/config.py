@@ -365,7 +365,7 @@ class MCPConfig:
     bilingual: BilingualConfig = field(default_factory=BilingualConfig)
 
     @classmethod
-    def from_env(cls) -> "MCPConfig":
+    def from_env(cls) -> MCPConfig:
         """Create configuration from environment variables"""
         return cls(
             server=ServerConfig(),

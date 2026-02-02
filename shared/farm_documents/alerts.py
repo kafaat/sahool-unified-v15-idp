@@ -12,7 +12,11 @@ and compliance notification functionality.
 from __future__ import annotations
 
 from dataclasses import dataclass
+<<<<<<< HEAD
 from datetime import date, datetime, timedelta, timezone
+=======
+from datetime import date, datetime, timedelta, UTC
+>>>>>>> origin/main
 from typing import Callable
 
 import structlog
@@ -494,7 +498,11 @@ class AlertService:
             return None
 
         alert.is_read = True
+<<<<<<< HEAD
         alert.updated_at = datetime.now(timezone.utc)
+=======
+        alert.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
 
         logger.info(
             "alert_marked_read",
@@ -520,8 +528,13 @@ class AlertService:
         alert.is_read = True
         alert.is_acknowledged = True
         alert.acknowledged_by = user_id
+<<<<<<< HEAD
         alert.acknowledged_at = datetime.now(timezone.utc)
         alert.updated_at = datetime.now(timezone.utc)
+=======
+        alert.acknowledged_at = datetime.now(UTC)
+        alert.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
 
         logger.info(
             "alert_acknowledged",
@@ -547,9 +560,15 @@ class AlertService:
 
         alert.is_resolved = True
         alert.resolved_by = user_id
+<<<<<<< HEAD
         alert.resolved_at = datetime.now(timezone.utc)
         alert.resolution_notes = resolution_notes
         alert.updated_at = datetime.now(timezone.utc)
+=======
+        alert.resolved_at = datetime.now(UTC)
+        alert.resolution_notes = resolution_notes
+        alert.updated_at = datetime.now(UTC)
+>>>>>>> origin/main
 
         logger.info(
             "alert_resolved",
@@ -682,7 +701,11 @@ class AlertService:
             )
 
             alert.notification_sent = True
+<<<<<<< HEAD
             alert.notification_sent_at = datetime.now(timezone.utc)
+=======
+            alert.notification_sent_at = datetime.now(UTC)
+>>>>>>> origin/main
             alert.notification_channels = self.config.notification_channels
 
             logger.info(
@@ -734,7 +757,11 @@ class AlertService:
         Check if a similar alert was created recently
         التحقق مما إذا تم إنشاء تنبيه مماثل مؤخراً
         """
+<<<<<<< HEAD
         cutoff = datetime.now(timezone.utc) - timedelta(hours=self.config.alert_cooldown_hours)
+=======
+        cutoff = datetime.now(UTC) - timedelta(hours=self.config.alert_cooldown_hours)
+>>>>>>> origin/main
 
         for alert in self._alerts.values():
             if alert.created_at < cutoff:
@@ -756,7 +783,11 @@ class AlertService:
         Remove old resolved alerts
         إزالة التنبيهات القديمة المحلولة
         """
+<<<<<<< HEAD
         cutoff = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
+=======
+        cutoff = datetime.now(UTC) - timedelta(days=days_to_keep)
+>>>>>>> origin/main
         removed = 0
 
         alert_ids_to_remove = []

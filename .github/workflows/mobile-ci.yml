@@ -57,10 +57,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Java ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: ${{ env.JAVA_VERSION }}
@@ -75,7 +75,7 @@ jobs:
           cache-path: ${{ runner.tool_cache }}/flutter
 
       - name: Cache pub dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -128,7 +128,7 @@ jobs:
 
       - name: Upload analysis results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: analysis-results
           path: apps/mobile/analyze_output.txt
@@ -148,10 +148,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Java ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: ${{ env.JAVA_VERSION }}
@@ -166,7 +166,7 @@ jobs:
           cache-path: ${{ runner.tool_cache }}/flutter
 
       - name: Cache pub dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -222,7 +222,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: always()
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: apps/mobile/coverage/lcov.info
           flags: flutter,mobile
@@ -233,7 +233,7 @@ jobs:
 
       - name: Upload coverage artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-report
           path: |
@@ -271,10 +271,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Java ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: ${{ env.JAVA_VERSION }}
@@ -292,7 +292,7 @@ jobs:
           cache-path: ${{ runner.tool_cache }}/flutter
 
       - name: Cache pub dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -303,7 +303,7 @@ jobs:
             pub-cache-${{ runner.os }}-
 
       - name: Cache Gradle
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -320,7 +320,7 @@ jobs:
         run: flutter pub get
 
       - name: Setup Python for icon generation
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -370,7 +370,7 @@ jobs:
           fi
 
       - name: Upload Debug APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: sahool-debug-apk-${{ github.run_number }}
           path: apps/mobile/build/app/outputs/**/*.apk
@@ -378,7 +378,7 @@ jobs:
 
       - name: Upload build logs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: build-logs-debug-${{ github.run_number }}
           path: |
@@ -412,10 +412,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Java ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: ${{ env.JAVA_VERSION }}
@@ -464,7 +464,7 @@ jobs:
 
       - name: Upload integration test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: integration-test-results
           path: apps/mobile/integration_test_output/
@@ -490,7 +490,9 @@ jobs:
           echo "| Test | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build Debug | ${{ needs.build-debug.result }} |" >> $GITHUB_STEP_SUMMARY
 
-          if [ "${{ needs.analyze.result }}" != "success" ]; then
+          # Only fail on actual failures, not on cancelled/skipped jobs
+          # Cancelled jobs are expected when concurrency rules apply
+          if [ "${{ needs.analyze.result }}" == "failure" ]; then
             echo "::error::Analyze job failed"
             exit 1
           fi
@@ -500,9 +502,16 @@ jobs:
             exit 1
           fi
 
-          if [ "${{ needs.build-debug.result }}" != "success" ]; then
+          if [ "${{ needs.build-debug.result }}" == "failure" ]; then
             echo "::error::Build job failed"
             exit 1
+          fi
+
+          # Warn about cancelled jobs but don't fail
+          if [ "${{ needs.analyze.result }}" == "cancelled" ] || \
+             [ "${{ needs.test.result }}" == "cancelled" ] || \
+             [ "${{ needs.build-debug.result }}" == "cancelled" ]; then
+            echo "::warning::Some jobs were cancelled (likely due to concurrency rules)"
           fi
 
           echo "All CI checks passed!"

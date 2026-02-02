@@ -95,7 +95,7 @@ class NatsPublisher:
             bool: Publish success status
         """
         if not self.is_connected:
-            logger.warning(f"NATS not connected, skipping event publish: {event_type}")
+            logger.warning("NATS not connected, skipping event publish: %s", event_type)
             return False
 
         try:
@@ -116,7 +116,7 @@ class NatsPublisher:
             success = await self._publisher.publish_json(subject, event)
 
             if success:
-                logger.info(f"📤 Event published: {event_type} to {subject}")
+                logger.info("📤 Event published: %s to %s", event_type, subject)
             return success
 
         except Exception as e:

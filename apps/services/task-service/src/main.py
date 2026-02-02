@@ -225,7 +225,7 @@ async def combined_health():
 @app.on_event("startup")
 async def startup_event():
     """Initialize database connection, NATS, and cache on startup"""
-    logger.info(f"Starting {SERVICE_NAME} v{SERVICE_VERSION}...")
+    logger.info("Starting %s v%s...", SERVICE_NAME, SERVICE_VERSION)
 
     # Initialize database
     logger.info("Initializing database...")
@@ -274,13 +274,13 @@ async def startup_event():
     except Exception as e:
         logger.warning("⚠️ Redis connection error: %s, using in-memory cache", type(e).__name__)
 
-    logger.info(f"🚀 {SERVICE_NAME} started on port {SERVICE_PORT}")
+    logger.info("🚀 %s started on port %d", SERVICE_NAME, SERVICE_PORT)
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Clean up connections on shutdown"""
-    logger.info(f"Shutting down {SERVICE_NAME}...")
+    logger.info("Shutting down %s...", SERVICE_NAME)
 
     # Close NATS connection
     if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
@@ -306,7 +306,7 @@ async def shutdown_event():
     except Exception as e:
         logger.warning("⚠️ Error closing database: %s", type(e).__name__)
 
-    logger.info(f"👋 {SERVICE_NAME} shutdown complete")
+    logger.info("👋 %s shutdown complete", SERVICE_NAME)
 
 
 # ═══════════════════════════════════════════════════════════════════════════

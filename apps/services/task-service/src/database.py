@@ -187,7 +187,7 @@ def seed_demo_data(db: Session) -> None:
     # Check if we already have tasks
     existing_tasks = db.query(Task).count()
     if existing_tasks > 0:
-        logger.info(f"Demo data already exists ({existing_tasks} tasks)")
+        logger.info("Demo data already exists (%d tasks)", existing_tasks)
         return
 
     logger.info("Seeding demo data...")
@@ -320,7 +320,7 @@ def seed_demo_data(db: Session) -> None:
             db.add(task)
 
         db.commit()
-        logger.info(f"Seeded {len(demo_tasks)} demo tasks")
+        logger.info("Seeded %d demo tasks", len(demo_tasks))
 
     except Exception as e:
         db.rollback()

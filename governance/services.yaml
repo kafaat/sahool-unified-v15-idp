@@ -14,11 +14,7 @@ event_architecture:
   layers:
     acquisition:
       description: "Data ingestion layer - طبقة جمع البيانات"
-<<<<<<< HEAD
-      services: [vegetation-analysis-service, iot-service, iot-gateway, weather-service, weather-core, virtual-sensors, ussd-gateway, ground-vision-service]
-=======
       services: [vegetation-analysis-service, iot-service, iot-gateway, weather-service, weather-core, virtual-sensors, ussd-gateway, ground-vision-service, edge-orchestrator-service]
->>>>>>> origin/main
       rules:
         - "No business logic"
         - "Only ingestion + normalization"

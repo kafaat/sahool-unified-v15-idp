@@ -4,11 +4,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Build stage for dependencies
-<<<<<<< HEAD
-FROM python:3.12-slim as builder
-=======
 FROM python:3.11-slim-bookworm as builder
->>>>>>> origin/main
 
 WORKDIR /app
 
@@ -20,27 +16,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install dependencies
-<<<<<<< HEAD
-COPY requirements.txt .
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
-=======
 COPY apps/services/ground-vision-service/requirements.txt .
 RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
     pip install --no-cache-dir --timeout=300 --retries=10 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     --trusted-host mirrors.aliyun.com \
     --prefix=/install -r requirements.txt
->>>>>>> origin/main
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Production stage
 # ═══════════════════════════════════════════════════════════════════════════════
 
-<<<<<<< HEAD
-FROM python:3.12-slim
-=======
 FROM python:3.11-slim-bookworm
->>>>>>> origin/main
 
 LABEL org.opencontainers.image.title="Ground Vision Service"
 LABEL org.opencontainers.image.description="High-frequency agricultural monitoring using tower cameras"
@@ -50,30 +37,18 @@ LABEL org.opencontainers.image.source="https://github.com/kafaat/sahool-unified-
 
 WORKDIR /app
 
-<<<<<<< HEAD
-# Install runtime dependencies
-=======
 # Install runtime dependencies (Bookworm package names)
->>>>>>> origin/main
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     libgdal32 \
     libgeos-c1v5 \
     libproj25 \
     # OpenCV dependencies
-<<<<<<< HEAD
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-=======
     libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
     libxrender1 \
->>>>>>> origin/main
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
@@ -83,12 +58,8 @@ RUN useradd --create-home --shell /bin/bash appuser
 COPY --from=builder /install /usr/local
 
 # Copy application code
-<<<<<<< HEAD
-COPY src/ ./src/
-=======
 COPY apps/services/ground-vision-service/requirements.txt .
 COPY apps/services/ground-vision-service/src/ ./src/
->>>>>>> origin/main
 
 # Set ownership
 RUN chown -R appuser:appuser /app

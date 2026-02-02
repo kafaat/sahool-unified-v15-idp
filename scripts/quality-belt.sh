@@ -17,124 +17,7 @@
 
 set -e
 
-<<<<<<< HEAD
-=======
-# Script directory and project root
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-
->>>>>>> origin/main
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Counters
-PASSED=0
-FAILED=0
-WARNINGS=0
-
-# Print header
-print_header() {
-    echo -e "\n${BLUE}═══════════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}  $1${NC}"
-    echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}\n"
-}
-
-# Print status
-print_status() {
-    if [ $2 -eq 0 ]; then
-        echo -e "${GREEN}✓ $1${NC}"
-        ((PASSED++))
-    else
-        echo -e "${RED}✗ $1${NC}"
-        ((FAILED++))
-    fi
-}
-
-# Print warning
-print_warning() {
-    echo -e "${YELLOW}⚠ $1${NC}"
-    ((WARNINGS++))
-}
-
-# ============================================================================
-# PYTHON CHECKS
-# ============================================================================
-check_python() {
-    print_header "🐍 Python Quality Checks"
-
-    # Ruff lint
-    echo "Running Ruff linter..."
-    if ruff check apps/ shared/ --fix --quiet 2>/dev/null; then
-        print_status "Ruff lint" 0
-    else
-        print_status "Ruff lint" 1
-    fi
-
-    # Ruff format check
-    echo "Checking Ruff formatting..."
-    if ruff format --check apps/ shared/ --quiet 2>/dev/null; then
-        print_status "Ruff format" 0
-    else
-        print_warning "Some files need formatting (run: ruff format .)"
-    fi
-
-    # Mypy type check (optional, slower)
-    if [ "$QUICK" != "true" ]; then
-        echo "Running Mypy type checker..."
-        if mypy shared/ --ignore-missing-imports --no-error-summary --quiet 2>/dev/null; then
-            print_status "Mypy type check" 0
-        else
-            print_warning "Mypy found type issues"
-        fi
-    fi
-
-    # Pytest smoke tests
-    echo "Running smoke tests..."
-    if python -m pytest tests/smoke/ -x -q --no-header 2>/dev/null; then
-        print_status "Smoke tests" 0
-    else
-        print_status "Smoke tests" 1
-    fi
-
-    # Bandit security check
-    if [ "$QUICK" != "true" ]; then
-        echo "Running Bandit security check..."
-        if bandit -r shared/ -q -ll 2>/dev/null; then
-            print_status "Bandit security" 0
-        else
-            print_warning "Bandit found security issues"
-        fi
-    fi
-}
-
-# ============================================================================
-# TYPESCRIPT CHECKS
-# ============================================================================
-check_typescript() {
-    print_header "📘 TypeScript Quality Checks"
-
-    # Check if npm is available
-    if ! command -v npm &> /dev/null; then
-        print_warning "npm not found, skipping TypeScript checks"
-        return
-    fi
-
-    # TypeScript type check - Web
-    echo "Checking TypeScript (web)..."
-    if cd apps/web && npx tsc --noEmit --skipLibCheck 2>/dev/null; then
-        print_status "TypeScript (web)" 0
-    else
-        print_status "TypeScript (web)" 1
-    fi
-<<<<<<< HEAD
-    cd - > /dev/null
-=======
     cd "$PROJECT_ROOT"
->>>>>>> origin/main
 
     # TypeScript type check - Admin
     echo "Checking TypeScript (admin)..."
@@ -143,11 +26,7 @@ check_typescript() {
     else
         print_status "TypeScript (admin)" 1
     fi
-<<<<<<< HEAD
-    cd - > /dev/null
-=======
     cd "$PROJECT_ROOT"
->>>>>>> origin/main
 
     # ESLint
     echo "Running ESLint..."
@@ -156,11 +35,7 @@ check_typescript() {
     else
         print_warning "ESLint found issues"
     fi
-<<<<<<< HEAD
-    cd - > /dev/null
-=======
     cd "$PROJECT_ROOT"
->>>>>>> origin/main
 
     # Vitest tests
     if [ "$QUICK" != "true" ]; then
@@ -170,11 +45,7 @@ check_typescript() {
         else
             print_status "Vitest tests" 1
         fi
-<<<<<<< HEAD
-        cd - > /dev/null
-=======
         cd "$PROJECT_ROOT"
->>>>>>> origin/main
     fi
 }
 
@@ -205,22 +76,14 @@ check_flutter() {
         else
             print_warning "Flutter analyze found issues"
         fi
-<<<<<<< HEAD
-        cd - > /dev/null
-=======
         cd "$PROJECT_ROOT"
->>>>>>> origin/main
     else
         if cd apps/mobile && flutter analyze --no-fatal-infos 2>/dev/null; then
             print_status "Flutter analyze" 0
         else
             print_warning "Flutter analyze found issues"
         fi
-<<<<<<< HEAD
-        cd - > /dev/null
-=======
         cd "$PROJECT_ROOT"
->>>>>>> origin/main
     fi
 
     # Dart format check
@@ -230,11 +93,7 @@ check_flutter() {
     else
         print_warning "Some Dart files need formatting (run: dart format .)"
     fi
-<<<<<<< HEAD
-    cd - > /dev/null
-=======
     cd "$PROJECT_ROOT"
->>>>>>> origin/main
 
     # Import sorting check (if import_sorter is available)
     if [ -f "apps/mobile/import_sorter.yaml" ]; then
@@ -244,11 +103,7 @@ check_flutter() {
         else
             print_warning "Some imports need sorting (run: dart run import_sorter:main)"
         fi
-<<<<<<< HEAD
-        cd - > /dev/null
-=======
         cd "$PROJECT_ROOT"
->>>>>>> origin/main
     fi
 
     # Flutter tests
@@ -260,22 +115,14 @@ check_flutter() {
             else
                 print_status "Flutter tests" 1
             fi
-<<<<<<< HEAD
-            cd - > /dev/null
-=======
             cd "$PROJECT_ROOT"
->>>>>>> origin/main
         else
             if cd apps/mobile && flutter test --reporter=compact 2>/dev/null; then
                 print_status "Flutter tests" 0
             else
                 print_status "Flutter tests" 1
             fi
-<<<<<<< HEAD
-            cd - > /dev/null
-=======
             cd "$PROJECT_ROOT"
->>>>>>> origin/main
         fi
     fi
 
@@ -287,11 +134,7 @@ check_flutter() {
         else
             print_warning "Code generation needs update (run: dart run build_runner build)"
         fi
-<<<<<<< HEAD
-        cd - > /dev/null
-=======
         cd "$PROJECT_ROOT"
->>>>>>> origin/main
     fi
 }
 

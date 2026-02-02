@@ -162,7 +162,9 @@ class NDVIClient:
         Returns:
             Field health data with analysis results
         """
-        logger.info(f"Fetching health data for field: {field_id}")
+        # Sanitize field_id for logging to prevent log injection
+        safe_field_id = str(field_id).replace('\n', '').replace('\r', '')[:100]
+        logger.info("Fetching health data for field: %s", safe_field_id)
 
         try:
             # Try to call the NDVI service
@@ -184,12 +186,12 @@ class NDVIClient:
             return self._parse_ndvi_response(field_id, data)
 
         except httpx.HTTPError as e:
-            logger.warning(f"NDVI service unavailable, using local calculation: {e}")
+            logger.warning("NDVI service unavailable, using local calculation: %s", type(e).__name__)
             # Fall back to local calculation
             return await self._calculate_locally(field_id, image_url, red_band_data, nir_band_data)
 
         except Exception as e:
-            logger.error(f"Error fetching field health: {e}")
+            logger.error("Error fetching field health: %s", type(e).__name__)
             # Return default/simulated data
             return self._get_simulated_health(field_id)
 
@@ -232,7 +234,7 @@ class NDVIClient:
             logger.warning("NDVI calculation module not available")
             return self._get_simulated_health(field_id)
         except Exception as e:
-            logger.error(f"Local NDVI calculation failed: {e}")
+            logger.error("Local NDVI calculation failed: %s", type(e).__name__)
             return self._get_simulated_health(field_id)
 
     def _parse_ndvi_response(self, field_id: str, data: dict[str, Any]) -> FieldHealthData:

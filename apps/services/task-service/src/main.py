@@ -235,11 +235,13 @@ async def startup_event():
         init_demo_data_if_needed()
         logger.info("✅ Database initialized successfully")
     except Exception as e:
-        logger.error(f"❌ Failed to initialize database: {e}", exc_info=True)
+        logger.error("❌ Failed to initialize database: %s", type(e).__name__, exc_info=True)
 
     # Initialize NATS connection
     nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
-    logger.info(f"Connecting to NATS at {nats_url}...")
+    # Sanitize URL for logging
+    safe_nats_url = str(nats_url).replace('\n', '').replace('\r', '')
+    logger.info("Connecting to NATS at %s...", safe_nats_url)
     try:
         from .events import NatsPublisher
         from .events.nats_publisher import set_publisher
@@ -249,16 +251,16 @@ async def startup_event():
         if connected:
             set_publisher(publisher)
             app.state.nats_publisher = publisher
-            logger.info(f"✅ NATS connected: {nats_url}")
+            logger.info("✅ NATS connected: %s", safe_nats_url)
         else:
             app.state.nats_publisher = None
-            logger.warning(f"⚠️ NATS connection failed: {nats_url}")
+            logger.warning("⚠️ NATS connection failed: %s", safe_nats_url)
     except ImportError:
         app.state.nats_publisher = None
         logger.warning("⚠️ NATS events module not available")
     except Exception as e:
         app.state.nats_publisher = None
-        logger.warning(f"⚠️ NATS connection error: {e}")
+        logger.warning("⚠️ NATS connection error: %s", type(e).__name__)
 
     # Initialize Redis cache
     logger.info("Initializing Redis cache...")
@@ -270,7 +272,7 @@ async def startup_event():
         else:
             logger.info("ℹ️ Using in-memory cache (Redis unavailable)")
     except Exception as e:
-        logger.warning(f"⚠️ Redis connection error: {e}, using in-memory cache")
+        logger.warning("⚠️ Redis connection error: %s, using in-memory cache", type(e).__name__)
 
     logger.info(f"🚀 {SERVICE_NAME} started on port {SERVICE_PORT}")
 
@@ -286,7 +288,7 @@ async def shutdown_event():
             await app.state.nats_publisher.close()
             logger.info("✅ NATS connection closed")
         except Exception as e:
-            logger.warning(f"⚠️ Error closing NATS: {e}")
+            logger.warning("⚠️ Error closing NATS: %s", type(e).__name__)
 
     # Close Redis connection
     try:
@@ -294,7 +296,7 @@ async def shutdown_event():
         await close_redis()
         logger.info("✅ Redis connection closed")
     except Exception as e:
-        logger.warning(f"⚠️ Error closing Redis: {e}")
+        logger.warning("⚠️ Error closing Redis: %s", type(e).__name__)
 
     # Close database connection
     try:
@@ -302,7 +304,7 @@ async def shutdown_event():
         close_database()
         logger.info("✅ Database connection closed")
     except Exception as e:
-        logger.warning(f"⚠️ Error closing database: {e}")
+        logger.warning("⚠️ Error closing database: %s", type(e).__name__)
 
     logger.info(f"👋 {SERVICE_NAME} shutdown complete")
 

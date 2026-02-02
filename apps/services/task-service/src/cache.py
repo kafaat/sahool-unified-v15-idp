@@ -58,7 +58,9 @@ async def get_redis_client():
         # Test connection
         await _redis_client.ping()
         _redis_available = True
-        logger.info(f"Redis connected: {REDIS_URL}")
+        # Sanitize URL for logging (remove potential newlines)
+        safe_url = str(REDIS_URL).replace('\n', '').replace('\r', '')
+        logger.info("Redis connected: %s", safe_url)
         return _redis_client
 
     except ImportError:
@@ -67,7 +69,7 @@ async def get_redis_client():
         return None
 
     except Exception as e:
-        logger.warning(f"Redis connection failed: {e}, using in-memory cache")
+        logger.warning("Redis connection failed: %s, using in-memory cache", type(e).__name__)
         _redis_available = False
         return None
 
@@ -80,7 +82,7 @@ async def close_redis():
         try:
             await _redis_client.close()
         except Exception as e:
-            logger.warning(f"Error closing Redis: {e}")
+            logger.warning("Error closing Redis: %s", type(e).__name__)
         finally:
             _redis_client = None
             _redis_available = False
@@ -211,7 +213,7 @@ class CacheAdapter:
                     return json.loads(value)
                 return None
             except Exception as e:
-                logger.warning(f"Redis get error: {e}")
+                logger.warning("Redis get error: %s", type(e).__name__)
 
         # Fallback to in-memory
         return _memory_cache.get(full_key)
@@ -237,7 +239,7 @@ class CacheAdapter:
         try:
             serialized = json.dumps(value, default=str)
         except (TypeError, ValueError) as e:
-            logger.error(f"Cache serialization error: {e}")
+            logger.error("Cache serialization error: %s", type(e).__name__)
             return False
 
         # Try Redis first
@@ -247,7 +249,7 @@ class CacheAdapter:
                 await redis_client.setex(full_key, ttl_seconds, serialized)
                 return True
             except Exception as e:
-                logger.warning(f"Redis set error: {e}")
+                logger.warning("Redis set error: %s", type(e).__name__)
 
         # Fallback to in-memory
         _memory_cache.set(full_key, value, ttl_seconds)
@@ -273,7 +275,7 @@ class CacheAdapter:
                 result = await redis_client.delete(full_key)
                 return result > 0
             except Exception as e:
-                logger.warning(f"Redis delete error: {e}")
+                logger.warning("Redis delete error: %s", type(e).__name__)
 
         # Fallback to in-memory
         return _memory_cache.delete(full_key)
@@ -337,7 +339,7 @@ class CacheAdapter:
                     return await redis_client.delete(*keys)
                 return 0
             except Exception as e:
-                logger.warning(f"Redis clear error: {e}")
+                logger.warning("Redis clear error: %s", type(e).__name__)
 
         # For in-memory, clear all (can't filter by prefix efficiently)
         size = _memory_cache.size()

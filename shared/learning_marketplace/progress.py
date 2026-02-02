@@ -17,11 +17,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timedelta, timezone
-=======
 from datetime import datetime, timedelta, UTC
->>>>>>> origin/main
 from enum import Enum
 from typing import Any, Callable
 import asyncio
@@ -85,13 +81,8 @@ class LessonProgress:
     notes: str | None = None
 
     # Timestamps
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     @property
     def completion_percentage(self) -> float:
@@ -136,13 +127,8 @@ class LessonProgress:
             content_viewed=data.get("content_viewed", False),
             downloads_completed=data.get("downloads_completed", []),
             notes=data.get("notes"),
-<<<<<<< HEAD
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(timezone.utc),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(timezone.utc),
-=======
             created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
             updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
->>>>>>> origin/main
         )
 
 
@@ -160,11 +146,7 @@ class QuizAttempt:
 
     # Attempt info
     attempt_number: int = 1
-<<<<<<< HEAD
-    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
     completed_at: datetime | None = None
 
     # Results
@@ -212,11 +194,7 @@ class QuizAttempt:
             lesson_id=data.get("lesson_id", ""),
             course_id=data.get("course_id", ""),
             attempt_number=data.get("attempt_number", 1),
-<<<<<<< HEAD
-            started_at=datetime.fromisoformat(data["started_at"]) if data.get("started_at") else datetime.now(timezone.utc),
-=======
             started_at=datetime.fromisoformat(data["started_at"]) if data.get("started_at") else datetime.now(UTC),
->>>>>>> origin/main
             completed_at=datetime.fromisoformat(data["completed_at"]) if data.get("completed_at") else None,
             score=data.get("score", 0),
             max_score=data.get("max_score", 0),
@@ -243,11 +221,7 @@ class CourseEnrollment:
     status: EnrollmentStatus = EnrollmentStatus.ENROLLED
 
     # Dates
-<<<<<<< HEAD
-    enrolled_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     enrolled_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
     started_at: datetime | None = None
     completed_at: datetime | None = None
     expires_at: datetime | None = None
@@ -279,13 +253,8 @@ class CourseEnrollment:
     certificate_issued_at: datetime | None = None
 
     # Timestamps
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     @property
     def progress_percentage(self) -> float:
@@ -342,11 +311,7 @@ class CourseEnrollment:
             farmer_id=data.get("farmer_id", ""),
             course_id=data.get("course_id", ""),
             status=EnrollmentStatus(data.get("status", "enrolled")),
-<<<<<<< HEAD
-            enrolled_at=datetime.fromisoformat(data["enrolled_at"]) if data.get("enrolled_at") else datetime.now(timezone.utc),
-=======
             enrolled_at=datetime.fromisoformat(data["enrolled_at"]) if data.get("enrolled_at") else datetime.now(UTC),
->>>>>>> origin/main
             started_at=datetime.fromisoformat(data["started_at"]) if data.get("started_at") else None,
             completed_at=datetime.fromisoformat(data["completed_at"]) if data.get("completed_at") else None,
             expires_at=datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None,
@@ -362,13 +327,8 @@ class CourseEnrollment:
             quiz_attempts=[QuizAttempt.from_dict(qa) for qa in data.get("quiz_attempts", [])],
             certificate_id=data.get("certificate_id"),
             certificate_issued_at=datetime.fromisoformat(data["certificate_issued_at"]) if data.get("certificate_issued_at") else None,
-<<<<<<< HEAD
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(timezone.utc),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(timezone.utc),
-=======
             created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
             updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
->>>>>>> origin/main
         )
 
 
@@ -402,11 +362,7 @@ class ProgressEvent:
     xp_earned: int = 0
 
     # Timestamp
-<<<<<<< HEAD
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -442,11 +398,7 @@ class ProgressEvent:
             data=data.get("data", {}),
             message=BilingualText.from_dict(data.get("message", {})),
             xp_earned=data.get("xp_earned", 0),
-<<<<<<< HEAD
-            timestamp=datetime.fromisoformat(data["timestamp"]) if data.get("timestamp") else datetime.now(timezone.utc),
-=======
             timestamp=datetime.fromisoformat(data["timestamp"]) if data.get("timestamp") else datetime.now(UTC),
->>>>>>> origin/main
         )
 
 
@@ -670,11 +622,7 @@ class ProgressTracker:
 
         # Update profile
         profile.total_courses_enrolled += 1
-<<<<<<< HEAD
-        profile.updated_at = datetime.now(timezone.utc)
-=======
         profile.updated_at = datetime.now(UTC)
->>>>>>> origin/main
 
         await self.storage.save_enrollment(enrollment)
         await self.storage.save_profile(profile)
@@ -745,13 +693,8 @@ class ProgressTracker:
         progress = enrollment.get_lesson_progress(lesson.id)
         if progress:
             # Update last activity
-<<<<<<< HEAD
-            progress.updated_at = datetime.now(timezone.utc)
-            enrollment.last_activity_at = datetime.now(timezone.utc)
-=======
             progress.updated_at = datetime.now(UTC)
             enrollment.last_activity_at = datetime.now(UTC)
->>>>>>> origin/main
             enrollment.last_lesson_id = lesson.id
             return progress
 
@@ -760,28 +703,16 @@ class ProgressTracker:
             farmer_id=farmer_id,
             lesson_id=lesson.id,
             course_id=lesson.course_id,
-<<<<<<< HEAD
-            started_at=datetime.now(timezone.utc),
-        )
-
-        enrollment.lesson_progress.append(progress)
-        enrollment.last_activity_at = datetime.now(timezone.utc)
-=======
             started_at=datetime.now(UTC),
         )
 
         enrollment.lesson_progress.append(progress)
         enrollment.last_activity_at = datetime.now(UTC)
->>>>>>> origin/main
         enrollment.last_lesson_id = lesson.id
 
         if enrollment.status == EnrollmentStatus.ENROLLED:
             enrollment.status = EnrollmentStatus.IN_PROGRESS
-<<<<<<< HEAD
-            enrollment.started_at = datetime.now(timezone.utc)
-=======
             enrollment.started_at = datetime.now(UTC)
->>>>>>> origin/main
 
         await self.storage.save_enrollment(enrollment)
 
@@ -831,33 +762,20 @@ class ProgressTracker:
 
         # Mark as completed
         progress.is_completed = True
-<<<<<<< HEAD
-        progress.completed_at = datetime.now(timezone.utc)
-=======
         progress.completed_at = datetime.now(UTC)
->>>>>>> origin/main
         progress.content_viewed = True
         progress.time_spent_minutes = time_spent_minutes or lesson.estimated_duration_minutes
 
         # Update enrollment
         enrollment.lessons_completed += 1
         enrollment.total_time_spent_minutes += progress.time_spent_minutes
-<<<<<<< HEAD
-        enrollment.last_activity_at = datetime.now(timezone.utc)
-        enrollment.updated_at = datetime.now(timezone.utc)
-=======
         enrollment.last_activity_at = datetime.now(UTC)
         enrollment.updated_at = datetime.now(UTC)
->>>>>>> origin/main
 
         # Update profile
         profile = await self.get_or_create_profile(farmer_id)
         profile.total_learning_minutes += progress.time_spent_minutes
-<<<<<<< HEAD
-        profile.updated_at = datetime.now(timezone.utc)
-=======
         profile.updated_at = datetime.now(UTC)
->>>>>>> origin/main
 
         # Award XP
         xp_earned = XP_REWARDS["lesson_completed"]
@@ -1009,11 +927,7 @@ class ProgressTracker:
                 incorrect_count += 1
 
         # Update attempt
-<<<<<<< HEAD
-        active_attempt.completed_at = datetime.now(timezone.utc)
-=======
         active_attempt.completed_at = datetime.now(UTC)
->>>>>>> origin/main
         active_attempt.answers = answers
         active_attempt.score = score
         active_attempt.percentage = (score / active_attempt.max_score * 100) if active_attempt.max_score > 0 else 0
@@ -1040,11 +954,7 @@ class ProgressTracker:
             if qa.completed_at
         ]
         enrollment.average_quiz_score = sum(all_scores) / len(all_scores) if all_scores else 0
-<<<<<<< HEAD
-        enrollment.updated_at = datetime.now(timezone.utc)
-=======
         enrollment.updated_at = datetime.now(UTC)
->>>>>>> origin/main
 
         # Update profile
         profile = await self.get_or_create_profile(farmer_id)
@@ -1103,11 +1013,7 @@ class ProgressTracker:
             return
 
         enrollment.status = EnrollmentStatus.COMPLETED
-<<<<<<< HEAD
-        enrollment.completed_at = datetime.now(timezone.utc)
-=======
         enrollment.completed_at = datetime.now(UTC)
->>>>>>> origin/main
 
         # Update profile
         profile.total_courses_completed += 1
@@ -1150,13 +1056,8 @@ class ProgressTracker:
         # Update skill
         skill.experience_points += xp_earned
         skill.total_learning_minutes += learning_minutes
-<<<<<<< HEAD
-        skill.last_activity_at = datetime.now(timezone.utc)
-        skill.updated_at = datetime.now(timezone.utc)
-=======
         skill.last_activity_at = datetime.now(UTC)
         skill.updated_at = datetime.now(UTC)
->>>>>>> origin/main
 
         # Check level up
         old_level = skill.level
@@ -1195,11 +1096,7 @@ class ProgressTracker:
 
     async def _update_streak(self, profile: FarmerProfile) -> None:
         """Update learning streak"""
-<<<<<<< HEAD
-        today = datetime.now(timezone.utc).date()
-=======
         today = datetime.now(UTC).date()
->>>>>>> origin/main
 
         if profile.last_learning_date:
             last_date = profile.last_learning_date.date()
@@ -1217,11 +1114,7 @@ class ProgressTracker:
         else:
             profile.current_streak_days = 1
 
-<<<<<<< HEAD
-        profile.last_learning_date = datetime.now(timezone.utc)
-=======
         profile.last_learning_date = datetime.now(UTC)
->>>>>>> origin/main
 
         # Update longest streak
         if profile.current_streak_days > profile.longest_streak_days:
@@ -1315,11 +1208,7 @@ class ProgressTracker:
         # Calculate expiry date
         expires_at = None
         if certification.validity_days:
-<<<<<<< HEAD
-            expires_at = datetime.now(timezone.utc) + timedelta(days=certification.validity_days)
-=======
             expires_at = datetime.now(UTC) + timedelta(days=certification.validity_days)
->>>>>>> origin/main
 
         # Create certification record
         farmer_cert = FarmerCertification(

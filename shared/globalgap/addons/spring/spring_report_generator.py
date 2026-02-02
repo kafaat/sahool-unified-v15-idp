@@ -11,11 +11,7 @@ efficiency recommendations, and PDF-ready formatting.
 
 from __future__ import annotations
 
-<<<<<<< HEAD
-from datetime import date, datetime, timezone
-=======
 from datetime import date, datetime, UTC
->>>>>>> origin/main
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -124,11 +120,7 @@ class SpringReport(BaseModel):
 
     report_id: str = Field(..., description="Report identifier / معرف التقرير")
     generated_date: datetime = Field(
-<<<<<<< HEAD
-        default_factory=lambda: datetime.now(timezone.utc), description="Generation date / تاريخ الإنشاء"
-=======
         default_factory=lambda: datetime.now(UTC), description="Generation date / تاريخ الإنشاء"
->>>>>>> origin/main
     )
     report_period_start: date = Field(..., description="Period start / بداية الفترة")
     report_period_end: date = Field(..., description="Period end / نهاية الفترة")

@@ -11,11 +11,7 @@ Version: 16.0.0
 from __future__ import annotations
 
 import uuid
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -226,11 +222,7 @@ class BoundaryPoint(BaseModel):
         default=None,
         description="Altitude in meters | الارتفاع بالمتر"
     )
-<<<<<<< HEAD
-    captured_at: datetime = Field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
-=======
     captured_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
->>>>>>> origin/main
     device_id: str | None = Field(
         default=None,
         description="Device that captured the point | الجهاز الذي التقط النقطة"
@@ -300,13 +292,8 @@ class FieldBoundary(BaseModel):
     )
 
     # Timestamps | الطوابع الزمنية
-<<<<<<< HEAD
-    created_at: datetime = Field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
-    updated_at: datetime = Field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
-=======
     created_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
     updated_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
->>>>>>> origin/main
     approved_at: datetime | None = Field(default=None)
 
     # Additional metadata | بيانات وصفية إضافية
@@ -410,11 +397,7 @@ class BoundaryConflict(BaseModel):
     resolved_at: datetime | None = Field(default=None)
 
     # Timestamps | الطوابع الزمنية
-<<<<<<< HEAD
-    detected_at: datetime = Field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
-=======
     detected_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
->>>>>>> origin/main
 
     # Severity | الخطورة
     severity: str = Field(
@@ -482,11 +465,7 @@ class BoundaryShareRequest(BaseModel):
     response_message_ar: str | None = Field(default=None)
 
     # Timestamps | الطوابع الزمنية
-<<<<<<< HEAD
-    created_at: datetime = Field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
-=======
     created_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
->>>>>>> origin/main
     responded_at: datetime | None = Field(default=None)
     expires_at: datetime | None = Field(default=None)
 
@@ -514,11 +493,7 @@ class GPSTrack(BaseModel):
     )
 
     # Metadata | البيانات الوصفية
-<<<<<<< HEAD
-    start_time: datetime = Field(default_factory=datetime.now(timezone.utc).replace(tzinfo=None))
-=======
     start_time: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
->>>>>>> origin/main
     end_time: datetime | None = Field(default=None)
     total_distance_m: float | None = Field(default=None, ge=0)
     average_accuracy_m: float | None = Field(default=None, ge=0)
@@ -542,8 +517,4 @@ class GPSTrack(BaseModel):
                 )
                 self.points.append(closing_point)
             self.is_closed = True
-<<<<<<< HEAD
-            self.end_time = datetime.now(timezone.utc).replace(tzinfo=None)()
-=======
             self.end_time = datetime.now(UTC).replace(tzinfo=None)()
->>>>>>> origin/main

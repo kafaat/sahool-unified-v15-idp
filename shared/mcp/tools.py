@@ -21,11 +21,7 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-<<<<<<< HEAD
-from datetime import datetime, timedelta, timezone
-=======
 from datetime import datetime, timedelta, UTC
->>>>>>> origin/main
 from typing import Any
 
 import httpx
@@ -720,11 +716,7 @@ class SAHOOLTools:
                 },
                 metadata={
                     "provider": data.get("provider", "SAHOOL Weather"),
-<<<<<<< HEAD
-                    "updated_at": datetime.now(timezone.utc).isoformat(),
-=======
                     "updated_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
                     "units": data.get("units", "metric"),
                 },
             )
@@ -870,11 +862,7 @@ class SAHOOLTools:
                 metadata={
                     "recommendation_basis": data.get("recommendation_basis"),
                     "confidence_score": data.get("confidence_score"),
-<<<<<<< HEAD
-                    "generated_at": datetime.now(timezone.utc).isoformat(),
-=======
                     "generated_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
                 },
             )
         except httpx.HTTPError as e:
@@ -946,11 +934,7 @@ class SAHOOLTools:
                     "active_recommendations": data.get("active_recommendations", 0),
                 },
                 metadata={
-<<<<<<< HEAD
-                    "retrieved_at": datetime.now(timezone.utc).isoformat(),
-=======
                     "retrieved_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
                     "data_completeness": data.get("data_completeness"),
                 },
             )
@@ -1006,11 +990,7 @@ class SAHOOLTools:
                 "interaction_type": interaction_type,
                 "summary": summary,
                 "channel": channel,
-<<<<<<< HEAD
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-=======
                 "timestamp": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
             }
 
             if summary_ar:
@@ -1121,11 +1101,7 @@ class SAHOOLTools:
                 },
                 metadata={
                     "query_period_days": days,
-<<<<<<< HEAD
-                    "retrieved_at": datetime.now(timezone.utc).isoformat(),
-=======
                     "retrieved_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
                 },
             )
         except httpx.HTTPError as e:
@@ -1184,11 +1160,7 @@ class SAHOOLTools:
 
                 # Create agent instance
                 agent_id = f"agent-{uuid.uuid4().hex[:12]}"
-<<<<<<< HEAD
-                now = datetime.now(timezone.utc)
-=======
                 now = datetime.now(UTC)
->>>>>>> origin/main
 
                 agent = AgentInstance(
                     agent_id=agent_id,
@@ -1286,11 +1258,7 @@ class SAHOOLTools:
                     )
 
                 # Update agent activity
-<<<<<<< HEAD
-                agent.last_active = datetime.now(timezone.utc)
-=======
                 agent.last_active = datetime.now(UTC)
->>>>>>> origin/main
                 agent.query_count += 1
 
             # Build context for the query
@@ -1388,13 +1356,8 @@ class SAHOOLTools:
                     )
 
                 # Calculate uptime
-<<<<<<< HEAD
-                uptime_seconds = (datetime.now(timezone.utc) - agent.created_at).total_seconds()
-                idle_seconds = (datetime.now(timezone.utc) - agent.last_active).total_seconds()
-=======
                 uptime_seconds = (datetime.now(UTC) - agent.created_at).total_seconds()
                 idle_seconds = (datetime.now(UTC) - agent.last_active).total_seconds()
->>>>>>> origin/main
 
                 status_translations = {
                     "active": "نشط",
@@ -1428,11 +1391,7 @@ class SAHOOLTools:
                     success=True,
                     data=data,
                     metadata={
-<<<<<<< HEAD
-                        "retrieved_at": datetime.now(timezone.utc).isoformat(),
-=======
                         "retrieved_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
                     },
                 )
 
@@ -1476,11 +1435,7 @@ class SAHOOLTools:
                     "final_query_count": agent.query_count,
                 },
                 metadata={
-<<<<<<< HEAD
-                    "terminated_at": datetime.now(timezone.utc).isoformat(),
-=======
                     "terminated_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
                 },
             )
 

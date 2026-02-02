@@ -8,11 +8,7 @@ ground vision data with satellite imagery, weather, and field updates.
 
 import json
 import logging
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, timezone, UTC
->>>>>>> origin/main
 from typing import Callable, Optional
 
 logger = logging.getLogger(__name__)
@@ -106,11 +102,7 @@ class GroundVisionSubscriber:
                 cb=self._handle_field_event,
             )
             self.subscriptions.append(sub)
-<<<<<<< HEAD
-            logger.info(f"Subscribed to field events")
-=======
             logger.info("Subscribed to field events")
->>>>>>> origin/main
 
             # Subscribe to IoT events (for sensor correlation)
             sub = await self.nc.subscribe(
@@ -237,33 +229,21 @@ class EventCorrelator:
         """Store NDVI data for correlation."""
         self._ndvi_cache[field_id] = {
             "data": ndvi_data,
-<<<<<<< HEAD
-            "timestamp": datetime.now(timezone.utc),
-=======
             "timestamp": datetime.now(UTC),
->>>>>>> origin/main
         }
 
     async def store_weather(self, location_key: str, weather_data: dict):
         """Store weather data for correlation."""
         self._weather_cache[location_key] = {
             "data": weather_data,
-<<<<<<< HEAD
-            "timestamp": datetime.now(timezone.utc),
-=======
             "timestamp": datetime.now(UTC),
->>>>>>> origin/main
         }
 
     async def store_iot(self, sensor_id: str, reading: dict):
         """Store IoT reading for correlation."""
         self._iot_cache[sensor_id] = {
             "data": reading,
-<<<<<<< HEAD
-            "timestamp": datetime.now(timezone.utc),
-=======
             "timestamp": datetime.now(UTC),
->>>>>>> origin/main
         }
 
     def get_field_context(self, field_id: str) -> dict:
@@ -281,33 +261,21 @@ class EventCorrelator:
         # Get NDVI if available
         if field_id in self._ndvi_cache:
             entry = self._ndvi_cache[field_id]
-<<<<<<< HEAD
-            age = (datetime.now(timezone.utc) - entry["timestamp"]).total_seconds()
-=======
             age = (datetime.now(UTC) - entry["timestamp"]).total_seconds()
->>>>>>> origin/main
             if age < self._cache_ttl:
                 context["ndvi"] = entry["data"]
 
         # Get weather (using field_id as location key for simplicity)
         if field_id in self._weather_cache:
             entry = self._weather_cache[field_id]
-<<<<<<< HEAD
-            age = (datetime.now(timezone.utc) - entry["timestamp"]).total_seconds()
-=======
             age = (datetime.now(UTC) - entry["timestamp"]).total_seconds()
->>>>>>> origin/main
             if age < self._cache_ttl:
                 context["weather"] = entry["data"]
 
         # Get IoT readings for this field
         for sensor_id, entry in self._iot_cache.items():
             if field_id in sensor_id:  # Simple matching
-<<<<<<< HEAD
-                age = (datetime.now(timezone.utc) - entry["timestamp"]).total_seconds()
-=======
                 age = (datetime.now(UTC) - entry["timestamp"]).total_seconds()
->>>>>>> origin/main
                 if age < self._cache_ttl:
                     context["iot_readings"].append(entry["data"])
 
@@ -377,11 +345,7 @@ class EventCorrelator:
 
     def cleanup_expired(self):
         """Remove expired cache entries."""
-<<<<<<< HEAD
-        now = datetime.now(timezone.utc)
-=======
         now = datetime.now(UTC)
->>>>>>> origin/main
 
         for cache in [self._ndvi_cache, self._weather_cache, self._iot_cache]:
             expired_keys = [

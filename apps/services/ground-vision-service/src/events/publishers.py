@@ -8,11 +8,7 @@ for consumption by other services.
 
 import json
 import logging
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, timezone, UTC
->>>>>>> origin/main
 from typing import Optional
 
 from pydantic import BaseModel
@@ -66,11 +62,7 @@ class GroundVisionPublisher:
     def _generate_event_id(self) -> str:
         """Generate unique event ID."""
         self._event_counter += 1
-<<<<<<< HEAD
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")
-=======
         timestamp = datetime.now(UTC).strftime("%Y%m%d%H%M%S%f")
->>>>>>> origin/main
         return f"gv_evt_{timestamp}_{self._event_counter}"
 
     async def publish_frame_captured(
@@ -78,13 +70,8 @@ class GroundVisionPublisher:
         camera_id: str,
         frame_id: str,
         tenant_id: str,
-<<<<<<< HEAD
-        geo_bounds: Optional[list[dict]] = None,
-        metadata: Optional[dict] = None,
-=======
         geo_bounds: list[dict] | None = None,
         metadata: dict | None = None,
->>>>>>> origin/main
     ):
         """
         Publish frame captured event.
@@ -101,11 +88,7 @@ class GroundVisionPublisher:
         payload = EventPayload(
             event_id=self._generate_event_id(),
             event_type="frame_captured",
-<<<<<<< HEAD
-            timestamp=datetime.now(timezone.utc).isoformat(),
-=======
             timestamp=datetime.now(UTC).isoformat(),
->>>>>>> origin/main
             tenant_id=tenant_id,
             data={
                 "camera_id": camera_id,
@@ -135,11 +118,7 @@ class GroundVisionPublisher:
         payload = EventPayload(
             event_id=self._generate_event_id(),
             event_type="operation_detected",
-<<<<<<< HEAD
-            timestamp=datetime.now(timezone.utc).isoformat(),
-=======
             timestamp=datetime.now(UTC).isoformat(),
->>>>>>> origin/main
             tenant_id=detection.tenant_id,
             data={
                 "detection_id": detection.detection_id,
@@ -197,11 +176,7 @@ class GroundVisionPublisher:
         payload = EventPayload(
             event_id=self._generate_event_id(),
             event_type="growth_stage_changed",
-<<<<<<< HEAD
-            timestamp=datetime.now(timezone.utc).isoformat(),
-=======
             timestamp=datetime.now(UTC).isoformat(),
->>>>>>> origin/main
             tenant_id=tenant_id,
             data={
                 "field_id": field_id,
@@ -239,11 +214,7 @@ class GroundVisionPublisher:
         payload = EventPayload(
             event_id=self._generate_event_id(),
             event_type="anomaly_detected",
-<<<<<<< HEAD
-            timestamp=datetime.now(timezone.utc).isoformat(),
-=======
             timestamp=datetime.now(UTC).isoformat(),
->>>>>>> origin/main
             tenant_id=anomaly.tenant_id,
             data={
                 "anomaly_id": anomaly.anomaly_id,
@@ -289,11 +260,7 @@ class GroundVisionPublisher:
         payload = EventPayload(
             event_id=self._generate_event_id(),
             event_type="timeline_updated",
-<<<<<<< HEAD
-            timestamp=datetime.now(timezone.utc).isoformat(),
-=======
             timestamp=datetime.now(UTC).isoformat(),
->>>>>>> origin/main
             tenant_id=analysis.tenant_id,
             data={
                 "analysis_id": analysis.analysis_id,
@@ -324,11 +291,7 @@ class GroundVisionPublisher:
         tenant_id: str,
         status: str,
         status_ar: str,
-<<<<<<< HEAD
-        details: Optional[dict] = None,
-=======
         details: dict | None = None,
->>>>>>> origin/main
     ):
         """
         Publish camera status change event.
@@ -345,11 +308,7 @@ class GroundVisionPublisher:
         payload = EventPayload(
             event_id=self._generate_event_id(),
             event_type="camera_status",
-<<<<<<< HEAD
-            timestamp=datetime.now(timezone.utc).isoformat(),
-=======
             timestamp=datetime.now(UTC).isoformat(),
->>>>>>> origin/main
             tenant_id=tenant_id,
             data={
                 "camera_id": camera_id,

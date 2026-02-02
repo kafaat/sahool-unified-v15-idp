@@ -9,11 +9,7 @@ cameras, integrating with SAHOOL's existing satellite and IoT infrastructure.
 import logging
 import os
 from contextlib import asynccontextmanager
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, timezone, UTC
->>>>>>> origin/main
 
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -212,11 +208,7 @@ def health():
         status="ok",
         service=SERVICE_NAME,
         version=SERVICE_VERSION,
-<<<<<<< HEAD
-        timestamp=datetime.now(timezone.utc).isoformat(),
-=======
         timestamp=datetime.now(UTC).isoformat(),
->>>>>>> origin/main
     )
 
 
@@ -287,11 +279,7 @@ async def register_camera(request: CameraRegistration):
         name_ar=request.name_ar,
         status="online",
         status_ar="متصل",
-<<<<<<< HEAD
-        created_at=datetime.now(timezone.utc).isoformat(),
-=======
         created_at=datetime.now(UTC).isoformat(),
->>>>>>> origin/main
     )
 
 
@@ -465,11 +453,7 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
     processing_time = int((time.time() - start_time) * 1000)
 
     return TimelineAnalysisResponse(
-<<<<<<< HEAD
-        analysis_id=f"analysis_{request.field_id}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
-=======
         analysis_id=f"analysis_{request.field_id}_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}",
->>>>>>> origin/main
         field_id=request.field_id,
         crop_type="wheat",
         crop_type_ar="قمح",
@@ -557,11 +541,7 @@ async def acknowledge_anomaly(anomaly_id: str, request: AnomalyAcknowledgeReques
     return {
         "anomaly_id": anomaly_id,
         "status": "acknowledged",
-<<<<<<< HEAD
-        "acknowledged_at": datetime.now(timezone.utc).isoformat(),
-=======
         "acknowledged_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
     }
 
 
@@ -583,11 +563,7 @@ async def resolve_anomaly(anomaly_id: str, request: AnomalyResolveRequest):
     return {
         "anomaly_id": anomaly_id,
         "status": "resolved",
-<<<<<<< HEAD
-        "resolved_at": datetime.now(timezone.utc).isoformat(),
-=======
         "resolved_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
     }
 
 

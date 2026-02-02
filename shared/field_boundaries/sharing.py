@@ -13,11 +13,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timedelta, timezone
-=======
 from datetime import datetime, timedelta, UTC
->>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -87,11 +83,7 @@ class SharePermission:
     permission_level: PermissionLevel = PermissionLevel.VIEW
 
     # Validity | الصلاحية
-<<<<<<< HEAD
-    granted_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     granted_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
     expires_at: datetime | None = None
     is_active: bool = True
 
@@ -124,11 +116,7 @@ class ApprovalRequest:
     requested_changes: dict[str, Any] | None = None
 
     # Timestamps | الطوابع الزمنية
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
     responded_at: datetime | None = None
     expires_at: datetime | None = None
 
@@ -160,11 +148,7 @@ class ConflictResolution:
     survey_reference: str | None = None
 
     # Timestamps | الطوابع الزمنية
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
     finalized_at: datetime | None = None
 
 
@@ -222,11 +206,7 @@ class BoundarySharingManager:
             message_ar=message_ar,
             permission_level=permission_level.value,
             status=ShareStatus.PENDING.value,
-<<<<<<< HEAD
-            expires_at=datetime.now(timezone.utc) + timedelta(days=expires_in_days)
-=======
             expires_at=datetime.now(UTC) + timedelta(days=expires_in_days)
->>>>>>> origin/main
         )
 
         self._share_requests[request.id] = request
@@ -262,21 +242,13 @@ class BoundarySharingManager:
         if request.status != ShareStatus.PENDING.value:
             return (False, f"Request is {request.status} | الطلب {request.status}", None)
 
-<<<<<<< HEAD
-        if request.expires_at and datetime.now(timezone.utc) > request.expires_at:
-=======
         if request.expires_at and datetime.now(UTC) > request.expires_at:
->>>>>>> origin/main
             request.status = ShareStatus.EXPIRED.value
             return (False, "Request expired | انتهت صلاحية الطلب", None)
 
         # Update request
         request.status = ShareStatus.ACCEPTED.value
-<<<<<<< HEAD
-        request.responded_at = datetime.now(timezone.utc)
-=======
         request.responded_at = datetime.now(UTC)
->>>>>>> origin/main
         request.response_message = response_message
         request.response_message_ar = response_message_ar
 
@@ -309,11 +281,7 @@ class BoundarySharingManager:
             return (False, "Not authorized | غير مصرح")
 
         request.status = ShareStatus.REJECTED.value
-<<<<<<< HEAD
-        request.responded_at = datetime.now(timezone.utc)
-=======
         request.responded_at = datetime.now(UTC)
->>>>>>> origin/main
         request.response_message = response_message
         request.response_message_ar = response_message_ar
 
@@ -387,11 +355,7 @@ class BoundarySharingManager:
         for perm in permissions:
             if perm.user_id == user_id and perm.is_active:
                 # Check expiry
-<<<<<<< HEAD
-                if perm.expires_at and datetime.now(timezone.utc) > perm.expires_at:
-=======
                 if perm.expires_at and datetime.now(UTC) > perm.expires_at:
->>>>>>> origin/main
                     perm.is_active = False
                     continue
                 return perm
@@ -442,11 +406,7 @@ class BoundarySharingManager:
         for boundary_id, permissions in self._permissions.items():
             for perm in permissions:
                 if perm.user_id == user_id and perm.is_active:
-<<<<<<< HEAD
-                    if perm.expires_at and datetime.now(timezone.utc) > perm.expires_at:
-=======
                     if perm.expires_at and datetime.now(UTC) > perm.expires_at:
->>>>>>> origin/main
                         perm.is_active = False
                         continue
                     result.append((boundary_id, perm))
@@ -485,11 +445,7 @@ class BoundarySharingManager:
             approver_id=neighbor_id,
             message=message,
             message_ar=message_ar,
-<<<<<<< HEAD
-            expires_at=datetime.now(timezone.utc) + timedelta(days=expires_in_days)
-=======
             expires_at=datetime.now(UTC) + timedelta(days=expires_in_days)
->>>>>>> origin/main
         )
 
         self._approval_requests[request.id] = request
@@ -517,11 +473,7 @@ class BoundarySharingManager:
             return (False, f"Request already {request.status}")
 
         request.status = ApprovalStatus.APPROVED.value
-<<<<<<< HEAD
-        request.responded_at = datetime.now(timezone.utc)
-=======
         request.responded_at = datetime.now(UTC)
->>>>>>> origin/main
         request.response_message = response_message
         request.response_message_ar = response_message_ar
 
@@ -552,11 +504,7 @@ class BoundarySharingManager:
         else:
             request.status = ApprovalStatus.REJECTED.value
 
-<<<<<<< HEAD
-        request.responded_at = datetime.now(timezone.utc)
-=======
         request.responded_at = datetime.now(UTC)
->>>>>>> origin/main
         request.response_message = response_message
         request.response_message_ar = response_message_ar
 
@@ -777,15 +725,9 @@ class BoundarySharingManager:
 
         # Check if fully resolved
         if resolution.party_a_approved and resolution.party_b_approved:
-<<<<<<< HEAD
-            resolution.finalized_at = datetime.now(timezone.utc)
-            conflict.is_resolved = True
-            conflict.resolved_at = datetime.now(timezone.utc)
-=======
             resolution.finalized_at = datetime.now(UTC)
             conflict.is_resolved = True
             conflict.resolved_at = datetime.now(UTC)
->>>>>>> origin/main
             conflict.resolved_by = resolution.mediator_id or "parties"
 
             return (True, "Conflict resolved | تم حل التعارض")

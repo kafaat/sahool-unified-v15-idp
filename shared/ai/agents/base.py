@@ -23,11 +23,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from enum import Enum
 from typing import Any, Callable, AsyncIterator
 import asyncio
@@ -245,11 +241,7 @@ class AgentStep:
     status: str = "pending"  # pending, in_progress, completed, failed, skipped
     result: ToolResult | None = None
     reasoning: str | None = None
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
     completed_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -461,11 +453,7 @@ class BaseAutonomousAgent(ABC):
             Execution result
         """
         context = context or {}
-<<<<<<< HEAD
-        start_time = datetime.now(timezone.utc)
-=======
         start_time = datetime.now(UTC)
->>>>>>> origin/main
 
         self.current_task = task
         self.state = AgentState.PLANNING
@@ -507,11 +495,7 @@ class BaseAutonomousAgent(ABC):
             self.state = AgentState.COMPLETED
             self.stats["tasks_completed"] += 1
 
-<<<<<<< HEAD
-            execution_time_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
-=======
             execution_time_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
->>>>>>> origin/main
             self.stats["total_time_ms"] += execution_time_ms
 
             result = self._generate_result(execution_time_ms)
@@ -651,11 +635,7 @@ class BaseAutonomousAgent(ABC):
     ) -> StepResult:
         """Execute a single step with validation."""
         step.status = "in_progress"
-<<<<<<< HEAD
-        start_time = datetime.now(timezone.utc)
-=======
         start_time = datetime.now(UTC)
->>>>>>> origin/main
 
         # Loop detection
         step_hash = f"{step.tool_name}:{hash(str(step.tool_input))}"
@@ -721,11 +701,7 @@ class BaseAutonomousAgent(ABC):
                         )
 
                 step.status = "completed"
-<<<<<<< HEAD
-                step.completed_at = datetime.now(timezone.utc)
-=======
                 step.completed_at = datetime.now(UTC)
->>>>>>> origin/main
 
                 return StepResult(
                     step=step,
@@ -737,11 +713,7 @@ class BaseAutonomousAgent(ABC):
 
             # No tool - just mark as completed
             step.status = "completed"
-<<<<<<< HEAD
-            step.completed_at = datetime.now(timezone.utc)
-=======
             step.completed_at = datetime.now(UTC)
->>>>>>> origin/main
 
             return StepResult(
                 step=step,
@@ -772,11 +744,7 @@ class BaseAutonomousAgent(ABC):
         inputs: dict[str, Any],
     ) -> ToolResult:
         """Execute a tool with error handling."""
-<<<<<<< HEAD
-        start_time = datetime.now(timezone.utc)
-=======
         start_time = datetime.now(UTC)
->>>>>>> origin/main
 
         try:
             # Use circuit breaker for resilience
@@ -787,11 +755,7 @@ class BaseAutonomousAgent(ABC):
                     asyncio.to_thread, tool.handler, **inputs
                 )
 
-<<<<<<< HEAD
-            execution_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
-=======
             execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
->>>>>>> origin/main
 
             return ToolResult(
                 tool_name=tool.name,
@@ -801,11 +765,7 @@ class BaseAutonomousAgent(ABC):
             )
 
         except Exception as e:
-<<<<<<< HEAD
-            execution_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
-=======
             execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
->>>>>>> origin/main
 
             return ToolResult(
                 tool_name=tool.name,

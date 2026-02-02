@@ -10,11 +10,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, timezone, UTC
->>>>>>> origin/main
 from typing import Any
 
 import structlog
@@ -102,11 +98,7 @@ class AgentCard(BaseModel):
     status: str = Field(
         default="active", description="Agent status (active, maintenance, deprecated)"
     )
-<<<<<<< HEAD
-    last_updated: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     last_updated: datetime = Field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     class Config:
         json_encoders = {
@@ -227,11 +219,7 @@ class A2AAgent(ABC):
             supports_batch=False,
             protocol_version="1.0",
             status="active",
-<<<<<<< HEAD
-            last_updated=datetime.now(timezone.utc),
-=======
             last_updated=datetime.now(UTC),
->>>>>>> origin/main
         )
 
     def register_task_handler(
@@ -261,11 +249,7 @@ class A2AAgent(ABC):
         Returns:
             Task result message
         """
-<<<<<<< HEAD
-        start_time = datetime.now(timezone.utc)
-=======
         start_time = datetime.now(UTC)
->>>>>>> origin/main
         self.stats["tasks_received"] += 1
 
         # Add to queue
@@ -296,11 +280,7 @@ class A2AAgent(ABC):
 
             # Calculate execution time
             # حساب وقت التنفيذ
-<<<<<<< HEAD
-            execution_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
-=======
             execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
->>>>>>> origin/main
             self.stats["total_execution_time_ms"] += execution_time
             self.stats["tasks_completed"] += 1
 
@@ -456,11 +436,7 @@ class A2AAgent(ABC):
         Returns:
             Number of conversations removed
         """
-<<<<<<< HEAD
-        now = datetime.now(timezone.utc)
-=======
         now = datetime.now(UTC)
->>>>>>> origin/main
         removed = 0
 
         conversation_ids = list(self.conversations.keys())

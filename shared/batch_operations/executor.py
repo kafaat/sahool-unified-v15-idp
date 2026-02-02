@@ -16,11 +16,7 @@ import asyncio
 import logging
 import time
 from abc import ABC, abstractmethod
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from typing import Any, Callable, Coroutine, Generic, TypeVar
 
 from .models import (
@@ -165,11 +161,7 @@ class FieldOperationProcessor(ItemProcessor[FieldOperationItem]):
             await asyncio.sleep(0.1)
 
             result_data = {
-<<<<<<< HEAD
-                "processed_at": datetime.now(timezone.utc).isoformat(),
-=======
                 "processed_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
                 "field_id": item.field_id,
                 "operation_type": batch.operation_type.value,
             }
@@ -236,11 +228,7 @@ class HarvestEntryProcessor(ItemProcessor[HarvestEntry]):
 
             return True, {
                 "record_id": record_id,
-<<<<<<< HEAD
-                "created_at": datetime.now(timezone.utc).isoformat(),
-=======
                 "created_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
             }
 
         except Exception as e:
@@ -298,11 +286,7 @@ class EquipmentAssignmentProcessor(ItemProcessor[EquipmentAssignment]):
 
             return True, {
                 "assignment_id": assignment_id,
-<<<<<<< HEAD
-                "created_at": datetime.now(timezone.utc).isoformat(),
-=======
                 "created_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
             }
 
         except Exception as e:
@@ -344,11 +328,7 @@ class AlertAcknowledgmentProcessor(ItemProcessor[AlertAcknowledgment]):
             if self._acknowledge:
                 success = await self._acknowledge(item, batch)
                 if success:
-<<<<<<< HEAD
-                    item.acknowledged_at = datetime.now(timezone.utc)
-=======
                     item.acknowledged_at = datetime.now(UTC)
->>>>>>> origin/main
                 return success, {"acknowledged_at": item.acknowledged_at.isoformat() if item.acknowledged_at else None}
 
             # Default mock implementation
@@ -358,11 +338,7 @@ class AlertAcknowledgmentProcessor(ItemProcessor[AlertAcknowledgment]):
             )
 
             await asyncio.sleep(0.05)
-<<<<<<< HEAD
-            item.acknowledged_at = datetime.now(timezone.utc)
-=======
             item.acknowledged_at = datetime.now(UTC)
->>>>>>> origin/main
 
             return True, {
                 "acknowledged_at": item.acknowledged_at.isoformat(),
@@ -544,11 +520,7 @@ class BatchExecutor:
 
         # Initialize batch state
         batch.status = BatchStatus.IN_PROGRESS
-<<<<<<< HEAD
-        batch.started_at = datetime.now(timezone.utc)
-=======
         batch.started_at = datetime.now(UTC)
->>>>>>> origin/main
         batch.progress = BatchProgress(total_items=total_items)
         batch.add_audit_entry("batch_started", {"total_items": total_items})
 
@@ -576,11 +548,7 @@ class BatchExecutor:
             # Check for cancellation
             if self._cancel_requested:
                 batch.status = BatchStatus.CANCELLED
-<<<<<<< HEAD
-                batch.cancelled_at = datetime.now(timezone.utc)
-=======
                 batch.cancelled_at = datetime.now(UTC)
->>>>>>> origin/main
                 raise BatchCancelledException(
                     "Batch operation was cancelled",
                     "تم إلغاء عملية الدفعة"
@@ -624,11 +592,7 @@ class BatchExecutor:
             rollback_successful = None
 
         # Finalize
-<<<<<<< HEAD
-        batch.completed_at = datetime.now(timezone.utc)
-=======
         batch.completed_at = datetime.now(UTC)
->>>>>>> origin/main
         duration = time.time() - start_time
 
         batch.add_audit_entry(
@@ -795,11 +759,7 @@ class BatchExecutor:
     ) -> tuple[bool, str | None]:
         """Process an item with retry logic."""
         item.status = ItemStatus.IN_PROGRESS
-<<<<<<< HEAD
-        item.started_at = datetime.now(timezone.utc)
-=======
         item.started_at = datetime.now(UTC)
->>>>>>> origin/main
 
         last_error: str | None = None
         max_attempts = config.max_retries + 1 if config.retry_failed_items else 1
@@ -813,11 +773,7 @@ class BatchExecutor:
                 )
 
                 if success:
-<<<<<<< HEAD
-                    item.completed_at = datetime.now(timezone.utc)
-=======
                     item.completed_at = datetime.now(UTC)
->>>>>>> origin/main
                     if result_data:
                         item.result_data = result_data
                         # Store rollback data

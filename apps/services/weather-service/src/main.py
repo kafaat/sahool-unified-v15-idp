@@ -137,11 +137,7 @@ def health():
         "status": "healthy",
         "service": "weather-service",
         "version": "16.0.0",
-<<<<<<< HEAD
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-=======
         "timestamp": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
     }
 
 
@@ -157,11 +153,7 @@ def readiness():
         "checks": {
             "service": "ready",
         },
-<<<<<<< HEAD
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-=======
         "timestamp": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
     }
 
 

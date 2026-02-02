@@ -18,11 +18,7 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
-<<<<<<< HEAD
-from datetime import datetime, timedelta, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from typing import Any
 
 import structlog
@@ -644,19 +640,11 @@ class CloudAILayer:
             if confidence > 0.8:
                 print(f"Detected: {pest_type} with {confidence:.0%} confidence")
         """
-<<<<<<< HEAD
-        start_time = datetime.now(timezone.utc)
-
-        detections = await self._pest_model.detect(image, confidence_threshold)
-
-        processing_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
-=======
         start_time = datetime.now(UTC)
 
         detections = await self._pest_model.detect(image, confidence_threshold)
 
         processing_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
->>>>>>> origin/main
 
         # Get highest confidence detection
         if detections:
@@ -689,11 +677,7 @@ class CloudAILayer:
             input_type="image",
             farm_id=self.farm_id,
         )
-<<<<<<< HEAD
-        inference.completed_at = datetime.now(timezone.utc)
-=======
         inference.completed_at = datetime.now(UTC)
->>>>>>> origin/main
         self._record_inference(inference)
 
         self._logger.info(
@@ -755,11 +739,7 @@ class CloudAILayer:
             predictions = await cloud.moisture_prediction(history, days=3)
             # Returns [36.5, 34.2, 32.1]
         """
-<<<<<<< HEAD
-        start_time = datetime.now(timezone.utc)
-=======
         start_time = datetime.now(UTC)
->>>>>>> origin/main
 
         prediction = await self._moisture_model.predict(
             history=history,
@@ -769,11 +749,7 @@ class CloudAILayer:
             crop_type=crop_type,
         )
 
-<<<<<<< HEAD
-        processing_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
-=======
         processing_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
->>>>>>> origin/main
 
         # Record inference
         inference = CloudInference(
@@ -791,11 +767,7 @@ class CloudAILayer:
             input_summary=f"History: {len(history)} points, Last: {history[-1] if history else 'N/A'}",
             farm_id=self.farm_id,
         )
-<<<<<<< HEAD
-        inference.completed_at = datetime.now(timezone.utc)
-=======
         inference.completed_at = datetime.now(UTC)
->>>>>>> origin/main
         self._record_inference(inference)
 
         self._logger.info(
@@ -861,11 +833,7 @@ class CloudAILayer:
             weather = {"temperature": 25, "humidity": 60}
             yield_curve = await cloud.yield_estimation(field_data, weather, days=15)
         """
-<<<<<<< HEAD
-        start_time = datetime.now(timezone.utc)
-=======
         start_time = datetime.now(UTC)
->>>>>>> origin/main
 
         estimation = await self._yield_model.estimate(
             field_data=field_data,
@@ -873,11 +841,7 @@ class CloudAILayer:
             days=days,
         )
 
-<<<<<<< HEAD
-        processing_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
-=======
         processing_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
->>>>>>> origin/main
 
         # Record inference
         inference = CloudInference(
@@ -898,11 +862,7 @@ class CloudAILayer:
             farm_id=self.farm_id,
             field_id=field_data.get("field_id", ""),
         )
-<<<<<<< HEAD
-        inference.completed_at = datetime.now(timezone.utc)
-=======
         inference.completed_at = datetime.now(UTC)
->>>>>>> origin/main
         self._record_inference(inference)
 
         self._logger.info(
@@ -976,11 +936,7 @@ class CloudAILayer:
             "model_type": model_type,
             "samples_used": len(training_data),
             "total_samples": len(self._training_data[model_type]),
-<<<<<<< HEAD
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-=======
             "timestamp": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
             "metrics": {
                 "accuracy": 0.92,
                 "precision": 0.91,

@@ -18,12 +18,7 @@ Updated: January 2026
 
 from __future__ import annotations
 
-<<<<<<< HEAD
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -448,11 +443,7 @@ class SensorReading(BaseModel):
     )
 
     timestamp: datetime = Field(
-<<<<<<< HEAD
-        default_factory=lambda: datetime.now(timezone.utc),
-=======
         default_factory=lambda: datetime.now(UTC),
->>>>>>> origin/main
         description="Reading timestamp | وقت القراءة"
     )
 
@@ -593,11 +584,7 @@ class EdgeDecision(BaseModel):
 
     # Timestamps
     created_at: datetime = Field(
-<<<<<<< HEAD
-        default_factory=lambda: datetime.now(timezone.utc),
-=======
         default_factory=lambda: datetime.now(UTC),
->>>>>>> origin/main
         description="Creation timestamp | وقت الإنشاء"
     )
 
@@ -724,11 +711,7 @@ class CloudInference(BaseModel):
 
     # Timestamps
     requested_at: datetime = Field(
-<<<<<<< HEAD
-        default_factory=lambda: datetime.now(timezone.utc),
-=======
         default_factory=lambda: datetime.now(UTC),
->>>>>>> origin/main
         description="Request timestamp | وقت الطلب"
     )
 
@@ -843,11 +826,7 @@ class Recommendation(BaseModel):
     )
 
     created_at: datetime = Field(
-<<<<<<< HEAD
-        default_factory=lambda: datetime.now(timezone.utc),
-=======
         default_factory=lambda: datetime.now(UTC),
->>>>>>> origin/main
         description="Creation timestamp | وقت الإنشاء"
     )
 
@@ -929,11 +908,7 @@ class PestDetection(BaseModel):
     )
 
     detected_at: datetime = Field(
-<<<<<<< HEAD
-        default_factory=lambda: datetime.now(timezone.utc),
-=======
         default_factory=lambda: datetime.now(UTC),
->>>>>>> origin/main
         description="Detection timestamp | وقت الكشف"
     )
 
@@ -1016,20 +991,12 @@ class MoisturePrediction(BaseModel):
 
     # Timestamps
     generated_at: datetime = Field(
-<<<<<<< HEAD
-        default_factory=lambda: datetime.now(timezone.utc),
-=======
         default_factory=lambda: datetime.now(UTC),
->>>>>>> origin/main
         description="Generation timestamp | وقت التوليد"
     )
 
     valid_from: datetime = Field(
-<<<<<<< HEAD
-        default_factory=lambda: datetime.now(timezone.utc),
-=======
         default_factory=lambda: datetime.now(UTC),
->>>>>>> origin/main
         description="Prediction start date | تاريخ بدء التنبؤ"
     )
 
@@ -1145,11 +1112,7 @@ class YieldEstimation(BaseModel):
 
     # Timestamps
     generated_at: datetime = Field(
-<<<<<<< HEAD
-        default_factory=lambda: datetime.now(timezone.utc),
-=======
         default_factory=lambda: datetime.now(UTC),
->>>>>>> origin/main
         description="Generation timestamp | وقت التوليد"
     )
 
@@ -1289,11 +1252,7 @@ class SystemMetrics(BaseModel):
 
     # Timestamps
     measured_at: datetime = Field(
-<<<<<<< HEAD
-        default_factory=lambda: datetime.now(timezone.utc),
-=======
         default_factory=lambda: datetime.now(UTC),
->>>>>>> origin/main
         description="Measurement timestamp | وقت القياس"
     )
 
@@ -1463,11 +1422,7 @@ class IFTTTRule(BaseModel):
 
     # Metadata
     created_at: datetime = Field(
-<<<<<<< HEAD
-        default_factory=lambda: datetime.now(timezone.utc),
-=======
         default_factory=lambda: datetime.now(UTC),
->>>>>>> origin/main
         description="Creation timestamp | وقت الإنشاء"
     )
 

@@ -20,11 +20,7 @@ Created: January 2026
 
 import uuid
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from typing import Any
 
 import structlog
@@ -36,10 +32,6 @@ from .base import (
     AgentCapability,
     BaseAutonomousAgent,
     CollaborationRole,
-<<<<<<< HEAD
-    MemoryType,
-=======
->>>>>>> origin/main
     ToolResult,
 )
 from ..llm_provider import LLMProviderManager
@@ -105,11 +97,8 @@ class SellingRecommendation:
     optimal_timing_ar: str
     target_markets: list[str]
     target_markets_ar: list[str]
-<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
 
 @dataclass
@@ -560,11 +549,7 @@ class MarketSubAgent(BaseAutonomousAgent):
                 "trend": "up" if change > 0.02 else "down" if change < -0.02 else "stable",
                 "trend_ar": "صاعد" if change > 0.02 else "هابط" if change < -0.02 else "مستقر",
                 "quality_grade": quality_grade or "A",
-<<<<<<< HEAD
-                "last_updated": datetime.now(timezone.utc).isoformat(),
-=======
                 "last_updated": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
             })
 
         # Sort by price (highest first)
@@ -578,11 +563,7 @@ class MarketSubAgent(BaseAutonomousAgent):
             "average_price": round(sum(p["price_per_kg"] for p in prices) / len(prices), 2),
             "highest_price": prices[0],
             "lowest_price": prices[-1],
-<<<<<<< HEAD
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-=======
             "generated_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         }
 
     async def _get_price_forecast(
@@ -606,11 +587,7 @@ class MarketSubAgent(BaseAutonomousAgent):
             "dates": {1: 0.9, 2: 0.85, 3: 0.85, 4: 0.9, 5: 0.95, 6: 1.0, 7: 1.1, 8: 1.2, 9: 1.3, 10: 1.2, 11: 1.0, 12: 0.95},
         }
 
-<<<<<<< HEAD
-        factors = seasonal_factors.get(commodity.lower(), {i: 1.0 for i in range(1, 13)})
-=======
         factors = seasonal_factors.get(commodity.lower(), dict.fromkeys(range(1, 13), 1.0))
->>>>>>> origin/main
 
         forecasts = []
         for day in range(0, days_ahead, 7):  # Weekly forecasts
@@ -655,11 +632,7 @@ class MarketSubAgent(BaseAutonomousAgent):
                 "اتجاهات الاستيراد/التصدير",
             ],
             "confidence": 0.75,
-<<<<<<< HEAD
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-=======
             "generated_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         }
 
     async def _get_selling_recommendation(
@@ -692,13 +665,8 @@ class MarketSubAgent(BaseAutonomousAgent):
         elif trend == "up" and not urgent:
             action = "hold"
             action_ar = "الاحتفاظ"
-<<<<<<< HEAD
-            reasoning = f"Prices trending upward. Hold for 2-4 weeks if storage permits. Expected gain: 5-10%"
-            reasoning_ar = f"الأسعار في اتجاه صعودي. الاحتفاظ لمدة 2-4 أسابيع إذا سمح التخزين. الربح المتوقع: 5-10%"
-=======
             reasoning = "Prices trending upward. Hold for 2-4 weeks if storage permits. Expected gain: 5-10%"
             reasoning_ar = "الأسعار في اتجاه صعودي. الاحتفاظ لمدة 2-4 أسابيع إذا سمح التخزين. الربح المتوقع: 5-10%"
->>>>>>> origin/main
             timing = "2-4 weeks"
             timing_ar = "2-4 أسابيع"
         elif trend == "down":
@@ -748,11 +716,7 @@ class MarketSubAgent(BaseAutonomousAgent):
             "target_markets_ar": [m["market_ar"] for m in best_markets],
             "best_market": best_markets[0] if best_markets else None,
             "price_trend": trend,
-<<<<<<< HEAD
-            "created_at": datetime.now(timezone.utc).isoformat(),
-=======
             "created_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         }
 
     async def _find_buyers(
@@ -870,11 +834,7 @@ class MarketSubAgent(BaseAutonomousAgent):
             "buyers": matched[:10],  # Top 10
             "recommendation": f"Found {len(matched)} potential buyers. Top match: {matched[0]['name']}" if matched else "No matching buyers found",
             "recommendation_ar": f"تم العثور على {len(matched)} مشترين محتملين. أفضل مطابقة: {matched[0]['name_ar']}" if matched else "لم يتم العثور على مشترين مطابقين",
-<<<<<<< HEAD
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-=======
             "generated_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         }
 
     async def _analyze_market_demand(
@@ -929,11 +889,7 @@ class MarketSubAgent(BaseAutonomousAgent):
             ],
             "outlook": "positive" if data["growth"] > 2 else "neutral",
             "outlook_ar": "إيجابي" if data["growth"] > 2 else "محايد",
-<<<<<<< HEAD
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-=======
             "generated_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         }
 
     async def _calculate_profit_margin(
@@ -986,11 +942,7 @@ class MarketSubAgent(BaseAutonomousAgent):
             "assessment": "profitable" if profit_margin_percent > 15 else "marginal" if profit_margin_percent > 5 else "low_margin",
             "assessment_ar": "مربح" if profit_margin_percent > 15 else "هامشي" if profit_margin_percent > 5 else "هامش منخفض",
             "currency": "SAR",
-<<<<<<< HEAD
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-=======
             "generated_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         }
 
     async def _compare_markets(
@@ -1033,11 +985,7 @@ class MarketSubAgent(BaseAutonomousAgent):
             "price_spread_percent": round(spread, 1),
             "recommendation": f"Best price at {market_comparison[0]['market']} ({market_comparison[0]['price_per_kg']} SAR/kg)" if market_comparison else "No market data available",
             "recommendation_ar": f"أفضل سعر في {market_comparison[0]['market_ar']} ({market_comparison[0]['price_per_kg']} ريال/كجم)" if market_comparison else "لا تتوفر بيانات السوق",
-<<<<<<< HEAD
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-=======
             "generated_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         }
 
 

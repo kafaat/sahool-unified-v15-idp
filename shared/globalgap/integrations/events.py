@@ -27,11 +27,7 @@ Usage:
 
 from __future__ import annotations
 
-<<<<<<< HEAD
-from datetime import date, datetime, timezone
-=======
 from datetime import date, datetime, UTC
->>>>>>> origin/main
 from uuid import UUID, uuid4
 
 from pydantic import Field
@@ -234,11 +230,7 @@ class AuditCompletedEvent(BaseEvent):
 
     audit_type: str = Field(..., description="Type of audit")
     completion_date: datetime = Field(
-<<<<<<< HEAD
-        default_factory=lambda: datetime.now(timezone.utc), description="Completion date"
-=======
         default_factory=lambda: datetime.now(UTC), description="Completion date"
->>>>>>> origin/main
     )
 
     # Results
@@ -311,11 +303,7 @@ class NonConformanceDetectedEvent(BaseEvent):
 
     # Dates
     identified_date: datetime = Field(
-<<<<<<< HEAD
-        default_factory=lambda: datetime.now(timezone.utc), description="Date identified"
-=======
         default_factory=lambda: datetime.now(UTC), description="Date identified"
->>>>>>> origin/main
     )
     due_date: datetime = Field(..., description="Correction due date")
 
@@ -349,11 +337,7 @@ class CorrectiveActionCompletedEvent(BaseEvent):
     tenant_id: UUID = Field(..., description="Tenant ID")
 
     completion_date: datetime = Field(
-<<<<<<< HEAD
-        default_factory=lambda: datetime.now(timezone.utc), description="Completion date"
-=======
         default_factory=lambda: datetime.now(UTC), description="Completion date"
->>>>>>> origin/main
     )
     planned_date: date = Field(..., description="Originally planned date")
 

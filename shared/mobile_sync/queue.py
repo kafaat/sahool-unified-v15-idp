@@ -16,11 +16,7 @@ import asyncio
 import heapq
 from collections import defaultdict
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from typing import Any, Callable, Awaitable
 
 from .models import (
@@ -249,11 +245,7 @@ class SyncQueue:
 
             # Set queue metadata
             item.status = SyncStatus.QUEUED
-<<<<<<< HEAD
-            item.queued_at = datetime.now(timezone.utc)
-=======
             item.queued_at = datetime.now(UTC)
->>>>>>> origin/main
             item.tenant_id = self.tenant_id
             item.device_id = self.device_id
 
@@ -333,11 +325,7 @@ class SyncQueue:
                     continue
 
                 # Skip if not ready for retry
-<<<<<<< HEAD
-                if item.next_retry_at and item.next_retry_at > datetime.now(timezone.utc):
-=======
                 if item.next_retry_at and item.next_retry_at > datetime.now(UTC):
->>>>>>> origin/main
                     # Re-add to queue
                     heapq.heappush(self._queue, priority_item)
                     continue
@@ -410,11 +398,7 @@ class SyncQueue:
             if item_id in self._items_by_id:
                 item = self._items_by_id[item_id]
                 item.status = SyncStatus.SYNCED
-<<<<<<< HEAD
-                item.synced_at = datetime.now(timezone.utc)
-=======
                 item.synced_at = datetime.now(UTC)
->>>>>>> origin/main
 
                 self._processing.discard(item_id)
                 self._completed[item_id] = item
@@ -754,11 +738,7 @@ class SyncQueueManager:
             priority_threshold=priority_threshold,
             batch_size=self.config.max_batch_size,
         )
-<<<<<<< HEAD
-        session.started_at = datetime.now(timezone.utc)
-=======
         session.started_at = datetime.now(UTC)
->>>>>>> origin/main
         session.status = SyncStatus.SYNCING
 
         self._sessions[session.id] = session
@@ -783,11 +763,7 @@ class SyncQueueManager:
             )
 
         session.status = status
-<<<<<<< HEAD
-        session.completed_at = datetime.now(timezone.utc)
-=======
         session.completed_at = datetime.now(UTC)
->>>>>>> origin/main
 
         # Calculate duration
         duration = 0.0

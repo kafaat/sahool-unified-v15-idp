@@ -21,11 +21,7 @@ from __future__ import annotations
 import statistics
 import uuid
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, date, timezone
-=======
 from datetime import datetime, date, UTC
->>>>>>> origin/main
 from typing import Any
 
 from .models import (
@@ -573,25 +569,15 @@ class IrrigationEfficiencyCalculator:
                 tenant_id=self.tenant_id,
                 farm_id=farm_id,
                 field_id=field_id,
-<<<<<<< HEAD
-                calculation_date=datetime.now(timezone.utc),
-=======
                 calculation_date=datetime.now(UTC),
->>>>>>> origin/main
                 efficiency_rating="insufficient_data",
                 efficiency_rating_ar="بيانات غير كافية",
             )
 
         # Determine period
-<<<<<<< HEAD
-        events_sorted = sorted(irrigation_events, key=lambda e: e.started_at or datetime.now(timezone.utc))
-        period_start = (events_sorted[0].started_at or datetime.now(timezone.utc)).date()
-        period_end = (events_sorted[-1].ended_at or datetime.now(timezone.utc)).date()
-=======
         events_sorted = sorted(irrigation_events, key=lambda e: e.started_at or datetime.now(UTC))
         period_start = (events_sorted[0].started_at or datetime.now(UTC)).date()
         period_end = (events_sorted[-1].ended_at or datetime.now(UTC)).date()
->>>>>>> origin/main
 
         # Get dominant irrigation method
         method_counts: dict[IrrigationMethod, int] = {}
@@ -631,11 +617,7 @@ class IrrigationEfficiencyCalculator:
             tenant_id=self.tenant_id,
             farm_id=farm_id,
             field_id=field_id,
-<<<<<<< HEAD
-            calculation_date=datetime.now(timezone.utc),
-=======
             calculation_date=datetime.now(UTC),
->>>>>>> origin/main
             period_start=period_start,
             period_end=period_end,
             irrigation_method=irrigation_method,

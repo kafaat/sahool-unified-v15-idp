@@ -22,11 +22,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from typing import Any
 
 import httpx
@@ -355,11 +351,7 @@ class SAHOOLSkillsTools:
                     "supporting_data": data.get("supporting_data", {}),
                 },
                 metadata={
-<<<<<<< HEAD
-                    "advisory_date": datetime.now(timezone.utc).isoformat(),
-=======
                     "advisory_date": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
                     "ai_model": data.get("model_used", "unknown"),
                     "analysis_time_ms": data.get("processing_time_ms", 0),
                 },
@@ -510,11 +502,7 @@ class SAHOOLSkillsTools:
                 metadata={
                     "data_type": data_type,
                     "preserve_critical": preserve_critical,
-<<<<<<< HEAD
-                    "compression_timestamp": datetime.now(timezone.utc).isoformat(),
-=======
                     "compression_timestamp": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
                 },
             )
         except Exception as e:
@@ -596,11 +584,7 @@ class SAHOOLSkillsTools:
                         },
                     },
                     metadata={
-<<<<<<< HEAD
-                        "query_timestamp": datetime.now(timezone.utc).isoformat(),
-=======
                         "query_timestamp": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
                         "memory_backend": "local",
                     },
                 )
@@ -628,11 +612,7 @@ class SAHOOLSkillsTools:
                         },
                     },
                     metadata={
-<<<<<<< HEAD
-                        "query_timestamp": datetime.now(timezone.utc).isoformat(),
-=======
                         "query_timestamp": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
                         "memory_backend": "api",
                     },
                 )

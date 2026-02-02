@@ -4,11 +4,7 @@ SAHOOL Notification Service - Data Repository Layer
 """
 
 import logging
-<<<<<<< HEAD
-from datetime import datetime, timedelta, timezone
-=======
 from datetime import datetime, timedelta, timezone, UTC
->>>>>>> origin/main
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -70,11 +66,7 @@ class NotificationRepository:
             target_governorates=target_governorates,
             target_crops=target_crops,
             expires_at=(
-<<<<<<< HEAD
-                datetime.now(timezone.utc) + timedelta(hours=expires_in_hours) if expires_in_hours else None
-=======
                 datetime.now(UTC) + timedelta(hours=expires_in_hours) if expires_in_hours else None
->>>>>>> origin/main
             ),
         )
 
@@ -153,11 +145,7 @@ class NotificationRepository:
 
         # Filter expired notifications
         if not include_expired:
-<<<<<<< HEAD
-            query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.now(timezone.utc)))
-=======
             query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.now(UTC)))
->>>>>>> origin/main
 
         # Order by creation date
         query = query.order_by("-created_at")
@@ -182,11 +170,7 @@ class NotificationRepository:
             query = query.filter(tenant_id=tenant_id)
 
         # Exclude expired
-<<<<<<< HEAD
-        query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.now(timezone.utc)))
-=======
         query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.now(UTC)))
->>>>>>> origin/main
 
         count = await query.count()
         return count
@@ -198,11 +182,7 @@ class NotificationRepository:
         Mark notification as read
         """
         if read_at is None:
-<<<<<<< HEAD
-            read_at = datetime.now(timezone.utc)
-=======
             read_at = datetime.now(UTC)
->>>>>>> origin/main
 
         updated = await Notification.filter(id=notification_id).update(
             read_at=read_at,
@@ -223,11 +203,7 @@ class NotificationRepository:
         Mark multiple notifications as read
         """
         if read_at is None:
-<<<<<<< HEAD
-            read_at = datetime.now(timezone.utc)
-=======
             read_at = datetime.now(UTC)
->>>>>>> origin/main
 
         updated = await Notification.filter(id__in=notification_ids).update(
             read_at=read_at,
@@ -249,11 +225,7 @@ class NotificationRepository:
             query = query.filter(tenant_id=tenant_id)
 
         updated = await query.update(
-<<<<<<< HEAD
-            read_at=datetime.now(timezone.utc),
-=======
             read_at=datetime.now(UTC),
->>>>>>> origin/main
             status="read",
         )
 
@@ -297,11 +269,7 @@ class NotificationRepository:
         حذف الإشعارات القديمة
         Delete notifications older than specified days
         """
-<<<<<<< HEAD
-        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
-=======
         cutoff_date = datetime.now(UTC) - timedelta(days=days)
->>>>>>> origin/main
         deleted = await Notification.filter(created_at__lt=cutoff_date).delete()
 
         logger.info(f"Deleted {deleted} notifications older than {days} days")
@@ -322,11 +290,7 @@ class NotificationRepository:
             query = query.filter(channel=channel)
 
         # Only get non-expired
-<<<<<<< HEAD
-        query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.now(timezone.utc)))
-=======
         query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.now(UTC)))
->>>>>>> origin/main
 
         notifications = await query.order_by("created_at").limit(limit).all()
         return notifications
@@ -352,11 +316,7 @@ class NotificationRepository:
             query = query.filter(target_crops__contains=[crop])
 
         # Only non-expired
-<<<<<<< HEAD
-        query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.now(timezone.utc)))
-=======
         query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.now(UTC)))
->>>>>>> origin/main
 
         notifications = await query.order_by("-created_at").limit(limit).all()
         return notifications
@@ -531,11 +491,7 @@ class NotificationChannelRepository:
             return False
 
         channel.verified = True
-<<<<<<< HEAD
-        channel.verified_at = datetime.now(timezone.utc)
-=======
         channel.verified_at = datetime.now(UTC)
->>>>>>> origin/main
         channel.verification_code = None
         await channel.save()
 
@@ -790,11 +746,7 @@ class NotificationLogRepository:
         log = await NotificationLog.filter(id=log_id).first()
         if log:
             log.retry_count += 1
-<<<<<<< HEAD
-            log.next_retry_at = datetime.now(timezone.utc) + timedelta(minutes=5 * (log.retry_count))
-=======
             log.next_retry_at = datetime.now(UTC) + timedelta(minutes=5 * (log.retry_count))
->>>>>>> origin/main
             await log.save()
             return True
         return False
@@ -1137,11 +1089,7 @@ class FarmerProfileRepository:
         from .models import FarmerProfile
 
         updated = await FarmerProfile.filter(farmer_id=farmer_id).update(
-<<<<<<< HEAD
-            last_login_at=datetime.now(timezone.utc)
-=======
             last_login_at=datetime.now(UTC)
->>>>>>> origin/main
         )
         return updated > 0
 

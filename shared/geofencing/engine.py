@@ -7,11 +7,7 @@ from __future__ import annotations
 
 import math
 import uuid
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 
 from .models import (
     Geofence,
@@ -613,11 +609,7 @@ class GeofenceEngine:
             if alert.alert_id == alert_id:
                 alert.acknowledged = True
                 alert.acknowledged_by = acknowledged_by
-<<<<<<< HEAD
-                alert.acknowledged_at = datetime.now(timezone.utc)
-=======
                 alert.acknowledged_at = datetime.now(UTC)
->>>>>>> origin/main
                 return True
         return False
 

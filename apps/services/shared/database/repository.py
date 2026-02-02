@@ -194,11 +194,7 @@ class BaseRepository(Generic[ModelType]):
 
         from datetime import datetime, timezone
 
-<<<<<<< HEAD
-        return self.update(id, {"is_deleted": True, "deleted_at": datetime.now(timezone.utc)}) is not None
-=======
         return self.update(id, {"is_deleted": True, "deleted_at": datetime.now(UTC)}) is not None
->>>>>>> origin/main
 
     def get_active(
         self,

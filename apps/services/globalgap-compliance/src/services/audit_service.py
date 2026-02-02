@@ -6,11 +6,7 @@ Business logic for preparing and managing audit reports.
 منطق العمل لإعداد وإدارة تقارير التدقيق.
 """
 
-<<<<<<< HEAD
-from datetime import datetime, timedelta, timezone
-=======
 from datetime import datetime, timedelta, timezone, UTC
->>>>>>> origin/main
 from typing import Any
 
 from ..models import (
@@ -102,11 +98,7 @@ class AuditService:
             compliance_record_id=compliance_record.id or "",
             audit_type=audit_type,
             auditor_name=auditor_name,
-<<<<<<< HEAD
-            audit_date=datetime.now(timezone.utc),
-=======
             audit_date=datetime.now(UTC),
->>>>>>> origin/main
             audit_status=audit_status,
             overall_score=compliance_record.compliance_percentage,
             total_findings=len(non_conformities),
@@ -119,11 +111,7 @@ class AuditService:
             recommendations=recommendations,
             follow_up_required=(audit_status != "passed"),
             follow_up_deadline=(
-<<<<<<< HEAD
-                datetime.now(timezone.utc) + timedelta(days=90) if audit_status != "passed" else None
-=======
                 datetime.now(UTC) + timedelta(days=90) if audit_status != "passed" else None
->>>>>>> origin/main
             ),
         )
 
@@ -306,13 +294,8 @@ Recommendation: {"Immediate corrective actions required" if audit_status != "pas
         """
         # In real implementation, save to database
         # في التطبيق الفعلي، الحفظ في قاعدة البيانات
-<<<<<<< HEAD
-        audit_result.id = f"audit_{datetime.now(timezone.utc).timestamp()}"
-        audit_result.created_at = datetime.now(timezone.utc)
-=======
         audit_result.id = f"audit_{datetime.now(UTC).timestamp()}"
         audit_result.created_at = datetime.now(UTC)
->>>>>>> origin/main
         self.audit_results[audit_result.id] = audit_result
         return audit_result
 
@@ -386,11 +369,7 @@ Recommendation: {"Immediate corrective actions required" if audit_status != "pas
                 f"Control point {nc.control_point_number}"
                 for nc in []  # Would be loaded from non-conformities
             ],
-<<<<<<< HEAD
-            "created_at": datetime.now(timezone.utc).isoformat(),
-=======
             "created_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         }
 
         return follow_up

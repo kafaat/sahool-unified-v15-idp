@@ -21,11 +21,7 @@ Created: January 2026
 
 import uuid
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from typing import Any
 
 import structlog
@@ -37,10 +33,6 @@ from .base import (
     AgentCapability,
     BaseAutonomousAgent,
     CollaborationRole,
-<<<<<<< HEAD
-    MemoryType,
-=======
->>>>>>> origin/main
     ToolResult,
 )
 from ..llm_provider import LLMProviderManager
@@ -125,11 +117,8 @@ class ClimateRiskAssessment:
     overall_risk: str  # low, medium, high
     overall_risk_ar: str
     recommendations: list[dict[str, str]]
-<<<<<<< HEAD
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
 
 # ============================================================================
@@ -480,11 +469,7 @@ class WeatherSubAgent(BaseAutonomousAgent):
         for i in range(days):
             daily_forecasts.append({
                 "day": i + 1,
-<<<<<<< HEAD
-                "date": (datetime.now(timezone.utc)).isoformat(),
-=======
                 "date": (datetime.now(UTC)).isoformat(),
->>>>>>> origin/main
                 "temperature_c": base_temp + (i % 3) - 1,
                 "temperature_min_c": base_temp - 5,
                 "temperature_max_c": base_temp + 5,
@@ -514,11 +499,7 @@ class WeatherSubAgent(BaseAutonomousAgent):
             "location": {"lat": lat, "lon": lon},
             "location_name": "Riyadh Region",
             "location_name_ar": "منطقة الرياض",
-<<<<<<< HEAD
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-=======
             "generated_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
             "daily_forecasts": daily_forecasts,
             "alerts": alerts,
             "confidence": 0.85,
@@ -585,11 +566,7 @@ class WeatherSubAgent(BaseAutonomousAgent):
             "overall_risk": overall_risk,
             "overall_risk_ar": overall_risk_ar,
             "recommendations": recommendations,
-<<<<<<< HEAD
-            "created_at": datetime.now(timezone.utc).isoformat(),
-=======
             "created_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         }
 
     async def _get_optimal_spray_window(

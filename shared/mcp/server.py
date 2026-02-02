@@ -26,11 +26,7 @@ import json
 import logging
 import os
 import sys
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from typing import Any
 
 from fastapi import FastAPI, Request, Response
@@ -520,11 +516,7 @@ class SAHOOLMCPServer:
                 "server": self.name,
                 "server_ar": self.name_ar,
                 "version": self.version,
-<<<<<<< HEAD
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-=======
                 "timestamp": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
                 "active_agents": len(self.tools.list_active_agents()),
             }
 
@@ -598,11 +590,7 @@ class SAHOOLMCPServer:
                             break
 
                         # Send heartbeat
-<<<<<<< HEAD
-                        yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.now(timezone.utc).isoformat()})}\n\n"
-=======
                         yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.now(UTC).isoformat()})}\n\n"
->>>>>>> origin/main
 
                         await asyncio.sleep(30)
 

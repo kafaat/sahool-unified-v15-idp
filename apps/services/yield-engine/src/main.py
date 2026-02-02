@@ -14,11 +14,7 @@ Port: 8098
 import logging
 import os
 import sys
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, timezone, UTC
->>>>>>> origin/main
 from enum import Enum
 
 from fastapi import FastAPI, HTTPException
@@ -639,11 +635,7 @@ class YieldPredictor:
             confidence_percent=min(confidence, 95),
             factors_applied=all_factors if all_factors else ["لا توجد عوامل إضافية"],
             recommendations=recommendations,
-<<<<<<< HEAD
-            timestamp=datetime.now(timezone.utc),
-=======
             timestamp=datetime.now(UTC),
->>>>>>> origin/main
         )
 
     def _generate_recommendations(
@@ -726,11 +718,7 @@ async def health_check():
         service=SERVICE_NAME,
         version=SERVICE_VERSION,
         model_ready=yield_predictor.is_ready,
-<<<<<<< HEAD
-        timestamp=datetime.now(timezone.utc),
-=======
         timestamp=datetime.now(UTC),
->>>>>>> origin/main
     )
 
 
@@ -792,11 +780,7 @@ async def get_crop_price(crop_type: CropType):
         "name_ar": info["name_ar"],
         "price_usd_per_ton": info["price_usd_per_ton"],
         "price_yer_per_ton": info["price_usd_per_ton"] * USD_TO_YER,
-<<<<<<< HEAD
-        "last_updated": datetime.now(timezone.utc).isoformat(),
-=======
         "last_updated": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
     }
 
 

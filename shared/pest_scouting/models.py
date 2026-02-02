@@ -23,11 +23,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, date, timezone
-=======
 from datetime import datetime, date, UTC
->>>>>>> origin/main
 from enum import Enum
 from typing import Any
 import uuid
@@ -388,13 +384,8 @@ class ScoutReport:
     reviewed_at: datetime | None = None
 
     # Metadata
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -510,11 +501,7 @@ class PestAlert:
     area_affected_ha: float | None = None
 
     # Time
-<<<<<<< HEAD
-    detected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     detected_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
     response_deadline: datetime | None = None
 
     # Status
@@ -660,11 +647,7 @@ class OutbreakRecord:
     previous_outbreak_ids: list[str] = field(default_factory=list)
 
     # Metadata
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
     created_by: str = ""
     verified: bool = False
     verified_by: str | None = None
@@ -801,11 +784,7 @@ class TreatmentRecommendation:
 
     # Status
     status: str = "pending"  # pending, approved, rejected, implemented, completed
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
     created_by: str = ""
     approved_by: str | None = None
     approved_at: datetime | None = None

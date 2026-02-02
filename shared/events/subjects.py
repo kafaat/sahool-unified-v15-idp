@@ -489,8 +489,6 @@ SUBJECT_REGISTRY = {
     "alert.created": SAHOOL_ALERT_CREATED,
     "alert.acknowledged": SAHOOL_ALERT_ACKNOWLEDGED,
     "alert.resolved": SAHOOL_ALERT_RESOLVED,
-<<<<<<< HEAD
-=======
     # Vision (YOLO26)
     "vision.pest_detected": SAHOOL_VISION_PEST_DETECTED,
     "vision.disease_detected": SAHOOL_VISION_DISEASE_DETECTED,
@@ -530,7 +528,6 @@ SUBJECT_REGISTRY = {
     "edge.model_deployment_failed": SAHOOL_EDGE_MODEL_DEPLOYMENT_FAILED,
     "edge.firmware_update_available": SAHOOL_EDGE_FIRMWARE_UPDATE_AVAILABLE,
     "edge.data_collected": SAHOOL_EDGE_DATA_COLLECTED,
->>>>>>> origin/main
 }
 
 

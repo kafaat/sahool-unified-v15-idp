@@ -39,11 +39,7 @@ Usage:
 
 from __future__ import annotations
 
-<<<<<<< HEAD
-from datetime import date, datetime, timezone
-=======
 from datetime import date, datetime, UTC
->>>>>>> origin/main
 from enum import Enum
 from uuid import UUID, uuid4
 
@@ -148,13 +144,8 @@ class WaterUsageRecord(BaseModel):
 
     # Metadata
     recorded_by: UUID | None = Field(None, description="User who recorded")
-<<<<<<< HEAD
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     class Config:
         use_enum_values = True
@@ -239,11 +230,7 @@ class WaterUsageReport(BaseModel):
     )
 
     # Report metadata
-<<<<<<< HEAD
-    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
     generated_by: UUID | None = Field(None, description="User who generated report")
 
     class Config:
@@ -302,11 +289,7 @@ class SPRINGCompliance(BaseModel):
         default_factory=list, description="Non-compliance issues (Arabic)"
     )
 
-<<<<<<< HEAD
-    assessed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     assessed_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     class Config:
         json_encoders = {

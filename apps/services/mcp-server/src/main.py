@@ -27,11 +27,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, timezone, UTC
->>>>>>> origin/main
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -171,11 +167,7 @@ async def health():
         "status": "healthy",
         "service": "mcp-server",
         "version": "16.0.0",
-<<<<<<< HEAD
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-=======
         "timestamp": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         "mcp_server": {
             "name": mcp_server.name,
             "version": mcp_server.version,
@@ -340,11 +332,7 @@ async def handle_sse(request: Request):
                     break
 
                 # Send heartbeat every 30 seconds
-<<<<<<< HEAD
-                yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.now(timezone.utc).isoformat()})}\n\n"
-=======
                 yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.now(UTC).isoformat()})}\n\n"
->>>>>>> origin/main
 
                 await asyncio.sleep(30)
 

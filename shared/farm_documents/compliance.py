@@ -11,11 +11,7 @@ and certification verification functionality.
 
 from __future__ import annotations
 
-<<<<<<< HEAD
-from datetime import date, datetime, timezone
-=======
 from datetime import date, datetime, UTC
->>>>>>> origin/main
 
 import structlog
 
@@ -399,11 +395,7 @@ class ComplianceService:
 
         certification.status = status
         certification.updated_by = updated_by
-<<<<<<< HEAD
-        certification.updated_at = datetime.now(timezone.utc)
-=======
         certification.updated_at = datetime.now(UTC)
->>>>>>> origin/main
 
         if notes_en:
             certification.notes_en = notes_en
@@ -439,11 +431,7 @@ class ComplianceService:
         certification.issue_date = new_issue_date
         certification.expiry_date = new_expiry_date
         certification.status = CertificationStatus.ACTIVE
-<<<<<<< HEAD
-        certification.updated_at = datetime.now(timezone.utc)
-=======
         certification.updated_at = datetime.now(UTC)
->>>>>>> origin/main
         certification.updated_by = renewed_by
 
         if new_certificate_number:
@@ -607,17 +595,10 @@ class ComplianceService:
 
         compliance_doc.status = status
         compliance_doc.reviewed_by = reviewed_by
-<<<<<<< HEAD
-        compliance_doc.reviewed_at = datetime.now(timezone.utc)
-        compliance_doc.review_notes_en = review_notes_en
-        compliance_doc.review_notes_ar = review_notes_ar
-        compliance_doc.updated_at = datetime.now(timezone.utc)
-=======
         compliance_doc.reviewed_at = datetime.now(UTC)
         compliance_doc.review_notes_en = review_notes_en
         compliance_doc.review_notes_ar = review_notes_ar
         compliance_doc.updated_at = datetime.now(UTC)
->>>>>>> origin/main
 
         logger.info(
             "compliance_document_reviewed",

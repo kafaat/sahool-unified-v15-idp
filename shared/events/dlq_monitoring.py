@@ -34,11 +34,7 @@ import asyncio
 import contextlib
 import logging
 from collections.abc import Callable
-<<<<<<< HEAD
-from datetime import datetime, timedelta, timezone
-=======
 from datetime import datetime, timedelta, UTC
->>>>>>> origin/main
 
 from pydantic import BaseModel, Field
 
@@ -213,11 +209,7 @@ class DLQMonitor:
             byte_count = stream_info.state.bytes
 
             self._total_checks += 1
-<<<<<<< HEAD
-            self._last_check_time = datetime.now(timezone.utc)
-=======
             self._last_check_time = datetime.now(UTC)
->>>>>>> origin/main
 
             logger.debug(f"DLQ check: {message_count} messages, {byte_count:,} bytes")
 
@@ -232,11 +224,7 @@ class DLQMonitor:
         """Trigger DLQ alert."""
         # Check cooldown
         if self._last_alert_time:
-<<<<<<< HEAD
-            time_since_last = datetime.now(timezone.utc) - self._last_alert_time
-=======
             time_since_last = datetime.now(UTC) - self._last_alert_time
->>>>>>> origin/main
             if time_since_last < self._alert_cooldown:
                 logger.debug(f"Alert cooldown active (last: {time_since_last.seconds}s ago)")
                 return
@@ -249,22 +237,13 @@ class DLQMonitor:
         # Calculate oldest message age
         oldest_age_hours = None
         if stream_info.state.first_ts:
-<<<<<<< HEAD
-            age = datetime.now(timezone.utc) - stream_info.state.first_ts
-=======
             age = datetime.now(UTC) - stream_info.state.first_ts
->>>>>>> origin/main
             oldest_age_hours = age.total_seconds() / 3600
 
         # Create alert
         alert = DLQAlert(
-<<<<<<< HEAD
-            alert_id=f"dlq-{datetime.now(timezone.utc).timestamp()}",
-            timestamp=datetime.now(timezone.utc),
-=======
             alert_id=f"dlq-{datetime.now(UTC).timestamp()}",
             timestamp=datetime.now(UTC),
->>>>>>> origin/main
             severity=severity,
             message=f"DLQ threshold exceeded: {message_count} messages (threshold: {self.config.alert_threshold})",
             message_count=message_count,
@@ -274,11 +253,7 @@ class DLQMonitor:
         )
 
         self._alerts_triggered += 1
-<<<<<<< HEAD
-        self._last_alert_time = datetime.now(timezone.utc)
-=======
         self._last_alert_time = datetime.now(UTC)
->>>>>>> origin/main
 
         logger.warning(
             f"⚠️  DLQ ALERT: {alert.message} (severity: {severity}, oldest: {oldest_age_hours:.1f}h)"

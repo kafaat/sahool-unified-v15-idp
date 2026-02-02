@@ -18,11 +18,7 @@ import re
 import shutil
 import tempfile
 import uuid
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from pathlib import Path
 from typing import Any
 
@@ -387,11 +383,7 @@ class CodeFixer:
                 return FixResult(
                     fix_id=fix.id,
                     success=False,
-<<<<<<< HEAD
-                    applied_at=datetime.now(timezone.utc),
-=======
                     applied_at=datetime.now(UTC),
->>>>>>> origin/main
                     file_path="unknown",
                     error_message="Fix has no code content",
                 )
@@ -402,11 +394,7 @@ class CodeFixer:
             return FixResult(
                 fix_id=fix.id,
                 success=True,
-<<<<<<< HEAD
-                applied_at=datetime.now(timezone.utc),
-=======
                 applied_at=datetime.now(UTC),
->>>>>>> origin/main
                 file_path="pending",  # Will be set by engine
                 backup_path=backup_path,
                 rollback_available=create_backup,
@@ -416,11 +404,7 @@ class CodeFixer:
             return FixResult(
                 fix_id=fix.id,
                 success=False,
-<<<<<<< HEAD
-                applied_at=datetime.now(timezone.utc),
-=======
                 applied_at=datetime.now(UTC),
->>>>>>> origin/main
                 file_path="unknown",
                 error_message=str(e),
             )
@@ -451,11 +435,7 @@ class CodeFixer:
                 return FixResult(
                     fix_id=fix.id,
                     success=False,
-<<<<<<< HEAD
-                    applied_at=datetime.now(timezone.utc),
-=======
                     applied_at=datetime.now(UTC),
->>>>>>> origin/main
                     file_path=file_path,
                     error_message=f"File not found: {file_path}",
                 )
@@ -477,11 +457,7 @@ class CodeFixer:
             return FixResult(
                 fix_id=fix.id,
                 success=True,
-<<<<<<< HEAD
-                applied_at=datetime.now(timezone.utc),
-=======
                 applied_at=datetime.now(UTC),
->>>>>>> origin/main
                 file_path=file_path,
                 backup_path=backup_path,
                 verification_passed=verification,
@@ -492,11 +468,7 @@ class CodeFixer:
             return FixResult(
                 fix_id=fix.id,
                 success=False,
-<<<<<<< HEAD
-                applied_at=datetime.now(timezone.utc),
-=======
                 applied_at=datetime.now(UTC),
->>>>>>> origin/main
                 file_path=file_path,
                 backup_path=backup_path,
                 error_message=str(e),

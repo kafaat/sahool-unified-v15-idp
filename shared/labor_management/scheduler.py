@@ -14,11 +14,7 @@ Version: 1.0.0
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, date, time, timezone
-=======
 from datetime import datetime, date, time, UTC
->>>>>>> origin/main
 from enum import Enum
 
 from .models import (
@@ -111,11 +107,7 @@ class TaskAssignment:
     task_id: str
     worker_ids: list[str]
 
-<<<<<<< HEAD
-    assigned_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     assigned_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
     assigned_by: str | None = None
 
     # Schedule
@@ -155,11 +147,7 @@ class SchedulingResult:
     summary_en: str = ""
     summary_ar: str = ""
 
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
 
 @dataclass
@@ -410,11 +398,7 @@ class LaborScheduler:
 
         Returns list of active REI zones for the field
         """
-<<<<<<< HEAD
-        check = check_time or datetime.now(timezone.utc)
-=======
         check = check_time or datetime.now(UTC)
->>>>>>> origin/main
         active_zones = []
 
         for zone in self.rei_zones:
@@ -436,11 +420,7 @@ class LaborScheduler:
         Returns:
             Tuple of (can_enter, conflicts, required_ppe)
         """
-<<<<<<< HEAD
-        check = check_time or datetime.now(timezone.utc)
-=======
         check = check_time or datetime.now(UTC)
->>>>>>> origin/main
         conflicts = []
         required_ppe: list[PPEType] = []
 

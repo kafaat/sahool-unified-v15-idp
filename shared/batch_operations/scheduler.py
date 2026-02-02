@@ -16,11 +16,7 @@ import asyncio
 import heapq
 import logging
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timedelta, timezone
-=======
 from datetime import datetime, timedelta, UTC
->>>>>>> origin/main
 from enum import Enum
 from typing import Any, Callable, Coroutine
 from uuid import uuid4
@@ -87,26 +83,15 @@ class BatchSchedule:
     last_execution: datetime | None = None
     next_execution: datetime | None = None
     enabled: bool = True
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     def calculate_next_execution(self) -> datetime | None:
         """Calculate the next execution time based on recurrence pattern."""
         if self.schedule_type == ScheduleType.IMMEDIATE:
-<<<<<<< HEAD
-            return datetime.now(timezone.utc)
-
-        if self.schedule_type == ScheduleType.SCHEDULED:
-            if self.scheduled_time and self.scheduled_time > datetime.now(timezone.utc):
-=======
             return datetime.now(UTC)
 
         if self.schedule_type == ScheduleType.SCHEDULED:
             if self.scheduled_time and self.scheduled_time > datetime.now(UTC):
->>>>>>> origin/main
                 return self.scheduled_time
             return None
 
@@ -117,11 +102,7 @@ class BatchSchedule:
             if self.max_executions and self.execution_count >= self.max_executions:
                 return None
 
-<<<<<<< HEAD
-            base_time = self.last_execution or self.scheduled_time or datetime.now(timezone.utc)
-=======
             base_time = self.last_execution or self.scheduled_time or datetime.now(UTC)
->>>>>>> origin/main
 
             if self.recurrence_pattern == RecurrencePattern.DAILY:
                 next_time = base_time + timedelta(days=self.recurrence_interval)
@@ -167,11 +148,7 @@ class QueuedBatch:
     scheduled_time: datetime = field(compare=True)
     batch: BatchOperation = field(compare=False)
     schedule: BatchSchedule = field(compare=False)
-<<<<<<< HEAD
-    enqueued_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc), compare=False)
-=======
     enqueued_at: datetime = field(default_factory=lambda: datetime.now(UTC), compare=False)
->>>>>>> origin/main
 
     @classmethod
     def create(
@@ -187,11 +164,7 @@ class QueuedBatch:
             BatchPriority.LOW: 3,
         }
         priority_value = priority_map.get(batch.priority, 2)
-<<<<<<< HEAD
-        scheduled_time = schedule.next_execution or datetime.now(timezone.utc)
-=======
         scheduled_time = schedule.next_execution or datetime.now(UTC)
->>>>>>> origin/main
 
         return cls(
             priority_value=priority_value,
@@ -213,11 +186,7 @@ class SchedulerEvent:
     event_type: str
     batch_id: str
     message: BilingualMessage
-<<<<<<< HEAD
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
     details: dict[str, Any] = field(default_factory=dict)
 
 
@@ -420,11 +389,7 @@ class BatchScheduler:
                 batch_id=batch.id,
                 schedule_type=ScheduleType.IMMEDIATE,
             )
-<<<<<<< HEAD
-            schedule.next_execution = datetime.now(timezone.utc)
-=======
             schedule.next_execution = datetime.now(UTC)
->>>>>>> origin/main
 
             self._batches[batch.id] = batch
             self._schedules[schedule.id] = schedule
@@ -537,11 +502,7 @@ class BatchScheduler:
     async def _process_queue(self):
         """Process the batch queue."""
         async with self._lock:
-<<<<<<< HEAD
-            now = datetime.now(timezone.utc)
-=======
             now = datetime.now(UTC)
->>>>>>> origin/main
 
             # Check for batches ready to run
             while self._queue and len(self._running_batches) < self._max_concurrent:
@@ -586,11 +547,7 @@ class BatchScheduler:
 
             # Update schedule
             schedule.execution_count += 1
-<<<<<<< HEAD
-            schedule.last_execution = datetime.now(timezone.utc)
-=======
             schedule.last_execution = datetime.now(UTC)
->>>>>>> origin/main
 
             # Handle recurring schedule
             if schedule.schedule_type == ScheduleType.RECURRING:
@@ -692,11 +649,7 @@ class BatchScheduler:
 
                 if batch_id in self._batches:
                     self._batches[batch_id].status = BatchStatus.CANCELLED
-<<<<<<< HEAD
-                    self._batches[batch_id].cancelled_at = datetime.now(timezone.utc)
-=======
                     self._batches[batch_id].cancelled_at = datetime.now(UTC)
->>>>>>> origin/main
 
                 await self._emit_event(
                     "batch_cancelled",
@@ -711,11 +664,7 @@ class BatchScheduler:
                     self._queue.pop(i)
                     heapq.heapify(self._queue)
                     queued.batch.status = BatchStatus.CANCELLED
-<<<<<<< HEAD
-                    queued.batch.cancelled_at = datetime.now(timezone.utc)
-=======
                     queued.batch.cancelled_at = datetime.now(UTC)
->>>>>>> origin/main
 
                     await self._emit_event(
                         "batch_cancelled",

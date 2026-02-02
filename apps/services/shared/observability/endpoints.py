@@ -123,11 +123,7 @@ def create_observability_router(
                 "log_level": os.getenv("LOG_LEVEL", "INFO"),
             },
             "runtime": {
-<<<<<<< HEAD
-                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-=======
                 "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
->>>>>>> origin/main
                 "pid": os.getpid(),
             },
             "config": {

@@ -37,11 +37,7 @@ Updated: January 2026
 
 from __future__ import annotations
 
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from typing import Any
 from uuid import UUID
 import structlog
@@ -324,11 +320,7 @@ class CollaborativeChecklist:
 
         item = self._items[item_id]
         item.checked = True
-<<<<<<< HEAD
-        item.checked_at = datetime.now(timezone.utc)
-=======
         item.checked_at = datetime.now(UTC)
->>>>>>> origin/main
         item.checked_by = checked_by
         item.notes = notes
         item.notes_ar = notes_ar

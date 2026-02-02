@@ -19,11 +19,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-<<<<<<< HEAD
-from datetime import datetime, timedelta, timezone
-=======
 from datetime import datetime, timedelta, UTC
->>>>>>> origin/main
 from pathlib import Path
 from typing import Any, Callable
 from uuid import uuid4
@@ -325,11 +321,7 @@ class RetentionManager:
         Get all expired entries.
         الحصول على جميع الإدخالات المنتهية الصلاحية
         """
-<<<<<<< HEAD
-        now = datetime.now(timezone.utc)
-=======
         now = datetime.now(UTC)
->>>>>>> origin/main
         expired = []
 
         for entry in self._entries:
@@ -354,11 +346,7 @@ class RetentionManager:
         Returns:
             List of entries expiring soon
         """
-<<<<<<< HEAD
-        now = datetime.now(timezone.utc)
-=======
         now = datetime.now(UTC)
->>>>>>> origin/main
         threshold = now + timedelta(days=days)
         expiring = []
 
@@ -428,11 +416,7 @@ class RetentionManager:
 
         # Archive to file if archive path configured
         if self.archive_path:
-<<<<<<< HEAD
-            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-=======
             timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
->>>>>>> origin/main
             filename = f"archive_{timestamp}_{reason}.jsonl"
             filepath = os.path.join(self.archive_path, filename)
 
@@ -440,11 +424,7 @@ class RetentionManager:
                 with open(filepath, "a", encoding="utf-8") as f:
                     for entry in entries:
                         archive_record = {
-<<<<<<< HEAD
-                            "archived_at": datetime.now(timezone.utc).isoformat(),
-=======
                             "archived_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
                             "reason": reason,
                             "entry": entry.to_dict(),
                         }
@@ -562,11 +542,7 @@ class RetentionManager:
         job = RetentionJob(
             id=str(uuid4()),
             policy_id="all",
-<<<<<<< HEAD
-            started_at=datetime.now(timezone.utc),
-=======
             started_at=datetime.now(UTC),
->>>>>>> origin/main
             status="running",
         )
 
@@ -577,11 +553,7 @@ class RetentionManager:
 
             if dry_run:
                 job.status = "completed"
-<<<<<<< HEAD
-                job.completed_at = datetime.now(timezone.utc)
-=======
                 job.completed_at = datetime.now(UTC)
->>>>>>> origin/main
                 job.entries_archived = len([e for e in expired_entries if self._should_archive(e)])
                 job.entries_deleted = len(expired_entries)
                 logger.info(
@@ -605,20 +577,12 @@ class RetentionManager:
             job.entries_deleted = await self.delete_entries(to_delete)
 
             job.status = "completed"
-<<<<<<< HEAD
-            job.completed_at = datetime.now(timezone.utc)
-=======
             job.completed_at = datetime.now(UTC)
->>>>>>> origin/main
 
         except Exception as e:
             job.status = "failed"
             job.errors.append(str(e))
-<<<<<<< HEAD
-            job.completed_at = datetime.now(timezone.utc)
-=======
             job.completed_at = datetime.now(UTC)
->>>>>>> origin/main
             logger.error("retention_job_failed", job_id=job.id, error=str(e))
 
         self._jobs.append(job)
@@ -657,11 +621,7 @@ class RetentionManager:
         job = RetentionJob(
             id=str(uuid4()),
             policy_id=policy_id,
-<<<<<<< HEAD
-            started_at=datetime.now(timezone.utc),
-=======
             started_at=datetime.now(UTC),
->>>>>>> origin/main
             status="running",
         )
 
@@ -670,11 +630,7 @@ class RetentionManager:
             matching_entries = self.get_entries_by_policy(policy_id)
 
             # Filter to expired only
-<<<<<<< HEAD
-            now = datetime.now(timezone.utc)
-=======
             now = datetime.now(UTC)
->>>>>>> origin/main
             expired_entries = [
                 e for e in matching_entries
                 if e.expires_at and e.expires_at <= now
@@ -684,11 +640,7 @@ class RetentionManager:
 
             if dry_run:
                 job.status = "completed"
-<<<<<<< HEAD
-                job.completed_at = datetime.now(timezone.utc)
-=======
                 job.completed_at = datetime.now(UTC)
->>>>>>> origin/main
                 job.entries_archived = len(expired_entries) if policy.archive_before_delete else 0
                 job.entries_deleted = len(expired_entries)
                 return job
@@ -703,20 +655,12 @@ class RetentionManager:
             job.entries_deleted = await self.delete_entries(expired_entries)
 
             job.status = "completed"
-<<<<<<< HEAD
-            job.completed_at = datetime.now(timezone.utc)
-=======
             job.completed_at = datetime.now(UTC)
->>>>>>> origin/main
 
         except Exception as e:
             job.status = "failed"
             job.errors.append(str(e))
-<<<<<<< HEAD
-            job.completed_at = datetime.now(timezone.utc)
-=======
             job.completed_at = datetime.now(UTC)
->>>>>>> origin/main
             logger.error("policy_retention_failed", policy_id=policy_id, error=str(e))
 
         self._jobs.append(job)
@@ -758,11 +702,7 @@ class RetentionManager:
 
             # Get entries matching policy and expiring soon
             matching = self.get_entries_by_policy(policy.id)
-<<<<<<< HEAD
-            now = datetime.now(timezone.utc)
-=======
             now = datetime.now(UTC)
->>>>>>> origin/main
             threshold = now + timedelta(days=check_days)
 
             expiring = [
@@ -834,11 +774,7 @@ class RetentionManager:
         Get summary of retention status.
         الحصول على ملخص حالة الاحتفاظ
         """
-<<<<<<< HEAD
-        now = datetime.now(timezone.utc)
-=======
         now = datetime.now(UTC)
->>>>>>> origin/main
 
         # Count entries by retention status
         total = len(self._entries)

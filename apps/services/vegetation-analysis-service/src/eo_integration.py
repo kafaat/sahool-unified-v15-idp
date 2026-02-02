@@ -11,11 +11,7 @@ real satellite data. Otherwise, it falls back to simulated data.
 
 import logging
 import os
-<<<<<<< HEAD
-from datetime import date, datetime, timezone
-=======
 from datetime import date, datetime, timezone, UTC
->>>>>>> origin/main
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -180,11 +176,7 @@ def convert_eo_result_to_api_format(
 
     return {
         "field_id": field_id,
-<<<<<<< HEAD
-        "analysis_date": datetime.now(timezone.utc).isoformat(),
-=======
         "analysis_date": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         "satellite": satellite,
         "data_source": "real",  # Indicates real data
         "indices": {

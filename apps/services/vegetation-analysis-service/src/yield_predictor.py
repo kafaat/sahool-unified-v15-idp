@@ -17,11 +17,7 @@ import math
 # Import shared crop catalog
 import sys
 from dataclasses import dataclass
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, timezone, UTC
->>>>>>> origin/main
 from pathlib import Path
 from typing import Optional
 
@@ -333,11 +329,7 @@ class YieldPredictor:
             comparison_to_base=round(comparison_to_base, 1),
             recommendations_ar=recommendations_ar,
             recommendations_en=recommendations_en,
-<<<<<<< HEAD
-            prediction_date=datetime.now(timezone.utc),
-=======
             prediction_date=datetime.now(UTC),
->>>>>>> origin/main
             growth_stage=growth_stage,
             days_to_harvest=days_to_harvest,
         )
@@ -509,11 +501,7 @@ class YieldPredictor:
         if not planting_date:
             return "unknown", None
 
-<<<<<<< HEAD
-        days_since_planting = (datetime.now(timezone.utc) - planting_date).days
-=======
         days_since_planting = (datetime.now(UTC) - planting_date).days
->>>>>>> origin/main
         season_days = crop_info.growing_season_days if crop_info else 120
 
         # Estimate based on days

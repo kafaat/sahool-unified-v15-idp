@@ -15,11 +15,7 @@ Based on Open-Meteo free API: https://open-meteo.com
 
 import logging
 from dataclasses import dataclass
-<<<<<<< HEAD
-from datetime import date, datetime, timezone
-=======
 from datetime import date, datetime, timezone, UTC
->>>>>>> origin/main
 
 import httpx
 
@@ -291,11 +287,7 @@ class WeatherIntegration:
 
             return WeatherForecast(
                 location={"lat": latitude, "lon": longitude},
-<<<<<<< HEAD
-                generated_at=datetime.now(timezone.utc),
-=======
                 generated_at=datetime.now(UTC),
->>>>>>> origin/main
                 daily=daily_data,
                 hourly=hourly_data if hourly_data else None,
             )
@@ -618,11 +610,7 @@ class WeatherIntegration:
             crop_name_ar=crop_name_ar,
             crop_name_en=crop_name_en,
             growth_stage=growth_stage,
-<<<<<<< HEAD
-            recommendation_date=datetime.now(timezone.utc),
-=======
             recommendation_date=datetime.now(UTC),
->>>>>>> origin/main
             water_requirement_mm=total_etc,
             precipitation_forecast_mm=total_precip,
             irrigation_needed_mm=irrigation_needed,

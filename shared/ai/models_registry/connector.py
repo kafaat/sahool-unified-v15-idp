@@ -28,11 +28,7 @@ import logging
 import os
 import time
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from typing import Any
 
 from .models import AIModelInfo
@@ -59,11 +55,7 @@ class ConnectorResponse:
     tokens_used: int | None = None
     latency_ms: float = 0.0
     metadata: dict[str, Any] = field(default_factory=dict)
-<<<<<<< HEAD
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""

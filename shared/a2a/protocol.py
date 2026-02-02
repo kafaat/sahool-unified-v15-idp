@@ -9,11 +9,7 @@ Core protocol message types, state management, and conversation handling.
 from __future__ import annotations
 
 import uuid
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, timezone, UTC
->>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -57,11 +53,7 @@ class A2AMessage(BaseModel):
 
     message_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     message_type: MessageType
-<<<<<<< HEAD
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
     sender_agent_id: str
     receiver_agent_id: str | None = None
     conversation_id: str | None = None
@@ -174,13 +166,8 @@ class ConversationContext:
         self.messages: list[A2AMessage] = []
         self.tasks: dict[str, TaskState] = {}
         self.metadata: dict[str, Any] = {}
-<<<<<<< HEAD
-        self.created_at = datetime.now(timezone.utc)
-        self.updated_at = datetime.now(timezone.utc)
-=======
         self.created_at = datetime.now(UTC)
         self.updated_at = datetime.now(UTC)
->>>>>>> origin/main
 
     def add_message(self, message: A2AMessage) -> None:
         """
@@ -191,11 +178,7 @@ class ConversationContext:
             message: A2A message to add
         """
         self.messages.append(message)
-<<<<<<< HEAD
-        self.updated_at = datetime.now(timezone.utc)
-=======
         self.updated_at = datetime.now(UTC)
->>>>>>> origin/main
 
         # Update task state if this is a task-related message
         # تحديث حالة المهمة إذا كانت هذه رسالة متعلقة بالمهمة

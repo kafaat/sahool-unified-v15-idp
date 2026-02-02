@@ -19,11 +19,7 @@ from __future__ import annotations
 import asyncio
 import os
 from collections.abc import Callable
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -278,11 +274,7 @@ class AuditTrailLogger:
         entry = AuditEntry(
             id=str(uuid4()),
             tenant_id=self.tenant_id,
-<<<<<<< HEAD
-            timestamp=datetime.now(timezone.utc),
-=======
             timestamp=datetime.now(UTC),
->>>>>>> origin/main
             actor_id=actor_id,
             actor_type=actor_type,
             actor_name=actor_name,
@@ -879,11 +871,7 @@ class AuditTrailLogger:
 
         # Write to file if storage path configured
         if self.storage_path:
-<<<<<<< HEAD
-            filename = f"audit_trail_{datetime.now(timezone.utc).strftime('%Y%m%d')}.jsonl"
-=======
             filename = f"audit_trail_{datetime.now(UTC).strftime('%Y%m%d')}.jsonl"
->>>>>>> origin/main
             filepath = os.path.join(self.storage_path, filename)
 
             with open(filepath, "a", encoding="utf-8") as f:

@@ -123,11 +123,7 @@ class QuaternionGeoProjector:
         origin_lat: float,  # Origin latitude for ENU frame
         origin_lon: float,  # Origin longitude for ENU frame
         origin_alt: float = 0.0,  # Origin altitude
-<<<<<<< HEAD
-        dem_service: Optional[DEMService] = None,
-=======
         dem_service: DEMService | None = None,
->>>>>>> origin/main
     ):
         """
         Initialize the geo-projector.
@@ -170,11 +166,7 @@ class QuaternionGeoProjector:
         self,
         u: float,
         v: float,
-<<<<<<< HEAD
-        terrain_elevation: Optional[float] = None
-=======
         terrain_elevation: float | None = None
->>>>>>> origin/main
     ) -> tuple[float, float]:
         """
         Transform image pixel (u, v) to geographic coordinates (lon, lat).
@@ -256,11 +248,7 @@ class QuaternionGeoProjector:
         self,
         image_width: int,
         image_height: int,
-<<<<<<< HEAD
-        terrain_elevation: Optional[float] = None
-=======
         terrain_elevation: float | None = None
->>>>>>> origin/main
     ) -> list[tuple[float, float]]:
         """
         Generate the ground footprint polygon for the camera's field of view.
@@ -322,11 +310,7 @@ class QuaternionGeoProjector:
         origin: np.ndarray,
         direction: np.ndarray,
         plane_elevation: float
-<<<<<<< HEAD
-    ) -> Optional[np.ndarray]:
-=======
     ) -> np.ndarray | None:
->>>>>>> origin/main
         """
         Intersect a ray with a horizontal plane at given elevation.
 
@@ -386,11 +370,7 @@ class QuaternionGeoProjector:
         self,
         lon: float,
         lat: float,
-<<<<<<< HEAD
-        alt: Optional[float] = None
-=======
         alt: float | None = None
->>>>>>> origin/main
     ) -> np.ndarray:
         """
         Convert WGS84 (lon, lat) to ENU coordinates.
@@ -505,11 +485,7 @@ class OrthoRectifier:
     async def orthorectify(
         self,
         image: np.ndarray,
-<<<<<<< HEAD
-        bounds: Optional[tuple[float, float, float, float]] = None
-=======
         bounds: tuple[float, float, float, float] | None = None
->>>>>>> origin/main
     ) -> tuple[np.ndarray, dict]:
         """
         Generate orthorectified image.

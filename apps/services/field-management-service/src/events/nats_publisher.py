@@ -6,11 +6,7 @@ REFACTORED: Now uses shared EventPublisher for consistency across services
 """
 
 import logging
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, timezone, UTC
->>>>>>> origin/main
 from typing import Any
 from uuid import uuid4
 
@@ -108,11 +104,7 @@ class NatsPublisher:
             event = {
                 "eventId": str(uuid4()),
                 "eventType": event_type,
-<<<<<<< HEAD
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-=======
                 "timestamp": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
                 "version": "1.0",
                 "sourceService": self._service_name,
                 "payload": payload,
@@ -291,10 +283,6 @@ async def publish_profitability_analyzed(
             "roi": roi,
             "breakEvenYield": break_even_yield,
             "recommendations": recommendations,
-<<<<<<< HEAD
-            "analyzedAt": datetime.now(timezone.utc).isoformat(),
-=======
             "analyzedAt": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         },
     )

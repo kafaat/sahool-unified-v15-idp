@@ -84,8 +84,6 @@ from .contracts import (
     WeChatContactAddedEvent,
     WeChatMomentPublishedEvent,
     WeChatChatSummarizedEvent,
-<<<<<<< HEAD
-=======
 )
 
 # Vision events (YOLO26 detection)
@@ -194,7 +192,6 @@ from .edge_events import (
     SAHOOL_EDGE_FIRMWARE_UPDATE_AVAILABLE,
     SAHOOL_EDGE_DATA_COLLECTED,
     SAHOOL_EDGE_ALL,
->>>>>>> origin/main
 )
 
 # DLQ Support

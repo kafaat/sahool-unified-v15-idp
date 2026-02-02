@@ -24,11 +24,7 @@ import json
 import os
 import uuid
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable
@@ -72,11 +68,7 @@ class TrainingExample:
     language: str = "python"
     category: str = "general"
     metadata: dict[str, Any] = field(default_factory=dict)
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -109,22 +101,13 @@ class TrainingDataset:
     description_ar: str
     dataset_type: DatasetType
     examples: list[TrainingExample] = field(default_factory=list)
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     def add_example(self, example: TrainingExample) -> None:
         """Add an example to the dataset."""
         self.examples.append(example)
-<<<<<<< HEAD
-        self.updated_at = datetime.now(timezone.utc)
-=======
         self.updated_at = datetime.now(UTC)
->>>>>>> origin/main
 
     def to_jsonl(self) -> str:
         """Export dataset to JSONL format."""
@@ -221,11 +204,7 @@ class EvaluationResult:
     examples_evaluated: int
     correct_predictions: int
     average_latency_ms: float
-<<<<<<< HEAD
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -258,11 +237,7 @@ class TrainingJob:
     error_message: str | None = None
     started_at: datetime | None = None
     completed_at: datetime | None = None
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -635,11 +610,7 @@ class ModelTrainer:
             raise ValueError(f"Job not found: {job_id}")
 
         job.status = TrainingStatus.PREPARING
-<<<<<<< HEAD
-        job.started_at = datetime.now(timezone.utc)
-=======
         job.started_at = datetime.now(UTC)
->>>>>>> origin/main
         self._notify_progress(job)
 
         try:
@@ -667,21 +638,13 @@ class ModelTrainer:
             # Complete
             job.status = TrainingStatus.COMPLETED
             job.progress = 100.0
-<<<<<<< HEAD
-            job.completed_at = datetime.now(timezone.utc)
-=======
             job.completed_at = datetime.now(UTC)
->>>>>>> origin/main
             self._notify_progress(job)
 
         except Exception as e:
             job.status = TrainingStatus.FAILED
             job.error_message = str(e)
-<<<<<<< HEAD
-            job.completed_at = datetime.now(timezone.utc)
-=======
             job.completed_at = datetime.now(UTC)
->>>>>>> origin/main
             self._notify_progress(job)
             raise
 
@@ -789,11 +752,7 @@ Consider local climate, soil conditions, and available resources."""
 
         async with httpx.AsyncClient(timeout=60.0) as client:
             for example in dataset.examples[:eval_count]:
-<<<<<<< HEAD
-                start_time = datetime.now(timezone.utc)
-=======
                 start_time = datetime.now(UTC)
->>>>>>> origin/main
 
                 try:
                     response = await client.post(
@@ -805,11 +764,7 @@ Consider local climate, soil conditions, and available resources."""
                         },
                     )
 
-<<<<<<< HEAD
-                    latency = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
-=======
                     latency = (datetime.now(UTC) - start_time).total_seconds() * 1000
->>>>>>> origin/main
                     total_latency += latency
 
                     if response.status_code == 200:
@@ -875,11 +830,7 @@ Consider local climate, soil conditions, and available resources."""
         job = self._jobs.get(job_id)
         if job and job.status in [TrainingStatus.PENDING, TrainingStatus.PREPARING, TrainingStatus.TRAINING]:
             job.status = TrainingStatus.CANCELLED
-<<<<<<< HEAD
-            job.completed_at = datetime.now(timezone.utc)
-=======
             job.completed_at = datetime.now(UTC)
->>>>>>> origin/main
             return True
         return False
 

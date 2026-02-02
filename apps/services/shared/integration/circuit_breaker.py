@@ -9,11 +9,7 @@ import asyncio
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timedelta, timezone
-=======
 from datetime import datetime, timedelta, timezone, UTC
->>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -68,11 +64,7 @@ class CircuitBreaker:
         if self.state == CircuitState.OPEN:
             # Check if timeout has passed
             if self.last_failure_time:
-<<<<<<< HEAD
-                elapsed = datetime.now(timezone.utc) - self.last_failure_time
-=======
                 elapsed = datetime.now(UTC) - self.last_failure_time
->>>>>>> origin/main
                 if elapsed > timedelta(seconds=self.timeout_seconds):
                     self._transition_to(CircuitState.HALF_OPEN)
                     return True
@@ -97,11 +89,7 @@ class CircuitBreaker:
 
         elif new_state == CircuitState.OPEN:
             self.success_count = 0
-<<<<<<< HEAD
-            self.last_failure_time = datetime.now(timezone.utc)
-=======
             self.last_failure_time = datetime.now(UTC)
->>>>>>> origin/main
 
         elif new_state == CircuitState.HALF_OPEN:
             self.half_open_calls = 0

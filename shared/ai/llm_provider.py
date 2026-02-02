@@ -24,11 +24,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -126,11 +122,7 @@ class LLMResponse:
     cost_usd: float = 0.0
     finish_reason: str | None = None
     raw_response: dict[str, Any] = field(default_factory=dict)
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -372,11 +364,7 @@ class LLMProviderManager:
         config = self.configs[provider]
         breaker = self._circuit_breakers.get(provider)
 
-<<<<<<< HEAD
-        start_time = datetime.now(timezone.utc)
-=======
         start_time = datetime.now(UTC)
->>>>>>> origin/main
 
         # Use circuit breaker if available
         if breaker:
@@ -397,11 +385,7 @@ class LLMProviderManager:
                 max_tokens or config.max_tokens,
             )
 
-<<<<<<< HEAD
-        latency_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
-=======
         latency_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
->>>>>>> origin/main
         response.latency_ms = latency_ms
 
         # Calculate cost

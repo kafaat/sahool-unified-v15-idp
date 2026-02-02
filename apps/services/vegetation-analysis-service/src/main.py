@@ -19,11 +19,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-<<<<<<< HEAD
-from datetime import date, datetime, timedelta, timezone
-=======
 from datetime import UTC, date, datetime, timedelta
->>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -922,11 +918,7 @@ async def request_imagery(request: ImageryRequest):
         imagery_id=str(uuid.uuid4()),
         field_id=request.field_id,
         satellite=request.satellite,
-<<<<<<< HEAD
-        acquisition_date=datetime.now(timezone.utc),
-=======
         acquisition_date=datetime.now(UTC),
->>>>>>> origin/main
         cloud_cover_percent=random.uniform(0, request.cloud_cover_max),
         sun_elevation=random.uniform(45, 75),
         bands=bands,
@@ -984,11 +976,7 @@ async def analyze_field(request: ImageryRequest):
 
     return FieldAnalysis(
         field_id=request.field_id,
-<<<<<<< HEAD
-        analysis_date=datetime.now(timezone.utc),
-=======
         analysis_date=datetime.now(UTC),
->>>>>>> origin/main
         satellite=request.satellite,
         imagery=imagery,
         indices=indices,
@@ -1087,11 +1075,7 @@ def _create_satellite_action_template(
             "satellite": analysis.satellite.value,
             "analysis_date": analysis.analysis_date.isoformat(),
         },
-<<<<<<< HEAD
-        "created_at": datetime.now(timezone.utc).isoformat(),
-=======
         "created_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
     }
 
 
@@ -1277,11 +1261,7 @@ async def get_timeseries(
     base_ndvi = random.uniform(0.3, 0.5)
 
     for i in range(0, days, SATELLITE_CONFIGS[satellite]["revisit_days"]):
-<<<<<<< HEAD
-        date_point = datetime.now(timezone.utc) - timedelta(days=days - i)
-=======
         date_point = datetime.now(UTC) - timedelta(days=days - i)
->>>>>>> origin/main
         # Add realistic variation
         ndvi = base_ndvi + random.uniform(-0.1, 0.15) + (i / days) * 0.2
         ndvi = max(0, min(1, ndvi))
@@ -1381,11 +1361,7 @@ async def analyze_ndvi_timeseries(
 
     return {
         "field_id": field_id,
-<<<<<<< HEAD
-        "analysis_date": datetime.now(timezone.utc).isoformat(),
-=======
         "analysis_date": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         "period_days": days,
         "data_points": len(ndvi_points),
         "anomalies": {"count": len(anomalies), "items": [a.to_dict() for a in anomalies]},
@@ -1457,11 +1433,7 @@ async def compare_ndvi_periods(
 
     return {
         "field_id": field_id,
-<<<<<<< HEAD
-        "comparison_date": datetime.now(timezone.utc).isoformat(),
-=======
         "comparison_date": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         "period1": {
             "start": period1_start,
             "end": period1_end,
@@ -1896,11 +1868,7 @@ def _create_phenology_action_template(
                 result.estimated_harvest_date.isoformat() if result.estimated_harvest_date else None
             ),
         },
-<<<<<<< HEAD
-        "created_at": datetime.now(timezone.utc).isoformat(),
-=======
         "created_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
     }
 
 
@@ -2177,11 +2145,7 @@ async def get_all_indices(
         "field_id": field_id,
         "location": {"latitude": lat, "longitude": lon},
         "satellite": satellite.value,
-<<<<<<< HEAD
-        "acquisition_date": datetime.now(timezone.utc).isoformat(),
-=======
         "acquisition_date": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         "indices": all_indices.to_dict(),
         "data_source": "simulated",
         "note": "Advanced indices calculated from Sentinel-2 bands. Configure real data provider for actual satellite imagery.",
@@ -2370,11 +2334,7 @@ async def interpret_indices(request: InterpretRequest):
         "overall_status_ar": overall_ar,
         "interpretations": interpretations,
         "recommended_indices_for_stage": recommended,
-<<<<<<< HEAD
-        "analysis_date": datetime.now(timezone.utc).isoformat(),
-=======
         "analysis_date": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
     }
 
 
@@ -2837,11 +2797,7 @@ async def get_yield_history(
             base_yield = 2.0
 
         # Historical prediction (months ago)
-<<<<<<< HEAD
-        prediction_date = datetime.now(timezone.utc) - timedelta(days=120 * i)
-=======
         prediction_date = datetime.now(UTC) - timedelta(days=120 * i)
->>>>>>> origin/main
 
         # Simulated prediction and actual yield
         predicted = round(base_yield * random.uniform(0.7, 1.3), 2)

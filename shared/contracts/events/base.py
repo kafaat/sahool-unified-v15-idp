@@ -9,11 +9,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from pathlib import Path
 from typing import Any, ClassVar
 from uuid import UUID, uuid4
@@ -84,11 +80,7 @@ class BaseEvent:
 
     # Auto-generated fields
     event_id: UUID = field(default_factory=uuid4)
-<<<<<<< HEAD
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     # Optional metadata
     metadata: EventMetadata | None = None

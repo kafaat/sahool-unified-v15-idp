@@ -18,11 +18,7 @@ Version: 1.0.0
 from __future__ import annotations
 
 from dataclasses import dataclass
-<<<<<<< HEAD
-from datetime import datetime, timedelta, timezone
-=======
 from datetime import datetime, timedelta, UTC
->>>>>>> origin/main
 from decimal import Decimal
 import uuid
 
@@ -606,11 +602,7 @@ class SoilAmendmentRecommender:
             expected_roi=roi,
             summary_en=summary_en,
             summary_ar=summary_ar,
-<<<<<<< HEAD
-            valid_until=datetime.now(timezone.utc) + timedelta(days=180),
-=======
             valid_until=datetime.now(UTC) + timedelta(days=180),
->>>>>>> origin/main
         )
 
     def _recommend_soil_amendments(

@@ -3,11 +3,7 @@ SAHOOL Notification Service - Database Models
 نماذج قاعدة البيانات - Tortoise ORM
 """
 
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, timezone, UTC
->>>>>>> origin/main
 from enum import Enum
 
 from tortoise import fields
@@ -116,11 +112,7 @@ class Notification(Model):
         """Check if notification is expired"""
         if not self.expires_at:
             return False
-<<<<<<< HEAD
-        return datetime.now(timezone.utc) > self.expires_at
-=======
         return datetime.now(UTC) > self.expires_at
->>>>>>> origin/main
 
 
 class NotificationTemplate(Model):
@@ -281,11 +273,7 @@ class NotificationPreference(Model):
         if not self.quiet_hours_start or not self.quiet_hours_end:
             return False
 
-<<<<<<< HEAD
-        check_time = datetime.now(timezone.utc).time() if check_time is None else check_time.time()
-=======
         check_time = datetime.now(UTC).time() if check_time is None else check_time.time()
->>>>>>> origin/main
 
         # Handle overnight quiet hours (e.g., 22:00 to 06:00)
         if self.quiet_hours_start > self.quiet_hours_end:

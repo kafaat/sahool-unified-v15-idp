@@ -10,11 +10,7 @@ import asyncio
 import json
 import logging
 import sys
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, timezone, UTC
->>>>>>> origin/main
 from typing import Any
 
 from fastapi import FastAPI, Request, Response
@@ -394,11 +390,7 @@ class MCPServer:
                 "status": "healthy",
                 "server": self.name,
                 "version": self.version,
-<<<<<<< HEAD
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-=======
                 "timestamp": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
             }
 
         @app.post("/mcp")
@@ -439,11 +431,7 @@ class MCPServer:
                             break
 
                         # Send heartbeat
-<<<<<<< HEAD
-                        yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.now(timezone.utc).isoformat()})}\n\n"
-=======
                         yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.now(UTC).isoformat()})}\n\n"
->>>>>>> origin/main
 
                         await asyncio.sleep(30)
 

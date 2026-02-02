@@ -23,11 +23,7 @@ from __future__ import annotations
 import asyncio
 from abc import ABC, abstractmethod
 from collections import defaultdict
-<<<<<<< HEAD
-from datetime import datetime, timedelta, timezone
-=======
 from datetime import datetime, timedelta, UTC
->>>>>>> origin/main
 from typing import Any, Callable
 
 import structlog
@@ -164,11 +160,7 @@ class MQTTAdapter(ProtocolAdapter):
             self._connections[config.device_id] = {
                 "host": config.host,
                 "port": config.port or 1883,
-<<<<<<< HEAD
-                "connected_at": datetime.now(timezone.utc),
-=======
                 "connected_at": datetime.now(UTC),
->>>>>>> origin/main
                 "status": "connected",
             }
             self.is_connected = True
@@ -289,11 +281,7 @@ class HTTPAdapter(ProtocolAdapter):
             self._endpoints[config.device_id] = {
                 "base_url": base_url,
                 "username": config.username,
-<<<<<<< HEAD
-                "connected_at": datetime.now(timezone.utc),
-=======
                 "connected_at": datetime.now(UTC),
->>>>>>> origin/main
             }
             self.is_connected = True
             self._logger.info(
@@ -398,11 +386,7 @@ class ModbusAdapter(ProtocolAdapter):
             self._connections[config.device_id] = {
                 "host": config.host,
                 "port": config.port or 502,
-<<<<<<< HEAD
-                "connected_at": datetime.now(timezone.utc),
-=======
                 "connected_at": datetime.now(UTC),
->>>>>>> origin/main
                 "protocol_type": "tcp",  # or "rtu"
             }
             self.is_connected = True
@@ -495,11 +479,7 @@ class OPCUAAdapter(ProtocolAdapter):
             endpoint = f"opc.tcp://{config.host}:{config.port or 4840}"
             self._connections[config.device_id] = {
                 "endpoint": endpoint,
-<<<<<<< HEAD
-                "connected_at": datetime.now(timezone.utc),
-=======
                 "connected_at": datetime.now(UTC),
->>>>>>> origin/main
                 "security_mode": "SignAndEncrypt" if config.use_tls else "None",
             }
             self.is_connected = True
@@ -591,11 +571,7 @@ class CoAPAdapter(ProtocolAdapter):
             self._endpoints[config.device_id] = {
                 "host": config.host,
                 "port": config.port or 5683,
-<<<<<<< HEAD
-                "connected_at": datetime.now(timezone.utc),
-=======
                 "connected_at": datetime.now(UTC),
->>>>>>> origin/main
             }
             self.is_connected = True
             self._logger.info(
@@ -753,11 +729,7 @@ class PerceptionLayer:
         self._reading_buffer: list[SensorReading] = []
         self._buffer_max_size = 10000
         self._buffer_flush_interval = timedelta(minutes=5)
-<<<<<<< HEAD
-        self._last_flush = datetime.now(timezone.utc)
-=======
         self._last_flush = datetime.now(UTC)
->>>>>>> origin/main
 
         # Callbacks
         self._on_reading_callbacks: list[Callable[[SensorReading], None]] = []
@@ -971,11 +943,7 @@ class PerceptionLayer:
         if len(self._reading_buffer) > self._buffer_max_size:
             self._reading_buffer = self._reading_buffer[-self._buffer_max_size:]
 
-<<<<<<< HEAD
-        self._last_collection_time = datetime.now(timezone.utc)
-=======
         self._last_collection_time = datetime.now(UTC)
->>>>>>> origin/main
 
         self._logger.info(
             "sensor_data_collected",
@@ -1119,11 +1087,7 @@ class PerceptionLayer:
         """
         count = len(self._reading_buffer)
         self._reading_buffer.clear()
-<<<<<<< HEAD
-        self._last_flush = datetime.now(timezone.utc)
-=======
         self._last_flush = datetime.now(UTC)
->>>>>>> origin/main
         return count
 
     def get_statistics(self) -> dict[str, Any]:

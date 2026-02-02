@@ -22,22 +22,12 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-<<<<<<< HEAD
-import asyncio
-import math
-import uuid
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from enum import Enum
-from typing import Any, Callable
-=======
 import math
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
 from enum import Enum
 from typing import Any
->>>>>>> origin/main
 
 
 class EditType(str, Enum):
@@ -142,11 +132,7 @@ class GenerationResult:
     tokens_generated: int = 0
     model: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
-<<<<<<< HEAD
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
 
     @property
     def tokens_per_second(self) -> float:

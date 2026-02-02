@@ -17,11 +17,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -42,11 +38,7 @@ class MetricValue:
     name: str
     value: float
     labels: dict[str, str] = field(default_factory=dict)
-<<<<<<< HEAD
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-=======
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
->>>>>>> origin/main
     metric_type: MetricType = MetricType.GAUGE
 
     def to_prometheus(self) -> str:
@@ -140,17 +132,10 @@ class AIMetricsCollector:
             self._agent_latencies[key] = self._agent_latencies[key][-1000:]
 
         if success:
-<<<<<<< HEAD
-            self._last_success[key] = datetime.now(timezone.utc)
-        else:
-            self._agent_errors[key] = self._agent_errors.get(key, 0) + 1
-            self._last_error[key] = datetime.now(timezone.utc)
-=======
             self._last_success[key] = datetime.now(UTC)
         else:
             self._agent_errors[key] = self._agent_errors.get(key, 0) + 1
             self._last_error[key] = datetime.now(UTC)
->>>>>>> origin/main
 
     def record_agent_error(
         self,
@@ -165,11 +150,7 @@ class AIMetricsCollector:
         """
         key = f"{agent_id}:{tenant_id}:{error_type}"
         self._agent_errors[key] = self._agent_errors.get(key, 0) + 1
-<<<<<<< HEAD
-        self._last_error[f"{agent_id}:{tenant_id}"] = datetime.now(timezone.utc)
-=======
         self._last_error[f"{agent_id}:{tenant_id}"] = datetime.now(UTC)
->>>>>>> origin/main
 
     def record_llm_call(
         self,

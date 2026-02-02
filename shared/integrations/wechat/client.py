@@ -17,11 +17,7 @@ import json
 import time
 import uuid
 from contextlib import asynccontextmanager
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from typing import Any, AsyncIterator
 
 import httpx
@@ -401,11 +397,7 @@ class WeChatMCPClient:
             receiver_id=chat_id,
             content=content,
             content_ar=content_ar,
-<<<<<<< HEAD
-            timestamp=datetime.now(timezone.utc),
-=======
             timestamp=datetime.now(UTC),
->>>>>>> origin/main
         )
 
         self.stats["messages_sent"] += 1
@@ -830,11 +822,7 @@ class WeChatMCPClient:
         """
         await self._ensure_connected()
 
-<<<<<<< HEAD
-        last_message_time = datetime.now(timezone.utc)
-=======
         last_message_time = datetime.now(UTC)
->>>>>>> origin/main
 
         while True:
             try:
@@ -1050,11 +1038,7 @@ async def fetch_recent_messages(
     async with wechat_client(config) as client:
         return await client.fetch_messages(
             chat_id=chat_id,
-<<<<<<< HEAD
-            since=datetime.now(timezone.utc) - timedelta(hours=hours),
-=======
             since=datetime.now(UTC) - timedelta(hours=hours),
->>>>>>> origin/main
         )
 
 

@@ -4,11 +4,7 @@ Free weather API integration for Yemen
 """
 
 from dataclasses import dataclass
-<<<<<<< HEAD
-from datetime import date, datetime, timezone
-=======
 from datetime import date, datetime, timezone, UTC
->>>>>>> origin/main
 
 import httpx
 
@@ -127,11 +123,7 @@ class OpenMeteoProvider:
                 cloud_cover_pct=current.get("cloud_cover", 0),
                 pressure_hpa=current.get("pressure_msl", 0),
                 uv_index=current.get("uv_index", 0),
-<<<<<<< HEAD
-                timestamp=current.get("time", datetime.now(timezone.utc).isoformat()),
-=======
                 timestamp=current.get("time", datetime.now(UTC).isoformat()),
->>>>>>> origin/main
             )
 
         except Exception as e:
@@ -285,11 +277,7 @@ class MockWeatherProvider:
             cloud_cover_pct=20,
             pressure_hpa=1013,
             uv_index=8,
-<<<<<<< HEAD
-            timestamp=datetime.now(timezone.utc).isoformat(),
-=======
             timestamp=datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         )
 
     async def get_daily_forecast(

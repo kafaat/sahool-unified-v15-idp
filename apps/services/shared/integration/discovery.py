@@ -10,11 +10,7 @@ import contextlib
 import logging
 import os
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, timezone, UTC
->>>>>>> origin/main
 from enum import Enum
 
 import httpx
@@ -83,20 +79,12 @@ class ServiceDiscovery:
         فحص صحة خدمة معينة
         """
         url = self._get_service_url(service_name)
-<<<<<<< HEAD
-        start = datetime.now(timezone.utc)
-=======
         start = datetime.now(UTC)
->>>>>>> origin/main
 
         try:
             async with httpx.AsyncClient(timeout=5.0) as client:
                 response = await client.get(f"{url}/healthz")
-<<<<<<< HEAD
-                response_time = (datetime.now(timezone.utc) - start).total_seconds() * 1000
-=======
                 response_time = (datetime.now(UTC) - start).total_seconds() * 1000
->>>>>>> origin/main
 
                 if response.is_success:
                     data = response.json()
@@ -110,11 +98,7 @@ class ServiceDiscovery:
                         name=service_name,
                         status=status,
                         version=data.get("version"),
-<<<<<<< HEAD
-                        last_check=datetime.now(timezone.utc),
-=======
                         last_check=datetime.now(UTC),
->>>>>>> origin/main
                         response_time_ms=response_time,
                         details=data,
                     )
@@ -122,11 +106,7 @@ class ServiceDiscovery:
                     health = ServiceHealth(
                         name=service_name,
                         status=HealthStatus.UNHEALTHY,
-<<<<<<< HEAD
-                        last_check=datetime.now(timezone.utc),
-=======
                         last_check=datetime.now(UTC),
->>>>>>> origin/main
                         response_time_ms=response_time,
                         error=f"HTTP {response.status_code}",
                     )
@@ -135,33 +115,21 @@ class ServiceDiscovery:
             health = ServiceHealth(
                 name=service_name,
                 status=HealthStatus.UNHEALTHY,
-<<<<<<< HEAD
-                last_check=datetime.now(timezone.utc),
-=======
                 last_check=datetime.now(UTC),
->>>>>>> origin/main
                 error="Connection timeout",
             )
         except httpx.ConnectError:
             health = ServiceHealth(
                 name=service_name,
                 status=HealthStatus.UNHEALTHY,
-<<<<<<< HEAD
-                last_check=datetime.now(timezone.utc),
-=======
                 last_check=datetime.now(UTC),
->>>>>>> origin/main
                 error="Connection refused",
             )
         except Exception as e:
             health = ServiceHealth(
                 name=service_name,
                 status=HealthStatus.UNKNOWN,
-<<<<<<< HEAD
-                last_check=datetime.now(timezone.utc),
-=======
                 last_check=datetime.now(UTC),
->>>>>>> origin/main
                 error=str(e),
             )
 

@@ -15,11 +15,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-<<<<<<< HEAD
-from datetime import date, datetime, time, timedelta, timezone
-=======
 from datetime import date, datetime, time, timedelta, timezone, UTC
->>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -851,11 +847,7 @@ async def calculate_irrigation(
         recommendations_ar=recommendations_ar,
         recommendations_en=recommendations_en,
         alerts_ar=alerts_ar,
-<<<<<<< HEAD
-        created_at=datetime.now(timezone.utc),
-=======
         created_at=datetime.now(UTC),
->>>>>>> origin/main
     )
 
     # Publish irrigation plan created event
@@ -877,11 +869,7 @@ async def calculate_irrigation(
             "total_water_m3": plan.total_water_m3,
             "urgency": water_need["urgency"].value,
             "crop": request.crop.value,
-<<<<<<< HEAD
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-=======
             "timestamp": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
         },
     )
 
@@ -982,11 +970,7 @@ def record_sensor_reading(
         "status": status,
         "action_ar": action_ar,
         "action_en": action_en,
-<<<<<<< HEAD
-        "recorded_at": datetime.now(timezone.utc).isoformat(),
-=======
         "recorded_at": datetime.now(UTC).isoformat(),
->>>>>>> origin/main
     }
 
 
@@ -1002,11 +986,7 @@ async def record_irrigation_executed(
     and publishes an event for downstream services.
     """
     execution_id = str(uuid.uuid4())
-<<<<<<< HEAD
-    executed_at = execution.executed_at or datetime.now(timezone.utc)
-=======
     executed_at = execution.executed_at or datetime.now(UTC)
->>>>>>> origin/main
 
     # Publish irrigation executed event
     await publish_event(

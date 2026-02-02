@@ -23,11 +23,7 @@ import os
 import time
 import uuid
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from enum import Enum
 from pathlib import Path
 from typing import Any, AsyncIterator, Callable
@@ -37,17 +33,7 @@ import structlog
 from .diagnostics import CodeDiagnostics, DiagnosticError
 from .engine import AutoFixEngine
 from .models import (
-<<<<<<< HEAD
-    CodeFix,
-    Diagnostic,
-    DiagnosticReport,
-    DiagnosticSeverity,
-    FixResult,
     FixStrategy,
-    ToolType,
-=======
-    FixStrategy,
->>>>>>> origin/main
 )
 
 logger = structlog.get_logger()
@@ -330,11 +316,7 @@ class BatchProcessor:
             )
             processed_files = set()
 
-<<<<<<< HEAD
-        self._current_batch.started_at = datetime.now(timezone.utc)
-=======
         self._current_batch.started_at = datetime.now(UTC)
->>>>>>> origin/main
         self._current_batch.progress.start_time = self._current_batch.started_at
         self._is_running = True
         self._cancel_requested = False
@@ -399,11 +381,7 @@ class BatchProcessor:
                     self._current_batch.errors.append(str(result))
 
         # Finalize
-<<<<<<< HEAD
-        self._current_batch.completed_at = datetime.now(timezone.utc)
-=======
         self._current_batch.completed_at = datetime.now(UTC)
->>>>>>> origin/main
         self._current_batch.status = (
             BatchStatus.CANCELLED if self._cancel_requested
             else BatchStatus.COMPLETED
@@ -515,11 +493,7 @@ class BatchProcessor:
 
         # Calculate estimated remaining time
         if self._current_batch.progress.start_time:
-<<<<<<< HEAD
-            elapsed = (datetime.now(timezone.utc) - self._current_batch.progress.start_time).total_seconds()
-=======
             elapsed = (datetime.now(UTC) - self._current_batch.progress.start_time).total_seconds()
->>>>>>> origin/main
             if self._current_batch.progress.processed_files > 0:
                 rate = elapsed / self._current_batch.progress.processed_files
                 remaining = self._current_batch.progress.total_files - self._current_batch.progress.processed_files
@@ -569,11 +543,7 @@ class BatchProcessor:
             processed_files=[r.file_path for r in self._current_batch.file_results],
             last_file=self._current_batch.progress.current_file,
             progress=self._current_batch.progress,
-<<<<<<< HEAD
-            timestamp=datetime.now(timezone.utc),
-=======
             timestamp=datetime.now(UTC),
->>>>>>> origin/main
         )
 
         # Ensure checkpoint directory exists

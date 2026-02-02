@@ -13,11 +13,7 @@ Updated: January 2026
 from __future__ import annotations
 
 import logging
-<<<<<<< HEAD
-from datetime import datetime, time, timezone
-=======
 from datetime import datetime, time, UTC
->>>>>>> origin/main
 from typing import Any, Protocol
 
 from .models import (
@@ -82,11 +78,7 @@ class InMemoryStorage:
     async def save(self, preferences: UserNotificationPreferences) -> None:
         """Save preferences"""
         key = self._key(preferences.user_id, preferences.tenant_id)
-<<<<<<< HEAD
-        preferences.updated_at = datetime.now(timezone.utc)
-=======
         preferences.updated_at = datetime.now(UTC)
->>>>>>> origin/main
         preferences.version += 1
         self._storage[key] = preferences
 
@@ -337,22 +329,14 @@ class NotificationPreferencesManager:
             existing.address = address
             existing.verified = verified
             if verified:
-<<<<<<< HEAD
-                existing.verified_at = datetime.now(timezone.utc)
-=======
                 existing.verified_at = datetime.now(UTC)
->>>>>>> origin/main
         else:
             config = ChannelConfig(
                 channel=channel,
                 enabled=True,
                 address=address,
                 verified=verified,
-<<<<<<< HEAD
-                verified_at=datetime.now(timezone.utc) if verified else None,
-=======
                 verified_at=datetime.now(UTC) if verified else None,
->>>>>>> origin/main
             )
             preferences.channel_configs.append(config)
 
@@ -429,11 +413,7 @@ class NotificationPreferencesManager:
         config = preferences.get_channel_config(channel)
         if config:
             config.verified = True
-<<<<<<< HEAD
-            config.verified_at = datetime.now(timezone.utc)
-=======
             config.verified_at = datetime.now(UTC)
->>>>>>> origin/main
         return await self.save_preferences(preferences, validate=False)
 
     # =========================================================================

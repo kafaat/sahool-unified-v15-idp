@@ -6,11 +6,7 @@ Service Client for Inter-Service Communication
 import logging
 import os
 from dataclasses import dataclass
-<<<<<<< HEAD
-from datetime import datetime, timedelta, timezone
-=======
 from datetime import datetime, timedelta, timezone, UTC
->>>>>>> origin/main
 from enum import Enum
 from typing import Any
 
@@ -102,11 +98,7 @@ class ServiceClient:
         cached_at = cache_entry.get("cached_at")
         if not cached_at:
             return False
-<<<<<<< HEAD
-        return datetime.now(timezone.utc) - cached_at < self._cache_ttl
-=======
         return datetime.now(UTC) - cached_at < self._cache_ttl
->>>>>>> origin/main
 
     async def get(
         self,
@@ -123,11 +115,7 @@ class ServiceClient:
                 logger.debug(f"Cache hit for {self.service.value}{path}")
                 return self._cache[cache_key]["response"]
 
-<<<<<<< HEAD
-        start = datetime.now(timezone.utc)
-=======
         start = datetime.now(UTC)
->>>>>>> origin/main
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.get(
@@ -135,11 +123,7 @@ class ServiceClient:
                     params=params,
                     headers=self._get_headers(),
                 )
-<<<<<<< HEAD
-                latency = (datetime.now(timezone.utc) - start).total_seconds() * 1000
-=======
                 latency = (datetime.now(UTC) - start).total_seconds() * 1000
->>>>>>> origin/main
 
                 result = ServiceResponse(
                     success=response.is_success,
@@ -153,11 +137,7 @@ class ServiceClient:
                 if use_cache and result.success:
                     self._cache[cache_key] = {
                         "response": result,
-<<<<<<< HEAD
-                        "cached_at": datetime.now(timezone.utc),
-=======
                         "cached_at": datetime.now(UTC),
->>>>>>> origin/main
                     }
 
                 return result
@@ -183,11 +163,7 @@ class ServiceClient:
         json: dict[str, Any] | None = None,
     ) -> ServiceResponse:
         """Make POST request to service"""
-<<<<<<< HEAD
-        start = datetime.now(timezone.utc)
-=======
         start = datetime.now(UTC)
->>>>>>> origin/main
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.post(
@@ -196,11 +172,7 @@ class ServiceClient:
                     json=json,
                     headers=self._get_headers(),
                 )
-<<<<<<< HEAD
-                latency = (datetime.now(timezone.utc) - start).total_seconds() * 1000
-=======
                 latency = (datetime.now(UTC) - start).total_seconds() * 1000
->>>>>>> origin/main
 
                 return ServiceResponse(
                     success=response.is_success,
@@ -231,11 +203,7 @@ class ServiceClient:
         json: dict[str, Any] | None = None,
     ) -> ServiceResponse:
         """Make PUT request to service"""
-<<<<<<< HEAD
-        start = datetime.now(timezone.utc)
-=======
         start = datetime.now(UTC)
->>>>>>> origin/main
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.put(
@@ -244,11 +212,7 @@ class ServiceClient:
                     json=json,
                     headers=self._get_headers(),
                 )
-<<<<<<< HEAD
-                latency = (datetime.now(timezone.utc) - start).total_seconds() * 1000
-=======
                 latency = (datetime.now(UTC) - start).total_seconds() * 1000
->>>>>>> origin/main
 
                 return ServiceResponse(
                     success=response.is_success,
@@ -268,22 +232,14 @@ class ServiceClient:
 
     async def delete(self, path: str) -> ServiceResponse:
         """Make DELETE request to service"""
-<<<<<<< HEAD
-        start = datetime.now(timezone.utc)
-=======
         start = datetime.now(UTC)
->>>>>>> origin/main
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.delete(
                     f"{self.base_url}{path}",
                     headers=self._get_headers(),
                 )
-<<<<<<< HEAD
-                latency = (datetime.now(timezone.utc) - start).total_seconds() * 1000
-=======
                 latency = (datetime.now(UTC) - start).total_seconds() * 1000
->>>>>>> origin/main
 
                 return ServiceResponse(
                     success=response.is_success,

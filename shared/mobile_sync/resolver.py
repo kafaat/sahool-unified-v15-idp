@@ -14,11 +14,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-<<<<<<< HEAD
-from datetime import datetime, timezone
-=======
 from datetime import datetime, UTC
->>>>>>> origin/main
 from typing import Any, Callable
 
 from .models import (
@@ -226,11 +222,7 @@ class ConflictResolver(ABC):
 
         conflict.resolution_strategy = self.strategy
         conflict.resolved_data = resolved_data
-<<<<<<< HEAD
-        conflict.resolved_at = datetime.now(timezone.utc)
-=======
         conflict.resolved_at = datetime.now(UTC)
->>>>>>> origin/main
         conflict.resolved_by = resolved_by
         conflict.resolution_note = note
         conflict.resolution_note_ar = note_ar

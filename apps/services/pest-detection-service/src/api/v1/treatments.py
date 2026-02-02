@@ -52,14 +52,14 @@ class TreatmentOption(BaseModel):
     type: TreatmentType
     name_en: str
     name_ar: str
-    active_ingredient: Optional[str] = None
-    active_ingredient_ar: Optional[str] = None
+    active_ingredient: str | None = None
+    active_ingredient_ar: str | None = None
     application_rate: str
     application_rate_ar: str
     application_method_en: str
     application_method_ar: str
-    phi_days: Optional[int] = Field(None, description="Pre-Harvest Interval in days")
-    rei_hours: Optional[int] = Field(None, description="Restricted Entry Interval in hours")
+    phi_days: int | None = Field(None, description="Pre-Harvest Interval in days")
+    rei_hours: int | None = Field(None, description="Restricted Entry Interval in hours")
     safety_level: SafetyLevel = SafetyLevel.MODERATE
     ppe_required_en: list[str] = []
     ppe_required_ar: list[str] = []
@@ -67,8 +67,8 @@ class TreatmentOption(BaseModel):
     environmental_impact: str
     environmental_impact_ar: str
     cost_level: str  # low, medium, high
-    notes_en: Optional[str] = None
-    notes_ar: Optional[str] = None
+    notes_en: str | None = None
+    notes_ar: str | None = None
 
 
 class TreatmentProtocol(BaseModel):
@@ -76,7 +76,7 @@ class TreatmentProtocol(BaseModel):
     pest_id: str
     pest_name_en: str
     pest_name_ar: str
-    crop: Optional[str] = None
+    crop: str | None = None
     chemical_options: list[TreatmentOption] = []
     biological_options: list[TreatmentOption] = []
     cultural_options: list[TreatmentOption] = []
@@ -91,9 +91,9 @@ class RecommendationRequest(BaseModel):
     pest_id: str
     crop: str
     severity: str  # low, medium, high, critical
-    growth_stage: Optional[str] = None
+    growth_stage: str | None = None
     organic_only: bool = False
-    budget_constraint: Optional[str] = None  # low, medium, high
+    budget_constraint: str | None = None  # low, medium, high
 
 
 class IPMCalendarEntry(BaseModel):
@@ -203,9 +203,21 @@ TREATMENT_DATABASE: dict[str, TreatmentProtocol] = {
                 cost_level="low",
             ),
         ],
-        ipm_strategy_en="1) Pheromone trapping for monitoring, 2) Preventive injection for healthy trees, 3) Curative treatment for infested, 4) Remove severely infested trees",
-        ipm_strategy_ar="1) مصائد الفرمون للمراقبة، 2) حقن وقائي للأشجار السليمة، 3) علاج للمصابة، 4) إزالة الأشجار المصابة بشدة",
-        rotation_recommendation_en="Rotate between emamectin and imidacloprid to prevent resistance",
+        ipm_strategy_en=(
+            "1) Pheromone trapping for monitoring, "
+            "2) Preventive injection for healthy trees, "
+            "3) Curative treatment for infested, "
+            "4) Remove severely infested trees"
+        ),
+        ipm_strategy_ar=(
+            "1) مصائد الفرمون للمراقبة، "
+            "2) حقن وقائي للأشجار السليمة، "
+            "3) علاج للمصابة، "
+            "4) إزالة الأشجار المصابة بشدة"
+        ),
+        rotation_recommendation_en=(
+            "Rotate between emamectin and imidacloprid to prevent resistance"
+        ),
         rotation_recommendation_ar="تناوب بين إيمامكتين وإيميداكلوبريد لمنع المقاومة",
     ),
     "aphids": TreatmentProtocol(
@@ -294,8 +306,18 @@ TREATMENT_DATABASE: dict[str, TreatmentProtocol] = {
                 cost_level="low",
             ),
         ],
-        ipm_strategy_en="1) Monitor with yellow sticky traps, 2) Encourage natural enemies, 3) Use neem oil for early infestations, 4) Chemical control as last resort",
-        ipm_strategy_ar="1) مراقبة بمصائد صفراء لاصقة، 2) تشجيع الأعداء الطبيعية، 3) استخدام زيت النيم للإصابات المبكرة، 4) المكافحة الكيميائية كملاذ أخير",
+        ipm_strategy_en=(
+            "1) Monitor with yellow sticky traps, "
+            "2) Encourage natural enemies, "
+            "3) Use neem oil for early infestations, "
+            "4) Chemical control as last resort"
+        ),
+        ipm_strategy_ar=(
+            "1) مراقبة بمصائد صفراء لاصقة، "
+            "2) تشجيع الأعداء الطبيعية، "
+            "3) استخدام زيت النيم للإصابات المبكرة، "
+            "4) المكافحة الكيميائية كملاذ أخير"
+        ),
         rotation_recommendation_en="Rotate between neonicotinoids and pyrethroids",
         rotation_recommendation_ar="تناوب بين النيونيكوتينويدات والبيرثرويدات",
     ),
@@ -339,9 +361,17 @@ async def get_recommendations(request: RecommendationRequest):
     elif request.severity == "critical":
         options = protocol.chemical_options + protocol.biological_options
     elif request.severity == "high":
-        options = protocol.chemical_options + protocol.biological_options + protocol.cultural_options
+        options = (
+            protocol.chemical_options
+            + protocol.biological_options
+            + protocol.cultural_options
+        )
     else:
-        options = protocol.biological_options + protocol.cultural_options + protocol.chemical_options
+        options = (
+            protocol.biological_options
+            + protocol.cultural_options
+            + protocol.chemical_options
+        )
 
     # Filter by budget if specified
     if request.budget_constraint:
@@ -404,38 +434,102 @@ async def get_ipm_calendar(
 
         if crop.lower() == "date_palm":
             if month in [3, 4, 5]:  # Spring
-                activities_en = ["RPW pheromone trap check weekly", "Preventive trunk injection", "Dubas monitoring"]
-                activities_ar = ["فحص مصائد سوسة النخيل أسبوعياً", "حقن الجذع الوقائي", "مراقبة الدوباس"]
+                activities_en = [
+                    "RPW pheromone trap check weekly",
+                    "Preventive trunk injection",
+                    "Dubas monitoring",
+                ]
+                activities_ar = [
+                    "فحص مصائد سوسة النخيل أسبوعياً",
+                    "حقن الجذع الوقائي",
+                    "مراقبة الدوباس",
+                ]
                 target_pests = ["rpw", "dubas"]
             elif month in [6, 7, 8]:  # Summer
-                activities_en = ["Increase trap monitoring", "Spray for dubas if needed", "Date moth monitoring in storage"]
-                activities_ar = ["زيادة مراقبة المصائد", "رش للدوباس إذا لزم", "مراقبة فراشة التمر في المخازن"]
+                activities_en = [
+                    "Increase trap monitoring",
+                    "Spray for dubas if needed",
+                    "Date moth monitoring in storage",
+                ]
+                activities_ar = [
+                    "زيادة مراقبة المصائد",
+                    "رش للدوباس إذا لزم",
+                    "مراقبة فراشة التمر في المخازن",
+                ]
                 target_pests = ["rpw", "dubas", "date_moth"]
             elif month in [9, 10, 11]:  # Fall
-                activities_en = ["Post-harvest sanitation", "Remove infested fruits", "Fall dubas generation control"]
-                activities_ar = ["تنظيف ما بعد الحصاد", "إزالة الثمار المصابة", "مكافحة جيل الدوباس الخريفي"]
+                activities_en = [
+                    "Post-harvest sanitation",
+                    "Remove infested fruits",
+                    "Fall dubas generation control",
+                ]
+                activities_ar = [
+                    "تنظيف ما بعد الحصاد",
+                    "إزالة الثمار المصابة",
+                    "مكافحة جيل الدوباس الخريفي",
+                ]
                 target_pests = ["dubas", "date_moth"]
             else:  # Winter
-                activities_en = ["Pruning and sanitation", "Trap maintenance", "Plan next season treatments"]
-                activities_ar = ["التقليم والتنظيف", "صيانة المصائد", "تخطيط علاجات الموسم القادم"]
+                activities_en = [
+                    "Pruning and sanitation",
+                    "Trap maintenance",
+                    "Plan next season treatments",
+                ]
+                activities_ar = [
+                    "التقليم والتنظيف",
+                    "صيانة المصائد",
+                    "تخطيط علاجات الموسم القادم",
+                ]
                 target_pests = ["rpw"]
         else:
             # Generic calendar
             if month in [3, 4, 5]:
-                activities_en = ["Monitor for aphids and thrips", "Yellow sticky trap installation", "Biological control release"]
-                activities_ar = ["مراقبة المن والتربس", "تركيب مصائد صفراء لاصقة", "إطلاق المكافحة الحيوية"]
+                activities_en = [
+                    "Monitor for aphids and thrips",
+                    "Yellow sticky trap installation",
+                    "Biological control release",
+                ]
+                activities_ar = [
+                    "مراقبة المن والتربس",
+                    "تركيب مصائد صفراء لاصقة",
+                    "إطلاق المكافحة الحيوية",
+                ]
                 target_pests = ["aphids", "thrips"]
             elif month in [6, 7, 8]:
-                activities_en = ["Spider mite monitoring", "Whitefly control", "Increase irrigation to reduce mite stress"]
-                activities_ar = ["مراقبة العنكبوت الأحمر", "مكافحة الذبابة البيضاء", "زيادة الري لتقليل إجهاد العث"]
+                activities_en = [
+                    "Spider mite monitoring",
+                    "Whitefly control",
+                    "Increase irrigation to reduce mite stress",
+                ]
+                activities_ar = [
+                    "مراقبة العنكبوت الأحمر",
+                    "مكافحة الذبابة البيضاء",
+                    "زيادة الري لتقليل إجهاد العث",
+                ]
                 target_pests = ["spider_mite", "whitefly"]
             elif month in [9, 10, 11]:
-                activities_en = ["End-of-season cleanup", "Remove crop residues", "Soil treatment if needed"]
-                activities_ar = ["تنظيف نهاية الموسم", "إزالة بقايا المحصول", "معالجة التربة إذا لزم"]
+                activities_en = [
+                    "End-of-season cleanup",
+                    "Remove crop residues",
+                    "Soil treatment if needed",
+                ]
+                activities_ar = [
+                    "تنظيف نهاية الموسم",
+                    "إزالة بقايا المحصول",
+                    "معالجة التربة إذا لزم",
+                ]
                 target_pests = ["whitefly", "thrips"]
             else:
-                activities_en = ["Plan crop rotation", "Order biological control agents", "Equipment maintenance"]
-                activities_ar = ["تخطيط الدورة الزراعية", "طلب عوامل المكافحة الحيوية", "صيانة المعدات"]
+                activities_en = [
+                    "Plan crop rotation",
+                    "Order biological control agents",
+                    "Equipment maintenance",
+                ]
+                activities_ar = [
+                    "تخطيط الدورة الزراعية",
+                    "طلب عوامل المكافحة الحيوية",
+                    "صيانة المعدات",
+                ]
                 target_pests = []
 
         calendar.append(IPMCalendarEntry(

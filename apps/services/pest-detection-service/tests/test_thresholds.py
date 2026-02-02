@@ -275,8 +275,9 @@ class TestThresholdDataIntegrity:
         ]
 
         for threshold in data:
+            th_id = threshold.get("id")
             for field in required_fields:
-                assert field in threshold, f"Missing field {field} in threshold {threshold.get('id')}"
+                assert field in threshold, f"Missing field {field} in threshold {th_id}"
 
     def test_all_thresholds_have_bilingual_content(self, client):
         """Test all thresholds have Arabic content."""
@@ -284,6 +285,7 @@ class TestThresholdDataIntegrity:
         data = response.json()
 
         for threshold in data:
-            assert threshold["pest_name_ar"], f"Missing Arabic pest name for {threshold['id']}"
-            assert threshold["sampling_method_ar"], f"Missing Arabic sampling method for {threshold['id']}"
-            assert threshold["threshold_unit_ar"], f"Missing Arabic unit for {threshold['id']}"
+            th_id = threshold["id"]
+            assert threshold["pest_name_ar"], f"Missing Arabic pest name for {th_id}"
+            assert threshold["sampling_method_ar"], f"Missing sampling method AR for {th_id}"
+            assert threshold["threshold_unit_ar"], f"Missing Arabic unit for {th_id}"

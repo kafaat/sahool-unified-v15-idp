@@ -160,9 +160,10 @@ class TestPestDataIntegrity:
         data = response.json()
 
         for pest in data:
-            assert pest["name_ar"], f"Missing Arabic name for {pest['id']}"
-            assert pest["description_ar"], f"Missing Arabic description for {pest['id']}"
-            assert len(pest["symptoms_ar"]) > 0, f"Missing Arabic symptoms for {pest['id']}"
+            pest_id = pest["id"]
+            assert pest["name_ar"], f"Missing Arabic name for {pest_id}"
+            assert pest["description_ar"], f"Missing Arabic description for {pest_id}"
+            assert len(pest["symptoms_ar"]) > 0, f"Missing Arabic symptoms for {pest_id}"
 
     def test_rpw_pest_details(self, client):
         """Test Red Palm Weevil has complete details."""

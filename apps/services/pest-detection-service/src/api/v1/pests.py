@@ -9,6 +9,7 @@ from enum import Enum
 from typing import Optional
 from uuid import uuid4
 
+import httpx
 import structlog
 from fastapi import APIRouter, File, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel, Field
@@ -69,7 +70,7 @@ class Pest(BaseModel):
     symptoms_en: list[str]
     symptoms_ar: list[str]
     is_quarantine: bool = False
-    image_url: Optional[str] = None
+    image_url: str | None = None
 
 
 class DetectionResult(BaseModel):
@@ -79,8 +80,8 @@ class DetectionResult(BaseModel):
     pest_name_ar: str
     confidence: float = Field(..., ge=0, le=1)
     severity: SeverityLevel
-    life_stage: Optional[LifeStage] = None
-    bounding_box: Optional[dict] = None
+    life_stage: LifeStage | None = None
+    bounding_box: dict | None = None
     recommendations_en: list[str]
     recommendations_ar: list[str]
 
@@ -89,7 +90,7 @@ class IdentifyRequest(BaseModel):
     """Request for symptom-based identification."""
     crop: str
     symptoms: list[str]
-    region: Optional[str] = "middle_east"
+    region: str | None = "middle_east"
 
 
 # ============================================================================
@@ -337,8 +338,8 @@ PEST_DATABASE: dict[str, Pest] = {
 
 @router.get("/pests", response_model=list[Pest])
 async def list_pests(
-    category: Optional[PestCategory] = None,
-    crop: Optional[str] = None,
+    category: PestCategory | None = None,
+    crop: str | None = None,
     quarantine_only: bool = False,
 ):
     """
@@ -551,8 +552,8 @@ async def list_quarantine_pests():
 
 @router.get("/pests/seasonal")
 async def get_seasonal_predictions(
-    crop: Optional[str] = None,
-    month: Optional[int] = Query(None, ge=1, le=12),
+    crop: str | None = None,
+    month: int | None = Query(None, ge=1, le=12),
 ):
     """
     Get seasonal pest predictions.

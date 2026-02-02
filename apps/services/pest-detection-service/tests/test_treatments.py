@@ -158,7 +158,9 @@ class TestIPMCalendar:
         wheat_data = wheat_response.json()
 
         # Activities should differ
-        assert palm_data["calendar"][0]["activities_en"] != wheat_data["calendar"][0]["activities_en"]
+        palm_activities = palm_data["calendar"][0]["activities_en"]
+        wheat_activities = wheat_data["calendar"][0]["activities_en"]
+        assert palm_activities != wheat_activities
 
     def test_ipm_calendar_with_region(self, client):
         """Test calendar with region parameter."""
@@ -212,10 +214,16 @@ class TestTreatmentDataIntegrity:
         response = client.get("/api/v1/treatments/protocols/rpw")
         data = response.json()
 
-        for option in data["chemical_options"] + data["biological_options"] + data["cultural_options"]:
-            assert option["name_ar"], f"Missing Arabic name for option {option['id']}"
-            assert option["application_rate_ar"], f"Missing Arabic rate for option {option['id']}"
-            assert option["application_method_ar"], f"Missing Arabic method for option {option['id']}"
+        all_options = (
+            data["chemical_options"]
+            + data["biological_options"]
+            + data["cultural_options"]
+        )
+        for option in all_options:
+            opt_id = option["id"]
+            assert option["name_ar"], f"Missing Arabic name for option {opt_id}"
+            assert option["application_rate_ar"], f"Missing Arabic rate for {opt_id}"
+            assert option["application_method_ar"], f"Missing method AR for {opt_id}"
 
     def test_chemical_options_have_active_ingredients(self, client):
         """Test chemical options specify active ingredients."""
@@ -223,15 +231,20 @@ class TestTreatmentDataIntegrity:
         data = response.json()
 
         for option in data["chemical_options"]:
-            assert option["active_ingredient"], f"Missing active ingredient for {option['id']}"
-            assert option["active_ingredient_ar"], f"Missing Arabic active ingredient for {option['id']}"
+            opt_id = option["id"]
+            assert option["active_ingredient"], f"Missing active ingredient for {opt_id}"
+            assert option["active_ingredient_ar"], f"Missing AR active ingredient for {opt_id}"
 
     def test_options_have_effectiveness_rating(self, client):
         """Test all options have effectiveness rating."""
         response = client.get("/api/v1/treatments/protocols/rpw")
         data = response.json()
 
-        all_options = data["chemical_options"] + data["biological_options"] + data["cultural_options"]
+        all_options = (
+            data["chemical_options"]
+            + data["biological_options"]
+            + data["cultural_options"]
+        )
         for option in all_options:
             assert "effectiveness_rating" in option
             assert 0 <= option["effectiveness_rating"] <= 5
@@ -241,7 +254,12 @@ class TestTreatmentDataIntegrity:
         response = client.get("/api/v1/treatments/protocols/rpw")
         data = response.json()
 
-        all_options = data["chemical_options"] + data["biological_options"] + data["cultural_options"]
+        all_options = (
+            data["chemical_options"]
+            + data["biological_options"]
+            + data["cultural_options"]
+        )
         for option in all_options:
-            assert option["environmental_impact"], f"Missing environmental impact for {option['id']}"
-            assert option["environmental_impact_ar"], f"Missing Arabic environmental impact for {option['id']}"
+            opt_id = option["id"]
+            assert option["environmental_impact"], f"Missing env impact for {opt_id}"
+            assert option["environmental_impact_ar"], f"Missing AR env impact for {opt_id}"

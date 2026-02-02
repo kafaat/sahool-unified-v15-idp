@@ -67,8 +67,8 @@ class EconomicThreshold(BaseModel):
     economic_injury_level: float  # Point of economic damage
     sampling_method_en: str
     sampling_method_ar: str
-    notes_en: Optional[str] = None
-    notes_ar: Optional[str] = None
+    notes_en: str | None = None
+    notes_ar: str | None = None
 
 
 class ThresholdAssessment(BaseModel):
@@ -76,8 +76,8 @@ class ThresholdAssessment(BaseModel):
     pest_id: str
     crop: str
     current_value: float
-    field_id: Optional[str] = None
-    growth_stage: Optional[str] = None
+    field_id: str | None = None
+    growth_stage: str | None = None
 
 
 class ThresholdResult(BaseModel):
@@ -89,7 +89,7 @@ class ThresholdResult(BaseModel):
     action_threshold: float
     status: ThresholdStatus
     status_ar: str
-    yield_loss_estimate_percent: Optional[float] = None
+    yield_loss_estimate_percent: float | None = None
     recommendation_en: str
     recommendation_ar: str
     urgency: AlertPriority
@@ -108,13 +108,13 @@ class Alert(BaseModel):
     title_ar: str
     message_en: str
     message_ar: str
-    threshold_exceeded: Optional[float] = None
-    recommended_action_en: Optional[str] = None
-    recommended_action_ar: Optional[str] = None
+    threshold_exceeded: float | None = None
+    recommended_action_en: str | None = None
+    recommended_action_ar: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    acknowledged_at: Optional[datetime] = None
-    acknowledged_by: Optional[str] = None
-    resolved_at: Optional[datetime] = None
+    acknowledged_at: datetime | None = None
+    acknowledged_by: str | None = None
+    resolved_at: datetime | None = None
 
 
 # ============================================================================
@@ -237,8 +237,8 @@ ALERTS_DB: dict[str, Alert] = {}
 
 @router.get("/thresholds")
 async def list_thresholds(
-    crop: Optional[str] = None,
-    pest_id: Optional[str] = None,
+    crop: str | None = None,
+    pest_id: str | None = None,
 ):
     """
     List economic thresholds.
@@ -357,9 +357,9 @@ async def assess_threshold(assessment: ThresholdAssessment):
 
 @router.get("/alerts")
 async def list_alerts(
-    field_id: Optional[str] = None,
-    status: Optional[AlertStatus] = None,
-    priority: Optional[AlertPriority] = None,
+    field_id: str | None = None,
+    status: AlertStatus | None = None,
+    priority: AlertPriority | None = None,
     limit: int = Query(50, ge=1, le=100),
 ):
     """
@@ -437,7 +437,7 @@ async def acknowledge_alert(
 @router.post("/alerts/{alert_id}/resolve")
 async def resolve_alert(
     alert_id: str,
-    resolution_notes: Optional[str] = None,
+    resolution_notes: str | None = None,
 ):
     """
     Resolve alert.

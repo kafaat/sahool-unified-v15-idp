@@ -52,22 +52,22 @@ class GPSLocation(BaseModel):
     """GPS coordinates."""
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
-    accuracy_m: Optional[float] = None
+    accuracy_m: float | None = None
 
 
 class Observation(BaseModel):
     """Single pest observation."""
     id: str = Field(default_factory=lambda: str(uuid4()))
     pest_id: str
-    pest_name_en: Optional[str] = None
-    pest_name_ar: Optional[str] = None
-    location: Optional[GPSLocation] = None
+    pest_name_en: str | None = None
+    pest_name_ar: str | None = None
+    location: GPSLocation | None = None
     infestation_level: InfestationLevel
     affected_area_percent: float = Field(..., ge=0, le=100)
-    life_stage: Optional[str] = None
-    count: Optional[int] = None
-    notes: Optional[str] = None
-    notes_ar: Optional[str] = None
+    life_stage: str | None = None
+    count: int | None = None
+    notes: str | None = None
+    notes_ar: str | None = None
     image_urls: list[str] = []
     observed_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -76,12 +76,12 @@ class ScoutReportCreate(BaseModel):
     """Create scout report request."""
     field_id: str
     crop: str
-    growth_stage: Optional[str] = None
-    scout_name: Optional[str] = None
+    growth_stage: str | None = None
+    scout_name: str | None = None
     observations: list[Observation] = []
-    weather_conditions: Optional[str] = None
-    general_notes: Optional[str] = None
-    general_notes_ar: Optional[str] = None
+    weather_conditions: str | None = None
+    general_notes: str | None = None
+    general_notes_ar: str | None = None
 
 
 class ScoutReport(BaseModel):
@@ -89,29 +89,29 @@ class ScoutReport(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid4()))
     field_id: str
     crop: str
-    growth_stage: Optional[str] = None
-    scout_name: Optional[str] = None
+    growth_stage: str | None = None
+    scout_name: str | None = None
     status: ReportStatus = ReportStatus.DRAFT
     observations: list[Observation] = []
-    weather_conditions: Optional[str] = None
-    general_notes: Optional[str] = None
-    general_notes_ar: Optional[str] = None
+    weather_conditions: str | None = None
+    general_notes: str | None = None
+    general_notes_ar: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    reviewed_by: Optional[str] = None
-    review_notes: Optional[str] = None
+    reviewed_by: str | None = None
+    review_notes: str | None = None
 
 
 class ObservationCreate(BaseModel):
     """Add observation to report."""
     pest_id: str
-    location: Optional[GPSLocation] = None
+    location: GPSLocation | None = None
     infestation_level: InfestationLevel
     affected_area_percent: float = Field(..., ge=0, le=100)
-    life_stage: Optional[str] = None
-    count: Optional[int] = None
-    notes: Optional[str] = None
-    notes_ar: Optional[str] = None
+    life_stage: str | None = None
+    count: int | None = None
+    notes: str | None = None
+    notes_ar: str | None = None
     image_urls: list[str] = []
 
 
@@ -129,8 +129,8 @@ REPORTS_DB: dict[str, ScoutReport] = {}
 
 @router.get("/scouts/reports")
 async def list_reports(
-    field_id: Optional[str] = None,
-    status: Optional[ReportStatus] = None,
+    field_id: str | None = None,
+    status: ReportStatus | None = None,
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
 ):
@@ -325,7 +325,7 @@ async def submit_report(report_id: str):
 
 @router.get("/scouts/statistics")
 async def get_scouting_statistics(
-    field_id: Optional[str] = None,
+    field_id: str | None = None,
     days: int = Query(30, ge=1, le=365),
 ):
     """

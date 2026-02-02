@@ -4,7 +4,7 @@
 # SAHOOL WhatsApp Bot Service
 # خدمة روبوت واتساب
 
-FROM python:3.12-slim AS builder
+FROM python:3.11-slim AS builder
 
 # Set build arguments
 ARG SERVICE_NAME=whatsapp-bot-service
@@ -21,12 +21,12 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Install Python dependencies
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /tmp/requirements.txt
+COPY apps/services/whatsapp-bot-service/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
+    pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r /tmp/requirements.txt
 
 # Production image
-FROM python:3.12-slim AS production
+FROM python:3.11-slim AS production
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -48,10 +48,10 @@ COPY --from=builder /opt/venv /opt/venv
 WORKDIR /app
 
 # Copy shared modules
-COPY shared /app/shared
+COPY shared/ /app/shared/
 
 # Copy service code
-COPY apps/services/whatsapp-bot-service/src /app/src
+COPY apps/services/whatsapp-bot-service/src/ /app/src/
 
 # Change ownership
 RUN chown -R sahool:sahool /app

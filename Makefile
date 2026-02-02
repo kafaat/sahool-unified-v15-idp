@@ -13,6 +13,8 @@
 .PHONY: fixops fixops-run fixops-comprehensive fixops-json
 .PHONY: deps-check deps-tree deps-audit deps-outdated deps-security deps-install-tools
 .PHONY: perf-install dead-code complexity unused-deps docstring-coverage secrets-scan licenses benchmark quality-full
+.PHONY: service-health check-services db-migrate-all db-generate logs-all
+.PHONY: dev-ai dev-agents build-ai test-ai
 .DEFAULT_GOAL := help
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -46,7 +48,7 @@ RESET := \033[0m
 help: ## عرض قائمة الأوامر المتاحة - Show available commands
 	@echo ""
 	@echo "$(BOLD)═══════════════════════════════════════════════════════════════════$(RESET)"
-	@echo "$(BOLD)  SAHOOL Platform v15.3 - Unified Management Commands$(RESET)"
+	@echo "$(BOLD)  SAHOOL Platform v16.0.0 - Unified Management Commands$(RESET)"
 	@echo "$(BOLD)  منصة سهول الموحدة - أوامر الإدارة الشاملة$(RESET)"
 	@echo "$(BOLD)═══════════════════════════════════════════════════════════════════$(RESET)"
 	@echo ""
@@ -68,8 +70,11 @@ help: ## عرض قائمة الأوامر المتاحة - Show available comman
 	@echo "$(BOLD)$(BLUE)Mobile Development - تطوير الجوال:$(RESET)"
 	@awk 'BEGIN {FS = ":.*?## "} /^mobile-[a-zA-Z_-]+:.*?## / {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
+	@echo "$(BOLD)$(BLUE)AI & Agents - الذكاء الاصطناعي والوكلاء:$(RESET)"
+	@awk 'BEGIN {FS = ":.*?## "} /^(dev-ai|dev-agents|build-ai|test-ai|dev-mcp):.*?## / {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
 	@echo "$(BOLD)$(BLUE)Utilities - الأدوات المساعدة:$(RESET)"
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## .*(clean|status|health|shell)/ {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## .*(clean|status|health|shell|script)/ {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
 	@echo "$(BOLD)Usage Examples - أمثلة الاستخدام:$(RESET)"
 	@echo "  $(GREEN)make dev$(RESET)                      - بدء بيئة التطوير"
@@ -77,6 +82,8 @@ help: ## عرض قائمة الأوامر المتاحة - Show available comman
 	@echo "  $(GREEN)make logs-service SERVICE=field_ops$(RESET) - عرض سجلات خدمة محددة"
 	@echo "  $(GREEN)make shell SERVICE=postgres$(RESET)   - فتح طرفية في حاوية"
 	@echo "  $(GREEN)make test-python$(RESET)              - تشغيل اختبارات Python"
+	@echo "  $(GREEN)make service-health$(RESET)           - فحص صحة جميع الخدمات"
+	@echo "  $(GREEN)make dev-ai$(RESET)                   - تشغيل خدمات الذكاء الاصطناعي"
 	@echo ""
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -961,6 +968,149 @@ build-integration: build-vision build-terrain build-edge ## بناء جميع خ
 
 test-integration-services: test-vision test-terrain test-edge ## اختبار جميع خدمات التكامل الجديدة - Test all new integration services
 	@echo "$(GREEN)✅ اختبارات جميع خدمات التكامل مكتملة - All integration service tests complete!$(RESET)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Service Health & Diagnostics - صحة الخدمات والتشخيص
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: service-health check-services logs-all
+
+service-health: ## فحص صحة جميع الخدمات - Check health of all running services
+	@echo "$(BLUE)🏥 فحص صحة الخدمات - Service Health Check...$(RESET)"
+	@./scripts/service-health-check.sh
+
+check-services: ## عرض حالة الخدمات المتاحة - Show available services status
+	@echo "$(BLUE)📦 حالة الخدمات - Service Status:$(RESET)"
+	@echo ""
+	@echo "$(BOLD)Infrastructure:$(RESET)"
+	@for service in postgres redis nats kong; do \
+		if docker compose -f $(COMPOSE_BASE) ps $$service 2>/dev/null | grep -q "Up"; then \
+			echo "  $(GREEN)✓$(RESET) $$service"; \
+		else \
+			echo "  $(RED)✗$(RESET) $$service (not running)"; \
+		fi; \
+	done
+	@echo ""
+	@echo "$(BOLD)Application Services:$(RESET)"
+	@docker compose -f $(COMPOSE_BASE) ps --format "table {{.Name}}\t{{.Status}}" 2>/dev/null | tail -n +2 | sort || true
+
+logs-all: ## عرض سجلات جميع الخدمات - View logs from all services
+	@echo "$(BLUE)📋 سجلات جميع الخدمات - All service logs:$(RESET)"
+	@docker compose -f $(COMPOSE_BASE) logs -f --tail=100
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# AI & Agent Services - خدمات الذكاء الاصطناعي والوكلاء
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: dev-ai dev-agents build-ai test-ai logs-ai
+
+dev-ai: ## تشغيل خدمات AI - Start AI services (advisory, crop-intelligence)
+	@echo "$(GREEN)🤖 تشغيل خدمات الذكاء الاصطناعي - Starting AI services...$(RESET)"
+	docker compose up -d advisory-service crop-intelligence-service ai-advisor mcp-server
+	@echo "$(GREEN)✅ خدمات AI جاهزة - AI services ready!$(RESET)"
+
+dev-agents: ## تشغيل خدمات الوكلاء - Start Agent services
+	@echo "$(GREEN)🤖 تشغيل خدمات الوكلاء - Starting Agent services...$(RESET)"
+	docker compose up -d agent-registry code-fix-agent code-review-agent
+	@echo "$(GREEN)✅ خدمات الوكلاء جاهزة - Agent services ready!$(RESET)"
+
+build-ai: ## بناء خدمات AI - Build AI service images
+	@echo "$(YELLOW)🔨 بناء خدمات AI - Building AI services...$(RESET)"
+	docker compose build advisory-service crop-intelligence-service ai-advisor mcp-server
+	@echo "$(GREEN)✅ بناء خدمات AI مكتمل - AI services built!$(RESET)"
+
+test-ai: ## تشغيل اختبارات AI - Run AI service tests
+	@echo "$(BLUE)🧪 تشغيل اختبارات AI - Running AI service tests...$(RESET)"
+	pytest apps/services/advisory-service/tests -v || true
+	pytest apps/services/crop-intelligence-service/tests -v || true
+	@echo "$(GREEN)✅ اختبارات AI مكتملة - AI tests complete!$(RESET)"
+
+logs-ai: ## عرض سجلات خدمات AI - View AI service logs
+	@echo "$(BLUE)📋 سجلات خدمات AI - AI service logs:$(RESET)"
+	docker compose logs -f advisory-service crop-intelligence-service ai-advisor mcp-server
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Database Management Extended - إدارة قاعدة البيانات الموسعة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: db-migrate-all db-generate db-status db-health
+
+db-migrate-all: ## تشغيل جميع الترحيلات - Run all migrations (Prisma + Python)
+	@echo "$(YELLOW)📦 تشغيل جميع الترحيلات - Running all migrations...$(RESET)"
+	@$(MAKE) --no-print-directory db-migrate
+	@echo ""
+	@echo "$(YELLOW)Python migrations (if available):$(RESET)"
+	@if [ -f "alembic.ini" ]; then \
+		alembic upgrade head 2>/dev/null || echo "Alembic not configured"; \
+	fi
+	@echo "$(GREEN)✅ اكتملت جميع الترحيلات - All migrations complete!$(RESET)"
+
+db-generate: ## توليد عملاء قاعدة البيانات - Generate database clients (Prisma)
+	@echo "$(YELLOW)⚙️  توليد عملاء DB - Generating DB clients...$(RESET)"
+	@for dir in apps/services/field-core apps/services/crop-growth-model apps/services/marketplace-service apps/services/user-service; do \
+		if [ -d "$$dir" ] && [ -f "$$dir/prisma/schema.prisma" ]; then \
+			echo "Generating for $$(basename $$dir)..."; \
+			cd "$$dir" && npx prisma generate && cd - > /dev/null; \
+		fi; \
+	done
+	@echo "$(GREEN)✅ توليد العملاء مكتمل - Client generation complete!$(RESET)"
+
+db-status: ## عرض حالة قاعدة البيانات - Show database status
+	@echo "$(BLUE)🗄️  حالة قاعدة البيانات - Database status:$(RESET)"
+	@docker exec sahool-postgres psql -U sahool -d sahool -c "SELECT version();" 2>/dev/null || echo "PostgreSQL not running"
+	@echo ""
+	@docker exec sahool-postgres psql -U sahool -d sahool -c "SELECT pg_size_pretty(pg_database_size('sahool')) as size;" 2>/dev/null || true
+
+db-health: ## فحص صحة قاعدة البيانات - Check database health
+	@echo "$(BLUE)🏥 فحص صحة DB - Database health check:$(RESET)"
+	@./scripts/db_health_check.sh 2>/dev/null || echo "Run: make infra-up first"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MCP Server - خادم MCP
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: dev-mcp build-mcp test-mcp logs-mcp
+
+dev-mcp: ## تشغيل خادم MCP - Start MCP server
+	@echo "$(GREEN)🔌 تشغيل خادم MCP - Starting MCP server...$(RESET)"
+	docker compose up -d mcp-server
+	@echo "$(GREEN)✅ خادم MCP جاهز - MCP server ready!$(RESET)"
+	@echo "$(BLUE)MCP Server:$(RESET) http://localhost:8200"
+
+build-mcp: ## بناء خادم MCP - Build MCP server image
+	@echo "$(YELLOW)🔨 بناء خادم MCP - Building MCP server...$(RESET)"
+	docker compose build mcp-server
+	@echo "$(GREEN)✅ بناء خادم MCP مكتمل - MCP server built!$(RESET)"
+
+test-mcp: ## تشغيل اختبارات MCP - Run MCP server tests
+	@echo "$(BLUE)🧪 تشغيل اختبارات MCP - Running MCP tests...$(RESET)"
+	pytest apps/services/mcp-server/tests -v || true
+	@echo "$(GREEN)✅ اختبارات MCP مكتملة - MCP tests complete!$(RESET)"
+
+logs-mcp: ## عرض سجلات MCP - View MCP server logs
+	@echo "$(BLUE)📋 سجلات MCP - MCP logs:$(RESET)"
+	docker compose logs -f mcp-server
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Script Utilities - أدوات السكربتات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: scripts-check scripts-fix
+
+scripts-check: ## فحص سلامة السكربتات - Check scripts for issues
+	@echo "$(BLUE)🔍 فحص السكربتات - Checking scripts...$(RESET)"
+	@echo "$(YELLOW)Checking shebangs:$(RESET)"
+	@find scripts -name "*.sh" -exec head -1 {} \; -print | grep -v "^#!/" | head -10 || echo "All shebangs OK"
+	@echo ""
+	@echo "$(YELLOW)Checking syntax:$(RESET)"
+	@for f in scripts/*.sh; do bash -n "$$f" 2>&1 | grep -v "^$$" && echo "Error in: $$f" || true; done
+	@echo "$(GREEN)✅ فحص السكربتات مكتمل - Script check complete!$(RESET)"
+
+scripts-fix: ## إصلاح أذونات السكربتات - Fix script permissions
+	@echo "$(YELLOW)🔧 إصلاح أذونات السكربتات - Fixing script permissions...$(RESET)"
+	@find scripts -name "*.sh" -exec chmod +x {} \;
+	@find scripts -name "*.py" -exec chmod +x {} \;
+	@echo "$(GREEN)✅ تم إصلاح الأذونات - Permissions fixed!$(RESET)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # End of Makefile - نهاية الملف

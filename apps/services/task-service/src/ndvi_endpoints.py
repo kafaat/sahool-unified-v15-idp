@@ -29,9 +29,12 @@ async def create_task_from_ndvi_alert(
     - Auto-assigns if requested
     - Sends notifications
     """
+    # Sanitize user inputs for logging to prevent log injection
+    safe_field_id = str(data.field_id).replace('\\n', '').replace('\\r', '')[:100]
+    safe_alert_type = str(data.alert_type).replace('\\n', '').replace('\\r', '')[:50]
     logger.info(
-        f"Creating task from NDVI alert: field={data.field_id}, "
-        f"type={data.alert_type}, ndvi={data.ndvi_value:.3f}"
+        "Creating task from NDVI alert: field=%s, type=%s, ndvi=%.3f",
+        safe_field_id, safe_alert_type, data.ndvi_value
     )
 
     try:
@@ -77,11 +80,12 @@ async def create_task_from_ndvi_alert(
             field_manager = await fetch_field_manager(data.field_id, tenant_id)
             if field_manager:
                 assigned_to = field_manager
-                logger.info(f"Auto-assigned NDVI task to field manager: {assigned_to}")
+                safe_assigned = str(assigned_to).replace('\\n', '').replace('\\r', '')[:100]
+                logger.info("Auto-assigned NDVI task to field manager: %s", safe_assigned)
             else:
                 logger.warning(
-                    f"Could not fetch field manager for field {data.field_id}, "
-                    f"task will be created without assignment"
+                    "Could not fetch field manager for field %s, task will be created without assignment",
+                    safe_field_id
                 )
 
         # Build metadata
@@ -126,16 +130,16 @@ async def create_task_from_ndvi_alert(
             )
 
         logger.info(
-            f"Task created from NDVI alert: {task_id} "
-            f"(priority={priority.value}, assigned_to={assigned_to})"
+            "Task created from NDVI alert: %s (priority=%s, assigned_to=%s)",
+            task_id, priority.value, safe_assigned if assigned_to else None
         )
 
         return task
 
     except Exception as e:
-        logger.error(f"Error creating task from NDVI alert: {e}", exc_info=True)
+        logger.error("Error creating task from NDVI alert: %s", type(e).__name__, exc_info=True)
         raise HTTPException(
-            status_code=500, detail=f"Failed to create task from NDVI alert: {str(e)}"
+            status_code=500, detail="Failed to create task from NDVI alert"
         )
 
 
@@ -249,8 +253,10 @@ async def auto_create_tasks(
     - Sends batch notifications
     - Returns summary of created tasks
     """
+    # Sanitize user inputs for logging
+    safe_field_id = str(data.field_id).replace('\\n', '').replace('\\r', '')[:100]
     logger.info(
-        f"Auto-creating {len(data.suggestions)} tasks for field {data.field_id}"
+        "Auto-creating %d tasks for field %s", len(data.suggestions), safe_field_id
     )
 
     created_tasks = []
@@ -265,11 +271,12 @@ async def auto_create_tasks(
             field_manager = await fetch_field_manager(data.field_id, tenant_id)
             if field_manager:
                 assigned_to = field_manager
-                logger.info(f"Auto-assigned batch tasks to field manager: {assigned_to}")
+                safe_assigned = str(assigned_to).replace('\\n', '').replace('\\r', '')[:100]
+                logger.info("Auto-assigned batch tasks to field manager: %s", safe_assigned)
             else:
                 logger.warning(
-                    f"Could not fetch field manager for field {data.field_id}, "
-                    f"tasks will be created without assignment"
+                    "Could not fetch field manager for field %s, tasks will be created without assignment",
+                    safe_field_id
                 )
 
         # Create tasks from suggestions
@@ -309,19 +316,19 @@ async def auto_create_tasks(
                 created_tasks.append(task)
 
                 logger.info(
-                    f"Auto-created task {idx + 1}/{len(data.suggestions)}: "
-                    f"{task_id} ({suggestion.task_type.value})"
+                    "Auto-created task %d/%d: %s (%s)",
+                    idx + 1, len(data.suggestions), task_id, suggestion.task_type.value
                 )
 
             except Exception as task_error:
                 logger.error(
-                    f"Failed to create task from suggestion {idx}: {task_error}"
+                    "Failed to create task from suggestion %d: %s", idx, type(task_error).__name__
                 )
                 failed_tasks.append(
                     {
                         "index": idx,
                         "suggestion": suggestion.title,
-                        "error": str(task_error),
+                        "error": type(task_error).__name__,
                     }
                 )
 
@@ -352,11 +359,11 @@ async def auto_create_tasks(
                     notification_type="tasks_batch_created",
                 )
             except Exception as notif_error:
-                logger.warning(f"Failed to send batch notification: {notif_error}")
+                logger.warning("Failed to send batch notification: %s", type(notif_error).__name__)
 
         logger.info(
-            f"Auto-create completed: {len(created_tasks)} created, "
-            f"{len(failed_tasks)} failed"
+            "Auto-create completed: %d created, %d failed",
+            len(created_tasks), len(failed_tasks)
         )
 
         return {
@@ -372,8 +379,8 @@ async def auto_create_tasks(
         }
 
     except Exception as e:
-        logger.error(f"Error in auto-create tasks: {e}", exc_info=True)
+        logger.error("Error in auto-create tasks: %s", type(e).__name__, exc_info=True)
         raise HTTPException(
-            status_code=500, detail=f"Failed to auto-create tasks: {str(e)}"
+            status_code=500, detail="Failed to auto-create tasks"
         )
 '''

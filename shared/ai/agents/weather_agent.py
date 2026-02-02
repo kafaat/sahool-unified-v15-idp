@@ -117,6 +117,7 @@ class ClimateRiskAssessment:
     overall_risk: str  # low, medium, high
     overall_risk_ar: str
     recommendations: list[dict[str, str]]
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 

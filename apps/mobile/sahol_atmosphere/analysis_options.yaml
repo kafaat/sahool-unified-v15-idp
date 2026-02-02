@@ -1,28 +1,86 @@
-# This file configures the analyzer, which statically analyzes Dart code to
-# check for errors, warnings, and lints.
+# SAHOOL Atmosphere - Analysis Options
+# قواعد تحليل الكود للحفاظ على جودة عالية
 #
-# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
-# invoked from the command line by running `flutter analyze`.
+# Run: flutter analyze
+# Fix: dart fix --apply
+#
+# Using flutter_lints for standard linting (CI-compatible)
+# https://pub.dev/packages/flutter_lints
 
-# The following line activates a set of recommended lints for Flutter apps,
-# packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  # Treat missing required params and returns as errors
+  errors:
+    missing_required_param: error
+    missing_return: error
+    must_be_immutable: error
+    invalid_annotation_target: ignore
+
+  # Exclude generated files
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/generated/**"
+    - "build/**"
+    - ".dart_tool/**"
+
+  # Enable stricter type checks
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
 linter:
-  # The lint rules applied to this project can be customized in the
-  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
-  # included above or to enable additional rules. A list of all available lints
-  # and their documentation is published at https://dart.dev/lints.
-  #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    # Error Prevention - منع الأخطاء
+    - avoid_print
+    - avoid_returning_null_for_future
+    - cancel_subscriptions
+    - close_sinks
+    - empty_catches
+    - avoid_empty_else
+
+    # Type Safety - سلامة الأنواع
+    - always_declare_return_types
+    - type_annotate_public_apis
+    - avoid_types_as_parameter_names
+    - prefer_void_to_null
+
+    # Performance - الأداء
+    - prefer_const_constructors
+    - prefer_const_constructors_in_immutables
+    - prefer_const_declarations
+    - prefer_const_literals_to_create_immutables
+    - prefer_final_locals
+    - prefer_final_in_for_each
+
+    # Flutter Specific - خاص بـ Flutter
+    - use_key_in_widget_constructors
+    - sized_box_for_whitespace
+    - avoid_unnecessary_containers
+    - sized_box_shrink_expand
+
+    # Style - الأسلوب
+    - prefer_single_quotes
+    - slash_for_doc_comments
+
+    # Async - التزامن
+    - unawaited_futures
+    - unnecessary_await_in_return
+    - avoid_void_async
+
+    # Null Safety - سلامة null
+    - avoid_null_checks_in_equality_operators
+    - prefer_null_aware_method_calls
+    - prefer_null_aware_operators
+    - unnecessary_null_checks
+
+    # Best Practices - أفضل الممارسات
+    - only_throw_errors
+    - missing_whitespace_between_adjacent_strings
+    - no_duplicate_case_values
+    - null_closures
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

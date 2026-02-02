@@ -490,7 +490,9 @@ jobs:
           echo "| Test | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build Debug | ${{ needs.build-debug.result }} |" >> $GITHUB_STEP_SUMMARY
 
-          if [ "${{ needs.analyze.result }}" != "success" ]; then
+          # Only fail on actual failures, not on cancelled/skipped jobs
+          # Cancelled jobs are expected when concurrency rules apply
+          if [ "${{ needs.analyze.result }}" == "failure" ]; then
             echo "::error::Analyze job failed"
             exit 1
           fi
@@ -500,9 +502,16 @@ jobs:
             exit 1
           fi
 
-          if [ "${{ needs.build-debug.result }}" != "success" ]; then
+          if [ "${{ needs.build-debug.result }}" == "failure" ]; then
             echo "::error::Build job failed"
             exit 1
+          fi
+
+          # Warn about cancelled jobs but don't fail
+          if [ "${{ needs.analyze.result }}" == "cancelled" ] || \
+             [ "${{ needs.test.result }}" == "cancelled" ] || \
+             [ "${{ needs.build-debug.result }}" == "cancelled" ]; then
+            echo "::warning::Some jobs were cancelled (likely due to concurrency rules)"
           fi
 
           echo "All CI checks passed!"

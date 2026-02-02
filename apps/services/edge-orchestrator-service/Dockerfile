@@ -10,7 +10,7 @@
 # =============================================================================
 # Build Stage | مرحلة البناء
 # =============================================================================
-FROM python:3.12-slim AS builder
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
@@ -29,7 +29,7 @@ RUN pip install -i https://mirrors.aliyun.com/pypi/simple/  --no-cache-dir --upg
 # =============================================================================
 # Production Stage | مرحلة الإنتاج
 # =============================================================================
-FROM python:3.12-slim AS production
+FROM python:3.11-slim AS production
 
 # Labels
 LABEL maintainer="KAFAAT <dev@kafaat.sa>"
@@ -55,7 +55,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Copy Python packages from builder
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code

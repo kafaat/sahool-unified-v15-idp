@@ -49,11 +49,12 @@ COPY --from=builder /workspace/disaster-assessment/package-lock.json ./
 # Copy prisma schema for migrations
 COPY --from=builder /workspace/disaster-assessment/prisma ./prisma/
 
-RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
-# Generate Prisma client in production (needed for runtime)
-RUN npx prisma generate
+# Copy generated Prisma client from builder (avoid npx downloading incompatible version)
+COPY --from=builder /workspace/disaster-assessment/node_modules/.prisma ./node_modules/.prisma/
+COPY --from=builder /workspace/disaster-assessment/node_modules/@prisma/client ./node_modules/@prisma/client/
 
 # Copy built application
 COPY --from=builder /workspace/disaster-assessment/dist ./dist

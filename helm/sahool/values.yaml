@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Helm Chart Values - منصة سهول الزراعية
-# v15.3.2
+# v16.0.0
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -227,7 +227,7 @@ services:
     package: starter
     image:
       repository: field-core
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 3000
     replicaCount: 2
     resources:
@@ -263,7 +263,7 @@ services:
     package: starter
     image:
       repository: weather-core
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8108
     replicaCount: 2
     resources:
@@ -294,7 +294,7 @@ services:
     package: starter
     image:
       repository: astronomical-calendar
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8111
     replicaCount: 1
     resources:
@@ -319,7 +319,7 @@ services:
     package: starter
     image:
       repository: agro-advisor
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8105
     replicaCount: 2
     resources:
@@ -350,7 +350,7 @@ services:
     package: starter
     image:
       repository: notification-service
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8110
     replicaCount: 2
     resources:
@@ -385,7 +385,7 @@ services:
     package: professional
     image:
       repository: satellite-service
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8090
     replicaCount: 2
     resources:
@@ -416,7 +416,7 @@ services:
     package: professional
     image:
       repository: ndvi-engine
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8107
     replicaCount: 2
     resources:
@@ -447,7 +447,7 @@ services:
     package: professional
     image:
       repository: crop-health-ai
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8095
     replicaCount: 2
     resources:
@@ -478,7 +478,7 @@ services:
     package: professional
     image:
       repository: irrigation-smart
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8094
     replicaCount: 1
     resources:
@@ -503,7 +503,7 @@ services:
     package: professional
     image:
       repository: virtual-sensors
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8096
     replicaCount: 1
     resources:
@@ -528,7 +528,7 @@ services:
     package: professional
     image:
       repository: yield-engine
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8098
     replicaCount: 1
     resources:
@@ -553,7 +553,7 @@ services:
     package: professional
     image:
       repository: fertilizer-advisor
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8093
     replicaCount: 1
     resources:
@@ -578,7 +578,7 @@ services:
     package: professional
     image:
       repository: inventory-service
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8116
     replicaCount: 2
     resources:
@@ -613,7 +613,7 @@ services:
     package: enterprise
     image:
       repository: ai-advisor
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8112
     replicaCount: 2
     resources:
@@ -644,7 +644,7 @@ services:
     package: enterprise
     image:
       repository: iot-gateway
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8106
     replicaCount: 2
     resources:
@@ -675,7 +675,7 @@ services:
     package: enterprise
     image:
       repository: research-core
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 3015
     replicaCount: 1
     resources:
@@ -700,7 +700,7 @@ services:
     package: enterprise
     image:
       repository: marketplace-service
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 3010
     replicaCount: 2
     resources:
@@ -731,7 +731,7 @@ services:
     package: enterprise
     image:
       repository: billing-core
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8089
     replicaCount: 2
     resources:
@@ -762,7 +762,7 @@ services:
     package: enterprise
     image:
       repository: disaster-assessment
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 3020
     replicaCount: 1
     resources:
@@ -787,7 +787,7 @@ services:
     package: enterprise
     image:
       repository: crop-growth-model
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 3023
     replicaCount: 1
     resources:
@@ -812,7 +812,7 @@ services:
     package: enterprise
     image:
       repository: lai-estimation
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 3022
     replicaCount: 1
     resources:
@@ -829,6 +829,163 @@ services:
     vpa:
       enabled: true
       updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
+
+  # ═════════════════════════════════════════════════════════════════════════════
+  # 🤖 VISION & TERRAIN SERVICES - AI/GPU-Enabled (Enterprise)
+  # ═════════════════════════════════════════════════════════════════════════════
+
+  yolo26VisionService:
+    enabled: false
+    name: yolo26-vision-service
+    package: enterprise
+    image:
+      repository: yolo26-vision-service
+      tag: "16.0.0"
+    port: 8150
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 4000m
+        memory: 8Gi
+        nvidia.com/gpu: 1
+      requests:
+        cpu: 1000m
+        memory: 4Gi
+        nvidia.com/gpu: 1
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 8
+      targetCPUUtilization: 70
+    pdb:
+      enabled: true
+      minAvailable: 1
+    # VPA Configuration for YOLO26 Vision (GPU service)
+    # "Initial" mode - Safe for GPU workloads
+    vpa:
+      enabled: true
+      updateMode: "Initial"
+      controlledValues: "RequestsAndLimits"
+
+  terrainCoreService:
+    enabled: false
+    name: terrain-core-service
+    package: enterprise
+    image:
+      repository: terrain-core-service
+      tag: "16.0.0"
+    port: 8185
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 6
+      targetCPUUtilization: 75
+    pdb:
+      enabled: true
+      minAvailable: 1
+    # VPA Configuration for Terrain Core (Database-connected service)
+    vpa:
+      enabled: true
+      updateMode: "Initial"
+      controlledValues: "RequestsAndLimits"
+
+  hydrologyService:
+    enabled: false
+    name: hydrology-service
+    package: enterprise
+    image:
+      repository: hydrology-service
+      tag: "16.0.0"
+    port: 8165
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 6
+      targetCPUUtilization: 75
+    pdb:
+      enabled: true
+      minAvailable: 1
+    # VPA Configuration for Hydrology Service (Database-connected service)
+    vpa:
+      enabled: true
+      updateMode: "Initial"
+      controlledValues: "RequestsAndLimits"
+
+  levelingOptimizerService:
+    enabled: false
+    name: leveling-optimizer-service
+    package: enterprise
+    image:
+      repository: leveling-optimizer-service
+      tag: "16.0.0"
+    port: 8170
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 6
+      targetCPUUtilization: 75
+    pdb:
+      enabled: true
+      minAvailable: 1
+    # VPA Configuration for Leveling Optimizer (Database-connected service)
+    vpa:
+      enabled: true
+      updateMode: "Initial"
+      controlledValues: "RequestsAndLimits"
+
+  edgeOrchestratorService:
+    enabled: false
+    name: edge-orchestrator-service
+    package: enterprise
+    image:
+      repository: edge-orchestrator-service
+      tag: "16.0.0"
+    port: 8190
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 250m
+        memory: 1Gi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 4
+      targetCPUUtilization: 70
+    pdb:
+      enabled: true
+      minAvailable: 1
+    # VPA Configuration for Edge Orchestrator (Database-connected service)
+    vpa:
+      enabled: true
+      updateMode: "Initial"
       controlledValues: "RequestsAndLimits"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -904,6 +1061,27 @@ ingress:
           pathType: Prefix
           service: billing-core
           port: 8089
+        # Vision & Terrain Services Routes (Enterprise)
+        - path: /api/v1/vision
+          pathType: Prefix
+          service: yolo26-vision-service
+          port: 8150
+        - path: /api/v1/terrain
+          pathType: Prefix
+          service: terrain-core-service
+          port: 8185
+        - path: /api/v1/hydrology
+          pathType: Prefix
+          service: hydrology-service
+          port: 8165
+        - path: /api/v1/leveling
+          pathType: Prefix
+          service: leveling-optimizer-service
+          port: 8170
+        - path: /api/v1/edge
+          pathType: Prefix
+          service: edge-orchestrator-service
+          port: 8190
   tls:
     - secretName: sahool-tls-prod
       hosts:

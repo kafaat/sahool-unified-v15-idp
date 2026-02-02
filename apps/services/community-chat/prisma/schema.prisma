@@ -1,10 +1,20 @@
+// SAHOOL Community Chat Service Schema
+// مخطط قاعدة بيانات خدمة محادثات المجتمع
+
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // Direct URL for migrations (bypasses PgBouncer connection pooler)
+  directUrl = env("DATABASE_URL_DIRECT")
+  // TLS/SSL enforcement for secure connections
+  // Requires DATABASE_URL to include sslmode=require parameter
+  // Connection pooling parameters are configured in DATABASE_URL
+  // Example: postgresql://user:pass@pgbouncer:6432/db?sslmode=require&connection_limit=8&pool_timeout=20&connect_timeout=10
 }
 
 model ChatRoom {
@@ -27,6 +37,12 @@ model ChatRoom {
   messages    Message[]
   members     ChatMember[]
 
+  @@index([tenantId], name: "idx_chat_room_tenant")
+  @@index([status], name: "idx_chat_room_status")
+  @@index([tenantId, status], name: "idx_chat_room_tenant_status")
+  @@index([farmerId], name: "idx_chat_room_farmer")
+  @@index([expertId], name: "idx_chat_room_expert")
+  @@index([createdAt], name: "idx_chat_room_created")
   @@map("community_chat_rooms")
 }
 

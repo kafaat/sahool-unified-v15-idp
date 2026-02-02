@@ -67,6 +67,7 @@ class FixPattern:
     total_applications: int = 0
 
     # Metadata
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     last_used: datetime | None = None
     examples: list[dict] = field(default_factory=list)

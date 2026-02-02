@@ -208,19 +208,13 @@ jobs:
             path: apps/services/mcp-server
             port: 8200
             container_port: 8200
-          - name: vegetation-analysis-service
-            path: apps/services/vegetation-analysis-service
-            port: 8019
-            container_port: 8090
+          # NOTE: vegetation-analysis-service is defined above (port 8001)
           - name: field-management-service
             path: apps/services/field-management-service
             port: 8020
             container_port: 3000
           # field-service DEPRECATED → field-management-service
-          - name: crop-intelligence-service
-            path: apps/services/crop-intelligence-service
-            port: 8021
-            container_port: 8095
+          # NOTE: crop-intelligence-service is defined above (port 8005)
           - name: equipment-service
             path: apps/services/equipment-service
             port: 8022
@@ -257,6 +251,50 @@ jobs:
             path: apps/services/ws-gateway
             port: 8031
             container_port: 8081
+          # ─────────────────────────────────────────────────────────────
+          # Additional active services
+          # ─────────────────────────────────────────────────────────────
+          - name: agro-rules
+            path: apps/services/agro-rules
+            port: 8032
+            container_port: 8151
+          - name: weather-core
+            path: apps/services/weather-core
+            port: 8033
+            container_port: 8092
+          - name: user-service
+            path: apps/services/user-service
+            port: 8034
+            container_port: 3025
+          - name: lai-estimation
+            path: apps/services/lai-estimation
+            port: 8035
+            container_port: 3022
+          - name: research-core
+            path: apps/services/research-core
+            port: 8036
+            container_port: 3015
+          - name: iot-gateway
+            path: apps/services/iot-gateway
+            port: 8037
+            container_port: 8106
+          - name: skills-service
+            path: apps/services/skills-service
+            port: 8038
+            container_port: 8121
+          - name: field-chat
+            path: apps/services/field-chat
+            port: 8039
+            container_port: 8099
+          - name: astronomical-calendar
+            path: apps/services/astronomical-calendar
+            port: 8040
+            container_port: 8111
+          # ─────────────────────────────────────────────────────────────
+          # Heavy services - test locally (require GPU/large dependencies)
+          # ai-advisor, yolo26-vision-service, terrain-core-service,
+          # hydrology-service, leveling-optimizer-service, edge-orchestrator-service
+          # ─────────────────────────────────────────────────────────────
 
     steps:
       - name: Checkout code

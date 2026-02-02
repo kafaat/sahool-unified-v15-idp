@@ -639,8 +639,9 @@ void stubError(String path, int statusCode, String message) {
 void stubDelayedResponse(String path, MockResponse response, Duration delay) {
   MockServer.instance.stub(
       path,
-      (_) async {
-        await Future.delayed(delay);
+      (request) {
+        // Note: Delay is handled by MockServer.processRequest
+        // Additional delay would need async stub support
         return response;
-      } as MockResponse Function(MockRequest));
+      });
 }

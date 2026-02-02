@@ -50,18 +50,17 @@ COPY --from=builder /workspace/research-core/package.json ./
 COPY --from=builder /workspace/research-core/package-lock.json ./
 # Use a retry loop to handle network issues
 RUN for i in 1 2 3 4 5; do \
-    npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && break || \
-    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && break || \
+    npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && break || \
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && break || \
     (echo "Attempt $i failed, retrying in 10 seconds..." && sleep 10); \
     done || (echo "npm install failed after 5 attempts" && exit 1)
 
-# Copy prisma schema and regenerate client for production environment
+# Copy prisma schema (for migrations)
 COPY --from=builder /workspace/research-core/prisma ./prisma/
-ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
-RUN npx prisma generate || \
-    (sleep 5 && npx prisma generate) || \
-    (sleep 10 && npx prisma generate) || \
-    (echo "Prisma generate failed after retries" && exit 1)
+
+# Copy generated Prisma client from builder (avoid npx downloading incompatible version)
+COPY --from=builder /workspace/research-core/node_modules/.prisma ./node_modules/.prisma/
+COPY --from=builder /workspace/research-core/node_modules/@prisma/client ./node_modules/@prisma/client/
 
 # Copy built application
 COPY --from=builder /workspace/research-core/dist ./dist

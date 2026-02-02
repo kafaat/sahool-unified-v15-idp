@@ -49,16 +49,15 @@ RUN apk add --no-cache curl openssl openssl-dev
 COPY --from=builder /workspace/marketplace-service/package.json ./
 COPY --from=builder /workspace/marketplace-service/package-lock.json ./
 # Install with npm ci (deterministic) with fallback to npm install
-RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
-# Copy prisma schema from builder
+# Copy prisma schema from builder (for migrations)
 COPY --from=builder /workspace/marketplace-service/prisma ./prisma/
-ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
-RUN npx prisma generate || \
-    (sleep 5 && npx prisma generate) || \
-    (sleep 10 && npx prisma generate) || \
-    (echo "Prisma generate failed after retries" && exit 1)
+
+# Copy generated Prisma client from builder (avoid npx downloading incompatible version)
+COPY --from=builder /workspace/marketplace-service/node_modules/.prisma ./node_modules/.prisma/
+COPY --from=builder /workspace/marketplace-service/node_modules/@prisma/client ./node_modules/@prisma/client/
 
 # Copy built application
 COPY --from=builder /workspace/marketplace-service/dist ./dist

@@ -3,6 +3,18 @@
 # Continuous Integration for SAHOOL Platform v16.0.0
 # Updated for apps/services structure
 # ═══════════════════════════════════════════════════════════════════════════════
+#
+# JOB DEPENDENCY GRAPH:
+#   lint ─┬─> test-unified ─────────────────> (upload coverage)
+#         ├─> test-python ─────────────────> build ──> integration
+#         ├─> arch-check
+#         ├─> event-check
+#         ├─> env-validation
+#         ├─> security
+#         └─> governance
+#
+# COVERAGE THRESHOLD: 10% (see MIN_COVERAGE in test-unified job)
+# ═══════════════════════════════════════════════════════════════════════════════
 
 name: CI Pipeline
 
@@ -80,6 +92,10 @@ jobs:
       - name: Run unified tests with coverage (parallel)
         run: |
           # Run service tests in parallel using pytest-xdist
+          # ─────────────────────────────────────────────────────────────
+          # SERVICE EXCLUSIONS:
+          # - marketplace-service: NestJS/Node.js service (not Python)
+          # ─────────────────────────────────────────────────────────────
           pytest apps/services/ -v -n auto --tb=short --ignore=apps/services/marketplace-service \
             --cov=apps/services --cov=shared --cov-report=xml --cov-report=term-missing || true
 

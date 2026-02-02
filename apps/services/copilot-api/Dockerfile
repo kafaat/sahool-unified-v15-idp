@@ -25,11 +25,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 FROM base as dependencies
 
 # Copy requirements
-COPY requirements.txt .
+COPY apps/services/copilot-api/requirements.txt .
 
 # Install Python dependencies
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
+    pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Production Stage
@@ -37,7 +37,7 @@ RUN pip install --upgrade pip && \
 FROM dependencies as production
 
 # Copy application code
-COPY src/ ./src/
+COPY apps/services/copilot-api/src/ ./src/
 
 # Create non-root user for security
 RUN groupadd -r copilot && useradd -r -g copilot copilot
@@ -66,7 +66,7 @@ FROM dependencies as development
 RUN pip install pytest pytest-asyncio pytest-cov mypy
 
 # Copy application code
-COPY . .
+COPY apps/services/copilot-api/ .
 
 # Set Python path
 ENV PYTHONPATH=/app

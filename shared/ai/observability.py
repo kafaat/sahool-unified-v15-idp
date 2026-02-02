@@ -26,6 +26,7 @@ from functools import wraps
 from pathlib import Path
 from typing import Any, Callable
 
+from .metrics import AIMetricsCollector, get_metrics_collector
 from .metrics import get_metrics_collector
 
 logger = logging.getLogger(__name__)

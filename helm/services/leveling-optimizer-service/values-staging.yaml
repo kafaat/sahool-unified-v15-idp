@@ -1,0 +1,42 @@
+# SAHOOL Leveling Optimizer Service - Staging Environment Values
+# Version: 16.0.0
+
+environment: staging
+deploymentSlot: blue
+
+replicaCount: 1
+
+image:
+  tag: "16.0.0-staging"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+env:
+  LOG_LEVEL: "DEBUG"
+  OPTIMIZATION_ALGORITHM: "genetic"
+  MAX_ITERATIONS: "500"
+  POPULATION_SIZE: "50"
+  GRID_RESOLUTION_M: "10"
+  TARGET_SLOPE_PERCENT: "0.1"
+  ENVIRONMENT: "staging"
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 75
+  targetMemoryUtilizationPercentage: 85
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+vpa:
+  enabled: true
+  updateMode: "Initial"

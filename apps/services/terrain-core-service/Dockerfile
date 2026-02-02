@@ -64,8 +64,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Upgrade pip and install build tools
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build numpy
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple/  --no-cache-dir --upgrade pip && \
+    pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --upgrade "setuptools>=68.0" wheel build numpy
 
 # Configure pip for better network resilience with fallback mirrors
 RUN mkdir -p /root/.pip && \
@@ -82,8 +82,8 @@ COPY apps/services/terrain-core-service/requirements.txt .
 
 # Install Python dependencies
 # Install GDAL Python bindings matching system version, with fallback to Tsinghua mirror
-RUN pip install --no-cache-dir --timeout=300 --retries=10 GDAL==$(gdal-config --version) && \
-    (pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt || \
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --timeout=300 --retries=10 GDAL==$(gdal-config --version) && \
+    (pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --timeout=300 --retries=10 -r requirements.txt || \
      pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt)
 
 # Copy shared libraries

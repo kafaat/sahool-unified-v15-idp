@@ -68,7 +68,7 @@ RUN mkdir -p /root/.pip && \
     echo "trusted-host = pypi.org files.pythonhosted.org pypi.tuna.tsinghua.edu.cn download.pytorch.org" >> /root/.pip/pip.conf
 
 # Upgrade pip
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --upgrade pip setuptools wheel
 
 # Copy requirements file
 # Note: Build context is repo root, so use full path
@@ -76,13 +76,13 @@ COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
 
 # Install Python dependencies
 # Install PyTorch with CUDA support first
-RUN pip install --no-cache-dir --timeout=300 --retries=10 \
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --timeout=300 --retries=10 \
     torch==2.2.0 \
     torchvision==0.17.0 \
     --index-url https://download.pytorch.org/whl/cu121
 
 # Install remaining dependencies with fallback to Tsinghua mirror
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r /tmp/requirements.txt || \
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --timeout=300 --retries=10 -r /tmp/requirements.txt || \
     pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r /tmp/requirements.txt
 
 # -----------------------------------------------------------------------------
@@ -149,7 +149,7 @@ FROM production AS development
 USER root
 
 # Install development dependencies with fallback
-RUN pip install --no-cache-dir --timeout=300 --retries=10 \
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --timeout=300 --retries=10 \
     pytest \
     pytest-asyncio \
     pytest-cov \
@@ -219,10 +219,10 @@ RUN mkdir -p /root/.pip && \
     echo "trusted-host = pypi.org files.pythonhosted.org pypi.tuna.tsinghua.edu.cn download.pytorch.org" >> /root/.pip/pip.conf
 
 # Install Python dependencies (CPU only) with fallback to Tsinghua mirror
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    pip install --no-cache-dir --timeout=300 --retries=10 torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
-    (pip install --no-cache-dir --timeout=300 --retries=10 -r /tmp/requirements.txt || \
-     pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r /tmp/requirements.txt)
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple/  --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --timeout=300 --retries=10 torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
+    (pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --timeout=300 --retries=10 -r /tmp/requirements.txt || \
+     pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r /tmp/requirements.txt)
 
 # Create directories
 RUN mkdir -p /app/src /app/models /app/logs /app/data \

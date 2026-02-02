@@ -23,8 +23,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install Python dependencies
 # Note: Build context is repo root, so use full path
 COPY apps/services/edge-orchestrator-service/requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple/  --no-cache-dir --upgrade pip && \
+    pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir -r requirements.txt
 
 # =============================================================================
 # Production Stage | مرحلة الإنتاج
@@ -106,7 +106,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install dev Python packages
-RUN pip install --no-cache-dir \
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple/  -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir \
     pytest \
     pytest-asyncio \
     pytest-cov \

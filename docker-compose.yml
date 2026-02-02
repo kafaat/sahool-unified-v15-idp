@@ -2031,9 +2031,9 @@ services:
     container_name: sahool-field-chat
     environment:
       - PORT=8099
-      # FIX: Use postgresql+asyncpg scheme for async Python services
-      # Also add sslmode=disable since PgBouncer has TLS disabled in dev
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?ssl=disable
+      # FIX: Use standard postgresql scheme (service doesn't recognize postgresql+asyncpg)
+      # sslmode=disable since PgBouncer has TLS disabled in dev
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
@@ -3421,13 +3421,14 @@ services:
 
   # Knowledge Graph Service - خدمة الرسم البياني المعرفي
   # Agricultural knowledge graph and semantic search
+  # FIX: Changed port from 8165 to 8140 to avoid conflict with hydrology-service
   knowledge-graph:
     build:
       context: .
       dockerfile: apps/services/knowledge-graph/Dockerfile
     container_name: sahool-knowledge-graph
     environment:
-      - PORT=8165
+      - PORT=8140
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
@@ -3437,7 +3438,7 @@ services:
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
     ports:
-      - "8165:8165"
+      - "8140:8140"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3448,7 +3449,7 @@ services:
       qdrant:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8165/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8140/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3561,13 +3562,14 @@ services:
 
   # GlobalGAP Compliance Service - خدمة الامتثال لمعايير GlobalGAP
   # GlobalGAP certification and compliance management
+  # FIX: Changed port from 8120 to 8168 to avoid conflict with field-intelligence
   globalgap-compliance:
     build:
       context: .
       dockerfile: apps/services/globalgap-compliance/Dockerfile
     container_name: sahool-globalgap-compliance
     environment:
-      - PORT=8120
+      - PORT=8168
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
@@ -3577,7 +3579,7 @@ services:
       - AUDIT_SERVICE_URL=http://audit-service:8122
       - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
     ports:
-      - "8120:8120"
+      - "8168:8168"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3590,7 +3592,7 @@ services:
       traceability-service:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8120/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8168/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3

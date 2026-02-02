@@ -53,9 +53,9 @@ services:
   # OPTIMIZED: Enhanced pool settings based on PgBouncer audit (score 7/10 -> 9/10)
   # FIXED: Added custom entrypoint to generate userlist.txt dynamically
   pgbouncer:
-    # Pinned to 1.21.0-p2 for stability
-    # Available tags: 1.21.0-p0/p1/p2, v1.23.1-p3, v1.24.1-p1, v1.25.1-p0, latest
-    image: edoburu/pgbouncer:1.21.0-p2
+    # Upgraded to v1.25.1-p0 (Dec 2025) - latest stable with security fixes
+    # Includes: CVE-2025-12819, CVE-2025-2291 fixes, LDAP support, transaction_timeout
+    image: edoburu/pgbouncer:v1.25.1-p0
     container_name: sahool-pgbouncer
     # Custom entrypoint generates userlist.txt from environment variables
     entrypoint: [ "/entrypoint-custom.sh" ]

@@ -17,6 +17,11 @@ from .models import Task, TaskEvidence, TaskHistory
 logger = logging.getLogger(__name__)
 
 
+def _sanitize_id(value: str) -> str:
+    """Sanitize ID for logging to prevent log injection"""
+    return str(value).replace('\n', '').replace('\r', '')[:100] if value else ""
+
+
 class TaskRepository:
     """
     Repository for Task database operations
@@ -45,11 +50,11 @@ class TaskRepository:
                 performed_by=task.created_by,
             )
 
-            logger.info(f"Created task: {task.task_id}")
+            logger.info("Created task: %s", _sanitize_id(task.task_id))
             return task
         except Exception as e:
             self.db.rollback()
-            logger.error(f"Error creating task: {e}")
+            logger.error("Error creating task: %s", type(e).__name__)
             raise
 
     def get_task_by_id(self, task_id: str, tenant_id: str) -> Task | None:
@@ -165,12 +170,12 @@ class TaskRepository:
                     changes=changes,
                 )
 
-            logger.info(f"Updated task: {task_id} with {len(changes)} changes")
+            logger.info("Updated task: %s with %d changes", _sanitize_id(task_id), len(changes))
             return task
 
         except Exception as e:
             self.db.rollback()
-            logger.error(f"Error updating task {task_id}: {e}")
+            logger.error("Error updating task %s: %s", _sanitize_id(task_id), type(e).__name__)
             raise
 
     def delete_task(self, task_id: str, tenant_id: str) -> bool:
@@ -185,11 +190,11 @@ class TaskRepository:
         try:
             self.db.delete(task)
             self.db.commit()
-            logger.info(f"Deleted task: {task_id}")
+            logger.info("Deleted task: %s", _sanitize_id(task_id))
             return True
         except Exception as e:
             self.db.rollback()
-            logger.error(f"Error deleting task {task_id}: {e}")
+            logger.error("Error deleting task %s: %s", _sanitize_id(task_id), type(e).__name__)
             raise
 
     def start_task(
@@ -225,12 +230,12 @@ class TaskRepository:
                 performed_by=performed_by,
             )
 
-            logger.info(f"Started task: {task_id}")
+            logger.info("Started task: %s", _sanitize_id(task_id))
             return task
 
         except Exception as e:
             self.db.rollback()
-            logger.error(f"Error starting task {task_id}: {e}")
+            logger.error("Error starting task %s: %s", _sanitize_id(task_id), type(e).__name__)
             raise
 
     def complete_task(
@@ -277,12 +282,12 @@ class TaskRepository:
                 notes=notes,
             )
 
-            logger.info(f"Completed task: {task_id}")
+            logger.info("Completed task: %s", _sanitize_id(task_id))
             return task
 
         except Exception as e:
             self.db.rollback()
-            logger.error(f"Error completing task {task_id}: {e}")
+            logger.error("Error completing task %s: %s", _sanitize_id(task_id), type(e).__name__)
             raise
 
     def cancel_task(
@@ -320,12 +325,12 @@ class TaskRepository:
                 notes=reason,
             )
 
-            logger.info(f"Cancelled task: {task_id}")
+            logger.info("Cancelled task: %s", _sanitize_id(task_id))
             return task
 
         except Exception as e:
             self.db.rollback()
-            logger.error(f"Error cancelling task {task_id}: {e}")
+            logger.error("Error cancelling task %s: %s", _sanitize_id(task_id), type(e).__name__)
             raise
 
     def add_evidence(
@@ -347,12 +352,12 @@ class TaskRepository:
             self.db.commit()
             self.db.refresh(evidence)
 
-            logger.info(f"Added evidence: {evidence.evidence_id} to task: {evidence.task_id}")
+            logger.info("Added evidence: %s to task: %s", _sanitize_id(evidence.evidence_id), _sanitize_id(evidence.task_id))
             return evidence
 
         except Exception as e:
             self.db.rollback()
-            logger.error(f"Error adding evidence: {e}")
+            logger.error("Error adding evidence: %s", type(e).__name__)
             raise
 
     def get_task_stats(self, tenant_id: str) -> dict:
@@ -465,7 +470,7 @@ class TaskRepository:
             # Note: Not committing here as this is called within other transactions
 
         except Exception as e:
-            logger.error(f"Error recording history for task {task_id}: {e}")
+            logger.error("Error recording history for task %s: %s", _sanitize_id(task_id), type(e).__name__)
             # Don't raise, just log - history should not block main operations
 
 
@@ -493,11 +498,11 @@ class AsyncTaskRepository:
                 performed_by=task.created_by,
             )
 
-            logger.info(f"Created task: {task.task_id}")
+            logger.info("Created task: %s", _sanitize_id(task.task_id))
             return task
         except Exception as e:
             await self.db.rollback()
-            logger.error(f"Error creating task: {e}")
+            logger.error("Error creating task: %s", type(e).__name__)
             raise
 
     async def get_task_by_id(self, task_id: str, tenant_id: str) -> Task | None:
@@ -538,4 +543,4 @@ class AsyncTaskRepository:
             self.db.add(history)
 
         except Exception as e:
-            logger.error(f"Error recording history for task {task_id}: {e}")
+            logger.error("Error recording history for task %s: %s", _sanitize_id(task_id), type(e).__name__)

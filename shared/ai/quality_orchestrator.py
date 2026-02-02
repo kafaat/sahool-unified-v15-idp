@@ -127,6 +127,7 @@ class QualityIssue:
     suggestion: str | None = None
     auto_fixable: bool = False
     fixed: bool = False
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:

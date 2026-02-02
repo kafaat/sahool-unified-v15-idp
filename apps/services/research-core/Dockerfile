@@ -50,8 +50,8 @@ COPY --from=builder /workspace/research-core/package.json ./
 COPY --from=builder /workspace/research-core/package-lock.json ./
 # Use a retry loop to handle network issues
 RUN for i in 1 2 3 4 5; do \
-    npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && break || \
-    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && break || \
+    npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && break || \
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && break || \
     (echo "Attempt $i failed, retrying in 10 seconds..." && sleep 10); \
     done || (echo "npm install failed after 5 attempts" && exit 1)
 

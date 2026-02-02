@@ -111,7 +111,7 @@ def init_database(create_tables: bool = True) -> None:
         logger.info("Database initialized successfully")
 
     except Exception as e:
-        logger.error(f"Failed to initialize database: {e}", exc_info=True)
+        logger.error("Failed to initialize database: %s", type(e).__name__, exc_info=True)
         raise
 
 
@@ -324,7 +324,7 @@ def seed_demo_data(db: Session) -> None:
 
     except Exception as e:
         db.rollback()
-        logger.error(f"Error seeding demo data: {e}", exc_info=True)
+        logger.error("Error seeding demo data: %s", type(e).__name__, exc_info=True)
         raise
 
 

@@ -56,10 +56,12 @@ class NatsPublisher:
             success = await self._publisher.connect()
             self.connected = success
             if success:
-                logger.info(f"✅ NATS connected: {nats_url}")
+                # Sanitize URL for logging
+                safe_url = str(nats_url).replace('\n', '').replace('\r', '')
+                logger.info("✅ NATS connected: %s", safe_url)
             return success
         except Exception as e:
-            logger.error(f"❌ NATS connection failed: {e}")
+            logger.error("❌ NATS connection failed: %s", type(e).__name__)
             self.connected = False
             return False
 
@@ -71,7 +73,7 @@ class NatsPublisher:
                 self.connected = False
                 logger.info("NATS disconnected")
             except Exception as e:
-                logger.error(f"Error disconnecting from NATS: {e}")
+                logger.error("Error disconnecting from NATS: %s", type(e).__name__)
 
     async def publish_event(
         self,
@@ -118,7 +120,7 @@ class NatsPublisher:
             return success
 
         except Exception as e:
-            logger.error(f"Error publishing event {event_type}: {e}")
+            logger.error("Error publishing event %s: %s", event_type, type(e).__name__)
             return False
 
 

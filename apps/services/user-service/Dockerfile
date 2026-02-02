@@ -48,8 +48,8 @@ RUN apk add --no-cache curl openssl
 # NOTE: Using npm ci for deterministic builds
 COPY --from=builder /workspace/user-service/package.json ./
 COPY --from=builder /workspace/user-service/package-lock.json ./
-RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema (for migrations)
 COPY --from=builder /workspace/user-service/prisma ./prisma/

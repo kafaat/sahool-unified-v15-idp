@@ -34,6 +34,11 @@ export class PrismaService
   }
 
   async onModuleInit() {
+    // Skip database connection in container tests (no DB available)
+    if (process.env.SKIP_DB_INIT === 'true') {
+      this.logger.log("Skipping database connection (SKIP_DB_INIT=true)");
+      return;
+    }
     await this.$connect();
     this.logger.log("User Service Database connected successfully");
   }

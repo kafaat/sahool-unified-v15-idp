@@ -25,6 +25,16 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
+# Configure pip for network resilience with fallback mirrors (before any pip commands)
+RUN mkdir -p /root/.pip && \
+    echo "[global]" > /root/.pip/pip.conf && \
+    echo "timeout = 300" >> /root/.pip/pip.conf && \
+    echo "retries = 10" >> /root/.pip/pip.conf && \
+    echo "trusted-host = pypi.org files.pythonhosted.org mirrors.aliyun.com" >> /root/.pip/pip.conf
+
+# Upgrade pip with fallback to Aliyun mirror
+RUN pip install --no-cache-dir --upgrade pip || \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip
 
 # Install dependencies (using shared requirements)
 COPY apps/services/crop-intelligence-service/requirements.txt .
@@ -35,16 +45,8 @@ COPY apps/services/shared ./shared/
 # Copy source
 COPY apps/services/crop-intelligence-service/src/ ./src/
 
-# Configure pip for network resilience with fallback mirrors
-RUN mkdir -p /root/.pip && \
-    echo "[global]" > /root/.pip/pip.conf && \
-    echo "timeout = 300" >> /root/.pip/pip.conf && \
-    echo "retries = 10" >> /root/.pip/pip.conf && \
-    echo "trusted-host = pypi.org files.pythonhosted.org mirrors.aliyun.com" >> /root/.pip/pip.conf
-
-# Upgrade pip and install dependencies with fallback to Aliyun mirror
-RUN pip install --no-cache-dir --upgrade pip && \
-    (pip install --no-cache-dir -r requirements.txt || \
+# Install dependencies with fallback to Aliyun mirror
+RUN (pip install --no-cache-dir -r requirements.txt || \
      pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt) && \
     chown -R sahool:sahool /app
 

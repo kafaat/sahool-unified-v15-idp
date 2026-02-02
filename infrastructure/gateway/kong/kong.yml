@@ -595,9 +595,10 @@ services:
   # -----------------------------
 
   # Audit Service - Compliance logging
+  # FIX: Corrected port from 8114 to 8122 (matching docker-compose.yml)
   - name: audit-service
     host: audit-service
-    port: 8114
+    port: 8122
     protocol: http
     routes:
       - name: audit-service-route
@@ -650,9 +651,10 @@ services:
         protocols: ["http", "https"]
 
   # GlobalGAP Compliance - Certification tracking
+  # FIX: Corrected port from 8123 to 8168 (matching updated docker-compose.yml)
   - name: globalgap-compliance
     host: globalgap-compliance
-    port: 8123
+    port: 8168
     protocol: http
     routes:
       - name: globalgap-compliance-route
@@ -661,9 +663,10 @@ services:
         protocols: ["http", "https"]
 
   # Logistics Service - Farm logistics
+  # FIX: Corrected port from 8162 to 8167 (matching docker-compose.yml)
   - name: logistics-service
     host: logistics-service
-    port: 8162
+    port: 8167
     protocol: http
     routes:
       - name: logistics-service-route
@@ -671,21 +674,24 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  # USSD Gateway - SMS/USSD for farmers
-  - name: ussd-gateway
-    host: ussd-gateway
-    port: 8163
-    protocol: http
-    routes:
-      - name: ussd-gateway-route
-        paths: ["/api/v1/ussd", "/ussd"]
-        strip_path: true
-        protocols: ["http", "https"]
+  # REMOVED: ussd-gateway - service does not exist in docker-compose.yml
+  # Port 8163 is now exclusively used by copilot-api
+  # If ussd-gateway is needed, add it to docker-compose.yml with a different port (e.g., 8169)
+  # - name: ussd-gateway
+  #   host: ussd-gateway
+  #   port: 8163
+  #   protocol: http
+  #   routes:
+  #     - name: ussd-gateway-route
+  #       paths: ["/api/v1/ussd", "/ussd"]
+  #       strip_path: true
+  #       protocols: ["http", "https"]
 
   # Agent Registry - AI agent management
+  # FIX: Corrected port from 8185 to 8160 (matching docker-compose.yml)
   - name: agent-registry
     host: agent-registry
-    port: 8185
+    port: 8160
     protocol: http
     routes:
       - name: agent-registry-route
@@ -694,9 +700,10 @@ services:
         protocols: ["http", "https"]
 
   # AI Agents Core - Agent infrastructure
+  # FIX: Corrected port from 8122 to 8161 (matching docker-compose.yml)
   - name: ai-agents-core
     host: ai-agents-core
-    port: 8122
+    port: 8161
     protocol: http
     routes:
       - name: ai-agents-core-route
@@ -705,6 +712,7 @@ services:
         protocols: ["http", "https"]
 
   # Knowledge Graph - Agricultural knowledge
+  # Port 8140 matches updated docker-compose.yml (was 8165, now 8140)
   - name: knowledge-graph
     host: knowledge-graph
     port: 8140
@@ -799,9 +807,10 @@ services:
 
   # Code Fix Agent - AI-powered code diagnostics and fixing
   # وكيل إصلاح الكود - تشخيص وإصلاح الكود بالذكاء الاصطناعي
+  # FIX: Corrected port from 8161 to 8162 (matching docker-compose.yml)
   - name: code-fix-agent
     host: code-fix-agent
-    port: 8161
+    port: 8162
     protocol: http
     connect_timeout: 30000
     write_timeout: 120000
@@ -821,9 +830,10 @@ services:
 
   # Copilot API - AI copilot for agricultural advisory
   # واجهة برمجة المساعد الذكي - مساعد الذكاء الاصطناعي للاستشارات الزراعية
+  # FIX: Corrected port from 8210 to 8163 (matching docker-compose.yml)
   - name: copilot-api
     host: copilot-api
-    port: 8210
+    port: 8163
     protocol: http
     connect_timeout: 30000
     write_timeout: 120000
@@ -843,9 +853,10 @@ services:
 
   # LLM Orchestrator Service - AI model orchestration
   # خدمة تنسيق نماذج الذكاء الاصطناعي
+  # FIX: Corrected port from 8220 to 8164 (matching docker-compose.yml)
   - name: llm-orchestrator-service
     host: llm-orchestrator-service
-    port: 8220
+    port: 8164
     protocol: http
     connect_timeout: 30000
     write_timeout: 180000
@@ -910,9 +921,10 @@ services:
 
   # Supply Chain Service - Agricultural supply chain management
   # خدمة سلسلة التوريد - إدارة سلسلة التوريد الزراعية
+  # FIX: Corrected port from 8230 to 8166 (matching docker-compose.yml)
   - name: supply-chain-service
     host: supply-chain-service
-    port: 8230
+    port: 8166
     protocol: http
     routes:
       - name: supply-chain-route
@@ -929,9 +941,10 @@ services:
 
   # Traceability Service - Product traceability and tracking
   # خدمة التتبع - تتبع المنتجات والتعقب
+  # FIX: Corrected port from 8156 to 8123 (matching docker-compose.yml)
   - name: traceability-service
     host: traceability-service
-    port: 8156
+    port: 8123
     protocol: http
     routes:
       - name: traceability-route
@@ -983,6 +996,33 @@ services:
           hour: 2000
           policy: local
           fault_tolerant: true
+
+  # Ground Vision Service - Tower-based agricultural monitoring
+  # خدمة الرؤية الأرضية - المراقبة الزراعية من الأبراج
+  # Added: 2026-02-02 (was missing from Kong configuration)
+  - name: ground-vision-service
+    host: ground-vision-service
+    port: 8182
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: ground-vision-route
+        paths: ["/api/v1/ground-vision", "/ground-vision"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 50
+          size_unit: megabytes
 
   # -----------------------------
   # Platform endpoints
@@ -1363,5 +1403,5 @@ services:
 # - fertilizer-advisor → use advisory-service
 #
 # Last updated: 2026-02-02
-# Total services configured: 76 (added 9 new services: code-fix-agent, copilot-api, llm-orchestrator-service, pest-detection-service, soil-analysis-service, supply-chain-service, traceability-service, cooperative-service, drone-service)
+# Total services configured: 77 (added 10 new services: code-fix-agent, copilot-api, llm-orchestrator-service, pest-detection-service, soil-analysis-service, supply-chain-service, traceability-service, cooperative-service, drone-service, ground-vision-service)
 # ------------------------------------------------------------------------------

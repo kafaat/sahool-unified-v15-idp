@@ -84,9 +84,9 @@ android {
 
         release {
             // Enable code shrinking and minification for smaller APKs
-            // Set to true once ProGuard rules are properly configured
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // ProGuard rules configured in proguard-rules.pro (2026-02-02)
+            isMinifyEnabled = true
+            isShrinkResources = true
 
             // Use release signing config if key.properties exists, otherwise use debug
             signingConfig = if (keystorePropertiesFile.exists()) {

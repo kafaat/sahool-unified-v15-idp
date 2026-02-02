@@ -13,7 +13,9 @@ dependencies:
     sdk: flutter
 
   # Sensors for gyroscope/accelerometer
-  sensors_plus: ^4.0.2
+  # Updated from ^4.0.2 to ^7.0.0 for compatibility with sahool_field_app
+  # Breaking changes: SensorEvent renamed to specific event types (AccelerometerEvent, etc.)
+  sensors_plus: ^7.0.0
 
   # State management
   flutter_riverpod: ^2.6.1
@@ -36,7 +38,9 @@ dependencies:
   vibration: ^1.8.4
 
   # Voice recognition
-  speech_to_text: ^6.5.1
+  # Updated from ^6.5.1 to ^7.0.0 for compatibility with sahool_field_app
+  # Breaking changes: listen() returns Future<void> instead of bool, updated callback signatures
+  speech_to_text: ^7.0.0
 
   # AR Kit (for future)
   # arkit_plugin: ^1.0.7

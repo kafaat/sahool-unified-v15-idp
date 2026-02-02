@@ -21,9 +21,12 @@ def upgrade() -> None:
     """
     Rename 'id' column to 'equipment_id' in equipment table.
     Also update the type from UUID to String(50) to match the model.
+
+    FIX: Drop and recreate foreign key constraints to allow type change.
     """
-    # Check if the 'id' column exists (to make migration idempotent)
     conn = op.get_bind()
+
+    # Check if the 'id' column exists (to make migration idempotent)
     result = conn.execute(
         sa.text(
             """
@@ -36,7 +39,18 @@ def upgrade() -> None:
     has_id_column = result.fetchone() is not None
 
     if has_id_column:
-        # Rename the column from 'id' to 'equipment_id'
+        # Step 1: Drop foreign key constraints that reference equipment.id
+        try:
+            op.drop_constraint(
+                "equipment_maintenance_equipment_id_fkey",
+                "equipment_maintenance",
+                type_="foreignkey"
+            )
+            print("✅ Dropped foreign key constraint equipment_maintenance_equipment_id_fkey")
+        except Exception as e:
+            print(f"ℹ️  Foreign key constraint may not exist: {e}")
+
+        # Step 2: Rename and change type of equipment.id
         op.alter_column(
             "equipment",
             "id",
@@ -44,8 +58,37 @@ def upgrade() -> None:
             existing_type=sa.dialects.postgresql.UUID(),
             type_=sa.String(length=50),
             existing_nullable=False,
+            postgresql_using="id::text"  # Cast UUID to text during conversion
         )
         print("✅ Renamed equipment.id to equipment.equipment_id")
+
+        # Step 3: Also change equipment_maintenance.equipment_id type if it exists
+        try:
+            op.alter_column(
+                "equipment_maintenance",
+                "equipment_id",
+                existing_type=sa.dialects.postgresql.UUID(),
+                type_=sa.String(length=50),
+                existing_nullable=False,
+                postgresql_using="equipment_id::text"
+            )
+            print("✅ Changed equipment_maintenance.equipment_id type to String(50)")
+        except Exception as e:
+            print(f"ℹ️  equipment_maintenance.equipment_id may already be correct type: {e}")
+
+        # Step 4: Recreate foreign key constraint
+        try:
+            op.create_foreign_key(
+                "equipment_maintenance_equipment_id_fkey",
+                "equipment_maintenance",
+                "equipment",
+                ["equipment_id"],
+                ["equipment_id"],
+                ondelete="CASCADE"
+            )
+            print("✅ Recreated foreign key constraint")
+        except Exception as e:
+            print(f"ℹ️  Could not recreate foreign key: {e}")
     else:
         print("ℹ️  Column 'id' not found, assuming migration already applied")
 

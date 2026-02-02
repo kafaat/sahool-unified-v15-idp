@@ -147,7 +147,10 @@ async def get_best_days_for_activity(
     - غرس (transplanting)
     """
     logger.info(
-        f"Fetching best days for activity: {activity}, days: {days}, min_score: {min_score}"
+        "Fetching best days for activity: %s, days: %s, min_score: %s",
+        sanitize_for_log(activity),
+        sanitize_for_log(days),
+        sanitize_for_log(min_score),
     )
 
     try:
@@ -222,7 +225,9 @@ async def create_task_with_astronomical_recommendation(
     إذا كان use_best_date صحيحاً، سيتم جدولة المهمة في أفضل تاريخ فلكي.
     """
     logger.info(
-        f"Creating astronomical task for activity: {data.activity}, field: {data.field_id}"
+        "Creating astronomical task for activity: %s, field: %s",
+        sanitize_for_log(data.activity),
+        sanitize_for_log(data.field_id),
     )
 
     now = datetime.now(timezone.utc)

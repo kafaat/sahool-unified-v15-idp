@@ -997,6 +997,33 @@ services:
           policy: local
           fault_tolerant: true
 
+  # Ground Vision Service - Tower-based agricultural monitoring
+  # خدمة الرؤية الأرضية - المراقبة الزراعية من الأبراج
+  # Added: 2026-02-02 (was missing from Kong configuration)
+  - name: ground-vision-service
+    host: ground-vision-service
+    port: 8182
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: ground-vision-route
+        paths: ["/api/v1/ground-vision", "/ground-vision"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 50
+          size_unit: megabytes
+
   # -----------------------------
   # Platform endpoints
   # -----------------------------
@@ -1376,5 +1403,5 @@ services:
 # - fertilizer-advisor → use advisory-service
 #
 # Last updated: 2026-02-02
-# Total services configured: 76 (added 9 new services: code-fix-agent, copilot-api, llm-orchestrator-service, pest-detection-service, soil-analysis-service, supply-chain-service, traceability-service, cooperative-service, drone-service)
+# Total services configured: 77 (added 10 new services: code-fix-agent, copilot-api, llm-orchestrator-service, pest-detection-service, soil-analysis-service, supply-chain-service, traceability-service, cooperative-service, drone-service, ground-vision-service)
 # ------------------------------------------------------------------------------

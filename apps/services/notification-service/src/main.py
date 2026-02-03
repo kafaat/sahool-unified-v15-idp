@@ -891,7 +891,7 @@ def create_notification_from_nats(notification_data: dict[str, Any]):
             for ch in notification_data.get("channels", ["in_app"])
         ]
 
-        create_notification(
+        await create_notification(
             type=ntype,
             priority=priority,
             title=notification_data.get("title", "Notification"),

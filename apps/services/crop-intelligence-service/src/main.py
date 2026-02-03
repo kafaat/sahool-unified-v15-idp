@@ -2066,7 +2066,7 @@ async def comprehensive_analysis(
 
         all_issues = []
         all_issues.extend([d.disease_type.value for d in diseases])
-        all_issues.extend([d.nutrient_type.value for d in deficiencies])
+        all_issues.extend([d.nutrient.value for d in deficiencies])
         all_issues.extend([r.pest_type for r in pest_risks if r.risk_level.value in ["high", "critical"]])
 
         await publish_health_assessed(

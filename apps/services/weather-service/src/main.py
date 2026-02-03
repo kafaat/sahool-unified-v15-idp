@@ -575,9 +575,9 @@ async def get_agricultural_report(req: LocationRequest):
     """
     # Get current weather
     if app.state.multi_provider:
-        weather_data = await app.state.multi_provider.get_current_weather(lat=req.lat, lon=req.lon)
+        weather_data = await app.state.multi_provider.get_current(lat=req.lat, lon=req.lon)
     else:
-        weather_data = await app.state.weather_provider.get_current_weather(
+        weather_data = await app.state.weather_provider.get_current(
             lat=req.lat, lon=req.lon
         )
 
@@ -790,9 +790,9 @@ async def get_stress_report(req: LocationRequest):
     """
     # Get current weather
     if app.state.multi_provider:
-        weather_data = await app.state.multi_provider.get_current_weather(lat=req.lat, lon=req.lon)
+        weather_data = await app.state.multi_provider.get_current(lat=req.lat, lon=req.lon)
     else:
-        weather_data = await app.state.weather_provider.get_current_weather(
+        weather_data = await app.state.weather_provider.get_current(
             lat=req.lat, lon=req.lon
         )
 

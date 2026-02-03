@@ -12,6 +12,7 @@ import {
   TransactionHistory,
   TransferForm,
 } from "@/features/wallet";
+import { useToast } from "@/components/ui/toast";
 
 type ViewMode = "dashboard" | "transfer" | "deposit" | "withdraw";
 
@@ -20,6 +21,7 @@ export default function WalletClient() {
   const [showComingSoon, setShowComingSoon] = useState<{
     type: "deposit" | "withdraw" | null;
   }>({ type: null });
+  const { showToast } = useToast();
 
   // Feature flags - set to true when features are implemented
   const isDepositEnabled = false;
@@ -28,7 +30,11 @@ export default function WalletClient() {
   const handleTransferSuccess = () => {
     setViewMode("dashboard");
     // Show success notification
-    alert("تم التحويل بنجاح | Transfer successful");
+    showToast({
+      type: "success",
+      message: "Transfer successful",
+      messageAr: "تم التحويل بنجاح",
+    });
   };
 
   const handleDepositClick = () => {

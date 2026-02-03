@@ -23,6 +23,7 @@ import {
 } from "../hooks/useCropHealth";
 import type { DiagnosedDisease, Treatment } from "../types";
 import { logger } from "@/lib/logger";
+import { useToast } from "@/components/ui/toast";
 
 interface DiagnosisResultProps {
   requestId: string;
@@ -36,6 +37,7 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
     null,
   );
   const requestConsultation = useRequestConsultation();
+  const { showToast } = useToast();
 
   if (isLoading || !result) {
     return (
@@ -86,9 +88,17 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
       await requestConsultation.mutateAsync({
         diagnosisId: requestId,
       });
-      alert("تم إرسال طلب الاستشارة بنجاح");
+      showToast({
+        type: "success",
+        message: "Consultation request sent successfully",
+        messageAr: "تم إرسال طلب الاستشارة بنجاح",
+      });
     } catch (err) {
-      alert("حدث خطأ أثناء إرسال طلب الاستشارة");
+      showToast({
+        type: "error",
+        message: "Error sending consultation request",
+        messageAr: "حدث خطأ أثناء إرسال طلب الاستشارة",
+      });
       logger.error(err);
     }
   };

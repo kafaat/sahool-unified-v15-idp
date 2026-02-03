@@ -15,11 +15,13 @@ import { Modal } from "@/components/ui/modal";
 import { Plus } from "lucide-react";
 import { ErrorTracking } from "@/lib/monitoring/error-tracking";
 import { logger } from "@/lib/logger";
+import { useToast } from "@/components/ui/toast";
 
 export default function FieldsClient() {
   const router = useRouter();
   const t = useTranslations("fields");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const { showToast } = useToast();
 
   const handleFieldClick = (fieldId: string) => {
     ErrorTracking.addBreadcrumb({
@@ -61,7 +63,10 @@ export default function FieldsClient() {
 
       // For now, simulate successful creation
       logger.log("Field creation data:", data);
-      alert(t("createSuccess"));
+      showToast({
+        type: "success",
+        message: t("createSuccess"),
+      });
       setShowCreateModal(false);
     } catch (error) {
       ErrorTracking.captureError(
@@ -69,7 +74,10 @@ export default function FieldsClient() {
         undefined,
         { data },
       );
-      alert(t("createFailed"));
+      showToast({
+        type: "error",
+        message: t("createFailed"),
+      });
     }
   };
 

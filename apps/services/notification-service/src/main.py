@@ -854,7 +854,7 @@ except ImportError:
     logger.info("NATS subscriber not available - running in REST-only mode")
 
 
-def create_notification_from_nats(notification_data: dict[str, Any]):
+async def create_notification_from_nats(notification_data: dict[str, Any]):
     """Callback for NATS subscriber to create notifications"""
     try:
         # Map notification type string to enum

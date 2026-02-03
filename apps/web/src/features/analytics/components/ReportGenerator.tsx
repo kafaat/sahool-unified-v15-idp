@@ -20,7 +20,7 @@ interface ReportGeneratorProps {
   filters?: AnalyticsFilters;
 }
 
-export const ReportGenerator: React.FC<ReportGeneratorProps> = ({}) => {
+export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
   const t = useTranslations("analytics");
   const tSections = useTranslations("reportSections");
 

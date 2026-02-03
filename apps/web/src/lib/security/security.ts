@@ -142,7 +142,8 @@ export function sanitizeInput(input: string): string {
   // Remove null bytes
   let sanitized = input.replace(/\0/g, "");
 
-  // Remove control characters
+  // Remove control characters (eslint rule disabled as this is intentional security sanitization)
+  // eslint-disable-next-line no-control-regex
   sanitized = sanitized.replace(/[\x00-\x1F\x7F]/g, "");
 
   // Escape HTML

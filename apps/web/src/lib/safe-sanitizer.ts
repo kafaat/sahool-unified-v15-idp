@@ -119,7 +119,8 @@ function removeDangerousPatterns(input: string): string {
       result = result.replace(freshPattern, "");
     }
 
-    // Remove null bytes and other control characters
+    // Remove null bytes and other control characters (intentional security sanitization)
+    // eslint-disable-next-line no-control-regex
     result = result.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
 
     iterations++;

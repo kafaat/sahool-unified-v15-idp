@@ -54,7 +54,7 @@ export default function VRAPage() {
 
   useEffect(() => {
     loadPrescriptions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [selectedStatus, selectedType, selectedFarm]);
 
   async function loadPrescriptions() {

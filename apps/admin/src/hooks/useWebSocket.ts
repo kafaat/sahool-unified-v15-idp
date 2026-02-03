@@ -216,7 +216,7 @@ export function useWebSocketEvent<T = unknown>(
   useEffect(() => {
     const unsubscribe = subscribe<T>(event, handler);
     return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [event, subscribe, ...deps]);
 }
 

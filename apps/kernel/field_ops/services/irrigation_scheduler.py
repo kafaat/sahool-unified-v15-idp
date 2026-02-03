@@ -589,6 +589,7 @@ class IrrigationScheduler:
             etc=etc,
             soil_water_content=new_content,
             water_deficit=deficit,
+            drainage=drainage,
         )
 
     # ============== جدولة الري - Irrigation Scheduling ==============

@@ -260,6 +260,7 @@ class WaterBalance(BaseModel):
         ..., ge=0, description="محتوى المياه - Soil water content (mm)"
     )
     water_deficit: float = Field(0.0, description="عجز المياه - Water deficit (mm)")
+    drainage: float = Field(0.0, ge=0, description="التصريف - Drainage (mm)")
 
     # كفاءة الري - Irrigation efficiency
     irrigation_efficiency: float = Field(

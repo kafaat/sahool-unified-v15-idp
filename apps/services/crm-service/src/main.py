@@ -26,7 +26,8 @@ from uuid import uuid4
 import redis.asyncio as redis_client
 import structlog
 
-from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
+from starlette import status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, EmailStr
 from slowapi import Limiter, _rate_limit_exceeded_handler

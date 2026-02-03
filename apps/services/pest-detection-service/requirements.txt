@@ -1,4 +1,29 @@
-fastapi==0.128.0
-uvicorn[standard]==0.40.0
-pydantic>=2.10.0
-python-dotenv==1.2.1
+# SAHOOL Pest Detection Service Dependencies
+# Updated: February 2026
+# Version: 16.0.0
+
+# Base requirements
+fastapi>=0.115.0,<1.0.0
+uvicorn[standard]>=0.30.0,<1.0.0
+pydantic>=2.10.0,<3.0.0
+python-dotenv>=1.0.0,<2.0.0
+
+# HTTP client for vision service
+httpx>=0.27.0,<1.0.0
+
+# Database
+asyncpg>=0.30.0,<1.0.0
+
+# Message queue
+nats-py>=2.9.0,<3.0.0
+
+# Caching
+redis[hiredis]>=5.0.0,<8.0.0
+
+# Logging
+structlog>=24.1.0,<25.0.0
+
+# Testing
+pytest>=8.0.0,<9.0.0
+pytest-asyncio>=0.24.0,<1.0.0
+pytest-cov>=4.1.0,<5.0.0

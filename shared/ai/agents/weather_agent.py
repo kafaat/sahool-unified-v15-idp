@@ -21,7 +21,7 @@ Created: January 2026
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC, timezone
+from datetime import datetime, UTC
 from typing import Any
 
 import structlog
@@ -117,7 +117,6 @@ class ClimateRiskAssessment:
     overall_risk: str  # low, medium, high
     overall_risk_ar: str
     recommendations: list[dict[str, str]]
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 

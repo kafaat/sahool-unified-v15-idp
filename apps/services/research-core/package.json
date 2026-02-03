@@ -48,7 +48,7 @@
     "@nestjs/testing": "^10.4.15",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.10.2",
+    "@types/node": "^20.19.31",
     "@types/passport-jwt": "^3.0.13",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
@@ -64,7 +64,7 @@
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.9.3"
   },
   "jest": {
     "moduleFileExtensions": [

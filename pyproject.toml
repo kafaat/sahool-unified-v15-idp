@@ -84,9 +84,11 @@ ignore = [
     "E721",  # Type comparison using == - sometimes intentional
     "B018",  # Useless expression - sometimes intentional for documentation
     "B026",  # Star-arg unpacking - valid pattern in some cases
+    "B027",  # Empty method in ABC without @abstractmethod - optional hooks pattern
     # Non-essential style rules - relaxed for productivity
     "SIM102", # Nested if statements - style preference
     "SIM103", # Return condition directly - sometimes less clear
+    "SIM116", # Dictionary instead of if statements - style preference
     "SIM105", # Use contextlib.suppress - explicit try-except often clearer
     "SIM108", # Ternary operator - readability preference
     "SIM115", # Context manager for files - not always needed
@@ -119,11 +121,21 @@ fixable = ["ALL"]
 "shared/libs/*" = ["F401"]  # Shared libs
 "shared/observability/*" = ["F401"]  # Observability optional deps
 "shared/events/*" = ["SIM103"]  # Event handlers style
+"shared/contracts/__init__.py" = ["F403", "F405"]  # Star imports needed for re-exports
+"shared/contracts/events/*" = ["E402"]  # Module imports after docstring
+"shared/lowcode/*" = ["F402"]  # Loop variable shadowing is intentional
+"shared/mcp/*" = ["F401"]  # Optional conditional imports
+"shared/ai/__init__.py" = ["E402", "F401"]  # Complex module with conditional imports
+"shared/ai/grpo_trainer.py" = ["F401"]  # Conditional torch import
+"shared/ai/observability.py" = ["F401", "F811"]  # Re-exports and conditional pytest
 "**/verify*.py" = ["F401", "F821"]  # Verification scripts
-"**/test_*.py" = ["F401", "F821"]  # Test files outside tests folder
+"**/test_*.py" = ["F401", "F821", "E402"]  # Test files outside tests folder
+"apps/services/vegetation-analysis-service/test_*.py" = ["E402"]  # Tests with path manipulation
+"apps/services/edge-orchestrator-service/**" = ["SIM102"]  # Nested if for clarity
 "apps/mobile/**/scripts/*" = ["F401"]  # Mobile scripts
 "apps/mobile/**/test/*" = ["F401", "F402"]  # Mobile test simulations
 "apps/services/shared/**" = ["F401"]  # Services shared code
+"packages/sahool-eo/**" = ["N999", "N803"]  # Package naming and scientific notation vars
 
 [tool.ruff.format]
 quote-style = "double"

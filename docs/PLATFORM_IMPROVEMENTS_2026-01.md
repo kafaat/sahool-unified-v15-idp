@@ -84,7 +84,7 @@ Pinned PgBouncer image to specific version to avoid security issues with `latest
 image: edoburu/pgbouncer:latest
 
 # After
-image: edoburu/pgbouncer:1.23.1
+image: edoburu/pgbouncer:v1.23.1-p3
 ```
 
 ---

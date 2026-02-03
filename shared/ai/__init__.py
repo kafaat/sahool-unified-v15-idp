@@ -663,9 +663,7 @@ try:
         # Collective Memory
         CollectiveMemory,
         LRUCache,
-        cosine_similarity,
         jaccard_similarity,
-        text_similarity,
         get_collective_memory,
         reset_collective_memory,
     )

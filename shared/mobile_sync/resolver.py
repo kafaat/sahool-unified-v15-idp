@@ -750,7 +750,7 @@ class ConflictResolutionManager:
 
             return resolved_conflict, True
 
-        except ValueError as e:
+        except ValueError:
             # Manual merge incomplete
             self._pending_conflicts[conflict.id] = conflict
             return conflict, False

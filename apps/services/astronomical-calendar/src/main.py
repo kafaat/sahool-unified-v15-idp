@@ -3839,7 +3839,7 @@ async def get_integrated_data(
         weather_data = {"error": "timeout", "note": "انتهت مهلة الاتصال بخدمة الطقس"}
     except httpx.ConnectError:
         weather_data = {"error": "connection_error", "note": "لا يمكن الاتصال بخدمة الطقس"}
-    except Exception as e:
+    except Exception:
         weather_data = {"error": "unknown", "note": "خدمة الطقس غير متاحة حالياً"}
 
     # دمج التوصيات

@@ -1303,7 +1303,7 @@ class SAHOOLTools:
                         "model_used": data.get("model_used"),
                     },
                 )
-            except httpx.HTTPError as e:
+            except httpx.HTTPError:
                 # Return simulated response if API not available
                 return ToolResult(
                     success=True,

@@ -625,7 +625,7 @@ async def init_invoice_sequence() -> None:
             await db.commit()
             _invoice_sequence_initialized = True
             logger.info("Invoice sequence 'invoice_number_seq' initialized successfully")
-    except Exception as e:
+    except Exception:
         logger.error("Failed to initialize invoice sequence", exc_info=True)
         # Don't raise - allow service to start with fallback
 
@@ -657,7 +657,7 @@ async def get_next_invoice_number() -> str:
             await db.commit()
 
             return f"SAH-{year}-{sequence_value:04d}"
-    except Exception as e:
+    except Exception:
         # Fallback: Generate unique number using UUID suffix
         # This ensures uniqueness even if sequence fails
         logger.warning("Invoice sequence failed, using fallback", exc_info=True)

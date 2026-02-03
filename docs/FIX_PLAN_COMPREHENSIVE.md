@@ -2,8 +2,9 @@
 # خطة الإصلاح الشاملة لمنصة سهول
 
 **Generated**: 2026-02-03
+**Updated**: 2026-02-03 (Added items from AUDIT_SUMMARY.md)
 **Review Agents**: 22 parallel agents
-**Total Issues Found**: 500+
+**Total Issues Found**: 685+ (680 original + 5 from AUDIT_SUMMARY)
 **Branch**: `claude/debug-project-errors-riwCb`
 
 ---
@@ -51,19 +52,51 @@
 - **Fix**: Align cookie expiration with JWT expiry
 - **Impact**: All admin users affected
 
-#### 1.1.2 Base64 Temp Token (HIGH RISK)
+#### 1.1.2 Rate Limiting on Auth Endpoints (NEW)
+- **Files**: `/apps/admin/src/app/api/auth/*`, `/apps/web/src/app/api/auth/*`
+- **Issue**: No rate limiting on authentication endpoints - vulnerable to brute force
+- **Fix**: Add rate limiting middleware (e.g., `express-rate-limit` or Next.js middleware)
+- **Implementation**:
+  ```typescript
+  // middleware.ts
+  const rateLimiter = {
+    login: { windowMs: 15 * 60 * 1000, max: 5 },  // 5 attempts per 15 min
+    register: { windowMs: 60 * 60 * 1000, max: 3 }, // 3 per hour
+    passwordReset: { windowMs: 60 * 60 * 1000, max: 3 }
+  };
+  ```
+- **Impact**: All authentication flows affected - CRITICAL for security
+
+#### 1.1.3 CORS on CSP Report Endpoint (NEW)
+- **File**: `/apps/admin/src/app/api/csp-report/route.ts`
+- **Issue**: Missing or misconfigured CORS headers on CSP violation report endpoint
+- **Fix**: Add proper CORS configuration to accept reports from allowed origins
+- **Implementation**:
+  ```typescript
+  export async function POST(request: Request) {
+    const allowedOrigins = [process.env.NEXT_PUBLIC_APP_URL];
+    const origin = request.headers.get('origin');
+    if (!allowedOrigins.includes(origin)) {
+      return new Response('Forbidden', { status: 403 });
+    }
+    // Process CSP report...
+  }
+  ```
+- **Impact**: CSP violation reports may be blocked or exploited
+
+#### 1.1.4 Base64 Temp Token (HIGH RISK)
 - **File**: `/shared/auth/auth_api.py` (lines 127-139)
 - **Issue**: Using Base64 encoding instead of proper JWT signing for temp tokens
 - **Fix**: Replace with proper JWT or cryptographic signing
 - **Impact**: Security vulnerability - tokens can be decoded by anyone
 
-#### 1.1.3 Flutter Certificate Pinning Placeholders
+#### 1.1.5 Flutter Certificate Pinning Placeholders
 - **File**: `/apps/mobile/lib/core/security/certificate_config.dart`
 - **Issue**: Placeholder SHA256 fingerprints in production code
 - **Fix**: Replace with actual production certificate fingerprints
 - **Impact**: BLOCKING for production deployment
 
-#### 1.1.4 iOS Certificate Pinning Placeholders
+#### 1.1.6 iOS Certificate Pinning Placeholders
 - **File**: `/apps/mobile/ios/Runner/Info.plist` (lines 66-166)
 - **Issue**: Placeholder SPKI hashes (AAAA..., BBBB...)
 - **Fix**: Replace with actual iOS certificate pins
@@ -231,13 +264,81 @@ demo-data              (Low: Data generation)
 | Incomplete interceptors | Medium |
 | Hard-coded timeout | Medium |
 
-### 3.5 Error Handling Improvements
+### 3.5 Loading States for Pages (NEW)
+- **Files**: Multiple pages in `/apps/admin/src/app/` and `/apps/web/src/app/`
+- **Issue**: Pages load without visual feedback, poor UX
+- **Fix**: Add Suspense boundaries and loading.tsx files
+- **Implementation**:
+  ```typescript
+  // app/dashboard/loading.tsx
+  export default function Loading() {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spinner size="lg" />
+        <span className="sr-only">جاري التحميل...</span>
+      </div>
+    );
+  }
+  ```
+- **Pages needing loading states**:
+  - `/dashboard` - Main dashboard
+  - `/fields` - Fields list
+  - `/analytics` - Analytics charts
+  - `/reports` - Report generation
+- **Impact**: User experience improvement
+
+### 3.6 Enable exhaustive-deps ESLint Rule (NEW)
+- **Files**: `/apps/admin/.eslintrc.js`, `/apps/web/.eslintrc.js`, `/packages/*/.eslintrc.js`
+- **Issue**: React hooks dependencies not properly tracked, causing stale closures
+- **Fix**: Enable `react-hooks/exhaustive-deps` rule
+- **Implementation**:
+  ```javascript
+  // .eslintrc.js
+  rules: {
+    'react-hooks/exhaustive-deps': 'warn', // Start with warn, then upgrade to error
+  }
+  ```
+- **Expected warnings**: ~50+ hooks need dependency fixes
+- **Impact**: Prevents subtle bugs from stale closures in useEffect/useCallback/useMemo
+
+### 3.7 Zod Schema Validation (NEW)
+- **Files**: `/apps/admin/src/lib/`, `/apps/web/src/lib/`, `/packages/api-client/`
+- **Issue**: No runtime validation of API responses and form inputs
+- **Fix**: Add Zod schemas for all API contracts and form validation
+- **Implementation**:
+  ```typescript
+  // schemas/field.ts
+  import { z } from 'zod';
+
+  export const FieldSchema = z.object({
+    id: z.string().uuid(),
+    name: z.string().min(1).max(100),
+    area: z.number().positive(),
+    coordinates: z.array(z.tuple([z.number(), z.number()])),
+    cropType: z.enum(['wheat', 'barley', 'date_palm', 'tomato']),
+    createdAt: z.string().datetime(),
+  });
+
+  export type Field = z.infer<typeof FieldSchema>;
+
+  // Usage in API client
+  const response = await fetch('/api/fields');
+  const data = FieldSchema.array().parse(await response.json());
+  ```
+- **Priority schemas**:
+  - User/Auth schemas
+  - Field schemas
+  - Advisory schemas
+  - API response wrappers
+- **Impact**: Runtime type safety, better error messages, API contract enforcement
+
+### 3.8 Error Handling Improvements
 
 - **Broad exception handlers**: 50+ instances of `except Exception:`
 - **Silent pass/continue**: 25+ catch blocks
 - **Missing error logging**: 20+ catch blocks without logging
 
-### 3.6 Monitoring Gaps
+### 3.9 Monitoring Gaps
 
 - Missing `/api/analytics/performance` endpoint
 - No database connection pool metrics
@@ -492,7 +593,25 @@ After fixes are applied, monitor these metrics:
 
 ---
 
-**Document Version**: 1.0
+**Document Version**: 1.1
 **Last Updated**: 2026-02-03
 **Author**: Claude Code (Automated Analysis)
 **Session**: https://claude.ai/code/session_01SmKAUuk4QfnaXpxHShUacu
+
+---
+
+## Changelog
+
+### v1.1 (2026-02-03)
+- Added 5 items from `apps/admin/AUDIT_SUMMARY.md` (commit d7427451):
+  - 1.1.2 Rate Limiting on Auth Endpoints (CRITICAL)
+  - 1.1.3 CORS on CSP Report Endpoint (CRITICAL)
+  - 3.5 Loading States for Pages (MEDIUM)
+  - 3.6 Enable exhaustive-deps ESLint Rule (MEDIUM)
+  - 3.7 Zod Schema Validation (MEDIUM)
+- Updated section numbering
+- Total issues: 680 → 685+
+
+### v1.0 (2026-02-03)
+- Initial comprehensive fix plan from 22-agent deep review
+- 680 issues identified across all categories

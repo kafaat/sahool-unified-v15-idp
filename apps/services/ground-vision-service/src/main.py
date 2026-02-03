@@ -15,6 +15,15 @@ from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+# Import unified error handling
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+    HAS_ERROR_HANDLERS = True
+except ImportError:
+    HAS_ERROR_HANDLERS = False
+    logger = logging.getLogger(__name__)
+    logger.warning("shared.errors_py not available, using basic error handling")
+
 # Configure logging
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO"),
@@ -190,6 +199,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Setup unified exception handling
+if HAS_ERROR_HANDLERS:
+    setup_exception_handlers(app)
+    add_request_id_middleware(app)
+    logger.info("Unified error handling configured")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

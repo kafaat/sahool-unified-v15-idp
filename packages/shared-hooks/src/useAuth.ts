@@ -150,6 +150,10 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
           const errorData = await response
             .json()
             .catch(() => ({ message: "فشل تسجيل الدخول" }));
+          // Handle 401 Unauthorized
+          if (response.status === 401) {
+            onUnauthorized?.();
+          }
           throw new Error(
             errorData.message || errorData.detail || "فشل تسجيل الدخول",
           );

@@ -9,6 +9,7 @@ export interface User {
   name: string;
   name_ar?: string;
   role: string;
+  /** @deprecated Use tenantId instead */
   tenant_id?: string;
   tenantId?: string;
   permissions?: string[];
@@ -30,6 +31,7 @@ export interface JWTPayload {
   email?: string;
   role?: string;
   tenantId?: string;
+  /** @deprecated Use tenantId instead */
   tenant_id?: string;
   permissions?: string[];
   iat?: number;

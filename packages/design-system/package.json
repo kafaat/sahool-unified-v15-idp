@@ -12,31 +12,35 @@
       "require": "./dist/index.js"
     },
     "./themes": {
-      "types": "./src/themes/index.ts",
-      "import": "./src/themes/index.ts",
-      "require": "./src/themes/index.ts"
+      "types": "./dist/themes/index.d.ts",
+      "import": "./dist/themes/index.mjs",
+      "require": "./dist/themes/index.js",
+      "default": "./src/themes/index.ts"
     },
     "./themes/dark": {
-      "types": "./src/themes/dark.ts",
-      "import": "./src/themes/dark.ts",
-      "require": "./src/themes/dark.ts"
+      "types": "./dist/themes/dark.d.ts",
+      "import": "./dist/themes/dark.mjs",
+      "require": "./dist/themes/dark.js",
+      "default": "./src/themes/dark.ts"
     },
     "./themes/light": {
-      "types": "./src/themes/light.ts",
-      "import": "./src/themes/light.ts",
-      "require": "./src/themes/light.ts"
+      "types": "./dist/themes/light.d.ts",
+      "import": "./dist/themes/light.mjs",
+      "require": "./dist/themes/light.js",
+      "default": "./src/themes/light.ts"
     },
     "./tokens": {
-      "types": "./tokens/tokens.ts",
-      "import": "./tokens/tokens.ts",
-      "require": "./tokens/tokens.ts"
+      "types": "./dist/tokens.d.ts",
+      "import": "./dist/tokens.mjs",
+      "require": "./dist/tokens.js",
+      "default": "./tokens/tokens.ts"
     },
     "./tokens/css": "./tokens/tokens.css",
     "./tokens/tailwind": "./tokens/tailwind.tokens.js"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "build": "tsup src/index.ts src/themes/index.ts src/themes/dark.ts src/themes/light.ts tokens/tokens.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts src/themes/index.ts src/themes/dark.ts src/themes/light.ts tokens/tokens.ts --format cjs,esm --dts --watch",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

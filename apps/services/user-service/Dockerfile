@@ -26,10 +26,15 @@ WORKDIR /workspace/user-service
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and generate client
+# Use environment variables to improve Prisma binary download reliability
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
-RUN npx prisma generate || \
-    (sleep 5 && npx prisma generate) || \
-    (sleep 10 && npx prisma generate) || \
+ENV PRISMA_CLI_QUERY_ENGINE_TYPE=binary
+ENV PRISMA_CLIENT_ENGINE_TYPE=binary
+# Try multiple times with increasing delays, and skip binary download if already cached
+RUN npx prisma generate --schema=./prisma/schema.prisma 2>/dev/null || \
+    (echo "Retry 1..." && sleep 5 && npx prisma generate --schema=./prisma/schema.prisma) || \
+    (echo "Retry 2..." && sleep 10 && npx prisma generate --schema=./prisma/schema.prisma) || \
+    (echo "Retry 3..." && sleep 15 && npx prisma generate --schema=./prisma/schema.prisma) || \
     (echo "Prisma generate failed after retries" && exit 1)
 
 # Build the application

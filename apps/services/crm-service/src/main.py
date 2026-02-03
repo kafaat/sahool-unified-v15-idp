@@ -26,7 +26,8 @@ from uuid import uuid4
 import redis.asyncio as redis_client
 import structlog
 
-from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
+from starlette import status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, EmailStr
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -227,7 +228,7 @@ class FarmerUpdateRequest(BaseModel):
     farm_location_ar: str | None = None
     farm_size_hectares: float | None = Field(None, ge=0)
     primary_crops: list[str] | None = None
-    status: str | None = None
+    farmer_status: str | None = None
     tags: list[str] | None = None
 
 
@@ -960,7 +961,7 @@ async def create_farmer(
 async def list_farmers(
     request: Request,
     tenant_id: str = Query(...),
-    status: str | None = Query(None),
+    farmer_status: str | None = Query(None, alias="status"),
     search: str | None = Query(None),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
@@ -976,7 +977,7 @@ async def list_farmers(
         # Use database
         farmers_data = await crm_repo.farmers.list(
             tenant_id=tenant_id,
-            status=status,
+            status=farmer_status,
             search=search,
             limit=limit,
             offset=offset,
@@ -1008,8 +1009,8 @@ async def list_farmers(
         results = [f for f in farmers.values() if f.tenant_id == tenant_id]
 
         # Filter by status
-        if status:
-            results = [f for f in results if f.status.value == status]
+        if farmer_status:
+            results = [f for f in results if f.status.value == farmer_status]
 
         # Search by name or phone
         if search:

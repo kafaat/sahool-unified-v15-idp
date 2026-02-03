@@ -108,6 +108,14 @@ export class JWTConfig {
   }
 
   /**
+   * Get the verification key for JWT validation
+   * For HS256, this is the same as the signing secret
+   */
+  static getVerificationKey(): string {
+    return this.SECRET;
+  }
+
+  /**
    * Get configuration object for passport-jwt
    */
   static getJwtOptions() {

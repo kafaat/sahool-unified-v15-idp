@@ -288,7 +288,7 @@ async def get_yield_history(
     In production, this would fetch from a database. Currently returns simulated data.
     """
     import random
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
     # Import shared crop catalog
     try:

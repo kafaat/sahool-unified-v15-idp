@@ -13,7 +13,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "nestjs",

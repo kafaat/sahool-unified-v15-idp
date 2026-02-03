@@ -24,7 +24,7 @@ import re
 import uuid
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timezone
 from typing import Any
 
 import structlog

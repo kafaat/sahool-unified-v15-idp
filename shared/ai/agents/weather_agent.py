@@ -21,7 +21,7 @@ Created: January 2026
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timezone
 from typing import Any
 
 import structlog

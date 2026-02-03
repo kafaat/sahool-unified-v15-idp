@@ -175,7 +175,7 @@ async def create_event(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         logger.error("خطأ في إنشاء الحدث", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to create event")
 

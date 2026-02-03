@@ -47,7 +47,7 @@
     "react-dom": "^19.2.4",
     "react-focus-lock": "^2.13.7",
     "react-leaflet": "4.2.1",
-    "recharts": "2.14.1",
+    "recharts": "2.15.4",
     "tailwind-merge": "2.6.0"
   },
   "devDependencies": {

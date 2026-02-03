@@ -1,0 +1,2198 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Platform - Comprehensive Fix Plan - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-comprehensive-fix-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Platform - Comprehensive Fix Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-comprehensive-fix-plan">SAHOOL Platform - Comprehensive Fix Plan<a class="headerlink" href="#sahool-platform-comprehensive-fix-plan" title="Permanent link">&para;</a></h1>
+<h1 id="_1">خطة الإصلاح الشاملة لمنصة سهول<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p><strong>Generated</strong>: 2026-02-03
+<strong>Updated</strong>: 2026-02-03 (Added items from AUDIT_SUMMARY.md)
+<strong>Review Agents</strong>: 22 parallel agents
+<strong>Total Issues Found</strong>: 685+ (680 original + 5 from AUDIT_SUMMARY)
+<strong>Branch</strong>: <code>claude/debug-project-errors-riwCb</code></p>
+<hr />
+<h2 id="executive-summary">Executive Summary | الملخص التنفيذي<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>تم إجراء مراجعة شاملة لمنصة SAHOOL باستخدام 22 وكيل متوازي. تم اكتشاف أكثر من 500 مشكلة موزعة على الفئات التالية:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Critical</th>
+<th>High</th>
+<th>Medium</th>
+<th>Low</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python Services</td>
+<td>5</td>
+<td>6</td>
+<td>31</td>
+<td>10</td>
+<td>52</td>
+</tr>
+<tr>
+<td>NestJS Services</td>
+<td>3</td>
+<td>17</td>
+<td>8</td>
+<td>5</td>
+<td>33</td>
+</tr>
+<tr>
+<td>Docker Configuration</td>
+<td>1</td>
+<td>68</td>
+<td>14</td>
+<td>6</td>
+<td>89</td>
+</tr>
+<tr>
+<td>Docker Compose</td>
+<td>0</td>
+<td>0</td>
+<td>7</td>
+<td>5</td>
+<td>12</td>
+</tr>
+<tr>
+<td>CI/CD Workflows</td>
+<td>5</td>
+<td>7</td>
+<td>6</td>
+<td>2</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Shared Python Modules</td>
+<td>3</td>
+<td>6</td>
+<td>8</td>
+<td>3</td>
+<td>20</td>
+</tr>
+<tr>
+<td>NPM Dependencies</td>
+<td>6</td>
+<td>4</td>
+<td>5</td>
+<td>2</td>
+<td>17</td>
+</tr>
+<tr>
+<td>TypeScript Config</td>
+<td>3</td>
+<td>6</td>
+<td>4</td>
+<td>1</td>
+<td>14</td>
+</tr>
+<tr>
+<td>API Client</td>
+<td>6</td>
+<td>7</td>
+<td>4</td>
+<td>1</td>
+<td>18</td>
+</tr>
+<tr>
+<td>Authentication Security</td>
+<td>2</td>
+<td>5</td>
+<td>10</td>
+<td>6</td>
+<td>23</td>
+</tr>
+<tr>
+<td>Database/Prisma</td>
+<td>4</td>
+<td>5</td>
+<td>8</td>
+<td>3</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Test Coverage</td>
+<td>13</td>
+<td>7</td>
+<td>5</td>
+<td>3</td>
+<td>28</td>
+</tr>
+<tr>
+<td>Shared UI</td>
+<td>0</td>
+<td>4</td>
+<td>5</td>
+<td>0</td>
+<td>9</td>
+</tr>
+<tr>
+<td>Shared Hooks</td>
+<td>5</td>
+<td>7</td>
+<td>6</td>
+<td>4</td>
+<td>22</td>
+</tr>
+<tr>
+<td>Next.js Config</td>
+<td>0</td>
+<td>2</td>
+<td>25</td>
+<td>7</td>
+<td>34</td>
+</tr>
+<tr>
+<td>i18n Implementation</td>
+<td>1</td>
+<td>2</td>
+<td>35</td>
+<td>8</td>
+<td>46</td>
+</tr>
+<tr>
+<td>Error Handling</td>
+<td>0</td>
+<td>5</td>
+<td>50</td>
+<td>25</td>
+<td>80</td>
+</tr>
+<tr>
+<td>Monitoring/Logging</td>
+<td>3</td>
+<td>4</td>
+<td>14</td>
+<td>4</td>
+<td>25</td>
+</tr>
+<tr>
+<td>NATS Events</td>
+<td>2</td>
+<td>5</td>
+<td>8</td>
+<td>3</td>
+<td>18</td>
+</tr>
+<tr>
+<td>Kubernetes/Helm</td>
+<td>0</td>
+<td>8</td>
+<td>14</td>
+<td>10</td>
+<td>32</td>
+</tr>
+<tr>
+<td>Flutter Mobile</td>
+<td>6</td>
+<td>12</td>
+<td>18</td>
+<td>8</td>
+<td>44</td>
+</tr>
+<tr>
+<td>Governance</td>
+<td>5</td>
+<td>9</td>
+<td>6</td>
+<td>4</td>
+<td>24</td>
+</tr>
+<tr>
+<td><strong>TOTAL</strong></td>
+<td><strong>73</strong></td>
+<td><strong>196</strong></td>
+<td><strong>281</strong></td>
+<td><strong>120</strong></td>
+<td><strong>680</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="phase-1-critical-issues">Phase 1: CRITICAL Issues (الإصلاحات الحرجة)<a class="headerlink" href="#phase-1-critical-issues" title="Permanent link">&para;</a></h2>
+<p><strong>Timeline: Immediate (1-2 days)</strong></p>
+<h3 id="11-security-critical">1.1 Security Critical<a class="headerlink" href="#11-security-critical" title="Permanent link">&para;</a></h3>
+<h4 id="111-authentication-token-issues">1.1.1 Authentication Token Issues<a class="headerlink" href="#111-authentication-token-issues" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>/apps/admin/src/app/api/auth/login/route.ts</code></li>
+<li><strong>Issue</strong>: Cookie maxAge (86400s/1 day) vs JWT expiry (30 min) mismatch</li>
+<li><strong>Fix</strong>: Align cookie expiration with JWT expiry</li>
+<li><strong>Impact</strong>: All admin users affected</li>
+</ul>
+<h4 id="112-rate-limiting-on-auth-endpoints-new">1.1.2 Rate Limiting on Auth Endpoints (NEW)<a class="headerlink" href="#112-rate-limiting-on-auth-endpoints-new" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Files</strong>: <code>/apps/admin/src/app/api/auth/*</code>, <code>/apps/web/src/app/api/auth/*</code></li>
+<li><strong>Issue</strong>: No rate limiting on authentication endpoints - vulnerable to brute force</li>
+<li><strong>Fix</strong>: Add rate limiting middleware (e.g., <code>express-rate-limit</code> or Next.js middleware)</li>
+<li><strong>Implementation</strong>:
+  <code>typescript
+  // middleware.ts
+  const rateLimiter = {
+    login: { windowMs: 15 * 60 * 1000, max: 5 },  // 5 attempts per 15 min
+    register: { windowMs: 60 * 60 * 1000, max: 3 }, // 3 per hour
+    passwordReset: { windowMs: 60 * 60 * 1000, max: 3 }
+  };</code></li>
+<li><strong>Impact</strong>: All authentication flows affected - CRITICAL for security</li>
+</ul>
+<h4 id="113-cors-on-csp-report-endpoint-new">1.1.3 CORS on CSP Report Endpoint (NEW)<a class="headerlink" href="#113-cors-on-csp-report-endpoint-new" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>/apps/admin/src/app/api/csp-report/route.ts</code></li>
+<li><strong>Issue</strong>: Missing or misconfigured CORS headers on CSP violation report endpoint</li>
+<li><strong>Fix</strong>: Add proper CORS configuration to accept reports from allowed origins</li>
+<li><strong>Implementation</strong>:
+  <code>typescript
+  export async function POST(request: Request) {
+    const allowedOrigins = [process.env.NEXT_PUBLIC_APP_URL];
+    const origin = request.headers.get('origin');
+    if (!allowedOrigins.includes(origin)) {
+      return new Response('Forbidden', { status: 403 });
+    }
+    // Process CSP report...
+  }</code></li>
+<li><strong>Impact</strong>: CSP violation reports may be blocked or exploited</li>
+</ul>
+<h4 id="114-base64-temp-token-high-risk">1.1.4 Base64 Temp Token (HIGH RISK)<a class="headerlink" href="#114-base64-temp-token-high-risk" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>/shared/auth/auth_api.py</code> (lines 127-139)</li>
+<li><strong>Issue</strong>: Using Base64 encoding instead of proper JWT signing for temp tokens</li>
+<li><strong>Fix</strong>: Replace with proper JWT or cryptographic signing</li>
+<li><strong>Impact</strong>: Security vulnerability - tokens can be decoded by anyone</li>
+</ul>
+<h4 id="115-flutter-certificate-pinning-placeholders">1.1.5 Flutter Certificate Pinning Placeholders<a class="headerlink" href="#115-flutter-certificate-pinning-placeholders" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>/apps/mobile/lib/core/security/certificate_config.dart</code></li>
+<li><strong>Issue</strong>: Placeholder SHA256 fingerprints in production code</li>
+<li><strong>Fix</strong>: Replace with actual production certificate fingerprints</li>
+<li><strong>Impact</strong>: BLOCKING for production deployment</li>
+</ul>
+<h4 id="116-ios-certificate-pinning-placeholders">1.1.6 iOS Certificate Pinning Placeholders<a class="headerlink" href="#116-ios-certificate-pinning-placeholders" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>/apps/mobile/ios/Runner/Info.plist</code> (lines 66-166)</li>
+<li><strong>Issue</strong>: Placeholder SPKI hashes (AAAA..., BBBB...)</li>
+<li><strong>Fix</strong>: Replace with actual iOS certificate pins</li>
+<li><strong>Impact</strong>: BLOCKING for iOS release</li>
+</ul>
+<h3 id="12-database-critical">1.2 Database Critical<a class="headerlink" href="#12-database-critical" title="Permanent link">&para;</a></h3>
+<h4 id="121-prisma-version-split">1.2.1 Prisma Version Split<a class="headerlink" href="#121-prisma-version-split" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Current</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user-service</td>
+<td>^6.3.1</td>
+<td>^5.22.0</td>
+</tr>
+<tr>
+<td>All others</td>
+<td>^5.22.0</td>
+<td>^5.22.0</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Fix</strong>: Downgrade user-service to Prisma 5.22.0</li>
+<li><strong>Impact</strong>: Requires database migration testing</li>
+</ul>
+<h4 id="122-missing-foreign-key-indexes">1.2.2 Missing Foreign Key Indexes<a class="headerlink" href="#122-missing-foreign-key-indexes" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Files</strong>: 10 Prisma schemas</li>
+<li><strong>Issue</strong>: 40+ foreign key fields without indexes</li>
+<li><strong>Fix</strong>: Add <code>@@index([field])</code> to all FK fields</li>
+<li><strong>Impact</strong>: Query performance improvement</li>
+</ul>
+<h3 id="13-build-critical">1.3 Build Critical<a class="headerlink" href="#13-build-critical" title="Permanent link">&para;</a></h3>
+<h4 id="131-flutter-database-generation">1.3.1 Flutter Database Generation<a class="headerlink" href="#131-flutter-database-generation" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>/apps/mobile/lib/core/storage/database.g.dart</code></li>
+<li><strong>Issue</strong>: Missing generated file</li>
+<li><strong>Fix</strong>: Run <code>flutter pub run build_runner build</code></li>
+<li><strong>Impact</strong>: Mobile app cannot start without this</li>
+</ul>
+<h4 id="132-typescript-path-alias-error">1.3.2 TypeScript Path Alias Error<a class="headerlink" href="#132-typescript-path-alias-error" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>/packages/api-client/tsconfig.json</code> (lines 7-9)</li>
+<li><strong>Issue</strong>: Points to <code>dist/</code> instead of <code>src/</code></li>
+<li><strong>Fix</strong>: Change to <code>../shared-types/src</code></li>
+<li><strong>Impact</strong>: Build errors in api-client consumers</li>
+</ul>
+<hr />
+<h2 id="phase-2-high-priority-issues">Phase 2: HIGH Priority Issues (الأولوية العالية)<a class="headerlink" href="#phase-2-high-priority-issues" title="Permanent link">&para;</a></h2>
+<p><strong>Timeline: 1 week</strong></p>
+<h3 id="21-service-completeness">2.1 Service Completeness<a class="headerlink" href="#21-service-completeness" title="Permanent link">&para;</a></h3>
+<h4 id="211-stub-services-need-implementation-or-removal">2.1.1 Stub Services (Need Implementation or Removal)<a class="headerlink" href="#211-stub-services-need-implementation-or-removal" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Lines</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cooperative-service</td>
+<td>40</td>
+<td>Stub</td>
+</tr>
+<tr>
+<td>drone-service</td>
+<td>40</td>
+<td>Stub</td>
+</tr>
+<tr>
+<td>soil-analysis-service</td>
+<td>40</td>
+<td>Stub</td>
+</tr>
+<tr>
+<td>traceability-service</td>
+<td>40</td>
+<td>Stub</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Fix</strong>: Either implement full functionality or archive</li>
+<li><strong>Impact</strong>: Services referenced but non-functional</li>
+</ul>
+<h4 id="212-missing-exception-handlers-5-services">2.1.2 Missing Exception Handlers (5 Services)<a class="headerlink" href="#212-missing-exception-handlers-5-services" title="Permanent link">&para;</a></h4>
+<ul>
+<li>cooperative-service</li>
+<li>drone-service</li>
+<li>soil-analysis-service</li>
+<li>traceability-service</li>
+<li>
+<p>ground-vision-service</p>
+</li>
+<li>
+<p><strong>Fix</strong>: Add <code>setup_exception_handlers(app)</code> and <code>add_request_id_middleware(app)</code></p>
+</li>
+</ul>
+<h3 id="22-nestjs-security">2.2 NestJS Security<a class="headerlink" href="#22-nestjs-security" title="Permanent link">&para;</a></h3>
+<h4 id="221-missing-authentication-guards-18-controllers">2.2.1 Missing Authentication Guards (18 Controllers)<a class="headerlink" href="#221-missing-authentication-guards-18-controllers" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>crop-growth-model: 15 controllers
+lai-estimation: 2 controllers
+yield-prediction-service: 1 controller
+</code></pre></div>
+
+<ul>
+<li><strong>Fix</strong>: Add <code>@UseGuards(JwtAuthGuard)</code> to all endpoints</li>
+<li><strong>Impact</strong>: Unauthenticated API access currently possible</li>
+</ul>
+<h4 id="222-missing-dtos-with-validation">2.2.2 Missing DTOs with Validation<a class="headerlink" href="#222-missing-dtos-with-validation" title="Permanent link">&para;</a></h4>
+<ul>
+<li>crop-growth-model: 0 DTO files</li>
+<li>
+<p>yield-prediction-service: 0 DTO files</p>
+</li>
+<li>
+<p><strong>Fix</strong>: Create DTOs with class-validator decorators</p>
+</li>
+<li><strong>Impact</strong>: No input validation on requests</li>
+</ul>
+<h3 id="23-docker-security">2.3 Docker Security<a class="headerlink" href="#23-docker-security" title="Permanent link">&para;</a></h3>
+<h4 id="231-tls-not-enforced-in-nats">2.3.1 TLS Not Enforced in NATS<a class="headerlink" href="#231-tls-not-enforced-in-nats" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>/config/nats/nats.conf</code></li>
+<li><strong>Issue</strong>: TLS commented out (lines 174-183)</li>
+<li><strong>Fix</strong>: Use <code>/config/nats/nats-secure.conf</code> for production</li>
+<li><strong>Impact</strong>: Credentials transmitted in plaintext</li>
+</ul>
+<h4 id="232-missing-dockerignore-files-29-services">2.3.2 Missing .dockerignore Files (29 Services)<a class="headerlink" href="#232-missing-dockerignore-files-29-services" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Fix</strong>: Copy from <code>/apps/services/advisory-service/.dockerignore</code></li>
+<li><strong>Impact</strong>: Larger build contexts, slower builds</li>
+</ul>
+<h3 id="24-dependency-conflicts">2.4 Dependency Conflicts<a class="headerlink" href="#24-dependency-conflicts" title="Permanent link">&para;</a></h3>
+<h4 id="241-jest-version-conflict">2.4.1 Jest Version Conflict<a class="headerlink" href="#241-jest-version-conflict" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Current</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>chat-service</td>
+<td>^30.2.0</td>
+<td>^29.7.0</td>
+</tr>
+<tr>
+<td>Others</td>
+<td>^29.7.0</td>
+<td>^29.7.0</td>
+</tr>
+</tbody>
+</table>
+<h4 id="242-typesnode-version-conflict">2.4.2 @types/node Version Conflict<a class="headerlink" href="#242-typesnode-version-conflict" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Current</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user-service</td>
+<td>^22.10.2</td>
+<td>20.19.31</td>
+</tr>
+<tr>
+<td>Others</td>
+<td>20.19.31</td>
+<td>20.19.31</td>
+</tr>
+</tbody>
+</table>
+<h3 id="25-test-coverage-critical-gaps">2.5 Test Coverage Critical Gaps<a class="headerlink" href="#25-test-coverage-critical-gaps" title="Permanent link">&para;</a></h3>
+<h4 id="251-services-without-tests-13-services">2.5.1 Services Without Tests (13 Services)<a class="headerlink" href="#251-services-without-tests-13-services" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">terrain</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="n">service</span><span class="w">    </span><span class="p">(</span><span class="nl">Critical:</span><span class="w"> </span><span class="n">DEM</span><span class="o">/</span><span class="n">terrain</span><span class="w"> </span><span class="n">analysis</span><span class="p">)</span>
+<span class="n">yolo26</span><span class="o">-</span><span class="n">vision</span><span class="o">-</span><span class="n">service</span><span class="w">   </span><span class="p">(</span><span class="nl">Critical:</span><span class="w"> </span><span class="n">Computer</span><span class="w"> </span><span class="n">vision</span><span class="p">)</span>
+<span class="n">field</span><span class="o">-</span><span class="n">intelligence</span><span class="w">      </span><span class="p">(</span><span class="nl">High:</span><span class="w"> </span><span class="n">Core</span><span class="w"> </span><span class="n">analytics</span><span class="p">)</span>
+<span class="n">ground</span><span class="o">-</span><span class="n">vision</span><span class="o">-</span><span class="n">service</span><span class="w">   </span><span class="p">(</span><span class="nl">High:</span><span class="w"> </span><span class="n">Ground</span><span class="w"> </span><span class="n">vision</span><span class="p">)</span>
+<span class="n">globalgap</span><span class="o">-</span><span class="n">compliance</span><span class="w">    </span><span class="p">(</span><span class="nl">High:</span><span class="w"> </span><span class="n">Compliance</span><span class="w"> </span><span class="n">tracking</span><span class="p">)</span>
+<span class="n">soil</span><span class="o">-</span><span class="n">analysis</span><span class="o">-</span><span class="n">service</span><span class="w">   </span><span class="p">(</span><span class="nl">Medium:</span><span class="w"> </span><span class="n">Soil</span><span class="w"> </span><span class="n">analysis</span><span class="p">)</span>
+<span class="n">agent</span><span class="o">-</span><span class="n">registry</span><span class="w">          </span><span class="p">(</span><span class="nl">Medium:</span><span class="w"> </span><span class="n">Service</span><span class="w"> </span><span class="n">discovery</span><span class="p">)</span>
+<span class="n">ussd</span><span class="o">-</span><span class="n">gateway</span><span class="w">           </span><span class="p">(</span><span class="nl">Medium:</span><span class="w"> </span><span class="n">Offline</span><span class="w"> </span><span class="n">farmers</span><span class="p">)</span>
+<span class="n">logistics</span><span class="o">-</span><span class="n">service</span><span class="w">      </span><span class="p">(</span><span class="nl">Medium:</span><span class="w"> </span><span class="n">Supply</span><span class="w"> </span><span class="n">chain</span><span class="p">)</span>
+<span class="n">traceability</span><span class="o">-</span><span class="n">service</span><span class="w">   </span><span class="p">(</span><span class="nl">Medium:</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="n">tracking</span><span class="p">)</span>
+<span class="n">cooperative</span><span class="o">-</span><span class="n">service</span><span class="w">    </span><span class="p">(</span><span class="nl">Low:</span><span class="w"> </span><span class="n">Cooperatives</span><span class="p">)</span>
+<span class="n">drone</span><span class="o">-</span><span class="n">service</span><span class="w">          </span><span class="p">(</span><span class="nl">Low:</span><span class="w"> </span><span class="n">Drone</span><span class="w"> </span><span class="n">integration</span><span class="p">)</span>
+<span class="n">demo</span><span class="o">-</span><span class="n">data</span><span class="w">              </span><span class="p">(</span><span class="nl">Low:</span><span class="w"> </span><span class="n">Data</span><span class="w"> </span><span class="n">generation</span><span class="p">)</span>
+</code></pre></div>
+
+<h4 id="252-missing-test-categories">2.5.2 Missing Test Categories<a class="headerlink" href="#252-missing-test-categories" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Frontend tests</strong>: <code>/tests/frontend/</code> - EMPTY</li>
+<li><strong>Container tests</strong>: <code>/tests/container/</code> - EMPTY</li>
+</ul>
+<hr />
+<h2 id="phase-3-medium-priority-issues">Phase 3: MEDIUM Priority Issues (الأولوية المتوسطة)<a class="headerlink" href="#phase-3-medium-priority-issues" title="Permanent link">&para;</a></h2>
+<p><strong>Timeline: 2-4 weeks</strong></p>
+<h3 id="31-shared-hooks-race-conditions">3.1 Shared Hooks Race Conditions<a class="headerlink" href="#31-shared-hooks-race-conditions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hook</th>
+<th>Issue</th>
+<th>File</th>
+<th>Line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>usePaginatedApi</td>
+<td>Race condition in loadMore</td>
+<td>useApi.ts</td>
+<td>122-141</td>
+</tr>
+<tr>
+<td>useLocalStorage</td>
+<td>Stale state in updater</td>
+<td>useLocalStorage.ts</td>
+<td>38-40</td>
+</tr>
+<tr>
+<td>useEventStream</td>
+<td>Stale URL in reconnect</td>
+<td>useEventStream.ts</td>
+<td>203-272</td>
+</tr>
+<tr>
+<td>useAuth</td>
+<td>Missing AbortController</td>
+<td>useAuth.ts</td>
+<td>141-177</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-i18n-hardcoded-rtl">3.2 i18n Hardcoded RTL<a class="headerlink" href="#32-i18n-hardcoded-rtl" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Issue</strong>: 35 files have hardcoded <code>dir="rtl"</code></li>
+<li><strong>Fix</strong>: Replace with <code>getDirection()</code> utility</li>
+<li><strong>Files</strong>: See i18n agent report</li>
+</ul>
+<h3 id="33-missing-metadata-exports">3.3 Missing Metadata Exports<a class="headerlink" href="#33-missing-metadata-exports" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Issue</strong>: 25 admin pages missing metadata</li>
+<li><strong>Fix</strong>: Add <code>export const metadata: Metadata = {...}</code></li>
+<li><strong>Impact</strong>: SEO and page title issues</li>
+</ul>
+<h3 id="34-api-client-issues">3.4 API Client Issues<a class="headerlink" href="#34-api-client-issues" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No HTTPS enforcement</td>
+<td>High</td>
+</tr>
+<tr>
+<td>No retry logic</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Missing token refresh</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Incomplete interceptors</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>Hard-coded timeout</td>
+<td>Medium</td>
+</tr>
+</tbody>
+</table>
+<h3 id="35-loading-states-for-pages-new">3.5 Loading States for Pages (NEW)<a class="headerlink" href="#35-loading-states-for-pages-new" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Files</strong>: Multiple pages in <code>/apps/admin/src/app/</code> and <code>/apps/web/src/app/</code></li>
+<li><strong>Issue</strong>: Pages load without visual feedback, poor UX</li>
+<li><strong>Fix</strong>: Add Suspense boundaries and loading.tsx files</li>
+<li><strong>Implementation</strong>:
+  <code>typescript
+  // app/dashboard/loading.tsx
+  export default function Loading() {
+    return (
+      &lt;div className="flex items-center justify-center min-h-screen"&gt;
+        &lt;Spinner size="lg" /&gt;
+        &lt;span className="sr-only"&gt;جاري التحميل...&lt;/span&gt;
+      &lt;/div&gt;
+    );
+  }</code></li>
+<li><strong>Pages needing loading states</strong>:</li>
+<li><code>/dashboard</code> - Main dashboard</li>
+<li><code>/fields</code> - Fields list</li>
+<li><code>/analytics</code> - Analytics charts</li>
+<li><code>/reports</code> - Report generation</li>
+<li><strong>Impact</strong>: User experience improvement</li>
+</ul>
+<h3 id="36-enable-exhaustive-deps-eslint-rule-new">3.6 Enable exhaustive-deps ESLint Rule (NEW)<a class="headerlink" href="#36-enable-exhaustive-deps-eslint-rule-new" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Files</strong>: <code>/apps/admin/.eslintrc.js</code>, <code>/apps/web/.eslintrc.js</code>, <code>/packages/*/.eslintrc.js</code></li>
+<li><strong>Issue</strong>: React hooks dependencies not properly tracked, causing stale closures</li>
+<li><strong>Fix</strong>: Enable <code>react-hooks/exhaustive-deps</code> rule</li>
+<li><strong>Implementation</strong>:
+  <code>javascript
+  // .eslintrc.js
+  rules: {
+    'react-hooks/exhaustive-deps': 'warn', // Start with warn, then upgrade to error
+  }</code></li>
+<li><strong>Expected warnings</strong>: ~50+ hooks need dependency fixes</li>
+<li><strong>Impact</strong>: Prevents subtle bugs from stale closures in useEffect/useCallback/useMemo</li>
+</ul>
+<h3 id="37-zod-schema-validation-new">3.7 Zod Schema Validation (NEW)<a class="headerlink" href="#37-zod-schema-validation-new" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Files</strong>: <code>/apps/admin/src/lib/</code>, <code>/apps/web/src/lib/</code>, <code>/packages/api-client/</code></li>
+<li><strong>Issue</strong>: No runtime validation of API responses and form inputs</li>
+<li><strong>Fix</strong>: Add Zod schemas for all API contracts and form validation</li>
+<li><strong>Implementation</strong>:
+  ```typescript
+  // schemas/field.ts
+  import { z } from 'zod';</li>
+</ul>
+<p>export const FieldSchema = z.object({
+    id: z.string().uuid(),
+    name: z.string().min(1).max(100),
+    area: z.number().positive(),
+    coordinates: z.array(z.tuple([z.number(), z.number()])),
+    cropType: z.enum(['wheat', 'barley', 'date_palm', 'tomato']),
+    createdAt: z.string().datetime(),
+  });</p>
+<p>export type Field = z.infer<typeof FieldSchema>;</p>
+<p>// Usage in API client
+  const response = await fetch('/api/fields');
+  const data = FieldSchema.array().parse(await response.json());
+  ```
+- <strong>Priority schemas</strong>:
+  - User/Auth schemas
+  - Field schemas
+  - Advisory schemas
+  - API response wrappers
+- <strong>Impact</strong>: Runtime type safety, better error messages, API contract enforcement</p>
+<h3 id="38-error-handling-improvements">3.8 Error Handling Improvements<a class="headerlink" href="#38-error-handling-improvements" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Broad exception handlers</strong>: 50+ instances of <code>except Exception:</code></li>
+<li><strong>Silent pass/continue</strong>: 25+ catch blocks</li>
+<li><strong>Missing error logging</strong>: 20+ catch blocks without logging</li>
+</ul>
+<h3 id="39-monitoring-gaps">3.9 Monitoring Gaps<a class="headerlink" href="#39-monitoring-gaps" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Missing <code>/api/analytics/performance</code> endpoint</li>
+<li>No database connection pool metrics</li>
+<li>No NATS event instrumentation</li>
+<li>Duplicate tracing modules (need consolidation)</li>
+</ul>
+<hr />
+<h2 id="phase-4-low-priority-issues">Phase 4: LOW Priority Issues (الأولوية المنخفضة)<a class="headerlink" href="#phase-4-low-priority-issues" title="Permanent link">&para;</a></h2>
+<p><strong>Timeline: 1-2 months</strong></p>
+<h3 id="41-ui-component-issues">4.1 UI Component Issues<a class="headerlink" href="#41-ui-component-issues" title="Permanent link">&para;</a></h3>
+<ul>
+<li>4 buttons missing <code>type="button"</code></li>
+<li>3 components missing aria-labels</li>
+<li>Skeleton components missing <code>role="status"</code></li>
+</ul>
+<h3 id="42-typescript-configuration">4.2 TypeScript Configuration<a class="headerlink" href="#42-typescript-configuration" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Inconsistent target versions (ES2017-ES2022)</li>
+<li>4 packages with disabled strict mode</li>
+<li>Missing include directives in 10 configs</li>
+</ul>
+<h3 id="43-documentation-gaps">4.3 Documentation Gaps<a class="headerlink" href="#43-documentation-gaps" title="Permanent link">&para;</a></h3>
+<ul>
+<li>5 packages missing README files</li>
+<li>Missing monitoring documentation</li>
+<li>Missing test patterns documentation</li>
+<li>Missing architecture decision records (ADRs)</li>
+</ul>
+<h3 id="44-governance-completeness">4.4 Governance Completeness<a class="headerlink" href="#44-governance-completeness" title="Permanent link">&para;</a></h3>
+<ul>
+<li>58 services missing SLO definitions</li>
+<li>4 services not in event architecture layers</li>
+<li>Missing compliance documentation (GDPR, SOC2, ISO27001)</li>
+</ul>
+<hr />
+<h2 id="impact-analysis">Impact Analysis | تحليل الأثر<a class="headerlink" href="#impact-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="service-dependency-matrix">Service Dependency Matrix<a class="headerlink" href="#service-dependency-matrix" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────┐
+│<span class="w">                    </span><span class="nv">IMPACT</span><span class="w"> </span><span class="nv">PROPAGATION</span><span class="w">                           </span>│
+├─────────────────────────────────────────────────────────────────┤
+│<span class="w">                                                                 </span>│
+│<span class="w">  </span><span class="nv">Prisma</span><span class="w"> </span><span class="nv">Fix</span><span class="w"> </span><span class="ss">(</span><span class="nv">user</span><span class="o">-</span><span class="nv">service</span><span class="ss">)</span><span class="w">                                      </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Affects</span>:<span class="w"> </span><span class="nv">user</span><span class="o">-</span><span class="nv">service</span><span class="w"> </span><span class="nv">only</span><span class="w">                                 </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Risk</span>:<span class="w"> </span><span class="nv">LOW</span><span class="w"> </span><span class="ss">(</span><span class="nv">isolated</span><span class="w"> </span><span class="nv">service</span><span class="ss">)</span><span class="w">                               </span>│
+│<span class="w">                                                                 </span>│
+│<span class="w">  </span><span class="nv">API</span><span class="w"> </span><span class="nv">Client</span><span class="w"> </span><span class="nv">HTTPS</span><span class="o">/</span><span class="nv">Retry</span><span class="w">                                         </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Affects</span>:<span class="w"> </span><span class="nv">apps</span><span class="o">/</span><span class="nv">web</span>,<span class="w"> </span><span class="nv">apps</span><span class="o">/</span><span class="nv">admin</span>,<span class="w"> </span><span class="nv">NestJS</span><span class="w"> </span><span class="nv">services</span><span class="w">             </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Risk</span>:<span class="w"> </span><span class="nv">MEDIUM</span><span class="w"> </span><span class="ss">(</span><span class="nv">widely</span><span class="w"> </span><span class="nv">used</span><span class="ss">)</span><span class="w">                                 </span>│
+│<span class="w">                                                                 </span>│
+│<span class="w">  </span><span class="nv">Shared</span><span class="w"> </span><span class="nv">Hooks</span><span class="w"> </span><span class="nv">Race</span><span class="w"> </span><span class="nv">Conditions</span><span class="w">                                   </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Affects</span>:<span class="w"> </span><span class="nv">apps</span><span class="o">/</span><span class="nv">web</span>,<span class="w"> </span><span class="nv">apps</span><span class="o">/</span><span class="nv">admin</span><span class="w">                              </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Risk</span>:<span class="w"> </span><span class="nv">MEDIUM</span><span class="w"> </span><span class="ss">(</span><span class="nv">UI</span><span class="w"> </span><span class="nv">stability</span><span class="ss">)</span><span class="w">                                </span>│
+│<span class="w">                                                                 </span>│
+│<span class="w">  </span><span class="nv">NATS</span><span class="w"> </span><span class="nv">TLS</span><span class="w"> </span><span class="nv">Enforcement</span><span class="w">                                           </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Affects</span>:<span class="w"> </span><span class="nv">ALL</span><span class="w"> </span><span class="mi">62</span><span class="w"> </span><span class="nv">services</span><span class="w">                                   </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Risk</span>:<span class="w"> </span><span class="nv">HIGH</span><span class="w"> </span><span class="ss">(</span><span class="nv">requires</span><span class="w"> </span><span class="nv">coordinated</span><span class="w"> </span><span class="nv">deployment</span><span class="ss">)</span><span class="w">               </span>│
+│<span class="w">                                                                 </span>│
+│<span class="w">  </span><span class="nv">Authentication</span><span class="w"> </span><span class="nv">Token</span><span class="w"> </span><span class="nv">Fixes</span><span class="w">                                     </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Affects</span>:<span class="w"> </span><span class="nv">ALL</span><span class="w"> </span><span class="nv">frontend</span><span class="w"> </span><span class="nv">apps</span>,<span class="w"> </span><span class="nv">ALL</span><span class="w"> </span><span class="nv">API</span><span class="w"> </span><span class="nv">services</span><span class="w">               </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Risk</span>:<span class="w"> </span><span class="nv">HIGH</span><span class="w"> </span><span class="ss">(</span><span class="nv">user</span><span class="w"> </span><span class="nv">session</span><span class="w"> </span><span class="nv">impact</span><span class="ss">)</span><span class="w">                           </span>│
+│<span class="w">                                                                 </span>│
+│<span class="w">  </span><span class="nv">Database</span><span class="w"> </span><span class="nv">Index</span><span class="w"> </span><span class="nv">Additions</span><span class="w">                                       </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Affects</span>:<span class="w"> </span><span class="nv">Query</span><span class="w"> </span><span class="nv">performance</span><span class="w"> </span><span class="ss">(</span><span class="nv">positive</span><span class="ss">)</span><span class="w">                      </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Risk</span>:<span class="w"> </span><span class="nv">LOW</span><span class="w"> </span><span class="ss">(</span><span class="nv">non</span><span class="o">-</span><span class="nv">breaking</span><span class="ss">)</span><span class="w">                                   </span>│
+│<span class="w">                                                                 </span>│
+│<span class="w">  </span><span class="nv">Mobile</span><span class="w"> </span><span class="nv">Certificate</span><span class="w"> </span><span class="nv">Pinning</span><span class="w">                                     </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Affects</span>:<span class="w"> </span><span class="nv">Mobile</span><span class="w"> </span><span class="nv">app</span><span class="w"> </span><span class="nv">only</span><span class="w">                                   </span>│
+│<span class="w">  </span>└──<span class="w"> </span><span class="nv">Risk</span>:<span class="w"> </span><span class="nv">HIGH</span><span class="w"> </span><span class="ss">(</span><span class="nv">BLOCKING</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nv">release</span><span class="ss">)</span><span class="w">                          </span>│
+│<span class="w">                                                                 </span>│
+└─────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="deployment-order-recommendation">Deployment Order Recommendation<a class="headerlink" href="#deployment-order-recommendation" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Phase 1 (Day 1-2):
+  1. Fix TypeScript path alias (api-client)
+  2. Fix Prisma version (user-service)
+  3. Run Flutter build_runner
+
+Phase 2 (Day 3-5):
+  4. Add missing indexes (all Prisma schemas)
+  5. Add exception handlers (5 Python services)
+  6. Add auth guards (NestJS services)
+
+Phase 3 (Week 2):
+  7. Fix API client (HTTPS, retry, token refresh)
+  8. Fix shared hooks race conditions
+  9. Add missing .dockerignore files
+
+Phase 4 (Week 3-4):
+  10. Fix authentication token issues
+  11. Enable NATS TLS (requires coordinated deploy)
+  12. Fix mobile certificate pinning
+
+Phase 5 (Month 2):
+  13. i18n RTL fixes
+  14. Monitoring improvements
+  15. Test coverage expansion
+</code></pre></div>
+
+<hr />
+<h2 id="automated-fix-scripts">Automated Fix Scripts | سكربتات الإصلاح<a class="headerlink" href="#automated-fix-scripts" title="Permanent link">&para;</a></h2>
+<h3 id="script-1-add-missing-indexes-to-prisma-schemas">Script 1: Add Missing Indexes to Prisma Schemas<a class="headerlink" href="#script-1-add-missing-indexes-to-prisma-schemas" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># scripts/fix-prisma-indexes.sh</span>
+<span class="c1"># Adds @@index to foreign key fields</span>
+
+<span class="nv">SERVICES</span><span class="o">=(</span>
+<span class="w">  </span><span class="s2">&quot;chat-service&quot;</span>
+<span class="w">  </span><span class="s2">&quot;community-chat&quot;</span>
+<span class="w">  </span><span class="s2">&quot;disaster-assessment&quot;</span>
+<span class="w">  </span><span class="s2">&quot;field-management-service&quot;</span>
+<span class="w">  </span><span class="s2">&quot;inventory-service&quot;</span>
+<span class="w">  </span><span class="s2">&quot;iot-service&quot;</span>
+<span class="w">  </span><span class="s2">&quot;marketplace-service&quot;</span>
+<span class="w">  </span><span class="s2">&quot;research-core&quot;</span>
+<span class="w">  </span><span class="s2">&quot;user-service&quot;</span>
+<span class="w">  </span><span class="s2">&quot;weather-service&quot;</span>
+<span class="o">)</span>
+
+<span class="k">for</span><span class="w"> </span>service<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SERVICES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Processing </span><span class="nv">$service</span><span class="s2">...&quot;</span>
+<span class="w">  </span><span class="c1"># Add index generation logic</span>
+<span class="k">done</span>
+</code></pre></div>
+
+<h3 id="script-2-add-exception-handlers">Script 2: Add Exception Handlers<a class="headerlink" href="#script-2-add-exception-handlers" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># scripts/fix-exception-handlers.sh</span>
+
+<span class="nv">SERVICES</span><span class="o">=(</span>
+<span class="w">  </span><span class="s2">&quot;cooperative-service&quot;</span>
+<span class="w">  </span><span class="s2">&quot;drone-service&quot;</span>
+<span class="w">  </span><span class="s2">&quot;soil-analysis-service&quot;</span>
+<span class="w">  </span><span class="s2">&quot;traceability-service&quot;</span>
+<span class="w">  </span><span class="s2">&quot;ground-vision-service&quot;</span>
+<span class="o">)</span>
+
+<span class="nv">HANDLER_CODE</span><span class="o">=</span><span class="s1">&#39;</span>
+<span class="s1">from shared.errors_py import add_request_id_middleware, setup_exception_handlers</span>
+<span class="s1">setup_exception_handlers(app)</span>
+<span class="s1">add_request_id_middleware(app)</span>
+<span class="s1">&#39;</span>
+
+<span class="k">for</span><span class="w"> </span>service<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SERVICES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Adding exception handlers to </span><span class="nv">$service</span><span class="s2">...&quot;</span>
+<span class="k">done</span>
+</code></pre></div>
+
+<h3 id="script-3-copy-dockerignore-files">Script 3: Copy .dockerignore Files<a class="headerlink" href="#script-3-copy-dockerignore-files" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># scripts/fix-dockerignore.sh</span>
+
+<span class="nv">SOURCE</span><span class="o">=</span><span class="s2">&quot;apps/services/advisory-service/.dockerignore&quot;</span>
+<span class="nv">SERVICES</span><span class="o">=(</span>
+<span class="w">  </span><span class="s2">&quot;ai-agents-core&quot;</span><span class="w"> </span><span class="s2">&quot;audit-service&quot;</span><span class="w"> </span><span class="s2">&quot;code-fix-agent&quot;</span>
+<span class="w">  </span><span class="s2">&quot;code-review-service&quot;</span><span class="w"> </span><span class="s2">&quot;cooperative-service&quot;</span><span class="w"> </span><span class="s2">&quot;copilot-api&quot;</span>
+<span class="w">  </span><span class="c1"># ... 23 more services</span>
+<span class="o">)</span>
+
+<span class="k">for</span><span class="w"> </span>service<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SERVICES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>cp<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SOURCE</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;apps/services/</span><span class="nv">$service</span><span class="s2">/.dockerignore&quot;</span>
+<span class="k">done</span>
+</code></pre></div>
+
+<hr />
+<h2 id="monitoring-dashboard">Monitoring Dashboard | لوحة المراقبة<a class="headerlink" href="#monitoring-dashboard" title="Permanent link">&para;</a></h2>
+<p>After fixes are applied, monitor these metrics:</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Baseline</th>
+<th>Target</th>
+<th>Alert Threshold</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API Error Rate</td>
+<td>TBD</td>
+<td>&lt; 0.1%</td>
+<td>&gt; 1%</td>
+</tr>
+<tr>
+<td>P95 Latency</td>
+<td>TBD</td>
+<td>&lt; 500ms</td>
+<td>&gt; 2s</td>
+</tr>
+<tr>
+<td>Auth Success Rate</td>
+<td>TBD</td>
+<td>&gt; 99.9%</td>
+<td>&lt; 99%</td>
+</tr>
+<tr>
+<td>DB Query Time</td>
+<td>TBD</td>
+<td>&lt; 100ms</td>
+<td>&gt; 500ms</td>
+</tr>
+<tr>
+<td>NATS Message Lag</td>
+<td>TBD</td>
+<td>&lt; 100</td>
+<td>&gt; 1000</td>
+</tr>
+<tr>
+<td>Mobile Crash Rate</td>
+<td>TBD</td>
+<td>&lt; 0.1%</td>
+<td>&gt; 1%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sign-off-checklist">Sign-off Checklist | قائمة التحقق<a class="headerlink" href="#sign-off-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-completion">Phase 1 Completion<a class="headerlink" href="#phase-1-completion" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] All critical security issues fixed</li>
+<li>[ ] Database migrations tested</li>
+<li>[ ] Build system working</li>
+<li>[ ] Mobile app compiles</li>
+</ul>
+<h3 id="phase-2-completion">Phase 2 Completion<a class="headerlink" href="#phase-2-completion" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] All stub services addressed</li>
+<li>[ ] NestJS guards added</li>
+<li>[ ] Docker security improved</li>
+<li>[ ] Dependencies aligned</li>
+</ul>
+<h3 id="phase-3-completion">Phase 3 Completion<a class="headerlink" href="#phase-3-completion" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Race conditions fixed</li>
+<li>[ ] i18n improved</li>
+<li>[ ] API client enhanced</li>
+<li>[ ] Monitoring operational</li>
+</ul>
+<h3 id="phase-4-completion">Phase 4 Completion<a class="headerlink" href="#phase-4-completion" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] UI accessibility improved</li>
+<li>[ ] TypeScript strict mode enabled</li>
+<li>[ ] Documentation complete</li>
+<li>[ ] Governance fully implemented</li>
+</ul>
+<hr />
+<h2 id="appendix-agent-reports-summary">Appendix: Agent Reports Summary<a class="headerlink" href="#appendix-agent-reports-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>Focus Area</th>
+<th>Issues Found</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent 1</td>
+<td>Python Services Health</td>
+<td>52</td>
+</tr>
+<tr>
+<td>Agent 2</td>
+<td>NestJS Services</td>
+<td>33</td>
+</tr>
+<tr>
+<td>Agent 3</td>
+<td>Docker Configurations</td>
+<td>89</td>
+</tr>
+<tr>
+<td>Agent 4</td>
+<td>Docker Compose</td>
+<td>12</td>
+</tr>
+<tr>
+<td>Agent 5</td>
+<td>CI/CD Workflows</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Agent 6</td>
+<td>Shared Python Modules</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Agent 7</td>
+<td>NPM Dependencies</td>
+<td>17</td>
+</tr>
+<tr>
+<td>Agent 8</td>
+<td>TypeScript Configs</td>
+<td>14</td>
+</tr>
+<tr>
+<td>Agent 9</td>
+<td>API Client</td>
+<td>18</td>
+</tr>
+<tr>
+<td>Agent 10</td>
+<td>Authentication Security</td>
+<td>23</td>
+</tr>
+<tr>
+<td>Agent 11</td>
+<td>Database/Prisma</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Agent 12</td>
+<td>Test Coverage</td>
+<td>28</td>
+</tr>
+<tr>
+<td>Agent 13</td>
+<td>Shared UI</td>
+<td>9</td>
+</tr>
+<tr>
+<td>Agent 14</td>
+<td>Shared Hooks</td>
+<td>22</td>
+</tr>
+<tr>
+<td>Agent 15</td>
+<td>Next.js Config</td>
+<td>34</td>
+</tr>
+<tr>
+<td>Agent 16</td>
+<td>i18n Implementation</td>
+<td>46</td>
+</tr>
+<tr>
+<td>Agent 17</td>
+<td>Error Handling</td>
+<td>80</td>
+</tr>
+<tr>
+<td>Agent 18</td>
+<td>Monitoring/Logging</td>
+<td>25</td>
+</tr>
+<tr>
+<td>Agent 19</td>
+<td>NATS Events</td>
+<td>18</td>
+</tr>
+<tr>
+<td>Agent 20</td>
+<td>Kubernetes/Helm</td>
+<td>32</td>
+</tr>
+<tr>
+<td>Agent 21</td>
+<td>Flutter Mobile</td>
+<td>44</td>
+</tr>
+<tr>
+<td>Agent 22</td>
+<td>Governance</td>
+<td>24</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>Document Version</strong>: 1.1
+<strong>Last Updated</strong>: 2026-02-03
+<strong>Author</strong>: Claude Code (Automated Analysis)
+<strong>Session</strong>: https://claude.ai/code/session_01SmKAUuk4QfnaXpxHShUacu</p>
+<hr />
+<h2 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h2>
+<h3 id="v11-2026-02-03">v1.1 (2026-02-03)<a class="headerlink" href="#v11-2026-02-03" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Added 5 items from <code>apps/admin/AUDIT_SUMMARY.md</code> (commit d7427451):</li>
+<li>1.1.2 Rate Limiting on Auth Endpoints (CRITICAL)</li>
+<li>1.1.3 CORS on CSP Report Endpoint (CRITICAL)</li>
+<li>3.5 Loading States for Pages (MEDIUM)</li>
+<li>3.6 Enable exhaustive-deps ESLint Rule (MEDIUM)</li>
+<li>3.7 Zod Schema Validation (MEDIUM)</li>
+<li>Updated section numbering</li>
+<li>Total issues: 680 → 685+</li>
+</ul>
+<h3 id="v10-2026-02-03">v1.0 (2026-02-03)<a class="headerlink" href="#v10-2026-02-03" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Initial comprehensive fix plan from 22-agent deep review</li>
+<li>680 issues identified across all categories</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

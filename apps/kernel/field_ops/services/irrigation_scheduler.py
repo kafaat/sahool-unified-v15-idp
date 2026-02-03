@@ -370,11 +370,11 @@ class IrrigationScheduler:
             # تقدير الإشعاع الشمسي من ساعات السطوع
             # Estimate solar radiation from sunshine hours
             Rs = self._estimate_solar_radiation(
-                lat, weather_data.date, weather_data.sunshine_hours or 8
+                lat, weather_data.observation_date, weather_data.sunshine_hours or 8
             )
 
         # الإشعاع خارج الغلاف الجوي - Extraterrestrial radiation
-        Ra = self._calculate_extraterrestrial_radiation(lat, weather_data.date)
+        Ra = self._calculate_extraterrestrial_radiation(lat, weather_data.observation_date)
 
         # الإشعاع الصافي - Net radiation
         albedo = 0.23  # معامل الانعكاس للمراعي - Albedo for grass reference
@@ -571,10 +571,10 @@ class IrrigationScheduler:
 
         # إذا تجاوز الحد الأقصى، هناك تصريف - If exceeds max, drainage occurs
         if new_content > max_content:
-            new_content - max_content
+            drainage = new_content - max_content  # حساب كمية التصريف
             new_content = max_content
         else:
-            pass
+            drainage = 0
 
         # حساب عجز المياه - Calculate water deficit
         deficit = max(0, soil_properties.readily_available_water - new_content)

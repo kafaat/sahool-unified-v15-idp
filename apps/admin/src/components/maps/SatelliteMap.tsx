@@ -26,9 +26,9 @@ export default function SatelliteMap({
   selectedFieldId,
   onFieldClick,
 }: SatelliteMapProps) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const mapRef = useRef<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const markersRef = useRef<Map<string, any>>(new Map());
   const [isClient, setIsClient] = useState(false);
 

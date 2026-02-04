@@ -2,7 +2,7 @@
 # Multi-stage build for optimized production image
 
 # Build stage
-FROM python:3.11-slim as builder
+FROM python:3.12-slim as builder
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgr
     pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ --user -r requirements.txt
 
 # Production stage
-FROM python:3.11-slim as production
+FROM python:3.12-slim as production
 
 # Security: Run as non-root user
 RUN groupadd --gid 1000 appgroup && \

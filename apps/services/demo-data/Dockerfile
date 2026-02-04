@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 LABEL maintainer="KAFAAT Team"
 LABEL description="SAHOOL Demo Data Service - Simulates API data flow"

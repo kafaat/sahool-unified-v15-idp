@@ -5,7 +5,7 @@
 # This Dockerfile creates a container for running tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 

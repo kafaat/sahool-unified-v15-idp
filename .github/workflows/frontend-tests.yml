@@ -705,7 +705,7 @@ jobs:
       - name: Setup Python for icon generation
         uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Create required directories and generate assets
         run: |
@@ -787,7 +787,7 @@ jobs:
       - name: Setup Python for icon generation
         uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Create required directories and generate assets
         run: |

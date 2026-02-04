@@ -27,7 +27,7 @@ on:
         default: '85'
 
 env:
-  PYTHON_VERSION: '3.11'
+  PYTHON_VERSION: "3.12"
   MIN_EVALUATION_SCORE: ${{ github.event.inputs.min_score_threshold || '85' }}
   EVALUATION_DATASET: ${{ github.event.inputs.evaluation_set || 'golden' }}
 

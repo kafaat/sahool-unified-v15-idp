@@ -4,7 +4,7 @@
 # SAHOOL WhatsApp Bot Service
 # خدمة روبوت واتساب
 
-FROM python:3.11-slim AS builder
+FROM python:3.12-slim AS builder
 
 # Set build arguments
 ARG SERVICE_NAME=whatsapp-bot-service
@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgr
     pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r /tmp/requirements.txt
 
 # Production image
-FROM python:3.11-slim AS production
+FROM python:3.12-slim AS production
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \

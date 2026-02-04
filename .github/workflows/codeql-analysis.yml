@@ -52,7 +52,7 @@ jobs:
         if: matrix.language == 'python'
         uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       # For TypeScript/JavaScript, set up Node
       - name: Set up Node.js

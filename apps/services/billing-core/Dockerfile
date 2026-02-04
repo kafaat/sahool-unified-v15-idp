@@ -3,7 +3,7 @@
 # Version: 16.0.0
 # Port: 8089
 
-FROM python:3.11-slim-bookworm
+FROM python:3.12-slim-bookworm
 
 # Labels
 LABEL org.opencontainers.image.title="SAHOOL Billing Core"

@@ -1,7 +1,7 @@
 # SAHOOL Astronomical Calendar Service
 # خدمة التقويم الفلكي الزراعي
 
-FROM python:3.11-slim-bookworm
+FROM python:3.12-slim-bookworm
 
 LABEL maintainer="SAHOOL Team <dev@sahool.io>"
 LABEL description="Astronomical Calendar Service for Traditional Yemeni Farming"

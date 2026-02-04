@@ -19,14 +19,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
-COPY package*.json ./
-COPY tsconfig.json ./
+COPY apps/services/code-review-agent/package*.json ./
+COPY apps/services/code-review-agent/tsconfig.json ./
 
 # Install dependencies
 RUN npm ci --ignore-scripts
 
 # Copy source code
-COPY src/ ./src/
+COPY apps/services/code-review-agent/src/ ./src/
 
 # Build TypeScript
 RUN npm run build

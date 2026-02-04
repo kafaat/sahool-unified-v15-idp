@@ -7,11 +7,11 @@ RUN groupadd --gid 1000 appgroup && \
     useradd --uid 1000 --gid appgroup --shell /bin/bash --create-home appuser
 
 # Install dependencies
-COPY requirements.txt .
+COPY apps/services/soil-analysis-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application
-COPY src/ ./src/
+COPY apps/services/soil-analysis-service/src/ ./src/
 
 # Change ownership to non-root user
 RUN chown -R appuser:appgroup /app

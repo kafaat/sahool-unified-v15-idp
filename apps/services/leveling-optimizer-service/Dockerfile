@@ -42,8 +42,7 @@ RUN mkdir -p /root/.pip && \
 COPY apps/services/leveling-optimizer-service/requirements.txt .
 
 # Install Python dependencies with fallback to Tsinghua mirror
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt || \
-    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt
+RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt
 
 # Production stage
 FROM base AS production

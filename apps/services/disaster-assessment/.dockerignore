@@ -27,7 +27,6 @@ coverage/
 # OS
 .DS_Store
 Thumbs.db
-*.log
 
 # Git
 .git/
@@ -48,15 +47,11 @@ README.md
 
 # Logs
 logs/
-*.log
 
 # Prisma
 prisma/migrations/
 *.db
 *.db-journal
-
-# TypeScript
-*.tsbuildinfo
 
 # Test files
 test/

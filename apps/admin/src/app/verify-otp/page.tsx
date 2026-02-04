@@ -194,7 +194,7 @@ function VerifyOTPForm() {
     const newOtp = [...otp];
 
     for (let i = 0; i < pastedData.length && i < 6; i++) {
-      newOtp[i] = pastedData[i];
+      newOtp[i] = pastedData[i] ?? "";
     }
 
     setOtp(newOtp);
@@ -323,11 +323,12 @@ function VerifyOTPForm() {
   const maskIdentifier = (id: string) => {
     if (id.includes("@")) {
       // Email
-      const [local, domain] = id.split("@");
+      const [localPart, domain] = id.split("@");
+      const local = localPart ?? "";
       const maskedLocal = local.length > 2
-        ? `${local[0]}${"*".repeat(local.length - 2)}${local[local.length - 1]}`
+        ? `${local[0] ?? ""}${"*".repeat(local.length - 2)}${local[local.length - 1] ?? ""}`
         : local;
-      return `${maskedLocal}@${domain}`;
+      return `${maskedLocal}@${domain ?? ""}`;
     } else {
       // Phone
       if (id.length > 4) {

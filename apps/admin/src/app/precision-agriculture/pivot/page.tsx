@@ -16,14 +16,7 @@ import {
   PlusCircle,
   BarChart3,
   Grid3X3,
-  Gauge,
-  Clock,
   RefreshCw,
-  AlertTriangle,
-  CheckCircle,
-  MapPin,
-  Thermometer,
-  Wind,
   Calendar,
 } from "lucide-react";
 
@@ -48,19 +41,6 @@ interface PivotSystem {
   next_scheduled: string | null;
   application_rate_mm_hr: number;
   efficiency_percent: number;
-}
-
-interface VRIZone {
-  id: string;
-  pivot_id: string;
-  span_number: number;
-  zone_number: number;
-  start_angle: number;
-  end_angle: number;
-  application_rate_percent: number;
-  ndvi_value?: number;
-  soil_type?: string;
-  is_enabled: boolean;
 }
 
 interface PivotStatistics {
@@ -288,7 +268,7 @@ export default function PivotIrrigationPage() {
       const mockPivots = generateMockPivots();
       setPivots(mockPivots);
       setStatistics(generateMockStatistics(mockPivots));
-      setSelectedPivot(mockPivots[0]);
+      setSelectedPivot(mockPivots[0] ?? null);
     } finally {
       setIsLoading(false);
     }

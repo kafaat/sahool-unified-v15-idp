@@ -3,7 +3,7 @@
 // Settings Page - Admin Dashboard
 // صفحة الإعدادات - لوحة تحكم المدير
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Header from "@/components/layout/Header";
 import DataTable from "@/components/ui/DataTable";
 import { cn } from "@/lib/utils";
@@ -117,7 +117,7 @@ export default function SettingsPage() {
   });
 
   // Admins state
-  const [admins, setAdmins] = useState(mockAdmins);
+  const [admins, _setAdmins] = useState(mockAdmins);
   const [selectedTab, setSelectedTab] = useState<
     "profile" | "preferences" | "system" | "users"
   >("profile");
@@ -209,7 +209,7 @@ export default function SettingsPage() {
     {
       key: "actions",
       header: "الإجراءات",
-      render: (admin: (typeof mockAdmins)[0]) => (
+      render: (_admin: (typeof mockAdmins)[0]) => (
         <div className="flex items-center gap-2">
           <button className="p-1 hover:bg-gray-100 rounded transition-colors">
             <Edit className="w-4 h-4 text-blue-600" />

@@ -261,6 +261,7 @@ export function useCriticalAlerts(
   useEffect(() => {
     if (criticalAlerts.length > 0) {
       const latest = criticalAlerts[0];
+      if (!latest) return;
 
       if (!latestCritical || latest.id !== latestCritical.id) {
         setLatestCritical(latest);

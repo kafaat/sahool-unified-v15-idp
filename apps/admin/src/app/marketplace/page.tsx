@@ -5,11 +5,9 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Header from "@/components/layout/Header";
-import StatusBadge from "@/components/ui/StatusBadge";
 import DataTable from "@/components/ui/DataTable";
-import { formatDate, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
-  ShoppingBag,
   Search,
   RefreshCw,
   Download,
@@ -17,9 +15,7 @@ import {
   CheckCircle,
   XCircle,
   Package,
-  Users,
   TrendingUp,
-  DollarSign,
   Filter,
 } from "lucide-react";
 import { logger } from "../../lib/logger";

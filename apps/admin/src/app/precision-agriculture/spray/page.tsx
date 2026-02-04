@@ -6,16 +6,13 @@
 import { useEffect, useState } from "react";
 import Header from "@/components/layout/Header";
 import StatCard from "@/components/ui/StatCard";
-import StatusBadge from "@/components/ui/StatusBadge";
+// StatusBadge import removed - using inline status display
 import { fetchSprayWindows, fetchSprayHistory } from "@/lib/api/precision";
 import {
   Droplet,
   Wind,
-  CloudRain,
   CheckCircle,
   Clock,
-  AlertTriangle,
-  Calendar,
   TrendingUp,
   Sun,
 } from "lucide-react";
@@ -367,7 +364,7 @@ export default function SprayPage() {
                         }
                         labelLine={false}
                       >
-                        {productUsageData.map((entry, index) => (
+                        {productUsageData.map((_entry, index) => (
                           <Cell
                             key={`cell-${index}`}
                             fill={PIE_COLORS[index % PIE_COLORS.length]}

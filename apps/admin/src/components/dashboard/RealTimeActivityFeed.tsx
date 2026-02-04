@@ -16,7 +16,6 @@ import {
   Eye,
   Leaf,
   MapPin,
-  MessageSquare,
   Settings,
   Truck,
   Users,
@@ -221,12 +220,13 @@ const generateMockEvent = (): ActivityEvent => {
     },
   };
 
-  const type = types[Math.floor(Math.random() * types.length)];
-  const mockData = mockEvents[type];
+  const typeIndex = Math.floor(Math.random() * types.length);
+  const type = types[typeIndex] ?? "system_event";
+  const mockData = mockEvents[type] ?? mockEvents.system_event;
 
   return {
     id: `evt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    type,
+    type: type as ActivityType,
     title: mockData.title || "",
     titleAr: mockData.titleAr || "",
     description: mockData.description || "",

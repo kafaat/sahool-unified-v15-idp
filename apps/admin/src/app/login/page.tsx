@@ -25,7 +25,7 @@ function LoginForm() {
 
   // 2FA states
   const [requires2FA, setRequires2FA] = useState(false);
-  const [tempToken, setTempToken] = useState("");
+  const [_tempToken, setTempToken] = useState("");
   const [twoFACode, setTwoFACode] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {

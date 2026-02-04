@@ -19,7 +19,7 @@ import { logger } from "@/lib/logger";
  * GET /api/csrf-token
  * Generate and return a new CSRF token
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Generate new token payload
     const payload = createCsrfTokenPayload();
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
  * POST /api/csrf-token
  * Refresh existing CSRF token
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Generate new token payload
     const payload = createCsrfTokenPayload();

@@ -311,7 +311,7 @@ export function validateForm(
     if (Object.prototype.hasOwnProperty.call(inputs, field)) {
       const value = inputs[field];
       const rule = rules[field];
-      if (rule) {
+      if (rule && value !== undefined) {
         results[field] = validateInput(value, rule);
       }
     }
@@ -334,7 +334,8 @@ export function isFormValid(
   // Iterate over validation results
   for (const field in validationResults) {
     if (Object.prototype.hasOwnProperty.call(validationResults, field)) {
-      if (!validationResults[field].isValid) {
+      const result = validationResults[field];
+      if (result && !result.isValid) {
         return false;
       }
     }

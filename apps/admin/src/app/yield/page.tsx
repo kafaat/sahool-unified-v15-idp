@@ -70,7 +70,7 @@ export default function YieldPage() {
 
   const [prediction, setPrediction] = useState<YieldPrediction | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [_error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

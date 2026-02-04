@@ -107,7 +107,8 @@ export async function getUserRole(
 
     // Extract role from roles array or fallback to role field
     if (payload.roles && Array.isArray(payload.roles) && payload.roles.length > 0) {
-      const extractedRole = payload.roles[0].toLowerCase();
+      const firstRole = payload.roles[0];
+      const extractedRole = firstRole ? firstRole.toLowerCase() : "viewer";
       if (extractedRole === "admin" || extractedRole === "administrator") {
         return "admin";
       } else if (extractedRole === "supervisor" || extractedRole === "manager") {
@@ -137,7 +138,8 @@ export async function getUserFromToken(token: string): Promise<User | null> {
     // Extract role from roles array or fallback to role field
     let userRole: "admin" | "supervisor" | "viewer" = "viewer";
     if (payload.roles && Array.isArray(payload.roles) && payload.roles.length > 0) {
-      const extractedRole = payload.roles[0].toLowerCase();
+      const firstRole = payload.roles[0];
+      const extractedRole = firstRole ? firstRole.toLowerCase() : "viewer";
       if (extractedRole === "admin" || extractedRole === "administrator") {
         userRole = "admin";
       } else if (extractedRole === "supervisor" || extractedRole === "manager") {

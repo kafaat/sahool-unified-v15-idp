@@ -11,6 +11,7 @@ Port: 8160
 """
 
 import json
+import logging
 import os
 import sys
 from contextlib import asynccontextmanager
@@ -38,6 +39,12 @@ from .algorithms.dem_processor import DEMProcessor, DEMSource
 from .algorithms.terrain_indicators import TerrainIndicatorCalculator
 from .api.endpoints.terrain import router as terrain_router
 from .core.config import settings
+
+# Configure standard library logging (required for structlog.stdlib processors)
+logging.basicConfig(
+    format="%(message)s",
+    level=getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper(), logging.INFO),
+)
 
 # Configure structured logging
 structlog.configure(

@@ -319,7 +319,7 @@ export default function IrrigationPage() {
       setWaterBalance(balanceRes?.data || generateMockWaterBalance());
       setMethods(methodsRes?.data?.methods || generateMockMethods());
       setCrops(cropsRes?.data?.crops || generateMockCrops());
-    } catch (error) {
+    } catch {
       // Use mock data
       setPlan(generateMockPlan());
       setWaterBalance(generateMockWaterBalance());

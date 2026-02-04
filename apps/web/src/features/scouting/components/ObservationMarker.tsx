@@ -107,9 +107,8 @@ export const ObservationMarker: React.FC<ObservationMarkerProps> = ({
   );
   const severityInfo = SEVERITY_LABELS[observation.severity];
 
-  // Cast to any due to incompatible Leaflet types between leaflet and react-leaflet packages
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const markerIcon: any = createMarkerIcon(
+  // Cast to unknown due to incompatible Leaflet types between leaflet and react-leaflet packages
+  const markerIcon: unknown = createMarkerIcon(
     observation.category,
     observation.severity,
   );

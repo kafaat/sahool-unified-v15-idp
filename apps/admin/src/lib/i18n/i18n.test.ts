@@ -3,7 +3,7 @@
  * اختبارات الترجمة
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import {
   t,
   tp,
@@ -16,7 +16,6 @@ import {
   isRtl,
   getDirection,
   i18n,
-  Locale,
 } from "./index";
 
 describe("i18n", () => {

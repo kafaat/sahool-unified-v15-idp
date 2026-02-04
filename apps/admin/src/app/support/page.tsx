@@ -117,7 +117,7 @@ export default function SupportPage() {
         `${API_URLS.communityChat}/v1/stats`,
       );
       setStats(response.data);
-    } catch (error) {
+    } catch {
       logger.log("Using mock stats");
     }
   };
@@ -128,7 +128,7 @@ export default function SupportPage() {
         `${API_URLS.communityChat}/v1/requests`,
       );
       setRequests(response.data);
-    } catch (error) {
+    } catch {
       logger.log("Using mock requests");
     }
   };

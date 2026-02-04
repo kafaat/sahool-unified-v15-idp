@@ -152,7 +152,7 @@ export default function SensorsPage() {
         `${API_URLS.virtualSensors}/v1/farms/readings`,
       );
       setFarmsData(response.data);
-    } catch (error) {
+    } catch {
       // Fallback to mock data
       logger.log("Using mock sensor data");
       setFarmsData(generateMockSensors());

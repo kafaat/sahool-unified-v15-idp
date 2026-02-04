@@ -11,9 +11,9 @@ import { MapPin, Loader2 } from "lucide-react";
 
 export function EquipmentMap() {
   const mapRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // Leaflet types from CDN
   const mapInstanceRef = useRef<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // Leaflet marker types
   const markersRef = useRef<any[]>([]);
   const { data: equipment, isLoading } = useEquipment();
 
@@ -23,7 +23,6 @@ export function EquipmentMap() {
     // Initialize map
     const initMap = async () => {
       // Access Leaflet from window (loaded via CDN in layout)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const L = (window as typeof window & { L?: any }).L;
       if (!L) return;
 

@@ -216,7 +216,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await logout();
         }
       }
-    } catch (error) {
+    } catch {
       setUser(null);
     } finally {
       setIsLoading(false);

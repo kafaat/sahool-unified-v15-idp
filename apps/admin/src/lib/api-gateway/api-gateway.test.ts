@@ -13,7 +13,6 @@ import {
   checkAllServicesHealth,
   getCircuitBreakerStatus,
   ApiGateway,
-  ServiceName,
 } from "./index";
 
 // Mock axios

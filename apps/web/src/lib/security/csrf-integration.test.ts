@@ -5,7 +5,7 @@
  * Tests the integration between security library and API client for CSRF protection
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { getCsrfToken, getCsrfHeaders } from "./security";
 
 describe("CSRF Integration", () => {

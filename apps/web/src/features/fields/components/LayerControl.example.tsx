@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck - Example file for demonstration purposes
 "use client";
 
@@ -216,7 +215,7 @@ export function LayerControlPositionsExample() {
 
 export function IntegratedMapExample() {
   const mapRef = useRef<LeafletMap | null>(null);
-  const [layerState, controls] = useLayerControl();
+  const [layerState, _controls] = useLayerControl();
 
   // Simulate layer visibility control
   useEffect(() => {

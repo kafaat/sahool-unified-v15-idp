@@ -84,7 +84,7 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
         try {
           mapInstanceRef.current.remove();
           mapInstanceRef.current = null;
-        } catch (error) {
+        } catch {
           // Ignore errors during cleanup
         }
       }

@@ -617,8 +617,7 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
               <Marker
                 key={task.id}
                 position={position}
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                icon={icon as any}
+                icon={icon as unknown}
                 eventHandlers={{
                   click: () => handleTaskClick(task),
                 }}

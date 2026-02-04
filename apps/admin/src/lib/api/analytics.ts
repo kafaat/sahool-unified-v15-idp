@@ -304,7 +304,7 @@ function generateMockSatelliteData(): SatelliteData {
       coverage: 85 + Math.random() * 15,
       dataUsage: 45 + Math.random() * 30,
     },
-    fields: fields.map(({ trends, ...field }) => field), // Remove trends from fields
+    fields: fields.map(({ trends: _trends, ...field }) => field), // Remove trends from fields
     ndviTrends,
   };
 }

@@ -93,7 +93,7 @@ export function validateCsrfToken(
     // Use timing-safe comparison to prevent timing attacks
     // This implementation works in Edge Runtime (no Node.js crypto dependency)
     return timingSafeCompare(cookieToken, headerToken);
-  } catch (error) {
+  } catch {
     // If comparison fails (e.g., encoding issues), reject the request
     return false;
   }

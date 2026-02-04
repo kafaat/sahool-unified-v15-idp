@@ -140,7 +140,7 @@ export function ServiceHealthDashboard({
             endpoint: service.endpoint,
           };
         }
-      } catch (error) {
+      } catch {
         return {
           name: service.name,
           nameAr: service.nameAr,

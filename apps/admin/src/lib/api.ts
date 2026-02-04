@@ -99,7 +99,7 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
       `${API_URLS.indicators}/api/v1/indicators/dashboard`,
     );
     return response.data;
-  } catch (error) {
+  } catch {
     // Return mock data for development
     return {
       totalFarms: 156,
@@ -119,7 +119,7 @@ export async function fetchFarms(): Promise<Farm[]> {
   try {
     const response = await apiClient.get(`${API_URLS.fieldCore}/api/v1/fields`);
     return response.data;
-  } catch (error) {
+  } catch {
     // Return static mock data for development when backend is unavailable.
     // Note: This returns the same data on every call to ensure UI consistency.
     // See MOCK_FARMS constant at the bottom of this file for the data source.
@@ -191,7 +191,7 @@ export async function fetchDiagnoses(params?: {
           }
         : undefined,
     }));
-  } catch (error) {
+  } catch {
     // Return static mock data for development when backend is unavailable.
     // Note: This returns the same data on every call to ensure UI consistency.
     // See MOCK_DIAGNOSES constant at the bottom of this file for the data source.
@@ -225,7 +225,7 @@ export async function fetchDiagnosisStats(): Promise<{
       byDisease: response.data.by_disease,
       byGovernorate: response.data.by_governorate,
     };
-  } catch (error) {
+  } catch {
     return {
       total: 0,
       pending: 0,
@@ -381,7 +381,7 @@ export async function fetchSensorReadings(
       `${API_URLS.virtualSensors}/api/v1/iot/readings/${farmId}`,
     );
     return response.data;
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -408,7 +408,7 @@ export async function fetchNotifications(params?: {
       { params },
     );
     return response.data;
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -419,7 +419,7 @@ export async function markNotificationRead(id: string): Promise<boolean> {
       `${API_URLS.notifications}/api/v1/notifications/${id}/read`,
     );
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -448,7 +448,7 @@ export async function fetchTasks(params?: {
       params,
     });
     return response.data;
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -460,7 +460,7 @@ export async function updateTaskStatus(
   try {
     await apiClient.patch(`${API_URLS.task}/api/v1/tasks/${id}`, { status });
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -487,7 +487,7 @@ export async function fetchCommunityPosts(params?: {
       params,
     });
     return response.data;
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -514,7 +514,7 @@ export async function fetchEquipment(params?: {
       { params },
     );
     return response.data;
-  } catch (error) {
+  } catch {
     return [];
   }
 }

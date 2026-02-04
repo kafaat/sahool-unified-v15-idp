@@ -1,0 +1,108 @@
+# =============================================================================
+# Ground Vision Service - Docker Build Exclusions
+# خدمة الرؤية الأرضية - استثناءات بناء Docker
+# =============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+env/
+venv/
+ENV/
+.venv
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Vision Models & Data
+models/
+datasets/
+weights/
+*.pth
+*.pt
+*.onnx
+*.bin
+*.h5
+
+# Images & Videos
+data/
+images/
+videos/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.mp4
+*.avi
+
+# Database
+*.db
+*.sqlite
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# CI/CD
+.github/
+
+# Temporary
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Security
+*.key
+*.pem
+credentials.json
+secrets/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# MyPy & Ruff
+.mypy_cache/
+.ruff_cache/

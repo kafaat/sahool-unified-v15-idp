@@ -25,7 +25,7 @@ RUN npm config set registry https://registry.npmmirror.com
 
 
 # Install dependencies (with retries for network resilience)
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000  --fetch-retry-maxtimeout=120000
+RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Generate Prisma client
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1

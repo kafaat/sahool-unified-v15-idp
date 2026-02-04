@@ -1,0 +1,1415 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>دليل حل التعارضات في الفروع المفتوحة - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              دليل حل التعارضات في الفروع المفتوحة
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">دليل حل التعارضات في الفروع المفتوحة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="branch-conflict-resolution-guide">Branch Conflict Resolution Guide<a class="headerlink" href="#branch-conflict-resolution-guide" title="Permanent link">&para;</a></h1>
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This guide provides step-by-step instructions for resolving merge conflicts in open pull requests for the SAHOOL platform.</p>
+<h3 id="affected-branches">الفروع المتأثرة | Affected Branches<a class="headerlink" href="#affected-branches" title="Permanent link">&para;</a></h3>
+<p>Based on the current repository status, the following PRs have merge conflicts:</p>
+<ol>
+<li><strong>PR #810</strong>: Standardize Python version to 3.12 across all environments</li>
+<li>Branch: <code>copilot/fix-ci-workflow-issues</code></li>
+<li>Base: <code>main</code></li>
+<li>Status: <code>mergeable: false</code>, <code>mergeable_state: "dirty"</code></li>
+<li>Files changed: 83 files</li>
+<li>
+<p>Changes: +108 insertions, -108 deletions</p>
+</li>
+<li>
+<p><strong>PR #809</strong>: Add comprehensive final project review with bilingual documentation</p>
+</li>
+<li>Branch: <code>copilot/final-project-review</code></li>
+<li>Base: <code>main</code></li>
+<li>Status: <code>mergeable: false</code>, <code>mergeable_state: "dirty"</code></li>
+<li>Files changed: 25 files</li>
+<li>
+<p>Changes: +2810 insertions, -60 deletions</p>
+</li>
+<li>
+<p><strong>PR #813</strong>: Resolve merge conflicts in pull request (already clean)</p>
+</li>
+<li>Branch: <code>copilot/resolve-merge-conflicts-again</code></li>
+<li>Base: <code>copilot/fix-ci-workflow-issues</code></li>
+<li>Status: <code>mergeable: true</code>, <code>mergeable_state: "clean"</code> ✅</li>
+</ol>
+<hr />
+<h2 id="root-cause">السبب الجذري | Root Cause<a class="headerlink" href="#root-cause" title="Permanent link">&para;</a></h2>
+<p>The conflicts occur because:
+1. The base branch <code>main</code> has received new commits (PR #811 was merged)
+2. The feature branches were created from an earlier state of <code>main</code>
+3. Changes in <code>main</code> overlap with changes in the feature branches</p>
+<hr />
+<h2 id="conflict-resolution">حل التعارضات | Conflict Resolution<a class="headerlink" href="#conflict-resolution" title="Permanent link">&para;</a></h2>
+<h3 id="1-rebase-method-1-rebase-recommended">الطريقة 1: إعادة التأسيس (Rebase) - الموصى بها | Method 1: Rebase (Recommended)<a class="headerlink" href="#1-rebase-method-1-rebase-recommended" title="Permanent link">&para;</a></h3>
+<p>This method creates a clean, linear history by replaying the feature branch commits on top of the latest <code>main</code>.</p>
+<h4 id="pr-810-python-312-standardization">PR #810: Python 3.12 Standardization<a class="headerlink" href="#pr-810-python-312-standardization" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Step 1: Checkout the branch</span>
+git<span class="w"> </span>checkout<span class="w"> </span>copilot/fix-ci-workflow-issues
+git<span class="w"> </span>fetch<span class="w"> </span>origin<span class="w"> </span>main
+
+<span class="c1"># Step 2: Rebase on main</span>
+git<span class="w"> </span>rebase<span class="w"> </span>origin/main
+
+<span class="c1"># Step 3: Resolve conflicts if any</span>
+<span class="c1"># For each conflicting file:</span>
+<span class="c1"># - Edit the file to resolve conflicts</span>
+<span class="c1"># - Mark as resolved: git add &lt;file&gt;</span>
+<span class="c1"># - Continue: git rebase --continue</span>
+
+<span class="c1"># Step 4: Force push (required after rebase)</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>copilot/fix-ci-workflow-issues<span class="w"> </span>--force-with-lease
+</code></pre></div>
+
+<p><strong>Expected Conflicts</strong>:
+- Configuration files (pyproject.toml, GitHub workflows, Dockerfiles)
+- Likely due to Python version changes vs. other dependency updates in main</p>
+<p><strong>Resolution Strategy</strong>:
+- Keep Python 3.12 changes from PR #810
+- Integrate any new services or workflows from main
+- Ensure all Python version references are 3.12 (not 3.11)</p>
+<h4 id="pr-809-final-project-review">PR #809: Final Project Review<a class="headerlink" href="#pr-809-final-project-review" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Step 1: Checkout the branch</span>
+git<span class="w"> </span>checkout<span class="w"> </span>copilot/final-project-review
+git<span class="w"> </span>fetch<span class="w"> </span>origin<span class="w"> </span>main
+
+<span class="c1"># Step 2: Rebase on main</span>
+git<span class="w"> </span>rebase<span class="w"> </span>origin/main
+
+<span class="c1"># Step 3: Resolve conflicts if any</span>
+<span class="c1"># Documentation files may conflict if new docs were added to main</span>
+
+<span class="c1"># Step 4: Force push</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>copilot/final-project-review<span class="w"> </span>--force-with-lease
+</code></pre></div>
+
+<p><strong>Expected Conflicts</strong>:
+- Documentation files in <code>docs/</code> directory
+- Audit report index files</p>
+<p><strong>Resolution Strategy</strong>:
+- Keep new documentation from PR #809
+- Merge any new documentation added to main
+- Update references to include latest changes</p>
+<hr />
+<h3 id="2-merge-method-2-merge-alternative">الطريقة 2: الدمج (Merge) - بديلة | Method 2: Merge (Alternative)<a class="headerlink" href="#2-merge-method-2-merge-alternative" title="Permanent link">&para;</a></h3>
+<p>This method preserves the full history by creating a merge commit.</p>
+<h4 id="pr-810">PR #810<a class="headerlink" href="#pr-810" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Step 1: Checkout the branch</span>
+git<span class="w"> </span>checkout<span class="w"> </span>copilot/fix-ci-workflow-issues
+git<span class="w"> </span>fetch<span class="w"> </span>origin<span class="w"> </span>main
+
+<span class="c1"># Step 2: Merge main into feature branch</span>
+git<span class="w"> </span>merge<span class="w"> </span>origin/main
+
+<span class="c1"># Step 3: Resolve conflicts</span>
+<span class="c1"># Edit conflicting files</span>
+<span class="c1"># git add &lt;resolved-files&gt;</span>
+<span class="c1"># git commit -m &quot;Merge main into copilot/fix-ci-workflow-issues&quot;</span>
+
+<span class="c1"># Step 4: Push</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>copilot/fix-ci-workflow-issues
+</code></pre></div>
+
+<h4 id="pr-809">PR #809<a class="headerlink" href="#pr-809" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Step 1: Checkout the branch</span>
+git<span class="w"> </span>checkout<span class="w"> </span>copilot/final-project-review
+git<span class="w"> </span>fetch<span class="w"> </span>origin<span class="w"> </span>main
+
+<span class="c1"># Step 2: Merge main into feature branch</span>
+git<span class="w"> </span>merge<span class="w"> </span>origin/main
+
+<span class="c1"># Step 3: Resolve conflicts and commit</span>
+<span class="c1"># git add &lt;resolved-files&gt;</span>
+<span class="c1"># git commit -m &quot;Merge main into copilot/final-project-review&quot;</span>
+
+<span class="c1"># Step 4: Push</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>copilot/final-project-review
+</code></pre></div>
+
+<hr />
+<h2 id="helper-tools">أدوات المساعدة | Helper Tools<a class="headerlink" href="#helper-tools" title="Permanent link">&para;</a></h2>
+<h3 id="automated-conflict-detection-script">Automated Conflict Detection Script<a class="headerlink" href="#automated-conflict-detection-script" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># check-conflicts.sh</span>
+
+<span class="nv">BRANCHES</span><span class="o">=(</span><span class="s2">&quot;copilot/fix-ci-workflow-issues&quot;</span><span class="w"> </span><span class="s2">&quot;copilot/final-project-review&quot;</span><span class="o">)</span>
+
+<span class="k">for</span><span class="w"> </span>branch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BRANCHES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Checking </span><span class="nv">$branch</span><span class="s2">...&quot;</span>
+<span class="w">    </span>git<span class="w"> </span>fetch<span class="w"> </span>origin<span class="w"> </span><span class="nv">$branch</span>
+<span class="w">    </span>git<span class="w"> </span>fetch<span class="w"> </span>origin<span class="w"> </span>main
+
+<span class="w">    </span><span class="c1"># Try merge simulation</span>
+<span class="w">    </span>git<span class="w"> </span>checkout<span class="w"> </span>main
+<span class="w">    </span>git<span class="w"> </span>merge<span class="w"> </span>--no-commit<span class="w"> </span>--no-ff<span class="w"> </span>origin/<span class="nv">$branch</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;conflict&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;No conflicts&quot;</span>
+<span class="w">    </span>git<span class="w"> </span>merge<span class="w"> </span>--abort<span class="w"> </span><span class="m">2</span>&gt;/dev/null
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;---&quot;</span>
+<span class="k">done</span>
+</code></pre></div>
+
+<h3 id="conflict-file-identifier">Conflict File Identifier<a class="headerlink" href="#conflict-file-identifier" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># find-conflict-markers.sh</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Searching for conflict markers in repository...&quot;</span>
+grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.py&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.js&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.ts&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--include<span class="o">=</span><span class="s2">&quot;*.yaml&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.yml&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.json&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.md&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--include<span class="o">=</span><span class="s2">&quot;Dockerfile&quot;</span><span class="w"> </span>.<span class="w"> </span><span class="m">2</span>&gt;/dev/null
+</code></pre></div>
+
+<hr />
+<h2 id="verification-checklist">قائمة التحقق | Verification Checklist<a class="headerlink" href="#verification-checklist" title="Permanent link">&para;</a></h2>
+<p>After resolving conflicts, verify:</p>
+<h3 id="pr-810-python-312">PR #810 (Python 3.12)<a class="headerlink" href="#pr-810-python-312" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] All Dockerfiles use <code>python:3.12-slim-bookworm</code></li>
+<li>[ ] pyproject.toml has <code>requires-python = "&gt;=3.12"</code></li>
+<li>[ ] GitHub workflows use <code>python-version: '3.12'</code></li>
+<li>[ ] Ruff target is <code>py312</code></li>
+<li>[ ] Mypy python_version is <code>"3.12"</code></li>
+<li>[ ] No Python 3.11 references remain</li>
+<li>[ ] Smoke tests pass</li>
+<li>[ ] Linting passes (<code>make lint</code>)</li>
+</ul>
+<h3 id="pr-809-documentation">PR #809 (Documentation)<a class="headerlink" href="#pr-809-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] All new documentation files are present</li>
+<li>[ ] No markdown syntax errors</li>
+<li>[ ] Cross-references are valid</li>
+<li>[ ] Audit reports index is updated</li>
+<li>[ ] Arabic and English content is synchronized</li>
+</ul>
+<hr />
+<h2 id="next-steps">الخطوات التالية | Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Prioritize PR #810</strong> (Python 3.12 standardization)</li>
+<li>This is a critical infrastructure change</li>
+<li>
+<p>Should be merged before other PRs</p>
+</li>
+<li>
+<p><strong>Then resolve PR #809</strong> (Documentation)</p>
+</li>
+<li>Can be rebased after #810 is merged</li>
+<li>
+<p>Minimal code conflicts expected</p>
+</li>
+<li>
+<p><strong>PR #813 is already clean</strong></p>
+</li>
+<li>No action needed</li>
+<li>Can be merged once its base branch (#810) is resolved</li>
+</ol>
+<hr />
+<h2 id="quick-commands">الأوامر السريعة | Quick Commands<a class="headerlink" href="#quick-commands" title="Permanent link">&para;</a></h2>
+<h3 id="check-current-conflict-status">Check current conflict status<a class="headerlink" href="#check-current-conflict-status" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># For PR #810</span>
+git<span class="w"> </span>checkout<span class="w"> </span>copilot/fix-ci-workflow-issues
+git<span class="w"> </span>fetch<span class="w"> </span>origin<span class="w"> </span>main
+git<span class="w"> </span>merge-base<span class="w"> </span>origin/main<span class="w"> </span>HEAD
+git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>origin/main..HEAD
+
+<span class="c1"># For PR #809</span>
+git<span class="w"> </span>checkout<span class="w"> </span>copilot/final-project-review
+git<span class="w"> </span>fetch<span class="w"> </span>origin<span class="w"> </span>main
+git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>origin/main..HEAD
+</code></pre></div>
+
+<h3 id="view-file-differences">View file differences<a class="headerlink" href="#view-file-differences" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Compare branch with main</span>
+git<span class="w"> </span>diff<span class="w"> </span>origin/main...copilot/fix-ci-workflow-issues
+git<span class="w"> </span>diff<span class="w"> </span>origin/main...copilot/final-project-review
+</code></pre></div>
+
+<hr />
+<h2 id="contact-for-help">اتصل بنا للمساعدة | Contact for Help<a class="headerlink" href="#contact-for-help" title="Permanent link">&para;</a></h2>
+<p>If you encounter issues during conflict resolution:</p>
+<ol>
+<li><strong>Document the conflict</strong>: Note which files and what type of conflict</li>
+<li><strong>Check this guide</strong>: Ensure you followed the recommended steps</li>
+<li><strong>Use Git tools</strong>: <code>git status</code>, <code>git diff</code>, <code>git log --merge</code></li>
+<li><strong>Ask for review</strong>: Request help from team members familiar with the changes</li>
+</ol>
+<hr />
+<h2 id="references">المراجع | References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://git-scm.com/docs/git-rebase">Git Rebase Documentation</a></li>
+<li><a href="https://git-scm.com/docs/git-merge">Git Merge Documentation</a></li>
+<li><a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/resolving-a-merge-conflict-using-the-command-line">GitHub Conflict Resolution</a></li>
+<li>SAHOOL Contribution Guidelines: <code>docs/CONTRIBUTING.md</code></li>
+</ul>
+<hr />
+<p><strong>Last Updated</strong>: 2026-02-04
+<strong>Version</strong>: 1.0.0</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

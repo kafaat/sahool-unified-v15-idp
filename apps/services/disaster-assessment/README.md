@@ -6,8 +6,8 @@
 
 Agricultural damage assessment service for natural disasters and extreme weather conditions.
 
-**Port:** 8108
-**Version:** 15.4.0
+**Port:** 3020
+**Version:** 16.0.0
 
 ---
 
@@ -235,11 +235,12 @@ GET /compensation/claims?disaster_id=dis-001&status=pending
 
 ```env
 # الخادم
-PORT=8108
+PORT=3020
 HOST=0.0.0.0
 
 # قاعدة البيانات
 DATABASE_URL=postgresql://...
+DATABASE_URL_DIRECT=postgresql://... # Direct connection for migrations
 
 # خدمات خارجية
 SATELLITE_SERVICE_URL=http://satellite-service:8090
@@ -260,7 +261,7 @@ Response:
 {
     "status": "healthy",
     "service": "disaster-assessment",
-    "version": "15.4.0"
+    "version": "16.0.0"
 }
 ```
 

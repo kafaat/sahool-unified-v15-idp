@@ -123,7 +123,7 @@ export async function middleware(request: NextRequest) {
     // Extract role from roles array or fallback to role field for backward compatibility
     let extractedRole: string;
     if (payload.roles && Array.isArray(payload.roles) && payload.roles.length > 0) {
-      extractedRole = payload.roles[0];
+      extractedRole = payload.roles[0] ?? "viewer";
     } else if (payload.role) {
       extractedRole = payload.role;
     } else {

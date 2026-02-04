@@ -7,20 +7,18 @@ import { useEffect, useState } from "react";
 import Header from "@/components/layout/Header";
 import StatCard from "@/components/ui/StatCard";
 import StatusBadge from "@/components/ui/StatusBadge";
-import DataTable from "@/components/ui/DataTable";
+// DataTable import removed - using inline table
 import {
   fetchVRAPrescriptions,
   approvePrescription,
   rejectPrescription,
 } from "@/lib/api/precision";
 import {
-  MapPin,
   FileText,
   CheckCircle,
   XCircle,
   Clock,
   TrendingUp,
-  Calendar,
   Filter,
   Download,
 } from "lucide-react";
@@ -50,7 +48,7 @@ export default function VRAPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedType, setSelectedType] = useState<string>("all");
-  const [selectedFarm, setSelectedFarm] = useState<string>("all");
+  const [selectedFarm, _setSelectedFarm] = useState<string>("all");
 
   useEffect(() => {
     loadPrescriptions();

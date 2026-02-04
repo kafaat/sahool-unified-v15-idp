@@ -8,13 +8,11 @@ import Header from "@/components/layout/Header";
 import DataTable from "@/components/ui/DataTable";
 import { formatDate, cn } from "@/lib/utils";
 import {
-  Shield,
   Search,
   RefreshCw,
   Download,
   Eye,
   CheckCircle,
-  XCircle,
   AlertTriangle,
   FileText,
   Award,
@@ -264,7 +262,7 @@ export default function CompliancePage() {
     {
       key: "actions",
       header: "",
-      render: (record: ComplianceRecord) => (
+      render: (_record: ComplianceRecord) => (
         <div className="flex items-center gap-1">
           <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="عرض التقرير">
             <Eye className="w-4 h-4 text-gray-500" />

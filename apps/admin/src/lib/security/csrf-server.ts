@@ -7,7 +7,8 @@
  */
 
 import type { NextRequest } from "next/server";
-import { randomBytes } from "crypto";
+// Note: randomBytes is available from crypto if needed for future token generation
+// Currently using edge-compatible Web Crypto API instead
 
 /**
  * Timing-safe string comparison for Edge Runtime

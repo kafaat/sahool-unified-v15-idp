@@ -15,9 +15,7 @@ import {
   Eye,
   AlertTriangle,
   TrendingDown,
-  TrendingUp,
   Warehouse,
-  BarChart3,
 } from "lucide-react";
 import { logger } from "../../lib/logger";
 
@@ -261,7 +259,7 @@ export default function InventoryPage() {
     {
       key: "actions",
       header: "",
-      render: (item: InventoryItem) => (
+      render: (_item: InventoryItem) => (
         <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="عرض">
           <Eye className="w-4 h-4 text-gray-500" />
         </button>

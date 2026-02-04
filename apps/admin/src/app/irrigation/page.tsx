@@ -11,8 +11,6 @@ import { API_URLS, apiClient } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import {
   Droplets,
-  Thermometer,
-  Wind,
   Calendar,
   Clock,
   TrendingDown,
@@ -20,7 +18,6 @@ import {
   AlertTriangle,
   CheckCircle,
   RefreshCw,
-  MapPin,
   Leaf,
   BarChart3,
   Gauge,
@@ -128,10 +125,10 @@ function generateMockPlan(): IrrigationPlan {
     { id: "flood", ar: "ري غمر" },
   ];
 
-  const selectedCrop = crops[Math.floor(Math.random() * crops.length)];
-  const selectedStage = stages[Math.floor(Math.random() * stages.length)];
-  const selectedMethod = methods[Math.floor(Math.random() * methods.length)];
-  const urgency = urgencies[Math.floor(Math.random() * urgencies.length)];
+  const selectedCrop = crops[Math.floor(Math.random() * crops.length)]!;
+  const selectedStage = stages[Math.floor(Math.random() * stages.length)]!;
+  const selectedMethod = methods[Math.floor(Math.random() * methods.length)]!;
+  const urgency = urgencies[Math.floor(Math.random() * urgencies.length)]!;
 
   const schedules: IrrigationSchedule[] = Array.from({ length: 3 }, (_, i) => {
     const date = new Date();
@@ -141,7 +138,7 @@ function generateMockPlan(): IrrigationPlan {
       field_id: "field-1",
       crop: selectedCrop.id,
       crop_name_ar: selectedCrop.ar,
-      irrigation_date: date.toISOString().split("T")[0],
+      irrigation_date: date.toISOString().split("T")[0] ?? "",
       start_time: "06:00",
       duration_minutes: 45 + Math.floor(Math.random() * 30),
       water_amount_liters: 5000 + Math.floor(Math.random() * 3000),
@@ -195,7 +192,7 @@ function generateMockWaterBalance(): {
     date.setDate(date.getDate() - (14 - i - 1));
     return {
       field_id: "field-1",
-      date: date.toISOString().split("T")[0],
+      date: date.toISOString().split("T")[0] ?? "",
       et_mm: 4 + Math.random() * 4,
       rainfall_mm: Math.random() > 0.85 ? Math.random() * 15 : 0,
       irrigation_mm: Math.random() > 0.7 ? Math.random() * 30 : 0,
@@ -213,7 +210,7 @@ function generateMockWaterBalance(): {
         0,
       ),
       cumulative_deficit_mm:
-        dailyData[dailyData.length - 1].cumulative_deficit_mm,
+        dailyData[dailyData.length - 1]?.cumulative_deficit_mm ?? 0,
     },
     daily_data: dailyData,
   };
@@ -672,7 +669,7 @@ export default function IrrigationPage() {
                     <span className="text-sm font-medium">التبخر الكلي</span>
                   </div>
                   <p className="text-2xl font-bold text-red-700">
-                    {waterBalance?.summary.total_et_mm.toFixed(1)} ملم
+                    {(waterBalance?.summary.total_et_mm ?? 0).toFixed(1)} ملم
                   </p>
                 </div>
 
@@ -682,7 +679,7 @@ export default function IrrigationPage() {
                     <span className="text-sm font-medium">الأمطار الكلية</span>
                   </div>
                   <p className="text-2xl font-bold text-blue-700">
-                    {waterBalance?.summary.total_rainfall_mm.toFixed(1)} ملم
+                    {(waterBalance?.summary.total_rainfall_mm ?? 0).toFixed(1)} ملم
                   </p>
                 </div>
 
@@ -692,7 +689,7 @@ export default function IrrigationPage() {
                     <span className="text-sm font-medium">الري الكلي</span>
                   </div>
                   <p className="text-2xl font-bold text-green-700">
-                    {waterBalance?.summary.total_irrigation_mm.toFixed(1)} ملم
+                    {(waterBalance?.summary.total_irrigation_mm ?? 0).toFixed(1)} ملم
                   </p>
                 </div>
 
@@ -716,7 +713,7 @@ export default function IrrigationPage() {
                         : "text-gray-700",
                     )}
                   >
-                    {waterBalance?.summary.cumulative_deficit_mm.toFixed(1)} ملم
+                    {(waterBalance?.summary.cumulative_deficit_mm ?? 0).toFixed(1)} ملم
                   </p>
                 </div>
               </div>

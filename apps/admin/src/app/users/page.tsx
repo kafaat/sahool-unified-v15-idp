@@ -20,8 +20,6 @@ import {
   Shield,
   UserCheck,
   UserX,
-  Mail,
-  Phone,
 } from "lucide-react";
 import { logger } from "../../lib/logger";
 
@@ -109,7 +107,7 @@ export default function UsersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [_selectedUser, _setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -229,7 +227,7 @@ export default function UsersPage() {
     {
       key: "actions",
       header: "",
-      render: (user: User) => (
+      render: (_user: User) => (
         <div className="flex items-center gap-1">
           <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
             <Eye className="w-4 h-4 text-gray-500" />
@@ -367,7 +365,7 @@ export default function UsersPage() {
             columns={columns}
             data={filteredUsers}
             keyExtractor={(user) => user.id}
-            onRowClick={(user) => setSelectedUser(user)}
+            onRowClick={(user) => _setSelectedUser(user)}
             emptyMessage="لا يوجد مستخدمين مطابقين للبحث"
           />
         )}

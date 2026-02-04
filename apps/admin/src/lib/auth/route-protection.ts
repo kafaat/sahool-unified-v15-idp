@@ -83,7 +83,7 @@ export function getRequiredRoles(pathname: string): UserRole[] | null {
   );
 
   if (matchingRoute) {
-    return PROTECTED_ROUTES[matchingRoute];
+    return PROTECTED_ROUTES[matchingRoute] ?? null;
   }
 
   // Default: require at least viewer role for any non-public route

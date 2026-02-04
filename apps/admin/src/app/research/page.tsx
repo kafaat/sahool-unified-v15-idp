@@ -303,7 +303,7 @@ export default function ResearchPage() {
     {
       key: "actions",
       header: "",
-      render: (trial: ResearchTrial) => (
+      render: (_trial: ResearchTrial) => (
         <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="عرض">
           <Eye className="w-4 h-4 text-gray-500" />
         </button>

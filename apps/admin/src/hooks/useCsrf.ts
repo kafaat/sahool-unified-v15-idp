@@ -256,7 +256,7 @@ interface UseCsrfFormReturn {
 }
 
 export function useCsrfForm(): UseCsrfFormReturn {
-  const { token, loading, error, addToFormData, fetchToken, needsRefresh } =
+  const { token: _token, loading, error, addToFormData, fetchToken, needsRefresh } =
     useCsrf();
 
   const submitWithCsrf = useCallback(

@@ -6,7 +6,7 @@
 import { useEffect, useState } from "react";
 import Header from "@/components/layout/Header";
 import StatCard from "@/components/ui/StatCard";
-import AlertBadge from "@/components/ui/AlertBadge";
+// AlertBadge import removed - using inline alerts
 import { fetchGDDData } from "@/lib/api/precision";
 import {
   Thermometer,
@@ -81,7 +81,7 @@ export default function GDDPage() {
       const data = await fetchGDDData();
       setFields(data);
       if (data.length > 0) {
-        setSelectedField(data[0]);
+        setSelectedField(data[0] ?? null);
       }
     } catch (error) {
       logger.error("Failed to load GDD data:", error);

@@ -283,7 +283,7 @@ export default function LogisticsPage() {
     {
       key: "actions",
       header: "",
-      render: (shipment: Shipment) => (
+      render: (_shipment: Shipment) => (
         <div className="flex items-center gap-1">
           <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="عرض">
             <Eye className="w-4 h-4 text-gray-500" />

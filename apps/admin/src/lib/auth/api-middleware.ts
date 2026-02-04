@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { verifyToken, getUserFromToken } from "./jwt-verify";
+import { getUserFromToken } from "./jwt-verify";
 import { hasAnyRole } from "./jwt-verify";
 import type { UserRole } from "./route-protection";
 import type { User } from "@/lib/auth";
@@ -176,7 +176,7 @@ export function withSupervisor<T = any>(
  * }
  */
 export async function getAuthenticatedUser(
-  request?: NextRequest,
+  _request?: NextRequest,
 ): Promise<User | null> {
   try {
     const cookieStore = await cookies();

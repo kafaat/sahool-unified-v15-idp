@@ -310,7 +310,7 @@ export default function DisastersPage() {
     {
       key: "actions",
       header: "",
-      render: (report: DisasterReport) => (
+      render: (_report: DisasterReport) => (
         <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="عرض">
           <Eye className="w-4 h-4 text-gray-500" />
         </button>

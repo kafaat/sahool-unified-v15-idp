@@ -36,6 +36,17 @@ logger = logging.getLogger("globalgap-compliance")
 # Database connection URL from environment
 # عنوان URL للاتصال بقاعدة البيانات من البيئة
 # Security: No fallback credentials - require DATABASE_URL to be set
+#
+# TLS/SSL Security (أمان TLS/SSL):
+# - SSL is configured via DATABASE_URL connection string parameter
+# - يتم تكوين SSL عبر معامل سلسلة اتصال DATABASE_URL
+# - For production: DATABASE_URL MUST include sslmode=require
+# - للإنتاج: يجب أن يتضمن DATABASE_URL معامل sslmode=require
+# - Example: postgresql://user:pass@host:port/db?sslmode=require
+# - Development: sslmode=disable is acceptable for Docker internal network
+# - التطوير: sslmode=disable مقبول لشبكة Docker الداخلية
+# - Production: sslmode=require is MANDATORY
+# - الإنتاج: sslmode=require إلزامي
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:5432/sahool_globalgap")
 
 # Connection pool settings

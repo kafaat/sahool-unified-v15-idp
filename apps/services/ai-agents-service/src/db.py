@@ -13,6 +13,17 @@ from uuid import UUID
 import asyncpg
 
 # Database configuration
+# TLS/SSL Security:
+# - SSL is configured via DATABASE_URL connection string parameter
+# - For production: DATABASE_URL MUST include sslmode=require
+# - Example: postgresql://user:pass@host:port/db?sslmode=require
+# - Development: sslmode=disable is acceptable for Docker internal network
+# - Production: sslmode=require is MANDATORY for external connections
+#
+# Alternative: Configure SSL programmatically (if not in DATABASE_URL):
+# import ssl
+# ssl_context = ssl.create_default_context(cafile="/path/to/ca-cert.pem")
+# pool = await asyncpg.create_pool(DATABASE_URL, ssl=ssl_context)
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 # Connection pool (module-level singleton)

@@ -13,6 +13,15 @@ logger = logging.getLogger("sahool-notifications.database")
 
 # Database configuration - MUST be set via environment variable in production
 # Set DATABASE_URL in .env file (see .env.example for format)
+#
+# TLS/SSL Security (أمان TLS/SSL):
+# - SSL is configured via DATABASE_URL connection string parameter
+# - يتم تكوين SSL عبر معامل سلسلة اتصال DATABASE_URL
+# - For production: DATABASE_URL MUST include sslmode=require
+# - للإنتاج: يجب أن يتضمن DATABASE_URL معامل sslmode=require
+# - Example: postgresql://user:pass@host:port/db?sslmode=require
+# - Development: sslmode=disable is acceptable for Docker internal network
+# - Production: sslmode=require is MANDATORY for external connections
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise OSError("DATABASE_URL environment variable is required. See .env.example for format")

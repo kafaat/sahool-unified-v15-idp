@@ -344,7 +344,6 @@ jobs:
 
       - name: Verify Web Build
         run: |
-          set -e
           if [ -d "apps/web/.next" ]; then
             echo "✅ Build successful - .next directory exists"
             ls -la apps/web/.next
@@ -591,7 +590,6 @@ jobs:
 
       - name: Verify Admin Build
         run: |
-          set -e
           if [ -d "apps/admin/.next" ]; then
             echo "✅ Build successful - .next directory exists"
             ls -la apps/admin/.next

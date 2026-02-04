@@ -33,11 +33,16 @@ RUN mkdir -p /root/.pip && \
     echo "trusted-host = pypi.org files.pythonhosted.org" >> /root/.pip/pip.conf
 
 # Upgrade pip
-RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir --upgrade pip \
+    -i https://pypi.tuna.tsinghua.edu.cn/simple \
+    --trusted-host pypi.tuna.tsinghua.edu.cn
 
 # Install dependencies
 COPY apps/services/pest-detection-service/requirements.txt .
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 \
+    -i https://pypi.tuna.tsinghua.edu.cn/simple \
+    --trusted-host pypi.tuna.tsinghua.edu.cn \
+    -r requirements.txt
 
 # Copy shared libraries
 COPY shared/ ./shared/

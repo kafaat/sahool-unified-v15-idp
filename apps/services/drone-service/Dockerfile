@@ -8,7 +8,10 @@ RUN groupadd --gid 1000 appgroup && \
 
 # Install dependencies
 COPY apps/services/drone-service/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir \
+    -i https://pypi.tuna.tsinghua.edu.cn/simple \
+    --trusted-host pypi.tuna.tsinghua.edu.cn \
+    -r requirements.txt
 
 # Copy application
 COPY apps/services/drone-service/src/ ./src/

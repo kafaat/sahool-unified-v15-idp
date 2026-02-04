@@ -224,7 +224,7 @@ async def example_mcp_client_usage():
                         "issue_type": "pest_management",
                     },
                 )
-                logger.info(f"Result: {result.isError == False}")
+                logger.info(f"Result: {not result.isError}")
 
     except Exception as e:
         logger.info(f"Client connection note: {e}")

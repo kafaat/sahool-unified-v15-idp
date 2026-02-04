@@ -477,7 +477,7 @@ class EventSubscriber:
                     del self._handlers[subject]
                     logger.info(f"✅ Unsubscribed from {subject}")
                     return True
-                except:
+                except Exception:
                     continue
 
             return False

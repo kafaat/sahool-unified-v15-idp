@@ -364,16 +364,16 @@ def get_config(
         return None
 
     # Cast to requested type
-    if cast_type == bool:
+    if cast_type is bool:
         return value.lower() in ("true", "1", "yes", "on")
-    elif cast_type == int:
+    elif cast_type is int:
         return int(value)
-    elif cast_type == float:
+    elif cast_type is float:
         return float(value)
-    elif cast_type == list:
+    elif cast_type is list:
         # Parse comma-separated list
         return [item.strip() for item in value.split(",") if item.strip()]
-    elif cast_type == dict:
+    elif cast_type is dict:
         # Parse JSON
         return json.loads(value)
     else:

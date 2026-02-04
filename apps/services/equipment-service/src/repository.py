@@ -337,7 +337,7 @@ def get_maintenance_alerts(
         query = query.where(MaintenanceAlert.priority == priority)
 
     if overdue_only:
-        query = query.where(MaintenanceAlert.is_overdue == True)
+        query = query.where(MaintenanceAlert.is_overdue.is_(True))
 
     # Sort by priority and overdue status
     query = query.order_by(

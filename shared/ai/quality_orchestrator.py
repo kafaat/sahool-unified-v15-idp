@@ -47,7 +47,7 @@ import asyncio
 import json
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC, timezone
+from datetime import datetime, UTC
 from enum import Enum
 from pathlib import Path
 from typing import Any

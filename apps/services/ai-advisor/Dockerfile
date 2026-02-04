@@ -51,7 +51,7 @@ RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.ali
 
 # Stage 2: Runtime
 # المرحلة 2: وقت التشغيل
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
 # Set working directory | تعيين مجلد العمل
 WORKDIR /app

@@ -4,7 +4,7 @@
 # Port: 8123
 # ============================================
 
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
 # Labels | العلامات
 LABEL maintainer="KAFAAT <dev@kafaat.sa>"

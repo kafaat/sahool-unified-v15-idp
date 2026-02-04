@@ -29,8 +29,8 @@ RUN groupadd --system sahool && \
 
 # Upgrade pip and install build tools with resilient multi-mirror fallback
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade "setuptools>=68.0" wheel build
 
 # Configure pip for better network resilience with fallback mirrors
 RUN mkdir -p /root/.pip && \
@@ -41,7 +41,7 @@ RUN mkdir -p /root/.pip && \
 
 # Install dependencies with fallback to Aliyun mirror
 COPY apps/services/alert-service/requirements.txt .
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt || \
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --timeout=300 --retries=10 -r requirements.txt || \
     pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
 # Copy shared libraries

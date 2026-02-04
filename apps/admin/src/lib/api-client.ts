@@ -161,7 +161,7 @@ class AdminApiClient {
         if (contentType && contentType.includes("application/json")) {
           try {
             data = await response.json();
-          } catch (parseError) {
+          } catch {
             return {
               success: false,
               error: "Invalid JSON response from server",

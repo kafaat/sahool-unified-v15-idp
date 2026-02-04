@@ -367,7 +367,7 @@ export const teamApi = {
       };
 
       return stats;
-    } catch (error) {
+    } catch {
       logger.warn("Failed to fetch team stats, using default values");
       return {
         total: 0,

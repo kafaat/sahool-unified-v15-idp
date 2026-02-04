@@ -5,7 +5,6 @@
  * Tests for the inline script validation functionality
  */
 
-import { vi } from "vitest";
 import { validateScriptCode, createInlineScript } from "../nonce";
 
 // ═══════════════════════════════════════════════════════════════════════════

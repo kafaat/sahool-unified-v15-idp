@@ -89,7 +89,7 @@ export default function SecuritySettingsPage() {
       } else {
         setError(response.error || "فشل في بدء إعداد المصادقة الثنائية");
       }
-    } catch (err) {
+    } catch {
       setError("حدث خطأ أثناء إعداد المصادقة الثنائية");
     } finally {
       setIsLoading(false);
@@ -124,7 +124,7 @@ export default function SecuritySettingsPage() {
       } else {
         setError(response.error || "رمز التحقق غير صحيح");
       }
-    } catch (err) {
+    } catch {
       setError("حدث خطأ أثناء التحقق من الرمز");
     } finally {
       setIsLoading(false);
@@ -154,7 +154,7 @@ export default function SecuritySettingsPage() {
       } else {
         setError(response.error || "رمز التحقق غير صحيح");
       }
-    } catch (err) {
+    } catch {
       setError("حدث خطأ أثناء تعطيل المصادقة الثنائية");
     } finally {
       setIsLoading(false);
@@ -190,7 +190,7 @@ export default function SecuritySettingsPage() {
       } else {
         setError(response.error || "رمز التحقق غير صحيح");
       }
-    } catch (err) {
+    } catch {
       setError("حدث خطأ أثناء إنشاء رموز النسخ الاحتياطي");
     } finally {
       setIsLoading(false);

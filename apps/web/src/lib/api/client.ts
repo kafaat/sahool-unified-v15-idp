@@ -8,6 +8,7 @@ import { sanitizers, validators, validationErrors } from "../validation";
 import { logger } from "../logger";
 import { getCsrfHeaders } from "../security/security";
 import type {
+  AgriculturalRisk,
   ApiResponse,
   Field,
   FieldCreateRequest,
@@ -289,7 +290,7 @@ class SahoolApiClient {
         if (contentType && contentType.includes("application/json")) {
           try {
             data = await response.json();
-          } catch (parseError) {
+          } catch {
             return {
               success: false,
               error: "Invalid JSON response from server",
@@ -347,7 +348,7 @@ class SahoolApiClient {
               ) {
                 try {
                   retryData = await retryResponse.json();
-                } catch (parseError) {
+                } catch {
                   return {
                     success: false,
                     error: "Invalid JSON response from server",
@@ -577,8 +578,7 @@ class SahoolApiClient {
   }
 
   async getAgriculturalRisks(lat: number, lng: number, fieldId: string = "default") {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return this.request<any>("/api/v1/weather-core/weather/agricultural-report", {
+    return this.request<AgriculturalRisk[]>("/api/v1/weather-core/weather/agricultural-report", {
       method: "POST",
       body: JSON.stringify({
         tenant_id: "default",
@@ -599,8 +599,7 @@ class SahoolApiClient {
     return this.request<WeatherForecast>(`/api/v1/weather/v1/forecast/${locationId}?days=${days}`);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async getWeatherLocations(): Promise<ApiResponse<any>> {
+  async getWeatherLocations(): Promise<ApiResponse<unknown>> {
     return this.request("/api/v1/weather/v1/locations");
   }
 
@@ -659,10 +658,11 @@ class SahoolApiClient {
 
       clearTimeout(timeoutId);
 
+      // Dynamic API response
       let data: any;
       try {
         data = await response.json();
-      } catch (parseError) {
+      } catch {
         return {
           success: false,
           error: "Invalid response from server",
@@ -672,11 +672,11 @@ class SahoolApiClient {
       if (!response.ok) {
         return {
           success: false,
-          error: data.error || data.message || "Failed to analyze image",
+          error: data?.error || data?.message || "Failed to analyze image",
         };
       }
 
-      return data;
+      return data as ApiResponse<CropHealthAnalysis>;
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
         return {

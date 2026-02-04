@@ -118,7 +118,7 @@ describe("SahoolApiClient", () => {
         json: async () => ({ success: true, data: mockFields }),
       });
 
-      const result = await apiClient.getFields("tenant-123");
+      await apiClient.getFields("tenant-123");
 
       expect(mockFetch).toHaveBeenCalled();
       const callUrl = mockFetch.mock.calls[0][0];
@@ -134,7 +134,7 @@ describe("SahoolApiClient", () => {
         json: async () => ({ success: true, data: mockField }),
       });
 
-      const result = await apiClient.getField("field-1");
+      await apiClient.getField("field-1");
 
       expect(mockFetch).toHaveBeenCalled();
       const callUrl = mockFetch.mock.calls[0][0];
@@ -157,7 +157,7 @@ describe("SahoolApiClient", () => {
         }),
       });
 
-      const result = await apiClient.createField(newField as any);
+      await apiClient.createField(newField as any);
 
       expect(mockFetch).toHaveBeenCalled();
       const [, options] = mockFetch.mock.calls[0];
@@ -229,7 +229,7 @@ describe("SahoolApiClient", () => {
         }),
       });
 
-      const result = await apiClient.getFieldNdvi("field-1");
+      await apiClient.getFieldNdvi("field-1");
 
       const callUrl = mockFetch.mock.calls[0][0];
       expect(callUrl).toContain("/fields/field-1/ndvi");
@@ -869,7 +869,7 @@ describe("SahoolApiClient", () => {
           json: async () => ({ success: true, data: {} }),
         });
 
-        const result = await fn();
+        await fn();
 
         expect(mockFetch).toHaveBeenCalled();
         if (mockFetch.mock.calls.length > 0) {

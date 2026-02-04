@@ -33,6 +33,9 @@ engine = create_engine(
     pool_size=10,  # Maximum number of connections in the pool
     max_overflow=20,  # Maximum overflow connections
     echo=False,  # Set to True for SQL query logging (debug only)
+    connect_args={
+        "sslmode": "require",  # Enforce TLS/SSL encryption
+    },
 )
 
 # Create session factory

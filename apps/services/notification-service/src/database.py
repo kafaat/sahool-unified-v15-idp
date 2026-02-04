@@ -34,10 +34,16 @@ if DATABASE_URL.startswith("postgresql://"):
         "Normalized DATABASE_URL scheme from 'postgresql://' to 'postgres://' for Tortoise ORM"
     )
 
-# Tortoise ORM configuration
+# Tortoise ORM configuration with SSL/TLS encryption
 TORTOISE_ORM = {
     "connections": {
-        "default": DATABASE_URL,
+        "default": {
+            "engine": "tortoise.backends.asyncpg",
+            "credentials": {
+                "dsn": DATABASE_URL,
+                "ssl": "prefer",  # Enforce TLS/SSL encryption
+            },
+        },
     },
     "apps": {
         "models": {
@@ -52,10 +58,16 @@ TORTOISE_ORM = {
     "timezone": "UTC",
 }
 
-# Alternative config for when running directly
+# Alternative config for when running directly with SSL/TLS encryption
 TORTOISE_ORM_LOCAL = {
     "connections": {
-        "default": DATABASE_URL,
+        "default": {
+            "engine": "tortoise.backends.asyncpg",
+            "credentials": {
+                "dsn": DATABASE_URL,
+                "ssl": "prefer",  # Enforce TLS/SSL encryption
+            },
+        },
     },
     "apps": {
         "models": {

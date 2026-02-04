@@ -1,19 +1,9 @@
-# =============================================================================
-# LowCode Engine Service - Docker Build Exclusions
-# خدمة محرك البرمجة منخفضة الكود - استثناءات بناء Docker
-# =============================================================================
-
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-build/
-dist/
-*.egg-info/
-
-# Virtual environments
 env/
 venv/
 ENV/
@@ -42,56 +32,23 @@ Thumbs.db
 
 # Documentation
 *.md
-!README.md
 docs/
 
 # Environment
 .env
-.env.*
-!.env.example
+.env.local
+.env.*.local
 
 # Logs
 *.log
 logs/
 
-# LowCode data
+# Data
 data/
-templates/
-generated/
-*.json
-*.yaml
-
-# Database
 *.db
 *.sqlite
 
-# Docker
-Dockerfile*
-docker-compose*
-.dockerignore
-
-# CI/CD
-.github/
-
-# Temporary
-tmp/
-temp/
-*.tmp
-*.bak
-
-# Security
-*.key
-*.pem
-credentials.json
-secrets/
-
-# Jupyter
-.ipynb_checkpoints/
-*.ipynb
-
-# MyPy & Ruff
-.mypy_cache/
-.ruff_cache/
-
-# Node (if any)
-node_modules/
+# Models (downloaded at runtime)
+models/
+*.model
+*.bin

@@ -504,7 +504,7 @@ services:
     image:
       repository: virtual-sensors
       tag: "16.0.0"
-    port: 8096
+    port: 8119
     replicaCount: 1
     resources:
       limits:

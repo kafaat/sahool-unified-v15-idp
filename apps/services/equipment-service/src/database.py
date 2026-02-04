@@ -17,6 +17,13 @@ from .db_models import Base
 
 # Get database URL from environment
 # Security: No fallback credentials - require DATABASE_URL to be set
+#
+# TLS/SSL Security:
+# - SSL is configured via DATABASE_URL connection string parameter
+# - For production: DATABASE_URL MUST include sslmode=require
+# - Example: postgresql://user:pass@host:port/db?sslmode=require
+# - Development: sslmode=disable is acceptable for Docker internal network
+# - Production: sslmode=require is MANDATORY for external connections
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://localhost:5432/sahool")
 
 # Create SQLAlchemy engine

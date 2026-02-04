@@ -24,24 +24,19 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-try:
-    from shapely import normalize, simplify
-    from shapely.geometry import (
-        LineString,
-        MultiPolygon,
-        Point,
-        Polygon,
-        mapping,
-        shape,
-    )
-    from shapely.ops import unary_union
-    from shapely.validation import explain_validity, make_valid
-
-    SHAPELY_AVAILABLE = True
-except ImportError:
-    SHAPELY_AVAILABLE = False
-    print("تحذير: مكتبة Shapely غير مثبتة - Warning: Shapely not installed")
-    print("يرجى التثبيت: pip install shapely")
+# Shapely is a mandatory dependency for field boundary validation
+# Shapely مكتبة إلزامية للتحقق من حدود الحقول
+from shapely import normalize, simplify
+from shapely.geometry import (
+    LineString,
+    MultiPolygon,
+    Point,
+    Polygon,
+    mapping,
+    shape,
+)
+from shapely.ops import unary_union
+from shapely.validation import explain_validity, make_valid
 
 
 # ============== الثوابت - Constants ==============
@@ -219,11 +214,6 @@ class BoundaryValidator:
             yemen_boundaries_path: مسار ملف حدود اليمن GeoJSON
                                   Path to Yemen boundaries GeoJSON file
         """
-        if not SHAPELY_AVAILABLE:
-            raise ImportError(
-                "مكتبة Shapely مطلوبة - Shapely library required\nالتثبيت: pip install shapely"
-            )
-
         self.yemen_boundaries = None
         self.governorate_boundaries = {}
 

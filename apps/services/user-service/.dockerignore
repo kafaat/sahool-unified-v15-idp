@@ -1,0 +1,83 @@
+# =============================================================================
+# User Service - Docker Build Exclusions
+# خدمة المستخدمين - استثناءات بناء Docker
+# =============================================================================
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+
+# Testing
+coverage/
+*.lcov
+.nyc_output
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# CI/CD
+.github/
+
+# Temporary
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Security
+*.key
+*.pem
+credentials.json
+secrets/
+
+# TypeScript
+*.tsbuildinfo
+
+# ESLint
+.eslintcache

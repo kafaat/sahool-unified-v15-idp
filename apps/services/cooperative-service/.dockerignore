@@ -1,0 +1,94 @@
+# =============================================================================
+# Cooperative Service - Docker Build Exclusions
+# خدمة التعاونيات - استثناءات بناء Docker
+# =============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+env/
+venv/
+ENV/
+.venv
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Cooperative data
+data/
+members/
+reports/
+*.csv
+*.xlsx
+
+# Database
+*.db
+*.sqlite
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# CI/CD
+.github/
+
+# Temporary
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Security
+*.key
+*.pem
+credentials.json
+secrets/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# MyPy & Ruff
+.mypy_cache/
+.ruff_cache/

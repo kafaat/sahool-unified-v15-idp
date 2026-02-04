@@ -264,10 +264,9 @@ services:
 
 networks:
   # Connect to main SAHOOL network - الاتصال بشبكة سهول الرئيسية
-  # Note: Creates network if it doesn't exist (for standalone testing)
   sahool-network:
+    external: true
     name: sahool-network
-    driver: bridge
 
   # Internal telemetry network - شبكة القياس عن بعد الداخلية
   telemetry-network:

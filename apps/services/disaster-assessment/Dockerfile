@@ -18,12 +18,14 @@ WORKDIR /app
 # Copy package files first for better layer caching
 COPY apps/services/disaster-assessment/package*.json ./
 
-# Install dependencies with retry for network resilience
-RUN npm ci --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
-
-# Copy prisma schema
+# Copy prisma schema BEFORE installing dependencies (required for postinstall hook)
 COPY apps/services/disaster-assessment/prisma ./prisma/
+
+# Install dependencies with retry for network resilience
+# Use --ignore-scripts to prevent postinstall from running before prisma schema is available
+# Then explicitly run prisma generate
+RUN npm ci --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Generate Prisma client (required before build)
 RUN npx prisma generate

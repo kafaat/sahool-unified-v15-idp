@@ -1,7 +1,7 @@
 # SAHOOL Copilot API Dockerfile
 # Dockerfile لـ Copilot API
 
-FROM python:3.11-slim-bookworm as base
+FROM python:3.11-slim-bookworm AS base
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # ─────────────────────────────────────────────────────────────────────────────
 # Dependencies Stage
 # ─────────────────────────────────────────────────────────────────────────────
-FROM base as dependencies
+FROM base AS dependencies
 
 # Copy requirements
 COPY apps/services/copilot-api/requirements.txt .
@@ -34,7 +34,7 @@ RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgr
 # ─────────────────────────────────────────────────────────────────────────────
 # Production Stage
 # ─────────────────────────────────────────────────────────────────────────────
-FROM dependencies as production
+FROM dependencies AS production
 
 # Copy application code
 COPY apps/services/copilot-api/src/ ./src/
@@ -60,7 +60,7 @@ CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "
 # ─────────────────────────────────────────────────────────────────────────────
 # Development Stage
 # ─────────────────────────────────────────────────────────────────────────────
-FROM dependencies as development
+FROM dependencies AS development
 
 # Install development dependencies
 RUN pip install pytest pytest-asyncio pytest-cov mypy

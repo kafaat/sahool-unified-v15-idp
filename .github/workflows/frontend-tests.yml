@@ -279,6 +279,18 @@ jobs:
           cd apps/web && npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
+          NEXT_PUBLIC_API_URL: http://localhost:8000
+
+      - name: Verify Web Build
+        run: |
+          if [ -d "apps/web/.next" ]; then
+            echo "✅ Build successful - .next directory exists"
+            ls -la apps/web/.next
+          else
+            echo "❌ Build failed - .next directory not found"
+            exit 1
+          fi
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v6
@@ -286,7 +298,7 @@ jobs:
           name: web-build
           path: apps/web/.next
           retention-days: 1
-          if-no-files-found: warn
+          if-no-files-found: error
 
   # =============================================================================
   # Job 2a: Admin Dashboard - Fast Checks
@@ -480,6 +492,18 @@ jobs:
           cd apps/admin && npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
+          NEXT_PUBLIC_API_URL: http://localhost:8000
+
+      - name: Verify Admin Build
+        run: |
+          if [ -d "apps/admin/.next" ]; then
+            echo "✅ Build successful - .next directory exists"
+            ls -la apps/admin/.next
+          else
+            echo "❌ Build failed - .next directory not found"
+            exit 1
+          fi
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v6
@@ -487,7 +511,7 @@ jobs:
           name: admin-build
           path: apps/admin/.next
           retention-days: 1
-          if-no-files-found: warn
+          if-no-files-found: error
 
   # =============================================================================
   # Job 3a: Flutter - Analyze

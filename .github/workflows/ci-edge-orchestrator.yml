@@ -28,7 +28,7 @@ permissions:
   security-events: write
 
 env:
-  PYTHON_VERSION: "3.11"
+  PYTHON_VERSION: "3.12"
   REGISTRY: ghcr.io
   IMAGE_PREFIX: sahool
   SERVICE_NAME: edge-orchestrator-service
@@ -391,7 +391,7 @@ jobs:
         run: |
           cat > ${{ env.SERVICE_PATH }}/Dockerfile << 'EOF'
           # Edge Orchestrator Service Dockerfile
-          FROM python:3.11-slim
+          FROM python:3.12-slim
 
           # Install system dependencies for edge communication
           RUN apt-get update && apt-get install -y \

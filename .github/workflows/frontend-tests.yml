@@ -70,15 +70,41 @@ jobs:
         if: steps.packages-cache.outputs.cache-hit != 'true'
         run: npm install --legacy-peer-deps
 
-      - name: Build shared packages
-        if: steps.packages-cache.outputs.cache-hit != 'true'
+      - name: Verify or build shared packages
         run: |
-          echo "=== Building shared packages ==="
-          npm run build:packages
-          echo "✅ Shared packages built"
+          set -e
+          echo "=== Verifying shared packages ==="
+
+          # Check if all required dist directories exist
+          required_packages=(
+            "packages/shared-types/dist"
+            "packages/shared-utils/dist"
+            "packages/i18n/dist"
+            "packages/shared-ui/dist"
+            "packages/api-client/dist"
+            "packages/shared-hooks/dist"
+          )
+
+          all_exist=true
+          for pkg in "${required_packages[@]}"; do
+            if [ ! -d "$pkg" ]; then
+              echo "⚠️ Missing: $pkg"
+              all_exist=false
+            else
+              echo "✓ Found: $pkg"
+            fi
+          done
+
+          if [ "$all_exist" = false ] || [ "${{ steps.packages-cache.outputs.cache-hit }}" != "true" ]; then
+            echo "=== Building shared packages ==="
+            npm install --legacy-peer-deps
+            npm run build:packages
+            echo "✅ Shared packages built"
+          else
+            echo "✅ All shared packages already built (cache hit)"
+          fi
 
       - name: Save packages build cache
-        if: steps.packages-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v5
         with:
           path: |
@@ -273,10 +299,44 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Verify shared packages are built
+        run: |
+          set -e
+          echo "Verifying shared packages are built..."
+
+          # List of packages that need dist directories
+          packages_to_check=(
+            "packages/shared-types/dist"
+            "packages/shared-utils/dist"
+            "packages/i18n/dist"
+            "packages/shared-ui/dist"
+            "packages/api-client/dist"
+            "packages/shared-hooks/dist"
+          )
+
+          missing_packages=()
+          for pkg in "${packages_to_check[@]}"; do
+            if [ ! -d "$pkg" ]; then
+              missing_packages+=("$pkg")
+            fi
+          done
+
+          if [ ${#missing_packages[@]} -gt 0 ]; then
+            echo "⚠️ Missing package builds, rebuilding..."
+            echo "Missing: ${missing_packages[*]}"
+            npm run build:packages
+            echo "✅ Packages rebuilt"
+          else
+            echo "✅ All shared packages are built"
+          fi
+
       - name: Build Web App
         run: |
+          set -e
           echo "Building Next.js Web App..."
-          cd apps/web && npm run build
+          cd apps/web
+          npm run build
+          echo "✅ Web app build completed"
         env:
           NEXT_TELEMETRY_DISABLED: 1
           NODE_ENV: production
@@ -284,6 +344,7 @@ jobs:
 
       - name: Verify Web Build
         run: |
+          set -e
           if [ -d "apps/web/.next" ]; then
             echo "✅ Build successful - .next directory exists"
             ls -la apps/web/.next
@@ -486,10 +547,43 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Verify shared packages are built
+        run: |
+          set -e
+          echo "Verifying shared packages are built..."
+
+          # List of packages that need dist directories
+          packages_to_check=(
+            "packages/shared-types/dist"
+            "packages/shared-utils/dist"
+            "packages/shared-ui/dist"
+            "packages/api-client/dist"
+            "packages/shared-hooks/dist"
+          )
+
+          missing_packages=()
+          for pkg in "${packages_to_check[@]}"; do
+            if [ ! -d "$pkg" ]; then
+              missing_packages+=("$pkg")
+            fi
+          done
+
+          if [ ${#missing_packages[@]} -gt 0 ]; then
+            echo "⚠️ Missing package builds, rebuilding..."
+            echo "Missing: ${missing_packages[*]}"
+            npm run build:packages
+            echo "✅ Packages rebuilt"
+          else
+            echo "✅ All shared packages are built"
+          fi
+
       - name: Build Admin Dashboard
         run: |
+          set -e
           echo "Building Admin Dashboard..."
-          cd apps/admin && npm run build
+          cd apps/admin
+          npm run build
+          echo "✅ Admin dashboard build completed"
         env:
           NEXT_TELEMETRY_DISABLED: 1
           NODE_ENV: production
@@ -497,6 +591,7 @@ jobs:
 
       - name: Verify Admin Build
         run: |
+          set -e
           if [ -d "apps/admin/.next" ]; then
             echo "✅ Build successful - .next directory exists"
             ls -la apps/admin/.next
@@ -901,11 +996,17 @@ jobs:
       - name: Build Web App if download failed
         if: steps.download.outcome == 'failure'
         run: |
+          set -e
           echo "::warning::Build artifact not found, building from scratch"
-          npm run build:packages || true
+          echo "Building shared packages first..."
+          npm run build:packages
+          echo "Building web app..."
           cd apps/web && npm run build
+          echo "✅ Web app built from scratch"
         env:
           NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
+          NEXT_PUBLIC_API_URL: http://localhost:8000
 
       - name: Verify build exists
         run: |
@@ -1280,19 +1381,28 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Verify and build shared packages
+        run: |
+          set -e
+          echo "Building shared packages for bundle analysis..."
+          npm run build:packages
+          echo "✅ Packages built"
+
       - name: Analyze Web App Bundle
         run: |
           cd apps/web
-          ANALYZE=true npm run build || true
+          ANALYZE=true npm run build || echo "⚠️ Web bundle analysis completed with warnings"
         env:
           NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
 
       - name: Analyze Admin Bundle
         run: |
           cd apps/admin
-          ANALYZE=true npm run build || true
+          ANALYZE=true npm run build || echo "⚠️ Admin bundle analysis completed with warnings"
         env:
           NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
 
       - name: Upload Bundle Analysis
         uses: actions/upload-artifact@v6

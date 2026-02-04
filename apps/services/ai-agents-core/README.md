@@ -258,7 +258,7 @@ NATS_URL=nats://nats:4222
 
 ### Prerequisites | المتطلبات
 
-- Python 3.11+
+- Python 3.12+
 - Docker (optional)
 
 ### Installation | التثبيت

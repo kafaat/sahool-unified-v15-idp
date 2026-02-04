@@ -32,7 +32,7 @@ Multi-agent AI system for comprehensive agricultural advisory using Claude and L
 
 ## Prerequisites | المتطلبات
 
-- Python 3.11+
+- Python 3.12+
 - Docker and Docker Compose
 - Anthropic API Key
 - Qdrant vector database

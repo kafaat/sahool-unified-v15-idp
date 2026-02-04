@@ -284,7 +284,7 @@ CACHE_TTL=3600
 
 ### Prerequisites | المتطلبات
 
-- Python 3.11+
+- Python 3.12+
 - PostgreSQL 16+
 - NATS Server (optional)
 

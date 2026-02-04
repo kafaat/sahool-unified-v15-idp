@@ -448,7 +448,7 @@ curl -X GET "http://localhost:8132/metrics"
 
 ### Prerequisites
 
-- Python 3.11+
+- Python 3.12+
 - PostgreSQL 16+ (optional, has in-memory fallback)
 - NATS 2.x (optional)
 

@@ -560,7 +560,7 @@ crm_interactions_total 890
 
 ### Prerequisites
 
-- Python 3.11+
+- Python 3.12+
 - Docker & Docker Compose
 - PostgreSQL 16+ (with PostGIS)
 - NATS 2.x

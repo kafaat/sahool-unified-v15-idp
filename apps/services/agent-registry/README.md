@@ -246,7 +246,7 @@ pytest tests/test_registry.py::test_register_agent
 
 ### Prerequisites
 
-- Python 3.11+
+- Python 3.12+
 - Redis 6.0+
 - 512MB RAM minimum
 - HTTPS/TLS certificate

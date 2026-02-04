@@ -71,7 +71,7 @@ The platform follows a **Domain-Driven Design (DDD)** approach within a Monorepo
 - Docker & Docker Compose
 - Flutter SDK (v3.x)
 - Node.js (v18+)
-- Python (v3.11+)
+- Python (v3.12+)
 
 ### Running the Infrastructure
 

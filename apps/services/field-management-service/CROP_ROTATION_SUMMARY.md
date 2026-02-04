@@ -190,7 +190,7 @@ A comprehensive crop rotation planning tool has been added to the SAHOOL platfor
 
 ## Technology Stack
 
-- **Language**: Python 3.11
+- **Language**: Python 3.12
 - **Framework**: FastAPI 0.115.6
 - **Database**: SQLAlchemy with PostgreSQL support
 - **Testing**: pytest with asyncio support

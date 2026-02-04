@@ -366,7 +366,7 @@ When Redis connection fails, the code creates **another** CacheManager with the 
 
 ### Dockerfile Review (src/Dockerfile) ✅
 
-- Uses Python 3.11 slim (security + performance)
+- Uses Python 3.12 slim (security + performance)
 - Non-root user 'sahool' (security best practice)
 - Proper pip configuration for reliability
 - Port 8104 exposed correctly

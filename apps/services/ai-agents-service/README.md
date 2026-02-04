@@ -573,7 +573,7 @@ curl -X GET http://localhost:8130/metrics
 
 ### Prerequisites
 
-- Python 3.11+
+- Python 3.12+
 - Docker & Docker Compose
 - PostgreSQL 16+ (optional, service runs without database)
 - NATS 2.x (optional, for event publishing)

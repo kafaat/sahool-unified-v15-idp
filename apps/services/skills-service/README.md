@@ -252,7 +252,7 @@ skills-service/
 
 ### Code Style
 
-- Python 3.11+
+- Python 3.12+
 - Type hints required
 - Pydantic models for validation
 - Structured logging

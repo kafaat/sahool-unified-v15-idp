@@ -289,7 +289,7 @@ curl -X POST "http://localhost:8160/api/v1/terrain/analyze" \
 
 - **GDAL** >= 3.6 with Python bindings
 - **PostgreSQL** >= 14 with **PostGIS** >= 3.4
-- Python 3.11+
+- Python 3.12+
 
 ### Local Development
 

@@ -152,7 +152,7 @@ Records usage metrics for usage-based billing.
 ### 1. Prerequisites
 
 - PostgreSQL 14+ installed and running
-- Python 3.11+
+- Python 3.12+
 - Required Python packages (see requirements.txt)
 
 ### 2. Install Dependencies

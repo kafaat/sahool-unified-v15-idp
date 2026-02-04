@@ -11,7 +11,7 @@ Provides data models for:
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -132,7 +132,7 @@ class BoundingBox(BaseModel):
 class GeoJSONPolygon(BaseModel):
     """GeoJSON Polygon geometry | هندسة مضلع GeoJSON"""
 
-    type: str = Field(default="Polygon", const=True)
+    type: Literal["Polygon"] = "Polygon"
     coordinates: list[list[list[float]]] = Field(
         ..., description="Polygon coordinates | إحداثيات المضلع"
     )

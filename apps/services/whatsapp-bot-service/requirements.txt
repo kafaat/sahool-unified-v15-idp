@@ -6,27 +6,19 @@ fastapi>=0.126.0,<1.0.0
 uvicorn[standard]>=0.30.0,<1.0.0
 pydantic>=2.10.0,<3.0.0
 pydantic-settings>=2.0.0,<3.0.0
-
 # HTTP Client
 httpx>=0.27.0,<1.0.0
-
 # Database (Optional)
 asyncpg>=0.30.0,<1.0.0
-
 # Redis for Session Management
 redis>=5.0.0,<6.0.0
-
 # NATS for Events
 nats-py>=2.7.0,<3.0.0
-
 # Logging
 structlog>=24.0.0,<25.0.0
-
 # Testing
 pytest>=8.0.0,<9.0.0
 pytest-asyncio>=0.23.0,<1.0.0
 pytest-cov>=4.0.0,<5.0.0
-httpx>=0.27.0,<1.0.0
-
 # Development
 python-dotenv>=1.0.0,<2.0.0

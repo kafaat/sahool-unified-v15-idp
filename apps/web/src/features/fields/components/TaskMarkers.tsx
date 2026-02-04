@@ -144,7 +144,7 @@ export function TaskMarkers({
 
           markers.forEach((marker: any) => {
             const priority = marker.options.taskPriority;
-            if (priority && priorityCounts.hasOwnProperty(priority)) {
+            if (priority && Object.hasOwn(priorityCounts, priority)) {
               priorityCounts[priority as keyof typeof priorityCounts]++;
             }
           });

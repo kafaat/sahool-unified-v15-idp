@@ -753,7 +753,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         : `قيمة ${sensorTypeAr} (${reading.value}${reading.unit}) أعلى من الحد الأقصى (${threshold}${reading.unit}) في الحقل ${reading.fieldId}`;
 
     // Fire-and-forget: publish notification without blocking
-    publishNotificationSend({
+    void publishNotificationSend({
       notificationId: uuidv4(),
       recipientId: reading.fieldId, // Field owner will be resolved by notification service
       recipientType: "group",

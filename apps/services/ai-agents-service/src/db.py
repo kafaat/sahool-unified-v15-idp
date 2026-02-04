@@ -10,6 +10,8 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
+import ssl
+
 import asyncpg
 
 # Database configuration
@@ -44,6 +46,7 @@ async def init_pool() -> asyncpg.Pool | None:
             min_size=2,
             max_size=10,
             command_timeout=60,
+            ssl=ssl.create_default_context(),  # TLS/SSL encryption
         )
         print("✅ Database connection pool initialized")
         return _pool

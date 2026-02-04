@@ -91,6 +91,9 @@ def init_database(create_tables: bool = True) -> None:
             pool_timeout=30,
             pool_recycle=3600,
             echo=os.getenv("SQL_ECHO", "false").lower() == "true",
+            connect_args={
+                "sslmode": "require",  # Enforce TLS/SSL encryption
+            },
         )
 
         # Create session factory

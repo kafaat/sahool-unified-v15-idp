@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.11 \
     python3.11-venv \
     python3.11-dev \
+    python3.11-distutils \
     python3-pip \
     libgl1-mesa-glx \
     libglib2.0-0 \
@@ -38,8 +39,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean
 
 # Set Python 3.11 as default
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
-    && update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
+    update-alternatives --set python3 /usr/bin/python3.11 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+
+# NVIDIA CUDA Library Path (CRITICAL for GPU)
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64"
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH="${PATH}:${CUDA_HOME}/bin"
 
 # Create non-root user for security
 RUN groupadd -r sahool && useradd -r -g sahool sahool

@@ -1,0 +1,153 @@
+# =============================================================================
+# Edge Orchestrator Service - Docker Build Exclusions
+# خدمة تنسيق الحافة - استثناءات بناء Docker
+# =============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+env/
+venv/
+ENV/
+.venv
+env.bak/
+venv.bak/
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.cover
+.hypothesis/
+.tox/
+.nox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+docs/
+*.rst
+
+# Environment & Config
+.env
+.env.*
+!.env.example
+.envrc
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Data & Models
+data/
+models/
+*.model
+*.bin
+*.pth
+*.onnx
+*.pb
+*.h5
+*.hdf5
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Build artifacts
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# Security
+*.key
+*.pem
+*.crt
+*.cer
+credentials.json
+secrets/
+
+# Node (if any frontend assets)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff
+.ruff_cache/
+
+# Coverage
+.coverage
+coverage.xml
+*.coveragerc

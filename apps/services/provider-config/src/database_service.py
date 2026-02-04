@@ -217,7 +217,7 @@ class ProviderConfigService:
             .filter(
                 ProviderConfig.tenant_id == tenant_id,
                 ProviderConfig.provider_type == provider_type,
-                ProviderConfig.enabled == True,
+                ProviderConfig.enabled.is_(True),
             )
             .order_by(
                 # Order by priority (primary first)

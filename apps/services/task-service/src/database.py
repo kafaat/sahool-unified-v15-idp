@@ -36,7 +36,7 @@ def get_database_url() -> str:
     """
     Get database URL from environment
     الحصول على رابط قاعدة البيانات من البيئة
-    
+
     TLS/SSL Security:
     - SSL is configured via DATABASE_URL connection string parameter
     - For production: DATABASE_URL MUST include sslmode=require

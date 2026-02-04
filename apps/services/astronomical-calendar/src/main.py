@@ -4120,7 +4120,7 @@ def what_to_plant_now(
                     reasons.append("مناسب للارتفاع المطلوب")
                 else:
                     score -= 5
-            except:
+            except (ValueError, IndexError):
                 pass
 
         # Only include if score is positive

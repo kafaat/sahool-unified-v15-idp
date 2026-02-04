@@ -176,7 +176,7 @@ async def _move_to_dlq(
         try:
             data = json.loads(msg.data.decode("utf-8"))
             original_event_id = data.get("event_id")
-        except:
+        except Exception:
             pass
 
         # Create DLQ metadata

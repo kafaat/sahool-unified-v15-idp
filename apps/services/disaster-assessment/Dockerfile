@@ -11,24 +11,27 @@ LABEL service="disaster-assessment"
 LABEL version="16.0.0"
 
 # Install OpenSSL for Prisma (required for generating client)
-RUN apk add --no-cache openssl
+RUN apk update && apk add --no-cache openssl
 
-# Use workspace structure to maintain relative paths for shared imports
-WORKDIR /workspace
+WORKDIR /app
 
-# Copy shared modules first (required for imports from ../../shared/)
-COPY apps/services/shared ./shared/
+# Copy package files first for better layer caching
+COPY apps/services/disaster-assessment/package*.json ./
 
-# Copy service to maintain relative path: ../../shared/ from disaster-assessment/src/
-COPY apps/services/disaster-assessment ./disaster-assessment/
-
-WORKDIR /workspace/disaster-assessment
+# Copy prisma schema BEFORE installing dependencies (required for postinstall hook)
+COPY apps/services/disaster-assessment/prisma ./prisma/
 
 # Install dependencies with retry for network resilience
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Use --ignore-scripts to prevent postinstall from running before prisma schema is available
+# Then explicitly run prisma generate
+RUN npm ci --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Generate Prisma client (required before build)
 RUN npx prisma generate
+
+# Copy source code
+COPY apps/services/disaster-assessment/ .
 
 # Build the application
 RUN npm run build
@@ -39,25 +42,25 @@ FROM node:20-alpine AS production
 WORKDIR /app
 
 # Install curl for health checks and OpenSSL for Prisma runtime
-RUN apk add --no-cache curl openssl
+RUN apk update && apk add --no-cache curl openssl
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: Using npm ci for deterministic builds
-COPY --from=builder /workspace/disaster-assessment/package.json ./
-COPY --from=builder /workspace/disaster-assessment/package-lock.json ./
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/package-lock.json ./
 
 # Copy prisma schema for migrations
-COPY --from=builder /workspace/disaster-assessment/prisma ./prisma/
+COPY --from=builder /app/prisma ./prisma/
 
 RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy generated Prisma client from builder (avoid npx downloading incompatible version)
-COPY --from=builder /workspace/disaster-assessment/node_modules/.prisma ./node_modules/.prisma/
-COPY --from=builder /workspace/disaster-assessment/node_modules/@prisma/client ./node_modules/@prisma/client/
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma/
+COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client/
 
 # Copy built application
-COPY --from=builder /workspace/disaster-assessment/dist ./dist
+COPY --from=builder /app/dist ./dist
 
 # Expose port
 EXPOSE 3020

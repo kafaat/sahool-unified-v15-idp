@@ -57,16 +57,16 @@ USER sahool
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app \
-    PORT=8161 \
+    PORT=8162 \
     HOST=0.0.0.0 \
     LOG_LEVEL=INFO
 
 # Expose port
-EXPOSE 8161
+EXPOSE 8162
 
-# Health check
+# Health check - uses PORT env var
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import httpx; httpx.get('http://localhost:8161/healthz').raise_for_status()"
+    CMD python -c "import os,httpx; httpx.get(f'http://localhost:{os.environ.get(\"PORT\",8162)}/healthz').raise_for_status()"
 
-# Run application
-CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8161"]
+# Run application - uses PORT env var
+CMD ["sh", "-c", "python -m uvicorn src.main:app --host 0.0.0.0 --port ${PORT}"]

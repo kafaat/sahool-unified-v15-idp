@@ -1,5 +1,5 @@
 # SAHOOL AI Agents Core Service
-# Port: 8122
+# Port: 8161
 
 FROM python:3.11-slim-bookworm
 
@@ -21,18 +21,19 @@ COPY apps/services/ai-agents-core/src/ ./src/
 # Set ownership to non-root user
 RUN chown -R sahool:sahool /app
 
-# Set Python path
-ENV PYTHONPATH=/app/src
+# Set Python path and default port
+ENV PYTHONPATH=/app/src \
+    PORT=8161
 
 # Expose port
-EXPOSE 8122
+EXPOSE 8161
 
 # Switch to non-root user
 USER sahool
 
-# Health check
+# Health check - uses PORT env var via shell
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8122/healthz')"
+    CMD python -c "import os,urllib.request; urllib.request.urlopen(f'http://localhost:{os.environ.get(\"PORT\",8161)}/healthz')"
 
-# Run with uvicorn for production ASGI server
-CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8122"]
+# Run with uvicorn for production ASGI server - uses PORT env var
+CMD ["sh", "-c", "python -m uvicorn src.main:app --host 0.0.0.0 --port ${PORT}"]

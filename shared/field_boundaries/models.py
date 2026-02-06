@@ -13,7 +13,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, UTC
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -93,7 +93,7 @@ class Point(BaseModel):
     Represents a single geographic coordinate point.
     يمثل نقطة إحداثية جغرافية واحدة.
     """
-    type: str = Field(default="Point", const=True)
+    type: Literal["Point"] = "Point"
     coordinates: tuple[float, float] = Field(
         ...,
         description="[longitude, latitude] | [خط الطول، خط العرض]"
@@ -128,7 +128,7 @@ class Polygon(BaseModel):
     Represents a closed polygon with optional holes.
     يمثل مضلعاً مغلقاً مع إمكانية وجود فتحات داخلية.
     """
-    type: str = Field(default="Polygon", const=True)
+    type: Literal["Polygon"] = "Polygon"
     coordinates: list[list[tuple[float, float]]] = Field(
         ...,
         description="Array of linear rings [exterior, ...holes]"
@@ -193,7 +193,7 @@ class MultiPolygon(BaseModel):
     Represents multiple polygons as a single geometry.
     يمثل عدة مضلعات كهندسة واحدة.
     """
-    type: str = Field(default="MultiPolygon", const=True)
+    type: Literal["MultiPolygon"] = "MultiPolygon"
     coordinates: list[list[list[tuple[float, float]]]] = Field(
         ...,
         description="Array of polygon coordinates | مصفوفة إحداثيات المضلعات"

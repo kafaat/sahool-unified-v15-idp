@@ -12,7 +12,7 @@ from datetime import date, datetime, UTC
 from enum import Enum
 from uuid import uuid4
 
-from pydantic import BaseModel, Field, HttpUrl, validator
+from pydantic import BaseModel, Field, HttpUrl, field_validator, ValidationInfo
 
 from .constants import (
     GGN_FORMAT_PATTERN,
@@ -321,8 +321,9 @@ class ProducerProfile(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    @validator("email")
-    def validate_email(self, v):
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: str) -> str:
         """Validate email format"""
         if "@" not in v:
             raise ValueError("Invalid email address")
@@ -403,8 +404,9 @@ class FarmRegistration(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    @validator("ggn")
-    def validate_ggn(self, v):
+    @field_validator("ggn")
+    @classmethod
+    def validate_ggn(cls, v: str) -> str:
         """Validate GGN format"""
         import re
 
@@ -412,10 +414,11 @@ class FarmRegistration(BaseModel):
             raise ValueError("GGN must be 13 digits starting with 40 (e.g., 4000000000000)")
         return v
 
-    @validator("certified_area_hectares")
-    def validate_certified_area(self, v, values):
+    @field_validator("certified_area_hectares")
+    @classmethod
+    def validate_certified_area(cls, v: float, info: ValidationInfo) -> float:
         """Ensure certified area doesn't exceed farm size"""
-        if "farm_size_hectares" in values and v > values["farm_size_hectares"]:
+        if info.data.get("farm_size_hectares") and v > info.data["farm_size_hectares"]:
             raise ValueError("Certified area cannot exceed total farm size")
         return v
 

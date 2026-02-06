@@ -1265,7 +1265,7 @@ services:
       dockerfile: apps/services/chat-service/Dockerfile
     container_name: sahool-chat-service
     environment:
-      - PORT=8114
+      - PORT=8000
       - NODE_ENV=production
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1274,7 +1274,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8114:8114"
+      - "8115:8000"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -1283,7 +1283,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8114/api/v1/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v1/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1511,63 +1511,6 @@ services:
   # ─────────────────────────────────────────────────────────────────────────────
   # Python Services (29)
   # ─────────────────────────────────────────────────────────────────────────────
-
-  # ⚠️ DEPRECATED: field_ops - Migrating to field-management-service
-  # This service is being consolidated into field-management-service (Port 3000)
-  # Kept temporarily for backwards compatibility
-  # ============================================================================
-  # DEPRECATED: field-ops service - Migrated to field-management-service
-  # ============================================================================
-  # ⚠️ This service is DEPRECATED and only included for backward compatibility
-  # ⚠️ All functionality has been migrated to field-management-service:3000
-  # ⚠️ To enable this service, run: docker-compose --profile deprecated up
-  # ============================================================================
-  field-ops:
-    profiles:
-      - deprecated # Only runs when explicitly enabled
-    build:
-      context: .
-      dockerfile: apps/services/field-ops/Dockerfile
-    container_name: sahool-field-ops-deprecated
-    environment:
-      - PORT=8080
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
-      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-    ports:
-      - "8080:8080"
-    depends_on:
-      # FIX: Use pgbouncer instead of postgres for proper connection pooling
-      pgbouncer:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/healthz')" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    networks:
-      - sahool-network
 
   # WebSocket Gateway
   ws-gateway:
@@ -2777,58 +2720,6 @@ services:
     networks:
       - sahool-network
 
-  # ⚠️ DEPRECATED: crop_health - Migrating to crop-intelligence-service
-  # This service is being consolidated into crop-intelligence-service (Port 8095)
-  # Deprecation Date: 2026-01-06 | Sunset Date: 2026-06-01
-  #
-  # Migration Path:
-  # - All zone-based health monitoring → crop-intelligence-service
-  # - Vegetation indices (NDVI, EVI, NDRE, etc.) → crop-intelligence-service
-  # - VRT export functionality → crop-intelligence-service
-  #
-  # To disable this service, start without the 'deprecated' profile
-  # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
-  crop-health:
-    build:
-      context: .
-      dockerfile: apps/services/crop-health/Dockerfile
-    container_name: sahool-crop-health
-    labels:
-      - "com.sahool.deprecated=true"
-      - "com.sahool.replacement=crop-intelligence-service"
-      - "com.sahool.deprecation.reason=Consolidated into crop-intelligence-service"
-      - "com.sahool.deprecation.date=2026-01-06"
-      - "com.sahool.sunset.date=2026-06-01"
-    profiles:
-      - deprecated
-      - legacy
-    environment:
-      - PORT=8100
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      - CDN_BASE_URL=${CDN_BASE_URL:-https://cdn.sahool.io}
-    ports:
-      - "8100:8100"
-    healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/healthz')" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 384M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    networks:
-      - sahool-network
-
   # Agro Rules Worker - NATS Event-Driven Worker
   agro-rules:
     build:
@@ -3197,7 +3088,7 @@ services:
       dockerfile: apps/services/agent-registry/Dockerfile
     container_name: sahool-agent-registry
     environment:
-      - PORT=8160
+      - PORT=8121
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
@@ -3205,7 +3096,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8160:8160"
+      - "8160:8121"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3214,7 +3105,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8160/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8121/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3248,7 +3139,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - AGENT_REGISTRY_URL=http://agent-registry:8160
+      - AGENT_REGISTRY_URL=http://agent-registry:8121
     ports:
       - "8161:8161"
     depends_on:
@@ -3295,7 +3186,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - AGENT_REGISTRY_URL=http://agent-registry:8160
+      - AGENT_REGISTRY_URL=http://agent-registry:8121
     ports:
       - "8162:8162"
     depends_on:
@@ -3335,17 +3226,17 @@ services:
       dockerfile: apps/services/copilot-api/Dockerfile
     container_name: sahool-copilot-api
     environment:
-      - PORT=8163
+      - PORT=8088
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - AGENT_REGISTRY_URL=http://agent-registry:8160
+      - AGENT_REGISTRY_URL=http://agent-registry:8121
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
     ports:
-      - "8163:8163"
+      - "8163:8088"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3356,7 +3247,7 @@ services:
       agent-registry:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8163/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8088/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3574,7 +3465,7 @@ services:
       dockerfile: apps/services/globalgap-compliance/Dockerfile
     container_name: sahool-globalgap-compliance
     environment:
-      - PORT=8168
+      - PORT=8123
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
@@ -3584,7 +3475,7 @@ services:
       - AUDIT_SERVICE_URL=http://audit-service:8114
       - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
     ports:
-      - "8168:8168"
+      - "8168:8123"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3597,7 +3488,7 @@ services:
       traceability-service:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8168/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8123/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -4136,7 +4027,7 @@ services:
 
 networks:
   sahool-network:
-    external: true
+    driver: bridge
     name: sahool-network
 
 # ─────────────────────────────────────────────────────────────────────────────

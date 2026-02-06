@@ -501,16 +501,16 @@ services:
       context: ../../apps/services/agent-registry
       dockerfile: Dockerfile
     ports:
-    - 8160:8160
+    - 8160:8121
     environment:
-    - PORT=8160
+    - PORT=8121
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8160/healthz
+      - http://localhost:8121/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -610,16 +610,16 @@ services:
       context: ../../apps/services/logistics-service
       dockerfile: Dockerfile
     ports:
-    - 8181:8181
+    - 8167:8167
     environment:
-    - PORT=8181
+    - PORT=8167
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8181/healthz
+      - http://localhost:8167/healthz
       interval: 30s
       timeout: 10s
       retries: 3

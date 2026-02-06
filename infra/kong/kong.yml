@@ -544,7 +544,7 @@ upstreams:
     algorithm: round-robin
     slots: 10000
     targets:
-      - target: ai-agents-core:8122
+      - target: ai-agents-core:8161
         weight: 100
     healthchecks:
       active:
@@ -2186,7 +2186,7 @@ services:
   # خدمة المحادثة - Chat Service
   # ============================================================================
   - name: chat-service
-    url: http://chat-service:8114
+    url: http://chat-service:8000
     tags:
       - shared
       - chat

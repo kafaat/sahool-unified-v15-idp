@@ -248,16 +248,16 @@ services:
       context: ../../apps/services/llm-orchestrator-service
       dockerfile: Dockerfile
     ports:
-    - 8164:8164
+    - 8220:8220
     environment:
-    - PORT=8164
+    - PORT=8220
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8164/healthz
+      - http://localhost:8220/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -570,16 +570,16 @@ services:
       context: ../../apps/services/ai-agents-core
       dockerfile: Dockerfile
     ports:
-    - 8161:8161
+    - 8122:8122
     environment:
-    - PORT=8161
+    - PORT=8122
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8161/healthz
+      - http://localhost:8122/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1307,16 +1307,16 @@ services:
       context: ../../apps/services/agent-registry
       dockerfile: Dockerfile
     ports:
-    - 8160:8121
+    - 8160:8160
     environment:
-    - PORT=8121
+    - PORT=8160
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8121/healthz
+      - http://localhost:8160/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1416,16 +1416,16 @@ services:
       context: ../../apps/services/logistics-service
       dockerfile: Dockerfile
     ports:
-    - 8167:8167
+    - 8181:8181
     environment:
-    - PORT=8167
+    - PORT=8181
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8167/healthz
+      - http://localhost:8181/healthz
       interval: 30s
       timeout: 10s
       retries: 3

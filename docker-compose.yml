@@ -3485,7 +3485,7 @@ services:
       dockerfile: apps/services/audit-service/Dockerfile
     container_name: sahool-audit-service
     environment:
-      - PORT=8122
+      - PORT=8114
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
@@ -3493,7 +3493,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8122:8122"
+      - "8114:8114"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3502,7 +3502,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8122/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8114/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3581,7 +3581,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - AUDIT_SERVICE_URL=http://audit-service:8122
+      - AUDIT_SERVICE_URL=http://audit-service:8114
       - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
     ports:
       - "8168:8168"

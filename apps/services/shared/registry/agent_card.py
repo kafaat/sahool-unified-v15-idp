@@ -12,7 +12,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, HttpUrl, field_validator
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
 
 class SecurityScheme(str, Enum):
@@ -61,8 +61,8 @@ class AgentCapability(BaseModel):
         default_factory=list, description="Usage examples"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "diagnose_disease",
                 "description": "Diagnose crop diseases from symptoms",
@@ -83,6 +83,7 @@ class AgentCapability(BaseModel):
                 },
             }
         }
+    )
 
 
 class AgentSkill(BaseModel):
@@ -102,8 +103,8 @@ class AgentSkill(BaseModel):
     )
     keywords: list[str] = Field(default_factory=list, description="Search keywords")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "skill_id": "crop_disease_diagnosis",
                 "name": "Crop Disease Diagnosis",
@@ -112,6 +113,7 @@ class AgentSkill(BaseModel):
                 "keywords": ["disease", "diagnosis", "pathology", "pest"],
             }
         }
+    )
 
 
 class AgentEndpoint(BaseModel):
@@ -127,8 +129,8 @@ class AgentEndpoint(BaseModel):
     headers: dict[str, str] | None = Field(default_factory=dict, description="Required headers")
     timeout_seconds: int = Field(default=30, description="Request timeout")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "url": "https://api.sahool.app/agents/disease-expert/invoke",
                 "method": "POST",
@@ -136,6 +138,7 @@ class AgentEndpoint(BaseModel):
                 "timeout_seconds": 30,
             }
         }
+    )
 
 
 class AgentMetadata(BaseModel):
@@ -156,8 +159,8 @@ class AgentMetadata(BaseModel):
         default_factory=datetime.utcnow, description="Last update timestamp"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "tags": ["agriculture", "ai", "disease-detection"],
                 "category": "agricultural-intelligence",
@@ -167,6 +170,7 @@ class AgentMetadata(BaseModel):
                 "documentation": "https://docs.sahool.app/agents/disease-expert",
             }
         }
+    )
 
 
 class AgentCard(BaseModel):
@@ -279,8 +283,8 @@ class AgentCard(BaseModel):
         """
         return cls(**data)
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "agent_id": "disease-expert-agent",
                 "name": "Disease Expert Agent",
@@ -317,3 +321,4 @@ class AgentCard(BaseModel):
                 "status": "active",
             }
         }
+    )

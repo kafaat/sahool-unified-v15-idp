@@ -11,7 +11,7 @@ from typing import Any
 
 import httpx
 import structlog
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from .agent_card import AgentCard, SecurityScheme
 from .registry import HealthCheckResult
@@ -30,8 +30,8 @@ class AgentInvocationRequest(BaseModel):
     context: dict[str, Any] | None = Field(default=None, description="Additional context")
     timeout_seconds: int = Field(default=30, description="Request timeout", ge=1, le=300)
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "capability": "diagnose_disease",
                 "input_data": {
@@ -42,6 +42,7 @@ class AgentInvocationRequest(BaseModel):
                 "timeout_seconds": 30,
             }
         }
+    )
 
 
 class AgentInvocationResponse(BaseModel):
@@ -59,8 +60,8 @@ class AgentInvocationResponse(BaseModel):
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Response timestamp")
     response_time_ms: float | None = Field(None, description="Response time in milliseconds")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "status": "success",
                 "agent_id": "disease-expert-agent",
@@ -73,6 +74,7 @@ class AgentInvocationResponse(BaseModel):
                 "response_time_ms": 234.5,
             }
         }
+    )
 
 
 class RegistryClient:

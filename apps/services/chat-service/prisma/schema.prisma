@@ -23,7 +23,7 @@ generator client {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model Conversation {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @db.Uuid
 
   // المشاركون (مصفوفة من معرفات المستخدمين)
   participantIds String[] @map("participant_ids")
@@ -59,7 +59,7 @@ model Conversation {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model Message {
-  id             String   @id @default(uuid())
+  id             String   @id @default(uuid()) @db.Uuid
   conversationId String   @map("conversation_id")
 
   // المرسل
@@ -108,7 +108,7 @@ enum MessageType {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model Participant {
-  id             String   @id @default(uuid())
+  id             String   @id @default(uuid()) @db.Uuid
   conversationId String   @map("conversation_id")
   userId         String   @map("user_id")
 

@@ -5,7 +5,7 @@ Pydantic models for Inventory Service
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 # Enums
@@ -98,6 +98,8 @@ class InventoryItemUpdate(BaseModel):
 
 
 class InventoryItemResponse(InventoryItemBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     currentQuantity: float
     reservedQuantity: float
@@ -105,9 +107,6 @@ class InventoryItemResponse(InventoryItemBase):
     lastRestocked: datetime | None
     createdAt: datetime
     updatedAt: datetime
-
-    class Config:
-        from_attributes = True
 
 
 # Stock Movement Models
@@ -176,6 +175,8 @@ class StockAdjustRequest(BaseModel):
 
 
 class StockMovementResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     itemId: str
     movementType: MovementType
@@ -191,9 +192,6 @@ class StockMovementResponse(BaseModel):
     performedBy: str | None
     notes: str | None
     createdAt: datetime
-
-    class Config:
-        from_attributes = True
 
 
 # Batch/Lot Models
@@ -216,12 +214,11 @@ class BatchLotCreate(BatchLotBase):
 
 
 class BatchLotResponse(BatchLotBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     remainingQty: float
     receivedDate: datetime
-
-    class Config:
-        from_attributes = True
 
 
 # Supplier Models
@@ -256,11 +253,10 @@ class SupplierUpdate(BaseModel):
 
 
 class SupplierResponse(SupplierBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     createdAt: datetime
-
-    class Config:
-        from_attributes = True
 
 
 # Report Models

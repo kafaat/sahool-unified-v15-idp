@@ -23,7 +23,7 @@ generator client {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model Product {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @db.Uuid
   name        String
   nameAr      String   @map("name_ar")
   category    ProductCategory
@@ -97,7 +97,7 @@ enum ProductStatus {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model Order {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @db.Uuid
   orderNumber String   @unique @map("order_number")
 
   // المشتري
@@ -140,7 +140,7 @@ model Order {
 }
 
 model OrderItem {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @db.Uuid
   orderId     String   @map("order_id")
   productId   String   @map("product_id")
 
@@ -177,7 +177,7 @@ enum PaymentStatus {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model Wallet {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @db.Uuid
   userId      String   @unique @map("user_id")
   userType    String   @map("user_type") // farmer, company, buyer
 
@@ -243,7 +243,7 @@ enum CreditTier {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model Transaction {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @db.Uuid
   walletId    String   @map("wallet_id")
 
   type        TransactionType
@@ -313,7 +313,7 @@ enum TransactionStatus {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model Loan {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @db.Uuid
   walletId    String   @map("wallet_id")
 
   amount      Float
@@ -376,7 +376,7 @@ enum LoanStatus {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model CreditEvent {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @db.Uuid
   walletId    String   @map("wallet_id")
 
   eventType   CreditEventType @map("event_type")
@@ -411,7 +411,7 @@ enum CreditEventType {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model Escrow {
-  id             String       @id @default(uuid())
+  id             String       @id @default(uuid()) @db.Uuid
   orderId        String       @unique @map("order_id")
 
   // المحافظ
@@ -455,7 +455,7 @@ enum EscrowStatus {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model ScheduledPayment {
-  id              String   @id @default(uuid())
+  id              String   @id @default(uuid()) @db.Uuid
   walletId        String   @map("wallet_id")
 
   // المبلغ والتكرار
@@ -500,7 +500,7 @@ enum PaymentFrequency {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model WalletAuditLog {
-  id              String   @id @default(uuid())
+  id              String   @id @default(uuid()) @db.Uuid
   walletId        String   @map("wallet_id")
   transactionId   String?  @map("transaction_id")
 
@@ -543,7 +543,7 @@ model WalletAuditLog {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model SellerProfile {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @db.Uuid
   userId      String   @unique @map("user_id")
   tenantId    String   @map("tenant_id")
 
@@ -586,7 +586,7 @@ enum BusinessType {
 }
 
 model BuyerProfile {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @db.Uuid
   userId      String   @unique @map("user_id")
   tenantId    String   @map("tenant_id")
 
@@ -616,7 +616,7 @@ model BuyerProfile {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model ProductReview {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @db.Uuid
   productId   String   @map("product_id")
   buyerId     String   @map("buyer_id")
   orderId     String   @map("order_id")
@@ -649,7 +649,7 @@ model ProductReview {
 }
 
 model ReviewResponse {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @db.Uuid
   reviewId    String   @unique @map("review_id")
   sellerId    String   @map("seller_id")
 

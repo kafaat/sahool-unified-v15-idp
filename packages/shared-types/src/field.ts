@@ -115,7 +115,7 @@ export interface UpdateFarmPayload extends Partial<CreateFarmPayload> {
 export type FieldStatus =
   | "active"        // نشط - قيد الاستخدام
   | "fallow"        // بور - في راحة
-  | "prepared"      // معد - جاهز للزراعة
+  | "preparing"     // معد - جاهز للزراعة
   | "harvested"     // محصود
   | "inactive";     // غير نشط
 

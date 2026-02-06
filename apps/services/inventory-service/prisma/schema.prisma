@@ -153,6 +153,7 @@ enum MovementType {
 
 model InventoryAlert {
   id              String       @id @default(uuid())
+  tenantId        String       @map("tenant_id")
   alertType       AlertType    @map("alert_type")
   priority        AlertPriority
   status          AlertStatus  @default(ACTIVE)
@@ -189,6 +190,7 @@ model InventoryAlert {
   // Relations
   item            InventoryItem @relation(fields: [itemId], references: [id])
 
+  @@index([tenantId])
   @@index([status, priority])
   @@index([itemId])
   @@index([alertType])
@@ -260,6 +262,7 @@ model AlertSettings {
 
 model Warehouse {
   id              String   @id @default(uuid())
+  tenantId        String   @map("tenant_id")
   name            String
   nameAr          String   @map("name_ar")
   warehouseType   WarehouseType @map("warehouse_type")
@@ -291,6 +294,7 @@ model Warehouse {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
+  @@index([tenantId])
   @@index([isActive], name: "idx_warehouse_active")
   @@index([warehouseType], name: "idx_warehouse_type")
   @@index([latitude, longitude], name: "idx_warehouse_location")
@@ -318,6 +322,7 @@ enum StorageCondition {
 // Zone within a warehouse
 model Zone {
   id            String    @id @default(uuid())
+  tenantId      String    @map("tenant_id")
   warehouseId   String    @map("warehouse_id")
   warehouse     Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   name          String
@@ -331,12 +336,14 @@ model Zone {
   updatedAt     DateTime @updatedAt @map("updated_at")
 
   @@map("zones")
+  @@index([tenantId])
   @@index([warehouseId])
 }
 
 // Storage Location (specific bin/shelf)
 model StorageLocation {
   id            String   @id @default(uuid())
+  tenantId      String   @map("tenant_id")
   zoneId        String   @map("zone_id")
   zone          Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
   aisle         String
@@ -352,6 +359,7 @@ model StorageLocation {
   updatedAt     DateTime @updatedAt @map("updated_at")
 
   @@map("storage_locations")
+  @@index([tenantId])
   @@index([zoneId])
   @@index([locationCode])
 }
@@ -359,6 +367,7 @@ model StorageLocation {
 // Stock Transfer between warehouses
 model StockTransfer {
   id              String    @id @default(uuid())
+  tenantId        String    @map("tenant_id")
   itemId          String    @map("item_id")
   fromWarehouseId String?   @map("from_warehouse_id")
   fromWarehouse   Warehouse? @relation("FromWarehouse", fields: [fromWarehouseId], references: [id])
@@ -385,6 +394,7 @@ model StockTransfer {
   notes           String?
 
   @@map("stock_transfers")
+  @@index([tenantId])
   @@index([itemId])
   @@index([fromWarehouseId])
   @@index([toWarehouseId])

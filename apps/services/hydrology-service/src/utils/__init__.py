@@ -2,22 +2,30 @@
 
 from .hydrology_algorithms import (
     HydrologyAnalyzer,
-    calculate_drainage_network,
-    calculate_wetness_index,
-    identify_depressions,
-    detect_streams,
+    extract_drainage_network,
+    calculate_topographic_wetness_index,
+    fill_depressions,
     delineate_basins,
     calculate_flow_accumulation,
     calculate_stream_order,
+    DEMData,
+    FlowData,
+    DrainageSegmentData,
+    DepressionData,
+    generate_mock_dem,
 )
 
 __all__ = [
     "HydrologyAnalyzer",
-    "calculate_drainage_network",
-    "calculate_wetness_index",
-    "identify_depressions",
-    "detect_streams",
+    "extract_drainage_network",
+    "calculate_topographic_wetness_index",
+    "fill_depressions",
     "delineate_basins",
     "calculate_flow_accumulation",
     "calculate_stream_order",
+    "DEMData",
+    "FlowData",
+    "DrainageSegmentData",
+    "DepressionData",
+    "generate_mock_dem",
 ]

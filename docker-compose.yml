@@ -4136,7 +4136,7 @@ services:
 
 networks:
   sahool-network:
-    driver: bridge
+    external: true
     name: sahool-network
 
 # ─────────────────────────────────────────────────────────────────────────────

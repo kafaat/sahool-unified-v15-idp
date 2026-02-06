@@ -90,7 +90,7 @@ help: ## عرض قائمة الأوامر المتاحة - Show available comman
 # Development - التطوير
 # ═══════════════════════════════════════════════════════════════════════════════
 
-dev: ## بدء بيئة التطوير الكاملة - Start full development environment
+dev: network-create ## بدء بيئة التطوير الكاملة - Start full development environment
 	@echo "$(GREEN)🚀 بدء بيئة التطوير - Starting Development Environment...$(RESET)"
 	docker compose -f $(COMPOSE_BASE) up -d
 	@$(MAKE) --no-print-directory status
@@ -153,7 +153,7 @@ build-node: ## بناء خدمات Node.js فقط - Build only Node.js services
 		iot_service
 	@echo "$(GREEN)✅ خدمات Node.js جاهزة - Node.js services built!$(RESET)"
 
-up: ## تشغيل جميع الخدمات - Start all services
+up: network-create ## تشغيل جميع الخدمات - Start all services
 	@echo "$(GREEN)🚀 تشغيل جميع الخدمات - Starting all services...$(RESET)"
 	docker compose -f $(COMPOSE_BASE) up -d
 	@$(MAKE) --no-print-directory status
@@ -580,7 +580,7 @@ pre-commit-run: ## تشغيل pre-commit على جميع الملفات - Run pr
 # Infrastructure Management - إدارة البنية التحتية
 # ═══════════════════════════════════════════════════════════════════════════════
 
-infra-up: ## تشغيل البنية التحتية فقط - Start infrastructure only (postgres, redis, nats, kong)
+infra-up: network-create ## تشغيل البنية التحتية فقط - Start infrastructure only (postgres, redis, nats, kong)
 	@echo "$(GREEN)🏗️  تشغيل البنية التحتية - Starting infrastructure...$(RESET)"
 	docker compose -f $(COMPOSE_BASE) up -d postgres redis nats kong
 	@echo "$(GREEN)✅ البنية التحتية جاهزة - Infrastructure ready!$(RESET)"
@@ -890,7 +890,7 @@ watch: ## مراقبة تلقائية للسجلات - Watch logs continuously
 
 .PHONY: dev-vision build-vision test-vision logs-vision
 
-dev-vision: ## تشغيل خدمة الرؤية YOLO26 - Start YOLO26 vision service
+dev-vision: network-create ## تشغيل خدمة الرؤية YOLO26 - Start YOLO26 vision service
 	@echo "$(GREEN)👁️  تشغيل خدمة الرؤية - Starting YOLO26 vision service...$(RESET)"
 	docker compose up -d yolo26-vision-service
 	@echo "$(GREEN)✅ خدمة الرؤية جاهزة - Vision service ready!$(RESET)"
@@ -915,7 +915,7 @@ logs-vision: ## عرض سجلات خدمة الرؤية - View vision service lo
 
 .PHONY: dev-terrain build-terrain test-terrain
 
-dev-terrain: ## تشغيل خدمات تحليل التضاريس - Start terrain analysis services
+dev-terrain: network-create ## تشغيل خدمات تحليل التضاريس - Start terrain analysis services
 	@echo "$(GREEN)🏔️  تشغيل خدمات التضاريس - Starting terrain services...$(RESET)"
 	docker compose up -d terrain-core-service hydrology-service leveling-optimizer-service
 	@echo "$(GREEN)✅ خدمات التضاريس جاهزة - Terrain services ready!$(RESET)"
@@ -939,7 +939,7 @@ test-terrain: ## تشغيل اختبارات خدمات التضاريس - Run t
 
 .PHONY: dev-edge build-edge test-edge
 
-dev-edge: ## تشغيل خدمة منسق الحافة - Start edge orchestrator service
+dev-edge: network-create ## تشغيل خدمة منسق الحافة - Start edge orchestrator service
 	@echo "$(GREEN)🌐 تشغيل منسق الحافة - Starting edge orchestrator...$(RESET)"
 	docker compose up -d edge-orchestrator-service
 	@echo "$(GREEN)✅ منسق الحافة جاهز - Edge orchestrator ready!$(RESET)"

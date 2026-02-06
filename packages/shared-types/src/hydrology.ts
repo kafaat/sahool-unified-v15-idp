@@ -15,6 +15,44 @@
  */
 
 // ═══════════════════════════════════════════════════════════════════════════
+// GeoJSON Types (local definitions for hydrology module)
+// أنواع GeoJSON محلية لوحدة الهيدرولوجيا
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * GeoJSON LineString geometry for drainage segments
+ */
+interface HydroLineString {
+  type: "LineString";
+  coordinates: Array<[number, number]>; // [longitude, latitude] pairs
+}
+
+/**
+ * GeoJSON Polygon geometry for basins and zones
+ */
+interface HydroPolygon {
+  type: "Polygon";
+  coordinates: Array<Array<[number, number]>>;
+}
+
+/**
+ * GeoJSON Feature for individual geographic features
+ */
+interface HydroFeature<G = HydroLineString | HydroPolygon, P = Record<string, unknown>> {
+  type: "Feature";
+  geometry: G;
+  properties: P;
+}
+
+/**
+ * GeoJSON FeatureCollection for network and zone collections
+ */
+interface HydroFeatureCollection<G = HydroLineString | HydroPolygon, P = Record<string, unknown>> {
+  type: "FeatureCollection";
+  features: Array<HydroFeature<G, P>>;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // Common Types
 // الأنواع المشتركة
 // ═══════════════════════════════════════════════════════════════════════════
@@ -69,7 +107,7 @@ export interface DrainageSegment {
     longitude: number;
     elevation: number;
   };
-  geometry: GeoJSON.LineString;
+  geometry: HydroLineString;
 }
 
 /**
@@ -102,7 +140,7 @@ export interface DrainageNetworkResult {
   }>;
 
   // GeoJSON for mapping
-  networkGeoJson: GeoJSON.FeatureCollection;
+  networkGeoJson: HydroFeatureCollection;
 
   // Bilingual messages
   summaryEn: string;
@@ -191,7 +229,7 @@ export interface Depression {
   riskNameAr: string;
   drainageTime: number;  // hours to drain naturally
   requiresIntervention: boolean;
-  geometry: GeoJSON.Polygon;
+  geometry: HydroPolygon;
 }
 
 /**
@@ -266,7 +304,7 @@ export interface Basin {
   runoffCoefficientMin: number;
   runoffCoefficientMax: number;
 
-  geometry: GeoJSON.Polygon;
+  geometry: HydroPolygon;
 }
 
 /**
@@ -290,7 +328,7 @@ export interface BasinDelineationResult {
   mainBasinId: string;
 
   // GeoJSON for mapping
-  basinsGeoJson: GeoJSON.FeatureCollection;
+  basinsGeoJson: HydroFeatureCollection;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -320,7 +358,7 @@ export interface WaterloggingZone {
   recommendations: string[];
   recommendationsAr: string[];
 
-  geometry: GeoJSON.Polygon;
+  geometry: HydroPolygon;
 }
 
 /**

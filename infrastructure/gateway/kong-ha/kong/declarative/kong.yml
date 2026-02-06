@@ -1020,7 +1020,7 @@ services:
 
   # Terrain API - Terrain Analysis Service
   - name: terrain-core-service
-    url: http://terrain-core-service:8160
+    url: http://terrain-core-service:8185
     connect_timeout: 15000
     read_timeout: 60000
     write_timeout: 60000

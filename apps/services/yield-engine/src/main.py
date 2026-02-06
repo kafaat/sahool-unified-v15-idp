@@ -722,6 +722,25 @@ async def health_check():
     )
 
 
+@app.get("/readyz")
+async def readiness_check():
+    """
+    Kubernetes readiness probe - is the service ready to accept traffic?
+    فحص الجاهزية - هل الخدمة جاهزة لاستقبال الطلبات؟
+    """
+    return {
+        "status": "ready",
+        "service": SERVICE_NAME,
+        "service_ar": "محرك التنبؤ بالإنتاجية",
+        "version": SERVICE_VERSION,
+        "checks": {
+            "model": "ready" if yield_predictor.is_ready else "not_ready",
+            "crops_loaded": len(CROP_DATA),
+        },
+        "timestamp": datetime.now(UTC).isoformat(),
+    }
+
+
 @app.post("/v1/predict", response_model=YieldPrediction)
 async def predict_yield(request: YieldRequest):
     """

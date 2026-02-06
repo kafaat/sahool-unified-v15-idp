@@ -32,8 +32,9 @@ export type EquipmentType =
 
 /**
  * Soil types for leveling calculations
+ * (Named LevelingSoilType to avoid conflict with field.ts SoilType)
  */
-export type SoilType =
+export type LevelingSoilType =
   | "sandy"   // رملية
   | "loamy"   // طفالية
   | "clay"    // طينية
@@ -244,7 +245,7 @@ export interface LevelingAnalysisRequest {
   fieldId: string;
   elevationPoints: ElevationPoint[];
   boundary?: FieldBoundary;
-  soilType?: SoilType;
+  soilType?: LevelingSoilType;
   targetGradeX?: number;
   targetGradeY?: number;
   method?: LevelingMethod;
@@ -273,7 +274,7 @@ export interface SimulationRequest {
   targetElevation?: number;
   targetGradeX?: number;
   targetGradeY?: number;
-  soilType?: SoilType;
+  soilType?: LevelingSoilType;
   method?: LevelingMethod;
 }
 

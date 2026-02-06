@@ -32,5 +32,11 @@ export * from "./vision";
 // Terrain Service types - أنواع خدمة التضاريس
 export * from "./terrain";
 
+// Hydrology Service types - أنواع خدمة الهيدرولوجيا
+export * from "./hydrology";
+
+// Leveling Optimizer Service types - أنواع خدمة تحسين التسوية
+export * from "./leveling";
+
 // Edge Device types - أنواع أجهزة الحوسبة الطرفية
 export * from "./edge";

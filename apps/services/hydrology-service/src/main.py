@@ -266,6 +266,49 @@ def combined_health():
     }
 
 
+@app.get("/metrics", tags=["Health"])
+def metrics():
+    """
+    Prometheus-compatible metrics endpoint.
+    نقطة نهاية المقاييس المتوافقة مع بروميثيوس
+    """
+    from fastapi.responses import PlainTextResponse
+
+    settings = get_settings()
+    nats_connected = 1 if (hasattr(app.state, "nc") and app.state.nc) else 0
+    db_connected = 1 if (hasattr(app.state, "db_pool") and app.state.db_pool) else 0
+
+    metrics_output = f"""# HELP hydrology_service_up Service up status
+# TYPE hydrology_service_up gauge
+hydrology_service_up 1
+
+# HELP hydrology_database_connected Database connection status
+# TYPE hydrology_database_connected gauge
+hydrology_database_connected {db_connected}
+
+# HELP hydrology_nats_connected NATS connection status
+# TYPE hydrology_nats_connected gauge
+hydrology_nats_connected {nats_connected}
+
+# HELP hydrology_service_info Service version info
+# TYPE hydrology_service_info gauge
+hydrology_service_info{{version="{settings.version}",environment="{settings.environment}"}} 1
+
+# HELP hydrology_config_dem_resolution Default DEM resolution in meters
+# TYPE hydrology_config_dem_resolution gauge
+hydrology_config_dem_resolution {settings.default_dem_resolution}
+
+# HELP hydrology_config_flow_threshold Flow accumulation threshold
+# TYPE hydrology_config_flow_threshold gauge
+hydrology_config_flow_threshold {settings.flow_accumulation_threshold}
+
+# HELP hydrology_config_wetness_threshold TWI high wetness threshold
+# TYPE hydrology_config_wetness_threshold gauge
+hydrology_config_wetness_threshold {settings.wetness_index_high_threshold}
+"""
+    return PlainTextResponse(content=metrics_output, media_type="text/plain; charset=utf-8")
+
+
 # ==============================================================================
 # Event Publishing
 # ==============================================================================

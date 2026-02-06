@@ -1512,63 +1512,6 @@ services:
   # Python Services (29)
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # ⚠️ DEPRECATED: field_ops - Migrating to field-management-service
-  # This service is being consolidated into field-management-service (Port 3000)
-  # Kept temporarily for backwards compatibility
-  # ============================================================================
-  # DEPRECATED: field-ops service - Migrated to field-management-service
-  # ============================================================================
-  # ⚠️ This service is DEPRECATED and only included for backward compatibility
-  # ⚠️ All functionality has been migrated to field-management-service:3000
-  # ⚠️ To enable this service, run: docker-compose --profile deprecated up
-  # ============================================================================
-  field-ops:
-    profiles:
-      - deprecated # Only runs when explicitly enabled
-    build:
-      context: .
-      dockerfile: apps/services/field-ops/Dockerfile
-    container_name: sahool-field-ops-deprecated
-    environment:
-      - PORT=8080
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
-      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-    ports:
-      - "8080:8080"
-    depends_on:
-      # FIX: Use pgbouncer instead of postgres for proper connection pooling
-      pgbouncer:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/healthz')" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    networks:
-      - sahool-network
-
   # WebSocket Gateway
   ws-gateway:
     build:
@@ -2774,58 +2717,6 @@ services:
         reservations:
           cpus: '0.5'
           memory: 256M
-    networks:
-      - sahool-network
-
-  # ⚠️ DEPRECATED: crop_health - Migrating to crop-intelligence-service
-  # This service is being consolidated into crop-intelligence-service (Port 8095)
-  # Deprecation Date: 2026-01-06 | Sunset Date: 2026-06-01
-  #
-  # Migration Path:
-  # - All zone-based health monitoring → crop-intelligence-service
-  # - Vegetation indices (NDVI, EVI, NDRE, etc.) → crop-intelligence-service
-  # - VRT export functionality → crop-intelligence-service
-  #
-  # To disable this service, start without the 'deprecated' profile
-  # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
-  crop-health:
-    build:
-      context: .
-      dockerfile: apps/services/crop-health/Dockerfile
-    container_name: sahool-crop-health
-    labels:
-      - "com.sahool.deprecated=true"
-      - "com.sahool.replacement=crop-intelligence-service"
-      - "com.sahool.deprecation.reason=Consolidated into crop-intelligence-service"
-      - "com.sahool.deprecation.date=2026-01-06"
-      - "com.sahool.sunset.date=2026-06-01"
-    profiles:
-      - deprecated
-      - legacy
-    environment:
-      - PORT=8100
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      - CDN_BASE_URL=${CDN_BASE_URL:-https://cdn.sahool.io}
-    ports:
-      - "8100:8100"
-    healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/healthz')" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 384M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
     networks:
       - sahool-network
 

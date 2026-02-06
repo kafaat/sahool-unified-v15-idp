@@ -1265,7 +1265,7 @@ services:
       dockerfile: apps/services/chat-service/Dockerfile
     container_name: sahool-chat-service
     environment:
-      - PORT=8114
+      - PORT=8000
       - NODE_ENV=production
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1274,7 +1274,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8114:8114"
+      - "8114:8000"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -1283,7 +1283,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8114/api/v1/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v1/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3197,7 +3197,7 @@ services:
       dockerfile: apps/services/agent-registry/Dockerfile
     container_name: sahool-agent-registry
     environment:
-      - PORT=8160
+      - PORT=8121
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
@@ -3205,7 +3205,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8160:8160"
+      - "8160:8121"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3214,7 +3214,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8160/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8121/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3335,17 +3335,17 @@ services:
       dockerfile: apps/services/copilot-api/Dockerfile
     container_name: sahool-copilot-api
     environment:
-      - PORT=8163
+      - PORT=8088
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - AGENT_REGISTRY_URL=http://agent-registry:8160
+      - AGENT_REGISTRY_URL=http://agent-registry:8121
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
     ports:
-      - "8163:8163"
+      - "8163:8088"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3356,7 +3356,7 @@ services:
       agent-registry:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8163/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8088/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3574,7 +3574,7 @@ services:
       dockerfile: apps/services/globalgap-compliance/Dockerfile
     container_name: sahool-globalgap-compliance
     environment:
-      - PORT=8168
+      - PORT=8123
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
@@ -3584,7 +3584,7 @@ services:
       - AUDIT_SERVICE_URL=http://audit-service:8114
       - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
     ports:
-      - "8168:8168"
+      - "8168:8123"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3597,7 +3597,7 @@ services:
       traceability-service:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8168/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8123/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3

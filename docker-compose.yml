@@ -2876,12 +2876,12 @@ services:
     container_name: sahool-mcp-server
     environment:
       - SAHOOL_API_URL=http://kong:8000
-      - MCP_SERVER_PORT=8201
+      - MCP_SERVER_PORT=8200
       - MCP_SERVER_HOST=0.0.0.0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8201:8201"
+      - "8200:8200"
     depends_on:
       kong:
         condition: service_healthy
@@ -2891,7 +2891,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8201/health')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8200/health')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3809,7 +3809,7 @@ services:
       dockerfile: apps/services/supply-chain-service/Dockerfile
     container_name: sahool-supply-chain-service
     environment:
-      - PORT=8166
+      - PORT=8230
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
@@ -3818,7 +3818,7 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
     ports:
-      - "8166:8166"
+      - "8230:8230"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3829,7 +3829,7 @@ services:
       traceability-service:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8166/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8230/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3863,7 +3863,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - SUPPLY_CHAIN_SERVICE_URL=http://supply-chain-service:8166
+      - SUPPLY_CHAIN_SERVICE_URL=http://supply-chain-service:8230
     ports:
       - "8167:8167"
     depends_on:
@@ -4093,7 +4093,7 @@ services:
       dockerfile: apps/services/edge-orchestrator-service/Dockerfile
     container_name: sahool-edge-orchestrator-service
     environment:
-      - PORT=8190
+      - PORT=8180
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
@@ -4101,7 +4101,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8190:8190"
+      - "8180:8180"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -4111,7 +4111,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8190/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8180/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3

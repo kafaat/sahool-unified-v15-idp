@@ -1117,7 +1117,7 @@
 
 
 <h1 id="docker-deployment-guide-docker">Docker Deployment Guide | دليل نشر Docker<a class="headerlink" href="#docker-deployment-guide-docker" title="Permanent link">&para;</a></h1>
-<h1 id="sahool-platform-v155">SAHOOL Platform v15.5<a class="headerlink" href="#sahool-platform-v155" title="Permanent link">&para;</a></h1>
+<h1 id="sahool-platform-v160">SAHOOL Platform v16.0<a class="headerlink" href="#sahool-platform-v160" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>هذا الدليل يوضح كيفية تشغيل منصة سهول باستخدام Docker Compose.</p>
@@ -1413,7 +1413,11 @@ curl<span class="w"> </span>http://localhost:8089/healthz<span class="w"> </span
 
 <hr />
 <h2 id="local-build">البناء المحلي | Local Build<a class="headerlink" href="#local-build" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><code><span class="c1"># بناء جميع الصور</span>
+<div class="codehilite"><pre><span></span><code><span class="c1"># تفعيل BuildKit (مطلوب لتحسين أداء البناء)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DOCKER_BUILDKIT</span><span class="o">=</span><span class="m">1</span><span class="w">  </span><span class="c1"># Linux/macOS</span>
+<span class="nv">$env</span>:DOCKER_BUILDKIT<span class="o">=</span><span class="m">1</span><span class="w">    </span><span class="c1"># PowerShell</span>
+
+<span class="c1"># بناء جميع الصور</span>
 docker<span class="w"> </span>compose<span class="w"> </span>build
 
 <span class="c1"># بناء خدمة محددة</span>
@@ -1423,6 +1427,19 @@ docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w
 docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w"> </span>--no-cache<span class="w"> </span>billing_core
 </code></pre></div>
 
+<h3 id="network-resilience">حل مشاكل الشبكة | Network Resilience<a class="headerlink" href="#network-resilience" title="Permanent link">&para;</a></h3>
+<p>إذا فشل البناء بسبب أخطاء الشبكة (npm network aborted):</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># تأكد من تفعيل BuildKit</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DOCKER_BUILDKIT</span><span class="o">=</span><span class="m">1</span>
+
+<span class="c1"># أعد المحاولة - الـ Dockerfile يحتوي على retry loop تلقائي</span>
+docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w"> </span>--progress<span class="o">=</span>plain<span class="w"> </span>chat-service
+</code></pre></div>
+
+<p>خدمات Node.js تستخدم:
+- <strong>BuildKit cache mount</strong>: إعادة استخدام حزم npm المحملة
+- <strong>Retry loop</strong>: 5 محاولات مع تأخير متزايد
+- <strong>Increased timeouts</strong>: 5 دقائق لكل طلب</p>
 <hr />
 <h2 id="profiles-legacy-services">Profiles (Legacy Services)<a class="headerlink" href="#profiles-legacy-services" title="Permanent link">&para;</a></h2>
 <p>بعض الخدمات القديمة موضوعة في profile منفصل:</p>
@@ -1542,9 +1559,9 @@ helm<span class="w"> </span>install<span class="w"> </span>sahool<span class="w"
 
 <hr />
 <p align="center">
-  <strong>SAHOOL Platform v15.5</strong>
+  <strong>SAHOOL Platform v16.0</strong>
   <br>
-  <sub>آخر تحديث: ديسمبر 2025</sub>
+  <sub>آخر تحديث: فبراير 2026</sub>
 </p>
 
 

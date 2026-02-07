@@ -1122,12 +1122,13 @@
 <h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
 <ol>
 <li><a href="#1-disk-space-issues">Disk Space Issues</a></li>
-<li><a href="#2-flutter-code-generation-driftfreezed">Flutter Code Generation (Drift/Freezed)</a></li>
-<li><a href="#3-flutter-provider-exports">Flutter Provider Exports</a></li>
-<li><a href="#4-python-module-import-errors">Python Module Import Errors</a></li>
-<li><a href="#5-typescript-path-mappings">TypeScript Path Mappings</a></li>
-<li><a href="#6-fastapi-complex-query-parameters">FastAPI Complex Query Parameters</a></li>
-<li><a href="#7-github-actions-workflow-issues">GitHub Actions Workflow Issues</a></li>
+<li><a href="#2-npm-network-timeout-in-docker-builds">NPM Network Timeout in Docker Builds</a></li>
+<li><a href="#3-flutter-code-generation-driftfreezed">Flutter Code Generation (Drift/Freezed)</a></li>
+<li><a href="#4-flutter-provider-exports">Flutter Provider Exports</a></li>
+<li><a href="#5-python-module-import-errors">Python Module Import Errors</a></li>
+<li><a href="#6-typescript-path-mappings">TypeScript Path Mappings</a></li>
+<li><a href="#7-fastapi-complex-query-parameters">FastAPI Complex Query Parameters</a></li>
+<li><a href="#8-github-actions-workflow-issues">GitHub Actions Workflow Issues</a></li>
 </ol>
 <hr />
 <h2 id="1-disk-space-issues">1. Disk Space Issues<a class="headerlink" href="#1-disk-space-issues" title="Permanent link">&para;</a></h2>
@@ -1155,15 +1156,115 @@
 <li><code>container-tests.yml</code> (Docker builds)</li>
 </ul>
 <hr />
-<h2 id="2-flutter-code-generation-driftfreezed">2. Flutter Code Generation (Drift/Freezed)<a class="headerlink" href="#2-flutter-code-generation-driftfreezed" title="Permanent link">&para;</a></h2>
+<h2 id="2-npm-network-timeout-in-docker-builds">2. NPM Network Timeout in Docker Builds<a class="headerlink" href="#2-npm-network-timeout-in-docker-builds" title="Permanent link">&para;</a></h2>
 <h3 id="symptom_1">Symptom<a class="headerlink" href="#symptom_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>npm error network aborted
+npm error network This is a problem related to network connectivity.
+npm error network In most cases you are behind a proxy or have bad network settings.
+</code></pre></div>
+
+<h3 id="cause_1">Cause<a class="headerlink" href="#cause_1" title="Permanent link">&para;</a></h3>
+<p>NPM package downloads timing out during Docker builds due to:
+- Unstable network connections
+- Registry latency
+- Large package downloads (e.g., Prisma, NestJS)</p>
+<h3 id="solution_1">Solution<a class="headerlink" href="#solution_1" title="Permanent link">&para;</a></h3>
+<p>Use a shell-level retry loop with BuildKit cache mount and increased timeouts:</p>
+<div class="codehilite"><pre><span></span><code><span class="c"># Install dependencies (with retries for network resilience)</span>
+<span class="k">RUN</span><span class="w"> </span>--mount<span class="o">=</span><span class="nv">type</span><span class="o">=</span>cache,target<span class="o">=</span>/root/.npm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">5</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Attempt </span><span class="nv">$i</span><span class="s2">: Installing npm dependencies...&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>npm<span class="w"> </span>install<span class="w"> </span>--legacy-peer-deps<span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--fetch-retries<span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--fetch-retry-mintimeout<span class="o">=</span><span class="m">30000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--fetch-retry-maxtimeout<span class="o">=</span><span class="m">180000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--fetch-timeout<span class="o">=</span><span class="m">300000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--prefer-offline<span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--no-audit<span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--no-fund<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="k">break</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span><span class="o">(</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Attempt </span><span class="nv">$i</span><span class="s2"> failed, waiting before retry...&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sleep<span class="w"> </span><span class="k">$((</span><span class="nv">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">10</span><span class="k">))</span><span class="o">)</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="k">done</span>
+</code></pre></div>
+
+<h3 id="key-options-explained">Key Options Explained<a class="headerlink" href="#key-options-explained" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--mount=type=cache</code></td>
+<td><code>/root/.npm</code></td>
+<td>Reuse npm cache across builds</td>
+</tr>
+<tr>
+<td><code>--fetch-retries</code></td>
+<td>5</td>
+<td>Retry failed fetches 5 times</td>
+</tr>
+<tr>
+<td><code>--fetch-retry-mintimeout</code></td>
+<td>30000</td>
+<td>30s minimum retry delay</td>
+</tr>
+<tr>
+<td><code>--fetch-retry-maxtimeout</code></td>
+<td>180000</td>
+<td>180s maximum retry delay</td>
+</tr>
+<tr>
+<td><code>--fetch-timeout</code></td>
+<td>300000</td>
+<td>5 minutes per request timeout</td>
+</tr>
+<tr>
+<td><code>--prefer-offline</code></td>
+<td>-</td>
+<td>Use cached packages when available</td>
+</tr>
+<tr>
+<td><code>--no-audit --no-fund</code></td>
+<td>-</td>
+<td>Skip non-essential network requests</td>
+</tr>
+</tbody>
+</table>
+<h3 id="building-with-buildkit">Building with BuildKit<a class="headerlink" href="#building-with-buildkit" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enable BuildKit (required for cache mounts)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DOCKER_BUILDKIT</span><span class="o">=</span><span class="m">1</span>
+
+<span class="c1"># Or in PowerShell</span>
+<span class="nv">$env</span>:DOCKER_BUILDKIT<span class="o">=</span><span class="m">1</span>
+
+<span class="c1"># Build the service</span>
+docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>chat-service<span class="w"> </span>-f<span class="w"> </span>apps/services/chat-service/Dockerfile<span class="w"> </span>.
+</code></pre></div>
+
+<h3 id="affected-services">Affected Services<a class="headerlink" href="#affected-services" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>chat-service</code></li>
+<li>Any Node.js service with large dependencies</li>
+</ul>
+<h3 id="prevention">Prevention<a class="headerlink" href="#prevention" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Always use BuildKit cache mounts for npm installs</li>
+<li>Consider using <code>.npmrc</code> with registry mirrors for faster downloads</li>
+<li>Test Docker builds locally before pushing</li>
+</ul>
+<hr />
+<h2 id="3-flutter-code-generation-driftfreezed">3. Flutter Code Generation (Drift/Freezed)<a class="headerlink" href="#3-flutter-code-generation-driftfreezed" title="Permanent link">&para;</a></h2>
+<h3 id="symptom_2">Symptom<a class="headerlink" href="#symptom_2" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Method</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">found</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TasksCompanion&#39;</span><span class="o">.</span>
 <span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Task&#39;</span><span class="w"> </span><span class="n">isn</span><span class="err">&#39;</span><span class="n">t</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">type</span><span class="o">.</span>
 </code></pre></div>
 
-<h3 id="cause_1">Cause<a class="headerlink" href="#cause_1" title="Permanent link">&para;</a></h3>
+<h3 id="cause_2">Cause<a class="headerlink" href="#cause_2" title="Permanent link">&para;</a></h3>
 <p>Drift and Freezed require code generation via <code>build_runner</code>. The generated <code>.g.dart</code> files are not committed to the repository.</p>
-<h3 id="solution_1">Solution<a class="headerlink" href="#solution_1" title="Permanent link">&para;</a></h3>
+<h3 id="solution_2">Solution<a class="headerlink" href="#solution_2" title="Permanent link">&para;</a></h3>
 <ol>
 <li><strong>Always run code generation before build:</strong></li>
 </ol>
@@ -1192,20 +1293,20 @@
 <li><code>apps/mobile/sahool_field_app/lib/core/storage/database.dart</code> → generates <code>database.g.dart</code></li>
 <li><code>apps/mobile/sahool_field_app/build.yaml</code> - build_runner configuration</li>
 </ul>
-<h3 id="prevention">Prevention<a class="headerlink" href="#prevention" title="Permanent link">&para;</a></h3>
+<h3 id="prevention_1">Prevention<a class="headerlink" href="#prevention_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Run <code>dart run build_runner build</code> locally before committing database schema changes</li>
 <li>Check that <code>pubspec.yaml</code> has matching versions of <code>drift</code> and <code>drift_dev</code></li>
 </ul>
 <hr />
-<h2 id="3-flutter-provider-exports">3. Flutter Provider Exports<a class="headerlink" href="#3-flutter-provider-exports" title="Permanent link">&para;</a></h2>
-<h3 id="symptom_2">Symptom<a class="headerlink" href="#symptom_2" title="Permanent link">&para;</a></h3>
+<h2 id="4-flutter-provider-exports">4. Flutter Provider Exports<a class="headerlink" href="#4-flutter-provider-exports" title="Permanent link">&para;</a></h2>
+<h3 id="symptom_3">Symptom<a class="headerlink" href="#symptom_3" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">getter</span><span class="w"> </span><span class="s1">&#39;securityConfigProvider&#39;</span><span class="w"> </span><span class="n">isn</span><span class="s1">&#39;t defined for the class &#39;</span><span class="n">WalletScreen</span><span class="err">&#39;</span><span class="o">.</span>
 </code></pre></div>
 
-<h3 id="cause_2">Cause<a class="headerlink" href="#cause_2" title="Permanent link">&para;</a></h3>
+<h3 id="cause_3">Cause<a class="headerlink" href="#cause_3" title="Permanent link">&para;</a></h3>
 <p>Riverpod providers defined in one file are not automatically available when importing another file from the same package.</p>
-<h3 id="solution_2">Solution<a class="headerlink" href="#solution_2" title="Permanent link">&para;</a></h3>
+<h3 id="solution_3">Solution<a class="headerlink" href="#solution_3" title="Permanent link">&para;</a></h3>
 <p>Re-export providers from the main service file:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// In screen_security_service.dart</span>
 <span class="k">import</span><span class="w"> </span><span class="s1">&#39;security_config.dart&#39;</span><span class="p">;</span>
@@ -1214,24 +1315,24 @@
 <span class="k">export</span><span class="w"> </span><span class="s1">&#39;security_config.dart&#39;</span><span class="w"> </span><span class="k">show</span><span class="w"> </span><span class="n">securityConfigProvider</span><span class="p">,</span><span class="w"> </span><span class="n">SecurityConfig</span><span class="p">;</span>
 </code></pre></div>
 
-<h3 id="prevention_1">Prevention<a class="headerlink" href="#prevention_1" title="Permanent link">&para;</a></h3>
+<h3 id="prevention_2">Prevention<a class="headerlink" href="#prevention_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>When creating a service with providers, export related providers from the main file</li>
 <li>Document which providers are exported in file comments</li>
 </ul>
 <hr />
-<h2 id="4-python-module-import-errors">4. Python Module Import Errors<a class="headerlink" href="#4-python-module-import-errors" title="Permanent link">&para;</a></h2>
-<h3 id="symptom_3">Symptom<a class="headerlink" href="#symptom_3" title="Permanent link">&para;</a></h3>
+<h2 id="5-python-module-import-errors">5. Python Module Import Errors<a class="headerlink" href="#5-python-module-import-errors" title="Permanent link">&para;</a></h2>
+<h3 id="symptom_4">Symptom<a class="headerlink" href="#symptom_4" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="n">ModuleNotFoundError</span><span class="p">:</span><span class="w"> </span><span class="n">No</span><span class="w"> </span><span class="k">module</span><span class="w"> </span><span class="nn">named</span><span class="w"> </span><span class="c">&#39;crops&#39;</span>
 </code></pre></div>
 
-<h3 id="cause_3">Cause<a class="headerlink" href="#cause_3" title="Permanent link">&para;</a></h3>
+<h3 id="cause_4">Cause<a class="headerlink" href="#cause_4" title="Permanent link">&para;</a></h3>
 <p>Python services have two shared directories:</p>
 <ul>
 <li><code>/shared/</code> - Root shared modules (auth, middleware, errors_py)</li>
 <li><code>/apps/services/shared/</code> - Service-specific modules (crops.py, yemen_varieties.py)</li>
 </ul>
-<h3 id="solution_3">Solution<a class="headerlink" href="#solution_3" title="Permanent link">&para;</a></h3>
+<h3 id="solution_4">Solution<a class="headerlink" href="#solution_4" title="Permanent link">&para;</a></h3>
 <ol>
 <li><strong>Update Dockerfile to copy both directories:</strong></li>
 </ol>
@@ -1254,26 +1355,26 @@
     <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">SERVICES_SHARED_PATH</span><span class="p">))</span>
 </code></pre></div>
 
-<h3 id="affected-services">Affected Services<a class="headerlink" href="#affected-services" title="Permanent link">&para;</a></h3>
+<h3 id="affected-services_1">Affected Services<a class="headerlink" href="#affected-services_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>agro-advisor</code></li>
 <li><code>advisory-service</code></li>
 <li>Any service importing from <code>crops.py</code> or <code>yemen_varieties.py</code></li>
 </ul>
-<h3 id="prevention_2">Prevention<a class="headerlink" href="#prevention_2" title="Permanent link">&para;</a></h3>
+<h3 id="prevention_3">Prevention<a class="headerlink" href="#prevention_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Check Dockerfile paths when adding new shared module imports</li>
 <li>Test Docker builds locally: <code>docker build -f apps/services/SERVICE/Dockerfile .</code></li>
 </ul>
 <hr />
-<h2 id="5-typescript-path-mappings">5. TypeScript Path Mappings<a class="headerlink" href="#5-typescript-path-mappings" title="Permanent link">&para;</a></h2>
-<h3 id="symptom_4">Symptom<a class="headerlink" href="#symptom_4" title="Permanent link">&para;</a></h3>
+<h2 id="6-typescript-path-mappings">6. TypeScript Path Mappings<a class="headerlink" href="#6-typescript-path-mappings" title="Permanent link">&para;</a></h2>
+<h3 id="symptom_5">Symptom<a class="headerlink" href="#symptom_5" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nx">error</span><span class="w"> </span><span class="nx">TS2307</span><span class="p">:</span><span class="w"> </span><span class="nx">Cannot</span><span class="w"> </span><span class="nx">find</span><span class="w"> </span><span class="nx">module</span><span class="w"> </span><span class="err">&#39;@</span><span class="nx">sahool</span><span class="o">/</span><span class="nx">shared</span><span class="o">-</span><span class="nx">types</span><span class="err">&#39;</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="nx">its</span><span class="w"> </span><span class="nx">corresponding</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="nx">declarations</span><span class="p">.</span>
 </code></pre></div>
 
-<h3 id="cause_4">Cause<a class="headerlink" href="#cause_4" title="Permanent link">&para;</a></h3>
+<h3 id="cause_5">Cause<a class="headerlink" href="#cause_5" title="Permanent link">&para;</a></h3>
 <p>TypeScript monorepo packages need explicit path mappings in <code>tsconfig.json</code>.</p>
-<h3 id="solution_4">Solution<a class="headerlink" href="#solution_4" title="Permanent link">&para;</a></h3>
+<h3 id="solution_5">Solution<a class="headerlink" href="#solution_5" title="Permanent link">&para;</a></h3>
 <p>Add path mappings to each package/app's <code>tsconfig.json</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;compilerOptions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -1294,20 +1395,20 @@
 <li><code>apps/admin/tsconfig.json</code></li>
 <li><code>packages/api-client/tsconfig.json</code></li>
 </ul>
-<h3 id="prevention_3">Prevention<a class="headerlink" href="#prevention_3" title="Permanent link">&para;</a></h3>
+<h3 id="prevention_4">Prevention<a class="headerlink" href="#prevention_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>When adding a new shared package, update all consumer tsconfigs</li>
 <li>Consider using a shared tsconfig base that includes common paths</li>
 </ul>
 <hr />
-<h2 id="6-fastapi-complex-query-parameters">6. FastAPI Complex Query Parameters<a class="headerlink" href="#6-fastapi-complex-query-parameters" title="Permanent link">&para;</a></h2>
-<h3 id="symptom_5">Symptom<a class="headerlink" href="#symptom_5" title="Permanent link">&para;</a></h3>
+<h2 id="7-fastapi-complex-query-parameters">7. FastAPI Complex Query Parameters<a class="headerlink" href="#7-fastapi-complex-query-parameters" title="Permanent link">&para;</a></h2>
+<h3 id="symptom_6">Symptom<a class="headerlink" href="#symptom_6" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="n">AssertionError</span><span class="o">:</span><span class="w"> </span><span class="n">assert</span><span class="w"> </span><span class="n">is_scalar_field</span><span class="o">(</span><span class="n">field</span><span class="o">)</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">is_scalar_sequence_field</span><span class="o">(</span><span class="n">field</span><span class="o">)</span>
 </code></pre></div>
 
-<h3 id="cause_5">Cause<a class="headerlink" href="#cause_5" title="Permanent link">&para;</a></h3>
+<h3 id="cause_6">Cause<a class="headerlink" href="#cause_6" title="Permanent link">&para;</a></h3>
 <p>FastAPI's <code>Query()</code> doesn't support complex nested types like <code>list[list[float]]</code>.</p>
-<h3 id="solution_5">Solution<a class="headerlink" href="#solution_5" title="Permanent link">&para;</a></h3>
+<h3 id="solution_6">Solution<a class="headerlink" href="#solution_6" title="Permanent link">&para;</a></h3>
 <p>Use a Pydantic model with <code>Body()</code> instead:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Before (fails)</span>
 <span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/v1/boundaries/refine&quot;</span><span class="p">)</span>
@@ -1328,14 +1429,14 @@
     <span class="n">buffer_m</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">buffer_m</span>
 </code></pre></div>
 
-<h3 id="prevention_4">Prevention<a class="headerlink" href="#prevention_4" title="Permanent link">&para;</a></h3>
+<h3 id="prevention_5">Prevention<a class="headerlink" href="#prevention_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Use Pydantic models for any complex request parameters</li>
 <li><code>Query()</code> is only for simple scalar types and lists of scalars</li>
 </ul>
 <hr />
-<h2 id="7-github-actions-workflow-issues">7. GitHub Actions Workflow Issues<a class="headerlink" href="#7-github-actions-workflow-issues" title="Permanent link">&para;</a></h2>
-<h3 id="71-workflows-requiring-secrets">7.1 Workflows Requiring Secrets<a class="headerlink" href="#71-workflows-requiring-secrets" title="Permanent link">&para;</a></h3>
+<h2 id="8-github-actions-workflow-issues">8. GitHub Actions Workflow Issues<a class="headerlink" href="#8-github-actions-workflow-issues" title="Permanent link">&para;</a></h2>
+<h3 id="81-workflows-requiring-secrets">8.1 Workflows Requiring Secrets<a class="headerlink" href="#81-workflows-requiring-secrets" title="Permanent link">&para;</a></h3>
 <p><strong>Symptom:</strong> Workflow fails on PRs from forks or when secrets aren't configured.</p>
 <p><strong>Solution:</strong> Disable PR triggers for workflows that require secrets:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">on</span><span class="p">:</span>
@@ -1350,7 +1451,7 @@
 <li><code>deploy-preview.yml</code> (SURGE_TOKEN, NETLIFY_AUTH_TOKEN)</li>
 <li><code>lighthouse-ci.yml</code> (optional)</li>
 </ul>
-<h3 id="72-gitleaks-false-positives">7.2 GitLeaks False Positives<a class="headerlink" href="#72-gitleaks-false-positives" title="Permanent link">&para;</a></h3>
+<h3 id="82-gitleaks-false-positives">8.2 GitLeaks False Positives<a class="headerlink" href="#82-gitleaks-false-positives" title="Permanent link">&para;</a></h3>
 <p><strong>Symptom:</strong> GitLeaks reports secrets in config files.</p>
 <p><strong>Solution:</strong> Update <code>.gitleaks.toml</code> allowlist:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">[allowlist]</span>
@@ -1361,7 +1462,7 @@
 <span class="p">]</span>
 </code></pre></div>
 
-<h3 id="73-e2e-tests-missing-artifacts">7.3 E2E Tests Missing Artifacts<a class="headerlink" href="#73-e2e-tests-missing-artifacts" title="Permanent link">&para;</a></h3>
+<h3 id="83-e2e-tests-missing-artifacts">8.3 E2E Tests Missing Artifacts<a class="headerlink" href="#83-e2e-tests-missing-artifacts" title="Permanent link">&para;</a></h3>
 <p><strong>Symptom:</strong> E2E tests fail because web-build artifact doesn't exist.</p>
 <p><strong>Solution:</strong> Add fallback build:</p>
 <div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Download Web Build</span>
@@ -1379,7 +1480,7 @@
 <span class="w">  </span><span class="nt">continue-on-error</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 
-<h3 id="74-shared-package-build-failures-webadmin">7.4 Shared Package Build Failures (Web/Admin)<a class="headerlink" href="#74-shared-package-build-failures-webadmin" title="Permanent link">&para;</a></h3>
+<h3 id="84-shared-package-build-failures-webadmin">8.4 Shared Package Build Failures (Web/Admin)<a class="headerlink" href="#84-shared-package-build-failures-webadmin" title="Permanent link">&para;</a></h3>
 <p><strong>Symptom:</strong> Web App or Admin Dashboard build fails with module not found errors for @sahool packages.</p>
 <p><strong>Cause:</strong> Shared packages (shared-utils, shared-ui, api-client, shared-hooks, i18n) need to be built before the apps that depend on them.</p>
 <p><strong>Solution:</strong> Ensure <code>build:packages</code> script in root package.json includes all required packages:</p>
@@ -1405,6 +1506,10 @@
 <tr>
 <td>No space left on device</td>
 <td>Add disk cleanup step</td>
+</tr>
+<tr>
+<td>npm network aborted</td>
+<td>Use retry loop with BuildKit cache mount</td>
 </tr>
 <tr>
 <td>TasksCompanion not found</td>
@@ -1440,8 +1545,8 @@
 <li><a href="../OBSERVABILITY/">OBSERVABILITY.md</a> - Monitoring and logging</li>
 </ul>
 <hr />
-<p><em>Last Updated: January 2026</em>
-<em>Version: 1.0.0</em></p>
+<p><em>Last Updated: February 2026</em>
+<em>Version: 1.1.0</em></p>
 
 
 

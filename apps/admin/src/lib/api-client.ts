@@ -581,7 +581,7 @@ class AdminApiClient {
 }
 
 /** Extract Arabic error message from response */
-function extractErrorMessageAr(data: unknown, fallback: string): string {
+export function extractErrorMessageAr(data: unknown, fallback: string): string {
   if (isRawApiResponse(data)) {
     const raw = data as { error_ar?: string; message_ar?: string };
     return (

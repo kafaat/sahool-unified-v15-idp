@@ -23,8 +23,17 @@ $$;
 SELECT 'CREATE DATABASE mlflow'
 WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'mlflow')\gexec
 
--- Grant privileges to the application user
-GRANT ALL PRIVILEGES ON DATABASE mlflow TO :POSTGRES_USER;
+-- Grant privileges to the application user (sahool)
+-- Using direct username instead of psql variable to avoid syntax errors
+DO $$
+BEGIN
+    EXECUTE 'GRANT ALL PRIVILEGES ON DATABASE mlflow TO sahool';
+    RAISE NOTICE '✅ MLflow database configuration complete';
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Could not grant privileges (user may not exist yet): %', SQLERRM;
+END;
+$$;
 
 -- Note: MLflow will automatically create its schema tables when it first connects:
 -- - experiments
@@ -35,5 +44,3 @@ GRANT ALL PRIVILEGES ON DATABASE mlflow TO :POSTGRES_USER;
 -- - registered_models
 -- - model_versions
 -- - etc.
-
-RAISE NOTICE '✅ MLflow database configuration complete';

@@ -102,12 +102,15 @@ def get_tenant_id(
 
 async def fetch_dem_from_terrain_service(
     field_id: str,
-    tenant_id: str | None = None
+    tenant_id: str | None = None,
+    resolution_m: float = 30.0
 ) -> DEMData | None:
     """
     Fetch DEM data from terrain-core-service.
     جلب بيانات الارتفاع من خدمة التضاريس
     """
+    import numpy as np
+
     settings = get_settings()
 
     # Validate field_id to prevent SSRF attacks
@@ -123,20 +126,46 @@ async def fetch_dem_from_terrain_service(
             if tenant_id:
                 headers["X-Tenant-Id"] = tenant_id
 
+            # Use the correct DEM endpoint path: /api/v1/terrain/dem/{field_id}
             response = await client.get(
-                f"{settings.terrain_service_url}/api/v1/terrain/{validated_field_id}/dem",
+                f"{settings.terrain_service_url}/api/v1/terrain/dem/{validated_field_id}",
+                params={
+                    "include_data": "true",
+                    "resolution_m": resolution_m
+                },
                 headers=headers
             )
 
             if response.status_code == 200:
                 data = response.json()
-                # Parse DEM data from response
-                # This would depend on terrain-core-service response format
-                logger.info(
-                    "Fetched DEM from terrain service",
-                    field_id=field_id
-                )
-                return None  # Would parse actual data
+                # Parse DEM data from response into our DEMData format
+                if data.get("elevation_data"):
+                    elevation_array = np.array(data["elevation_data"], dtype=np.float32)
+                    bounds = data.get("bounds", {})
+                    dem = DEMData(
+                        elevation=elevation_array,
+                        resolution=data.get("resolution_m", 30.0),
+                        nodata_value=data.get("nodata_value", -9999.0),
+                        bounds=(
+                            bounds.get("min_lon", 45.0),
+                            bounds.get("min_lat", 15.0),
+                            bounds.get("max_lon", 45.1),
+                            bounds.get("max_lat", 15.1)
+                        ) if bounds else None
+                    )
+                    logger.info(
+                        "Fetched DEM from terrain service",
+                        field_id=field_id,
+                        rows=dem.rows,
+                        cols=dem.cols
+                    )
+                    return dem
+                else:
+                    logger.warning(
+                        "DEM data not included in response (field may be too large)",
+                        field_id=field_id
+                    )
+                    return None
             else:
                 logger.warning(
                     "Failed to fetch DEM from terrain service",

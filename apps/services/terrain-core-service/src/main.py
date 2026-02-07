@@ -334,6 +334,51 @@ def health_combined():
     }
 
 
+@app.get(
+    "/metrics",
+    tags=["health | الصحة"],
+    summary="Prometheus metrics | مقاييس بروميثيوس",
+)
+def metrics():
+    """
+    Prometheus-compatible metrics endpoint.
+    نقطة نهاية المقاييس المتوافقة مع بروميثيوس
+    """
+    from fastapi.responses import PlainTextResponse
+
+    # Basic service metrics in Prometheus format
+    dem_processor_ready = 1 if (hasattr(app.state, "dem_processor") and app.state.dem_processor) else 0
+    terrain_calc_ready = 1 if (hasattr(app.state, "terrain_calculator") and app.state.terrain_calculator) else 0
+    nats_connected = 1 if (hasattr(app.state, "nc") and app.state.nc) else 0
+    db_connected = 1 if (hasattr(app.state, "db_pool") and app.state.db_pool) else 0
+
+    metrics_output = f"""# HELP terrain_service_up Service up status
+# TYPE terrain_service_up gauge
+terrain_service_up 1
+
+# HELP terrain_dem_processor_ready DEM processor ready status
+# TYPE terrain_dem_processor_ready gauge
+terrain_dem_processor_ready {dem_processor_ready}
+
+# HELP terrain_calculator_ready Terrain calculator ready status
+# TYPE terrain_calculator_ready gauge
+terrain_calculator_ready {terrain_calc_ready}
+
+# HELP terrain_nats_connected NATS connection status
+# TYPE terrain_nats_connected gauge
+terrain_nats_connected {nats_connected}
+
+# HELP terrain_database_connected Database connection status
+# TYPE terrain_database_connected gauge
+terrain_database_connected {db_connected}
+
+# HELP terrain_service_info Service version info
+# TYPE terrain_service_info gauge
+terrain_service_info{{version="{settings.VERSION}",dem_source="{settings.DEFAULT_DEM_SOURCE.value}"}} 1
+"""
+    return PlainTextResponse(content=metrics_output, media_type="text/plain; charset=utf-8")
+
+
 # =============================================================================
 # Include Routers
 # =============================================================================

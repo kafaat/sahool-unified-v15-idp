@@ -4,7 +4,7 @@ Configuration settings for Leveling Optimizer Service.
 إعدادات خدمة تحسين التسوية
 """
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
 
@@ -70,9 +70,11 @@ class Settings(BaseSettings):
     # Maximum recommended grade for irrigation (%)
     MAX_IRRIGATION_GRADE: float = 0.5
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+    )
 
 
 settings = Settings()

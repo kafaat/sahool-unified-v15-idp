@@ -309,6 +309,52 @@ async def combined_health(request: Request):
 
 
 @app.get(
+    "/metrics",
+    tags=["Health | الصحة"],
+    summary="Prometheus metrics | مقاييس بروميثيوس",
+)
+async def metrics(request: Request):
+    """
+    Prometheus-compatible metrics endpoint.
+    نقطة نهاية المقاييس المتوافقة مع بروميثيوس
+    """
+    from fastapi.responses import PlainTextResponse
+
+    db_connected = 1 if getattr(request.app.state, "db_connected", False) else 0
+    nats_connected = 1 if getattr(request.app.state, "nats_connected", False) else 0
+
+    metrics_output = f"""# HELP leveling_service_up Service up status
+# TYPE leveling_service_up gauge
+leveling_service_up 1
+
+# HELP leveling_database_connected Database connection status
+# TYPE leveling_database_connected gauge
+leveling_database_connected {db_connected}
+
+# HELP leveling_nats_connected NATS connection status
+# TYPE leveling_nats_connected gauge
+leveling_nats_connected {nats_connected}
+
+# HELP leveling_algorithms_available Core algorithms available
+# TYPE leveling_algorithms_available gauge
+leveling_algorithms_available 1
+
+# HELP leveling_service_info Service version info
+# TYPE leveling_service_info gauge
+leveling_service_info{{version="{settings.VERSION}",service="{settings.SERVICE_NAME}"}} 1
+
+# HELP leveling_equipment_cost_sar Equipment costs in SAR per hour
+# TYPE leveling_equipment_cost_sar gauge
+leveling_equipment_cost_sar{{equipment="bulldozer"}} {settings.BULLDOZER_COST_PER_HOUR}
+leveling_equipment_cost_sar{{equipment="scraper"}} {settings.SCRAPER_COST_PER_HOUR}
+leveling_equipment_cost_sar{{equipment="grader"}} {settings.GRADER_COST_PER_HOUR}
+leveling_equipment_cost_sar{{equipment="laser_leveler"}} {settings.LASER_LEVELER_COST_PER_HOUR}
+leveling_equipment_cost_sar{{equipment="excavator"}} {settings.EXCAVATOR_COST_PER_HOUR}
+"""
+    return PlainTextResponse(content=metrics_output, media_type="text/plain; charset=utf-8")
+
+
+@app.get(
     "/",
     tags=["Root | الجذر"],
     summary="Service information | معلومات الخدمة",

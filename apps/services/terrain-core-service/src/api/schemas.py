@@ -129,12 +129,61 @@ class BoundingBox(BaseModel):
         return v
 
 
+class GeoJSONPoint(BaseModel):
+    """GeoJSON Point geometry | هندسة نقطة GeoJSON"""
+
+    type: Literal["Point"] = "Point"
+    coordinates: list[float] = Field(
+        ..., description="Point coordinates [lon, lat] | إحداثيات النقطة"
+    )
+
+
+class GeoJSONLineString(BaseModel):
+    """GeoJSON LineString geometry | هندسة خط GeoJSON"""
+
+    type: Literal["LineString"] = "LineString"
+    coordinates: list[list[float]] = Field(
+        ..., description="LineString coordinates | إحداثيات الخط"
+    )
+
+
+class GeoJSONMultiLineString(BaseModel):
+    """GeoJSON MultiLineString geometry | هندسة خطوط متعددة GeoJSON"""
+
+    type: Literal["MultiLineString"] = "MultiLineString"
+    coordinates: list[list[list[float]]] = Field(
+        ..., description="MultiLineString coordinates | إحداثيات الخطوط المتعددة"
+    )
+
+
 class GeoJSONPolygon(BaseModel):
     """GeoJSON Polygon geometry | هندسة مضلع GeoJSON"""
 
     type: Literal["Polygon"] = "Polygon"
     coordinates: list[list[list[float]]] = Field(
         ..., description="Polygon coordinates | إحداثيات المضلع"
+    )
+
+
+class GeoJSONFeature(BaseModel):
+    """GeoJSON Feature | ميزة GeoJSON"""
+
+    type: Literal["Feature"] = "Feature"
+    geometry: GeoJSONPoint | GeoJSONLineString | GeoJSONMultiLineString | GeoJSONPolygon = Field(
+        ..., description="Feature geometry | هندسة الميزة"
+    )
+    properties: dict[str, Any] = Field(
+        default_factory=dict, description="Feature properties | خصائص الميزة"
+    )
+    id: str | int | None = Field(None, description="Feature ID | معرف الميزة")
+
+
+class GeoJSONFeatureCollection(BaseModel):
+    """GeoJSON FeatureCollection | مجموعة ميزات GeoJSON"""
+
+    type: Literal["FeatureCollection"] = "FeatureCollection"
+    features: list[GeoJSONFeature] = Field(
+        default_factory=list, description="Features list | قائمة الميزات"
     )
 
 
@@ -364,7 +413,7 @@ class FlowAccumulationResult(BaseModel):
     threshold_used: int = Field(
         ..., description="Threshold used | العتبة المستخدمة"
     )
-    streams_geojson: dict[str, Any] | None = Field(
+    streams_geojson: GeoJSONFeatureCollection | None = Field(
         None, description="Stream network GeoJSON | شبكة المجاري بصيغة GeoJSON"
     )
     raster_url: str | None = Field(
@@ -429,8 +478,8 @@ class ContourLine(BaseModel):
     is_major: bool = Field(
         default=False, description="Is major contour | خط كنتور رئيسي"
     )
-    geometry: dict[str, Any] = Field(
-        ..., description="LineString GeoJSON geometry | هندسة الخط"
+    geometry: GeoJSONLineString | GeoJSONMultiLineString = Field(
+        ..., description="LineString or MultiLineString GeoJSON geometry | هندسة الخط"
     )
 
 
@@ -608,3 +657,82 @@ class TerrainErrorDetail(BaseModel):
     details: dict[str, Any] | None = Field(
         None, description="Additional details | تفاصيل إضافية"
     )
+
+
+# =============================================================================
+# DEM Source Response Models
+# =============================================================================
+
+
+class DEMSourceInfo(BaseModel):
+    """DEM source information | معلومات مصدر الارتفاعات"""
+
+    source: DEMSourceType = Field(..., description="Source type | نوع المصدر")
+    name: str = Field(..., description="Source name | اسم المصدر")
+    name_ar: str = Field(..., description="Arabic source name | اسم المصدر بالعربية")
+    description: str = Field(..., description="Source description | وصف المصدر")
+    description_ar: str = Field(
+        ..., description="Arabic description | الوصف بالعربية"
+    )
+    resolution_m: float = Field(..., description="Resolution in meters | الدقة بالأمتار")
+    coverage: str = Field(..., description="Geographic coverage | التغطية الجغرافية")
+    is_available: bool = Field(
+        default=True, description="Is source available | هل المصدر متاح"
+    )
+
+
+class DEMSourcesResponse(BaseModel):
+    """Response for listing DEM sources | استجابة قائمة مصادر الارتفاعات"""
+
+    sources: list[DEMSourceInfo] = Field(
+        ..., description="Available DEM sources | مصادر الارتفاعات المتاحة"
+    )
+    default: str = Field(..., description="Default source | المصدر الافتراضي")
+    default_name: BilingualField = Field(
+        ..., description="Default source name | اسم المصدر الافتراضي"
+    )
+
+
+class DEMDataBounds(BaseModel):
+    """DEM data bounds | حدود بيانات الارتفاعات"""
+
+    min_lon: float = Field(..., description="Minimum longitude | خط الطول الأدنى")
+    min_lat: float = Field(..., description="Minimum latitude | خط العرض الأدنى")
+    max_lon: float = Field(..., description="Maximum longitude | خط الطول الأقصى")
+    max_lat: float = Field(..., description="Maximum latitude | خط العرض الأقصى")
+
+
+class DEMDataRequest(BaseModel):
+    """Request for DEM data | طلب بيانات الارتفاعات"""
+
+    field_id: str = Field(..., description="Field identifier | معرف الحقل")
+    tenant_id: str | None = Field(None, description="Tenant identifier | معرف المستأجر")
+    dem_source: DEMSourceType = Field(
+        default=DEMSourceType.COPERNICUS, description="DEM source | مصدر الارتفاعات"
+    )
+    resolution_m: float | None = Field(
+        None, description="Target resolution in meters | الدقة المستهدفة بالمتر"
+    )
+
+
+class DEMDataResponse(BaseModel):
+    """Response containing DEM data for downstream services | استجابة بيانات الارتفاعات للخدمات المتصلة"""
+
+    field_id: str = Field(..., description="Field identifier | معرف الحقل")
+    dem_source: DEMSourceType = Field(..., description="DEM source used | مصدر الارتفاعات المستخدم")
+    bounds: DEMDataBounds = Field(..., description="Data bounds | حدود البيانات")
+    resolution_m: float = Field(..., description="Resolution in meters | الدقة بالمتر")
+    rows: int = Field(..., description="Number of rows | عدد الصفوف")
+    cols: int = Field(..., description="Number of columns | عدد الأعمدة")
+    crs: str = Field(..., description="Coordinate reference system | نظام الإحداثيات")
+    nodata_value: float = Field(..., description="NoData value | قيمة عدم وجود بيانات")
+    elevation_min: float = Field(..., description="Minimum elevation (m) | أدنى ارتفاع (م)")
+    elevation_max: float = Field(..., description="Maximum elevation (m) | أقصى ارتفاع (م)")
+    elevation_mean: float = Field(..., description="Mean elevation (m) | متوسط الارتفاع (م)")
+    elevation_data: list[list[float]] | None = Field(
+        None, description="Elevation data array (optional, for small fields) | مصفوفة الارتفاعات"
+    )
+    download_url: str | None = Field(
+        None, description="URL to download full DEM data | رابط تنزيل البيانات الكاملة"
+    )
+    analyzed_at: datetime = Field(..., description="Analysis timestamp | وقت التحليل")

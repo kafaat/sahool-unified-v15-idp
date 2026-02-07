@@ -6,7 +6,7 @@ This module manages all environment variables and service configuration.
 تدير هذه الوحدة جميع متغيرات البيئة وإعدادات الخدمة.
 """
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -74,9 +74,11 @@ class Settings(BaseSettings):
     enable_cache: bool = True
     cache_ttl: int = 3600  # seconds
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+    )
 
 
 # Global settings instance | مثيل الإعدادات العام

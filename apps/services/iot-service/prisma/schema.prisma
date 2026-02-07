@@ -87,7 +87,7 @@ enum CommandStatus {
 
 // Main Models
 model Device {
-  id              String            @id @default(uuid())
+  id              String            @id @default(uuid()) @db.Uuid
   tenantId        String
   deviceId        String            // Unique device identifier from the physical device
   name            String
@@ -118,7 +118,8 @@ model Device {
 }
 
 model Sensor {
-  id              String            @id @default(uuid())
+  id              String            @id @default(uuid()) @db.Uuid
+  tenantId        String
   deviceId        String
   sensorType      SensorType
   unit            String            // Unit of measurement (e.g., "%", "°C", "L/min")
@@ -133,6 +134,7 @@ model Sensor {
   device          Device            @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   readings        SensorReading[]
 
+  @@index([tenantId])
   @@index([deviceId])
   @@index([sensorType])
   @@index([deviceId, sensorType])
@@ -140,7 +142,8 @@ model Sensor {
 }
 
 model SensorReading {
-  id              String            @id @default(uuid())
+  id              String            @id @default(uuid()) @db.Uuid
+  tenantId        String
   sensorId        String
   deviceId        String
   value           Float
@@ -153,6 +156,7 @@ model SensorReading {
   sensor          Sensor            @relation(fields: [sensorId], references: [id], onDelete: Cascade)
   device          Device            @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
+  @@index([tenantId])
   @@index([sensorId])
   @@index([deviceId])
   @@index([timestamp])
@@ -162,7 +166,8 @@ model SensorReading {
 }
 
 model Actuator {
-  id              String            @id @default(uuid())
+  id              String            @id @default(uuid()) @db.Uuid
+  tenantId        String
   deviceId        String
   actuatorType    ActuatorType
   name            String?
@@ -177,6 +182,7 @@ model Actuator {
   device          Device            @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   commands        ActuatorCommand[]
 
+  @@index([tenantId])
   @@index([deviceId])
   @@index([actuatorType])
   @@index([deviceId, actuatorType])
@@ -184,7 +190,8 @@ model Actuator {
 }
 
 model ActuatorCommand {
-  id              String            @id @default(uuid())
+  id              String            @id @default(uuid()) @db.Uuid
+  tenantId        String
   actuatorId      String
   command         String            // Command name (e.g., "open", "close", "set_position")
   parameters      Json?             // Command parameters
@@ -200,6 +207,7 @@ model ActuatorCommand {
   // Relations
   actuator        Actuator          @relation(fields: [actuatorId], references: [id], onDelete: Cascade)
 
+  @@index([tenantId])
   @@index([actuatorId])
   @@index([status])
   @@index([requestedAt])
@@ -209,7 +217,7 @@ model ActuatorCommand {
 }
 
 model DeviceAlert {
-  id              String            @id @default(uuid())
+  id              String            @id @default(uuid()) @db.Uuid
   deviceId        String
   tenantId        String
   alertType       String            // Type of alert (e.g., "offline", "battery_low", "sensor_error")

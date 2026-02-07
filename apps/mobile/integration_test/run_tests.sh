@@ -73,26 +73,41 @@ check_devices() {
 
     print_success "$DEVICE_COUNT device(s) found"
 
-    # Auto-select device if not specified and multiple devices available
-    # NOTE: Web/Chrome devices are NOT supported for Flutter integration tests
-    if [ -z "$DEVICE_ID" ] && [ "$DEVICE_COUNT" -gt 1 ]; then
-        # Prefer Android emulator for integration tests (most compatible)
-        if flutter devices | grep -q "emulator\|android"; then
-            DEVICE_ID=$(flutter devices | grep -E "emulator|android" | head -1 | awk -F'•' '{print $2}' | xargs)
-            print_info "Auto-selected device: $DEVICE_ID (Android)"
-        # Fallback to iOS simulator
-        elif flutter devices | grep -q "simulator\|iphone\|ipad"; then
-            DEVICE_ID=$(flutter devices | grep -E "simulator|iphone|ipad" -i | head -1 | awk -F'•' '{print $2}' | xargs)
-            print_info "Auto-selected device: $DEVICE_ID (iOS)"
-        # Skip web devices - not supported for integration tests
-        elif flutter devices | grep -v "chrome\|web\|linux" | grep -q "•"; then
-            DEVICE_ID=$(flutter devices | grep -v "chrome\|web\|linux" | grep "•" | head -1 | awk -F'•' '{print $2}' | xargs)
-            print_info "Auto-selected device: $DEVICE_ID"
-        else
+    # Auto-select device if not specified
+    # NOTE: Web/Chrome/Linux desktop devices are NOT supported for Flutter integration tests
+    # They require Android emulator or iOS simulator
+    if [ -z "$DEVICE_ID" ]; then
+        # Get device list, filtering out web/desktop devices
+        # Match pattern: Device name contains (mobile) or emulator or simulator markers
+        ANDROID_DEVICE=$(flutter devices 2>/dev/null | grep -E "^\S.*•.*android" | grep -v "linux\|web\|chrome" | head -1)
+        IOS_DEVICE=$(flutter devices 2>/dev/null | grep -E "^\S.*•.*(ios|simulator|iphone|ipad)" | head -1)
+
+        if [ -n "$ANDROID_DEVICE" ]; then
+            DEVICE_ID=$(echo "$ANDROID_DEVICE" | awk -F'•' '{print $2}' | xargs)
+            if [ -n "$DEVICE_ID" ]; then
+                print_info "Auto-selected device: $DEVICE_ID (Android)"
+            fi
+        elif [ -n "$IOS_DEVICE" ]; then
+            DEVICE_ID=$(echo "$IOS_DEVICE" | awk -F'•' '{print $2}' | xargs)
+            if [ -n "$DEVICE_ID" ]; then
+                print_info "Auto-selected device: $DEVICE_ID (iOS)"
+            fi
+        fi
+
+        # Validate that we have a real mobile device
+        if [ -z "$DEVICE_ID" ]; then
             print_error "No supported device found for integration tests."
+            print_warning ""
             print_warning "Integration tests require Android emulator or iOS simulator."
-            print_warning "Web devices (Chrome) are NOT supported."
-            print_info "Please start an emulator with: flutter emulators --launch <emulator_name>"
+            print_warning "Web devices (Chrome, Linux desktop) are NOT supported."
+            print_warning ""
+            print_info "Available options:"
+            print_info "  1. Start an Android emulator: flutter emulators --launch <emulator_name>"
+            print_info "  2. Connect an Android device via USB with debugging enabled"
+            print_info "  3. Start iOS simulator (on macOS): open -a Simulator"
+            print_warning ""
+            print_warning "Current devices detected (none suitable for integration tests):"
+            flutter devices
             exit 1
         fi
     fi

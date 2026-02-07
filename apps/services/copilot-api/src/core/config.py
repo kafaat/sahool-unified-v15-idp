@@ -15,7 +15,7 @@ from functools import lru_cache
 from typing import Optional
 
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -171,26 +171,12 @@ class Settings(BaseSettings):
         """Check if running in offline mode"""
         return self.copilot_mode.lower() == "offline" or not self.enable_external
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
-        extra = "ignore"
-
-        # Environment variable prefix
-        env_prefix = ""
-
-        # Field aliases for environment variables
-        fields = {
-            "port": {"env": ["PORT", "COPILOT_PORT"]},
-            "log_level": {"env": ["LOG_LEVEL", "COPILOT_LOG_LEVEL"]},
-            "jwt_secret_key": {"env": ["JWT_SECRET_KEY"]},
-            "redis_url": {"env": ["REDIS_URL"]},
-            "nats_url": {"env": ["NATS_URL"]},
-            "qdrant_host": {"env": ["QDRANT_HOST"]},
-            "qdrant_port": {"env": ["QDRANT_PORT"]},
-            "ollama_base_url": {"env": ["OLLAMA_BASE_URL"]},
-        }
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
+    )
 
 
 @lru_cache

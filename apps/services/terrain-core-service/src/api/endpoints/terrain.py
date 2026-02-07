@@ -29,7 +29,12 @@ from ..schemas import (
     ContourResult,
     CurvatureResult,
     CurvatureType,
+    DEMDataBounds,
+    DEMDataRequest,
+    DEMDataResponse,
     DEMMetadata as DEMMetadataSchema,
+    DEMSourceInfo,
+    DEMSourcesResponse,
     DEMSourceType,
     DEMStatistics,
     FlowAccumulationResult as FlowAccumulationResultSchema,
@@ -37,6 +42,7 @@ from ..schemas import (
     FlowAnalysisResponse,
     FlowDirectionMethod,
     FlowDirectionResult as FlowDirectionResultSchema,
+    GeoJSONFeatureCollection,
     SlopeAnalysisRequest,
     SlopeAnalysisResponse,
     SlopeResult as SlopeResultSchema,
@@ -428,10 +434,9 @@ async def analyze_terrain(
                 drainage_density=flow_acc_result.drainage_density,
                 channel_pixels=flow_acc_result.channel_pixels,
                 threshold_used=flow_acc_result.threshold,
-                streams_geojson={
-                    "type": "FeatureCollection",
-                    "features": flow_acc_result.streams or [],
-                },
+                streams_geojson=GeoJSONFeatureCollection(
+                    features=flow_acc_result.streams or [],
+                ),
             )
 
         twi_schema = None
@@ -807,14 +812,129 @@ async def get_contours(
 
 @router.get(
     "/sources",
+    response_model=DEMSourcesResponse,
     summary="List Available DEM Sources | قائمة مصادر الارتفاعات المتاحة",
 )
 async def list_dem_sources(
     dem_processor: DEMProcessor = Depends(get_dem_processor),
-):
+) -> DEMSourcesResponse:
     """List available DEM data sources | قائمة مصادر بيانات الارتفاعات المتاحة"""
-    sources = dem_processor.list_available_sources()
-    return {
-        "sources": sources,
-        "default": settings.DEFAULT_DEM_SOURCE.value,
-    }
+    raw_sources = dem_processor.list_available_sources()
+
+    # Convert to typed response
+    sources = [
+        DEMSourceInfo(
+            source=DEMSourceType(src.get("source", src.get("id", "local"))),
+            name=src.get("name_en", src.get("name", "Unknown")),
+            name_ar=src.get("name_ar", "غير معروف"),
+            description=src.get("description_en", src.get("description", "")),
+            description_ar=src.get("description_ar", ""),
+            resolution_m=src.get("resolution_m", 30.0),
+            coverage=src.get("coverage", "Global"),
+            is_available=src.get("is_available", True),
+        )
+        for src in raw_sources
+    ]
+
+    default_source = settings.DEFAULT_DEM_SOURCE
+    default_info = dem_processor.get_source_info(DEMSource(default_source.value))
+
+    return DEMSourcesResponse(
+        sources=sources,
+        default=default_source.value,
+        default_name=BilingualField(
+            en=default_info.get("name_en", "Copernicus DEM"),
+            ar=default_info.get("name_ar", "ارتفاعات كوبرنيكوس"),
+        ),
+    )
+
+
+@router.get(
+    "/dem/{field_id}",
+    response_model=DEMDataResponse,
+    summary="Get DEM Data for Field | الحصول على بيانات الارتفاعات للحقل",
+    description="""
+    Retrieves Digital Elevation Model data for a specific field.
+    Used by downstream services (hydrology, leveling) for terrain analysis.
+
+    يسترجع بيانات نموذج الارتفاع الرقمي لحقل محدد.
+    يستخدم من قبل الخدمات المتصلة (الهيدرولوجيا، التسوية) لتحليل التضاريس.
+    """,
+)
+async def get_dem_data(
+    field_id: str,
+    dem_source: DEMSourceType = Query(default=DEMSourceType.COPERNICUS),
+    resolution_m: float = Query(default=30.0, ge=1.0, le=1000.0),
+    include_data: bool = Query(
+        default=False,
+        description="Include raw elevation data (for small fields only) | تضمين بيانات الارتفاع الخام"
+    ),
+    dem_processor: DEMProcessor = Depends(get_dem_processor),
+):
+    """
+    Get DEM data for a field - used by hydrology and leveling services.
+    الحصول على بيانات الارتفاعات للحقل - يستخدم من قبل خدمات الهيدرولوجيا والتسوية
+    """
+    import numpy as np
+
+    logger.info("Fetching DEM data", field_id=field_id, source=dem_source.value)
+
+    try:
+        bounds = get_bounds_from_field_id(field_id)
+        dem_data = await dem_processor.acquire_dem(
+            bounds=bounds,
+            source=DEMSource(dem_source.value),
+            resolution_m=resolution_m,
+        )
+
+        # Fill holes if any
+        if dem_data.nodata_mask.any():
+            dem_data = await dem_processor.fill_holes(dem_data)
+
+        # Calculate statistics
+        valid_data = dem_data.data[~dem_data.nodata_mask]
+        elevation_min = float(np.min(valid_data))
+        elevation_max = float(np.max(valid_data))
+        elevation_mean = float(np.mean(valid_data))
+
+        # Optionally include raw data for small fields
+        elevation_data = None
+        max_cells_for_inline = 10000  # 100x100 max for inline data
+        if include_data and dem_data.data.size <= max_cells_for_inline:
+            # Replace nodata with a sentinel value
+            data_copy = dem_data.data.copy()
+            data_copy[dem_data.nodata_mask] = -9999.0
+            elevation_data = data_copy.tolist()
+
+        return DEMDataResponse(
+            field_id=field_id,
+            dem_source=dem_source,
+            bounds=DEMDataBounds(
+                min_lon=bounds.min_lon,
+                min_lat=bounds.min_lat,
+                max_lon=bounds.max_lon,
+                max_lat=bounds.max_lat,
+            ),
+            resolution_m=dem_data.metadata.resolution_m,
+            rows=dem_data.data.shape[0],
+            cols=dem_data.data.shape[1],
+            crs=dem_data.metadata.crs,
+            nodata_value=dem_data.metadata.nodata_value,
+            elevation_min=elevation_min,
+            elevation_max=elevation_max,
+            elevation_mean=elevation_mean,
+            elevation_data=elevation_data,
+            download_url=None,  # Could be S3 URL for large datasets
+            analyzed_at=datetime.now(UTC),
+        )
+
+    except Exception as e:
+        logger.error("DEM data fetch failed", field_id=field_id, error=str(e))
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "DEM_FETCH_ERROR",
+                "message": f"Failed to fetch DEM data: {str(e)}",
+                "message_ar": f"فشل جلب بيانات الارتفاعات: {str(e)}",
+            },
+        )

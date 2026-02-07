@@ -6,7 +6,7 @@ Enhanced with multi-model support, caching, and GitHub integration
 محسن بدعم النماذج المتعددة والتخزين المؤقت وتكامل GitHub
 """
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class ModelConfig(BaseSettings):
@@ -135,9 +135,11 @@ class Settings(BaseSettings):
     log_reviews_to_file: bool = True
     metrics_enabled: bool = True
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+    )
 
     def get_fallback_models_list(self) -> list[tuple[str, str]]:
         """Parse fallback models string into list of (model, url) tuples"""

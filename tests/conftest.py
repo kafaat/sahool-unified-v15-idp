@@ -233,3 +233,240 @@ def mock_redis() -> Generator[MagicMock, None, None]:
     mock.set = MagicMock(return_value=True)
     mock.delete = MagicMock(return_value=1)
     yield mock
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Factory Fixtures
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@pytest.fixture
+def field_factory():
+    """Field factory fixture."""
+    from tests.factories.field_factory import FieldFactory
+    return FieldFactory
+
+
+@pytest.fixture
+def user_factory():
+    """User factory fixture."""
+    from tests.factories.user_factory import UserFactory
+    return UserFactory
+
+
+@pytest.fixture
+def farm_factory():
+    """Farm factory fixture."""
+    from tests.factories.farm_factory import FarmFactory
+    return FarmFactory
+
+
+@pytest.fixture
+def crop_factory():
+    """Crop factory fixture."""
+    from tests.factories.crop_factory import CropFactory
+    return CropFactory
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Enhanced Mock Fixtures
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@pytest.fixture
+def mock_event_publisher():
+    """Mock event publisher for testing."""
+    from tests.utils.mocks import MockEventPublisher
+    return MockEventPublisher()
+
+
+@pytest.fixture
+def mock_database():
+    """Mock database for testing."""
+    from tests.utils.mocks import MockDatabase
+    return MockDatabase()
+
+
+@pytest.fixture
+def mock_redis_client():
+    """Mock Redis client with full functionality."""
+    from tests.utils.mocks import MockRedisClient
+    return MockRedisClient()
+
+
+@pytest.fixture
+def mock_nats_client():
+    """Mock NATS client with full functionality."""
+    from tests.utils.mocks import MockNATSClient
+    return MockNATSClient()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# API Test Fixtures
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@pytest.fixture
+def auth_headers(test_token) -> dict:
+    """Headers with authentication token."""
+    return {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {test_token}",
+    }
+
+
+@pytest.fixture
+def arabic_content() -> dict:
+    """Sample Arabic content for testing."""
+    return {
+        "name": "Test",
+        "name_ar": "اختبار",
+        "description": "Test description",
+        "description_ar": "وصف الاختبار",
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Geospatial Fixtures
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@pytest.fixture
+def sample_polygon() -> dict:
+    """Sample GeoJSON polygon (Saudi Arabia location)."""
+    return {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [46.6753, 24.7136],
+                [46.6853, 24.7136],
+                [46.6853, 24.7236],
+                [46.6753, 24.7236],
+                [46.6753, 24.7136],
+            ]
+        ],
+    }
+
+
+@pytest.fixture
+def sample_multipolygon() -> dict:
+    """Sample GeoJSON MultiPolygon."""
+    return {
+        "type": "MultiPolygon",
+        "coordinates": [
+            [
+                [
+                    [46.6753, 24.7136],
+                    [46.6853, 24.7136],
+                    [46.6853, 24.7236],
+                    [46.6753, 24.7236],
+                    [46.6753, 24.7136],
+                ]
+            ],
+            [
+                [
+                    [46.7753, 24.8136],
+                    [46.7853, 24.8136],
+                    [46.7853, 24.8236],
+                    [46.7753, 24.8236],
+                    [46.7753, 24.8136],
+                ]
+            ],
+        ],
+    }
+
+
+@pytest.fixture
+def sample_point() -> dict:
+    """Sample GeoJSON point (Riyadh)."""
+    return {
+        "type": "Point",
+        "coordinates": [46.6753, 24.7136],
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Agricultural Data Fixtures
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@pytest.fixture
+def sample_ndvi_data() -> dict:
+    """Sample NDVI analysis data."""
+    return {
+        "field_id": "field-123",
+        "mean_ndvi": 0.65,
+        "min_ndvi": 0.35,
+        "max_ndvi": 0.85,
+        "std_ndvi": 0.12,
+        "health_status": "healthy",
+        "health_status_ar": "صحي",
+        "cloud_cover_percent": 5.2,
+        "acquisition_date": datetime.now(UTC).isoformat(),
+    }
+
+
+@pytest.fixture
+def sample_weather_data() -> dict:
+    """Sample weather data."""
+    return {
+        "temperature": 28.5,
+        "humidity": 45.0,
+        "wind_speed": 12.0,
+        "precipitation": 0.0,
+        "conditions": "sunny",
+        "conditions_ar": "مشمس",
+        "forecast_date": datetime.now(UTC).isoformat(),
+    }
+
+
+@pytest.fixture
+def sample_soil_data() -> dict:
+    """Sample soil analysis data."""
+    return {
+        "ph": 7.2,
+        "nitrogen_ppm": 25.0,
+        "phosphorus_ppm": 18.0,
+        "potassium_ppm": 150.0,
+        "organic_matter_percent": 2.5,
+        "soil_type": "loam",
+        "soil_type_ar": "طفلة",
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Async Fixtures
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@pytest.fixture
+def anyio_backend():
+    """Backend for anyio tests."""
+    return "asyncio"
+
+
+@pytest.fixture
+def event_loop():
+    """Create event loop for async tests."""
+    import asyncio
+
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Marker Registration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+def pytest_configure(config):
+    """Register custom markers."""
+    config.addinivalue_line("markers", "unit: Unit tests (fast, no I/O)")
+    config.addinivalue_line("markers", "integration: Integration tests (API, database)")
+    config.addinivalue_line("markers", "smoke: Smoke tests (import verification)")
+    config.addinivalue_line("markers", "slow: Slow running tests")
+    config.addinivalue_line("markers", "e2e: End-to-end tests")
+    config.addinivalue_line("markers", "security: Security tests")
+    config.addinivalue_line("markers", "snapshot: Snapshot tests")
+    config.addinivalue_line("markers", "arabic: Tests with Arabic content")

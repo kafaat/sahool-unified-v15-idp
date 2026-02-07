@@ -1,6 +1,18 @@
 /**
- * SAHOOL Admin API Client
- * Unified API client for admin dashboard with centralized token management
+ * SAHOOL Admin API Client v16.0.0
+ * عميل API لوحة التحكم الإدارية - سهول
+ *
+ * Unified API client for admin dashboard with:
+ * - Role-Based Access Control (RBAC) integration
+ * - Audit logging for admin actions
+ * - Centralized token management
+ * - Bilingual error handling (Arabic/English)
+ *
+ * ميزات العميل:
+ * - تكامل التحكم في الوصول المستند إلى الدور (RBAC)
+ * - تسجيل التدقيق لإجراءات المسؤول
+ * - إدارة الرموز المركزية
+ * - معالجة الأخطاء ثنائية اللغة (العربية/الإنجليزية)
  */
 
 import { sanitizeInput } from "./sanitize";
@@ -13,10 +25,67 @@ import {
   IS_PRODUCTION,
 } from "@/config/api";
 
+// =============================================================================
+// Types & Interfaces | الأنواع والواجهات
+// =============================================================================
+
 interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
+  errorAr?: string;
+  errorCode?: string;
+  requestId?: string;
+}
+
+/**
+ * Admin user roles | أدوار المستخدم الإداري
+ */
+export type AdminRole = "super_admin" | "admin" | "supervisor" | "viewer";
+
+/**
+ * Permission types | أنواع الصلاحيات
+ */
+export type Permission =
+  | "users:read"
+  | "users:write"
+  | "users:delete"
+  | "fields:read"
+  | "fields:write"
+  | "fields:delete"
+  | "reports:read"
+  | "reports:export"
+  | "settings:read"
+  | "settings:write"
+  | "audit:read"
+  | "billing:read"
+  | "billing:write";
+
+/**
+ * Audit log entry | سجل التدقيق
+ */
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  action: string;
+  actionAr: string;
+  resource: string;
+  resourceId?: string;
+  userId: string;
+  userEmail: string;
+  ipAddress?: string;
+  userAgent?: string;
+  details?: Record<string, unknown>;
+  success: boolean;
+}
+
+/**
+ * RBAC context | سياق التحكم في الوصول
+ */
+interface RBACContext {
+  role: AdminRole;
+  permissions: Permission[];
+  tenantId?: string;
 }
 
 /** Raw API response structure before type narrowing */
@@ -89,9 +158,49 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// =============================================================================
+// RBAC (Role-Based Access Control) | التحكم في الوصول المستند إلى الدور
+// =============================================================================
+
+/**
+ * Role permissions mapping | خريطة صلاحيات الأدوار
+ */
+const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
+  super_admin: [
+    "users:read", "users:write", "users:delete",
+    "fields:read", "fields:write", "fields:delete",
+    "reports:read", "reports:export",
+    "settings:read", "settings:write",
+    "audit:read",
+    "billing:read", "billing:write",
+  ],
+  admin: [
+    "users:read", "users:write",
+    "fields:read", "fields:write", "fields:delete",
+    "reports:read", "reports:export",
+    "settings:read", "settings:write",
+    "audit:read",
+    "billing:read",
+  ],
+  supervisor: [
+    "users:read",
+    "fields:read", "fields:write",
+    "reports:read",
+    "settings:read",
+  ],
+  viewer: [
+    "users:read",
+    "fields:read",
+    "reports:read",
+  ],
+};
+
 class AdminApiClient {
   private baseUrl: string;
   private token: string | null = null;
+  private rbacContext: RBACContext | null = null;
+  private auditQueue: AuditLogEntry[] = [];
+  private auditFlushTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
@@ -103,7 +212,159 @@ class AdminApiClient {
 
   clearToken() {
     this.token = null;
+    this.rbacContext = null;
   }
+
+  // ===========================================================================
+  // RBAC Methods | طرق التحكم في الوصول
+  // ===========================================================================
+
+  /**
+   * Set RBAC context after login
+   * تعيين سياق التحكم في الوصول بعد تسجيل الدخول
+   */
+  setRBACContext(role: AdminRole, tenantId?: string): void {
+    this.rbacContext = {
+      role,
+      permissions: ROLE_PERMISSIONS[role] || [],
+      tenantId,
+    };
+    logger.info(`RBAC context set for role: ${role}`);
+  }
+
+  /**
+   * Check if user has permission
+   * التحقق من وجود صلاحية للمستخدم
+   */
+  hasPermission(permission: Permission): boolean {
+    if (!this.rbacContext) return false;
+    return this.rbacContext.permissions.includes(permission);
+  }
+
+  /**
+   * Check if user has any of the permissions
+   * التحقق من وجود أي من الصلاحيات
+   */
+  hasAnyPermission(permissions: Permission[]): boolean {
+    return permissions.some((p) => this.hasPermission(p));
+  }
+
+  /**
+   * Check if user has all permissions
+   * التحقق من وجود جميع الصلاحيات
+   */
+  hasAllPermissions(permissions: Permission[]): boolean {
+    return permissions.every((p) => this.hasPermission(p));
+  }
+
+  /**
+   * Get current role
+   * الحصول على الدور الحالي
+   */
+  getCurrentRole(): AdminRole | null {
+    return this.rbacContext?.role || null;
+  }
+
+  /**
+   * Get all permissions for current user
+   * الحصول على جميع صلاحيات المستخدم الحالي
+   */
+  getPermissions(): Permission[] {
+    return this.rbacContext?.permissions || [];
+  }
+
+  // ===========================================================================
+  // Audit Logging | تسجيل التدقيق
+  // ===========================================================================
+
+  /**
+   * Log an admin action for audit trail
+   * تسجيل إجراء إداري لمسار التدقيق
+   */
+  async logAuditAction(
+    action: string,
+    actionAr: string,
+    resource: string,
+    resourceId?: string,
+    details?: Record<string, unknown>,
+    success: boolean = true
+  ): Promise<void> {
+    const entry: AuditLogEntry = {
+      id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      action,
+      actionAr,
+      resource,
+      resourceId,
+      userId: "",
+      userEmail: "",
+      details,
+      success,
+    };
+
+    this.auditQueue.push(entry);
+
+    if (this.auditQueue.length >= 10) {
+      await this.flushAuditLogs();
+    } else if (!this.auditFlushTimer) {
+      this.auditFlushTimer = setTimeout(() => {
+        this.flushAuditLogs();
+      }, 5000);
+    }
+  }
+
+  private async flushAuditLogs(): Promise<void> {
+    if (this.auditFlushTimer) {
+      clearTimeout(this.auditFlushTimer);
+      this.auditFlushTimer = null;
+    }
+
+    if (this.auditQueue.length === 0) return;
+
+    const logsToSend = [...this.auditQueue];
+    this.auditQueue = [];
+
+    try {
+      await this.post("/api/v1/admin/audit/batch", { entries: logsToSend });
+      logger.info(`Flushed ${logsToSend.length} audit log entries`);
+    } catch (error) {
+      this.auditQueue = [...logsToSend, ...this.auditQueue];
+      logger.error("Failed to flush audit logs", error);
+    }
+  }
+
+  async getAuditLogs(options: {
+    page?: number;
+    limit?: number;
+    userId?: string;
+    action?: string;
+    resource?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<ApiResponse<{ data: AuditLogEntry[]; total: number; page: number }>> {
+    if (!this.hasPermission("audit:read")) {
+      return {
+        success: false,
+        error: "Permission denied: audit:read required",
+        errorAr: "الوصول مرفوض: صلاحية قراءة التدقيق مطلوبة",
+      };
+    }
+
+    const params: Record<string, string> = {};
+    if (options.page) params.page = String(options.page);
+    if (options.limit) params.limit = String(options.limit);
+    if (options.userId) params.user_id = options.userId;
+    if (options.action) params.action = options.action;
+    if (options.resource) params.resource = options.resource;
+    if (options.startDate) params.start_date = options.startDate;
+    if (options.endDate) params.end_date = options.endDate;
+
+    return this.get("/api/v1/admin/audit", params);
+  }
+
+  // ===========================================================================
+  // Private Request Method | طريقة الطلب الخاصة
+  // ===========================================================================
 
   private async request<T>(
     endpoint: string,
@@ -116,14 +377,12 @@ class AdminApiClient {
       ...fetchOptions
     } = options;
 
-    // Build URL with query params
     let url = `${this.baseUrl}${endpoint}`;
     if (params) {
       const searchParams = new URLSearchParams(params);
       url += `?${searchParams.toString()}`;
     }
 
-    // Set headers
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -319,6 +578,19 @@ class AdminApiClient {
   async delete<T>(endpoint: string) {
     return this.request<T>(endpoint, { method: "DELETE" });
   }
+}
+
+/** Extract Arabic error message from response */
+export function extractErrorMessageAr(data: unknown, fallback: string): string {
+  if (isRawApiResponse(data)) {
+    const raw = data as { error_ar?: string; message_ar?: string };
+    return (
+      (typeof raw.error_ar === "string" ? raw.error_ar : undefined) ||
+      (typeof raw.message_ar === "string" ? raw.message_ar : undefined) ||
+      fallback
+    );
+  }
+  return fallback;
 }
 
 // Singleton instance

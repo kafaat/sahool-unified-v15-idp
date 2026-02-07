@@ -10,6 +10,15 @@ export { Input } from "./input";
 export type { InputProps } from "./input";
 
 export {
+  FormField,
+  EmailField,
+  PasswordField,
+  PhoneField,
+  NameField,
+} from "./form-field";
+export type { FormFieldProps } from "./form-field";
+
+export {
   Card,
   CardHeader,
   CardTitle,

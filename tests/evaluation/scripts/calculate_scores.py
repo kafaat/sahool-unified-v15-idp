@@ -42,6 +42,9 @@ class ScoreCalculator:
                 # Parse pytest JSON report
                 self._parse_pytest_report(data)
 
+            # Also try to load language support results
+            self._load_language_support_results()
+
             return True
 
         except json.JSONDecodeError as e:
@@ -50,6 +53,30 @@ class ScoreCalculator:
         except Exception as e:
             print(f"❌ Error loading metrics: {e}")
             return False
+
+    def _load_language_support_results(self):
+        """Load language support results from dedicated test file"""
+        # Try to find language support results in same directory or parent
+        possible_paths = [
+            self.metrics_file.parent / "language-support-results.json",
+            self.metrics_file.parent.parent / "language-support-results.json",
+            Path(__file__).parent.parent / "language-support-results.json",
+        ]
+
+        for path in possible_paths:
+            if path.exists():
+                try:
+                    with open(path, encoding="utf-8") as f:
+                        lang_data = json.load(f)
+
+                    # Store language support data for later use
+                    self._language_support_data = lang_data
+                    print(f"✅ Loaded language support results from: {path}")
+                    return
+                except Exception as e:
+                    print(f"⚠️ Could not load language support results: {e}")
+
+        self._language_support_data = None
 
     def _parse_pytest_report(self, report: dict[str, Any]):
         """Parse pytest JSON report format"""
@@ -105,6 +132,7 @@ class ScoreCalculator:
         arabic_results = [r for r in self.test_results if r.get("language") == "ar"]
         english_results = [r for r in self.test_results if r.get("language") == "en"]
 
+        # Calculate language support from test results
         arabic_support = (
             (sum(1 for r in arabic_results if r.get("passed", False)) / len(arabic_results) * 100)
             if arabic_results
@@ -116,6 +144,14 @@ class ScoreCalculator:
             if english_results
             else 0.0
         )
+
+        # Override with language support test results if available
+        if hasattr(self, '_language_support_data') and self._language_support_data:
+            lang_data = self._language_support_data
+            if lang_data.get("arabic_pass_rate", 0) > 0:
+                arabic_support = lang_data["arabic_pass_rate"]
+            if lang_data.get("english_pass_rate", 0) > 0:
+                english_support = lang_data["english_pass_rate"]
 
         # Category breakdown
         categories = {}

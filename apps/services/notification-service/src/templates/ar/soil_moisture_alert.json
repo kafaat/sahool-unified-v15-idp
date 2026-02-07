@@ -1,0 +1,12 @@
+{
+    "template_id": "soil_moisture_alert",
+    "category": "alert",
+    "title": "تنبيه رطوبة التربة - {field_name}",
+    "body": "مستوى رطوبة التربة في حقل {field_name} ({crop_type}) أصبح {moisture_status}.\n\nالرطوبة الحالية: {current_moisture}%\nالرطوبة المثالية: {optimal_moisture}%\n\n{action_message}\n\nآخر تحديث من المستشعر: {sensor_time}",
+    "action_url": "/fields/{field_id}/irrigation",
+    "icon": "💧",
+    "priority": "high",
+    "metadata": {
+        "variables": ["field_name", "field_id", "crop_type", "moisture_status", "current_moisture", "optimal_moisture", "action_message", "sensor_time"]
+    }
+}

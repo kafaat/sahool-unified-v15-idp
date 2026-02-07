@@ -1,0 +1,12 @@
+{
+    "template_id": "equipment_maintenance",
+    "category": "reminder",
+    "title": "صيانة المعدات - {equipment_name}",
+    "body": "حان موعد صيانة {equipment_name}.\n\nنوع الصيانة: {maintenance_type}\nآخر صيانة: {last_maintenance_date}\nساعات التشغيل: {operating_hours} ساعة\n\nالمهام المطلوبة:\n{maintenance_tasks}\n\nتكلفة الصيانة التقديرية: {estimated_cost} ريال\n\nتأجيل الصيانة قد يؤدي إلى أعطال مكلفة.",
+    "action_url": "/equipment/{equipment_id}/maintenance",
+    "icon": "🔧",
+    "priority": "medium",
+    "metadata": {
+        "variables": ["equipment_name", "equipment_id", "maintenance_type", "last_maintenance_date", "operating_hours", "maintenance_tasks", "estimated_cost"]
+    }
+}

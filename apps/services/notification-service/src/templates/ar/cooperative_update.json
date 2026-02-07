@@ -1,0 +1,12 @@
+{
+    "template_id": "cooperative_update",
+    "category": "alert",
+    "title": "تحديث من التعاونية - {cooperative_name}",
+    "body": "أخبار جديدة من تعاونية {cooperative_name}:\n\n{update_title}\n\n{update_content}\n\nالتاريخ: {update_date}\n\n{action_required}",
+    "action_url": "/cooperatives/{cooperative_id}/updates",
+    "icon": "🤝",
+    "priority": "medium",
+    "metadata": {
+        "variables": ["cooperative_name", "cooperative_id", "update_title", "update_content", "update_date", "action_required"]
+    }
+}

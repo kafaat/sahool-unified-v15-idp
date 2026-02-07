@@ -60,6 +60,9 @@ model Message {
 
   @@index([roomId])
   @@index([senderId])
+  @@index([createdAt], name: "idx_message_created")
+  @@index([roomId, createdAt], name: "idx_message_room_date")
+  @@index([status], name: "idx_message_status")
   @@map("community_chat_messages")
 }
 

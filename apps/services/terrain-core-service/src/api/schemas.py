@@ -13,7 +13,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 # =============================================================================
@@ -245,7 +245,12 @@ class DEMStatistics(BaseModel):
 class TerrainAnalysisRequest(BaseModel):
     """Request for full terrain analysis | طلب تحليل التضاريس الكامل"""
 
-    field_id: str = Field(..., description="Field identifier | معرف الحقل")
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Field identifier | معرف الحقل"
+    )
     geometry: GeoJSONPolygon | None = Field(
         None, description="Field boundary (optional if field_id is provided)"
     )
@@ -254,10 +259,15 @@ class TerrainAnalysisRequest(BaseModel):
         description="DEM data source | مصدر بيانات الارتفاعات",
     )
     target_resolution_m: float | None = Field(
-        default=None, gt=0, description="Target resolution in meters | الدقة المستهدفة"
+        default=None,
+        gt=0,
+        le=1000.0,
+        description="Target resolution in meters | الدقة المستهدفة"
     )
     target_crs: str | None = Field(
-        default=None, description="Target CRS | نظام الإحداثيات المستهدف"
+        default=None,
+        max_length=32,
+        description="Target CRS | نظام الإحداثيات المستهدف"
     )
     include_slope: bool = Field(default=True, description="Include slope analysis | تضمين تحليل الميل")
     include_aspect: bool = Field(default=True, description="Include aspect analysis | تضمين تحليل الجانب")
@@ -277,7 +287,10 @@ class TerrainAnalysisRequest(BaseModel):
         default=True, description="Include contour lines | تضمين خطوط الكنتور"
     )
     contour_interval_m: float | None = Field(
-        default=5.0, gt=0, description="Contour interval in meters | فترة خطوط الكنتور"
+        default=5.0,
+        gt=0,
+        le=100.0,
+        description="Contour interval in meters | فترة خطوط الكنتور"
     )
     slope_unit: SlopeUnit = Field(
         default=SlopeUnit.DEGREES, description="Slope unit | وحدة الميل"
@@ -285,56 +298,166 @@ class TerrainAnalysisRequest(BaseModel):
     flow_method: FlowDirectionMethod = Field(
         default=FlowDirectionMethod.D8, description="Flow direction method | طريقة اتجاه التدفق"
     )
-    tenant_id: str | None = Field(None, description="Tenant identifier | معرف المستأجر")
+    tenant_id: str | None = Field(
+        None,
+        max_length=64,
+        description="Tenant identifier | معرف المستأجر"
+    )
+
+    @field_validator("field_id")
+    @classmethod
+    def validate_field_id(cls, v: str) -> str:
+        """Validate field ID format."""
+        v = v.strip()
+        if not v:
+            raise ValueError("Field ID cannot be empty | معرف الحقل لا يمكن أن يكون فارغاً")
+        return v
+
+    @field_validator("target_crs")
+    @classmethod
+    def validate_target_crs(cls, v: str | None) -> str | None:
+        """Validate target CRS format."""
+        if v is not None:
+            v = v.strip().upper()
+            # Basic EPSG validation
+            import re
+            if v and not re.match(r"^EPSG:\d+$", v):
+                raise ValueError(
+                    f"Invalid CRS format '{v}'. Expected format: EPSG:XXXX | "
+                    f"تنسيق نظام الإحداثيات غير صالح '{v}'. التنسيق المتوقع: EPSG:XXXX"
+                )
+        return v
 
 
 class SlopeAnalysisRequest(BaseModel):
     """Request for slope analysis only | طلب تحليل الميل فقط"""
 
-    field_id: str = Field(..., description="Field identifier | معرف الحقل")
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Field identifier | معرف الحقل"
+    )
     dem_source: DEMSourceType = Field(default=DEMSourceType.COPERNICUS)
     slope_unit: SlopeUnit = Field(default=SlopeUnit.DEGREES)
     classify: bool = Field(
         default=True, description="Classify slopes into categories | تصنيف الميول"
     )
 
+    @field_validator("field_id")
+    @classmethod
+    def validate_field_id(cls, v: str) -> str:
+        """Validate field ID format."""
+        v = v.strip()
+        if not v:
+            raise ValueError("Field ID cannot be empty | معرف الحقل لا يمكن أن يكون فارغاً")
+        return v
+
 
 class FlowAnalysisRequest(BaseModel):
     """Request for flow analysis | طلب تحليل التدفق"""
 
-    field_id: str = Field(..., description="Field identifier | معرف الحقل")
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Field identifier | معرف الحقل"
+    )
     dem_source: DEMSourceType = Field(default=DEMSourceType.COPERNICUS)
     method: FlowDirectionMethod = Field(default=FlowDirectionMethod.D8)
     accumulation_threshold: int = Field(
-        default=100, ge=1, description="Flow accumulation threshold | عتبة تراكم التدفق"
+        default=100,
+        ge=1,
+        le=100000,
+        description="Flow accumulation threshold | عتبة تراكم التدفق"
     )
+
+    @field_validator("field_id")
+    @classmethod
+    def validate_field_id(cls, v: str) -> str:
+        """Validate field ID format."""
+        v = v.strip()
+        if not v:
+            raise ValueError("Field ID cannot be empty | معرف الحقل لا يمكن أن يكون فارغاً")
+        return v
 
 
 class TWIRequest(BaseModel):
     """Request for Topographic Wetness Index | طلب مؤشر الرطوبة الطبوغرافية"""
 
-    field_id: str = Field(..., description="Field identifier | معرف الحقل")
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Field identifier | معرف الحقل"
+    )
     dem_source: DEMSourceType = Field(default=DEMSourceType.COPERNICUS)
     flow_method: FlowDirectionMethod = Field(default=FlowDirectionMethod.D8)
+
+    @field_validator("field_id")
+    @classmethod
+    def validate_field_id(cls, v: str) -> str:
+        """Validate field ID format."""
+        v = v.strip()
+        if not v:
+            raise ValueError("Field ID cannot be empty | معرف الحقل لا يمكن أن يكون فارغاً")
+        return v
 
 
 class ContourRequest(BaseModel):
     """Request for contour generation | طلب إنشاء خطوط الكنتور"""
 
-    field_id: str = Field(..., description="Field identifier | معرف الحقل")
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Field identifier | معرف الحقل"
+    )
     dem_source: DEMSourceType = Field(default=DEMSourceType.COPERNICUS)
     interval_m: float = Field(
-        default=5.0, gt=0, description="Contour interval in meters | فترة الكنتور بالأمتار"
+        default=5.0,
+        gt=0,
+        le=100.0,
+        description="Contour interval in meters | فترة الكنتور بالأمتار"
     )
     min_elevation: float | None = Field(
-        None, description="Minimum elevation for contours | أدنى ارتفاع للكنتور"
+        None,
+        ge=-500.0,
+        le=9000.0,
+        description="Minimum elevation for contours | أدنى ارتفاع للكنتور"
     )
     max_elevation: float | None = Field(
-        None, description="Maximum elevation for contours | أقصى ارتفاع للكنتور"
+        None,
+        ge=-500.0,
+        le=9000.0,
+        description="Maximum elevation for contours | أقصى ارتفاع للكنتور"
     )
     simplify_tolerance: float | None = Field(
-        default=1.0, description="Line simplification tolerance | تسامح تبسيط الخط"
+        default=1.0,
+        ge=0.0,
+        le=100.0,
+        description="Line simplification tolerance | تسامح تبسيط الخط"
     )
+
+    @field_validator("field_id")
+    @classmethod
+    def validate_field_id(cls, v: str) -> str:
+        """Validate field ID format."""
+        v = v.strip()
+        if not v:
+            raise ValueError("Field ID cannot be empty | معرف الحقل لا يمكن أن يكون فارغاً")
+        return v
+
+    @model_validator(mode="after")
+    def validate_elevation_range(self) -> "ContourRequest":
+        """Validate that min_elevation < max_elevation if both are provided."""
+        if self.min_elevation is not None and self.max_elevation is not None:
+            if self.min_elevation >= self.max_elevation:
+                raise ValueError(
+                    "min_elevation must be less than max_elevation | "
+                    "أدنى ارتفاع يجب أن يكون أقل من أقصى ارتفاع"
+                )
+        return self
 
 
 # =============================================================================

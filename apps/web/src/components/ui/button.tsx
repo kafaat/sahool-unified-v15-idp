@@ -6,6 +6,14 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;
   fullWidth?: boolean;
+  /** Loading state screen reader text */
+  loadingText?: string;
+  /** Loading state screen reader text in Arabic */
+  loadingTextAr?: string;
+  /** Icon to display before text */
+  leftIcon?: React.ReactNode;
+  /** Icon to display after text */
+  rightIcon?: React.ReactNode;
   ref?: React.Ref<HTMLButtonElement>;
 }
 
@@ -15,8 +23,13 @@ export function Button({
   size = "md",
   isLoading = false,
   fullWidth = false,
+  loadingText = "Loading",
+  loadingTextAr = "جاري التحميل",
+  leftIcon,
+  rightIcon,
   disabled,
   children,
+  type = "button",
   ref,
   ...props
 }: ButtonProps) {
@@ -43,6 +56,7 @@ export function Button({
   return (
     <button
       ref={ref}
+      type={type}
       className={clsx(
         baseStyles,
         variants[variant],
@@ -52,32 +66,50 @@ export function Button({
       )}
       disabled={disabled || isLoading}
       aria-busy={isLoading ? true : undefined}
+      aria-disabled={disabled || isLoading ? true : undefined}
       {...props}
     >
-      {isLoading && (
-        <svg
-          className="animate-spin -ms-1 me-2 h-4 w-4"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          />
-        </svg>
+      {isLoading ? (
+        <>
+          <svg
+            className="animate-spin -ms-1 me-2 h-4 w-4"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+          <span className="sr-only">{loadingTextAr} - {loadingText}</span>
+          <span aria-hidden="true">{children}</span>
+        </>
+      ) : (
+        <>
+          {leftIcon && (
+            <span className="me-2 -ms-0.5" aria-hidden="true">
+              {leftIcon}
+            </span>
+          )}
+          {children}
+          {rightIcon && (
+            <span className="ms-2 -me-0.5" aria-hidden="true">
+              {rightIcon}
+            </span>
+          )}
+        </>
       )}
-      {children}
     </button>
   );
 }

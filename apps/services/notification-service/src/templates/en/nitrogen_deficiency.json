@@ -1,0 +1,12 @@
+{
+    "template_id": "nitrogen_deficiency",
+    "category": "alert",
+    "title": "Nitrogen Deficiency Alert in {field_name}",
+    "body": "Nitrogen deficiency detected in your field ({field_name}). Current nitrogen level: {nitrogen_level} ppm (Target: {target_level} ppm).\n\nRecommendation: {recommendation}\n\nRecommended rate: {recommended_rate} kg/ha\n\nApply fertilizer within {days_to_act} days for best results.",
+    "action_url": "/fields/{field_id}/fertilizer-plan",
+    "icon": "🌿",
+    "priority": "high",
+    "metadata": {
+        "variables": ["field_name", "field_id", "nitrogen_level", "target_level", "recommendation", "recommended_rate", "days_to_act"]
+    }
+}

@@ -1,0 +1,398 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - Agricultural Domain Alert Rules
+# قواعد التنبيهات للمجال الزراعي
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2026-02-07
+
+groups:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NDVI and Vegetation Monitoring Alerts
+  # تنبيهات مراقبة NDVI والغطاء النباتي
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_ndvi_alerts
+    interval: 60s
+    rules:
+      - alert: NDVIDataStale
+        expr: (time() - sahool_ndvi_last_update_timestamp_seconds) > 172800  # 48 hours
+        for: 1h
+        labels:
+          severity: warning
+          category: vegetation
+          platform: sahool
+        annotations:
+          summary: "NDVI data is stale for field {{ $labels.field_id }}"
+          summary_ar: "بيانات NDVI قديمة للحقل {{ $labels.field_id }}"
+          description: "NDVI data has not been updated for {{ $value | humanizeDuration }}. Satellite imagery may be unavailable."
+          description_ar: "لم يتم تحديث بيانات NDVI منذ {{ $value | humanizeDuration }}. قد تكون صور الأقمار الصناعية غير متاحة."
+          impact: "Field health monitoring is degraded"
+          impact_ar: "مراقبة صحة الحقل متدهورة"
+          action: "Check satellite service connectivity and imagery availability"
+          action_ar: "تحقق من اتصال خدمة الأقمار الصناعية وتوفر الصور"
+
+      - alert: NDVICriticallyLow
+        expr: |
+          avg by (field_id, crop_type) (
+            rate(sahool_ndvi_value_sum[24h]) / rate(sahool_ndvi_value_count[24h])
+          ) < 0.2
+        for: 6h
+        labels:
+          severity: critical
+          category: vegetation
+          platform: sahool
+        annotations:
+          summary: "Critical NDVI level for {{ $labels.crop_type }} field {{ $labels.field_id }}"
+          summary_ar: "مستوى NDVI حرج لمحصول {{ $labels.crop_type }} في الحقل {{ $labels.field_id }}"
+          description: "Average NDVI is {{ $value | humanize }} (critical threshold: 0.2). Crop may be severely stressed or dying."
+          description_ar: "متوسط NDVI هو {{ $value | humanize }} (الحد الحرج: 0.2). قد يكون المحصول متوتراً بشدة أو يموت."
+          impact: "Potential crop loss if not addressed immediately"
+          impact_ar: "خسارة محتملة للمحصول إذا لم يتم التعامل معها فوراً"
+          action: "Immediate field inspection required. Check for disease, pest, or irrigation issues."
+          action_ar: "مطلوب فحص فوري للحقل. تحقق من الأمراض أو الآفات أو مشاكل الري."
+
+      - alert: NDVIAnomalyDetected
+        expr: rate(sahool_ndvi_anomalies_total{severity="high"}[1h]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          category: vegetation
+          platform: sahool
+        annotations:
+          summary: "NDVI anomaly detected for {{ $labels.crop_type }}"
+          summary_ar: "تم اكتشاف شذوذ NDVI لمحصول {{ $labels.crop_type }}"
+          description: "Anomaly type: {{ $labels.anomaly_type }}. Unusual vegetation patterns detected."
+          description_ar: "نوع الشذوذ: {{ $labels.anomaly_type }}. تم اكتشاف أنماط غطاء نباتي غير عادية."
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Weather and Climate Alerts
+  # تنبيهات الطقس والمناخ
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_weather_alerts
+    interval: 60s
+    rules:
+      - alert: WeatherDataStale
+        expr: (time() - sahool_weather_last_update_timestamp_seconds) > 3600  # 1 hour
+        for: 30m
+        labels:
+          severity: warning
+          category: weather
+          platform: sahool
+        annotations:
+          summary: "Weather data stale for region {{ $labels.region }}"
+          summary_ar: "بيانات الطقس قديمة للمنطقة {{ $labels.region }}"
+          description: "Weather data has not been updated for {{ $value | humanizeDuration }}"
+          description_ar: "لم يتم تحديث بيانات الطقس منذ {{ $value | humanizeDuration }}"
+          action: "Check weather service provider connectivity"
+          action_ar: "تحقق من اتصال مزود خدمة الطقس"
+
+      - alert: ExtremeHeatWarning
+        expr: sahool_weather_temperature_celsius{measurement_type="current"} > 45
+        for: 2h
+        labels:
+          severity: critical
+          category: weather
+          platform: sahool
+        annotations:
+          summary: "Extreme heat in region {{ $labels.region }}: {{ $value }}°C"
+          summary_ar: "حرارة شديدة في المنطقة {{ $labels.region }}: {{ $value }} درجة مئوية"
+          description: "Temperature exceeds 45°C. Crops at risk of heat stress."
+          description_ar: "درجة الحرارة تتجاوز 45 درجة مئوية. المحاصيل معرضة لخطر الإجهاد الحراري."
+          impact: "Severe crop stress and potential yield loss"
+          impact_ar: "إجهاد شديد للمحاصيل وخسارة محتملة في الإنتاجية"
+          action: "Increase irrigation frequency. Consider shade netting for sensitive crops."
+          action_ar: "زيادة تكرار الري. فكر في شبكات الظل للمحاصيل الحساسة."
+
+      - alert: FrostRisk
+        expr: sahool_weather_temperature_celsius{measurement_type="current"} < 2
+        for: 1h
+        labels:
+          severity: critical
+          category: weather
+          platform: sahool
+        annotations:
+          summary: "Frost risk in region {{ $labels.region }}: {{ $value }}°C"
+          summary_ar: "خطر الصقيع في المنطقة {{ $labels.region }}: {{ $value }} درجة مئوية"
+          description: "Temperature below 2°C. Frost damage risk for sensitive crops."
+          description_ar: "درجة الحرارة أقل من 2 درجة مئوية. خطر ضرر الصقيع للمحاصيل الحساسة."
+          action: "Activate frost protection measures immediately"
+          action_ar: "تفعيل إجراءات الحماية من الصقيع فوراً"
+
+      - alert: HighET0Warning
+        expr: sahool_et0_mm_per_day > 8
+        for: 2h
+        labels:
+          severity: warning
+          category: weather
+          platform: sahool
+        annotations:
+          summary: "High evapotranspiration in {{ $labels.region }}: {{ $value }}mm/day"
+          summary_ar: "تبخر نتح عالي في {{ $labels.region }}: {{ $value }} ملم/يوم"
+          description: "ET0 exceeds 8mm/day. Increased irrigation may be required."
+          description_ar: "التبخر النتح يتجاوز 8 ملم/يوم. قد يكون الري الإضافي مطلوباً."
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Irrigation and Water Management Alerts
+  # تنبيهات الري وإدارة المياه
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_irrigation_alerts
+    interval: 60s
+    rules:
+      - alert: SoilMoistureCriticallyLow
+        expr: sahool_soil_moisture_percent < 20
+        for: 2h
+        labels:
+          severity: critical
+          category: irrigation
+          platform: sahool
+        annotations:
+          summary: "Critical soil moisture in field {{ $labels.field_id }}: {{ $value }}%"
+          summary_ar: "رطوبة تربة حرجة في الحقل {{ $labels.field_id }}: {{ $value }}%"
+          description: "Soil moisture below 20%. Crops experiencing severe water stress."
+          description_ar: "رطوبة التربة أقل من 20%. المحاصيل تعاني من إجهاد مائي شديد."
+          impact: "Immediate crop damage risk without irrigation"
+          impact_ar: "خطر ضرر فوري للمحصول بدون ري"
+          action: "Irrigate immediately. Check irrigation system for failures."
+          action_ar: "الري فوراً. تحقق من نظام الري للأعطال."
+
+      - alert: SoilMoistureHigh
+        expr: sahool_soil_moisture_percent > 85
+        for: 4h
+        labels:
+          severity: warning
+          category: irrigation
+          platform: sahool
+        annotations:
+          summary: "High soil moisture in field {{ $labels.field_id }}: {{ $value }}%"
+          summary_ar: "رطوبة تربة عالية في الحقل {{ $labels.field_id }}: {{ $value }}%"
+          description: "Soil moisture exceeds 85%. Risk of waterlogging and root diseases."
+          description_ar: "رطوبة التربة تتجاوز 85%. خطر التشبع بالماء وأمراض الجذور."
+          action: "Stop irrigation. Improve drainage if issue persists."
+          action_ar: "أوقف الري. حسّن الصرف إذا استمرت المشكلة."
+
+      - alert: WaterStressIndexHigh
+        expr: sahool_water_stress_index > 0.7
+        for: 4h
+        labels:
+          severity: warning
+          category: irrigation
+          platform: sahool
+        annotations:
+          summary: "High water stress in {{ $labels.crop_type }} field {{ $labels.field_id }}"
+          summary_ar: "إجهاد مائي عالي في حقل {{ $labels.crop_type }} {{ $labels.field_id }}"
+          description: "Water stress index is {{ $value }}. Crop showing water deficit symptoms."
+          description_ar: "مؤشر الإجهاد المائي {{ $value }}. المحصول يظهر أعراض نقص المياه."
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Crop Health and Disease Alerts
+  # تنبيهات صحة المحاصيل والأمراض
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_crop_health_alerts
+    interval: 60s
+    rules:
+      - alert: CropHealthCritical
+        expr: sahool_crop_health_score < 40
+        for: 6h
+        labels:
+          severity: critical
+          category: crop_health
+          platform: sahool
+        annotations:
+          summary: "Critical crop health in field {{ $labels.field_id }}: score {{ $value }}"
+          summary_ar: "صحة محصول حرجة في الحقل {{ $labels.field_id }}: الدرجة {{ $value }}"
+          description: "Crop health score below 40. Multiple stress factors likely present."
+          description_ar: "درجة صحة المحصول أقل من 40. من المحتمل وجود عوامل إجهاد متعددة."
+          impact: "Significant yield reduction expected"
+          impact_ar: "متوقع انخفاض كبير في الإنتاجية"
+          action: "Comprehensive field inspection required. Analyze NDVI, soil, and weather data."
+          action_ar: "مطلوب فحص شامل للحقل. حلل بيانات NDVI والتربة والطقس."
+
+      - alert: DiseaseOutbreak
+        expr: |
+          sum by (disease_type, crop_type) (
+            increase(sahool_disease_detections_total{severity="high"}[24h])
+          ) > 5
+        for: 1h
+        labels:
+          severity: critical
+          category: crop_health
+          platform: sahool
+        annotations:
+          summary: "Disease outbreak: {{ $labels.disease_type }} in {{ $labels.crop_type }}"
+          summary_ar: "تفشي مرض: {{ $labels.disease_type }} في {{ $labels.crop_type }}"
+          description: "{{ $value }} high-severity detections in 24 hours. Outbreak suspected."
+          description_ar: "{{ $value }} اكتشافات عالية الخطورة في 24 ساعة. يُشتبه في تفشي المرض."
+          impact: "Rapid spread risk. Quarantine may be needed."
+          impact_ar: "خطر انتشار سريع. قد يكون الحجر الصحي مطلوباً."
+          action: "Isolate affected area. Apply appropriate fungicide/treatment."
+          action_ar: "اعزل المنطقة المصابة. طبق المبيد الفطري/العلاج المناسب."
+
+      - alert: PestInfestation
+        expr: |
+          sum by (pest_type, crop_type) (
+            increase(sahool_pest_detections_total{severity=~"high|critical"}[24h])
+          ) > 3
+        for: 30m
+        labels:
+          severity: critical
+          category: crop_health
+          platform: sahool
+        annotations:
+          summary: "Pest infestation: {{ $labels.pest_type }} in {{ $labels.crop_type }}"
+          summary_ar: "إصابة بآفات: {{ $labels.pest_type }} في {{ $labels.crop_type }}"
+          description: "{{ $value }} pest detections in 24 hours. Infestation likely."
+          description_ar: "{{ $value }} اكتشافات آفات في 24 ساعة. من المحتمل وجود إصابة."
+          action: "Deploy pheromone traps. Consider IPM interventions."
+          action_ar: "انشر مصائد الفيرومونات. فكر في تدخلات الإدارة المتكاملة للآفات."
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # IoT and Sensor Alerts
+  # تنبيهات إنترنت الأشياء والمستشعرات
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_iot_alerts
+    interval: 60s
+    rules:
+      - alert: IoTDeviceOffline
+        expr: (time() - sahool_iot_device_last_seen_timestamp_seconds) > 3600
+        for: 30m
+        labels:
+          severity: warning
+          category: iot
+          platform: sahool
+        annotations:
+          summary: "IoT device {{ $labels.device_id }} offline"
+          summary_ar: "جهاز إنترنت الأشياء {{ $labels.device_id }} غير متصل"
+          description: "Device has not reported for {{ $value | humanizeDuration }}"
+          description_ar: "لم يبلغ الجهاز منذ {{ $value | humanizeDuration }}"
+          action: "Check device power and network connectivity"
+          action_ar: "تحقق من طاقة الجهاز واتصال الشبكة"
+
+      - alert: IoTBatteryLow
+        expr: sahool_iot_battery_level_percent < 20
+        for: 1h
+        labels:
+          severity: warning
+          category: iot
+          platform: sahool
+        annotations:
+          summary: "Low battery on IoT device {{ $labels.device_id }}: {{ $value }}%"
+          summary_ar: "بطارية منخفضة في جهاز {{ $labels.device_id }}: {{ $value }}%"
+          description: "Device battery below 20%. May go offline soon."
+          description_ar: "بطارية الجهاز أقل من 20%. قد ينقطع الاتصال قريباً."
+          action: "Replace or recharge device battery"
+          action_ar: "استبدل أو اشحن بطارية الجهاز"
+
+      - alert: ManyIoTDevicesOffline
+        expr: sahool_iot_offline_devices_total > 10
+        for: 15m
+        labels:
+          severity: critical
+          category: iot
+          platform: sahool
+        annotations:
+          summary: "Multiple IoT devices offline: {{ $value }} devices"
+          summary_ar: "عدة أجهزة إنترنت الأشياء غير متصلة: {{ $value }} جهاز"
+          description: "More than 10 devices offline. Network or gateway issue suspected."
+          description_ar: "أكثر من 10 أجهزة غير متصلة. يُشتبه في مشكلة شبكة أو بوابة."
+          impact: "Field monitoring significantly degraded"
+          impact_ar: "مراقبة الحقول متدهورة بشكل كبير"
+          action: "Check IoT gateway and network infrastructure"
+          action_ar: "تحقق من بوابة إنترنت الأشياء والبنية التحتية للشبكة"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AI/ML Model Performance Alerts
+  # تنبيهات أداء نماذج الذكاء الاصطناعي
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_ai_ml_alerts
+    interval: 60s
+    rules:
+      - alert: AIModelHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum by (model_name, le) (
+              rate(sahool_ai_inference_duration_seconds_bucket[5m])
+            )
+          ) > 5
+        for: 10m
+        labels:
+          severity: warning
+          category: ai_ml
+          platform: sahool
+        annotations:
+          summary: "High latency for AI model {{ $labels.model_name }}: P95 {{ $value }}s"
+          summary_ar: "زمن استجابة عالي لنموذج {{ $labels.model_name }}: P95 {{ $value }} ثانية"
+          description: "AI inference P95 latency exceeds 5 seconds"
+          description_ar: "زمن استدلال الذكاء الاصطناعي P95 يتجاوز 5 ثوان"
+          action: "Check GPU resources and model optimization"
+          action_ar: "تحقق من موارد GPU وتحسين النموذج"
+
+      - alert: AIModelHighErrorRate
+        expr: |
+          sum by (model_name) (rate(sahool_ai_inference_total{status="failure"}[5m]))
+          /
+          sum by (model_name) (rate(sahool_ai_inference_total[5m]))
+          > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          category: ai_ml
+          platform: sahool
+        annotations:
+          summary: "High error rate for AI model {{ $labels.model_name }}: {{ $value | humanizePercentage }}"
+          summary_ar: "معدل أخطاء عالي لنموذج {{ $labels.model_name }}: {{ $value | humanizePercentage }}"
+          description: "AI model error rate exceeds 5%"
+          description_ar: "معدل أخطاء نموذج الذكاء الاصطناعي يتجاوز 5%"
+          action: "Check model inputs and resource availability"
+          action_ar: "تحقق من مدخلات النموذج وتوفر الموارد"
+
+      - alert: YieldPredictionAccuracyLow
+        expr: sahool_yield_prediction_accuracy_percent < 70
+        for: 24h
+        labels:
+          severity: warning
+          category: ai_ml
+          platform: sahool
+        annotations:
+          summary: "Yield prediction accuracy low for {{ $labels.crop_type }}: {{ $value }}%"
+          summary_ar: "دقة تنبؤ الإنتاجية منخفضة لـ {{ $labels.crop_type }}: {{ $value }}%"
+          description: "Model accuracy below 70%. Consider retraining or recalibration."
+          description_ar: "دقة النموذج أقل من 70%. فكر في إعادة التدريب أو إعادة المعايرة."
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Harvest and Yield Alerts
+  # تنبيهات الحصاد والإنتاجية
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_harvest_alerts
+    interval: 300s  # 5 minutes
+    rules:
+      - alert: FieldsReadyForHarvest
+        expr: sahool_harvest_ready_fields_total > 0
+        for: 1h
+        labels:
+          severity: info
+          category: harvest
+          platform: sahool
+        annotations:
+          summary: "{{ $value }} {{ $labels.crop_type }} fields ready for harvest in {{ $labels.region }}"
+          summary_ar: "{{ $value }} حقل {{ $labels.crop_type }} جاهز للحصاد في {{ $labels.region }}"
+          description: "Fields have reached optimal harvest maturity"
+          description_ar: "وصلت الحقول إلى النضج الأمثل للحصاد"
+          action: "Plan harvest operations within optimal window"
+          action_ar: "خطط لعمليات الحصاد ضمن النافذة المثلى"
+
+      - alert: HarvestWindowClosing
+        expr: |
+          sahool_harvest_ready_fields_total > 0
+          and
+          sahool_weather_precipitation_mm{period="forecast_7d"} > 50
+        for: 6h
+        labels:
+          severity: warning
+          category: harvest
+          platform: sahool
+        annotations:
+          summary: "Harvest window closing: rain forecast with {{ $value }} mm"
+          summary_ar: "نافذة الحصاد تغلق: توقع أمطار بـ {{ $value }} ملم"
+          description: "Significant rain expected. Harvest before window closes."
+          description_ar: "متوقع أمطار كبيرة. احصد قبل إغلاق النافذة."
+          impact: "Risk of crop damage if not harvested"
+          impact_ar: "خطر تلف المحصول إذا لم يُحصد"

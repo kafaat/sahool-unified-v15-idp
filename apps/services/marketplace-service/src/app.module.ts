@@ -4,8 +4,9 @@
  */
 
 import { Module } from "@nestjs/common";
-import { APP_GUARD } from "@nestjs/core";
+import { APP_GUARD, APP_FILTER } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { HttpExceptionFilter } from "./filters/http-exception.filter";
 import { AppController } from "./app.controller";
 import { PrismaService } from "./prisma/prisma.service";
 import { MarketService } from "./market/market.service";
@@ -18,6 +19,7 @@ import { JwtAuthGuard, OptionalJwtAuthGuard } from "./auth/jwt-auth.guard";
 import { ProfilesModule } from "./profiles/profiles.module";
 import { ReviewsModule } from "./reviews/reviews.module";
 import { EventsModule } from "./events/events.module";
+import { CacheModule } from "./cache/cache.module";
 // NOTE: AuditModule requires @sahool/shared-audit package
 // which needs monorepo build context. Enable when Docker build supports shared packages.
 // import { AuditModule } from './audit/audit.module';
@@ -42,6 +44,8 @@ import { EventsModule } from "./events/events.module";
         limit: 1000, // 1000 requests per hour
       },
     ]),
+    // Redis cache module
+    CacheModule,
     // Event bus module (stub when @sahool/shared-events not available)
     EventsModule,
     // Feature modules
@@ -65,6 +69,11 @@ import { EventsModule } from "./events/events.module";
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    // Global exception filter
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
     },
   ],
   exports: [],

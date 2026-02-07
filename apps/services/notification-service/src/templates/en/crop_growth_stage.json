@@ -1,0 +1,12 @@
+{
+    "template_id": "crop_growth_stage",
+    "category": "recommendation",
+    "title": "{crop_type} crop entered {growth_stage} stage",
+    "body": "Your {crop_type} crop in {field_name} field has entered the {growth_stage} stage.\n\nCurrent age: {days_from_planting} days\nEstimated days to harvest: {days_to_harvest} days\n\nRequired actions for this stage:\n{stage_actions}\n\nYield estimate: {yield_estimate} t/ha",
+    "action_url": "/fields/{field_id}/growth-tracking",
+    "icon": "🌱",
+    "priority": "medium",
+    "metadata": {
+        "variables": ["crop_type", "field_name", "field_id", "growth_stage", "days_from_planting", "days_to_harvest", "stage_actions", "yield_estimate"]
+    }
+}

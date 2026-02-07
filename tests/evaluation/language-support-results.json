@@ -1,0 +1,9 @@
+{
+  "arabic_pass_rate": 100.0,
+  "english_pass_rate": 100.0,
+  "arabic_passed": 8,
+  "arabic_total": 8,
+  "english_passed": 8,
+  "english_total": 8,
+  "status": "PASSED"
+}

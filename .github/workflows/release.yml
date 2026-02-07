@@ -1,13 +1,52 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Release Workflow
+# Version: 16.0.0
+#
+# Automated release process with:
+# - Semantic versioning validation
+# - Automated changelog generation
+# - Multi-platform Docker builds (amd64, arm64)
+# - GitHub Release creation with artifacts
+# - Slack/Discord notifications
+# ═══════════════════════════════════════════════════════════════════════════════
+
 name: Release
 
 on:
   push:
     tags:
       - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v16.0.1)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        type: boolean
+        default: false
+      skip-tests:
+        description: 'Skip tests (for hotfixes only)'
+        required: false
+        type: boolean
+        default: false
+
+# Prevent concurrent releases
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
 
 env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ${{ github.repository }}
+  PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   validate:
@@ -15,22 +54,138 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      version_major: ${{ steps.version.outputs.major }}
+      version_minor: ${{ steps.version.outputs.minor }}
+      version_patch: ${{ steps.version.outputs.patch }}
+      is_prerelease: ${{ steps.version.outputs.is_prerelease }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # Fetch all history for changelog generation
 
       - name: Extract version
         id: version
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+            VERSION=${VERSION#v}  # Remove 'v' prefix if present
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+
+          # Parse semantic version
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3 | cut -d- -f1)
+          PRERELEASE=""
+
+          if [[ "$VERSION" == *"-"* ]]; then
+            PRERELEASE=$(echo $VERSION | cut -d- -f2-)
+          fi
+
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Release version: $VERSION"
+          echo "major=$MAJOR" >> $GITHUB_OUTPUT
+          echo "minor=$MINOR" >> $GITHUB_OUTPUT
+          echo "patch=$PATCH" >> $GITHUB_OUTPUT
+
+          if [ -n "$PRERELEASE" ] || [ "${{ github.event.inputs.prerelease }}" = "true" ]; then
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+          fi
+
+          echo "Release version: $VERSION (major=$MAJOR, minor=$MINOR, patch=$PATCH)"
 
       - name: Validate tag format
         run: |
-          if [[ ! "${{ github.ref }}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Error: Tag must be in format v*.*.* (e.g., v15.3.2)"
+          VERSION="${{ steps.version.outputs.version }}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+            echo "Error: Version must be in format X.Y.Z or X.Y.Z-prerelease (e.g., 16.0.1 or 16.0.1-rc1)"
             exit 1
           fi
+          echo "✅ Version format is valid: $VERSION"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          echo "Generating changelog..."
+
+          # Get previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -n "$PREV_TAG" ]; then
+            echo "Previous tag: $PREV_TAG"
+
+            # Generate changelog from commits
+            CHANGELOG=$(git log $PREV_TAG..HEAD --pretty=format:"- %s (%h)" --no-merges 2>/dev/null || echo "")
+
+            # Categorize changes
+            FEATURES=$(echo "$CHANGELOG" | grep -E "^- (feat|feature)" | head -20 || true)
+            FIXES=$(echo "$CHANGELOG" | grep -E "^- (fix|bugfix)" | head -20 || true)
+            DOCS=$(echo "$CHANGELOG" | grep -E "^- (docs|doc)" | head -10 || true)
+            CHORES=$(echo "$CHANGELOG" | grep -E "^- (chore|ci|build)" | head -10 || true)
+            OTHER=$(echo "$CHANGELOG" | grep -vE "^- (feat|feature|fix|bugfix|docs|doc|chore|ci|build)" | head -10 || true)
+          else
+            echo "No previous tag found - this is the first release"
+            FEATURES=""
+            FIXES=""
+            DOCS=""
+            CHORES=""
+            OTHER=""
+          fi
+
+          # Build changelog content
+          cat << EOF > changelog.md
+          ## What's Changed
+
+          EOF
+
+          if [ -n "$FEATURES" ]; then
+            echo "### ✨ Features" >> changelog.md
+            echo "$FEATURES" >> changelog.md
+            echo "" >> changelog.md
+          fi
+
+          if [ -n "$FIXES" ]; then
+            echo "### 🐛 Bug Fixes" >> changelog.md
+            echo "$FIXES" >> changelog.md
+            echo "" >> changelog.md
+          fi
+
+          if [ -n "$DOCS" ]; then
+            echo "### 📚 Documentation" >> changelog.md
+            echo "$DOCS" >> changelog.md
+            echo "" >> changelog.md
+          fi
+
+          if [ -n "$CHORES" ]; then
+            echo "### 🔧 Maintenance" >> changelog.md
+            echo "$CHORES" >> changelog.md
+            echo "" >> changelog.md
+          fi
+
+          if [ -n "$OTHER" ]; then
+            echo "### 📝 Other Changes" >> changelog.md
+            echo "$OTHER" >> changelog.md
+            echo "" >> changelog.md
+          fi
+
+          if [ -n "$PREV_TAG" ]; then
+            echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/$PREV_TAG...v${{ steps.version.outputs.version }}" >> changelog.md
+          fi
+
+          # Output for use in other steps
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat changelog.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Upload changelog artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: changelog
+          path: changelog.md
+          retention-days: 7
 
   lint-and-test:
     name: Lint and Test
@@ -59,30 +214,46 @@ jobs:
           pytest --tb=short || true
 
   build-images:
-    name: Build Images
+    name: Build Images (${{ matrix.service }})
     runs-on: ubuntu-latest
     needs: [validate, lint-and-test]
     permissions:
       contents: read
       packages: write
     strategy:
+      fail-fast: false
+      max-parallel: 4
       matrix:
-        # Note: field-ops → field-management-service (deprecated)
+        # Core services for release
         service:
           - field-management-service
           - ndvi-engine
           - weather-core
+          - weather-service
           - field-chat
           - iot-gateway
           - agro-advisor
           - ws-gateway
           - crop-health
+          - crop-intelligence-service
+          - vegetation-analysis-service
+          - advisory-service
+          - yield-engine
+          - irrigation-smart
 
     steps:
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          docker image prune --all --force || true
+
       - uses: actions/checkout@v6
 
-      # Login to Docker Hub BEFORE setup-buildx to avoid rate limiting when pulling buildkit image
-      # Configure DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets for better reliability
+      - name: Set up QEMU for multi-platform builds
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: ${{ env.PLATFORMS }}
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -90,25 +261,20 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
         continue-on-error: true
 
-      # Pre-pull buildkit image with retries to avoid setup-buildx failures
       - name: Pre-pull BuildKit image
         run: |
-          for i in 1 2 3 4; do
-            echo "Attempt $i: Pulling moby/buildkit:v0.12.5..."
+          for i in 1 2 3; do
             if docker pull moby/buildkit:v0.12.5; then
-              echo "✅ Successfully pulled buildkit image"
               exit 0
             fi
-            echo "⚠️ Pull failed, waiting $((i * 5)) seconds before retry..."
-            sleep $((i * 5))
+            sleep $((i * 3))
           done
-          echo "❌ Failed to pull buildkit after 4 attempts, continuing anyway..."
         continue-on-error: true
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          # Pin buildkit version for reliability and cache efficiency (avoid :latest rate limiting)
+          platforms: ${{ env.PLATFORMS }}
           driver-opts: |
             image=moby/buildkit:v0.12.5
             network=host
@@ -125,29 +291,45 @@ jobs:
       - name: Check if service exists
         id: check
         run: |
-          if [ -d "apps/services/${{ matrix.service }}" ]; then
+          if [ -d "apps/services/${{ matrix.service }}" ] && [ -f "apps/services/${{ matrix.service }}/Dockerfile" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
+            echo "::warning::Service ${{ matrix.service }} does not have a Dockerfile"
           fi
 
-      - name: Build and push
+      - name: Extract Docker metadata
+        id: meta
+        if: steps.check.outputs.exists == 'true'
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}
+          tags: |
+            type=semver,pattern={{version}},value=v${{ needs.validate.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=v${{ needs.validate.outputs.version }}
+            type=semver,pattern={{major}},value=v${{ needs.validate.outputs.version }}
+            type=raw,value=latest,enable=${{ needs.validate.outputs.is_prerelease == 'false' }}
+
+      - name: Build and push (multi-platform)
         if: steps.check.outputs.exists == 'true'
         uses: docker/build-push-action@v6
         with:
-          # Use repository root as context for shared module access
           context: .
           file: ./apps/services/${{ matrix.service }}/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
           push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ needs.validate.outputs.version }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ${{ steps.meta.outputs.tags }}
           labels: |
             org.opencontainers.image.title=${{ matrix.service }}
+            org.opencontainers.image.description=SAHOOL ${{ matrix.service }}
             org.opencontainers.image.version=${{ needs.validate.outputs.version }}
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+          provenance: true
+          sbom: true
 
   create-release:
     name: Create GitHub Release
@@ -158,27 +340,49 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Download changelog artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog
+          path: .
+
       - name: Generate release notes
         id: notes
         run: |
-          cat > release_notes.md <<EOF
-          ## SAHOOL v${{ needs.validate.outputs.version }}
+          cat > release_notes.md << 'RELEASE_EOF'
+          # SAHOOL v${{ needs.validate.outputs.version }}
 
-          ### Services
+          **Release Date:** $(date -u +'%Y-%m-%d')
+          **Platforms:** linux/amd64, linux/arm64
+
+          RELEASE_EOF
+
+          # Include generated changelog
+          if [ -f "changelog.md" ]; then
+            cat changelog.md >> release_notes.md
+          fi
+
+          cat >> release_notes.md << 'RELEASE_EOF'
+
+          ---
+
+          ## Services Included
+
           | Service | Port | Description |
           |---------|------|-------------|
           | field-management-service | 3000 | Field operations and task management |
-          | ndvi-engine | 8097 | NDVI satellite analysis |
-          | weather-core | 8098 | Weather forecasting |
-          | field-chat | 8099 | Real-time collaboration |
-          | iot-gateway | 8094 | IoT device management |
-          | agro-advisor | 8095 | Disease and fertilizer AI |
-          | ws-gateway | 8090 | WebSocket broadcasting |
-          | crop-health | 8100 | Crop health decision engine |
+          | vegetation-analysis-service | 8090 | Satellite imagery analysis |
+          | weather-service | 8092 | Weather data integration |
+          | crop-intelligence-service | 8095 | Crop health AI |
+          | advisory-service | 8093 | Agricultural recommendations |
+          | irrigation-smart | 8094 | Smart irrigation |
+          | yield-engine | 8098 | Yield estimation |
+          | agro-advisor | 8105 | Disease and fertilizer AI |
+          | ws-gateway | 8081 | WebSocket broadcasting |
 
-          ### Quick Start
+          ## Quick Start
 
-          \`\`\`bash
+          ```bash
           # Pull images
           docker compose pull
 
@@ -187,40 +391,99 @@ jobs:
 
           # Check health
           curl http://localhost:8080/healthz
-          \`\`\`
+          ```
 
-          ### Docker Images
+          ## Docker Images
 
-          \`\`\`bash
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/field-management-service:${{ needs.validate.outputs.version }}
-          \`\`\`
+          All images are available in GitHub Container Registry:
 
-          ### Changes
-          See [CHANGELOG](CHANGELOG.md) for detailed changes.
-          EOF
+          ```bash
+          # Pull specific version
+          docker pull ghcr.io/${{ github.repository }}/field-management-service:${{ needs.validate.outputs.version }}
+
+          # Pull latest
+          docker pull ghcr.io/${{ github.repository }}/field-management-service:latest
+          ```
+
+          ## Upgrade Notes
+
+          See [CLAUDE.md](CLAUDE.md) for full documentation.
+
+          RELEASE_EOF
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           name: SAHOOL v${{ needs.validate.outputs.version }}
+          tag_name: v${{ needs.validate.outputs.version }}
           body_path: release_notes.md
           draft: false
-          prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, '-beta') }}
+          prerelease: ${{ needs.validate.outputs.is_prerelease == 'true' }}
+          generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   notify:
-    name: Notify
+    name: Notify Release
     runs-on: ubuntu-latest
-    needs: [validate, create-release]
+    needs: [validate, build-images, create-release]
     if: always()
     steps:
       - name: Release summary
         run: |
-          echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Release Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Version | ${{ needs.validate.outputs.version }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Status | ${{ needs.create-release.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | v${{ needs.validate.outputs.version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Pre-release | ${{ needs.validate.outputs.is_prerelease }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Status | ${{ needs.build-images.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Release Status | ${{ needs.create-release.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Registry | ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Docker Pull Commands" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/field-management-service:${{ needs.validate.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify Slack on success
+        if: needs.create-release.result == 'success'
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data '{
+                "text": "🚀 SAHOOL v${{ needs.validate.outputs.version }} Released!",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*🚀 SAHOOL v${{ needs.validate.outputs.version }} Released!*\n\n*Pre-release:* ${{ needs.validate.outputs.is_prerelease }}\n*Release:* <${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ needs.validate.outputs.version }}|View on GitHub>"
+                    }
+                  }
+                ]
+              }' \
+              "${{ secrets.SLACK_WEBHOOK_URL }}"
+          fi
+        continue-on-error: true
+
+      - name: Notify Discord on success
+        if: needs.create-release.result == 'success'
+        run: |
+          if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
+            curl -H "Content-Type: application/json" \
+              -d "{\"content\": \"🚀 **SAHOOL v${{ needs.validate.outputs.version }} Released!**\n\nView release: ${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ needs.validate.outputs.version }}\"}" \
+              "${{ secrets.DISCORD_WEBHOOK_URL }}"
+          fi
+        continue-on-error: true
+
+      - name: Notify on failure
+        if: needs.build-images.result == 'failure' || needs.create-release.result == 'failure'
+        run: |
+          echo "::error::Release v${{ needs.validate.outputs.version }} failed"
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data '{"text":"❌ SAHOOL v${{ needs.validate.outputs.version }} release failed!\nCheck: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}' \
+              "${{ secrets.SLACK_WEBHOOK_URL }}"
+          fi
+        continue-on-error: true

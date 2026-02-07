@@ -1,0 +1,12 @@
+{
+    "template_id": "soil_moisture_alert",
+    "category": "alert",
+    "title": "Soil Moisture Alert - {field_name}",
+    "body": "Soil moisture level in {field_name} field ({crop_type}) is now {moisture_status}.\n\nCurrent moisture: {current_moisture}%\nOptimal moisture: {optimal_moisture}%\n\n{action_message}\n\nLast sensor update: {sensor_time}",
+    "action_url": "/fields/{field_id}/irrigation",
+    "icon": "💧",
+    "priority": "high",
+    "metadata": {
+        "variables": ["field_name", "field_id", "crop_type", "moisture_status", "current_moisture", "optimal_moisture", "action_message", "sensor_time"]
+    }
+}

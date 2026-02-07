@@ -41,6 +41,7 @@ Essential documents for new developers and deployment.
 | [DEVELOPMENT_STATUS.md](./DEVELOPMENT_STATUS.md) | حالة التطوير | Current development status and progress | حالة التطوير الحالية والتقدم |
 | [WINDOWS_COMMANDS.md](./WINDOWS_COMMANDS.md) | أوامر Windows | Windows-specific development commands | أوامر التطوير الخاصة بـ Windows |
 | [MAKEFILE_COMMANDS_REFERENCE.md](./MAKEFILE_COMMANDS_REFERENCE.md) | مرجع أوامر Makefile | Complete Makefile commands reference | مرجع أوامر Makefile الكامل |
+| [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) | استكشاف الأخطاء | Comprehensive troubleshooting guide | دليل استكشاف الأخطاء الشامل |
 
 ---
 
@@ -54,6 +55,7 @@ System architecture, design decisions, and patterns.
 
 | Document | الوثيقة | Description | الوصف |
 |----------|---------|-------------|-------|
+| [ARCHITECTURE_DIAGRAMS.md](./ARCHITECTURE_DIAGRAMS.md) | مخططات الهندسة | System architecture diagrams | مخططات هندسة النظام |
 | [ARCH_RULES.md](./ARCH_RULES.md) | قواعد الهندسة | Architectural rules and constraints | القواعد والقيود المعمارية |
 | [DATA_FLOW.md](./DATA_FLOW.md) | تدفق البيانات | Data flow patterns across services | أنماط تدفق البيانات عبر الخدمات |
 | [EVENT_CATALOG.md](./EVENT_CATALOG.md) | كتالوج الأحداث | NATS event catalog and message schemas | كتالوج أحداث NATS ومخططات الرسائل |
@@ -119,6 +121,7 @@ API documentation, versioning, and integration guides.
 
 | Document | الوثيقة | Description | الوصف |
 |----------|---------|-------------|-------|
+| [API_COMPREHENSIVE.md](./API_COMPREHENSIVE.md) | دليل API الشامل | Comprehensive API developer guide | دليل المطور الشامل لـ API |
 | [api/README.md](./api/README.md) | فهرس API | API documentation index | فهرس وثائق API |
 | [api/authentication.md](./api/authentication.md) | المصادقة | Authentication API reference | مرجع API المصادقة |
 | [api/fields.md](./api/fields.md) | الحقول | Fields API reference | مرجع API الحقول |
@@ -507,14 +510,20 @@ Audit reports, reviews, and analysis documents.
 
 ## Document Statistics | إحصائيات الوثائق
 
-- **Total Documents**: 140+
+- **Total Documents**: 145+
 - **Categories**: 10
 - **Languages**: Arabic & English (Bilingual)
-- **Last Updated**: January 2026
+- **Last Updated**: February 2026
 
 ---
 
 ## Contributing | المساهمة
+
+For contribution guidelines, see the main [CONTRIBUTING.md](../CONTRIBUTING.md) file.
+
+للاطلاع على إرشادات المساهمة، راجع ملف [CONTRIBUTING.md](../CONTRIBUTING.md) الرئيسي.
+
+### Documentation Guidelines | إرشادات التوثيق
 
 When adding new documentation:
 
@@ -532,4 +541,4 @@ When adding new documentation:
 
 ---
 
-_Last Updated | آخر تحديث: January 2026_
+_Last Updated | آخر تحديث: February 2026_

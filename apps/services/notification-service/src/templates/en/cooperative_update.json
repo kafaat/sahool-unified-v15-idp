@@ -1,0 +1,12 @@
+{
+    "template_id": "cooperative_update",
+    "category": "alert",
+    "title": "Cooperative Update - {cooperative_name}",
+    "body": "New update from {cooperative_name} cooperative:\n\n{update_title}\n\n{update_content}\n\nDate: {update_date}\n\n{action_required}",
+    "action_url": "/cooperatives/{cooperative_id}/updates",
+    "icon": "🤝",
+    "priority": "medium",
+    "metadata": {
+        "variables": ["cooperative_name", "cooperative_id", "update_title", "update_content", "update_date", "action_required"]
+    }
+}

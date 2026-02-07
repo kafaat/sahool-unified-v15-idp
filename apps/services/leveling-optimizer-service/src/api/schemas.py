@@ -2,12 +2,27 @@
 Pydantic schemas for Leveling Optimizer Service.
 
 نماذج البيانات لخدمة تحسين التسوية
+
+Includes comprehensive validation for:
+- Elevation points and ranges
+- Grade/slope percentages
+- Field boundaries and coordinates
+- Field ID format
 """
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field
+from typing import Any
+
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+# Validation constants
+# ثوابت التحقق من الصحة
+ELEVATION_MIN_M = -100.0  # Minimum elevation for agricultural fields
+ELEVATION_MAX_M = 3000.0  # Maximum elevation for agricultural fields
+MAX_GRADE_PERCENT = 15.0  # Maximum allowed grade percentage
+MIN_GRADE_PERCENT = -15.0  # Minimum allowed grade percentage
+MAX_ELEVATION_POINTS = 100000  # Maximum number of elevation points
 
 
 class EquipmentType(str, Enum):
@@ -49,27 +64,93 @@ class LevelingPriority(str, Enum):
 
 class ElevationPoint(BaseModel):
     """Single elevation point. | نقطة ارتفاع واحدة"""
+
     x: float = Field(..., description="X coordinate (meters) | الإحداثي السيني (متر)")
     y: float = Field(..., description="Y coordinate (meters) | الإحداثي الصادي (متر)")
-    elevation: float = Field(..., description="Elevation (meters) | الارتفاع (متر)")
-    point_id: str | None = Field(None, description="Point identifier | معرف النقطة")
+    elevation: float = Field(
+        ...,
+        ge=ELEVATION_MIN_M,
+        le=ELEVATION_MAX_M,
+        description="Elevation (meters) | الارتفاع (متر)"
+    )
+    point_id: str | None = Field(None, max_length=64, description="Point identifier | معرف النقطة")
+
+    @field_validator("elevation")
+    @classmethod
+    def validate_elevation(cls, v: float) -> float:
+        """Validate elevation is within reasonable bounds for agricultural fields."""
+        if not ELEVATION_MIN_M <= v <= ELEVATION_MAX_M:
+            raise ValueError(
+                f"Elevation {v}m must be between {ELEVATION_MIN_M}m and {ELEVATION_MAX_M}m | "
+                f"الارتفاع {v}م يجب أن يكون بين {ELEVATION_MIN_M}م و {ELEVATION_MAX_M}م"
+            )
+        return v
+
+    @field_validator("point_id")
+    @classmethod
+    def validate_point_id(cls, v: str | None) -> str | None:
+        """Validate point ID format if provided."""
+        if v is not None:
+            # Strip whitespace and validate length
+            v = v.strip()
+            if len(v) == 0:
+                return None
+            if len(v) > 64:
+                raise ValueError("Point ID must be 64 characters or less | معرف النقطة يجب أن يكون 64 حرفاً أو أقل")
+        return v
 
 
 class FieldBoundary(BaseModel):
     """Field boundary polygon. | حدود الحقل"""
+
     coordinates: list[list[float]] = Field(
         ...,
+        min_length=3,
         description="List of [x, y] coordinates forming boundary | قائمة إحداثيات الحدود"
     )
+
+    @field_validator("coordinates")
+    @classmethod
+    def validate_coordinates(cls, v: list[list[float]]) -> list[list[float]]:
+        """Validate boundary coordinates."""
+        if len(v) < 3:
+            raise ValueError(
+                "Boundary must have at least 3 coordinate pairs | "
+                "يجب أن تحتوي الحدود على 3 أزواج إحداثيات على الأقل"
+            )
+
+        for i, coord in enumerate(v):
+            if not isinstance(coord, (list, tuple)) or len(coord) < 2:
+                raise ValueError(
+                    f"Coordinate at index {i} must be [x, y] array | "
+                    f"الإحداثية في الفهرس {i} يجب أن تكون مصفوفة [س، ص]"
+                )
+            try:
+                float(coord[0])
+                float(coord[1])
+            except (TypeError, ValueError) as e:
+                raise ValueError(
+                    f"Coordinate at index {i} contains non-numeric values | "
+                    f"الإحداثية في الفهرس {i} تحتوي على قيم غير رقمية"
+                ) from e
+
+        return v
 
 
 class LevelingAnalysisRequest(BaseModel):
     """Request for field leveling analysis. | طلب تحليل تسوية الحقل"""
-    field_id: str = Field(..., description="Field identifier | معرف الحقل")
+
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Field identifier | معرف الحقل"
+    )
     elevation_points: list[ElevationPoint] = Field(
         ...,
         description="Survey elevation points | نقاط المسح الطبوغرافي",
-        min_length=4
+        min_length=4,
+        max_length=MAX_ELEVATION_POINTS
     )
     boundary: FieldBoundary | None = Field(
         None,
@@ -81,10 +162,14 @@ class LevelingAnalysisRequest(BaseModel):
     )
     target_grade_x: float | None = Field(
         None,
+        ge=MIN_GRADE_PERCENT,
+        le=MAX_GRADE_PERCENT,
         description="Target grade in X direction (%) | الميل المستهدف بالاتجاه السيني (%)"
     )
     target_grade_y: float | None = Field(
         None,
+        ge=MIN_GRADE_PERCENT,
+        le=MAX_GRADE_PERCENT,
         description="Target grade in Y direction (%) | الميل المستهدف بالاتجاه الصادي (%)"
     )
     method: LevelingMethod = Field(
@@ -100,25 +185,76 @@ class LevelingAnalysisRequest(BaseModel):
         description="Include cost estimate | تضمين تقدير التكلفة"
     )
 
+    @field_validator("field_id")
+    @classmethod
+    def validate_field_id(cls, v: str) -> str:
+        """Validate field ID format."""
+        v = v.strip()
+        if not v:
+            raise ValueError("Field ID cannot be empty | معرف الحقل لا يمكن أن يكون فارغاً")
+        if len(v) > 64:
+            raise ValueError("Field ID must be 64 characters or less | معرف الحقل يجب أن يكون 64 حرفاً أو أقل")
+        return v
+
+    @field_validator("target_grade_x", "target_grade_y")
+    @classmethod
+    def validate_grade(cls, v: float | None) -> float | None:
+        """Validate grade percentage is within reasonable bounds."""
+        if v is not None and not MIN_GRADE_PERCENT <= v <= MAX_GRADE_PERCENT:
+            raise ValueError(
+                f"Grade {v}% must be between {MIN_GRADE_PERCENT}% and {MAX_GRADE_PERCENT}% | "
+                f"الميل {v}% يجب أن يكون بين {MIN_GRADE_PERCENT}% و {MAX_GRADE_PERCENT}%"
+            )
+        return v
+
+    @field_validator("elevation_points")
+    @classmethod
+    def validate_elevation_points_count(cls, v: list[ElevationPoint]) -> list[ElevationPoint]:
+        """Validate elevation points count."""
+        if len(v) < 4:
+            raise ValueError(
+                "At least 4 elevation points required for leveling analysis | "
+                "مطلوب 4 نقاط ارتفاع على الأقل لتحليل التسوية"
+            )
+        if len(v) > MAX_ELEVATION_POINTS:
+            raise ValueError(
+                f"Maximum {MAX_ELEVATION_POINTS} elevation points allowed | "
+                f"الحد الأقصى {MAX_ELEVATION_POINTS} نقطة ارتفاع مسموح بها"
+            )
+        return v
+
 
 class SimulationRequest(BaseModel):
     """Request for leveling simulation. | طلب محاكاة التسوية"""
-    field_id: str = Field(..., description="Field identifier | معرف الحقل")
+
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Field identifier | معرف الحقل"
+    )
     elevation_points: list[ElevationPoint] = Field(
         ...,
         description="Survey elevation points | نقاط المسح الطبوغرافي",
-        min_length=4
+        min_length=4,
+        max_length=MAX_ELEVATION_POINTS
     )
     target_elevation: float | None = Field(
         None,
+        ge=ELEVATION_MIN_M,
+        le=ELEVATION_MAX_M,
         description="Target design elevation (meters) | الارتفاع التصميمي المستهدف (متر)"
     )
     target_grade_x: float = Field(
         0.2,
+        ge=MIN_GRADE_PERCENT,
+        le=MAX_GRADE_PERCENT,
         description="Target grade in X direction (%) | الميل المستهدف بالاتجاه السيني (%)"
     )
     target_grade_y: float = Field(
         0.1,
+        ge=MIN_GRADE_PERCENT,
+        le=MAX_GRADE_PERCENT,
         description="Target grade in Y direction (%) | الميل المستهدف بالاتجاه الصادي (%)"
     )
     soil_type: SoilType = Field(
@@ -129,6 +265,37 @@ class SimulationRequest(BaseModel):
         LevelingMethod.SINGLE_PLANE,
         description="Leveling method | طريقة التسوية"
     )
+
+    @field_validator("field_id")
+    @classmethod
+    def validate_field_id(cls, v: str) -> str:
+        """Validate field ID format."""
+        v = v.strip()
+        if not v:
+            raise ValueError("Field ID cannot be empty | معرف الحقل لا يمكن أن يكون فارغاً")
+        return v
+
+    @field_validator("target_grade_x", "target_grade_y")
+    @classmethod
+    def validate_grade(cls, v: float) -> float:
+        """Validate grade percentage is within reasonable bounds."""
+        if not MIN_GRADE_PERCENT <= v <= MAX_GRADE_PERCENT:
+            raise ValueError(
+                f"Grade {v}% must be between {MIN_GRADE_PERCENT}% and {MAX_GRADE_PERCENT}% | "
+                f"الميل {v}% يجب أن يكون بين {MIN_GRADE_PERCENT}% و {MAX_GRADE_PERCENT}%"
+            )
+        return v
+
+    @field_validator("target_elevation")
+    @classmethod
+    def validate_target_elevation(cls, v: float | None) -> float | None:
+        """Validate target elevation is within reasonable bounds."""
+        if v is not None and not ELEVATION_MIN_M <= v <= ELEVATION_MAX_M:
+            raise ValueError(
+                f"Target elevation {v}m must be between {ELEVATION_MIN_M}m and {ELEVATION_MAX_M}m | "
+                f"الارتفاع المستهدف {v}م يجب أن يكون بين {ELEVATION_MIN_M}م و {ELEVATION_MAX_M}م"
+            )
+        return v
 
 
 # Response Models

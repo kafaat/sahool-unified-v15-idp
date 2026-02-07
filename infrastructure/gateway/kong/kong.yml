@@ -1386,22 +1386,262 @@ services:
           retry_count: 3
           content_type: application/json
 
+# ==============================================================================
+# Additional Services - Added 2026-02-07
+# خدمات إضافية
+# ==============================================================================
+
+  # -----------------------------
+  # WhatsApp Bot Service - خدمة بوت واتساب
+  # WhatsApp Business API integration for farmer messaging
+  # تكامل واجهة واتساب للأعمال للتواصل مع المزارعين
+  # -----------------------------
+  - name: whatsapp-bot-service
+    host: whatsapp-bot-service
+    port: 8240
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: whatsapp-bot-route
+        paths: ["/api/v1/whatsapp", "/whatsapp"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: whatsapp-webhook-route
+        paths: ["/api/v1/whatsapp/webhook"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["GET", "POST"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 120
+          hour: 5000
+          policy: local
+          fault_tolerant: true
+
+  # Agro Rules Worker - عامل القواعد الزراعية
+  # NATS subscriber with HTTP health endpoint
+  # مشترك NATS مع نقطة نهاية صحة HTTP
+  - name: agro-rules
+    host: agro-rules
+    port: 8151
+    protocol: http
+    routes:
+      - name: agro-rules-route
+        paths: ["/api/v1/agro-rules", "/agro-rules"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # CRM Service - خدمة إدارة علاقات المزارعين
+  - name: crm-service
+    host: crm-service
+    port: 8131
+    protocol: http
+    routes:
+      - name: crm-service-route
+        paths: ["/api/v1/crm", "/crm"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # LowCode Engine - محرك التطبيقات منخفضة الكود
+  - name: lowcode-engine
+    host: lowcode-engine
+    port: 8132
+    protocol: http
+    routes:
+      - name: lowcode-engine-route
+        paths: ["/api/v1/lowcode", "/lowcode"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # Virtual Sensors Service - خدمة المستشعرات الافتراضية
+  - name: virtual-sensors
+    host: virtual-sensors
+    port: 8119
+    protocol: http
+    routes:
+      - name: virtual-sensors-primary-route
+        paths: ["/api/v1/virtual-sensors", "/virtual-sensors"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # Skills Service - خدمة المهارات
+  # AI-powered farmer skills assessment and learning recommendations
+  # تقييم مهارات المزارعين والتوصيات التعليمية المخصصة
+  - name: skills-service
+    host: skills-service
+    port: 8121
+    protocol: http
+    routes:
+      - name: skills-service-primary-route
+        paths: ["/api/v1/skills", "/skills"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # Yield Engine - محرك التنبؤ بالإنتاجية
+  - name: yield-engine
+    host: yield-engine
+    port: 8098
+    protocol: http
+    routes:
+      - name: yield-engine-primary-route
+        paths: ["/api/v1/yield-engine", "/yield-engine"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # LAI Estimation Service - خدمة تقدير مؤشر مساحة الأوراق
+  - name: lai-estimation
+    host: lai-estimation
+    port: 3022
+    protocol: http
+    routes:
+      - name: lai-estimation-primary-route
+        paths: ["/api/v1/lai", "/lai"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # Crop Growth Model - نموذج نمو المحاصيل
+  - name: crop-growth-model
+    host: crop-growth-model
+    port: 3023
+    protocol: http
+    routes:
+      - name: crop-growth-model-primary-route
+        paths: ["/api/v1/crop-growth", "/crop-growth"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # Disaster Assessment Service - خدمة تقييم الكوارث
+  - name: disaster-assessment
+    host: disaster-assessment
+    port: 3020
+    protocol: http
+    routes:
+      - name: disaster-assessment-primary-route
+        paths: ["/api/v1/disaster", "/disaster"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # Astronomical Calendar - التقويم الفلكي
+  - name: astronomical-calendar
+    host: astronomical-calendar
+    port: 8111
+    protocol: http
+    routes:
+      - name: astronomical-calendar-primary-route
+        paths: ["/api/v1/astronomy", "/astronomy", "/api/v1/calendar"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # MCP Server - خادم بروتوكول سياق النموذج
+  - name: mcp-server
+    host: mcp-server
+    port: 8200
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 180000
+    read_timeout: 180000
+    routes:
+      - name: mcp-server-primary-route
+        paths: ["/api/v1/mcp", "/mcp"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 120
+          hour: 5000
+          policy: local
+          fault_tolerant: true
+
 # ------------------------------------------------------------------------------
 # Intentionally NOT added to Kong (non-HTTP APIs / internal infra / workers)
+# لم تُضَف عمداً إلى Kong (واجهات برمجة غير HTTP / بنية تحتية داخلية / عمال)
 # - postgres, pgbouncer, redis, nats, nats-prometheus-exporter, mqtt, qdrant
 # - etcd, etcd-init, minio, milvus
-# - agro-rules (worker, no HTTP - NATS subscriber only)
-# - demo-data (client/test data, not an API service)
 # - ollama / ollama-model-loader (internal LLM, expose only if needed)
-# - code-fix-agent (autonomous agent, no HTTP endpoint)
-# - code-review-agent (autonomous agent, no HTTP endpoint)
 #
 # Deprecated services (still accessible for migration):
+# الخدمات المهملة (لا تزال متاحة للترحيل):
 # - satellite-service → use vegetation-analysis-service
 # - weather-advanced → use weather-service
 # - crop-health-ai → use crop-intelligence-service
 # - fertilizer-advisor → use advisory-service
 #
-# Last updated: 2026-02-02
-# Total services configured: 77 (added 10 new services: code-fix-agent, copilot-api, llm-orchestrator-service, pest-detection-service, soil-analysis-service, supply-chain-service, traceability-service, cooperative-service, drone-service, ground-vision-service)
+# Last updated: 2026-02-07
+# آخر تحديث: 2026-02-07
+# Total services configured: 89 (added 12 new services)
+# إجمالي الخدمات المُكوَّنة: 89 (أُضيفت 12 خدمة جديدة)
 # ------------------------------------------------------------------------------

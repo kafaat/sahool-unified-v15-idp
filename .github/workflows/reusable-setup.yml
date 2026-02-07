@@ -1,0 +1,323 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Reusable Workflow - Common Setup Tasks
+# Version: 16.0.0
+#
+# This reusable workflow provides common setup steps for:
+# - Python environment with caching
+# - Node.js environment with caching
+# - Flutter environment with caching
+# - Docker BuildX setup with optimized caching
+#
+# Usage:
+#   jobs:
+#     my-job:
+#       uses: ./.github/workflows/reusable-setup.yml
+#       with:
+#         python-version: "3.11"
+#         node-version: "20"
+#         setup-python: true
+#         setup-node: true
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Reusable Setup
+
+on:
+  workflow_call:
+    inputs:
+      # Python Configuration
+      setup-python:
+        description: 'Set up Python environment'
+        required: false
+        type: boolean
+        default: false
+      python-version:
+        description: 'Python version to use'
+        required: false
+        type: string
+        default: '3.11'
+      python-requirements:
+        description: 'Path to requirements file (comma-separated for multiple)'
+        required: false
+        type: string
+        default: ''
+      python-extras:
+        description: 'Extra pip packages to install'
+        required: false
+        type: string
+        default: ''
+
+      # Node.js Configuration
+      setup-node:
+        description: 'Set up Node.js environment'
+        required: false
+        type: boolean
+        default: false
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: '20'
+      npm-install:
+        description: 'Run npm install'
+        required: false
+        type: boolean
+        default: true
+
+      # Flutter Configuration
+      setup-flutter:
+        description: 'Set up Flutter environment'
+        required: false
+        type: boolean
+        default: false
+      flutter-version:
+        description: 'Flutter version to use'
+        required: false
+        type: string
+        default: '3.27.1'
+      flutter-channel:
+        description: 'Flutter channel (stable, beta, dev)'
+        required: false
+        type: string
+        default: 'stable'
+
+      # Docker Configuration
+      setup-docker:
+        description: 'Set up Docker BuildX'
+        required: false
+        type: boolean
+        default: false
+      docker-platforms:
+        description: 'Docker platforms (comma-separated)'
+        required: false
+        type: string
+        default: 'linux/amd64'
+
+      # Cache Configuration
+      cache-version:
+        description: 'Cache version for invalidation'
+        required: false
+        type: string
+        default: 'v3'
+      skip-cache:
+        description: 'Skip cache restoration'
+        required: false
+        type: boolean
+        default: false
+
+    outputs:
+      python-installed:
+        description: 'Whether Python was installed'
+        value: ${{ jobs.setup.outputs.python-installed }}
+      node-installed:
+        description: 'Whether Node.js was installed'
+        value: ${{ jobs.setup.outputs.node-installed }}
+      flutter-installed:
+        description: 'Whether Flutter was installed'
+        value: ${{ jobs.setup.outputs.flutter-installed }}
+      docker-installed:
+        description: 'Whether Docker BuildX was installed'
+        value: ${{ jobs.setup.outputs.docker-installed }}
+      cache-hit:
+        description: 'Whether cache was restored'
+        value: ${{ jobs.setup.outputs.cache-hit }}
+
+jobs:
+  setup:
+    name: Environment Setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      python-installed: ${{ steps.python.outcome == 'success' }}
+      node-installed: ${{ steps.node.outcome == 'success' }}
+      flutter-installed: ${{ steps.flutter.outcome == 'success' }}
+      docker-installed: ${{ steps.docker.outcome == 'success' }}
+      cache-hit: ${{ steps.cache-summary.outputs.cache-hit }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      # ─────────────────────────────────────────────────────────────────────────
+      # Python Setup
+      # ─────────────────────────────────────────────────────────────────────────
+      - name: Set up Python ${{ inputs.python-version }}
+        id: python
+        if: inputs.setup-python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Cache pip dependencies
+        id: pip-cache
+        if: inputs.setup-python && !inputs.skip-cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.local/lib/python*/site-packages
+          key: ${{ runner.os }}-pip-${{ inputs.cache-version }}-${{ inputs.python-version }}-${{ hashFiles('**/requirements*.txt', '**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ inputs.cache-version }}-${{ inputs.python-version }}-
+            ${{ runner.os }}-pip-${{ inputs.cache-version }}-
+
+      - name: Install Python dependencies
+        if: inputs.setup-python
+        run: |
+          pip install --upgrade pip wheel --quiet
+
+          # Install from requirements files if specified
+          if [ -n "${{ inputs.python-requirements }}" ]; then
+            IFS=',' read -ra REQ_FILES <<< "${{ inputs.python-requirements }}"
+            for req in "${REQ_FILES[@]}"; do
+              if [ -f "$req" ]; then
+                pip install -r "$req" --quiet
+              fi
+            done
+          fi
+
+          # Install extra packages if specified
+          if [ -n "${{ inputs.python-extras }}" ]; then
+            pip install ${{ inputs.python-extras }} --quiet
+          fi
+
+      # ─────────────────────────────────────────────────────────────────────────
+      # Node.js Setup
+      # ─────────────────────────────────────────────────────────────────────────
+      - name: Set up Node.js ${{ inputs.node-version }}
+        id: node
+        if: inputs.setup-node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: Cache npm dependencies
+        id: npm-cache
+        if: inputs.setup-node && !inputs.skip-cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.npm
+            node_modules
+            packages/*/node_modules
+            apps/*/node_modules
+          key: ${{ runner.os }}-npm-${{ inputs.cache-version }}-${{ inputs.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-${{ inputs.cache-version }}-${{ inputs.node-version }}-
+            ${{ runner.os }}-npm-${{ inputs.cache-version }}-
+
+      - name: Install npm dependencies
+        if: inputs.setup-node && inputs.npm-install
+        run: |
+          npm install --legacy-peer-deps --quiet 2>/dev/null || true
+
+      # ─────────────────────────────────────────────────────────────────────────
+      # Flutter Setup
+      # ─────────────────────────────────────────────────────────────────────────
+      - name: Set up Java (for Flutter Android)
+        if: inputs.setup-flutter
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter ${{ inputs.flutter-version }}
+        id: flutter
+        if: inputs.setup-flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter-version }}
+          channel: ${{ inputs.flutter-channel }}
+          cache: true
+
+      - name: Cache Flutter dependencies
+        id: flutter-cache
+        if: inputs.setup-flutter && !inputs.skip-cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.pub-cache
+            apps/mobile/*/.dart_tool
+            apps/mobile/*/build
+          key: ${{ runner.os }}-flutter-${{ inputs.cache-version }}-${{ inputs.flutter-version }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-${{ inputs.cache-version }}-${{ inputs.flutter-version }}-
+            ${{ runner.os }}-flutter-${{ inputs.cache-version }}-
+
+      - name: Get Flutter dependencies
+        if: inputs.setup-flutter
+        run: |
+          flutter pub get
+        working-directory: apps/mobile/sahool_field_app
+
+      # ─────────────────────────────────────────────────────────────────────────
+      # Docker BuildX Setup
+      # ─────────────────────────────────────────────────────────────────────────
+      - name: Login to Docker Hub (for rate limiting)
+        id: docker-login
+        if: inputs.setup-docker
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Pre-pull BuildKit image
+        if: inputs.setup-docker
+        run: |
+          for i in 1 2 3; do
+            if docker pull moby/buildkit:v0.12.5; then
+              exit 0
+            fi
+            sleep $((i * 5))
+          done
+        continue-on-error: true
+
+      - name: Set up Docker BuildX
+        id: docker
+        if: inputs.setup-docker
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: ${{ inputs.docker-platforms }}
+          driver-opts: |
+            image=moby/buildkit:v0.12.5
+            network=host
+        env:
+          DOCKER_BUILD_SUMMARY: false
+
+      - name: Set up QEMU for multi-platform builds
+        if: inputs.setup-docker && contains(inputs.docker-platforms, ',')
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: ${{ inputs.docker-platforms }}
+
+      # ─────────────────────────────────────────────────────────────────────────
+      # Cache Summary
+      # ─────────────────────────────────────────────────────────────────────────
+      - name: Cache summary
+        id: cache-summary
+        run: |
+          CACHE_HIT="false"
+          if [ "${{ steps.pip-cache.outputs.cache-hit }}" = "true" ] || \
+             [ "${{ steps.npm-cache.outputs.cache-hit }}" = "true" ] || \
+             [ "${{ steps.flutter-cache.outputs.cache-hit }}" = "true" ]; then
+            CACHE_HIT="true"
+          fi
+          echo "cache-hit=$CACHE_HIT" >> $GITHUB_OUTPUT
+
+          echo "## 🔧 Environment Setup Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Installed | Cache Hit |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|-----------|-----------|" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ inputs.setup-python }}" = "true" ]; then
+            echo "| Python ${{ inputs.python-version }} | ✅ | ${{ steps.pip-cache.outputs.cache-hit == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ inputs.setup-node }}" = "true" ]; then
+            echo "| Node.js ${{ inputs.node-version }} | ✅ | ${{ steps.npm-cache.outputs.cache-hit == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ inputs.setup-flutter }}" = "true" ]; then
+            echo "| Flutter ${{ inputs.flutter-version }} | ✅ | ${{ steps.flutter-cache.outputs.cache-hit == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ inputs.setup-docker }}" = "true" ]; then
+            echo "| Docker BuildX | ✅ | N/A |" >> $GITHUB_STEP_SUMMARY
+          fi

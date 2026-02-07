@@ -8,6 +8,12 @@ Enhanced with:
 - User status checks (active, verified, deleted, suspended)
 - Failed authentication logging
 - Improved rate limiting
+- Refresh Token Rotation with theft detection
+- Token fingerprinting and binding
+- Comprehensive session management
+- Enhanced RBAC with hierarchical permissions
+- Security audit logging
+- Enhanced 2FA with rate limiting
 """
 
 from .config import JWTConfig, config
@@ -94,6 +100,67 @@ from .user_repository import (
     set_user_repository,
 )
 
+# Security Enhancements (New)
+from .security_enhancements import (
+    TokenFingerprint,
+    TokenFamily,
+    TokenFamilyStatus,
+    RefreshTokenRotationManager,
+    PasswordPepper,
+    get_rotation_manager,
+    get_password_pepper,
+    create_fingerprint_hash,
+    generate_secure_jti,
+    generate_family_id,
+    generate_secure_token,
+    constant_time_compare,
+)
+
+# Session Management (New)
+from .session_manager import (
+    SessionInfo,
+    SessionStatus,
+    SessionManager,
+    SessionSecurityChecker,
+    get_session_manager,
+    generate_session_id,
+)
+
+# Security Audit Logging (New)
+from .security_audit import (
+    SecurityEvent,
+    SecurityEventType,
+    SecurityEventSeverity,
+    SecurityAuditLogger,
+    get_security_audit_logger,
+    audit_login_success,
+    audit_login_failed,
+    check_brute_force,
+)
+
+# Enhanced 2FA (New)
+from .twofa_enhanced import (
+    TwoFAMethod,
+    TwoFAStatus,
+    TwoFAConfig,
+    EnhancedTwoFactorAuth,
+    get_enhanced_2fa,
+)
+
+# Enhanced RBAC (New)
+from .rbac_enhanced import (
+    SystemRole,
+    PermissionAction,
+    ResourceType,
+    AccessContext,
+    AccessDecision,
+    RBACManager,
+    get_rbac_manager,
+    require_permission,
+    ROLE_HIERARCHY,
+    DEFAULT_ROLE_PERMISSIONS,
+)
+
 __all__ = [
     # Configuration
     "JWTConfig",
@@ -173,4 +240,50 @@ __all__ = [
     "is_token_revoked",
     "TokenRevocationMiddleware",
     "RevocationCheckDependency",
+    # Security Enhancements (New)
+    "TokenFingerprint",
+    "TokenFamily",
+    "TokenFamilyStatus",
+    "RefreshTokenRotationManager",
+    "PasswordPepper",
+    "get_rotation_manager",
+    "get_password_pepper",
+    "create_fingerprint_hash",
+    "generate_secure_jti",
+    "generate_family_id",
+    "generate_secure_token",
+    "constant_time_compare",
+    # Session Management (New)
+    "SessionInfo",
+    "SessionStatus",
+    "SessionManager",
+    "SessionSecurityChecker",
+    "get_session_manager",
+    "generate_session_id",
+    # Security Audit Logging (New)
+    "SecurityEvent",
+    "SecurityEventType",
+    "SecurityEventSeverity",
+    "SecurityAuditLogger",
+    "get_security_audit_logger",
+    "audit_login_success",
+    "audit_login_failed",
+    "check_brute_force",
+    # Enhanced 2FA (New)
+    "TwoFAMethod",
+    "TwoFAStatus",
+    "TwoFAConfig",
+    "EnhancedTwoFactorAuth",
+    "get_enhanced_2fa",
+    # Enhanced RBAC (New)
+    "SystemRole",
+    "PermissionAction",
+    "ResourceType",
+    "AccessContext",
+    "AccessDecision",
+    "RBACManager",
+    "get_rbac_manager",
+    "require_permission",
+    "ROLE_HIERARCHY",
+    "DEFAULT_ROLE_PERMISSIONS",
 ]

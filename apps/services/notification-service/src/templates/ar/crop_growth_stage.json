@@ -1,0 +1,12 @@
+{
+    "template_id": "crop_growth_stage",
+    "category": "recommendation",
+    "title": "المحصول {crop_type} دخل مرحلة {growth_stage}",
+    "body": "محصول {crop_type} في حقل {field_name} دخل مرحلة {growth_stage}.\n\nالعمر الحالي: {days_from_planting} يوم\nالأيام المتبقية للحصاد: {days_to_harvest} يوم تقريباً\n\nالإجراءات المطلوبة في هذه المرحلة:\n{stage_actions}\n\nتوقعات الإنتاجية: {yield_estimate} طن/هكتار",
+    "action_url": "/fields/{field_id}/growth-tracking",
+    "icon": "🌱",
+    "priority": "medium",
+    "metadata": {
+        "variables": ["crop_type", "field_name", "field_id", "growth_stage", "days_from_planting", "days_to_harvest", "stage_actions", "yield_estimate"]
+    }
+}

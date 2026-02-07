@@ -4,6 +4,10 @@ import { clsx } from "clsx";
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "bordered" | "elevated";
   padding?: "none" | "sm" | "md" | "lg";
+  /** Make the card interactive (focusable, hoverable) */
+  interactive?: boolean;
+  /** Card as a link wrapper */
+  as?: "div" | "article" | "section";
   ref?: React.Ref<HTMLDivElement>;
 }
 
@@ -11,8 +15,12 @@ export function Card({
   className,
   variant = "default",
   padding = "md",
+  interactive = false,
+  as: Component = "div",
   children,
   ref,
+  role,
+  tabIndex,
   ...props
 }: CardProps) {
   const variants = {
@@ -28,19 +36,26 @@ export function Card({
     lg: "p-8",
   };
 
+  const interactiveStyles = interactive
+    ? "cursor-pointer hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-sahool-green-500 focus:ring-offset-2"
+    : "";
+
   return (
-    <div
+    <Component
       ref={ref}
       className={clsx(
         "rounded-lg",
         variants[variant],
         paddings[padding],
+        interactiveStyles,
         className,
       )}
+      role={role || (interactive ? "button" : undefined)}
+      tabIndex={tabIndex ?? (interactive ? 0 : undefined)}
       {...props}
     >
       {children}
-    </div>
+    </Component>
   );
 }
 

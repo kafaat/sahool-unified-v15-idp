@@ -46,10 +46,11 @@ export class PrismaService
       await this.$connect();
       this.isConnected = true;
       this.logger.log("Marketplace Database connected successfully");
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       if (this.isTestEnvironment) {
         this.logger.warn(
-          `Database connection failed in test environment: ${error.message}`,
+          `Database connection failed in test environment: ${errorMessage}`,
         );
         this.logger.warn("Running in degraded mode without database");
         this.isConnected = false;

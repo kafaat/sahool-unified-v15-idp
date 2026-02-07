@@ -18,6 +18,8 @@ export default defineConfig({
       "apps/web/src/**/*.{test,spec}.{ts,tsx}",
       "apps/admin/src/**/*.{test,spec}.{ts,tsx}",
       "shared/**/*.{test,spec}.{ts,tsx}",
+      // API Integration Tests
+      "tests/integration/api/**/*.{test,spec}.{ts,tsx}",
     ],
     exclude: [
       "**/node_modules/**",

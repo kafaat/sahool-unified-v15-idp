@@ -1,17 +1,31 @@
 version: '3.9'
 
-# ============================================================================
+# ==============================================================================
 # Kong API Gateway Docker Compose Configuration
 # تكوين Docker Compose لبوابة Kong API
-# ============================================================================
+# ==============================================================================
 # SAHOOL Platform - Agricultural Intelligence Platform
 # منصة سهول - منصة الذكاء الزراعي
-# ============================================================================
+# ==============================================================================
+#
+# Deployment Modes | أوضاع النشر:
+# - DB-less Mode (recommended for production) - وضع بدون قاعدة بيانات (موصى به للإنتاج)
+# - DB Mode (traditional with PostgreSQL) - وضع قاعدة البيانات التقليدي
+#
+# Usage | الاستخدام:
+#   DB-less mode: docker compose --profile dbless up -d
+#   DB mode:      docker compose --profile db up -d
+#   Full stack:   docker compose --profile full up -d
+#
+# ==============================================================================
 
 networks:
   kong-net:
     driver: bridge
     name: kong-network
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
   sahool-net:
     external: true
     name: sahool-network
@@ -21,14 +35,160 @@ volumes:
     driver: local
   kong-logs:
     driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  redis-data:
+    driver: local
+  loki-data:
+    driver: local
+
+# ==============================================================================
+# Services Configuration
+# تكوين الخدمات
+# ==============================================================================
 
 services:
   # ============================================================================
-  # قاعدة بيانات Kong - Kong Database (PostgreSQL)
+  # Kong DB-less Mode - وضع Kong بدون قاعدة بيانات
+  # Recommended for production - High performance, no DB overhead
+  # موصى به للإنتاج - أداء عالي، بدون حمل قاعدة البيانات
+  # ============================================================================
+  kong-dbless:
+    image: kong:3.5-alpine
+    container_name: kong-gateway-dbless
+    profiles: ["dbless", "full"]
+    restart: unless-stopped
+    networks:
+      kong-net:
+        ipv4_address: 172.28.0.10
+      sahool-net:
+    environment:
+      # DB-less Configuration - تكوين بدون قاعدة بيانات
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
+
+      # Proxy Configuration - تكوين البروكسي
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_PROXY_LISTEN: "0.0.0.0:8000 reuseport backlog=16384, 0.0.0.0:8443 ssl reuseport backlog=16384"
+      KONG_ADMIN_LISTEN: "127.0.0.1:8001, 127.0.0.1:8444 ssl"
+      KONG_STATUS_LISTEN: "0.0.0.0:8100"
+
+      # DNS Configuration for Docker service discovery
+      # تكوين DNS لاكتشاف خدمات Docker
+      KONG_DNS_RESOLVER: "127.0.0.11:53"
+      KONG_DNS_HOSTSFILE: /etc/hosts
+      KONG_DNS_ORDER: "LAST,SRV,A,CNAME"
+      KONG_DNS_STALE_TTL: 4
+      KONG_DNS_NOT_FOUND_TTL: 1
+      KONG_DNS_ERROR_TTL: 1
+
+      # Plugins Configuration - تكوين الإضافات
+      KONG_PLUGINS: "bundled,cors,rate-limiting,jwt,acl,request-transformer,response-transformer,ip-restriction,bot-detection,request-size-limiting,response-ratelimiting,correlation-id,proxy-cache,prometheus,file-log,http-log,pre-function,post-function"
+
+      # Performance Optimization - تحسين الأداء
+      KONG_NGINX_WORKER_PROCESSES: auto
+      KONG_NGINX_WORKER_CONNECTIONS: 8192
+      KONG_NGINX_HTTP_CLIENT_BODY_BUFFER_SIZE: 8m
+      KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
+      KONG_NGINX_KEEPALIVE_TIMEOUT: 60s
+      KONG_NGINX_KEEPALIVE_REQUESTS: 1000
+
+      # Proxy Buffering - تخزين البروكسي المؤقت
+      KONG_NGINX_PROXY_BUFFER_SIZE: 128k
+      KONG_NGINX_PROXY_BUFFERS: "4 256k"
+      KONG_NGINX_PROXY_BUSY_BUFFERS_SIZE: 256k
+
+      # Upstream Keepalive - الحفاظ على اتصال المنبع
+      KONG_UPSTREAM_KEEPALIVE_POOL_SIZE: 120
+      KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS: 1000
+      KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT: 60
+
+      # Nginx Keepalive - الحفاظ على اتصال Nginx
+      KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE: 120
+      KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE_REQUESTS: 1000
+      KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE_TIMEOUT: 60s
+
+      # Memory and Cache - الذاكرة والتخزين المؤقت
+      KONG_MEM_CACHE_SIZE: 256m
+      KONG_LUA_SSL_TRUSTED_CERTIFICATE: system
+      KONG_LUA_SSL_VERIFY_DEPTH: 2
+
+      # Security - الأمان
+      KONG_HEADERS: "server_tokens=off,latency_tokens=on"
+      KONG_TRUSTED_IPS: "0.0.0.0/0,::/0"
+
+      # Logging - التسجيل
+      KONG_LOG_LEVEL: ${KONG_LOG_LEVEL:-notice}
+      KONG_PROXY_ACCESS_LOG: /var/log/kong/access.log
+      KONG_PROXY_ERROR_LOG: /var/log/kong/error.log
+
+      # Prometheus Metrics - مقاييس Prometheus
+      KONG_STATUS_SSL_CERT_KEY: ""
+      KONG_STATUS_SSL_CERT: ""
+
+    volumes:
+      # Declarative configuration files - ملفات التكوين التصريحية
+      - ./kong.yml:/etc/kong/kong.yml:ro
+      - ./kong-upstreams.yml:/etc/kong/kong-upstreams.yml:ro
+      - ./kong-rate-limiting-tiers.yml:/etc/kong/kong-rate-limiting-tiers.yml:ro
+      - ./kong-security.yml:/etc/kong/kong-security.yml:ro
+      - ./kong-packages.yml:/etc/kong/kong-packages.yml:ro
+      - ./consumers.yml:/etc/kong/consumers.yml:ro
+      # Logs directory - دليل السجلات
+      - kong-logs:/var/log/kong
+      # SSL certificates (optional) - شهادات SSL (اختياري)
+      - ./ssl:/etc/kong/ssl:ro
+    ports:
+      - "8000:8000"   # Proxy HTTP - بروكسي HTTP
+      - "8443:8443"   # Proxy HTTPS - بروكسي HTTPS
+      - "8100:8100"   # Status/Metrics - الحالة/المقاييس
+      - "127.0.0.1:8001:8001"  # Admin API HTTP - واجهة الإدارة HTTP
+      - "127.0.0.1:8444:8444"  # Admin API HTTPS - واجهة الإدارة HTTPS
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      kong-redis:
+        condition: service_healthy
+    # Security options - خيارات الأمان
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits - حدود الموارد
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+        labels: "service,environment"
+    labels:
+      - "service=kong-gateway"
+      - "mode=dbless"
+      - "environment=${ENVIRONMENT:-development}"
+
+  # ============================================================================
+  # Kong DB Mode (Traditional) - وضع Kong مع قاعدة البيانات
+  # For development and admin UI - للتطوير وواجهة الإدارة
   # ============================================================================
   kong-database:
     image: postgres:16-alpine
     container_name: kong-postgres
+    profiles: ["db", "full"]
     restart: unless-stopped
     networks:
       - kong-net
@@ -36,14 +196,13 @@ services:
       POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
       POSTGRES_USER: ${KONG_PG_USER:-kong}
       POSTGRES_PASSWORD: ${KONG_PG_PASSWORD:-kong}
-      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
     volumes:
       - kong-postgres-data:/var/lib/postgresql/data
-    # Use tmpfs for temporary data (security hardening)
     tmpfs:
       - /tmp
       - /run/postgresql
-    # Security options for container hardening
     security_opt:
       - no-new-privileges:true
     healthcheck:
@@ -52,7 +211,7 @@ services:
       timeout: 5s
       retries: 5
     ports:
-      - "5433:5432"  # تجنب التعارض مع PostgreSQL الرئيسي
+      - "5433:5432"
     deploy:
       resources:
         limits:
@@ -61,13 +220,17 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
 
-  # ============================================================================
-  # تهيئة قاعدة بيانات Kong - Kong Database Migrations
-  # ============================================================================
+  # Kong Migrations - ترحيلات Kong
   kong-migrations:
     image: kong:3.5-alpine
     container_name: kong-migrations
+    profiles: ["db", "full"]
     command: kong migrations bootstrap
     networks:
       - kong-net
@@ -83,128 +246,51 @@ services:
         condition: service_healthy
     restart: on-failure
 
-  # ============================================================================
-  # ترقيات قاعدة بيانات Kong - Kong Database Migrations Up
-  # ============================================================================
-  kong-migrations-up:
-    image: kong:3.5-alpine
-    container_name: kong-migrations-up
-    command: kong migrations up && kong migrations finish
-    networks:
-      - kong-net
-    environment:
-      KONG_DATABASE: postgres
-      KONG_PG_HOST: kong-database
-      KONG_PG_PORT: 5432
-      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
-      KONG_PG_USER: ${KONG_PG_USER:-kong}
-      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
-    depends_on:
-      kong-database:
-        condition: service_healthy
-      kong-migrations:
-        condition: service_completed_successfully
-    restart: on-failure
-
-  # ============================================================================
-  # بوابة Kong API - Kong API Gateway
-  # ============================================================================
+  # Kong DB Mode Instance - نسخة Kong مع قاعدة البيانات
   kong:
     image: kong:3.5-alpine
     container_name: kong-gateway
+    profiles: ["db", "full"]
     restart: unless-stopped
     networks:
       - kong-net
       - sahool-net
     environment:
-      # Database Configuration
       KONG_DATABASE: postgres
       KONG_PG_HOST: kong-database
       KONG_PG_PORT: 5432
       KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
       KONG_PG_USER: ${KONG_PG_USER:-kong}
       KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
-
-      # Proxy Configuration
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
-      KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
-      KONG_ADMIN_LISTEN: 127.0.0.1:8001, 127.0.0.1:8444 ssl
-
-      # DNS Configuration for Docker/Kubernetes service discovery
-      # Using Docker's embedded DNS for service discovery within Docker networks
-      KONG_DNS_RESOLVER: 127.0.0.11:53
-      KONG_DNS_HOSTSFILE: /etc/hosts
-      # SRV records support for Kubernetes service discovery
-      KONG_DNS_ORDER: LAST,SRV,A,CNAME
-      # DNS TTL settings for better resilience
-      KONG_DNS_STALE_TTL: 4        # Use stale DNS for 4 seconds during failures
-      KONG_DNS_NOT_FOUND_TTL: 1    # Cache negative responses for 1 second
-      KONG_DNS_ERROR_TTL: 1        # Cache DNS errors for 1 second
-
-      # Plugins - Optimized execution order for performance
-      # Order: CORS first, then rate-limiting, auth (JWT), ACL, then others
-      KONG_PLUGINS: bundled,cors,rate-limiting,jwt,acl,request-transformer,response-transformer,ip-restriction,bot-detection,request-size-limiting,response-ratelimiting,correlation-id,proxy-cache,prometheus,file-log
-
-      # Performance Optimization - Worker Processes
+      KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001, 0.0.0.0:8444 ssl"
+      KONG_STATUS_LISTEN: "0.0.0.0:8100"
+      KONG_DNS_RESOLVER: "127.0.0.11:53"
+      KONG_DNS_ORDER: "LAST,SRV,A,CNAME"
+      KONG_PLUGINS: "bundled,cors,rate-limiting,jwt,acl,request-transformer,response-transformer,ip-restriction,bot-detection,request-size-limiting,response-ratelimiting,correlation-id,proxy-cache,prometheus,file-log,http-log"
       KONG_NGINX_WORKER_PROCESSES: auto
       KONG_NGINX_WORKER_CONNECTIONS: 4096
-      KONG_NGINX_HTTP_CLIENT_BODY_BUFFER_SIZE: 8m
-      KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
-
-      # Nginx Keepalive Settings
-      KONG_NGINX_KEEPALIVE_TIMEOUT: 60s
-      KONG_NGINX_KEEPALIVE_REQUESTS: 1000
-
-      # Proxy Buffering Configuration
-      KONG_NGINX_PROXY_BUFFER_SIZE: 128k
-      KONG_NGINX_PROXY_BUFFERS: 4 256k
-
-      # Upstream Keepalive Configuration
-      # Maintain persistent connections to upstream services to reduce connection overhead
       KONG_UPSTREAM_KEEPALIVE_POOL_SIZE: 60
-      KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS: 100
-      KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT: 60
-
-      # Nginx Keepalive Configuration
-      # Configure nginx-level keepalive settings for optimal connection pooling
-      KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE: 60
-      KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE_REQUESTS: 100
-      KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE_TIMEOUT: 60s
-
-      # Memory and Cache Optimization
       KONG_MEM_CACHE_SIZE: 128m
       KONG_DB_UPDATE_FREQUENCY: 5
-      KONG_DB_CACHE_TTL: 0
-
-      # Security
-      KONG_HEADERS: server_tokens=off
-      KONG_TRUSTED_IPS: 0.0.0.0/0,::/0
-      KONG_ENFORCE_RBAC: "on"
-      KONG_ADMIN_GUI_AUTH: "basic-auth"
-
-      # Logging
+      KONG_HEADERS: "server_tokens=off"
       KONG_LOG_LEVEL: ${KONG_LOG_LEVEL:-notice}
-
-      # Declarative Config (optional)
-      # KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
-
     volumes:
-      - ../../../infra/kong/kong.yml:/etc/kong/kong.yml:ro
-      - ./kong-packages.yml:/etc/kong/kong-packages.yml:ro
-      - ./consumers.yml:/etc/kong/consumers.yml:ro
       - kong-logs:/var/log/kong
     ports:
-      - "8000:8000"  # Proxy HTTP
-      - "8443:8443"  # Proxy HTTPS
-      - "127.0.0.1:8001:8001"  # Admin API HTTP
-      - "127.0.0.1:8444:8444"  # Admin API HTTPS
+      - "8000:8000"
+      - "8443:8443"
+      - "8100:8100"
+      - "127.0.0.1:8001:8001"
+      - "127.0.0.1:8444:8444"
     depends_on:
       kong-database:
         condition: service_healthy
-      kong-migrations-up:
+      kong-migrations:
         condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "kong", "health"]
@@ -222,14 +308,12 @@ services:
           memory: 512M
 
   # ============================================================================
-  # Konga - Kong Admin UI (اختياري)
-  # Optional Kong Admin Dashboard
+  # Konga - Kong Admin UI - واجهة إدارة Kong
   # ============================================================================
   konga:
-    # Using 0.14.9 - last stable release for Kong 3.x compatibility
-    # استخدام الإصدار 0.14.9 - آخر إصدار ثابت متوافق مع Kong 3.x
     image: pantsel/konga:0.14.9
     container_name: kong-admin-ui
+    profiles: ["db", "full"]
     restart: unless-stopped
     networks:
       - kong-net
@@ -259,75 +343,6 @@ services:
           memory: 128M
 
   # ============================================================================
-  # Prometheus - للمراقبة والقياس
-  # Monitoring and Metrics
-  # ============================================================================
-  prometheus:
-    # Using v2.48.1 - LTS release with enhanced security and performance
-    # استخدام الإصدار v2.48.1 - إصدار دعم طويل الأمد مع أمان وأداء محسّن
-    image: prom/prometheus:v2.48.1
-    container_name: kong-prometheus
-    restart: unless-stopped
-    networks:
-      - kong-net
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-      - '--web.enable-lifecycle'
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus-data:/prometheus
-    ports:
-      - "9090:9090"
-    depends_on:
-      - kong
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 1G
-        reservations:
-          cpus: '0.25'
-          memory: 256M
-
-  # ============================================================================
-  # Grafana - لوحة تحكم المراقبة
-  # Monitoring Dashboard
-  # ============================================================================
-  grafana:
-    # Using 10.2.3 - stable release matching load test environment
-    # استخدام الإصدار 10.2.3 - إصدار ثابت متوافق مع بيئة اختبار الأحمال
-    image: grafana/grafana:10.2.3
-    container_name: kong-grafana
-    restart: unless-stopped
-    networks:
-      - kong-net
-    environment:
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
-      GF_INSTALL_PLUGINS: grafana-piechart-panel,grafana-worldmap-panel
-      GF_SERVER_ROOT_URL: http://localhost:3000
-      GF_AUTH_ANONYMOUS_ENABLED: "false"
-    volumes:
-      - grafana-data:/var/lib/grafana
-      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
-      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
-    ports:
-      - "3002:3000"  # تجنب التعارض مع field-core
-    depends_on:
-      - prometheus
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-
-  # ============================================================================
   # Redis - للتخزين المؤقت وتحديد المعدل
   # Caching and Rate Limiting
   # ============================================================================
@@ -337,34 +352,288 @@ services:
     restart: unless-stopped
     networks:
       - kong-net
-    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+      --tcp-keepalive 300
+      --timeout 0
+      --tcp-backlog 511
+      --bind 0.0.0.0
+      --protected-mode no
+      --loglevel notice
+      --save 900 1
+      --save 300 10
+      --save 60 10000
     volumes:
       - redis-data:/data
     ports:
-      - "6380:6379"  # تجنب التعارض مع Redis الرئيسي
+      - "6380:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # ============================================================================
+  # Prometheus - للمراقبة والقياس
+  # Monitoring and Metrics
+  # ============================================================================
+  prometheus:
+    image: prom/prometheus:v2.48.1
+    container_name: kong-prometheus
+    restart: unless-stopped
+    networks:
+      - kong-net
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--storage.tsdb.retention.size=10GB'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+      - '--web.external-url=http://localhost:9090'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts:/etc/prometheus/alerts:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - kong-dbless
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # ============================================================================
+  # Grafana - لوحة تحكم المراقبة
+  # Monitoring Dashboard
+  # ============================================================================
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: kong-grafana
+    restart: unless-stopped
+    networks:
+      - kong-net
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-sahool-admin-2026}
+      GF_INSTALL_PLUGINS: grafana-piechart-panel,grafana-worldmap-panel,grafana-clock-panel
+      GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_AUTH_DISABLE_LOGIN_FORM: "false"
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_LOG_MODE: "console"
+      GF_LOG_LEVEL: "info"
+      GF_ALERTING_ENABLED: "true"
+      GF_UNIFIED_ALERTING_ENABLED: "true"
+      # Database configuration for persistence - تكوين قاعدة البيانات للاستمرارية
+      GF_DATABASE_TYPE: "sqlite3"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    ports:
+      - "3002:3000"
+    depends_on:
+      - prometheus
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # ============================================================================
+  # Loki - تجميع السجلات
+  # Log Aggregation
+  # ============================================================================
+  loki:
+    image: grafana/loki:2.9.3
+    container_name: kong-loki
+    restart: unless-stopped
+    networks:
+      - kong-net
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki-data:/loki
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # ============================================================================
+  # Promtail - جمع السجلات
+  # Log Collection
+  # ============================================================================
+  promtail:
+    image: grafana/promtail:2.9.3
+    container_name: kong-promtail
+    restart: unless-stopped
+    networks:
+      - kong-net
+    volumes:
+      - kong-logs:/var/log/kong:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 256M
         reservations:
           cpus: '0.1'
+          memory: 64M
+
+  # ============================================================================
+  # AlertManager - إدارة التنبيهات
+  # Alert Management
+  # ============================================================================
+  alertmanager:
+    image: prom/alertmanager:v0.26.0
+    container_name: kong-alertmanager
+    restart: unless-stopped
+    networks:
+      - kong-net
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    ports:
+      - "9093:9093"
+    depends_on:
+      - prometheus
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # ============================================================================
+  # Node Exporter - مقاييس النظام
+  # System Metrics
+  # ============================================================================
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: kong-node-exporter
+    restart: unless-stopped
+    networks:
+      - kong-net
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    ports:
+      - "9100:9100"
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
           memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 32M
 
-volumes:
-  prometheus-data:
-    driver: local
-  grafana-data:
-    driver: local
-  redis-data:
-    driver: local
-
-# ============================================================================
-# نهاية التكوين
+# ==============================================================================
 # End of Configuration
-# ============================================================================
+# نهاية التكوين
+# ==============================================================================
+#
+# Quick Start Commands | أوامر البدء السريع:
+#
+# 1. DB-less mode (production recommended) - وضع بدون قاعدة بيانات (موصى به للإنتاج):
+#    docker compose --profile dbless up -d
+#
+# 2. DB mode with admin UI - وضع قاعدة البيانات مع واجهة الإدارة:
+#    docker compose --profile db up -d
+#
+# 3. Full stack (all services) - المجموعة الكاملة:
+#    docker compose --profile full up -d
+#
+# 4. Reload DB-less config - إعادة تحميل تكوين بدون قاعدة بيانات:
+#    docker compose exec kong-dbless kong reload
+#
+# 5. Check Kong health - التحقق من صحة Kong:
+#    curl http://localhost:8001/status
+#
+# 6. View metrics - عرض المقاييس:
+#    curl http://localhost:8100/metrics
+#
+# ==============================================================================

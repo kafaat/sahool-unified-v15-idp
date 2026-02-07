@@ -34,6 +34,12 @@ function generateETag(id: string, version: number): string {
   return `"${id}-v${version}"`;
 }
 
+// Convert Prisma Decimal fields to numbers for DTO compatibility
+function toNumber(value: any): number | undefined {
+  if (value === null || value === undefined) return undefined;
+  return typeof value === "number" ? value : Number(value);
+}
+
 // Polygon area calculation (approximate, in hectares)
 function calculatePolygonArea(coordinates: number[][]): number {
   if (coordinates.length < 3) return 0;
@@ -182,7 +188,24 @@ export class FieldsService {
     }
 
     const etag = generateETag(field.id, field.version);
-    const result = { ...field, etag } as FieldResponseDto;
+    const result: FieldResponseDto = {
+      id: field.id,
+      name: field.name,
+      tenantId: field.tenantId,
+      cropType: field.cropType,
+      status: field.status as unknown as FieldResponseDto["status"],
+      areaHectares: toNumber(field.areaHectares),
+      healthScore: toNumber(field.healthScore),
+      ndviValue: toNumber(field.ndviValue),
+      irrigationType: field.irrigationType ?? undefined,
+      soilType: field.soilType ?? undefined,
+      plantingDate: field.plantingDate ?? undefined,
+      expectedHarvest: field.expectedHarvest ?? undefined,
+      version: field.version,
+      createdAt: field.createdAt,
+      updatedAt: field.updatedAt,
+      etag,
+    };
 
     // Cache the result
     await this.cacheService.set(CACHE_KEYS.FIELD(id), result, CACHE_TTL.MEDIUM);
@@ -234,10 +257,24 @@ export class FieldsService {
 
     const totalPages = Math.ceil(total / limit);
 
-    const data = fields.map((f) => ({
-      ...f,
+    const data: FieldResponseDto[] = fields.map((f) => ({
+      id: f.id,
+      name: f.name,
+      tenantId: f.tenantId,
+      cropType: f.cropType,
+      status: f.status as unknown as FieldResponseDto["status"],
+      areaHectares: toNumber(f.areaHectares),
+      healthScore: toNumber(f.healthScore),
+      ndviValue: toNumber(f.ndviValue),
+      irrigationType: f.irrigationType ?? undefined,
+      soilType: f.soilType ?? undefined,
+      plantingDate: f.plantingDate ?? undefined,
+      expectedHarvest: f.expectedHarvest ?? undefined,
+      version: f.version,
+      createdAt: f.createdAt,
+      updatedAt: f.updatedAt,
       etag: generateETag(f.id, f.version),
-    })) as FieldResponseDto[];
+    }));
 
     return {
       data,
@@ -344,7 +381,7 @@ export class FieldsService {
    * Find nearby fields using PostGIS
    */
   async findNearby(query: NearbyFieldsDto): Promise<any[]> {
-    const { lat, lng, radius } = query;
+    const { tenantId, lat, lng, radius } = query;
 
     const fields = await this.prisma.$queryRaw<any[]>`
       SELECT
@@ -356,7 +393,8 @@ export class FieldsService {
           ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography
         ) as distance_meters
       FROM fields
-      WHERE is_deleted = false
+      WHERE tenant_id = ${tenantId}
+        AND is_deleted = false
         AND ST_DWithin(
           centroid::geography,
           ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography,

@@ -2,11 +2,11 @@
  * NDVI Service - Vegetation Index Operations
  */
 
-import { Injectable, NotFoundException, Logger } from "@nestjs/common";
+import { Injectable, NotFoundException, BadRequestException, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CacheService, CACHE_KEYS, CACHE_TTL } from "../cache/cache.service";
 
-interface NdviCategory {
+export interface NdviCategory {
   name: string;
   nameAr: string;
   color: string;
@@ -68,11 +68,11 @@ export class NdviService {
     const min = values.length > 0 ? Math.min(...values) : 0;
     const max = values.length > 0 ? Math.max(...values) : 0;
 
-    // Calculate trend
+    // Calculate trend (compare first half vs second half of readings)
     let trend = 0;
     if (values.length >= 4) {
-      const firstHalf = values.slice(Math.floor(values.length / 2));
-      const secondHalf = values.slice(0, Math.floor(values.length / 2));
+      const firstHalf = values.slice(0, Math.floor(values.length / 2));
+      const secondHalf = values.slice(Math.floor(values.length / 2));
       const firstAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
       const secondAvg = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
       trend = secondAvg - firstAvg;
@@ -119,7 +119,7 @@ export class NdviService {
     cloudCover?: number,
   ) {
     if (value < -1 || value > 1) {
-      throw new Error("NDVI value must be between -1 and 1");
+      throw new BadRequestException("NDVI value must be between -1 and 1 - قيمة NDVI يجب أن تكون بين -1 و 1");
     }
 
     const field = await this.prisma.field.findUnique({

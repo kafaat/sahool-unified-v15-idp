@@ -203,7 +203,7 @@ Health check - Readiness probe
 {{- $service := . -}}
 readinessProbe:
   httpGet:
-    path: /ready
+    path: /readyz
     port: {{ $service.port }}
     scheme: HTTP
   initialDelaySeconds: 10

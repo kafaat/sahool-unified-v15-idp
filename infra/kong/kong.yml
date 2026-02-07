@@ -970,7 +970,7 @@ upstreams:
     algorithm: round-robin
     slots: 10000
     targets:
-      - target: edge-orchestrator-service:8190
+      - target: edge-orchestrator-service:8180
         weight: 100
     healthchecks:
       active:

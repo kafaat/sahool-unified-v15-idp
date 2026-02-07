@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { HealthController } from "./health/health.controller";
 import { PhenologyController } from "./phenology/phenology.controller";
 import { PhenologyService } from "./phenology/phenology.service";
 import { PhotosynthesisController } from "./photosynthesis/photosynthesis.controller";
@@ -54,6 +55,7 @@ import { GISIntegrationService } from "./gis-integration/gis-integration.service
     ]),
   ],
   controllers: [
+    HealthController,
     PhenologyController,
     PhotosynthesisController,
     BiomassController,

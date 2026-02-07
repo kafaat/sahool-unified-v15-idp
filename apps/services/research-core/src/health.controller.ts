@@ -8,16 +8,29 @@ export class HealthController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Get("healthz")
-  @ApiOperation({ summary: "Health check endpoint" })
+  @ApiOperation({ summary: "Liveness probe | فحص الحياة" })
   async healthCheck() {
-    const dbStatus = await this.checkDatabase();
-
     return {
       status: "ok",
       service: "research-core",
-      version: "15.3.0",
+      version: "16.0.0",
       timestamp: new Date().toISOString(),
-      database: dbStatus,
+    };
+  }
+
+  @Get("readyz")
+  @ApiOperation({ summary: "Readiness probe | فحص الجاهزية" })
+  async readinessCheck() {
+    const dbStatus = await this.checkDatabase();
+
+    return {
+      status: dbStatus === "connected" ? "ready" : "not_ready",
+      service: "research-core",
+      version: "16.0.0",
+      checks: {
+        database: dbStatus,
+      },
+      timestamp: new Date().toISOString(),
     };
   }
 

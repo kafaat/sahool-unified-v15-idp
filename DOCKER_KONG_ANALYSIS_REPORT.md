@@ -105,7 +105,7 @@ This report provides a comprehensive analysis of the SAHOOL platform's Docker in
 | logistics-service | 8167 | Active | - |
 | leveling-optimizer-service | 8170 | Active | - |
 | terrain-core-service | 8185 | Active | - |
-| edge-orchestrator-service | 8190 | Active | - |
+| edge-orchestrator-service | 8180 | Active | - |
 | mcp-server | 8201 | Active | - |
 | **hydrology-service** | **8165** | **CONFLICT** | Port shared with knowledge-graph |
 | **globalgap-compliance** | **8120** | **CONFLICT** | Port shared with field-intelligence |

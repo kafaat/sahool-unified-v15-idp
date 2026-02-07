@@ -1,5 +1,5 @@
 /**
- * Cache Module - Redis Caching Layer for Marketplace
+ * Cache Module - Redis Caching Layer for Field Management
  * Gracefully falls back to in-memory cache if Redis is unavailable
  */
 
@@ -19,6 +19,7 @@ const hasRedisUrl = !!process.env.REDIS_URL;
 @Module({
   imports: [
     NestCacheModule.registerAsync({
+      isGlobal: true,
       useFactory: async () => {
         // Skip Redis connection if no URL provided or in test/CI environment
         if (!hasRedisUrl || isTestEnvironment) {
@@ -58,7 +59,7 @@ const hasRedisUrl = !!process.env.REDIS_URL;
             },
             password: password || undefined,
             ttl: 300000, // 5 minutes default TTL
-            prefix: "marketplace:",
+            prefix: "field-mgmt:",
           };
         } catch (error) {
           // Fallback to in-memory cache if Redis connection fails

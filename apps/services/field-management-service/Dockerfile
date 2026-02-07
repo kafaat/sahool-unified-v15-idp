@@ -15,6 +15,9 @@ FROM node:${NODE_VERSION}-alpine AS builder
 
 WORKDIR /app
 
+# Install OpenSSL for Prisma (Alpine 3.17+ uses OpenSSL 3.x)
+RUN apk add --no-cache openssl
+
 # Upgrade npm to latest version for better dependency resolution
 RUN npm install -g npm@11.7.0
 
@@ -38,6 +41,9 @@ RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20
 # Copy prisma schema (required for prisma generate)
 COPY apps/services/field-management-service/prisma ./prisma
 
+# Generate Prisma client (required before TypeScript compilation)
+RUN npx prisma generate
+
 # Copy source and build
 COPY apps/services/field-management-service/tsconfig.json ./
 COPY apps/services/field-management-service/src ./src
@@ -59,8 +65,8 @@ WORKDIR /app
 RUN addgroup --system sahool && \
     adduser --system --ingroup sahool --disabled-password --gecos "" sahool
 
-# Install curl for healthcheck
-RUN apk add --no-cache curl ca-certificates
+# Install curl for healthcheck and OpenSSL for Prisma
+RUN apk add --no-cache curl ca-certificates openssl
 
 # Upgrade npm to latest version
 RUN npm install -g npm@11.7.0
@@ -82,6 +88,10 @@ COPY --from=builder /app/dist ./dist
 
 # Copy prisma schema for runtime migrations
 COPY --from=builder /app/prisma ./prisma
+
+# Copy generated Prisma client from builder (avoid npx downloading incompatible version)
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
 # Set ownership
 RUN chown -R sahool:sahool /app

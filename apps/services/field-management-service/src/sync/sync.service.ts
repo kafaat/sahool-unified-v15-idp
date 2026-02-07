@@ -8,6 +8,7 @@
  */
 
 import { Injectable, BadRequestException, Logger } from "@nestjs/common";
+import { SyncState } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { CacheService, CACHE_KEYS, CACHE_TTL } from "../cache/cache.service";
 
@@ -16,7 +17,7 @@ function generateETag(id: string, version: number): string {
   return `"${id}-v${version}"`;
 }
 
-interface SyncResult {
+export interface SyncResult {
   clientId: string;
   serverId?: string;
   status: "created" | "updated" | "conflict" | "error";
@@ -86,7 +87,8 @@ export class SyncService {
       take: Math.min(limit, 100),
     });
 
-    const hasMore = fields.length === limit;
+    const actualLimit = Math.min(limit, 100);
+    const hasMore = fields.length === actualLimit;
     const lastUpdated = fields.length > 0 ? fields[fields.length - 1].updatedAt : null;
 
     // Transform with sync metadata
@@ -159,10 +161,10 @@ export class SyncService {
           continue;
         }
 
-        // Update existing field
+        // Update existing field - validate tenant ownership
         const existingField = await this.prisma.field.findUnique({
           where: { id },
-          select: { id: true, version: true },
+          select: { id: true, version: true, tenantId: true },
         });
 
         if (!existingField) {
@@ -170,6 +172,16 @@ export class SyncService {
             clientId: id,
             status: "error",
             error: "Field not found",
+          });
+          continue;
+        }
+
+        // Security: Verify field belongs to the same tenant
+        if (existingField.tenantId !== tenantId) {
+          results.push({
+            clientId: id,
+            status: "error",
+            error: "Access denied: field belongs to another tenant",
           });
           continue;
         }
@@ -191,10 +203,11 @@ export class SyncService {
           continue;
         }
 
-        // Apply update
+        // Apply update with version increment for optimistic locking
         const updated = await this.prisma.field.update({
           where: { id, version: existingField.version },
           data: {
+            version: { increment: 1 },
             ...(fieldData.name && { name: fieldData.name }),
             ...(fieldData.cropType && { cropType: fieldData.cropType }),
             ...(fieldData.status && { status: fieldData.status }),
@@ -243,7 +256,7 @@ export class SyncService {
         updated: results.filter((r) => r.status === "updated").length,
         conflicts: conflictCount,
         errors: errorCount,
-        successRate: `${Math.round((successCount / results.length) * 100)}%`,
+        successRate: results.length > 0 ? `${Math.round((successCount / results.length) * 100)}%` : "N/A",
       },
       serverTime: new Date().toISOString(),
     };
@@ -314,19 +327,19 @@ export class SyncService {
 
     await this.prisma.syncStatus.upsert({
       where: {
-        deviceId_userId: { deviceId, userId },
+        idx_sync_device_user: { deviceId, userId },
       },
       create: {
         deviceId,
         userId,
         tenantId,
         lastSyncAt: new Date(),
-        status: conflictCount > 0 ? "conflict" : "idle",
+        status: conflictCount > 0 ? SyncState.conflict : SyncState.idle,
         conflictsCount: conflictCount,
       },
       update: {
         lastSyncAt: new Date(),
-        status: conflictCount > 0 ? "conflict" : "idle",
+        status: conflictCount > 0 ? SyncState.conflict : SyncState.idle,
         conflictsCount: conflictCount,
       },
     });
@@ -344,13 +357,13 @@ export class SyncService {
     tenantId: string;
     lastSyncVersion?: number;
     deviceInfo?: any;
-    status?: string;
+    status?: SyncState | "idle" | "syncing" | "error" | "conflict";
   }) {
     const { deviceId, userId, tenantId, lastSyncVersion, deviceInfo, status } = params;
 
     const syncStatus = await this.prisma.syncStatus.upsert({
       where: {
-        deviceId_userId: { deviceId, userId },
+        idx_sync_device_user: { deviceId, userId },
       },
       create: {
         deviceId,
@@ -359,7 +372,7 @@ export class SyncService {
         lastSyncAt: new Date(),
         lastSyncVersion: lastSyncVersion || 0,
         deviceInfo,
-        status: status || "idle",
+        status: status ?? SyncState.idle,
       },
       update: {
         lastSyncAt: new Date(),

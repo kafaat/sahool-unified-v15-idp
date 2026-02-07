@@ -69,8 +69,9 @@ export class PrismaService
       }
     } catch (error) {
       if (this.isTestEnvironment) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
         this.logger.warn(
-          `Database connection failed in test environment: ${error.message}`,
+          `Database connection failed in test environment: ${errorMessage}`,
         );
         this.logger.warn("Running in degraded mode without database");
         this.isConnected = false;

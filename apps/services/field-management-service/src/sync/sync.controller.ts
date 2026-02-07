@@ -22,6 +22,7 @@ import {
   IsNumber,
   IsArray,
   IsObject,
+  IsIn,
   Min,
   Max,
 } from "class-validator";
@@ -93,8 +94,8 @@ class UpdateSyncStatusDto {
   deviceInfo?: any;
 
   @IsOptional()
-  @IsString()
-  status?: string;
+  @IsIn(["idle", "syncing", "error", "conflict"])
+  status?: "idle" | "syncing" | "error" | "conflict";
 }
 
 @ApiTags("Sync - المزامنة")

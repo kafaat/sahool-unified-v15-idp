@@ -60,7 +60,7 @@ dependencies:
   fl_chart: ^0.69.2
 
   # Maps - Updated for Flutter 3.27 compatibility
-  flutter_map: ^8.1.1  # Use 8.1.x to avoid http 1.5.0-beta requirement
+  flutter_map: ">=8.1.1 <8.2.0"  # Pin to 8.1.x - 8.2.x requires http ^1.5.0 which may conflict
   flutter_map_cache: ^2.0.0  # Lightweight offline map caching
   latlong2: ^0.9.1
   # Note: maplibre_gl removed - requires Java 21 and NDK 28, flutter_map is sufficient

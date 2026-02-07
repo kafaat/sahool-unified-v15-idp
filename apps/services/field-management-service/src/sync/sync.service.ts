@@ -8,6 +8,7 @@
  */
 
 import { Injectable, BadRequestException, Logger } from "@nestjs/common";
+import { SyncState } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { CacheService, CACHE_KEYS, CACHE_TTL } from "../cache/cache.service";
 
@@ -314,19 +315,19 @@ export class SyncService {
 
     await this.prisma.syncStatus.upsert({
       where: {
-        deviceId_userId: { deviceId, userId },
+        idx_sync_device_user: { deviceId, userId },
       },
       create: {
         deviceId,
         userId,
         tenantId,
         lastSyncAt: new Date(),
-        status: conflictCount > 0 ? "conflict" : "idle",
+        status: conflictCount > 0 ? SyncState.conflict : SyncState.idle,
         conflictsCount: conflictCount,
       },
       update: {
         lastSyncAt: new Date(),
-        status: conflictCount > 0 ? "conflict" : "idle",
+        status: conflictCount > 0 ? SyncState.conflict : SyncState.idle,
         conflictsCount: conflictCount,
       },
     });
@@ -344,13 +345,13 @@ export class SyncService {
     tenantId: string;
     lastSyncVersion?: number;
     deviceInfo?: any;
-    status?: string;
+    status?: SyncState;
   }) {
     const { deviceId, userId, tenantId, lastSyncVersion, deviceInfo, status } = params;
 
     const syncStatus = await this.prisma.syncStatus.upsert({
       where: {
-        deviceId_userId: { deviceId, userId },
+        idx_sync_device_user: { deviceId, userId },
       },
       create: {
         deviceId,
@@ -359,7 +360,7 @@ export class SyncService {
         lastSyncAt: new Date(),
         lastSyncVersion: lastSyncVersion || 0,
         deviceInfo,
-        status: status || "idle",
+        status: status ?? SyncState.idle,
       },
       update: {
         lastSyncAt: new Date(),

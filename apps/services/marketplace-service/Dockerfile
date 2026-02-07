@@ -72,4 +72,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:3010/api/v1/healthz || exit 1
 
 # Run the application
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]

@@ -151,19 +151,32 @@ export class MarketService {
   }
 
   /**
-   * الحصول على منتج بالمعرف
+   * الحصول على منتج بالمعرف (مع التخزين المؤقت)
    */
   async findProductById(id: string) {
+    const cacheKey = CACHE_KEYS.PRODUCT(id);
+
+    // Try cache first
+    const cached = await this.cacheService.get<any>(cacheKey);
+    if (cached) {
+      this.logger.debug(`Product ${id} served from cache`);
+      return cached;
+    }
+
     const product = await this.prisma.product.findUnique({ where: { id } });
     if (!product) throw new NotFoundException("المنتج غير موجود");
+
+    // Cache the product
+    await this.cacheService.set(cacheKey, product, CACHE_TTL.MEDIUM);
+
     return product;
   }
 
   /**
-   * إنشاء منتج جديد
+   * إنشاء منتج جديد (مع إبطال التخزين المؤقت)
    */
   async createProduct(data: CreateProductDto) {
-    return this.prisma.product.create({
+    const product = await this.prisma.product.create({
       data: {
         name: data.name,
         nameAr: data.nameAr,
@@ -181,6 +194,11 @@ export class MarketService {
         governorate: data.governorate,
       },
     });
+
+    // Invalidate relevant caches
+    await this.cacheService.invalidateProduct(product.id, data.sellerId);
+
+    return product;
   }
 
   /**
@@ -439,9 +457,18 @@ export class MarketService {
   }
 
   /**
-   * الحصول على إحصائيات السوق
+   * الحصول على إحصائيات السوق (مع التخزين المؤقت)
    */
   async getMarketStats() {
+    const cacheKey = CACHE_KEYS.MARKET_STATS();
+
+    // Try cache first
+    const cached = await this.cacheService.get<any>(cacheKey);
+    if (cached) {
+      this.logger.debug("Market stats served from cache");
+      return cached;
+    }
+
     const [totalProducts, totalHarvests, totalOrders, recentProducts] =
       await Promise.all([
         this.prisma.product.count({ where: { status: "AVAILABLE" } }),
@@ -453,14 +480,31 @@ export class MarketService {
           where: { status: "AVAILABLE" },
           orderBy: { createdAt: "desc" },
           take: 5,
+          select: {
+            id: true,
+            name: true,
+            nameAr: true,
+            category: true,
+            price: true,
+            stock: true,
+            unit: true,
+            imageUrl: true,
+            createdAt: true,
+          },
         }),
       ]);
 
-    return {
+    const stats = {
       totalProducts,
       totalHarvests,
       totalOrders,
       recentProducts,
+      timestamp: new Date().toISOString(),
     };
+
+    // Cache the stats
+    await this.cacheService.set(cacheKey, stats, CACHE_TTL.STATS);
+
+    return stats;
   }
 }

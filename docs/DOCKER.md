@@ -1,6 +1,6 @@
 # Docker Deployment Guide | دليل نشر Docker
 
-# SAHOOL Platform v15.5
+# SAHOOL Platform v16.0
 
 ---
 
@@ -169,6 +169,10 @@ curl http://localhost:8089/healthz | jq
 ## البناء المحلي | Local Build
 
 ```bash
+# تفعيل BuildKit (مطلوب لتحسين أداء البناء)
+export DOCKER_BUILDKIT=1  # Linux/macOS
+$env:DOCKER_BUILDKIT=1    # PowerShell
+
 # بناء جميع الصور
 docker compose build
 
@@ -178,6 +182,23 @@ docker compose build billing_core
 # بناء بدون cache
 docker compose build --no-cache billing_core
 ```
+
+### حل مشاكل الشبكة | Network Resilience
+
+إذا فشل البناء بسبب أخطاء الشبكة (npm network aborted):
+
+```bash
+# تأكد من تفعيل BuildKit
+export DOCKER_BUILDKIT=1
+
+# أعد المحاولة - الـ Dockerfile يحتوي على retry loop تلقائي
+docker compose build --progress=plain chat-service
+```
+
+خدمات Node.js تستخدم:
+- **BuildKit cache mount**: إعادة استخدام حزم npm المحملة
+- **Retry loop**: 5 محاولات مع تأخير متزايد
+- **Increased timeouts**: 5 دقائق لكل طلب
 
 ---
 
@@ -326,7 +347,7 @@ helm install sahool ./helm/sahool \
 ---
 
 <p align="center">
-  <strong>SAHOOL Platform v15.5</strong>
+  <strong>SAHOOL Platform v16.0</strong>
   <br>
-  <sub>آخر تحديث: ديسمبر 2025</sub>
+  <sub>آخر تحديث: فبراير 2026</sub>
 </p>

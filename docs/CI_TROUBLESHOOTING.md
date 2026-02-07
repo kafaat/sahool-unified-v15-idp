@@ -7,12 +7,13 @@ This document captures common CI failures and their solutions to prevent recurri
 ## Table of Contents
 
 1. [Disk Space Issues](#1-disk-space-issues)
-2. [Flutter Code Generation (Drift/Freezed)](#2-flutter-code-generation-driftfreezed)
-3. [Flutter Provider Exports](#3-flutter-provider-exports)
-4. [Python Module Import Errors](#4-python-module-import-errors)
-5. [TypeScript Path Mappings](#5-typescript-path-mappings)
-6. [FastAPI Complex Query Parameters](#6-fastapi-complex-query-parameters)
-7. [GitHub Actions Workflow Issues](#7-github-actions-workflow-issues)
+2. [NPM Network Timeout in Docker Builds](#2-npm-network-timeout-in-docker-builds)
+3. [Flutter Code Generation (Drift/Freezed)](#3-flutter-code-generation-driftfreezed)
+4. [Flutter Provider Exports](#4-flutter-provider-exports)
+5. [Python Module Import Errors](#5-python-module-import-errors)
+6. [TypeScript Path Mappings](#6-typescript-path-mappings)
+7. [FastAPI Complex Query Parameters](#7-fastapi-complex-query-parameters)
+8. [GitHub Actions Workflow Issues](#8-github-actions-workflow-issues)
 
 ---
 
@@ -50,7 +51,83 @@ Add a disk cleanup step at the beginning of jobs that need significant disk spac
 
 ---
 
-## 2. Flutter Code Generation (Drift/Freezed)
+## 2. NPM Network Timeout in Docker Builds
+
+### Symptom
+
+```
+npm error network aborted
+npm error network This is a problem related to network connectivity.
+npm error network In most cases you are behind a proxy or have bad network settings.
+```
+
+### Cause
+
+NPM package downloads timing out during Docker builds due to:
+- Unstable network connections
+- Registry latency
+- Large package downloads (e.g., Prisma, NestJS)
+
+### Solution
+
+Use a shell-level retry loop with BuildKit cache mount and increased timeouts:
+
+```dockerfile
+# Install dependencies (with retries for network resilience)
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3 4 5; do \
+        echo "Attempt $i: Installing npm dependencies..." && \
+        npm install --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=180000 \
+            --fetch-timeout=300000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done
+```
+
+### Key Options Explained
+
+| Option | Value | Description |
+| ------ | ----- | ----------- |
+| `--mount=type=cache` | `/root/.npm` | Reuse npm cache across builds |
+| `--fetch-retries` | 5 | Retry failed fetches 5 times |
+| `--fetch-retry-mintimeout` | 30000 | 30s minimum retry delay |
+| `--fetch-retry-maxtimeout` | 180000 | 180s maximum retry delay |
+| `--fetch-timeout` | 300000 | 5 minutes per request timeout |
+| `--prefer-offline` | - | Use cached packages when available |
+| `--no-audit --no-fund` | - | Skip non-essential network requests |
+
+### Building with BuildKit
+
+```bash
+# Enable BuildKit (required for cache mounts)
+export DOCKER_BUILDKIT=1
+
+# Or in PowerShell
+$env:DOCKER_BUILDKIT=1
+
+# Build the service
+docker build -t chat-service -f apps/services/chat-service/Dockerfile .
+```
+
+### Affected Services
+
+- `chat-service`
+- Any Node.js service with large dependencies
+
+### Prevention
+
+- Always use BuildKit cache mounts for npm installs
+- Consider using `.npmrc` with registry mirrors for faster downloads
+- Test Docker builds locally before pushing
+
+---
+
+## 3. Flutter Code Generation (Drift/Freezed)
 
 ### Symptom
 
@@ -100,7 +177,7 @@ Drift and Freezed require code generation via `build_runner`. The generated `.g.
 
 ---
 
-## 3. Flutter Provider Exports
+## 4. Flutter Provider Exports
 
 ### Symptom
 
@@ -131,7 +208,7 @@ export 'security_config.dart' show securityConfigProvider, SecurityConfig;
 
 ---
 
-## 4. Python Module Import Errors
+## 5. Python Module Import Errors
 
 ### Symptom
 
@@ -183,7 +260,7 @@ if str(SERVICES_SHARED_PATH) not in sys.path:
 
 ---
 
-## 5. TypeScript Path Mappings
+## 6. TypeScript Path Mappings
 
 ### Symptom
 
@@ -226,7 +303,7 @@ Add path mappings to each package/app's `tsconfig.json`:
 
 ---
 
-## 6. FastAPI Complex Query Parameters
+## 7. FastAPI Complex Query Parameters
 
 ### Symptom
 
@@ -269,9 +346,9 @@ async def refine_boundary(request: RefineBoundaryRequest):
 
 ---
 
-## 7. GitHub Actions Workflow Issues
+## 8. GitHub Actions Workflow Issues
 
-### 7.1 Workflows Requiring Secrets
+### 8.1 Workflows Requiring Secrets
 
 **Symptom:** Workflow fails on PRs from forks or when secrets aren't configured.
 
@@ -290,7 +367,7 @@ on:
 - `deploy-preview.yml` (SURGE_TOKEN, NETLIFY_AUTH_TOKEN)
 - `lighthouse-ci.yml` (optional)
 
-### 7.2 GitLeaks False Positives
+### 8.2 GitLeaks False Positives
 
 **Symptom:** GitLeaks reports secrets in config files.
 
@@ -305,7 +382,7 @@ paths = [
 ]
 ```
 
-### 7.3 E2E Tests Missing Artifacts
+### 8.3 E2E Tests Missing Artifacts
 
 **Symptom:** E2E tests fail because web-build artifact doesn't exist.
 
@@ -327,7 +404,7 @@ paths = [
   continue-on-error: true
 ```
 
-### 7.4 Shared Package Build Failures (Web/Admin)
+### 8.4 Shared Package Build Failures (Web/Admin)
 
 **Symptom:** Web App or Admin Dashboard build fails with module not found errors for @sahool packages.
 
@@ -349,15 +426,16 @@ paths = [
 
 ## Quick Reference: Common Fixes
 
-| Error                     | Quick Fix                         |
-| ------------------------- | --------------------------------- |
-| No space left on device   | Add disk cleanup step             |
-| TasksCompanion not found  | Run `dart run build_runner build` |
-| Provider not defined      | Add `export` statement            |
-| Module not found (Python) | Check Dockerfile COPY paths       |
-| Cannot find module (TS)   | Add path mapping to tsconfig      |
-| Query param assertion     | Use Pydantic model with Body()    |
-| @sahool/package not found | Add to `build:packages` script    |
+| Error                     | Quick Fix                                      |
+| ------------------------- | ---------------------------------------------- |
+| No space left on device   | Add disk cleanup step                          |
+| npm network aborted       | Use retry loop with BuildKit cache mount       |
+| TasksCompanion not found  | Run `dart run build_runner build`              |
+| Provider not defined      | Add `export` statement                         |
+| Module not found (Python) | Check Dockerfile COPY paths                    |
+| Cannot find module (TS)   | Add path mapping to tsconfig                   |
+| Query param assertion     | Use Pydantic model with Body()                 |
+| @sahool/package not found | Add to `build:packages` script                 |
 
 ---
 
@@ -369,5 +447,5 @@ paths = [
 
 ---
 
-_Last Updated: January 2026_
-_Version: 1.0.0_
+_Last Updated: February 2026_
+_Version: 1.1.0_

@@ -17,7 +17,7 @@ function generateETag(id: string, version: number): string {
   return `"${id}-v${version}"`;
 }
 
-interface SyncResult {
+export interface SyncResult {
   clientId: string;
   serverId?: string;
   status: "created" | "updated" | "conflict" | "error";

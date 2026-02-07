@@ -6,7 +6,7 @@ import { Injectable, NotFoundException, BadRequestException, Logger } from "@nes
 import { PrismaService } from "../prisma/prisma.service";
 import { CacheService, CACHE_KEYS, CACHE_TTL } from "../cache/cache.service";
 
-interface NdviCategory {
+export interface NdviCategory {
   name: string;
   nameAr: string;
   color: string;

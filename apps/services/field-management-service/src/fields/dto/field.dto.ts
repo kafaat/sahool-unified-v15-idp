@@ -255,6 +255,10 @@ export class QueryFieldsDto {
  * Nearby Fields Query DTO
  */
 export class NearbyFieldsDto {
+  @ApiProperty({ description: "Tenant ID", example: "tenant-123" })
+  @IsString()
+  tenantId: string;
+
   @ApiProperty({ description: "Latitude", example: 24.7 })
   @Type(() => Number)
   @IsNumber()

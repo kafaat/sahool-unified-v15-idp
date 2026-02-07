@@ -344,7 +344,7 @@ export class FieldsService {
    * Find nearby fields using PostGIS
    */
   async findNearby(query: NearbyFieldsDto): Promise<any[]> {
-    const { lat, lng, radius } = query;
+    const { tenantId, lat, lng, radius } = query;
 
     const fields = await this.prisma.$queryRaw<any[]>`
       SELECT
@@ -356,7 +356,8 @@ export class FieldsService {
           ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography
         ) as distance_meters
       FROM fields
-      WHERE is_deleted = false
+      WHERE tenant_id = ${tenantId}
+        AND is_deleted = false
         AND ST_DWithin(
           centroid::geography,
           ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography,

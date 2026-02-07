@@ -2287,7 +2287,7 @@
   "@@@_OFFLINE_MODE": "Offline mode related strings",
   "offlineMode": "Offline Mode",
   "youAreOffline": "You are offline",
-  "changesWillSync": "Changes will sync when you're back online",
+  "changesWillSync": "Changes will sync when you''re back online",
   "connectedToInternet": "Connected to internet",
   "usingCachedData": "Using cached data",
   "syncInProgress": "Syncing...",

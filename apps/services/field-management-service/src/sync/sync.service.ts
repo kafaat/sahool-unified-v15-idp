@@ -87,7 +87,8 @@ export class SyncService {
       take: Math.min(limit, 100),
     });
 
-    const hasMore = fields.length === limit;
+    const actualLimit = Math.min(limit, 100);
+    const hasMore = fields.length === actualLimit;
     const lastUpdated = fields.length > 0 ? fields[fields.length - 1].updatedAt : null;
 
     // Transform with sync metadata
@@ -160,10 +161,10 @@ export class SyncService {
           continue;
         }
 
-        // Update existing field
+        // Update existing field - validate tenant ownership
         const existingField = await this.prisma.field.findUnique({
           where: { id },
-          select: { id: true, version: true },
+          select: { id: true, version: true, tenantId: true },
         });
 
         if (!existingField) {
@@ -171,6 +172,16 @@ export class SyncService {
             clientId: id,
             status: "error",
             error: "Field not found",
+          });
+          continue;
+        }
+
+        // Security: Verify field belongs to the same tenant
+        if (existingField.tenantId !== tenantId) {
+          results.push({
+            clientId: id,
+            status: "error",
+            error: "Access denied: field belongs to another tenant",
           });
           continue;
         }
@@ -192,10 +203,11 @@ export class SyncService {
           continue;
         }
 
-        // Apply update
+        // Apply update with version increment for optimistic locking
         const updated = await this.prisma.field.update({
           where: { id, version: existingField.version },
           data: {
+            version: { increment: 1 },
             ...(fieldData.name && { name: fieldData.name }),
             ...(fieldData.cropType && { cropType: fieldData.cropType }),
             ...(fieldData.status && { status: fieldData.status }),
@@ -244,7 +256,7 @@ export class SyncService {
         updated: results.filter((r) => r.status === "updated").length,
         conflicts: conflictCount,
         errors: errorCount,
-        successRate: `${Math.round((successCount / results.length) * 100)}%`,
+        successRate: results.length > 0 ? `${Math.round((successCount / results.length) * 100)}%` : "N/A",
       },
       serverTime: new Date().toISOString(),
     };
@@ -345,7 +357,7 @@ export class SyncService {
     tenantId: string;
     lastSyncVersion?: number;
     deviceInfo?: any;
-    status?: SyncState;
+    status?: SyncState | "idle" | "syncing" | "error" | "conflict";
   }) {
     const { deviceId, userId, tenantId, lastSyncVersion, deviceInfo, status } = params;
 

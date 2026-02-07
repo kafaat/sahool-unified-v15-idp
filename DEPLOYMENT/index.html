@@ -23,7 +23,7 @@
     
     
       
-        <title>SAHOOL v15.3.2 Deployment Guide - SAHOOL Developer Documentation</title>
+        <title>SAHOOL Deployment Guide - SAHOOL Developer Documentation</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#sahool-v1532-deployment-guide" class="md-skip">
+        <a href="#sahool-deployment-guide" class="md-skip">
           Skip to content
         </a>
       
@@ -106,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              SAHOOL v15.3.2 Deployment Guide
+              SAHOOL Deployment Guide
             
           </span>
         </div>
@@ -1116,95 +1116,732 @@
 
 
 
-<h1 id="sahool-v1532-deployment-guide">SAHOOL v15.3.2 Deployment Guide<a class="headerlink" href="#sahool-v1532-deployment-guide" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>This guide covers deploying SAHOOL platform using Docker Compose (recommended for development/staging) and Kubernetes/Helm (recommended for production).</p>
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<h3 id="required-software">Required Software<a class="headerlink" href="#required-software" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Docker 24+ with Compose v2</li>
-<li>OpenSSL (for certificate generation)</li>
-<li>Git</li>
-<li>curl (for health checks)</li>
-</ul>
-<h3 id="for-kubernetes-deployment">For Kubernetes Deployment<a class="headerlink" href="#for-kubernetes-deployment" title="Permanent link">&para;</a></h3>
-<ul>
-<li>kubectl configured</li>
-<li>Helm 3.x</li>
-<li>Kubernetes cluster 1.25+</li>
-<li>Ingress controller (nginx recommended)</li>
-</ul>
-<h2 id="quick-start-docker-compose">Quick Start (Docker Compose)<a class="headerlink" href="#quick-start-docker-compose" title="Permanent link">&para;</a></h2>
-<h3 id="1-clone-and-setup">1. Clone and Setup<a class="headerlink" href="#1-clone-and-setup" title="Permanent link">&para;</a></h3>
+<h1 id="sahool-deployment-guide">SAHOOL Deployment Guide<a class="headerlink" href="#sahool-deployment-guide" title="Permanent link">&para;</a></h1>
+<h1 id="_1">دليل نشر سهول<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p>Comprehensive deployment guide for the SAHOOL National Agricultural Intelligence Platform.</p>
+<p>دليل شامل لنشر منصة سهول للذكاء الزراعي الوطني.</p>
+<p><strong>Version | الإصدار</strong>: 16.0.0
+<strong>Last Updated | آخر تحديث</strong>: February 2026</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents | جدول المحتويات<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#overview--نظرة-عامة">Overview</a></li>
+<li><a href="#prerequisites--المتطلبات-الأساسية">Prerequisites</a></li>
+<li><a href="#quick-start-docker-compose--البدء-السريع">Quick Start (Docker Compose)</a></li>
+<li><a href="#production-deployment-kubernetes--نشر-الإنتاج">Production Deployment (Kubernetes)</a></li>
+<li><a href="#environment-configuration--تكوين-البيئة">Environment Configuration</a></li>
+<li><a href="#service-architecture--هندسة-الخدمات">Service Architecture</a></li>
+<li><a href="#database-setup--إعداد-قاعدة-البيانات">Database Setup</a></li>
+<li><a href="#security-configuration--تكوين-الأمان">Security Configuration</a></li>
+<li><a href="#monitoring-setup--إعداد-المراقبة">Monitoring Setup</a></li>
+<li><a href="#scaling-guidelines--إرشادات-التوسع">Scaling Guidelines</a></li>
+<li><a href="#backup--recovery--النسخ-الاحتياطي-والاستعادة">Backup &amp; Recovery</a></li>
+<li><a href="#troubleshooting--استكشاف-الأخطاء">Troubleshooting</a></li>
+<li><a href="#post-deployment-checklist--قائمة-ما-بعد-النشر">Post-Deployment Checklist</a></li>
+</ol>
+<hr />
+<h2 id="overview">Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>SAHOOL can be deployed using two methods:</p>
+<p>يمكن نشر سهول باستخدام طريقتين:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Use Case</th>
+<th>Complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Docker Compose</strong></td>
+<td>Development, Testing, Staging</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><strong>Kubernetes + Helm</strong></td>
+<td>Production, Enterprise</td>
+<td>High</td>
+</tr>
+</tbody>
+</table>
+<h3 id="deployment-tiers">Deployment Tiers | مستويات النشر<a class="headerlink" href="#deployment-tiers" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Services</th>
+<th>Resources</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Starter</strong></td>
+<td>15 core services</td>
+<td>8GB RAM, 4 CPU</td>
+<td>Small farms</td>
+</tr>
+<tr>
+<td><strong>Professional</strong></td>
+<td>35 services</td>
+<td>16GB RAM, 8 CPU</td>
+<td>Medium operations</td>
+</tr>
+<tr>
+<td><strong>Enterprise</strong></td>
+<td>57+ services</td>
+<td>32GB+ RAM, 16+ CPU</td>
+<td>Large enterprises</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="prerequisites">Prerequisites | المتطلبات الأساسية<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<h3 id="required-software">Required Software | البرامج المطلوبة<a class="headerlink" href="#required-software" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Software</th>
+<th>Version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Docker</td>
+<td>24.0+</td>
+<td>Container runtime</td>
+</tr>
+<tr>
+<td>Docker Compose</td>
+<td>2.20+</td>
+<td>Multi-container orchestration</td>
+</tr>
+<tr>
+<td>Git</td>
+<td>2.x</td>
+<td>Source control</td>
+</tr>
+<tr>
+<td>OpenSSL</td>
+<td>1.1+</td>
+<td>Certificate generation</td>
+</tr>
+<tr>
+<td>curl</td>
+<td>7.x+</td>
+<td>Health checks</td>
+</tr>
+</tbody>
+</table>
+<h3 id="for-kubernetes-deployment-kubernetes">For Kubernetes Deployment | لنشر Kubernetes<a class="headerlink" href="#for-kubernetes-deployment-kubernetes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Software</th>
+<th>Version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>kubectl</td>
+<td>1.25+</td>
+<td>Kubernetes CLI</td>
+</tr>
+<tr>
+<td>Helm</td>
+<td>3.12+</td>
+<td>Package manager</td>
+</tr>
+<tr>
+<td>K8s Cluster</td>
+<td>1.25+</td>
+<td>Container orchestration</td>
+</tr>
+<tr>
+<td>Ingress Controller</td>
+<td>-</td>
+<td>Traffic routing (nginx recommended)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="hardware-requirements">Hardware Requirements | متطلبات الأجهزة<a class="headerlink" href="#hardware-requirements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Environment</th>
+<th>CPU</th>
+<th>RAM</th>
+<th>Storage</th>
+<th>Network</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Development</td>
+<td>4 cores</td>
+<td>8GB</td>
+<td>50GB SSD</td>
+<td>100 Mbps</td>
+</tr>
+<tr>
+<td>Staging</td>
+<td>8 cores</td>
+<td>16GB</td>
+<td>100GB SSD</td>
+<td>1 Gbps</td>
+</tr>
+<tr>
+<td>Production</td>
+<td>16+ cores</td>
+<td>32GB+</td>
+<td>500GB+ SSD</td>
+<td>10 Gbps</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quick-start-docker-compose">Quick Start (Docker Compose) | البدء السريع<a class="headerlink" href="#quick-start-docker-compose" title="Permanent link">&para;</a></h2>
+<h3 id="step-1-clone-repository">Step 1: Clone Repository | استنساخ المستودع<a class="headerlink" href="#step-1-clone-repository" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kafaat/sahool-unified-v15-idp.git
 <span class="nb">cd</span><span class="w"> </span>sahool-unified-v15-idp
 </code></pre></div>
 
-<h3 id="2-generate-environment">2. Generate Environment<a class="headerlink" href="#2-generate-environment" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>./tools/release/release_v15_3_2.sh<span class="w"> </span>--env-only
+<h3 id="step-2-configure-environment">Step 2: Configure Environment | تكوين البيئة<a class="headerlink" href="#step-2-configure-environment" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Copy environment template</span>
+cp<span class="w"> </span>.env.example<span class="w"> </span>.env
+
+<span class="c1"># Generate secure secrets</span>
+./tools/env/generate_secrets.sh
+
+<span class="c1"># Or manually edit .env file</span>
+nano<span class="w"> </span>.env
 </code></pre></div>
 
-<p>This creates <code>.env</code> with:</p>
-<ul>
-<li>Database credentials</li>
-<li>JWT secret keys</li>
-<li>Service configuration</li>
-</ul>
-<h3 id="3-start-services">3. Start Services<a class="headerlink" href="#3-start-services" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+<p><strong>Key Environment Variables:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Database</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span>postgresql://sahool:secure_password@postgres:5432/sahool
+<span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>secure_password_here
+
+<span class="c1"># JWT Authentication</span>
+<span class="nv">JWT_SECRET_KEY</span><span class="o">=</span>your-32-character-secret-key-here
+<span class="nv">JWT_ALGORITHM</span><span class="o">=</span>HS256
+
+<span class="c1"># Redis</span>
+<span class="nv">REDIS_URL</span><span class="o">=</span>redis://redis:6379/0
+<span class="nv">REDIS_PASSWORD</span><span class="o">=</span>redis_password_here
+
+<span class="c1"># NATS</span>
+<span class="nv">NATS_URL</span><span class="o">=</span>nats://nats:4222
+
+<span class="c1"># Environment</span>
+<span class="nv">ENVIRONMENT</span><span class="o">=</span>development
+<span class="nv">LOG_LEVEL</span><span class="o">=</span>INFO
 </code></pre></div>
 
-<h3 id="4-run-migrations">4. Run Migrations<a class="headerlink" href="#4-run-migrations" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>./tools/env/migrate.sh
+<h3 id="step-3-start-infrastructure">Step 3: Start Infrastructure | بدء البنية التحتية<a class="headerlink" href="#step-3-start-infrastructure" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Start infrastructure services only</span>
+make<span class="w"> </span>infra-up
+
+<span class="c1"># Verify infrastructure is healthy</span>
+docker<span class="w"> </span>compose<span class="w"> </span>ps
 </code></pre></div>
 
-<h3 id="5-verify-health">5. Verify Health<a class="headerlink" href="#5-verify-health" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>./tools/release/smoke_test.sh
+<h3 id="step-4-start-application-services">Step 4: Start Application Services | بدء خدمات التطبيق<a class="headerlink" href="#step-4-start-application-services" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Start all services</span>
+make<span class="w"> </span>dev
+
+<span class="c1"># Or start specific package</span>
+make<span class="w"> </span>dev-starter<span class="w">        </span><span class="c1"># Core services only</span>
+make<span class="w"> </span>dev-professional<span class="w">   </span><span class="c1"># Professional package</span>
+make<span class="w"> </span>dev-enterprise<span class="w">     </span><span class="c1"># All services</span>
 </code></pre></div>
 
-<p>Or manually:</p>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8080/healthz<span class="w">  </span><span class="c1"># FieldOps</span>
-curl<span class="w"> </span>http://localhost:8097/healthz<span class="w">  </span><span class="c1"># NDVI Engine</span>
-curl<span class="w"> </span>http://localhost:8098/healthz<span class="w">  </span><span class="c1"># Weather Core</span>
-curl<span class="w"> </span>http://localhost:8099/healthz<span class="w">  </span><span class="c1"># Field Chat</span>
-curl<span class="w"> </span>http://localhost:8094/healthz<span class="w">  </span><span class="c1"># IoT Gateway</span>
-curl<span class="w"> </span>http://localhost:8095/healthz<span class="w">  </span><span class="c1"># Agro Advisor</span>
+<h3 id="step-5-run-database-migrations">Step 5: Run Database Migrations | تشغيل ترحيل قاعدة البيانات<a class="headerlink" href="#step-5-run-database-migrations" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Run all migrations</span>
+make<span class="w"> </span>db-migrate
+
+<span class="c1"># Seed initial data (optional)</span>
+make<span class="w"> </span>db-seed
 </code></pre></div>
 
-<h2 id="service-architecture">Service Architecture<a class="headerlink" href="#service-architecture" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────┐
-│                         API Gateway (future)                         │
-└─────────────────────────────────────────────────────────────────────┘
-                                   │
-        ┌──────────────────────────┼──────────────────────────┐
-        │                          │                          │
-        ▼                          ▼                          ▼
-┌───────────────┐        ┌───────────────┐        ┌───────────────┐
-│  field_ops    │        │  ndvi_engine  │        │ weather_core  │
-│    :8080      │        │    :8097      │        │    :8098      │
-└───────────────┘        └───────────────┘        └───────────────┘
-        │                          │                          │
-        │                          │                          │
-        ▼                          ▼                          ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                           NATS JetStream                            │
-│                             :4222                                   │
-└─────────────────────────────────────────────────────────────────────┘
-        │                          │                          │
-        ▼                          ▼                          ▼
-┌───────────────┐        ┌───────────────┐        ┌───────────────┐
-│  field_chat   │        │  iot_gateway  │        │  agro_advisor │
-│    :8099      │        │    :8094      │        │    :8095      │
-└───────────────┘        └───────────────┘        └───────────────┘
-                                   │
-                                   ▼
-                         ┌───────────────┐
-                         │   ws_gateway  │
-                         │    :8090      │
-                         └───────────────┘
+<h3 id="step-6-verify-deployment">Step 6: Verify Deployment | التحقق من النشر<a class="headerlink" href="#step-6-verify-deployment" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check service health</span>
+make<span class="w"> </span>health
+
+<span class="c1"># View service status</span>
+make<span class="w"> </span>status
+
+<span class="c1"># Run smoke tests</span>
+make<span class="w"> </span>test-smoke
 </code></pre></div>
 
-<h2 id="service-ports">Service Ports<a class="headerlink" href="#service-ports" title="Permanent link">&para;</a></h2>
+<h3 id="health-check-endpoints">Health Check Endpoints | نقاط فحص الصحة<a class="headerlink" href="#health-check-endpoints" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Kong API Gateway</span>
+curl<span class="w"> </span>http://localhost:8000/healthz
+
+<span class="c1"># Core Services</span>
+curl<span class="w"> </span>http://localhost:3000/healthz<span class="w">   </span><span class="c1"># Field Management</span>
+curl<span class="w"> </span>http://localhost:8092/healthz<span class="w">   </span><span class="c1"># Weather Service</span>
+curl<span class="w"> </span>http://localhost:8093/healthz<span class="w">   </span><span class="c1"># Advisory Service</span>
+curl<span class="w"> </span>http://localhost:8110/healthz<span class="w">   </span><span class="c1"># Notification Service</span>
+
+<span class="c1"># Infrastructure</span>
+curl<span class="w"> </span>http://localhost:8222/healthz<span class="w">   </span><span class="c1"># NATS</span>
+</code></pre></div>
+
+<hr />
+<h2 id="production-deployment-kubernetes">Production Deployment (Kubernetes) | نشر الإنتاج<a class="headerlink" href="#production-deployment-kubernetes" title="Permanent link">&para;</a></h2>
+<h3 id="step-1-prepare-cluster">Step 1: Prepare Cluster | إعداد العنقود<a class="headerlink" href="#step-1-prepare-cluster" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Verify kubectl is configured</span>
+kubectl<span class="w"> </span>cluster-info
+
+<span class="c1"># Create namespace</span>
+kubectl<span class="w"> </span>create<span class="w"> </span>namespace<span class="w"> </span>sahool
+
+<span class="c1"># Add Helm repositories</span>
+helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>bitnami<span class="w"> </span>https://charts.bitnami.com/bitnami
+helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>nats<span class="w"> </span>https://nats-io.github.io/k8s/helm/charts/
+helm<span class="w"> </span>repo<span class="w"> </span>update
+</code></pre></div>
+
+<h3 id="step-2-configure-secrets">Step 2: Configure Secrets | تكوين الأسرار<a class="headerlink" href="#step-2-configure-secrets" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Create secrets</span>
+kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>sahool-secrets<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>database-password<span class="o">=</span><span class="s1">&#39;secure_password&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>jwt-secret<span class="o">=</span><span class="s1">&#39;your-32-char-secret&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>redis-password<span class="o">=</span><span class="s1">&#39;redis_password&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># Or use HashiCorp Vault (recommended)</span>
+kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>infrastructure/vault/vault-config.yaml
+</code></pre></div>
+
+<h3 id="step-3-deploy-infrastructure">Step 3: Deploy Infrastructure | نشر البنية التحتية<a class="headerlink" href="#step-3-deploy-infrastructure" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Deploy PostgreSQL</span>
+helm<span class="w"> </span>install<span class="w"> </span>postgres<span class="w"> </span>bitnami/postgresql<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--namespace<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>auth.postgresPassword<span class="o">=</span>secure_password<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>auth.database<span class="o">=</span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>primary.persistence.size<span class="o">=</span>100Gi
+
+<span class="c1"># Deploy Redis</span>
+helm<span class="w"> </span>install<span class="w"> </span>redis<span class="w"> </span>bitnami/redis<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--namespace<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>auth.password<span class="o">=</span>redis_password<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>master.persistence.size<span class="o">=</span>10Gi
+
+<span class="c1"># Deploy NATS</span>
+helm<span class="w"> </span>install<span class="w"> </span>nats<span class="w"> </span>nats/nats<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--namespace<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>cluster.enabled<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>cluster.replicas<span class="o">=</span><span class="m">3</span>
+</code></pre></div>
+
+<h3 id="step-4-deploy-sahool-application">Step 4: Deploy SAHOOL Application | نشر تطبيق سهول<a class="headerlink" href="#step-4-deploy-sahool-application" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Navigate to Helm chart</span>
+<span class="nb">cd</span><span class="w"> </span>helm/sahool
+
+<span class="c1"># Build dependencies</span>
+helm<span class="w"> </span>dependency<span class="w"> </span>build
+
+<span class="c1"># Install with custom values</span>
+helm<span class="w"> </span>install<span class="w"> </span>sahool<span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--namespace<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--values<span class="w"> </span>values-production.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>global.environment<span class="o">=</span>production<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>ingress.enabled<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>ingress.hosts<span class="o">[</span><span class="m">0</span><span class="o">]</span>.host<span class="o">=</span>api.sahool.io
+
+<span class="c1"># Or use ArgoCD for GitOps</span>
+kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>gitops/argocd/applications/sahool-app.yaml
+</code></pre></div>
+
+<h3 id="step-5-configure-ingress-ingress">Step 5: Configure Ingress | تكوين Ingress<a class="headerlink" href="#step-5-configure-ingress-ingress" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ingress.yaml</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">networking.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ingress</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-ingress</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
+<span class="w">  </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">kubernetes.io/ingress.class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nginx</span>
+<span class="w">    </span><span class="nt">cert-manager.io/cluster-issuer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">letsencrypt-prod</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">tls</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api.sahool.io</span>
+<span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-tls</span>
+<span class="w">  </span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api.sahool.io</span>
+<span class="w">      </span><span class="nt">http</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/</span>
+<span class="w">            </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Prefix</span>
+<span class="w">            </span><span class="nt">backend</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">service</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kong</span>
+<span class="w">                </span><span class="nt">port</span><span class="p">:</span>
+<span class="w">                  </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8000</span>
+</code></pre></div>
+
+<h3 id="step-6-verify-production-deployment">Step 6: Verify Production Deployment | التحقق من نشر الإنتاج<a class="headerlink" href="#step-6-verify-production-deployment" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check pods</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># Check services</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># Check ingress</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>ingress<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># View logs</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>field-management-service<span class="w"> </span>--tail<span class="o">=</span><span class="m">100</span>
+
+<span class="c1"># Run health checks</span>
+kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>deploy/kong<span class="w"> </span>--<span class="w"> </span>curl<span class="w"> </span>localhost:8000/healthz
+</code></pre></div>
+
+<hr />
+<h2 id="environment-configuration">Environment Configuration | تكوين البيئة<a class="headerlink" href="#environment-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="complete-environment-variables">Complete Environment Variables | متغيرات البيئة الكاملة<a class="headerlink" href="#complete-environment-variables" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Database</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DATABASE_URL</code></td>
+<td>Yes</td>
+<td>-</td>
+<td>PostgreSQL connection string</td>
+</tr>
+<tr>
+<td><code>POSTGRES_USER</code></td>
+<td>Yes</td>
+<td>sahool</td>
+<td>Database username</td>
+</tr>
+<tr>
+<td><code>POSTGRES_PASSWORD</code></td>
+<td>Yes</td>
+<td>-</td>
+<td>Database password</td>
+</tr>
+<tr>
+<td><code>POSTGRES_DB</code></td>
+<td>Yes</td>
+<td>sahool</td>
+<td>Database name</td>
+</tr>
+<tr>
+<td><code>DB_POOL_SIZE</code></td>
+<td>No</td>
+<td>20</td>
+<td>Connection pool size</td>
+</tr>
+<tr>
+<td><code>DB_MAX_OVERFLOW</code></td>
+<td>No</td>
+<td>10</td>
+<td>Max overflow connections</td>
+</tr>
+<tr>
+<td><strong>Authentication</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>JWT_SECRET_KEY</code></td>
+<td>Yes</td>
+<td>-</td>
+<td>JWT signing key (32+ chars)</td>
+</tr>
+<tr>
+<td><code>JWT_ALGORITHM</code></td>
+<td>No</td>
+<td>HS256</td>
+<td>JWT algorithm</td>
+</tr>
+<tr>
+<td><code>JWT_EXPIRY_HOURS</code></td>
+<td>No</td>
+<td>24</td>
+<td>Token expiration</td>
+</tr>
+<tr>
+<td><strong>Redis</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>REDIS_URL</code></td>
+<td>Yes</td>
+<td>-</td>
+<td>Redis connection URL</td>
+</tr>
+<tr>
+<td><code>REDIS_PASSWORD</code></td>
+<td>No</td>
+<td>-</td>
+<td>Redis password</td>
+</tr>
+<tr>
+<td><code>CACHE_TTL_SECONDS</code></td>
+<td>No</td>
+<td>300</td>
+<td>Default cache TTL</td>
+</tr>
+<tr>
+<td><strong>NATS</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>NATS_URL</code></td>
+<td>Yes</td>
+<td>-</td>
+<td>NATS server URL</td>
+</tr>
+<tr>
+<td><code>NATS_CLUSTER_ID</code></td>
+<td>No</td>
+<td>sahool</td>
+<td>NATS cluster ID</td>
+</tr>
+<tr>
+<td><strong>General</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ENVIRONMENT</code></td>
+<td>Yes</td>
+<td>development</td>
+<td>Environment name</td>
+</tr>
+<tr>
+<td><code>LOG_LEVEL</code></td>
+<td>No</td>
+<td>INFO</td>
+<td>Logging level</td>
+</tr>
+<tr>
+<td><code>CORS_ORIGINS</code></td>
+<td>No</td>
+<td>*</td>
+<td>Allowed CORS origins</td>
+</tr>
+</tbody>
+</table>
+<h3 id="feature-flags">Feature Flags | علامات الميزات<a class="headerlink" href="#feature-flags" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ENABLE_SECURITY</code></td>
+<td>true</td>
+<td>Enable JWT authentication</td>
+</tr>
+<tr>
+<td><code>ENABLE_AUDIT_LOGGING</code></td>
+<td>true</td>
+<td>Enable audit trail</td>
+</tr>
+<tr>
+<td><code>ENABLE_MTLS</code></td>
+<td>false</td>
+<td>Enable mutual TLS</td>
+</tr>
+<tr>
+<td><code>ENABLE_RATE_LIMITING</code></td>
+<td>true</td>
+<td>Enable rate limiting</td>
+</tr>
+<tr>
+<td><code>ENABLE_CACHING</code></td>
+<td>true</td>
+<td>Enable Redis caching</td>
+</tr>
+<tr>
+<td><code>ENABLE_METRICS</code></td>
+<td>true</td>
+<td>Enable Prometheus metrics</td>
+</tr>
+<tr>
+<td><code>ENABLE_TRACING</code></td>
+<td>false</td>
+<td>Enable OpenTelemetry tracing</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="service-architecture">Service Architecture | هندسة الخدمات<a class="headerlink" href="#service-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="service-categories-ports">Service Categories &amp; Ports | فئات الخدمات والمنافذ<a class="headerlink" href="#service-categories-ports" title="Permanent link">&para;</a></h3>
+<h4 id="core-services-starter-package">Core Services (Starter Package) | الخدمات الأساسية<a class="headerlink" href="#core-services-starter-package" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Technology</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>kong</td>
+<td>8000</td>
+<td>Kong</td>
+<td>API Gateway</td>
+</tr>
+<tr>
+<td>field-management</td>
+<td>3000</td>
+<td>Node.js</td>
+<td>Field CRUD operations</td>
+</tr>
+<tr>
+<td>weather-service</td>
+<td>8092</td>
+<td>Python</td>
+<td>Weather data</td>
+</tr>
+<tr>
+<td>task-service</td>
+<td>8103</td>
+<td>Python</td>
+<td>Task management</td>
+</tr>
+<tr>
+<td>notification-service</td>
+<td>8110</td>
+<td>Python</td>
+<td>Push notifications</td>
+</tr>
+<tr>
+<td>astronomical-calendar</td>
+<td>8111</td>
+<td>Python</td>
+<td>Islamic calendar</td>
+</tr>
+</tbody>
+</table>
+<h4 id="intelligence-services-professional">Intelligence Services (Professional) | خدمات الذكاء<a class="headerlink" href="#intelligence-services-professional" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Technology</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>vegetation-analysis</td>
+<td>8090</td>
+<td>Python</td>
+<td>Satellite imagery</td>
+</tr>
+<tr>
+<td>crop-intelligence</td>
+<td>8095</td>
+<td>Python</td>
+<td>Crop health AI</td>
+</tr>
+<tr>
+<td>ndvi-processor</td>
+<td>8118</td>
+<td>Python</td>
+<td>NDVI computation</td>
+</tr>
+<tr>
+<td>indicators-service</td>
+<td>8091</td>
+<td>Python</td>
+<td>Field indicators</td>
+</tr>
+<tr>
+<td>lai-estimation</td>
+<td>3022</td>
+<td>Node.js</td>
+<td>Leaf Area Index</td>
+</tr>
+</tbody>
+</table>
+<h4 id="decision-services-enterprise">Decision Services (Enterprise) | خدمات القرار<a class="headerlink" href="#decision-services-enterprise" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Technology</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>advisory-service</td>
+<td>8093</td>
+<td>Python</td>
+<td>AI recommendations</td>
+</tr>
+<tr>
+<td>irrigation-smart</td>
+<td>8094</td>
+<td>Python</td>
+<td>Smart irrigation</td>
+</tr>
+<tr>
+<td>yield-engine</td>
+<td>8098</td>
+<td>Python</td>
+<td>Yield prediction</td>
+</tr>
+<tr>
+<td>hydrology-service</td>
+<td>8165</td>
+<td>Python</td>
+<td>Drainage analysis</td>
+</tr>
+<tr>
+<td>leveling-optimizer</td>
+<td>8170</td>
+<td>Python</td>
+<td>Field leveling</td>
+</tr>
+<tr>
+<td>vision-service</td>
+<td>8150</td>
+<td>Python</td>
+<td>Computer vision</td>
+</tr>
+</tbody>
+</table>
+<h4 id="infrastructure-services">Infrastructure Services | خدمات البنية التحتية<a class="headerlink" href="#infrastructure-services" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
 <tr>
@@ -1215,253 +1852,430 @@ curl<span class="w"> </span>http://localhost:8095/healthz<span class="w">  </spa
 </thead>
 <tbody>
 <tr>
-<td>field_ops</td>
-<td>8080</td>
-<td>Task management API</td>
-</tr>
-<tr>
-<td>ndvi_engine</td>
-<td>8097</td>
-<td>NDVI satellite analysis</td>
-</tr>
-<tr>
-<td>weather_core</td>
-<td>8098</td>
-<td>Weather forecasting</td>
-</tr>
-<tr>
-<td>field_chat</td>
-<td>8099</td>
-<td>Real-time chat</td>
-</tr>
-<tr>
-<td>iot_gateway</td>
-<td>8094</td>
-<td>IoT device management</td>
-</tr>
-<tr>
-<td>agro_advisor</td>
-<td>8095</td>
-<td>Disease/fertilizer recommendations</td>
-</tr>
-<tr>
-<td>ws_gateway</td>
-<td>8090</td>
-<td>WebSocket event broadcasting</td>
-</tr>
-<tr>
 <td>postgres</td>
 <td>5432</td>
-<td>Database</td>
-</tr>
-<tr>
-<td>nats</td>
-<td>4222</td>
-<td>Message queue</td>
+<td>PostgreSQL + PostGIS</td>
 </tr>
 <tr>
 <td>redis</td>
 <td>6379</td>
-<td>Cache</td>
+<td>Redis cache</td>
 </tr>
 <tr>
-<td>mqtt</td>
-<td>1883</td>
-<td>IoT broker</td>
+<td>nats</td>
+<td>4222</td>
+<td>NATS message queue</td>
+</tr>
+<tr>
+<td>pgbouncer</td>
+<td>6432</td>
+<td>Connection pooler</td>
 </tr>
 </tbody>
 </table>
-<h2 id="kubernetes-deployment-helm">Kubernetes Deployment (Helm)<a class="headerlink" href="#kubernetes-deployment-helm" title="Permanent link">&para;</a></h2>
-<h3 id="1-add-dependencies">1. Add Dependencies<a class="headerlink" href="#1-add-dependencies" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>bitnami<span class="w"> </span>https://charts.bitnami.com/bitnami
-helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>nats<span class="w"> </span>https://nats-io.github.io/k8s/helm/charts/
-helm<span class="w"> </span>repo<span class="w"> </span>update
+<hr />
+<h2 id="database-setup">Database Setup | إعداد قاعدة البيانات<a class="headerlink" href="#database-setup" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql-with-postgis-postgresql-postgis">PostgreSQL with PostGIS | PostgreSQL مع PostGIS<a class="headerlink" href="#postgresql-with-postgis-postgresql-postgis" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Connect to database</span>
+make<span class="w"> </span>db-shell
+
+<span class="c1"># Enable PostGIS extension</span>
+CREATE<span class="w"> </span>EXTENSION<span class="w"> </span>IF<span class="w"> </span>NOT<span class="w"> </span>EXISTS<span class="w"> </span>postgis<span class="p">;</span>
+CREATE<span class="w"> </span>EXTENSION<span class="w"> </span>IF<span class="w"> </span>NOT<span class="w"> </span>EXISTS<span class="w"> </span>postgis_topology<span class="p">;</span>
+
+<span class="c1"># Verify extensions</span>
+SELECT<span class="w"> </span>PostGIS_Version<span class="o">()</span><span class="p">;</span>
 </code></pre></div>
 
-<h3 id="2-install-chart">2. Install Chart<a class="headerlink" href="#2-install-chart" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>helm/sahool
-helm<span class="w"> </span>dependency<span class="w"> </span>build
-helm<span class="w"> </span>install<span class="w"> </span>sahool<span class="w"> </span>.<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--create-namespace
+<h3 id="run-migrations">Run Migrations | تشغيل الترحيل<a class="headerlink" href="#run-migrations" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Python services (Alembic)</span>
+alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+
+<span class="c1"># Node.js services (Prisma)</span>
+npx<span class="w"> </span>prisma<span class="w"> </span>migrate<span class="w"> </span>deploy
+npx<span class="w"> </span>prisma<span class="w"> </span>generate
 </code></pre></div>
 
-<h3 id="3-custom-values">3. Custom Values<a class="headerlink" href="#3-custom-values" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>helm<span class="w"> </span>install<span class="w"> </span>sahool<span class="w"> </span>.<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--set<span class="w"> </span>services.fieldOps.replicaCount<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--set<span class="w"> </span>ingress.hosts<span class="o">[</span><span class="m">0</span><span class="o">]</span>.host<span class="o">=</span>api.sahool.example.com<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--set<span class="w"> </span>security.jwt.secretKey<span class="o">=</span>your-production-secret
+<h3 id="database-optimization">Database Optimization | تحسين قاعدة البيانات<a class="headerlink" href="#database-optimization" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Create spatial indexes</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_fields_geom</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">GIST</span><span class="w"> </span><span class="p">(</span><span class="n">boundary</span><span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_fields_tenant</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="p">(</span><span class="n">tenant_id</span><span class="p">);</span>
+
+<span class="c1">-- Vacuum and analyze</span>
+<span class="k">VACUUM</span><span class="w"> </span><span class="k">ANALYZE</span><span class="w"> </span><span class="n">fields</span><span class="p">;</span>
+<span class="k">VACUUM</span><span class="w"> </span><span class="k">ANALYZE</span><span class="w"> </span><span class="n">tasks</span><span class="p">;</span>
 </code></pre></div>
 
-<h3 id="4-verify-deployment">4. Verify Deployment<a class="headerlink" href="#4-verify-deployment" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>sahool
-kubectl<span class="w"> </span>get<span class="w"> </span>services<span class="w"> </span>-n<span class="w"> </span>sahool
+<hr />
+<h2 id="security-configuration">Security Configuration | تكوين الأمان<a class="headerlink" href="#security-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="tlsssl-certificates-tlsssl">TLS/SSL Certificates | شهادات TLS/SSL<a class="headerlink" href="#tlsssl-certificates-tlsssl" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate self-signed certificates (development)</span>
+./tools/security/certs/generate_certs.sh
+
+<span class="c1"># For production, use Let&#39;s Encrypt</span>
+certbot<span class="w"> </span>certonly<span class="w"> </span>--webroot<span class="w"> </span>-w<span class="w"> </span>/var/www/html<span class="w"> </span>-d<span class="w"> </span>api.sahool.io
 </code></pre></div>
 
-<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
-<h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<h3 id="kong-security-plugins-kong">Kong Security Plugins | إضافات أمان Kong<a class="headerlink" href="#kong-security-plugins-kong" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Rate limiting</span>
+<span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate-limiting</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">      </span><span class="nt">hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span>
+<span class="w">      </span><span class="nt">policy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span>
+<span class="w">      </span><span class="nt">redis_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span>
+
+<span class="c1"># JWT authentication</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jwt</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">claims_to_verify</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exp</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nbf</span>
+
+<span class="c1"># CORS</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cors</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">origins</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://app.sahool.io</span>
+<span class="w">      </span><span class="nt">methods</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GET</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">POST</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PUT</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DELETE</span>
+<span class="w">      </span><span class="nt">headers</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Authorization</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Content-Type</span>
+</code></pre></div>
+
+<h3 id="security-best-practices">Security Best Practices | أفضل ممارسات الأمان<a class="headerlink" href="#security-best-practices" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Rotate secrets regularly</strong> - Use Vault for secret management</li>
+<li><strong>Enable TLS everywhere</strong> - Minimum TLS 1.2</li>
+<li><strong>Use network policies</strong> - Isolate service communication</li>
+<li><strong>Enable audit logging</strong> - Track all API access</li>
+<li><strong>Regular security scans</strong> - Run Trivy, Bandit, CodeQL</li>
+</ol>
+<hr />
+<h2 id="monitoring-setup">Monitoring Setup | إعداد المراقبة<a class="headerlink" href="#monitoring-setup" title="Permanent link">&para;</a></h2>
+<h3 id="start-monitoring-stack">Start Monitoring Stack | بدء مجموعة المراقبة<a class="headerlink" href="#start-monitoring-stack" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>monitoring-up
+</code></pre></div>
+
+<h3 id="access-monitoring-tools">Access Monitoring Tools | الوصول لأدوات المراقبة<a class="headerlink" href="#access-monitoring-tools" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
-<th>Variable</th>
-<th>Description</th>
-<th>Default</th>
+<th>Tool</th>
+<th>URL</th>
+<th>Purpose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>DATABASE_URL</code></td>
-<td>PostgreSQL connection string</td>
-<td><strong>Required</strong> - Set via environment</td>
+<td>Prometheus</td>
+<td>http://localhost:9090</td>
+<td>Metrics collection</td>
 </tr>
 <tr>
-<td><code>NATS_URL</code></td>
-<td>NATS server URL</td>
-<td>nats://nats:4222</td>
+<td>Grafana</td>
+<td>http://localhost:3002</td>
+<td>Dashboards</td>
 </tr>
 <tr>
-<td><code>REDIS_URL</code></td>
-<td>Redis connection URL</td>
-<td>redis://redis:6379/0</td>
-</tr>
-<tr>
-<td><code>JWT_SECRET_KEY</code></td>
-<td>JWT signing key</td>
-<td>(generated)</td>
-</tr>
-<tr>
-<td><code>JWT_ALGORITHM</code></td>
-<td>JWT algorithm</td>
-<td>HS256</td>
-</tr>
-<tr>
-<td><code>LOG_LEVEL</code></td>
-<td>Logging level</td>
-<td>INFO</td>
+<td>Jaeger</td>
+<td>http://localhost:16686</td>
+<td>Distributed tracing</td>
 </tr>
 </tbody>
 </table>
-<h3 id="feature-flags">Feature Flags<a class="headerlink" href="#feature-flags" title="Permanent link">&para;</a></h3>
+<h3 id="key-metrics-to-monitor">Key Metrics to Monitor | المقاييس الرئيسية للمراقبة<a class="headerlink" href="#key-metrics-to-monitor" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
-<th>Flag</th>
-<th>Description</th>
-<th>Default</th>
+<th>Metric</th>
+<th>Threshold</th>
+<th>Action</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>ENABLE_SECURITY</code></td>
-<td>Enable JWT authentication</td>
-<td>true</td>
+<td>Request latency (p99)</td>
+<td>&lt; 500ms</td>
+<td>Investigate if exceeded</td>
 </tr>
 <tr>
-<td><code>ENABLE_AUDIT_LOGGING</code></td>
-<td>Enable audit trail</td>
-<td>true</td>
+<td>Error rate</td>
+<td>&lt; 1%</td>
+<td>Alert if exceeded</td>
 </tr>
 <tr>
-<td><code>ENABLE_MTLS</code></td>
-<td>Enable mutual TLS</td>
-<td>false</td>
+<td>CPU usage</td>
+<td>&lt; 80%</td>
+<td>Scale if exceeded</td>
 </tr>
 <tr>
-<td><code>ENABLE_RATE_LIMITING</code></td>
-<td>Enable rate limiting</td>
-<td>true</td>
+<td>Memory usage</td>
+<td>&lt; 85%</td>
+<td>Scale if exceeded</td>
+</tr>
+<tr>
+<td>Database connections</td>
+<td>&lt; 80% of pool</td>
+<td>Increase pool size</td>
 </tr>
 </tbody>
 </table>
-<h2 id="scaling">Scaling<a class="headerlink" href="#scaling" title="Permanent link">&para;</a></h2>
-<h3 id="horizontal-scaling">Horizontal Scaling<a class="headerlink" href="#horizontal-scaling" title="Permanent link">&para;</a></h3>
+<h3 id="prometheus-alerts-prometheus">Prometheus Alerts | تنبيهات Prometheus<a class="headerlink" href="#prometheus-alerts-prometheus" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">groups</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-alerts</span>
+<span class="w">    </span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HighErrorRate</span>
+<span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate(http_requests_total{status=~&quot;5..&quot;}[5m]) &gt; 0.01</span>
+<span class="w">        </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
+<span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
+<span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">High error rate detected</span>
+
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceDown</span>
+<span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">up == 0</span>
+<span class="w">        </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1m</span>
+<span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
+<span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service {{ $labels.job }} is down</span>
+</code></pre></div>
+
+<hr />
+<h2 id="scaling-guidelines">Scaling Guidelines | إرشادات التوسع<a class="headerlink" href="#scaling-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="horizontal-scaling">Horizontal Scaling | التوسع الأفقي<a class="headerlink" href="#horizontal-scaling" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Docker Compose</span>
-docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--scale<span class="w"> </span><span class="nv">field_ops</span><span class="o">=</span><span class="m">3</span><span class="w"> </span>--scale<span class="w"> </span><span class="nv">field_chat</span><span class="o">=</span><span class="m">2</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--scale<span class="w"> </span>field-management<span class="o">=</span><span class="m">3</span><span class="w"> </span>--scale<span class="w"> </span>weather-service<span class="o">=</span><span class="m">2</span>
 
 <span class="c1"># Kubernetes</span>
-kubectl<span class="w"> </span>scale<span class="w"> </span>deployment<span class="w"> </span>sahool-field-ops<span class="w"> </span>--replicas<span class="o">=</span><span class="m">3</span><span class="w"> </span>-n<span class="w"> </span>sahool
+kubectl<span class="w"> </span>scale<span class="w"> </span>deployment<span class="w"> </span>field-management<span class="w"> </span>--replicas<span class="o">=</span><span class="m">3</span><span class="w"> </span>-n<span class="w"> </span>sahool
 </code></pre></div>
 
-<h3 id="recommended-replicas">Recommended Replicas<a class="headerlink" href="#recommended-replicas" title="Permanent link">&para;</a></h3>
+<h3 id="recommended-replicas">Recommended Replicas | النسخ الموصى بها<a class="headerlink" href="#recommended-replicas" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
 <th>Service</th>
-<th>Dev</th>
+<th>Development</th>
 <th>Staging</th>
 <th>Production</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>field_ops</td>
+<td>Kong</td>
 <td>1</td>
 <td>2</td>
 <td>3-5</td>
 </tr>
 <tr>
-<td>field_chat</td>
+<td>Field Management</td>
 <td>1</td>
 <td>2</td>
 <td>3-5</td>
 </tr>
 <tr>
-<td>ws_gateway</td>
+<td>Weather Service</td>
 <td>1</td>
 <td>2</td>
-<td>3-5</td>
-</tr>
-<tr>
-<td>Other services</td>
-<td>1</td>
-<td>1-2</td>
 <td>2-3</td>
+</tr>
+<tr>
+<td>Advisory Service</td>
+<td>1</td>
+<td>2</td>
+<td>3-5</td>
+</tr>
+<tr>
+<td>NDVI Processor</td>
+<td>1</td>
+<td>1</td>
+<td>2-3</td>
+</tr>
+<tr>
+<td>WebSocket Gateway</td>
+<td>1</td>
+<td>2</td>
+<td>3-5</td>
 </tr>
 </tbody>
 </table>
-<h2 id="backup-and-restore">Backup and Restore<a class="headerlink" href="#backup-and-restore" title="Permanent link">&para;</a></h2>
-<h3 id="postgresql-backup">PostgreSQL Backup<a class="headerlink" href="#postgresql-backup" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Backup</span>
+<h3 id="autoscaling-kubernetes">Autoscaling (Kubernetes) | التوسع التلقائي<a class="headerlink" href="#autoscaling-kubernetes" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autoscaling/v2</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HorizontalPodAutoscaler</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field-management-hpa</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">scaleTargetRef</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field-management</span>
+<span class="w">  </span><span class="nt">minReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">maxReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">  </span><span class="nt">metrics</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Resource</span>
+<span class="w">      </span><span class="nt">resource</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cpu</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Utilization</span>
+<span class="w">          </span><span class="nt">averageUtilization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">70</span>
+</code></pre></div>
+
+<hr />
+<h2 id="backup-recovery">Backup &amp; Recovery | النسخ الاحتياطي والاستعادة<a class="headerlink" href="#backup-recovery" title="Permanent link">&para;</a></h2>
+<h3 id="database-backup">Database Backup | نسخ قاعدة البيانات احتياطيًا<a class="headerlink" href="#database-backup" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Full backup</span>
+pg_dump<span class="w"> </span>-h<span class="w"> </span>localhost<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-F<span class="w"> </span>c<span class="w"> </span>-f<span class="w"> </span>backup_<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>.dump
+
+<span class="c1"># With Docker</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>pg_dump<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>sahool<span class="w"> </span>&gt;<span class="w"> </span>backup.sql
 
 <span class="c1"># Restore</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-i<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>sahool<span class="w"> </span>&lt;<span class="w"> </span>backup.sql
+pg_restore<span class="w"> </span>-h<span class="w"> </span>localhost<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>backup.dump
 </code></pre></div>
 
-<h3 id="nats-jetstream-backup">NATS JetStream Backup<a class="headerlink" href="#nats-jetstream-backup" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Backup streams</span>
+<h3 id="automated-backup-script">Automated Backup Script | سكريبت النسخ الاحتياطي التلقائي<a class="headerlink" href="#automated-backup-script" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># backup.sh</span>
+<span class="nv">BACKUP_DIR</span><span class="o">=</span>/backups
+<span class="nv">DATE</span><span class="o">=</span><span class="k">$(</span>date<span class="w"> </span>+%Y%m%d_%H%M%S<span class="k">)</span>
+
+<span class="c1"># Database backup</span>
+pg_dump<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-F<span class="w"> </span>c<span class="w"> </span>-f<span class="w"> </span><span class="nv">$BACKUP_DIR</span>/db_<span class="nv">$DATE</span>.dump
+
+<span class="c1"># Compress</span>
+gzip<span class="w"> </span><span class="nv">$BACKUP_DIR</span>/db_<span class="nv">$DATE</span>.dump
+
+<span class="c1"># Retain last 30 days</span>
+find<span class="w"> </span><span class="nv">$BACKUP_DIR</span><span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.gz&quot;</span><span class="w"> </span>-mtime<span class="w"> </span>+30<span class="w"> </span>-delete
+
+<span class="c1"># Upload to S3 (optional)</span>
+aws<span class="w"> </span>s3<span class="w"> </span>cp<span class="w"> </span><span class="nv">$BACKUP_DIR</span>/db_<span class="nv">$DATE</span>.dump.gz<span class="w"> </span>s3://sahool-backups/
+</code></pre></div>
+
+<h3 id="nats-jetstream-backup-nats-jetstream">NATS JetStream Backup | نسخ NATS JetStream احتياطيًا<a class="headerlink" href="#nats-jetstream-backup-nats-jetstream" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Backup all streams</span>
 nats<span class="w"> </span>stream<span class="w"> </span>backup<span class="w"> </span>--all<span class="w"> </span>/backups/nats/
 
 <span class="c1"># Restore</span>
 nats<span class="w"> </span>stream<span class="w"> </span>restore<span class="w"> </span>/backups/nats/
 </code></pre></div>
 
-<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
-<h3 id="service-wont-start">Service Won't Start<a class="headerlink" href="#service-wont-start" title="Permanent link">&para;</a></h3>
-<ol>
-<li>Check logs: <code>docker compose logs &lt;service&gt;</code></li>
-<li>Verify dependencies are healthy</li>
-<li>Check environment variables</li>
-</ol>
-<h3 id="database-connection-issues">Database Connection Issues<a class="headerlink" href="#database-connection-issues" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Test connection</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>pg_isready<span class="w"> </span>-U<span class="w"> </span>sahool
+<hr />
+<h2 id="troubleshooting">Troubleshooting | استكشاف الأخطاء<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="common-issues">Common Issues | المشكلات الشائعة<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Cause</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Service won't start</td>
+<td>Missing env vars</td>
+<td>Check <code>.env</code> file</td>
+</tr>
+<tr>
+<td>Database connection failed</td>
+<td>Wrong credentials</td>
+<td>Verify DATABASE_URL</td>
+</tr>
+<tr>
+<td>Port already in use</td>
+<td>Another process</td>
+<td>Kill conflicting process</td>
+</tr>
+<tr>
+<td>Out of memory</td>
+<td>Too many services</td>
+<td>Increase RAM or reduce services</td>
+</tr>
+<tr>
+<td>Slow responses</td>
+<td>Database queries</td>
+<td>Add indexes, optimize queries</td>
+</tr>
+</tbody>
+</table>
+<h3 id="diagnostic-commands">Diagnostic Commands | أوامر التشخيص<a class="headerlink" href="#diagnostic-commands" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check service logs</span>
+make<span class="w"> </span>logs-service<span class="w"> </span><span class="nv">SERVICE</span><span class="o">=</span>field-management
 
-<span class="c1"># Check network</span>
-docker<span class="w"> </span>network<span class="w"> </span>inspect<span class="w"> </span>sahool-network
-</code></pre></div>
+<span class="c1"># Check all logs</span>
+make<span class="w"> </span>logs
 
-<h3 id="nats-not-connecting">NATS Not Connecting<a class="headerlink" href="#nats-not-connecting" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Check NATS status</span>
+<span class="c1"># Check service health</span>
+curl<span class="w"> </span>http://localhost:8000/healthz
+
+<span class="c1"># Check database connections</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT count(*) FROM pg_stat_activity;&quot;</span>
+
+<span class="c1"># Check NATS status</span>
 curl<span class="w"> </span>http://localhost:8222/varz
-
-<span class="c1"># View streams</span>
-nats<span class="w"> </span>stream<span class="w"> </span>ls
 </code></pre></div>
 
-<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<h3 id="debug-mode">Debug Mode | وضع التصحيح<a class="headerlink" href="#debug-mode" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enable debug logging</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LOG_LEVEL</span><span class="o">=</span>DEBUG
+
+<span class="c1"># Restart services</span>
+make<span class="w"> </span>restart
+</code></pre></div>
+
+<p>For detailed troubleshooting, see <a href="../TROUBLESHOOTING/">TROUBLESHOOTING.md</a>.</p>
+<hr />
+<h2 id="post-deployment-checklist">Post-Deployment Checklist | قائمة ما بعد النشر<a class="headerlink" href="#post-deployment-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="required-checks">Required Checks | الفحوصات المطلوبة<a class="headerlink" href="#required-checks" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] All services are healthy (<code>make health</code>)</li>
+<li>[ ] Database migrations completed</li>
+<li>[ ] SSL/TLS certificates configured</li>
+<li>[ ] DNS records pointing to correct IPs</li>
+<li>[ ] Monitoring alerts configured</li>
+<li>[ ] Backup jobs scheduled</li>
+<li>[ ] Rate limiting enabled</li>
+<li>[ ] Authentication working</li>
+<li>[ ] CORS configured correctly</li>
+<li>[ ] Logging to central system</li>
+</ul>
+<h3 id="security-checks">Security Checks | فحوصات الأمان<a class="headerlink" href="#security-checks" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] No default passwords</li>
+<li>[ ] JWT secret is unique and strong</li>
+<li>[ ] Database not exposed publicly</li>
+<li>[ ] Redis password set</li>
+<li>[ ] Firewall rules configured</li>
+<li>[ ] Security headers enabled</li>
+<li>[ ] Audit logging enabled</li>
+</ul>
+<h3 id="performance-checks">Performance Checks | فحوصات الأداء<a class="headerlink" href="#performance-checks" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Database indexes created</li>
+<li>[ ] Connection pooling enabled</li>
+<li>[ ] Caching working</li>
+<li>[ ] CDN configured for static assets</li>
+<li>[ ] Compression enabled</li>
+</ul>
+<hr />
+<h2 id="next-steps">Next Steps | الخطوات التالية<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../SECURITY/">Security Configuration</a></li>
-<li><a href="../OPERATIONS/">Operations Runbook</a></li>
+<li><a href="../RUNBOOKS/">Operations Runbook</a></li>
+<li><a href="../OBSERVABILITY/">Monitoring Guide</a></li>
+<li><a href="../TROUBLESHOOTING/">Troubleshooting Guide</a></li>
+<li><a href="../disaster-recovery/">Disaster Recovery</a></li>
 </ul>
+<hr />
+<p><em>Last Updated | آخر تحديث: February 2026</em></p>
 
 
 

@@ -1,0 +1,2045 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Troubleshooting Guide - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-troubleshooting-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Troubleshooting Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-troubleshooting-guide">SAHOOL Troubleshooting Guide<a class="headerlink" href="#sahool-troubleshooting-guide" title="Permanent link">&para;</a></h1>
+<h1 id="_1">دليل استكشاف الأخطاء وإصلاحها<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p>This guide covers common issues and their solutions for the SAHOOL platform.</p>
+<p>يغطي هذا الدليل المشكلات الشائعة وحلولها لمنصة سهول.</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents | جدول المحتويات<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#quick-diagnostics--التشخيص-السريع">Quick Diagnostics</a></li>
+<li><a href="#development-environment--بيئة-التطوير">Development Environment</a></li>
+<li><a href="#docker--containers--docker-والحاويات">Docker &amp; Containers</a></li>
+<li><a href="#database-issues--مشاكل-قاعدة-البيانات">Database Issues</a></li>
+<li><a href="#service-issues--مشاكل-الخدمات">Service Issues</a></li>
+<li><a href="#authentication--security--المصادقة-والأمان">Authentication &amp; Security</a></li>
+<li><a href="#api-gateway-kong--بوابة-api">API Gateway (Kong)</a></li>
+<li><a href="#message-queue-nats--قائمة-الرسائل">Message Queue (NATS)</a></li>
+<li><a href="#mobile-app--تطبيق-الجوال">Mobile App</a></li>
+<li><a href="#web-dashboard--لوحة-المعلومات">Web Dashboard</a></li>
+<li><a href="#performance-issues--مشاكل-الأداء">Performance Issues</a></li>
+<li><a href="#cicd-pipeline--خط-التكامل-المستمر">CI/CD Pipeline</a></li>
+</ol>
+<hr />
+<h2 id="quick-diagnostics">Quick Diagnostics | التشخيص السريع<a class="headerlink" href="#quick-diagnostics" title="Permanent link">&para;</a></h2>
+<h3 id="health-check-commands">Health Check Commands | أوامر فحص الصحة<a class="headerlink" href="#health-check-commands" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check all services status</span>
+make<span class="w"> </span>status
+
+<span class="c1"># View service health</span>
+make<span class="w"> </span>health
+
+<span class="c1"># Check specific service logs</span>
+make<span class="w"> </span>logs-service<span class="w"> </span><span class="nv">SERVICE</span><span class="o">=</span>field-management-service
+
+<span class="c1"># Quick connectivity test</span>
+curl<span class="w"> </span>http://localhost:8000/healthz<span class="w">  </span><span class="c1"># Kong</span>
+curl<span class="w"> </span>http://localhost:5432<span class="w">          </span><span class="c1"># PostgreSQL (connection test)</span>
+curl<span class="w"> </span>http://localhost:6379<span class="w">          </span><span class="c1"># Redis</span>
+curl<span class="w"> </span>http://localhost:4222<span class="w">          </span><span class="c1"># NATS</span>
+</code></pre></div>
+
+<h3 id="system-requirements-check">System Requirements Check | فحص متطلبات النظام<a class="headerlink" href="#system-requirements-check" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Docker version (requires 24+)</span>
+docker<span class="w"> </span>--version
+
+<span class="c1"># Docker Compose version (requires v2+)</span>
+docker<span class="w"> </span>compose<span class="w"> </span>version
+
+<span class="c1"># Available disk space (need at least 10GB free)</span>
+df<span class="w"> </span>-h
+
+<span class="c1"># Available memory (recommend 8GB+)</span>
+free<span class="w"> </span>-h
+
+<span class="c1"># Check port availability</span>
+sudo<span class="w"> </span>lsof<span class="w"> </span>-i<span class="w"> </span>:8000<span class="w">  </span><span class="c1"># Kong</span>
+sudo<span class="w"> </span>lsof<span class="w"> </span>-i<span class="w"> </span>:5432<span class="w">  </span><span class="c1"># PostgreSQL</span>
+sudo<span class="w"> </span>lsof<span class="w"> </span>-i<span class="w"> </span>:6379<span class="w">  </span><span class="c1"># Redis</span>
+</code></pre></div>
+
+<hr />
+<h2 id="development-environment">Development Environment | بيئة التطوير<a class="headerlink" href="#development-environment" title="Permanent link">&para;</a></h2>
+<h3 id="issue-make-dev-fails-to-start">Issue: <code>make dev</code> fails to start<a class="headerlink" href="#issue-make-dev-fails-to-start" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong>
+- Services fail to start
+- Port conflicts
+- Environment errors</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check for port conflicts:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Find processes using required ports</span>
+sudo<span class="w"> </span>lsof<span class="w"> </span>-i<span class="w"> </span>:8000<span class="w"> </span>-i<span class="w"> </span>:5432<span class="w"> </span>-i<span class="w"> </span>:6379<span class="w"> </span>-i<span class="w"> </span>:4222
+
+<span class="c1"># Kill conflicting processes if needed</span>
+sudo<span class="w"> </span><span class="nb">kill</span><span class="w"> </span>-9<span class="w"> </span>&lt;PID&gt;
+</code></pre></div>
+
+<ol>
+<li><strong>Reset the environment:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>down-volumes<span class="w">  </span><span class="c1"># Stop and remove volumes</span>
+make<span class="w"> </span>clean<span class="w">         </span><span class="c1"># Clean build artifacts</span>
+make<span class="w"> </span>dev<span class="w">           </span><span class="c1"># Restart</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Check environment file:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Ensure .env exists</span>
+cp<span class="w"> </span>.env.example<span class="w"> </span>.env
+
+<span class="c1"># Verify required variables</span>
+cat<span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;^(DATABASE_URL|JWT_SECRET|NATS_URL)&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="issue-python-dependencies-fail-to-install">Issue: Python dependencies fail to install<a class="headerlink" href="#issue-python-dependencies-fail-to-install" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">ERROR</span><span class="o">:</span><span class="w"> </span><span class="n">Could</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">find</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">satisfies</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">requirement</span>
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Use virtual environment:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>venv/bin/activate<span class="w">  </span><span class="c1"># Linux/macOS</span>
+<span class="c1"># or</span>
+.<span class="se">\v</span>env<span class="se">\S</span>cripts<span class="se">\a</span>ctivate<span class="w">  </span><span class="c1"># Windows</span>
+
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</code></pre></div>
+
+<ol>
+<li><strong>Upgrade pip:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip<span class="w"> </span>setuptools<span class="w"> </span>wheel
+</code></pre></div>
+
+<ol>
+<li><strong>Check Python version (requires 3.11+):</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>python<span class="w"> </span>--version
+</code></pre></div>
+
+<hr />
+<h3 id="issue-nodejs-packages-fail-to-install">Issue: Node.js packages fail to install<a class="headerlink" href="#issue-nodejs-packages-fail-to-install" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code>npm ERR! ERESOLVE unable to resolve dependency tree
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Clean install:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>rm<span class="w"> </span>-rf<span class="w"> </span>node_modules<span class="w"> </span>package-lock.json
+npm<span class="w"> </span>install
+</code></pre></div>
+
+<ol>
+<li><strong>Use legacy peer deps:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>--legacy-peer-deps
+</code></pre></div>
+
+<ol>
+<li><strong>Check Node version (requires 18+):</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>node<span class="w"> </span>--version
+</code></pre></div>
+
+<hr />
+<h2 id="docker-containers-docker">Docker &amp; Containers | Docker والحاويات<a class="headerlink" href="#docker-containers-docker" title="Permanent link">&para;</a></h2>
+<h3 id="issue-container-fails-to-start">Issue: Container fails to start<a class="headerlink" href="#issue-container-fails-to-start" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong>
+- Container exits immediately
+- "Error response from daemon"</p>
+<p><strong>Diagnosis:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># View container logs</span>
+docker<span class="w"> </span>logs<span class="w"> </span>&lt;container_name&gt;
+
+<span class="c1"># View detailed container info</span>
+docker<span class="w"> </span>inspect<span class="w"> </span>&lt;container_name&gt;
+
+<span class="c1"># Check container status</span>
+docker<span class="w"> </span>ps<span class="w"> </span>-a
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Memory issues:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check Docker memory limit</span>
+docker<span class="w"> </span>system<span class="w"> </span>info<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>Memory
+
+<span class="c1"># Increase Docker memory (Docker Desktop settings)</span>
+<span class="c1"># Recommend: 8GB minimum</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Image build issues:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Rebuild without cache</span>
+docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w"> </span>--no-cache<span class="w"> </span>&lt;service_name&gt;
+</code></pre></div>
+
+<ol>
+<li><strong>Volume permission issues:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Fix permissions</span>
+sudo<span class="w"> </span>chown<span class="w"> </span>-R<span class="w"> </span><span class="nv">$USER</span>:<span class="nv">$USER</span><span class="w"> </span>./data
+</code></pre></div>
+
+<hr />
+<h3 id="issue-no-space-left-on-device">Issue: "No space left on device"<a class="headerlink" href="#issue-no-space-left-on-device" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">ERROR</span><span class="o">:</span><span class="w"> </span><span class="n">Could</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="n">packages</span><span class="w"> </span><span class="n">due</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">OSError</span><span class="o">:</span><span class="w"> </span><span class="o">[</span><span class="n">Errno</span><span class="w"> </span><span class="mi">28</span><span class="o">]</span><span class="w"> </span><span class="n">No</span><span class="w"> </span><span class="n">space</span><span class="w"> </span><span class="n">left</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">device</span>
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Clean Docker resources:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Remove unused images, containers, networks</span>
+docker<span class="w"> </span>system<span class="w"> </span>prune<span class="w"> </span>-a
+
+<span class="c1"># Remove unused volumes (WARNING: deletes data)</span>
+docker<span class="w"> </span>volume<span class="w"> </span>prune
+
+<span class="c1"># Check disk usage</span>
+docker<span class="w"> </span>system<span class="w"> </span>df
+</code></pre></div>
+
+<ol>
+<li><strong>Clean build caches:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Clear pip cache</span>
+pip<span class="w"> </span>cache<span class="w"> </span>purge
+
+<span class="c1"># Clear npm cache</span>
+npm<span class="w"> </span>cache<span class="w"> </span>clean<span class="w"> </span>--force
+</code></pre></div>
+
+<hr />
+<h3 id="issue-container-networking-problems">Issue: Container networking problems<a class="headerlink" href="#issue-container-networking-problems" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong>
+- Services cannot communicate
+- "Connection refused" errors</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check network:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># List Docker networks</span>
+docker<span class="w"> </span>network<span class="w"> </span>ls
+
+<span class="c1"># Inspect network</span>
+docker<span class="w"> </span>network<span class="w"> </span>inspect<span class="w"> </span>sahool-network
+</code></pre></div>
+
+<ol>
+<li><strong>Recreate network:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>down
+docker<span class="w"> </span>network<span class="w"> </span>rm<span class="w"> </span>sahool-network
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+
+<ol>
+<li><strong>Check service names:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Services should use Docker service names, not localhost</span>
+<span class="c1"># Example: postgres:5432, not localhost:5432</span>
+</code></pre></div>
+
+<hr />
+<h2 id="database-issues">Database Issues | مشاكل قاعدة البيانات<a class="headerlink" href="#database-issues" title="Permanent link">&para;</a></h2>
+<h3 id="issue-cannot-connect-to-postgresql">Issue: Cannot connect to PostgreSQL<a class="headerlink" href="#issue-cannot-connect-to-postgresql" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">FATAL</span><span class="o">:</span><span class="w"> </span><span class="n">password</span><span class="w"> </span><span class="n">authentication</span><span class="w"> </span><span class="n">failed</span>
+<span class="n">connection</span><span class="w"> </span><span class="n">refused</span>
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check database is running:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>ps<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>postgres
+make<span class="w"> </span>db-shell<span class="w">  </span><span class="c1"># Try to connect</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Verify credentials:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check environment variables</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$DATABASE_URL</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$POSTGRES_PASSWORD</span>
+
+<span class="c1"># Test connection</span>
+psql<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DATABASE_URL</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Reset database (development only):</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>db-reset<span class="w">  </span><span class="c1"># WARNING: Deletes all data</span>
+</code></pre></div>
+
+<hr />
+<h3 id="issue-migration-failures">Issue: Migration failures<a class="headerlink" href="#issue-migration-failures" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Migration</span><span class="w"> </span><span class="n">failed</span>
+<span class="n">relation</span><span class="w"> </span><span class="n">already</span><span class="w"> </span><span class="n">exists</span>
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check migration status:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># For Prisma</span>
+npx<span class="w"> </span>prisma<span class="w"> </span>migrate<span class="w"> </span>status
+
+<span class="c1"># For Alembic (Python)</span>
+alembic<span class="w"> </span>current
+</code></pre></div>
+
+<ol>
+<li><strong>Reset migrations (development only):</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Prisma</span>
+npx<span class="w"> </span>prisma<span class="w"> </span>migrate<span class="w"> </span>reset
+
+<span class="c1"># Alembic</span>
+alembic<span class="w"> </span>downgrade<span class="w"> </span>base
+alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+</code></pre></div>
+
+<ol>
+<li><strong>Fix duplicate migrations:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check for conflicting migration files</span>
+ls<span class="w"> </span>-la<span class="w"> </span>apps/services/*/prisma/migrations/
+</code></pre></div>
+
+<hr />
+<h3 id="issue-postgis-extension-not-available">Issue: PostGIS extension not available<a class="headerlink" href="#issue-postgis-extension-not-available" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">ERROR</span><span class="o">:</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="s2">&quot;geometry&quot;</span><span class="w"> </span><span class="n">does</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">exist</span>
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Enable PostGIS:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- In psql</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">postgis</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">postgis_topology</span><span class="p">;</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Verify extension:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">PostGIS_Version</span><span class="p">();</span>
+</code></pre></div>
+
+<hr />
+<h3 id="issue-slow-database-queries">Issue: Slow database queries<a class="headerlink" href="#issue-slow-database-queries" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong>
+- API responses slow
+- Timeout errors</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check query performance:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Enable query logging</span>
+<span class="k">SET</span><span class="w"> </span><span class="n">log_min_duration_statement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;100ms&#39;</span><span class="p">;</span>
+
+<span class="c1">-- Analyze slow query</span>
+<span class="k">EXPLAIN</span><span class="w"> </span><span class="k">ANALYZE</span><span class="w"> </span><span class="o">&lt;</span><span class="n">your_query</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Add missing indexes:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Check existing indexes</span>
+<span class="err">\</span><span class="n">di</span>
+
+<span class="c1">-- Create index for frequently queried columns</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_fields_tenant</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">fields</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">);</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Check connection pool:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># View active connections</span>
+SELECT<span class="w"> </span>count<span class="o">(</span>*<span class="o">)</span><span class="w"> </span>FROM<span class="w"> </span>pg_stat_activity<span class="p">;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="service-issues">Service Issues | مشاكل الخدمات<a class="headerlink" href="#service-issues" title="Permanent link">&para;</a></h2>
+<h3 id="issue-service-returns-500-internal-server-error">Issue: Service returns 500 Internal Server Error<a class="headerlink" href="#issue-service-returns-500-internal-server-error" title="Permanent link">&para;</a></h3>
+<p><strong>Diagnosis:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check service logs</span>
+docker<span class="w"> </span>logs<span class="w"> </span>&lt;service_container&gt;<span class="w"> </span>--tail<span class="w"> </span><span class="m">100</span>
+
+<span class="c1"># Check if dependencies are healthy</span>
+curl<span class="w"> </span>http://localhost:5432<span class="w">  </span><span class="c1"># Database</span>
+curl<span class="w"> </span>http://localhost:6379<span class="w">  </span><span class="c1"># Redis</span>
+curl<span class="w"> </span>http://localhost:4222<span class="w">  </span><span class="c1"># NATS</span>
+</code></pre></div>
+
+<p><strong>Common Causes:</strong></p>
+<ol>
+<li><strong>Database connection failure:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check DATABASE_URL is correct</span>
+<span class="c1"># Verify database is accessible</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Missing environment variables:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check required variables</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;container&gt;<span class="w"> </span>env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;(DATABASE|JWT|NATS)&quot;</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Import errors:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check for Python import errors in logs</span>
+docker<span class="w"> </span>logs<span class="w"> </span>&lt;service&gt;<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;ImportError\|ModuleNotFoundError&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="issue-service-health-check-failing">Issue: Service health check failing<a class="headerlink" href="#issue-service-health-check-failing" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong>
+- <code>/healthz</code> returns non-200
+- Service marked unhealthy</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check health endpoint:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-v<span class="w"> </span>http://localhost:&lt;port&gt;/healthz
+curl<span class="w"> </span>-v<span class="w"> </span>http://localhost:&lt;port&gt;/readyz
+</code></pre></div>
+
+<ol>
+<li><strong>Check dependent services:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># If readiness fails, check dependencies</span>
+curl<span class="w"> </span>http://localhost:5432<span class="w">  </span><span class="c1"># Database</span>
+curl<span class="w"> </span>http://localhost:6379<span class="w">  </span><span class="c1"># Redis</span>
+</code></pre></div>
+
+<ol>
+<li><strong>View detailed health:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:&lt;port&gt;/health<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+</code></pre></div>
+
+<hr />
+<h3 id="issue-service-not-receiving-events">Issue: Service not receiving events<a class="headerlink" href="#issue-service-not-receiving-events" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong>
+- NATS messages not processed
+- Events lost</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check NATS connection:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check NATS is running</span>
+curl<span class="w"> </span>http://localhost:8222/varz
+
+<span class="c1"># Check subscriptions</span>
+nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">&quot;sahool.&gt;&quot;</span><span class="w"> </span>--count<span class="w"> </span><span class="m">5</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Verify subscription patterns:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check if service is subscribed</span>
+nats<span class="w"> </span>sub<span class="w"> </span>ls
+</code></pre></div>
+
+<ol>
+<li><strong>Check consumer status:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>nats<span class="w"> </span>consumer<span class="w"> </span>info<span class="w"> </span>&lt;stream&gt;<span class="w"> </span>&lt;consumer&gt;
+</code></pre></div>
+
+<hr />
+<h2 id="authentication-security">Authentication &amp; Security | المصادقة والأمان<a class="headerlink" href="#authentication-security" title="Permanent link">&para;</a></h2>
+<h3 id="issue-jwt-token-invalidexpired">Issue: JWT token invalid/expired<a class="headerlink" href="#issue-jwt-token-invalidexpired" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="mf">401</span><span class="w"> </span><span class="n">Unauthorized</span>
+<span class="kr">To</span><span class="n">ken</span><span class="w"> </span><span class="nb">exp</span><span class="n">ired</span>
+<span class="n">Invalid</span><span class="w"> </span><span class="n">signature</span>
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check token expiration:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Decode JWT (paste token)</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;YOUR_TOKEN&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d<span class="s1">&#39;.&#39;</span><span class="w"> </span>-f2<span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+</code></pre></div>
+
+<ol>
+<li><strong>Verify JWT secret:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Ensure same secret across services</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$JWT_SECRET_KEY</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Refresh token:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8000/api/v1/auth/refresh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer &lt;refresh_token&gt;&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="issue-cors-errors">Issue: CORS errors<a class="headerlink" href="#issue-cors-errors" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code>Access-Control-Allow-Origin missing
+CORS policy blocked
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check allowed origins:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Verify CORS configuration</span>
+grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;CORS\|allow_origins&quot;</span><span class="w"> </span>apps/
+</code></pre></div>
+
+<ol>
+<li><strong>Add origin to whitelist:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># In FastAPI service</span>
+<span class="n">origins</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;http://localhost:3000&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;https://app.sahool.com&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Check Kong CORS plugin:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8001/plugins<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data[] | select(.name==&quot;cors&quot;)&#39;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="issue-rate-limiting-errors">Issue: Rate limiting errors<a class="headerlink" href="#issue-rate-limiting-errors" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="mf">429</span><span class="w"> </span><span class="kr">To</span><span class="n">o</span><span class="w"> </span><span class="n">Many</span><span class="w"> </span><span class="n">Requests</span>
+<span class="n">Rate</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="n">exceeded</span>
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check rate limits:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-I<span class="w"> </span>http://localhost:8000/api/v1/fields
+<span class="c1"># Look for X-RateLimit-* headers</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Increase limits (development):</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># In Kong configuration</span>
+<span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate-limiting</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
+<span class="w">      </span><span class="nt">hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10000</span>
+</code></pre></div>
+
+<hr />
+<h2 id="api-gateway-kong-api">API Gateway (Kong) | بوابة API<a class="headerlink" href="#api-gateway-kong-api" title="Permanent link">&para;</a></h2>
+<h3 id="issue-kong-not-routing-requests">Issue: Kong not routing requests<a class="headerlink" href="#issue-kong-not-routing-requests" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="mf">502</span><span class="w"> </span><span class="n">Bad</span><span class="w"> </span><span class="n">Gateway</span>
+<span class="n">Service</span><span class="w"> </span><span class="n">unavailable</span>
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check Kong status:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8001/status
+</code></pre></div>
+
+<ol>
+<li><strong>Verify service registration:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8001/services<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data[].name&#39;</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Check routes:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8001/routes<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data[].paths&#39;</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Test upstream:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Test service directly (bypass Kong)</span>
+curl<span class="w"> </span>http://localhost:8080/healthz
+</code></pre></div>
+
+<hr />
+<h3 id="issue-kong-plugins-not-working">Issue: Kong plugins not working<a class="headerlink" href="#issue-kong-plugins-not-working" title="Permanent link">&para;</a></h3>
+<p><strong>Diagnosis:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># List active plugins</span>
+curl<span class="w"> </span>http://localhost:8001/plugins<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data[].name&#39;</span>
+
+<span class="c1"># Check plugin status</span>
+curl<span class="w"> </span>http://localhost:8001/plugins/&lt;plugin_id&gt;
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Reload Kong configuration:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-kong<span class="w"> </span>kong<span class="w"> </span>reload
+</code></pre></div>
+
+<ol>
+<li><strong>Check plugin logs:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>logs<span class="w"> </span>sahool-kong<span class="w"> </span>--tail<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;plugin&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="message-queue-nats">Message Queue (NATS) | قائمة الرسائل<a class="headerlink" href="#message-queue-nats" title="Permanent link">&para;</a></h2>
+<h3 id="issue-nats-connection-refused">Issue: NATS connection refused<a class="headerlink" href="#issue-nats-connection-refused" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code>Connection refused to nats://localhost:4222
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check NATS status:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8222/varz
+docker<span class="w"> </span>ps<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>nats
+</code></pre></div>
+
+<ol>
+<li><strong>Verify NATS URL:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Should be nats://nats:4222 in Docker</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$NATS_URL</span>
+</code></pre></div>
+
+<hr />
+<h3 id="issue-jetstream-not-enabled">Issue: JetStream not enabled<a class="headerlink" href="#issue-jetstream-not-enabled" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code>JetStream not enabled
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Enable JetStream:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># In nats.conf</span>
+jetstream<span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>store_dir:<span class="w"> </span>/data/jetstream
+<span class="w">    </span>max_mem:<span class="w"> </span>1G
+<span class="w">    </span>max_file:<span class="w"> </span>10G
+<span class="o">}</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Restart NATS:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>restart<span class="w"> </span>sahool-nats
+</code></pre></div>
+
+<hr />
+<h3 id="issue-messages-not-being-consumed">Issue: Messages not being consumed<a class="headerlink" href="#issue-messages-not-being-consumed" title="Permanent link">&para;</a></h3>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check consumer status:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>nats<span class="w"> </span>consumer<span class="w"> </span>info<span class="w"> </span>SAHOOL_STREAM<span class="w"> </span>&lt;consumer_name&gt;
+</code></pre></div>
+
+<ol>
+<li><strong>Check pending messages:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>nats<span class="w"> </span>stream<span class="w"> </span>info<span class="w"> </span>SAHOOL_STREAM
+</code></pre></div>
+
+<ol>
+<li><strong>Restart consumer:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>restart<span class="w"> </span>&lt;service_consuming_messages&gt;
+</code></pre></div>
+
+<hr />
+<h2 id="mobile-app">Mobile App | تطبيق الجوال<a class="headerlink" href="#mobile-app" title="Permanent link">&para;</a></h2>
+<h3 id="issue-flutter-build-fails">Issue: Flutter build fails<a class="headerlink" href="#issue-flutter-build-fails" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong>
+- Dart analysis errors
+- Missing dependencies</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Clean and rebuild:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>apps/mobile/sahool_field_app
+flutter<span class="w"> </span>clean
+flutter<span class="w"> </span>pub<span class="w"> </span>get
+dart<span class="w"> </span>run<span class="w"> </span>build_runner<span class="w"> </span>build<span class="w"> </span>--delete-conflicting-outputs
+flutter<span class="w"> </span>build<span class="w"> </span>apk
+</code></pre></div>
+
+<ol>
+<li><strong>Update dependencies:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>flutter<span class="w"> </span>pub<span class="w"> </span>upgrade
+</code></pre></div>
+
+<hr />
+<h3 id="issue-drift-database-errors">Issue: Drift database errors<a class="headerlink" href="#issue-drift-database-errors" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Getter</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">found</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TasksCompanion&#39;</span>
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Regenerate Drift code:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>dart<span class="w"> </span>run<span class="w"> </span>build_runner<span class="w"> </span>clean
+dart<span class="w"> </span>run<span class="w"> </span>build_runner<span class="w"> </span>build<span class="w"> </span>--delete-conflicting-outputs
+</code></pre></div>
+
+<ol>
+<li><strong>Verify generated files:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>ls<span class="w"> </span>lib/core/storage/*.g.dart
+</code></pre></div>
+
+<hr />
+<h3 id="issue-api-connection-fails-from-mobile">Issue: API connection fails from mobile<a class="headerlink" href="#issue-api-connection-fails-from-mobile" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong>
+- Network errors
+- Certificate errors</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check API URL:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Verify base URL in api_config.dart</span>
+<span class="k">const</span><span class="w"> </span><span class="n">baseUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;https://api.sahool.com&#39;</span><span class="p">;</span>
+</code></pre></div>
+
+<ol>
+<li><strong>For local development:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Use device IP, not localhost</span>
+<span class="c1"># Android emulator: 10.0.2.2</span>
+<span class="c1"># iOS simulator: localhost</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Certificate issues:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Development only - bypass certificate validation</span>
+<span class="c1">// DO NOT use in production</span>
+</code></pre></div>
+
+<hr />
+<h2 id="web-dashboard">Web Dashboard | لوحة المعلومات<a class="headerlink" href="#web-dashboard" title="Permanent link">&para;</a></h2>
+<h3 id="issue-web-build-fails">Issue: Web build fails<a class="headerlink" href="#issue-web-build-fails" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong>
+- Module not found errors
+- TypeScript errors</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Build shared packages first:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>npm<span class="w"> </span>run<span class="w"> </span>build:packages
+</code></pre></div>
+
+<ol>
+<li><strong>Clean and rebuild:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>apps/web
+rm<span class="w"> </span>-rf<span class="w"> </span>.next<span class="w"> </span>node_modules
+npm<span class="w"> </span>install
+npm<span class="w"> </span>run<span class="w"> </span>build
+</code></pre></div>
+
+<hr />
+<h3 id="issue-websocket-connection-fails">Issue: WebSocket connection fails<a class="headerlink" href="#issue-websocket-connection-fails" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong>
+- Real-time updates not working
+- WebSocket errors in console</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check WebSocket gateway:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8081/healthz
+</code></pre></div>
+
+<ol>
+<li><strong>Verify WebSocket URL:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Should use wss:// in production</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">wsUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;wss://api.sahool.com/ws&#39;</span><span class="p">;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="performance-issues">Performance Issues | مشاكل الأداء<a class="headerlink" href="#performance-issues" title="Permanent link">&para;</a></h2>
+<h3 id="issue-slow-api-responses">Issue: Slow API responses<a class="headerlink" href="#issue-slow-api-responses" title="Permanent link">&para;</a></h3>
+<p><strong>Diagnosis:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check response times</span>
+curl<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;@curl-format.txt&quot;</span><span class="w"> </span>http://localhost:8000/api/v1/fields
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Enable caching:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check Redis connection</span>
+redis-cli<span class="w"> </span>ping
+</code></pre></div>
+
+<ol>
+<li><strong>Check database indexes:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="k">EXPLAIN</span><span class="w"> </span><span class="k">ANALYZE</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">tenant_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;xxx&#39;</span><span class="p">;</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Check connection pooling:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Verify PgBouncer is working</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-pgbouncer
+</code></pre></div>
+
+<hr />
+<h3 id="issue-high-memory-usage">Issue: High memory usage<a class="headerlink" href="#issue-high-memory-usage" title="Permanent link">&para;</a></h3>
+<p><strong>Diagnosis:</strong></p>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>stats
+</code></pre></div>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Limit container memory:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># In docker-compose.yml</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">field-ops</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">mem_limit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512m</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Check for memory leaks:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Profile Python service</span>
+python<span class="w"> </span>-m<span class="w"> </span>memory_profiler<span class="w"> </span>script.py
+</code></pre></div>
+
+<hr />
+<h2 id="cicd-pipeline">CI/CD Pipeline | خط التكامل المستمر<a class="headerlink" href="#cicd-pipeline" title="Permanent link">&para;</a></h2>
+<p>For CI/CD specific issues, see <a href="../CI_TROUBLESHOOTING/">CI_TROUBLESHOOTING.md</a>.</p>
+<hr />
+<h2 id="getting-more-help">Getting More Help | الحصول على مساعدة إضافية<a class="headerlink" href="#getting-more-help" title="Permanent link">&para;</a></h2>
+<p>If these solutions don't resolve your issue:</p>
+<ol>
+<li><strong>Check logs thoroughly:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>logs<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;error\|exception\|failed&quot;</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Search documentation:</strong></li>
+</ol>
+<div class="codehilite"><pre><span></span><code>grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;your_error_message&quot;</span><span class="w"> </span>docs/
+</code></pre></div>
+
+<ol>
+<li><strong>Review related documentation:</strong></li>
+<li><a href="../DEPLOYMENT/">DEPLOYMENT.md</a></li>
+<li><a href="../OBSERVABILITY/">OBSERVABILITY.md</a></li>
+<li><a href="../RUNBOOKS/">RUNBOOKS.md</a></li>
+<li><a href="../CI_TROUBLESHOOTING/">CI_TROUBLESHOOTING.md</a></li>
+</ol>
+<hr />
+<p><em>Last Updated | آخر تحديث: February 2026</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

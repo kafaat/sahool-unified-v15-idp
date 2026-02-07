@@ -86,8 +86,9 @@ COPY --from=builder /app/dist ./dist
 # Copy prisma schema for runtime migrations
 COPY --from=builder /app/prisma ./prisma
 
-# Generate Prisma client for production (required for runtime)
-RUN npx prisma generate
+# Copy generated Prisma client from builder (avoid npx downloading incompatible version)
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
 # Set ownership
 RUN chown -R sahool:sahool /app

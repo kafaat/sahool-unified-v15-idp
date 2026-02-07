@@ -15,6 +15,9 @@ FROM node:${NODE_VERSION}-alpine AS builder
 
 WORKDIR /app
 
+# Install OpenSSL 1.1 compatibility for Prisma
+RUN apk add --no-cache openssl1.1-compat
+
 # Upgrade npm to latest version for better dependency resolution
 RUN npm install -g npm@11.7.0
 
@@ -62,8 +65,8 @@ WORKDIR /app
 RUN addgroup --system sahool && \
     adduser --system --ingroup sahool --disabled-password --gecos "" sahool
 
-# Install curl for healthcheck
-RUN apk add --no-cache curl ca-certificates
+# Install curl for healthcheck and OpenSSL 1.1 for Prisma
+RUN apk add --no-cache curl ca-certificates openssl1.1-compat
 
 # Upgrade npm to latest version
 RUN npm install -g npm@11.7.0

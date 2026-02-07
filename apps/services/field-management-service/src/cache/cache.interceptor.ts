@@ -74,10 +74,12 @@ export class CacheInterceptor implements NestInterceptor {
     // Try to get from cache
     const cached = await this.cacheService.get<any>(cacheKey);
     if (cached) {
-      // Add cache header
+      // Add cache header (check if headers not already sent)
       const response = context.switchToHttp().getResponse();
-      response.setHeader("X-Cache", "HIT");
-      response.setHeader("X-Cache-Key", cacheKey);
+      if (!response.headersSent) {
+        response.setHeader("X-Cache", "HIT");
+        response.setHeader("X-Cache-Key", cacheKey);
+      }
       return of(cached);
     }
 
@@ -87,8 +89,11 @@ export class CacheInterceptor implements NestInterceptor {
         if (data) {
           await this.cacheService.set(cacheKey, data, ttl);
           const response = context.switchToHttp().getResponse();
-          response.setHeader("X-Cache", "MISS");
-          response.setHeader("X-Cache-Key", cacheKey);
+          // Check if headers not already sent before setting
+          if (!response.headersSent) {
+            response.setHeader("X-Cache", "MISS");
+            response.setHeader("X-Cache-Key", cacheKey);
+          }
         }
       }),
     );

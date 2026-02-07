@@ -21,8 +21,6 @@ COPY apps/services/shared ./shared/
 COPY apps/services/marketplace-service ./marketplace-service/
 
 WORKDIR /workspace/marketplace-service
-RUN npm config set registry https://registry.npmmirror.com
-
 
 # Install dependencies (with retries for network resilience)
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000

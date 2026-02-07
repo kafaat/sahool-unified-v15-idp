@@ -23,7 +23,20 @@ COPY apps/services/chat-service ./chat-service/
 WORKDIR /workspace/chat-service
 
 # Install dependencies (with retries for network resilience)
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Use shell-level retry loop for better handling of network timeouts
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3 4 5; do \
+        echo "Attempt $i: Installing npm dependencies..." && \
+        npm install --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=180000 \
+            --fetch-timeout=300000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done
 
 # Copy prisma schema and generate client
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
@@ -47,8 +60,27 @@ RUN apk add --no-cache curl openssl openssl-dev
 # NOTE: Using npm ci for deterministic builds with package-lock.json
 COPY --from=builder /workspace/chat-service/package.json ./
 COPY --from=builder /workspace/chat-service/package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing production dependencies..." && \
+        (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=180000 \
+            --fetch-timeout=300000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund || \
+        npm install --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=180000 \
+            --fetch-timeout=300000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund) && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done
 
 # Copy prisma schema (for migrations)
 COPY --from=builder /workspace/chat-service/prisma ./prisma/

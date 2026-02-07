@@ -24,7 +24,8 @@ android {
     defaultConfig {
         applicationId = "io.sahool.atmosphere"
         // Sensors and other plugins require API 23+
-        minSdk = 23
+        // speech_to_text requires API 24+ for full compatibility
+        minSdk = 24
         targetSdk = 35  // Target Android 15 for latest features
         versionCode = flutter.versionCode
         versionName = flutter.versionName

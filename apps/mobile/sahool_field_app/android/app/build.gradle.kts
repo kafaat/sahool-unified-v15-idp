@@ -37,7 +37,8 @@ android {
         applicationId = "io.sahool.field"
         // Camera, mobile_scanner, and geolocator require API 23+
         // SQLCipher and biometric auth also benefit from API 23+
-        minSdk = 23
+        // flutter_tts requires API 24+ for full compatibility
+        minSdk = 24
         targetSdk = 35  // Target Android 15 for latest features
         versionCode = flutter.versionCode
         versionName = flutter.versionName

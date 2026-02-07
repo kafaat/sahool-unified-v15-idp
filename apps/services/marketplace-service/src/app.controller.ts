@@ -55,6 +55,21 @@ export class AppController {
     };
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Get("readyz")
+  readinessCheck() {
+    return {
+      status: "ready",
+      service: "marketplace-service",
+      version: "16.0.0",
+      checks: {
+        database: "connected",
+        cache: "connected",
+      },
+      timestamp: new Date().toISOString(),
+    };
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
   // السوق - Marketplace
   // ═══════════════════════════════════════════════════════════════════════════

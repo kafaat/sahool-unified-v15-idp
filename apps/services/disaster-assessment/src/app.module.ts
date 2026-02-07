@@ -6,6 +6,7 @@ import { Module, OnModuleInit } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { PrismaModule } from "./prisma/prisma.module";
+import { HealthController } from "./health/health.controller";
 import { DisasterController } from "./disaster/disaster.controller";
 import { DisasterService } from "./disaster/disaster.service";
 import { AlertController } from "./alert/alert.controller";
@@ -35,7 +36,7 @@ import { AlertService } from "./alert/alert.service";
       },
     ]),
   ],
-  controllers: [DisasterController, AlertController],
+  controllers: [HealthController, DisasterController, AlertController],
   providers: [
     DisasterService,
     AlertService,
